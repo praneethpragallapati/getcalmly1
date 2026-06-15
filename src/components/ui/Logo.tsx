@@ -22,31 +22,33 @@ export default function Logo({
   const tagColor = onDark ? 'rgba(255,255,255,.6)' : '#1C2B3A'
 
   const wordmark = (
-    <span style={{ display: 'inline-flex', alignItems: 'flex-end', gap: '1px', overflow: 'visible', lineHeight: 1 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'flex-end', gap: '2px', overflow: 'visible', lineHeight: 1 }}>
       <span
         style={{
           fontFamily: "'Big Shoulders Display',sans-serif",
-          fontWeight: 300,
-          fontSize: `${Math.round(size * 0.26)}px`,
+          fontWeight: 400,
+          fontSize: `${Math.round(size * 0.42)}px`,
           color: getColor,
-          letterSpacing: '.5px',
-          paddingBottom: `${Math.round(size * 0.17)}px`,
+          letterSpacing: '1px',
+          paddingBottom: `${Math.round(size * 0.08)}px`,
           lineHeight: 1,
         }}
       >
         get
       </span>
+      {/* scaleX leaves dead layout space; negative marginRight corrects it */}
       <span
         style={{
           fontFamily: "'Big Shoulders Display',sans-serif",
           fontWeight: 900,
           fontSize: `${size}px`,
           color: '#C8553D',
-          letterSpacing: '-2px',
+          letterSpacing: '-1px',
           lineHeight: 1,
           display: 'inline-block',
-          transform: 'scaleX(.63)',
+          transform: 'scaleX(.65)',
           transformOrigin: 'left bottom',
+          marginRight: `${-Math.round(size * 2.2)}px`,
         }}
       >
         Calmly.

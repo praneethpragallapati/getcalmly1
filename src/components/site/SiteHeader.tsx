@@ -19,7 +19,7 @@ export default function SiteHeader() {
 
   return (
     <nav id="nav">
-      <Logo size={24} href="/" />
+      <Logo size={30} href="/" tagline={false} />
 
       <ul className="nav-links">
         {NAV.map((n) => (

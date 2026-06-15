@@ -6,7 +6,7 @@ export default function SiteFooter() {
     <footer>
       <div className="foot-grid">
         <div className="foot-brand">
-          <Logo size={26} href="/" onDark />
+          <Logo size={36} href="/" onDark />
           <p style={{ marginTop: 16 }}>
             Mental wellness reimagined. Clinical-grade therapy, AI insights, and a community that
             understands — all in one calm, trustworthy space.
