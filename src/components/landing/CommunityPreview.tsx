@@ -19,16 +19,16 @@ const posts = [
 
 export default function CommunityPreview() {
   return (
-    <section className="py-20 bg-[#F9F5F0]">
+    <section className="py-20 bg-[#FFF8F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <span className="inline-block text-xs font-semibold text-[#0D5C63] bg-[#e0f7fa] px-3 py-1 rounded-full mb-4">
+            <span className="inline-block text-xs font-semibold text-[#C8553D] bg-[#FDEAE6] px-3 py-1 rounded-full mb-4">
               A no-judgement space
             </span>
             <h2
               style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-              className="text-4xl md:text-5xl font-black text-[#1a1a2e] mb-4"
+              className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-4"
             >
               You’re Not Alone in This
             </h2>
@@ -48,7 +48,7 @@ export default function CommunityPreview() {
             </div>
             <Link
               href="/community"
-              className="inline-block bg-[#0D5C63] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0a4a50] transition"
+              className="inline-block bg-[#C8553D] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A8432D] transition"
             >
               Explore the Community
             </Link>

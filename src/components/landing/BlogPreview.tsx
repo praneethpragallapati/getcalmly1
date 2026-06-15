@@ -6,21 +6,21 @@ const posts = [
     author: 'Dr. Priya Sharma',
     category: 'Anxiety',
     read: '5 min read',
-    accent: '#0D5C63',
+    accent: '#C8553D',
   },
   {
     title: 'How to Talk to Your Child About Mental Health',
     author: 'Dr. Sneha Patil',
     category: 'Parenting',
     read: '6 min read',
-    accent: '#6BAF92',
+    accent: '#3D9E72',
   },
   {
     title: 'Burnout vs. Stress: Know the Difference',
     author: 'Dr. Rahul Menon',
     category: 'Workplace',
     read: '4 min read',
-    accent: '#8B9DC3',
+    accent: '#C9973A',
   },
 ]
 
@@ -32,13 +32,13 @@ export default function BlogPreview() {
           <div>
             <h2
               style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-              className="text-4xl md:text-5xl font-black text-[#1a1a2e]"
+              className="text-4xl md:text-5xl font-black text-[#1C2B3A]"
             >
               From Our Therapists
             </h2>
             <p className="text-gray-600 mt-2">Evidence-based insights, written by professionals.</p>
           </div>
-          <Link href="/blog" className="hidden sm:inline text-[#0D5C63] font-semibold hover:underline">
+          <Link href="/blog" className="hidden sm:inline text-[#C8553D] font-semibold hover:underline">
             View all articles →
           </Link>
         </div>
@@ -48,7 +48,7 @@ export default function BlogPreview() {
             <Link
               key={p.title}
               href="/blog"
-              className="group bg-[#F9F5F0] rounded-2xl overflow-hidden hover:shadow-lg transition"
+              className="group bg-[#FFF8F5] rounded-2xl overflow-hidden hover:shadow-lg transition"
             >
               <div className="h-40 flex items-center justify-center" style={{ background: p.accent }}>
                 <span className="text-white/90 text-sm font-semibold uppercase tracking-wider">
@@ -56,7 +56,7 @@ export default function BlogPreview() {
                 </span>
               </div>
               <div className="p-6">
-                <h3 className="font-bold text-lg text-[#1a1a2e] group-hover:text-[#0D5C63] mb-3 leading-snug">
+                <h3 className="font-bold text-lg text-[#1C2B3A] group-hover:text-[#C8553D] mb-3 leading-snug">
                   {p.title}
                 </h3>
                 <p className="text-sm text-gray-500">

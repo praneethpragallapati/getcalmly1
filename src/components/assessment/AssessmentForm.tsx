@@ -257,11 +257,11 @@ export default function AssessmentForm({ type }: { type: string }) {
   }
 
   return (
-    <section className="min-h-[80vh] bg-[#F9F5F0] py-16 px-4">
+    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
       {showEmergency && <EmergencyModal onClose={() => setShowEmergency(false)} />}
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-2 text-sm font-semibold text-[#0D5C63]">
+          <div className="flex items-center justify-between mb-2 text-sm font-semibold text-[#C8553D]">
             <span>Step 3 of 3 — Pre-assessment</span>
             <span>
               {step + 1} / {questions.length}
@@ -269,7 +269,7 @@ export default function AssessmentForm({ type }: { type: string }) {
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#0D5C63] rounded-full transition-all"
+              className="h-full bg-[#C8553D] rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -281,7 +281,7 @@ export default function AssessmentForm({ type }: { type: string }) {
               Confidential safety check
             </span>
           )}
-          <h2 className="text-2xl font-bold text-[#1a1a2e] mb-6">{q.text}</h2>
+          <h2 className="text-2xl font-bold text-[#1C2B3A] mb-6">{q.text}</h2>
 
           {q.type === 'scale' && (
             <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
@@ -291,8 +291,8 @@ export default function AssessmentForm({ type }: { type: string }) {
                   onClick={() => setSingle(label)}
                   className={`px-3 py-4 rounded-xl text-sm font-medium border-2 transition ${
                     answers[q.id] === label
-                      ? 'border-[#0D5C63] bg-[#e0f7fa] text-[#0D5C63]'
-                      : 'border-gray-200 hover:border-[#0D5C63] text-gray-700'
+                      ? 'border-[#C8553D] bg-[#FDEAE6] text-[#C8553D]'
+                      : 'border-gray-200 hover:border-[#C8553D] text-gray-700'
                   }`}
                 >
                   {label}
@@ -309,8 +309,8 @@ export default function AssessmentForm({ type }: { type: string }) {
                   onClick={() => setSingle(opt)}
                   className={`w-full text-left px-5 py-4 rounded-xl border-2 transition ${
                     answers[q.id] === opt
-                      ? 'border-[#0D5C63] bg-[#e0f7fa] text-[#0D5C63] font-semibold'
-                      : 'border-gray-200 hover:border-[#0D5C63] text-gray-700'
+                      ? 'border-[#C8553D] bg-[#FDEAE6] text-[#C8553D] font-semibold'
+                      : 'border-gray-200 hover:border-[#C8553D] text-gray-700'
                   }`}
                 >
                   {opt}
@@ -330,13 +330,13 @@ export default function AssessmentForm({ type }: { type: string }) {
                     onClick={() => toggleMulti(opt)}
                     className={`w-full text-left px-5 py-4 rounded-xl border-2 transition flex items-center gap-3 ${
                       selected
-                        ? 'border-[#0D5C63] bg-[#e0f7fa] text-[#0D5C63] font-semibold'
-                        : 'border-gray-200 hover:border-[#0D5C63] text-gray-700'
+                        ? 'border-[#C8553D] bg-[#FDEAE6] text-[#C8553D] font-semibold'
+                        : 'border-gray-200 hover:border-[#C8553D] text-gray-700'
                     }`}
                   >
                     <span
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center text-xs ${
-                        selected ? 'bg-[#0D5C63] border-[#0D5C63] text-white' : 'border-gray-300'
+                        selected ? 'bg-[#C8553D] border-[#C8553D] text-white' : 'border-gray-300'
                       }`}
                     >
                       {selected ? '✓' : ''}
@@ -351,14 +351,14 @@ export default function AssessmentForm({ type }: { type: string }) {
           <div className="flex items-center justify-between mt-8">
             <button
               onClick={() => (step === 0 ? router.push('/assess/step2') : setStep((s) => s - 1))}
-              className="text-sm text-gray-500 hover:text-[#0D5C63]"
+              className="text-sm text-gray-500 hover:text-[#C8553D]"
             >
               ← Back
             </button>
             <button
               onClick={next}
               disabled={!isAnswered()}
-              className="bg-[#0D5C63] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#0a4a50] transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-[#C8553D] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#A8432D] transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {step === questions.length - 1 ? 'See My Results' : 'Next'}
             </button>

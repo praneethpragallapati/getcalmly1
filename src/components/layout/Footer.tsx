@@ -1,12 +1,13 @@
 import Link from 'next/link'
+import Logo from '@/components/ui/Logo'
 
 export default function Footer() {
   return (
-    <footer className="bg-[#052e32] text-gray-300 pt-16 pb-8">
+    <footer className="bg-[#1C2B3A] text-gray-300 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-3" style={{fontFamily:"'Big Shoulders Display',sans-serif"}}>getCalmly<span className="text-[#6BAF92]">.</span></h2>
+            <div className="mb-3"><Logo size={30} onDark /></div>
             <p className="text-sm text-gray-400">Mental health support that understands you.</p>
             <p className="text-sm text-gray-400 mt-2">RCI-verified therapists. Your language. Your budget.</p>
           </div>
@@ -42,7 +43,7 @@ export default function Footer() {
             <p className="text-xs text-gray-500 mt-3">All helplines available 24/7</p>
           </div>
         </div>
-        <div className="border-t border-[#0a4a50] pt-6 text-center text-xs text-gray-500">
+        <div className="border-t border-[#A8432D] pt-6 text-center text-xs text-gray-500">
           © 2026 GetCalmly. All rights reserved. | RCI Verified Platform | DPDP Compliant
         </div>
       </div>

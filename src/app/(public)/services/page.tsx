@@ -88,12 +88,12 @@ const sections = [
 
 export default function ServicesPage() {
   return (
-    <div className="bg-[#F9F5F0]">
+    <div className="bg-[#FFF8F5]">
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-4xl md:text-6xl font-black text-[#1a1a2e] mb-4"
+            className="text-4xl md:text-6xl font-black text-[#1C2B3A] mb-4"
           >
             Our Services
           </h1>
@@ -103,7 +103,7 @@ export default function ServicesPage() {
           </p>
           <Link
             href="/assess"
-            className="inline-block mt-8 bg-[#0D5C63] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#0a4a50] transition shadow-lg"
+            className="inline-block mt-8 bg-[#C8553D] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#A8432D] transition shadow-lg"
           >
             Find My Match →
           </Link>
@@ -114,7 +114,7 @@ export default function ServicesPage() {
         <div className="max-w-5xl mx-auto space-y-6">
           {sections.map((s) => (
             <div key={s.title} className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-              <h2 className="text-2xl font-bold text-[#0D5C63] mb-4">{s.title}</h2>
+              <h2 className="text-2xl font-bold text-[#C8553D] mb-4">{s.title}</h2>
               {s.groups ? (
                 <div className="grid md:grid-cols-2 gap-6">
                   {s.groups.map((g) => (
@@ -123,7 +123,7 @@ export default function ServicesPage() {
                       <ul className="space-y-1">
                         {g.items.map((it) => (
                           <li key={it} className="text-gray-600 text-sm flex gap-2">
-                            <span className="text-[#6BAF92]">•</span> {it}
+                            <span className="text-[#3D9E72]">•</span> {it}
                           </li>
                         ))}
                       </ul>
@@ -134,7 +134,7 @@ export default function ServicesPage() {
                 <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-1">
                   {s.items!.map((it) => (
                     <li key={it} className="text-gray-600 text-sm flex gap-2">
-                      <span className="text-[#6BAF92]">•</span> {it}
+                      <span className="text-[#3D9E72]">•</span> {it}
                     </li>
                   ))}
                 </ul>

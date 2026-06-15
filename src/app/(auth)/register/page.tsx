@@ -6,7 +6,7 @@ export default function RegisterPage() {
     <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-8">
       <h1
         style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-        className="text-3xl font-black text-[#1a1a2e] mb-1"
+        className="text-3xl font-black text-[#1C2B3A] mb-1"
       >
         Create your account
       </h1>
@@ -25,7 +25,7 @@ export default function RegisterPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
           <input
             type="text"
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0D5C63]"
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#C8553D]"
             placeholder="Your name"
           />
         </div>
@@ -33,7 +33,7 @@ export default function RegisterPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <input
             type="email"
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0D5C63]"
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#C8553D]"
             placeholder="you@example.com"
           />
         </div>
@@ -41,15 +41,15 @@ export default function RegisterPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
           <input
             type="tel"
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0D5C63]"
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#C8553D]"
             placeholder="+91"
           />
         </div>
         <label className="flex items-start gap-2 text-sm text-gray-600">
-          <input type="checkbox" className="mt-1 accent-[#0D5C63]" />
+          <input type="checkbox" className="mt-1 accent-[#C8553D]" />
           <span>
             I agree to the{' '}
-            <Link href="/safety" className="text-[#0D5C63] underline">
+            <Link href="/safety" className="text-[#C8553D] underline">
               Safety & Ethics
             </Link>{' '}
             policy and consent to data processing under the DPDP Act 2023.
@@ -57,7 +57,7 @@ export default function RegisterPage() {
         </label>
         <button
           type="button"
-          className="w-full bg-[#0D5C63] text-white py-3 rounded-lg font-semibold hover:bg-[#0a4a50] transition"
+          className="w-full bg-[#C8553D] text-white py-3 rounded-lg font-semibold hover:bg-[#A8432D] transition"
         >
           Create Account
         </button>
@@ -65,7 +65,7 @@ export default function RegisterPage() {
 
       <p className="text-sm text-gray-500 text-center mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-[#0D5C63] font-semibold">
+        <Link href="/login" className="text-[#C8553D] font-semibold">
           Sign in
         </Link>
       </p>

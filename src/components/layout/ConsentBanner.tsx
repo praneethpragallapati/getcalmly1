@@ -17,7 +17,7 @@ export default function ConsentBanner() {
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-gray-600">
           We use cookies to improve your experience. By continuing, you agree to our{' '}
-          <Link href="/privacy" className="text-[#0D5C63] underline">Privacy Policy</Link>.
+          <Link href="/privacy" className="text-[#C8553D] underline">Privacy Policy</Link>.
         </p>
         <div className="flex gap-3 flex-shrink-0">
           <button
@@ -28,7 +28,7 @@ export default function ConsentBanner() {
           </button>
           <button
             onClick={() => { localStorage.setItem('cookieConsent', 'accepted'); setVisible(false) }}
-            className="text-sm bg-[#0D5C63] text-white px-4 py-2 rounded-lg hover:bg-[#0a4a50]"
+            className="text-sm bg-[#C8553D] text-white px-4 py-2 rounded-lg hover:bg-[#A8432D]"
           >
             Accept
           </button>

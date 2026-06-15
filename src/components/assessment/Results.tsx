@@ -14,7 +14,7 @@ type Result = {
 
 const severityStyles: Record<string, { bg: string; text: string; desc: string }> = {
   Minimal: {
-    bg: '#e8f5ee',
+    bg: '#E5F4EE',
     text: '#2f7a4f',
     desc: 'Your responses suggest minimal distress. A few sessions or self-help tools may help you stay well.',
   },
@@ -45,12 +45,12 @@ export default function Results() {
 
   if (!result) {
     return (
-      <section className="min-h-[70vh] bg-[#F9F5F0] py-20 px-4 flex items-center justify-center">
+      <section className="min-h-[70vh] bg-[#FFF8F5] py-20 px-4 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 mb-4">We couldn&apos;t find your assessment.</p>
           <Link
             href="/assess"
-            className="bg-[#0D5C63] text-white px-6 py-3 rounded-xl font-semibold"
+            className="bg-[#C8553D] text-white px-6 py-3 rounded-xl font-semibold"
           >
             Start Assessment
           </Link>
@@ -67,11 +67,11 @@ export default function Results() {
   const matched = matchTherapists(result, lang)
 
   return (
-    <section className="min-h-[80vh] bg-[#F9F5F0] py-16 px-4">
+    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
       <div className="max-w-4xl mx-auto">
         <h1
           style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-          className="text-4xl md:text-5xl font-black text-[#1a1a2e] mb-3"
+          className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-3"
         >
           Your Assessment Results
         </h1>
@@ -98,7 +98,7 @@ export default function Results() {
                 {result.concerns.map((c) => (
                   <span
                     key={c}
-                    className="bg-[#e0f7fa] text-[#0D5C63] text-sm font-medium px-3 py-1 rounded-full"
+                    className="bg-[#FDEAE6] text-[#C8553D] text-sm font-medium px-3 py-1 rounded-full"
                   >
                     {c}
                   </span>
@@ -129,7 +129,7 @@ export default function Results() {
           </div>
         )}
 
-        <h2 className="text-2xl font-bold text-[#1a1a2e] mb-2">
+        <h2 className="text-2xl font-bold text-[#1C2B3A] mb-2">
           Recommended therapists for you
         </h2>
         <p className="text-gray-600 mb-6">
@@ -147,12 +147,12 @@ export default function Results() {
                   {t.initials}
                 </div>
                 <div>
-                  <p className="font-bold text-[#1a1a2e] leading-tight">{t.name}</p>
+                  <p className="font-bold text-[#1C2B3A] leading-tight">{t.name}</p>
                   <p className="text-xs text-gray-500">{t.designation}</p>
                 </div>
               </div>
               {t.rciVerified && (
-                <span className="inline-block w-fit text-xs font-semibold text-[#0D5C63] bg-[#e0f7fa] px-2 py-0.5 rounded-full mb-3">
+                <span className="inline-block w-fit text-xs font-semibold text-[#C8553D] bg-[#FDEAE6] px-2 py-0.5 rounded-full mb-3">
                   ✓ RCI Verified
                 </span>
               )}
@@ -168,10 +168,10 @@ export default function Results() {
                 {t.yearsExp} yrs exp • ⭐ {t.rating}
               </p>
               <div className="mt-auto flex items-center justify-between">
-                <span className="font-bold text-[#0D5C63]">₹{t.sessionFee}</span>
+                <span className="font-bold text-[#C8553D]">₹{t.sessionFee}</span>
                 <Link
                   href="/login"
-                  className="bg-[#0D5C63] text-white text-sm px-4 py-2 rounded-lg font-semibold hover:bg-[#0a4a50] transition"
+                  className="bg-[#C8553D] text-white text-sm px-4 py-2 rounded-lg font-semibold hover:bg-[#A8432D] transition"
                 >
                   Book Session
                 </Link>
@@ -180,7 +180,7 @@ export default function Results() {
           ))}
         </div>
 
-        <div className="bg-[#0D5C63] rounded-2xl p-8 text-center text-white">
+        <div className="bg-[#C8553D] rounded-2xl p-8 text-center text-white">
           <h3
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
             className="text-3xl font-black mb-2"
@@ -192,7 +192,7 @@ export default function Results() {
           </p>
           <Link
             href="/register"
-            className="inline-block bg-white text-[#0D5C63] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
+            className="inline-block bg-white text-[#C8553D] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
           >
             Book Your First Session
           </Link>

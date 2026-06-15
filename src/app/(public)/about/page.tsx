@@ -16,12 +16,12 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-[#F9F5F0]">
+    <div className="bg-[#FFF8F5]">
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-4xl md:text-6xl font-black text-[#1a1a2e] mb-6"
+            className="text-4xl md:text-6xl font-black text-[#1C2B3A] mb-6"
           >
             Mental health support that understands you
           </h1>
@@ -36,7 +36,7 @@ export default function AboutPage() {
       <section className="pb-12 px-4">
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-[#0D5C63] mb-3">The Problem</h2>
+            <h2 className="text-2xl font-bold text-[#C8553D] mb-3">The Problem</h2>
             <p className="text-gray-600">
               India faces a mental health treatment gap exceeding 60%. With roughly 0.75 psychiatrists
               per 100,000 people and specialists concentrated in major cities, millions in Tier-2 and
@@ -45,7 +45,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-[#0D5C63] mb-3">Our Approach</h2>
+            <h2 className="text-2xl font-bold text-[#C8553D] mb-3">Our Approach</h2>
             <p className="text-gray-600">
               A strictly-vetted network of RCI-licensed professionals, a “vibe-match” that pairs you
               on cultural fit and language — not just diagnosis — and a hybrid emergency protocol so
@@ -59,7 +59,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto">
           <h2
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-3xl md:text-4xl font-black text-[#1a1a2e] text-center mb-10"
+            className="text-3xl md:text-4xl font-black text-[#1C2B3A] text-center mb-10"
           >
             What We Stand For
           </h2>
@@ -67,7 +67,7 @@ export default function AboutPage() {
             {values.map((v) => (
               <div key={v.title} className="bg-white rounded-2xl p-6 shadow-sm text-center">
                 <div className="text-4xl mb-3">{v.icon}</div>
-                <h3 className="font-bold text-[#1a1a2e] mb-2">{v.title}</h3>
+                <h3 className="font-bold text-[#1C2B3A] mb-2">{v.title}</h3>
                 <p className="text-sm text-gray-500">{v.desc}</p>
               </div>
             ))}
@@ -76,7 +76,7 @@ export default function AboutPage() {
       </section>
 
       <section className="pb-24 px-4">
-        <div className="max-w-3xl mx-auto bg-[#0D5C63] rounded-3xl p-10 text-center text-white">
+        <div className="max-w-3xl mx-auto bg-[#C8553D] rounded-3xl p-10 text-center text-white">
           <h2
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
             className="text-3xl font-black mb-3"
@@ -88,7 +88,7 @@ export default function AboutPage() {
           </p>
           <Link
             href="/assess"
-            className="inline-block bg-white text-[#0D5C63] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
+            className="inline-block bg-white text-[#C8553D] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
           >
             Begin Your Assessment
           </Link>

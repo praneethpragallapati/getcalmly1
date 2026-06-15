@@ -6,7 +6,7 @@ export default function LoginPage() {
     <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-8">
       <h1
         style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-        className="text-3xl font-black text-[#1a1a2e] mb-1"
+        className="text-3xl font-black text-[#1C2B3A] mb-1"
       >
         Welcome back
       </h1>
@@ -25,13 +25,13 @@ export default function LoginPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Email or phone</label>
           <input
             type="text"
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0D5C63]"
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#C8553D]"
             placeholder="you@example.com"
           />
         </div>
         <button
           type="button"
-          className="w-full bg-[#0D5C63] text-white py-3 rounded-lg font-semibold hover:bg-[#0a4a50] transition"
+          className="w-full bg-[#C8553D] text-white py-3 rounded-lg font-semibold hover:bg-[#A8432D] transition"
         >
           Send OTP
         </button>
@@ -39,7 +39,7 @@ export default function LoginPage() {
 
       <p className="text-sm text-gray-500 text-center mt-6">
         Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-[#0D5C63] font-semibold">
+        <Link href="/register" className="text-[#C8553D] font-semibold">
           Register
         </Link>
       </p>

@@ -9,7 +9,7 @@ const therapists = [
     languages: ['Hindi', 'English'],
     fee: 2000,
     specializations: ['Anxiety', 'Depression', 'OCD'],
-    color: '#0D5C63',
+    color: '#C8553D',
   },
   {
     name: 'Dr. Rahul Menon',
@@ -19,7 +19,7 @@ const therapists = [
     languages: ['Malayalam', 'English', 'Hindi'],
     fee: 1500,
     specializations: ['Stress', 'Trauma', 'Burnout'],
-    color: '#6BAF92',
+    color: '#3D9E72',
   },
   {
     name: 'Dr. Ananya Iyer',
@@ -29,7 +29,7 @@ const therapists = [
     languages: ['Tamil', 'English'],
     fee: 2500,
     specializations: ['Mood Disorders', 'Bipolar', 'Schizophrenia'],
-    color: '#8B9DC3',
+    color: '#C9973A',
   },
 ]
 
@@ -39,7 +39,7 @@ export default function TherapistCards() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <h2
-            className="text-4xl md:text-5xl font-black text-[#1a1a2e] mb-4"
+            className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-4"
             style={{fontFamily:"'Big Shoulders Display',sans-serif"}}
           >
             Meet Our Therapists
@@ -48,7 +48,7 @@ export default function TherapistCards() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {therapists.map((t) => (
-            <div key={t.name} className="bg-[#F9F5F0] rounded-2xl p-6 flex flex-col">
+            <div key={t.name} className="bg-[#FFF8F5] rounded-2xl p-6 flex flex-col">
               <div className="flex items-start gap-4 mb-4">
                 <div
                   className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
@@ -57,9 +57,9 @@ export default function TherapistCards() {
                   {t.initials}
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#1a1a2e]">{t.name}</h3>
+                  <h3 className="font-bold text-[#1C2B3A]">{t.name}</h3>
                   <p className="text-sm text-gray-500">{t.title}</p>
-                  <span className="inline-flex items-center gap-1 text-xs bg-[#e0f7fa] text-[#0D5C63] font-semibold px-2 py-0.5 rounded-full mt-1">
+                  <span className="inline-flex items-center gap-1 text-xs bg-[#FDEAE6] text-[#C8553D] font-semibold px-2 py-0.5 rounded-full mt-1">
                     ✓ RCI Verified
                   </span>
                 </div>
@@ -72,13 +72,13 @@ export default function TherapistCards() {
               <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
                 <span>{t.years} yrs exp</span>
                 <span>{t.languages.join(' / ')}</span>
-                <span className="font-semibold text-[#0D5C63]">₹{t.fee.toLocaleString()}/session</span>
+                <span className="font-semibold text-[#C8553D]">₹{t.fee.toLocaleString()}/session</span>
               </div>
               <div className="flex gap-2 mt-auto">
-                <Link href="/therapists" className="flex-1 border border-[#0D5C63] text-[#0D5C63] text-sm text-center py-2 rounded-lg hover:bg-[#e0f7fa] transition">
+                <Link href="/therapists" className="flex-1 border border-[#C8553D] text-[#C8553D] text-sm text-center py-2 rounded-lg hover:bg-[#FDEAE6] transition">
                   View Profile
                 </Link>
-                <Link href="/assess" className="flex-1 bg-[#0D5C63] text-white text-sm text-center py-2 rounded-lg hover:bg-[#0a4a50] transition">
+                <Link href="/assess" className="flex-1 bg-[#C8553D] text-white text-sm text-center py-2 rounded-lg hover:bg-[#A8432D] transition">
                   Book Session
                 </Link>
               </div>

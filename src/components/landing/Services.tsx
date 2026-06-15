@@ -45,11 +45,11 @@ export default function Services() {
   const [expanded, setExpanded] = useState<number | null>(null)
 
   return (
-    <section className="py-20 bg-[#F9F5F0]">
+    <section className="py-20 bg-[#FFF8F5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <h2
-            className="text-4xl md:text-5xl font-black text-[#1a1a2e] mb-4"
+            className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-4"
             style={{fontFamily:"'Big Shoulders Display',sans-serif"}}
           >
             Our Services
@@ -60,30 +60,30 @@ export default function Services() {
           {services.map((svc, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl p-6 cursor-pointer border-2 border-transparent hover:border-[#0D5C63] transition shadow-sm hover:shadow-md"
+              className="bg-white rounded-2xl p-6 cursor-pointer border-2 border-transparent hover:border-[#C8553D] transition shadow-sm hover:shadow-md"
               onClick={() => setExpanded(expanded === i ? null : i)}
             >
               <div className="text-3xl mb-3">{svc.icon}</div>
-              <h3 className="text-xl font-bold text-[#1a1a2e] mb-1">{svc.title}</h3>
+              <h3 className="text-xl font-bold text-[#1C2B3A] mb-1">{svc.title}</h3>
               <p className="text-gray-500 text-sm mb-3">{svc.desc}</p>
               {expanded === i && (
                 <ul className="mt-3 space-y-1">
                   {svc.subs.map((sub, j) => (
-                    <li key={j} className="text-sm text-[#0D5C63] flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-[#6BAF92] rounded-full flex-shrink-0"></span>
+                    <li key={j} className="text-sm text-[#C8553D] flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-[#3D9E72] rounded-full flex-shrink-0"></span>
                       {sub}
                     </li>
                   ))}
                 </ul>
               )}
-              <button className="mt-3 text-xs text-[#0D5C63] font-medium">
+              <button className="mt-3 text-xs text-[#C8553D] font-medium">
                 {expanded === i ? '▲ Less' : '▼ View areas'}
               </button>
             </div>
           ))}
         </div>
         <div className="text-center mt-10">
-          <Link href="/services" className="text-[#0D5C63] font-semibold hover:underline">
+          <Link href="/services" className="text-[#C8553D] font-semibold hover:underline">
             View All Services →
           </Link>
         </div>

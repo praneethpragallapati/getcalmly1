@@ -16,12 +16,12 @@ const helplines = [
 
 export default function SafetyPage() {
   return (
-    <div className="bg-[#F9F5F0]">
+    <div className="bg-[#FFF8F5]">
       <section className="py-16 px-4">
         <div className="max-w-3xl mx-auto">
           <h1
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-4xl md:text-5xl font-black text-[#1a1a2e] mb-4"
+            className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-4"
           >
             Safety & Ethics
           </h1>
@@ -83,7 +83,7 @@ export default function SafetyPage() {
             <Block title="Complaints & Grievances">
               We are committed to a fair and prompt grievance process. To raise a concern about a
               professional or your experience, contact us at{' '}
-              <a href="mailto:getcalmly@gmail.com" className="text-[#0D5C63] font-medium">
+              <a href="mailto:getcalmly@gmail.com" className="text-[#C8553D] font-medium">
                 getcalmly@gmail.com
               </a>{' '}
               and our team will respond confidentially.
@@ -104,7 +104,7 @@ export default function SafetyPage() {
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[#0D5C63] mb-2">{title}</h2>
+      <h2 className="text-xl font-bold text-[#C8553D] mb-2">{title}</h2>
       <p className="text-gray-600 text-sm leading-relaxed">{children}</p>
     </div>
   )

@@ -16,7 +16,7 @@ export default function EmergencyModal({ onClose }: { onClose: () => void }) {
           <div className="text-4xl mb-3">🫂</div>
           <h2
             style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-3xl font-black text-[#1a1a2e]"
+            className="text-3xl font-black text-[#1C2B3A]"
           >
             We&apos;re here for you
           </h2>
@@ -33,13 +33,13 @@ export default function EmergencyModal({ onClose }: { onClose: () => void }) {
               href={`tel:${h.tel}`}
               className="flex items-center justify-between bg-[#fdf2f2] hover:bg-[#fbe5e5] rounded-xl px-4 py-3 transition"
             >
-              <span className="font-semibold text-[#1a1a2e]">{h.name}</span>
+              <span className="font-semibold text-[#1C2B3A]">{h.name}</span>
               <span className="font-bold text-[#d9534f]">{h.number}</span>
             </a>
           ))}
         </div>
 
-        <div className="bg-[#e0f7fa] rounded-xl p-4 mb-6 text-sm text-[#0D5C63]">
+        <div className="bg-[#FDEAE6] rounded-xl p-4 mb-6 text-sm text-[#C8553D]">
           Our care team will prioritise your case and connect you with a therapist urgently.
           You can also proceed to the nearest emergency centre. This website is not intended
           for emergency intervention.
@@ -54,7 +54,7 @@ export default function EmergencyModal({ onClose }: { onClose: () => void }) {
           </a>
           <button
             onClick={onClose}
-            className="flex-1 border-2 border-[#0D5C63] text-[#0D5C63] px-6 py-3 rounded-xl font-semibold hover:bg-[#e0f7fa] transition"
+            className="flex-1 border-2 border-[#C8553D] text-[#C8553D] px-6 py-3 rounded-xl font-semibold hover:bg-[#FDEAE6] transition"
           >
             Continue to Booking
           </button>

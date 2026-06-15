@@ -28,7 +28,7 @@ export const therapists: Therapist[] = [
     rating: 4.9,
     reviews: 214,
     rciVerified: true,
-    accent: '#0D5C63',
+    accent: '#C8553D',
   },
   {
     id: 'rahul-menon',
@@ -43,7 +43,7 @@ export const therapists: Therapist[] = [
     rating: 4.8,
     reviews: 156,
     rciVerified: true,
-    accent: '#6BAF92',
+    accent: '#3D9E72',
   },
   {
     id: 'ananya-iyer',
@@ -58,7 +58,7 @@ export const therapists: Therapist[] = [
     rating: 4.9,
     reviews: 302,
     rciVerified: true,
-    accent: '#8B9DC3',
+    accent: '#C9973A',
   },
   {
     id: 'sneha-patil',
@@ -73,7 +73,7 @@ export const therapists: Therapist[] = [
     rating: 4.8,
     reviews: 128,
     rciVerified: true,
-    accent: '#0E7490',
+    accent: '#2E3E50',
   },
   {
     id: 'vikram-reddy',
@@ -88,6 +88,6 @@ export const therapists: Therapist[] = [
     rating: 4.7,
     reviews: 97,
     rciVerified: true,
-    accent: '#4d9970',
+    accent: '#3D9E72',
   },
 ]

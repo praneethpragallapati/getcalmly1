@@ -1,37 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
 @import "tailwindcss";
 
 @theme inline {
-  --color-teal-900: #052e32;
-  --color-teal-800: #0a4a50;
-  --color-teal-700: #0D5C63;
-  --color-teal-600: #0e7490;
-  --color-teal-500: #0EA5E9;
-  --color-teal-400: #38bdf8;
-  --color-teal-100: #e0f7fa;
-  --color-teal-50: #f0fdff;
-  --color-sage-600: #4d9970;
-  --color-sage-500: #6BAF92;
-  --color-sage-400: #86C8A8;
-  --color-sage-300: #a8d8be;
-  --color-sage-100: #e8f5ee;
-  --color-cream: #F9F5F0;
-  --color-lavender-500: #8B9DC3;
-  --color-lavender-200: #c8d3e8;
-  --color-lavender-100: #eef0f7;
+  /* Patient / Landing palette — burnt coral, charcoal, warm white */
+  --color-coral: #C8553D;
+  --color-coral-d: #A8432D;
+  --color-coral-l: #E8896F;
+  --color-coral-pale: #FDEAE6;
+  --color-charcoal: #1C2B3A;
+  --color-charcoal-m: #2E3E50;
+  --color-charcoal-l: #5A6A7A;
+  --color-bg: #FFF8F5;
+  --color-bg-warm: #FAF5F0;
+  --color-gray-soft: #8E9EAE;
+  --color-gray-line: #EDECEA;
+  /* Doctor accent (green) + admin accent (purple) for later sections */
+  --color-green: #3D9E72;
+  --color-green-pale: #E5F4EE;
+  --color-gold: #C9973A;
+  --color-purple: #6D5BD0;
+  --color-purple-pale: #ECE9FB;
   --font-display: 'Big Shoulders Display', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 :root {
   --font-display: 'Big Shoulders Display', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: #F9F5F0;
-  color: #1a1a2e;
+  background-color: #FFF8F5;
+  color: #1C2B3A;
+  overflow-x: hidden;
 }
 
 .font-display {

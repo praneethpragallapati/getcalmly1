@@ -38,20 +38,20 @@ export default function AssessmentStep1() {
   }
 
   return (
-    <section className="min-h-[80vh] bg-[#F9F5F0] py-16 px-4">
+    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-[#0D5C63]">
+          <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-[#C8553D]">
             <span>Step 1 of 3</span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-full w-1/3 bg-[#0D5C63] rounded-full transition-all" />
+            <div className="h-full w-1/3 bg-[#C8553D] rounded-full transition-all" />
           </div>
         </div>
 
         <h1
           style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-          className="text-4xl md:text-5xl font-black text-[#1a1a2e] mb-3"
+          className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-3"
         >
           What kind of support are you looking for?
         </h1>
@@ -64,10 +64,10 @@ export default function AssessmentStep1() {
             <button
               key={o.key}
               onClick={() => select(o.key)}
-              className="text-left bg-white border-2 border-transparent hover:border-[#0D5C63] rounded-2xl p-6 shadow-sm hover:shadow-lg transition group"
+              className="text-left bg-white border-2 border-transparent hover:border-[#C8553D] rounded-2xl p-6 shadow-sm hover:shadow-lg transition group"
             >
               <div className="text-4xl mb-3">{o.icon}</div>
-              <h3 className="text-xl font-bold text-[#1a1a2e] mb-1 group-hover:text-[#0D5C63]">
+              <h3 className="text-xl font-bold text-[#1C2B3A] mb-1 group-hover:text-[#C8553D]">
                 {o.title}
               </h3>
               <p className="text-sm text-gray-500">{o.desc}</p>
