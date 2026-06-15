@@ -11,18 +11,18 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="hero-left">
       <div class="hero-pill"><span class="pill-dot"></span>First free session · No card needed</div>
       <h1 class="hero-h1">
-        <span class="light">You've been saying</span>
-        you're fine.<br>
-        <span class="accent">You don't have to.</span>
+        <span class="light">You don't have to</span>
+        figure this out<br>
+        <span class="accent">alone.</span>
       </h1>
-      <p class="hero-sub">getCalmly matches you with an RCI-verified therapist, understands your patterns with AI, and walks forward with you — starting with a free session.</p>
+      <p class="hero-sub">getCalmly matches you with an RCI-verified therapist or NMC-registered psychiatrist, understands your patterns with AI, and walks forward with you — starting with a free session.</p>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Book a free session</a>
         <a href="#how" class="btn-hero outline">See how it works</a>
       </div>
       <div class="hero-trust">
         <span class="ht">First session free</span>
-        <span class="ht">RCI-verified therapists</span>
+        <span class="ht">RCI & NMC-verified clinicians</span>
         <span class="ht">100% confidential</span>
       </div>
     </div>
@@ -111,7 +111,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="how-steps">
       <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">Take the free assessment</div><div class="hs-d">Priya did this at 11 PM, from her couch. 12 clinically validated questions. No login, no judgment, no obligation — just honest answers and an instant wellness profile.</div></div></div>
       <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">We match you — you don't browse</div><div class="hs-d">She didn't scroll through profiles hoping. We matched her with Dr. Ananya — a CBT-trained psychologist who specialises in the exact thing Priya was carrying.</div></div></div>
-      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">Your first session. Free.</div><div class="hs-d">Session one was free. By session three, Priya had words for feelings she'd been suppressing for two years. Between sessions, Calm AI checked in every morning.</div></div></div>
+      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">Your first session. Free.</div><div class="hs-d">Session one was free. By session three, Priya had words for feelings she'd been suppressing for two years. Between sessions, Calm AI was there whenever she reached out — with every session note and journal entry already in context.</div></div></div>
       <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">The data shows what you feel</div><div class="hs-d">Week 8: sleep up 3 nights running, mood trend +18%, journal streak. Priya didn't just feel better — she could see why. That's the difference between therapy and getCalmly.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
@@ -177,7 +177,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <p class="sec-p reveal">Every feature exists because a patient or therapist needed it. Here's what that looks like in practice.</p>
   </div>
   <div class="feat-grid">
-    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — checks in, doesn't check out</div><div class="feat-d">The week Priya went quiet — no journals, sleep slipping — Calm AI didn't nag. It sent one line: "Rough week? I'm here when you're ready." She replied at midnight. That thread became her next session.</div><span class="feat-badge fb-dk">Always on</span></div>
+    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — there when you reach out</div><div class="feat-d">Calm AI doesn't push. But when Priya messaged at midnight — "I don't know how to explain this" — it already knew her last three sessions, her mood dip that week, her journal. That's what made the conversation actually useful.</div><span class="feat-badge fb-dk">Always on</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood, energy & sleep — tracked together</div><div class="feat-d">Priya didn't know her Sundays were the problem until she saw the data. Mood, energy and sleep tracked daily, patterns surfaced weekly — for her and for Dr. Ananya.</div><span class="feat-badge fb-c">Science-backed</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for themes — self-criticism, boundary patterns, progress moments — and adds them to the brief Dr. Ananya reads before every session.</div><span class="feat-badge fb-c">Pattern detection</span></div>
     <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI-verified. Not wellness coaches.</div><div class="feat-d">Every therapist on getCalmly holds a Rehabilitation Council of India registration. Psychiatrists are NMC-registered. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
@@ -631,12 +631,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <!-- ── COMMUNITY ── -->
 <section class="comm-section" id="community">
   <div class="comm-layout">
-    <div class="comm-posts reveal">
-      <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">meera_k</div><div class="cp-grp">Anxiety Warriors</div></div></div><div class="cp-text">I had my first panic attack in months yesterday. Instead of hating myself for it, I used what my therapist taught me and just breathed through it. It passed. That feels like a win I never thought I'd have 🌿</div><div class="cp-acts"><span class="cp-act liked">❤️ 34</span><span class="cp-act">💬 12 replies</span><span class="cp-act">↗ Share</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">arjun_22</div><div class="cp-grp">Work Wellness</div></div></div><div class="cp-text">First time opening up about my burnout out loud. I've been pretending I'm fine for two years. Typing this is terrifying but I'm so tired of carrying it alone 🙌</div><div class="cp-acts"><span class="cp-act">❤️ 58</span><span class="cp-act">💬 7 replies</span><span class="cp-act">↗ Share</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months in and I actually laughed at something today — really laughed. I'd forgotten what that felt like. To anyone in the dark right now: it doesn't stay this heavy forever 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
-    </div>
-    <div class="comm-right reveal d2">
+    <div class="comm-right reveal">
       <div class="sec-label">Community</div>
       <h2 class="sec-h2">You're not alone<br>in <span>any of this.</span></h2>
       <p class="sec-p">A safe, moderated community of people who truly get it. Share, listen, and find support that only comes from lived experience.</p>
@@ -647,6 +642,11 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
       <a href="/community" class="btn-primary">Join the community free →</a>
     </div>
+    <div class="comm-posts reveal d1">
+      <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">meera_k</div><div class="cp-grp">Anxiety Warriors</div></div></div><div class="cp-text">I had my first panic attack in months yesterday. Instead of hating myself for it, I used what my therapist taught me and just breathed through it. It passed. That feels like a win I never thought I'd have 🌿</div><div class="cp-acts"><span class="cp-act liked">❤️ 34</span><span class="cp-act">💬 12 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">arjun_22</div><div class="cp-grp">Work Wellness</div></div></div><div class="cp-text">First time opening up about my burnout out loud. I've been pretending I'm fine for two years. Typing this is terrifying but I'm so tired of carrying it alone 🙌</div><div class="cp-acts"><span class="cp-act">❤️ 58</span><span class="cp-act">💬 7 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months in and I actually laughed at something today — really laughed. I'd forgotten what that felt like. To anyone in the dark right now: it doesn't stay this heavy forever 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
+    </div>
   </div>
 </section>
 
@@ -655,7 +655,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="sec-label reveal">Real people. Real change.</div>
   <h2 class="sec-h2 reveal">You already met Priya.<br><span>Here's who else.</span></h2>
   <div class="t3-grid">
-    <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. Calm AI checked in on the days I forgot to check in on myself.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
+    <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say — it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
     <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Rohan read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
     <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real — and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
   </div>
@@ -673,7 +673,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
     <div class="fcta-trust reveal">
       <span class="fti">🔒 100% confidential</span>
-      <span class="fti">✓ RCI-verified therapists</span>
+      <span class="fti">✓ RCI & NMC-verified clinicians</span>
       <span class="fti">💙 Free to start</span>
       <span class="fti">🇮🇳 Made in India</span>
     </div>
