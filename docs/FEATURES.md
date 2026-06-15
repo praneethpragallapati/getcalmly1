@@ -36,7 +36,7 @@ journal, and a moderated community.
 - **Prisma 6** + **PostgreSQL**
 - **NextAuth v4** (Google OAuth; email/phone OTP planned via MSG91)
 - **Razorpay** (payments, planned), **Google Meet/Calendar** (sessions, planned)
-- **Deployment:** Railway (app + managed Postgres). See §8.
+- **Deployment:** Vercel (app) + Supabase (Postgres) for the MVP. See §8.
 
 ---
 
@@ -119,28 +119,33 @@ Enums: `Role` (PATIENT/THERAPIST/ADMIN), `AppointmentStatus`,
 Models: `User`, `Account`, `Session`, `VerificationToken`, `TherapistProfile`,
 `Assessment`, `Appointment`, `MoodEntry`, `JournalEntry`.
 
-Migration: `prisma/migrations/0001_init`. Applied automatically on Railway via
-`prisma migrate deploy` in the start command (see §8). Hosted on Railway Postgres.
+Migration: `prisma/migrations/0001_init`. Apply with `npm run db:deploy` (see §8).
+Hosted on Supabase Postgres.
 
 ---
 
-## 8. Deployment (Railway)
+## 8. Deployment (Vercel — MVP)
 
-- **Why Railway:** SaaS needs a managed Postgres + always-on Node server in one
-  place; Railway provides both. Config in `railway.json`.
-- **Build:** `npm ci && npm run build` (runs `prisma generate` first).
-- **Start:** `npx prisma migrate deploy && npm run start` — migrations apply on
-  every deploy, so the schema stays in sync without manual SQL.
-- **Database:** Railway-managed **PostgreSQL** (single direct connection — no
-  pooler/`DIRECT_URL` needed). Add the Postgres plugin, then in the app service
-  set `DATABASE_URL = ${{ Postgres.DATABASE_URL }}` so it tracks automatically.
-- **Provision steps:** New Project → Deploy from GitHub repo → Add **PostgreSQL**
-  → set env vars below → deploy. Migrations apply on first boot.
+- **App:** Vercel (Next.js native). Import the GitHub repo; framework preset is
+  auto-detected. Build command `npm run build` (`prisma generate && next build`).
+- **Database:** **Supabase** PostgreSQL (already provisioned). Serverless
+  functions use the **transaction pooler** (`DATABASE_URL`, port 6543,
+  `?pgbouncer=true`); migrations use the **session pooler** (`DIRECT_URL`,
+  port 5432). Neon is an equivalent alternative.
+- **Migrations:** kept out of the build (builds stay DB-free). Apply with
+  `npm run db:deploy` against the prod DB, or paste
+  `prisma/migrations/0001_init/migration.sql` into the Supabase SQL editor.
+- **Provision steps:** Vercel → Add New Project → import repo → add env vars
+  below → Deploy. Run `npm run db:deploy` once to create tables.
+
+### Serverless add-ons (as scope grows beyond MVP)
+Vercel Cron (reminders, weekly AI reports), Inngest/QStash (background jobs),
+Ably/Pusher or Supabase Realtime (live community), Vercel Blob (uploads).
 
 ### Required env vars
-`DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`,
-`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MSG91_AUTH_KEY`,
-`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
+`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`,
+`NEXT_PUBLIC_SITE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`MSG91_AUTH_KEY`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
 
 ---
 

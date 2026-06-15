@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled connection for serverless runtime (Supabase transaction pooler / Neon pooled).
+  url       = env("DATABASE_URL")
+  // Direct connection for `prisma migrate` (Supabase session pooler / Neon direct).
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
