@@ -1,0 +1,709 @@
+// Faithful markup port of getcalmly-landing-v2.html (body, sans <script>).
+// Do not edit by hand — generated from the brand mockup.
+export const LANDING_MARKUP = `<!-- ── NAV ── -->
+<nav id="nav">
+  <a href="#" class="logo"><span class="get">get</span><span class="calm">Calmly.</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#therapists">Therapists</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#community">Community</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#" class="btn-ghost">Log in</a>
+    <a href="#" class="btn-primary" onclick="openModal();return false;">Free assessment</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="home">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="hero-layout">
+
+    <!-- LEFT: headline + CTA -->
+    <div class="hero-left">
+      <div class="hero-pill"><span class="pill-dot"></span>India's most trusted mental health platform</div>
+      <h1 class="hero-h1">
+        <span class="light">Your mind</span>
+        deserves<br>
+        <span class="accent">real care.</span>
+      </h1>
+      <p class="hero-sub">Real therapists. AI-powered insights. A community that gets it. getCalmly meets you where you are — and walks forward with you.</p>
+      <div class="hero-actions">
+        <button class="btn-hero fill" onclick="openModal()">✦ Take the free assessment</button>
+        <a href="#therapists" class="btn-hero outline">Browse therapists</a>
+      </div>
+      <div class="hero-trust">
+        <span class="ht">Free to start</span>
+        <span class="ht">RCI-verified therapists</span>
+        <span class="ht">100% confidential</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: phone mockup -->
+    <div class="hero-phone">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="ps-statusbar">
+            <span>9:41</span>
+            <span>●●●</span>
+          </div>
+          <div class="ps-header">
+            <div class="ps-greeting">Good morning</div>
+            <span class="ps-name">Priya</span>
+          </div>
+          <div class="ps-body">
+            <div class="ps-card">
+              <div class="ps-badge">AI Insight · just now</div>
+              <div class="ps-card-title">Mondays tend to weigh on you — and that's okay.</div>
+              <div class="ps-card-sub">A 5-min breathing exercise before your first call may help. Tap to try it.</div>
+            </div>
+            <div class="ps-card">
+              <div class="ps-badge">Today's session</div>
+              <div class="ps-card-title">Dr. Ananya Sharma · 3:00 PM</div>
+              <div class="ps-card-sub">Clinical Psychologist · ✓ RCI Verified · Google Meet</div>
+            </div>
+            <div class="ps-card">
+              <div class="ps-badge">Your week so far</div>
+              <div class="ps-metrics">
+                <div class="ps-m"><span class="ps-mn" style="color:var(--coral-l);">7</span><span class="ps-ml">Day streak 🔥</span></div>
+                <div class="ps-m"><span class="ps-mn" style="color:#7FD4A8;">↑12%</span><span class="ps-ml">Mood trend</span></div>
+                <div class="ps-m"><span class="ps-mn" style="color:#B8B4D4;">14</span><span class="ps-ml">Journals</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Floating badges -->
+      <div class="phone-float float-1">
+        <div class="float-dot" style="background:var(--green);"></div>
+        Dr. Ananya is online
+      </div>
+      <div class="phone-float float-2">
+        <div class="float-dot" style="background:var(--coral);"></div>
+        Mood improved 12% this week
+      </div>
+    </div>
+
+  </div>
+  <div class="scroll-cue"><div class="sc-line"></div>Scroll</div>
+</section>
+
+<!-- ── TRUST STRIP ── -->
+<div class="trust-strip reveal">
+  <div class="trust-item"><span class="trust-n">40K+</span><div class="trust-l"><strong>People supported</strong>across India</div></div>
+  <div class="trust-item"><span class="trust-n">40+</span><div class="trust-l"><strong>RCI-verified</strong>clinical therapists</div></div>
+  <div class="trust-item"><span class="trust-n">4.9★</span><div class="trust-l"><strong>Average rating</strong>from patients</div></div>
+  <div class="trust-item"><span class="trust-n">94%</span><div class="trust-l"><strong>Improvement reported</strong>within 60 days</div></div>
+  <div class="trust-item"><span class="trust-n">₹0</span><div class="trust-l"><strong>To start</strong>your journey today</div></div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section" id="how">
+  <div class="sec-label reveal">How it works</div>
+  <h2 class="sec-h2 reveal">Your path to calm,<br><span>step by step.</span></h2>
+  <div class="how-layout">
+    <div class="how-steps">
+      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">Take the free assessment</div><div class="hs-d">Answer 12 clinically validated questions. Our AI instantly builds a personalised mental wellness profile — no login required, no obligation.</div></div></div>
+      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">Get matched with the right therapist</div><div class="hs-d">Browse 40+ RCI-verified clinical psychologists and psychiatrists. Filter by specialty, language, and availability. Every expert is credentialled and reviewed.</div></div></div>
+      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">Begin your calm space</div><div class="hs-d">Attend sessions via Google Meet. Between sessions, your AI companion Calm checks in daily, tracks your mood, and offers personalised coping strategies.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">Watch yourself grow</div><div class="hs-d">Mood trends, pattern detection, streak tracking, and weekly AI insight reports — quietly building evidence of the progress you're making, one day at a time.</div></div></div>
+    </div>
+    <div class="how-visual reveal d1">
+      <!-- Journal entry card -->
+      <div class="how-card">
+        <div class="hc-badge">Journal · Thursday, 8:42 PM</div>
+        <div class="hc-title">Today was hard but I didn't spiral. That's new.</div>
+        <div class="hc-sub">getCalmly detected 3 themes: <span style="color:var(--coral-l);font-weight:600;">self-compassion · boundary-setting · resilience</span></div>
+        <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(200,85,61,.15);color:var(--coral-l);font-weight:700;">Growth moment ✦</span>
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-weight:600;">Added to weekly report</span>
+        </div>
+      </div>
+      <!-- Mood trend card -->
+      <div class="how-card">
+        <div class="hc-badge">Mood intelligence · this month</div>
+        <div class="hc-title" style="margin-bottom:12px;">Your anxiety peaks on Sunday evenings.</div>
+        <div style="display:flex;align-items:flex-end;gap:4px;height:36px;margin-bottom:8px;">
+          <div style="flex:1;background:rgba(200,85,61,.25);border-radius:3px 3px 0 0;height:60%;"></div>
+          <div style="flex:1;background:rgba(200,85,61,.35);border-radius:3px 3px 0 0;height:80%;"></div>
+          <div style="flex:1;background:rgba(200,85,61,.2);border-radius:3px 3px 0 0;height:40%;"></div>
+          <div style="flex:1;background:rgba(200,85,61,.15);border-radius:3px 3px 0 0;height:30%;"></div>
+          <div style="flex:1;background:rgba(200,85,61,.55);border-radius:3px 3px 0 0;height:100%;position:relative;">
+            <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--coral-l);white-space:nowrap;font-weight:700;">Sun ↑</div>
+          </div>
+          <div style="flex:1;background:rgba(200,85,61,.2);border-radius:3px 3px 0 0;height:35%;"></div>
+          <div style="flex:1;background:rgba(61,158,114,.4);border-radius:3px 3px 0 0;height:25%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:8px;color:rgba(255,255,255,.25);">Mon</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.25);">Tue</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.25);">Wed</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.25);">Thu</span>
+          <span style="font-size:8px;color:var(--coral-l);font-weight:700;">Sun</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.25);">Mon</span>
+          <span style="font-size:8px;color:#7FD4A8;">Tue</span>
+        </div>
+      </div>
+      <!-- Session prep card -->
+      <div class="how-card">
+        <div class="hc-badge">Session prep · tomorrow 3 PM</div>
+        <div class="hc-title">Dr. Ananya has reviewed your week.</div>
+        <div class="hc-sub" style="margin-bottom:10px;">She's noted your journal entries and mood dips. Tomorrow's session is already tailored to you.</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.05);border-radius:10px;border:1px solid rgba(255,255,255,.08);">
+          <span style="font-size:16px;">👩‍⚕️</span>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--white);">Dr. Ananya Sharma</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.35);">Prepared · Google Meet ready</div>
+          </div>
+          <div style="margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features-section" id="features">
+  <div class="feat-header">
+    <div>
+      <div class="sec-label reveal">Advanced features</div>
+      <h2 class="sec-h2 reveal">Everything you need.<br><span>Nothing you don't.</span></h2>
+    </div>
+    <p class="sec-p reveal">getCalmly combines clinical-grade therapy with AI intelligence — designed to feel like having a brilliant, caring expert in your corner at all times.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — your 24/7 companion</div><div class="feat-d">An empathetic AI that learns your patterns, checks in every morning, and offers coping strategies drawn from your actual therapy sessions and journal history.</div><span class="feat-badge fb-dk">Powered by Claude</span></div>
+    <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood intelligence engine</div><div class="feat-d">Three-dimensional daily tracking — mood, energy, anxiety — building a rich picture over time that reveals patterns neither you nor your therapist could see alone.</div><span class="feat-badge fb-c">Science-backed</span></div>
+    <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Smart journaling & AI insights</div><div class="feat-d">Write freely. getCalmly detects recurring themes, emotional triggers, and growth moments — then surfaces them in a clear weekly insight report.</div><span class="feat-badge fb-c">Pattern detection</span></div>
+    <div class="feat-card reveal"><span class="feat-icon">👩‍⚕️</span><div class="feat-t">RCI-verified clinical therapists</div><div class="feat-d">Every therapist is registered with the Rehabilitation Council of India. Verified credentials, structured sessions, and real clinical outcomes — not wellness coaches.</div><span class="feat-badge fb-g">Clinically verified</span></div>
+    <div class="feat-card reveal d1"><span class="feat-icon">🏥</span><div class="feat-t">Hospital & enterprise integration</div><div class="feat-d">Session notes, referral tracking, and progress reports structured for hospital workflows and corporate wellness programs. Clinical-grade from the ground up.</div><span class="feat-badge fb-c">Enterprise ready</span></div>
+    <div class="feat-card reveal d2"><span class="feat-icon">👥</span><div class="feat-t">Moderated peer community</div><div class="feat-d">A safe, human-moderated space to share, listen, and find people who truly understand. Crisis support is built in from the ground up — not bolted on.</div><span class="feat-badge fb-g">Safe & moderated</span></div>
+  </div>
+</section>
+
+<!-- ── THERAPISTS ── -->
+<section class="therapists-section" id="therapists">
+  <div class="t-top">
+    <div>
+      <div class="sec-label reveal">Our therapists</div>
+      <h2 class="sec-h2 reveal">Meet the people who'll<br><span>walk with you.</span></h2>
+    </div>
+    <a href="#" class="btn-primary">Browse all 40+ therapists</a>
+  </div>
+  <div class="t-grid">
+    <div class="t-card reveal">
+      <div class="t-photo r">👩‍⚕️<div class="rci">✓ RCI</div></div>
+      <div class="t-body"><div class="t-name">Dr. Ananya Sharma</div><div class="t-spec">Clinical Psychologist · 8 yrs experience</div><div class="t-tags"><span class="t-tag">Anxiety</span><span class="t-tag">CBT</span><span class="t-tag">Work stress</span></div><div class="t-stats"><div class="t-stat"><strong>⭐ 4.9</strong> rating</div><div class="t-stat"><strong>127</strong> sessions</div><div class="t-stat"><strong>Hindi, English</strong></div></div><button class="t-btn">Book a session →</button></div>
+    </div>
+    <div class="t-card reveal d1">
+      <div class="t-photo g">👨‍⚕️<div class="rci">✓ RCI</div></div>
+      <div class="t-body"><div class="t-name">Dr. Rohan Mehta</div><div class="t-spec">Psychiatrist · 12 yrs experience</div><div class="t-tags"><span class="t-tag">Depression</span><span class="t-tag">Trauma</span><span class="t-tag">PTSD</span></div><div class="t-stats"><div class="t-stat"><strong>⭐ 4.8</strong> rating</div><div class="t-stat"><strong>203</strong> sessions</div><div class="t-stat"><strong>English, Tamil</strong></div></div><button class="t-btn">Book a session →</button></div>
+    </div>
+    <div class="t-card reveal d2">
+      <div class="t-photo l">👩‍⚕️<div class="rci">✓ RCI</div></div>
+      <div class="t-body"><div class="t-name">Dr. Preethi Nair</div><div class="t-spec">Counselling Psychologist · 5 yrs experience</div><div class="t-tags"><span class="t-tag">Relationships</span><span class="t-tag">Self-esteem</span><span class="t-tag">Grief</span></div><div class="t-stats"><div class="t-stat"><strong>⭐ 4.7</strong> rating</div><div class="t-stat"><strong>89</strong> sessions</div><div class="t-stat"><strong>Malayalam, English</strong></div></div><button class="t-btn">Book a session →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ENTERPRISE STRIP ── -->
+<div class="enterprise-strip reveal">
+  <div class="ent-left">
+    <span class="ent-badge">For organisations</span>
+    <span class="ent-text"><strong>getCalmly for Business</strong> — clinical-grade mental health infrastructure for hospitals, corporates & clinics.</span>
+    <div class="ent-pills">
+      <span class="ent-pill">Hospital integration</span>
+      <span class="ent-pill">Corporate wellness</span>
+      <span class="ent-pill">Clinic management</span>
+      <span class="ent-pill">HIPAA compliant</span>
+    </div>
+  </div>
+  <a href="#" class="ent-cta">Talk to our enterprise team →</a>
+</div>
+
+<!-- ── DASHBOARD PREVIEW ── -->
+<section class="preview-section" id="preview">
+  <div class="sec-label reveal">See it in action</div>
+  <h2 class="sec-h2 reveal">Built for both sides<br>of the <span>care equation.</span></h2>
+  <p class="sec-p reveal" style="margin-bottom:40px;">getCalmly gives patients a calm, intelligent space — and gives therapists the clinical tools they need to deliver better care. See both.</p>
+
+  <div class="preview-tabs reveal">
+    <div class="ptab active" onclick="switchTab('patient',this)">👤 Patient view</div>
+    <div class="ptab" onclick="switchTab('doctor',this)">👩‍⚕️ Therapist view</div>
+  </div>
+
+  <!-- PATIENT PANE -->
+  <div class="preview-pane active" id="pane-patient">
+    <div class="reveal">
+      <!-- Full patient dashboard: sidebar + main content -->
+      <div style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid var(--border);background:var(--bg-warm);font-size:12px;">
+
+        <!-- Sidebar -->
+        <div style="width:56px;background:var(--charcoal);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;">
+          <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:16px;color:var(--coral);transform:scaleX(.63);transform-origin:center;letter-spacing:-1px;margin-bottom:12px;">C.</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(200,85,61,.2);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Home">🏠</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Mood">📊</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Journal">📓</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Sessions">🗓️</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Community">👥</div>
+          <div style="margin-top:auto;width:30px;height:30px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">P</div>
+        </div>
+
+        <!-- Main area -->
+        <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+
+          <!-- Top bar -->
+          <div style="background:var(--white);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:10px;color:var(--gray);font-weight:500;">Good morning</div>
+              <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;color:var(--charcoal);transform:scaleX(.88);transform-origin:left;letter-spacing:-.5px;">Priya ✦</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="background:var(--coral-pale);color:var(--coral);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;background:var(--coral);border-radius:50%;display:inline-block;"></span>14-day streak 🔥</div>
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">P</div>
+            </div>
+          </div>
+
+          <!-- Dashboard body -->
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
+
+            <!-- Row 1: 3 stat cards -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Mood today</div>
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:var(--coral);transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">7.2</div>
+                <div style="font-size:9px;color:var(--green);font-weight:600;margin-top:3px;">↑ from 5.8</div>
+              </div>
+              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Energy</div>
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:#7B7FCC;transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">6.1</div>
+                <div style="font-size:9px;color:var(--gray);font-weight:500;margin-top:3px;">→ steady</div>
+              </div>
+              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Anxiety</div>
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:var(--gold);transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">3.4</div>
+                <div style="font-size:9px;color:var(--green);font-weight:600;margin-top:3px;">↓ lower</div>
+              </div>
+            </div>
+
+            <!-- Row 2: mood chart + session -->
+            <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:8px;">
+              <!-- Mood chart -->
+              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:10px;">Mood · past 7 days</div>
+                <!-- SVG line chart -->
+                <svg viewBox="0 0 160 48" style="width:100%;height:48px;overflow:visible;">
+                  <defs>
+                    <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#C8553D" stop-opacity=".18"/>
+                      <stop offset="100%" stop-color="#C8553D" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14 L138,48 L0,48Z" fill="url(#mg)"/>
+                  <circle cx="138" cy="14" r="3" fill="#C8553D"/>
+                  <text x="138" y="10" text-anchor="middle" font-size="7" fill="#C8553D" font-weight="700">7.2</text>
+                </svg>
+                <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                  <span style="font-size:7px;color:var(--gray);">Mon</span><span style="font-size:7px;color:var(--gray);">Tue</span><span style="font-size:7px;color:var(--gray);">Wed</span><span style="font-size:7px;color:var(--gray);">Thu</span><span style="font-size:7px;color:var(--gray);">Fri</span><span style="font-size:7px;color:var(--gray);">Sat</span><span style="font-size:7px;color:var(--coral);font-weight:700;">Sun</span>
+                </div>
+              </div>
+              <!-- Next session -->
+              <div style="background:var(--charcoal);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);">Next session</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#FFF0ED,#F5D8D1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">👩‍⚕️</div>
+                  <div>
+                    <div style="font-size:11px;font-weight:600;color:var(--white);line-height:1.2;">Dr. Ananya</div>
+                    <div style="font-size:9px;color:rgba(255,255,255,.4);">Today · 3:00 PM</div>
+                  </div>
+                </div>
+                <div style="font-size:9px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px;">📋 Pre-session brief ready</div>
+                <button style="width:100%;padding:7px;border-radius:8px;background:var(--coral);color:white;border:none;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Join session →</button>
+              </div>
+            </div>
+
+            <!-- Row 3: AI insight + journal -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <!-- Calm AI -->
+              <div style="background:linear-gradient(135deg,rgba(200,85,61,.08),rgba(200,85,61,.03));border-radius:12px;padding:12px;border:1.5px solid rgba(200,85,61,.15);">
+                <div style="display:flex;align-items:center;gap:5px;margin-bottom:7px;">
+                  <span style="font-size:12px;">🤖</span>
+                  <span style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--coral);">Calm AI</span>
+                </div>
+                <div style="font-size:11px;color:var(--charcoal);line-height:1.55;font-weight:400;">You've journaled 4 days in a row. Less self-criticism this week — that's real progress.</div>
+                <div style="margin-top:8px;font-size:9px;color:var(--coral);font-weight:600;cursor:pointer;">→ Full insight report</div>
+              </div>
+              <!-- Journal preview -->
+              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:7px;">Latest journal</div>
+                <div style="font-size:11px;color:var(--charcoal);line-height:1.55;font-style:italic;">"Today was hard but I didn't spiral. That felt new..."</div>
+                <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;">
+                  <span style="font-size:8px;padding:2px 7px;border-radius:10px;background:var(--coral-pale);color:var(--coral);font-weight:700;">resilience</span>
+                  <span style="font-size:8px;padding:2px 7px;border-radius:10px;background:#EEF0FB;color:#7B7FCC;font-weight:700;">growth ✦</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal d2">
+      <div class="sec-label" style="margin-bottom:12px;">Patient experience</div>
+      <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Everything your mind needs, in one calm space.</h3>
+      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Track your mood daily. Journal freely. Get AI-powered insights. Book and attend sessions — all from one dashboard designed to feel as calm as getCalmly's name promises.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">3-dimensional mood tracking</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Mood, energy and anxiety — tracked daily, visualised clearly.</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">AI insights from your own patterns</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Calm AI reads your journal and mood data to surface what matters.</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Sessions that know your history</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Your therapist sees your week before you even say hello.</div></div>
+        </div>
+      </div>
+      <button class="btn-hero fill" onclick="openModal()">✦ Try it free — no login needed</button>
+    </div>
+  </div>
+
+  <!-- DOCTOR PANE -->
+  <div class="preview-pane" id="pane-doctor">
+    <div class="reveal">
+      <!-- Full therapist portal: sidebar + main -->
+      <div style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid rgba(26,127,122,.2);background:#EEF3F8;font-size:12px;">
+
+        <!-- Sidebar -->
+        <div style="width:56px;background:#1A7F7A;display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;">
+          <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:16px;color:rgba(255,255,255,.9);transform:scaleX(.63);transform-origin:center;letter-spacing:-1px;margin-bottom:12px;">C.</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:15px;">🏠</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;">👥</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;">🗓️</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;">📋</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;">📊</div>
+          <div style="margin-top:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">A</div>
+        </div>
+
+        <!-- Main area -->
+        <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+
+          <!-- Top bar -->
+          <div style="background:white;border-bottom:1px solid rgba(26,127,122,.12);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:10px;color:var(--gray);font-weight:500;">Therapist portal</div>
+              <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;color:#1A7F7A;transform:scaleX(.88);transform-origin:left;letter-spacing:-.5px;">Dr. Ananya Sharma</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="background:#FFF3F1;color:var(--coral);font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(200,85,61,.2);">⚠️ 1 AI flag</div>
+              <div style="background:#E5F4EE;color:#1A7F7A;font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;">● Online</div>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+
+            <!-- Row 1: stat cards -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:#1A7F7A;transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">12</div>
+                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Active patients</div>
+              </div>
+              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:#1A7F7A;transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">3</div>
+                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Sessions today</div>
+              </div>
+              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--gold);transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">4.9★</div>
+                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Avg rating</div>
+              </div>
+              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--green);transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">94%</div>
+                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Improvement rate</div>
+              </div>
+            </div>
+
+            <!-- Row 2: today's schedule + AI flag -->
+            <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:8px;">
+              <!-- Today's schedule -->
+              <div style="background:white;border-radius:12px;overflow:hidden;border:1px solid rgba(26,127,122,.1);">
+                <div style="padding:8px 12px;border-bottom:1px solid rgba(26,127,122,.08);font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);">Today's schedule</div>
+                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(26,127,122,.06);">
+                  <div style="font-size:9px;color:#1A7F7A;font-weight:700;width:36px;flex-shrink:0;">3:00 PM</div>
+                  <div style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">P</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:11px;font-weight:600;color:var(--charcoal);">Priya R.</div>
+                    <div style="font-size:9px;color:var(--gray);">Anxiety · Session 4</div>
+                  </div>
+                  <div style="background:#1A7F7A;color:white;font-size:8px;font-weight:700;padding:3px 8px;border-radius:8px;cursor:pointer;white-space:nowrap;">Join</div>
+                </div>
+                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(26,127,122,.06);">
+                  <div style="font-size:9px;color:var(--gray);font-weight:600;width:36px;flex-shrink:0;">4:30 PM</div>
+                  <div style="width:28px;height:28px;border-radius:50%;background:var(--green-pale);color:var(--green);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">K</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:11px;font-weight:600;color:var(--charcoal);">Karan M.</div>
+                    <div style="font-size:9px;color:var(--gray);">Depression · Session 11</div>
+                  </div>
+                  <div style="background:rgba(26,127,122,.1);color:#1A7F7A;font-size:8px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap;">Prep</div>
+                </div>
+                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;">
+                  <div style="font-size:9px;color:var(--gray);font-weight:600;width:36px;flex-shrink:0;">6:00 PM</div>
+                  <div style="width:28px;height:28px;border-radius:50%;background:#EEF0FB;color:#7B7FCC;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">A</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:11px;font-weight:600;color:var(--charcoal);">Aditya S.</div>
+                    <div style="font-size:9px;color:var(--coral);">Work stress · ⚠️ Flag</div>
+                  </div>
+                  <div style="background:var(--coral-pale);color:var(--coral);font-size:8px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap;">Review</div>
+                </div>
+              </div>
+
+              <!-- AI alert + mood summary -->
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="background:#FFF3F1;border-radius:12px;padding:12px;border:1px solid rgba(200,85,61,.18);">
+                  <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
+                    <span style="font-size:12px;">⚠️</span>
+                    <span style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--coral);">AI flag · Aditya</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--charcoal);line-height:1.5;">Mood dropped 3 days running. Journal themes: <strong>overwhelm, isolation.</strong></div>
+                  <div style="margin-top:6px;font-size:9px;color:var(--coral);font-weight:600;cursor:pointer;">→ See full brief</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:12px;border:1px solid rgba(26,127,122,.1);flex:1;">
+                  <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:8px;">Patient mood overview</div>
+                  <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">P</span>
+                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div style="width:72%;height:100%;background:var(--coral);border-radius:5px;"></div></div>
+                      <span style="font-size:9px;color:var(--coral);font-weight:700;">7.2</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">K</span>
+                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div style="width:68%;height:100%;background:var(--green);border-radius:5px;"></div></div>
+                      <span style="font-size:9px;color:var(--green);font-weight:700;">6.8</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">A</span>
+                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div style="width:41%;height:100%;background:var(--gold);border-radius:5px;"></div></div>
+                      <span style="font-size:9px;color:var(--gold);font-weight:700;">4.1</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: pre-session brief -->
+            <div style="background:white;border-radius:12px;padding:12px;border:1px solid rgba(26,127,122,.1);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);">AI pre-session brief · Priya R. · 3:00 PM</div>
+                <span style="font-size:8px;background:var(--green-pale);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:700;">Session 4 · CBT</span>
+              </div>
+              <div style="font-size:11px;color:var(--charcoal);line-height:1.6;font-weight:300;">Week 4. Notable themes: <strong style="font-weight:600;">boundary-setting, reduced self-criticism</strong>. Mood peak Thursday. Anxiety down 18% vs last week. Recommend continuing reframing on workplace relationships. Patient noted "not spiralling" as a win — worth acknowledging.</div>
+              <div style="margin-top:8px;display:flex;gap:6px;">
+                <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:var(--green-pale);color:var(--green);font-weight:700;">Progress ↑</span>
+                <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:#EEF0FB;color:#7B7FCC;font-weight:700;">4 journal entries</span>
+                <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:var(--coral-pale);color:var(--coral);font-weight:700;">Anxiety ↓ 18%</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal d2">
+      <div class="sec-label" style="margin-bottom:12px;color:#1A7F7A;">Therapist experience</div>
+      <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Clinical tools that let you focus on what matters.</h3>
+      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Every therapist on getCalmly gets a powerful portal — patient mood history, AI-generated pre-session briefs, structured session notes, and referral tracking. Less admin. Better care.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">AI pre-session briefs</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Patient mood, journal themes and flags — summarised before each session.</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Risk flagging & mood alerts</div><div style="font-size:13px;color:var(--gray);font-weight:300;">AI monitors patient patterns between sessions and alerts you when needed.</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Hospital-ready reporting</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Structured notes, referral letters and progress reports — exportable instantly.</div></div>
+        </div>
+      </div>
+      <a href="#" class="btn-hero outline" style="border-color:rgba(26,127,122,.3);color:#1A7F7A;display:inline-flex;" onmouseover="this.style.background='rgba(26,127,122,.06)'" onmouseout="this.style.background='transparent'">Join as a therapist →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── ASSESSMENT BREAK ── -->
+<section class="assess-break">
+  <div class="assess-layout">
+    <div class="assess-left reveal">
+      <div class="sec-label">Free for everyone</div>
+      <h2 class="sec-h2">Not sure<br>where to start?<br><span>Let's find out.</span></h2>
+      <p class="sec-p">12 carefully crafted questions. A personalised mental wellness plan, therapist matches, and your first steps — ready in 5 minutes.</p>
+      <div class="assess-stats">
+        <div class="as-stat"><span class="as-n">40K+</span><span class="as-l">People assessed</span></div>
+        <div class="as-stat"><span class="as-n">5 min</span><span class="as-l">To complete</span></div>
+        <div class="as-stat"><span class="as-n">₹0</span><span class="as-l">Always free</span></div>
+      </div>
+    </div>
+    <div class="assess-right reveal d2">
+      <div class="assess-card">
+        <span class="ac-q">In the past two weeks, how often have you found it difficult to stop worrying?</span>
+        <div class="quiz-opts">
+          <div class="quiz-opt" onclick="selOpt(this)">Not at all</div>
+          <div class="quiz-opt sel" onclick="selOpt(this)">Several days</div>
+          <div class="quiz-opt" onclick="selOpt(this)">More than half the days</div>
+          <div class="quiz-opt" onclick="selOpt(this)">Nearly every day</div>
+        </div>
+        <button class="assess-big-btn" onclick="openModal()"><span>✦</span> Begin your free assessment</button>
+        <div class="assess-note">Trusted by 40,000+ people · Completely confidential</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="pricing-section" id="pricing">
+  <div class="sec-label reveal">Pricing</div>
+  <h2 class="sec-h2 reveal">Your mental health<br>shouldn't cost <span>the earth.</span></h2>
+  <p class="sec-p reveal">Start free. Upgrade when you're ready. Every plan includes the assessment and community.</p>
+  <div class="price-grid">
+    <div class="plan reveal">
+      <div class="plan-name">Free</div>
+      <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">0</span></div>
+      <div class="plan-period">Forever free, no card needed</div>
+      <div class="plan-div"></div>
+      <div class="plan-feats">
+        <div class="plan-feat"><span class="ck">✓</span>Free mental wellness assessment</div>
+        <div class="plan-feat"><span class="ck">✓</span>Daily 3-dimensional mood check-in</div>
+        <div class="plan-feat"><span class="ck">✓</span>5 journal entries per month</div>
+        <div class="plan-feat"><span class="ck">✓</span>Community group access</div>
+        <div class="plan-feat"><span class="ck">✓</span>Basic AI mood insights</div>
+      </div>
+      <button class="plan-btn pb-ol" onclick="openModal()">Get started free</button>
+    </div>
+    <div class="plan pro reveal d1">
+      <div class="plan-tag">Most popular</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-pr"><span class="plan-cur" style="color:rgba(255,255,255,.7)">₹</span><span class="plan-amt">799</span></div>
+      <div class="plan-period">per month · billed annually</div>
+      <div class="plan-div"></div>
+      <div class="plan-feats">
+        <div class="plan-feat"><span class="ck">✓</span>Everything in Free</div>
+        <div class="plan-feat"><span class="ck">✓</span>Unlimited journaling + AI insights</div>
+        <div class="plan-feat"><span class="ck">✓</span>Calm AI — 24/7 companion</div>
+        <div class="plan-feat"><span class="ck">✓</span>2 therapy sessions per month</div>
+        <div class="plan-feat"><span class="ck">✓</span>Full mood intelligence dashboard</div>
+        <div class="plan-feat"><span class="ck">✓</span>Weekly AI pattern reports</div>
+        <div class="plan-feat"><span class="ck">✓</span>Priority therapist matching</div>
+      </div>
+      <button class="plan-btn pb-dk" onclick="openModal()">Start 7-day free trial</button>
+    </div>
+    <div class="plan reveal d2">
+      <div class="plan-name">Clinical</div>
+      <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">1,999</span></div>
+      <div class="plan-period">per month · for serious care</div>
+      <div class="plan-div"></div>
+      <div class="plan-feats">
+        <div class="plan-feat"><span class="ck">✓</span>Everything in Growth</div>
+        <div class="plan-feat"><span class="ck">✓</span>Unlimited therapy sessions</div>
+        <div class="plan-feat"><span class="ck">✓</span>Dedicated care coordinator</div>
+        <div class="plan-feat"><span class="ck">✓</span>Psychiatrist access</div>
+        <div class="plan-feat"><span class="ck">✓</span>Hospital referral integration</div>
+        <div class="plan-feat"><span class="ck">✓</span>Family account — up to 4 members</div>
+      </div>
+      <button class="plan-btn pb-ol">Talk to our team</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMMUNITY ── -->
+<section class="comm-section" id="community">
+  <div class="comm-layout">
+    <div class="comm-posts reveal">
+      <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">meera_k</div><div class="cp-grp">Anxiety Warriors</div></div></div><div class="cp-text">Has anyone tried the 5-4-3-2-1 grounding technique? It's been a game-changer for my panic attacks. Happy to share how I use it 🌿</div><div class="cp-acts"><span class="cp-act liked">❤️ 34</span><span class="cp-act">💬 12 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">arjun_22</div><div class="cp-grp">Work Wellness</div></div></div><div class="cp-text">Finally set a boundary with my manager about after-hours messages. It felt terrifying but so necessary. Small win for today 🙌</div><div class="cp-acts"><span class="cp-act">❤️ 58</span><span class="cp-act">💬 7 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months into therapy and I actually laughed at something today. I forgot what that felt like. Progress isn't always loud 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
+    </div>
+    <div class="comm-right reveal d2">
+      <div class="sec-label">Community</div>
+      <h2 class="sec-h2">You're not alone<br>in <span>any of this.</span></h2>
+      <p class="sec-p">A safe, moderated community of people who truly get it. Share, listen, and find support that only comes from lived experience.</p>
+      <div class="comm-groups">
+        <div class="cg"><div class="cg-icon" style="background:var(--coral-pale);">😰</div><div><div class="cg-t">Anxiety Warriors</div><div class="cg-s">Coping strategies & lived experiences</div></div><div class="cg-ct">1.2k members</div></div>
+        <div class="cg"><div class="cg-icon" style="background:#FFF8E7;">💼</div><div><div class="cg-t">Work Wellness</div><div class="cg-s">Burnout, stress & setting boundaries</div></div><div class="cg-ct">876 members</div></div>
+        <div class="cg"><div class="cg-icon" style="background:var(--green-pale);">🧘</div><div><div class="cg-t">Mindfulness & Meditation</div><div class="cg-s">Daily practices & guided sessions</div></div><div class="cg-ct">3.4k members</div></div>
+      </div>
+      <a href="#" class="btn-primary">Join the community free →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="testi-section">
+  <div class="sec-label reveal">Real stories</div>
+  <h2 class="sec-h2 reveal">What people say about<br><span>getting calm.</span></h2>
+  <div class="t3-grid">
+    <div class="testi-card reveal"><div class="stars">★★★★★</div><div class="testi-q">getCalmly made therapy feel accessible for the first time. The AI check-ins between sessions made me feel held even on the hardest days.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R.</div><div class="testi-dt">Using getCalmly for 4 months</div></div></div></div>
+    <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I was sceptical of app-based therapy. Dr. Rohan completely changed my mind. Most professional mental health experience I've ever had.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M.</div><div class="testi-dt">Using getCalmly for 7 months</div></div></div></div>
+    <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">The mood tracking opened my eyes to patterns I'd never noticed. I didn't realise how much Sundays were weighing on my whole week until I saw the data.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S.</div><div class="testi-dt">Using getCalmly for 2 months</div></div></div></div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section class="final-cta">
+  <div class="fcta">
+    <div class="sec-label">Begin today</div>
+    <h2 class="sec-h2 reveal">The hardest part<br>is <span>just starting.</span></h2>
+    <p class="sec-p reveal">Take the free 5-minute assessment. No login, no credit card, no commitment. Just an honest look at how you're doing — and a clear, gentle path forward.</p>
+    <div class="fcta-btns reveal">
+      <button class="btn-xl c" onclick="openModal()">✦ Take the free assessment</button>
+      <a href="#therapists" class="btn-xl o">Browse therapists</a>
+    </div>
+    <div class="fcta-trust reveal">
+      <span class="fti">🔒 100% confidential</span>
+      <span class="fti">✓ RCI-verified therapists</span>
+      <span class="fti">💙 Free to start</span>
+      <span class="fti">🇮🇳 Made in India</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="#" class="logo"><span class="get">get</span><span class="calm">Calmly.</span></a>
+      <p>Mental wellness reimagined. Clinical-grade therapy, AI insights, and a community that understands — all in one calm, trustworthy space.</p>
+    </div>
+    <div class="foot-col"><h4>Product</h4><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#" onclick="openModal();return false;">Free assessment</a></div>
+    <div class="foot-col"><h4>Care</h4><a href="#therapists">Find a therapist</a><a href="#">RCI verification</a><a href="#community">Community</a><a href="#">Crisis resources</a></div>
+    <div class="foot-col"><h4>Company</h4><a href="#">About getCalmly</a><a href="#">Blog</a><a href="#">Privacy policy</a><a href="#">Terms of use</a></div>
+  </div>
+  <div class="foot-bottom">
+    <p>© 2025 getCalmly. Made with care in India.</p>
+    <div class="foot-badges"><span class="fbadge">✓ RCI Compliant</span><span class="fbadge">🔒 HIPAA Safe</span><span class="fbadge">🇮🇳 India-made</span></div>
+  </div>
+</footer>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeBg(event)">
+  <div class="modal" id="modal">
+    <button class="modal-x" onclick="closeModal()">×</button>
+    <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:8%"></div></div>
+    <div class="modal-eye" id="mEye">Free Mental Wellness Assessment · Question 1 of 12</div>
+    <div class="modal-q" id="mQ"></div>
+    <div class="modal-opts" id="mOpts"></div>
+    <div class="modal-acts">
+      <button class="modal-back" onclick="prevQ()">← Back</button>
+      <button class="modal-next" onclick="nextQ()" id="mNext">Continue →</button>
+    </div>
+    <div class="modal-note">🔒 Your answers are private and never stored without your consent</div>
+  </div>
+</div>`;
