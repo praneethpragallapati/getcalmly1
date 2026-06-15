@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --color-teal-900: #052e32;
+  --color-teal-800: #0a4a50;
+  --color-teal-700: #0D5C63;
+  --color-teal-600: #0e7490;
+  --color-teal-500: #0EA5E9;
+  --color-teal-400: #38bdf8;
+  --color-teal-100: #e0f7fa;
+  --color-teal-50: #f0fdff;
+  --color-sage-600: #4d9970;
+  --color-sage-500: #6BAF92;
+  --color-sage-400: #86C8A8;
+  --color-sage-300: #a8d8be;
+  --color-sage-100: #e8f5ee;
+  --color-cream: #F9F5F0;
+  --color-lavender-500: #8B9DC3;
+  --color-lavender-200: #c8d3e8;
+  --color-lavender-100: #eef0f7;
+  --font-display: 'Big Shoulders Display', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+:root {
+  --font-display: 'Big Shoulders Display', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #F9F5F0;
+  color: #1a1a2e;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}

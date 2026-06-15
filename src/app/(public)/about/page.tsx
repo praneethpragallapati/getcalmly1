@@ -1,0 +1,99 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About | GetCalmly',
+  description:
+    'GetCalmly bridges India’s mental health treatment gap with RCI-licensed, vernacular-first, culturally-aware therapy.',
+}
+
+const values = [
+  { icon: '🔒', title: 'Privacy First', desc: 'DPDP-compliant, encrypted, and confidential by design.' },
+  { icon: '🗣️', title: 'In Your Language', desc: 'Therapy in 10+ Indian languages, with cultural context that fits.' },
+  { icon: '✅', title: 'Clinically Credible', desc: 'Only RCI-licensed psychologists and NMC-registered psychiatrists.' },
+  { icon: '🤝', title: 'Accessible & Affordable', desc: 'Quality care within your budget, from your couch or in person.' },
+]
+
+export default function AboutPage() {
+  return (
+    <div className="bg-[#F9F5F0]">
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1
+            style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
+            className="text-4xl md:text-6xl font-black text-[#1a1a2e] mb-6"
+          >
+            Mental health support that understands you
+          </h1>
+          <p className="text-lg text-gray-600">
+            GetCalmly is a privacy-first, vernacular-enabled digital therapy platform connecting
+            people across India with the right licensed professional — paired not just by symptoms,
+            but by language, culture, and budget.
+          </p>
+        </div>
+      </section>
+
+      <section className="pb-12 px-4">
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-2xl p-8 shadow-sm">
+            <h2 className="text-2xl font-bold text-[#0D5C63] mb-3">The Problem</h2>
+            <p className="text-gray-600">
+              India faces a mental health treatment gap exceeding 60%. With roughly 0.75 psychiatrists
+              per 100,000 people and specialists concentrated in major cities, millions in Tier-2 and
+              Tier-3 regions go underserved. NRIs, meanwhile, often pay high fees for therapists who
+              don’t share their cultural context.
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-8 shadow-sm">
+            <h2 className="text-2xl font-bold text-[#0D5C63] mb-3">Our Approach</h2>
+            <p className="text-gray-600">
+              A strictly-vetted network of RCI-licensed professionals, a “vibe-match” that pairs you
+              on cultural fit and language — not just diagnosis — and a hybrid emergency protocol so
+              care is safe, not just digital. After therapy, a supportive community stays with you.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <h2
+            style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
+            className="text-3xl md:text-4xl font-black text-[#1a1a2e] text-center mb-10"
+          >
+            What We Stand For
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {values.map((v) => (
+              <div key={v.title} className="bg-white rounded-2xl p-6 shadow-sm text-center">
+                <div className="text-4xl mb-3">{v.icon}</div>
+                <h3 className="font-bold text-[#1a1a2e] mb-2">{v.title}</h3>
+                <p className="text-sm text-gray-500">{v.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-24 px-4">
+        <div className="max-w-3xl mx-auto bg-[#0D5C63] rounded-3xl p-10 text-center text-white">
+          <h2
+            style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
+            className="text-3xl font-black mb-3"
+          >
+            Take the first step today
+          </h2>
+          <p className="opacity-90 mb-6">
+            A confidential 3-minute assessment is all it takes to find your match.
+          </p>
+          <Link
+            href="/assess"
+            className="inline-block bg-white text-[#0D5C63] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
+          >
+            Begin Your Assessment
+          </Link>
+        </div>
+      </section>
+    </div>
+  )
+}
