@@ -115,61 +115,19 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">The data shows what you feel</div><div class="hs-d">Week 8: sleep up 3 nights running, mood trend +18%, journal streak. Priya didn't just feel better — she could see why. That's the difference between therapy and getCalmly.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
-      <!-- Therapist match card (illustrated) -->
+      <!-- Therapist match card (no portrait — monogram only) -->
       <div class="how-card" style="padding:0;overflow:hidden;background:transparent;border:none;box-shadow:none;">
         <div class="therapist-match-card">
           <div class="tmc-label">✦ Your match · Based on your assessment</div>
-          <div class="tmc-portrait">
-            <!-- Illustrated portrait: Dr. Ananya Sharma -->
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">
-              <defs>
-                <linearGradient id="pt-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF0ED"/><stop offset="100%" stop-color="#E5F4EE"/></linearGradient>
-                <clipPath id="pt-clip"><rect width="200" height="200"/></clipPath>
-              </defs>
-              <g clip-path="url(#pt-clip)">
-                <rect width="200" height="200" fill="url(#pt-bg)"/>
-                <circle cx="100" cy="85" r="72" fill="rgba(200,85,61,.05)"/>
-                <!-- white coat body -->
-                <path d="M0,200 L0,160 Q40,140 70,138 L85,134 Q100,130 115,134 L130,138 Q160,140 200,160 L200,200Z" fill="white"/>
-                <!-- coat collar -->
-                <path d="M85,134 L95,155 L100,148 L105,155 L115,134 Q100,145 85,134Z" fill="#E5F4EE"/>
-                <!-- stethoscope -->
-                <path d="M86,148 Q72,165 70,180" stroke="#1A7F7A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-                <circle cx="69" cy="183" r="7" fill="none" stroke="#1A7F7A" stroke-width="2.5"/>
-                <!-- neck -->
-                <ellipse cx="100" cy="122" rx="13" ry="16" fill="#C07850"/>
-                <!-- head -->
-                <ellipse cx="100" cy="88" rx="42" ry="46" fill="#C07850"/>
-                <!-- hair top -->
-                <path d="M58,80 Q60,44 100,38 Q140,44 142,80 Q136,55 100,52 Q64,55 58,80Z" fill="#140A02"/>
-                <ellipse cx="100" cy="42" rx="24" ry="14" fill="#140A02"/>
-                <!-- hair sides -->
-                <ellipse cx="60" cy="90" rx="7" ry="20" fill="#140A02"/>
-                <ellipse cx="140" cy="90" rx="7" ry="20" fill="#140A02"/>
-                <!-- bindi -->
-                <circle cx="100" cy="71" r="2.5" fill="#C8553D"/>
-                <!-- eyebrows -->
-                <path d="M82,82 Q89,78 96,82" stroke="#140A02" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <path d="M104,82 Q111,78 118,82" stroke="#140A02" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <!-- eyes -->
-                <ellipse cx="88" cy="92" rx="7.5" ry="8" fill="white"/>
-                <ellipse cx="112" cy="92" rx="7.5" ry="8" fill="white"/>
-                <circle cx="89" cy="93" r="5" fill="#140A02"/>
-                <circle cx="113" cy="93" r="5" fill="#140A02"/>
-                <circle cx="91" cy="90" r="1.6" fill="white" opacity="0.85"/>
-                <circle cx="115" cy="90" r="1.6" fill="white" opacity="0.85"/>
-                <!-- nose subtle -->
-                <path d="M97,106 Q100,111 103,106" stroke="#9A6040" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                <!-- warm smile -->
-                <path d="M86,116 Q100,127 114,116" stroke="#8A4030" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <path d="M90,118 Q100,126 110,118" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3" stroke-linecap="round"/>
-              </g>
-            </svg>
+          <div class="tmc-head">
+            <div class="tmc-mono">AS</div>
+            <div>
+              <div class="tmc-badge">✓ RCI Verified · Clinical Psychologist</div>
+              <div class="tmc-name">Dr. Ananya Sharma</div>
+              <div class="tmc-meta">8 years · CBT · Anxiety &amp; Work Stress</div>
+            </div>
           </div>
           <div class="tmc-body">
-            <div class="tmc-badge">✓ RCI Verified · Clinical Psychologist</div>
-            <div class="tmc-name">Dr. Ananya Sharma</div>
-            <div class="tmc-meta">8 years · CBT · Anxiety & Work Stress</div>
             <div class="tmc-tags">
               <span class="tmc-tag">Anxiety</span>
               <span class="tmc-tag">CBT</span>
@@ -219,7 +177,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <p class="sec-p reveal">Every feature exists because a patient or therapist needed it. Here's what that looks like in practice.</p>
   </div>
   <div class="feat-grid">
-    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — checks in, doesn't check out</div><div class="feat-d">At 1 AM when Priya couldn't sleep, Calm AI noticed she hadn't journaled in 3 days and her mood had dipped. It didn't give advice — it asked one question. That's the difference.</div><span class="feat-badge fb-dk">Powered by Claude</span></div>
+    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — checks in, doesn't check out</div><div class="feat-d">The week Priya went quiet — no journals, sleep slipping — Calm AI didn't nag. It sent one line: "Rough week? I'm here when you're ready." She replied at midnight. That thread became her next session.</div><span class="feat-badge fb-dk">Always on</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood, energy & sleep — tracked together</div><div class="feat-d">Priya didn't know her Sundays were the problem until she saw the data. Mood, energy and sleep tracked daily, patterns surfaced weekly — for her and for Dr. Ananya.</div><span class="feat-badge fb-c">Science-backed</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for themes — self-criticism, boundary patterns, progress moments — and adds them to the brief Dr. Ananya reads before every session.</div><span class="feat-badge fb-c">Pattern detection</span></div>
     <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI-verified. Not wellness coaches.</div><div class="feat-d">Every therapist on getCalmly holds a Rehabilitation Council of India registration. Psychiatrists are NMC-registered. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
@@ -659,7 +617,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="plan-period">per session · with a psychiatrist</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Consultation with an RCI-verified psychiatrist</div>
+        <div class="plan-feat"><span class="ck">✓</span>Consultation with an NMC-registered psychiatrist</div>
         <div class="plan-feat"><span class="ck">✓</span>Medication review &amp; management</div>
         <div class="plan-feat"><span class="ck">✓</span>Secure video via Google Meet</div>
         <div class="plan-feat"><span class="ck">✓</span>Coordinated with your therapist when needed</div>
