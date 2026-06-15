@@ -1,19 +1,66 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+
 export const metadata: Metadata = {
-  title: 'GetCalmly — Mental Health Support That Understands You',
-  description: 'Connect with RCI-licensed therapists in your language, at your budget. Start your journey to wellbeing today.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    template: '%s | getCalmly',
+  },
+  description:
+    'Book a free first session with RCI-verified therapists and psychiatrists in India. AI-powered insights, daily mood tracking, and a supportive community.',
+  applicationName: 'getCalmly',
+  keywords: [
+    'online therapy India',
+    'mental health',
+    'RCI verified therapist',
+    'psychiatrist online',
+    'counselling',
+    'anxiety',
+    'depression',
+    'free therapy session',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: 'getCalmly',
+    title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    description:
+      'Book a free first session with RCI-verified therapists. AI-powered insights and a community that gets it.',
+    url: SITE_URL,
+    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    description: 'Book a free first session with RCI-verified therapists in India.',
+  },
+  robots: { index: true, follow: true },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MedicalOrganization',
+  name: 'getCalmly',
+  url: SITE_URL,
+  description:
+    'Mental healthcare platform connecting people in India with RCI-verified therapists and psychiatrists, powered by AI insights.',
+  areaServed: 'IN',
+  slogan: 'Mental Healthcare, Powered by Experts, Personalized by AI',
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+      </body>
     </html>
   )
 }

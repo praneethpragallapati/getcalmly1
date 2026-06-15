@@ -1,22 +1,6 @@
-// Faithful markup port of getcalmly-landing-v2.html (body, sans <script>).
-// Do not edit by hand — generated from the brand mockup.
-export const LANDING_MARKUP = `<!-- ── NAV ── -->
-<nav id="nav">
-  <a href="#" class="logo"><span class="get">get</span><span class="calm">Calmly.</span></a>
-  <ul class="nav-links">
-    <li><a href="#how">How it works</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#therapists">Therapists</a></li>
-    <li><a href="#pricing">Pricing</a></li>
-    <li><a href="#community">Community</a></li>
-  </ul>
-  <div class="nav-actions">
-    <a href="#" class="btn-ghost">Log in</a>
-    <a href="#" class="btn-primary" onclick="openModal();return false;">Free assessment</a>
-  </div>
-</nav>
-
-<!-- ── HERO ── -->
+// Faithful section markup ported from getcalmly-landing-v2.html (nav, footer,
+// therapists, enterprise & modal removed; CTAs routed to /assess).
+export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="hero" id="home">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
@@ -33,11 +17,11 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
       </h1>
       <p class="hero-sub">Real therapists. AI-powered insights. A community that gets it. getCalmly meets you where you are — and walks forward with you.</p>
       <div class="hero-actions">
-        <button class="btn-hero fill" onclick="openModal()">✦ Take the free assessment</button>
-        <a href="#therapists" class="btn-hero outline">Browse therapists</a>
+        <a href="/assess" class="btn-hero fill">✦ Book a free session</a>
+        <a href="#how" class="btn-hero outline">See how it works</a>
       </div>
       <div class="hero-trust">
-        <span class="ht">Free to start</span>
+        <span class="ht">First session free</span>
         <span class="ht">RCI-verified therapists</span>
         <span class="ht">100% confidential</span>
       </div>
@@ -186,45 +170,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
   </div>
 </section>
 
-<!-- ── THERAPISTS ── -->
-<section class="therapists-section" id="therapists">
-  <div class="t-top">
-    <div>
-      <div class="sec-label reveal">Our therapists</div>
-      <h2 class="sec-h2 reveal">Meet the people who'll<br><span>walk with you.</span></h2>
-    </div>
-    <a href="#" class="btn-primary">Browse all 40+ therapists</a>
-  </div>
-  <div class="t-grid">
-    <div class="t-card reveal">
-      <div class="t-photo r">👩‍⚕️<div class="rci">✓ RCI</div></div>
-      <div class="t-body"><div class="t-name">Dr. Ananya Sharma</div><div class="t-spec">Clinical Psychologist · 8 yrs experience</div><div class="t-tags"><span class="t-tag">Anxiety</span><span class="t-tag">CBT</span><span class="t-tag">Work stress</span></div><div class="t-stats"><div class="t-stat"><strong>⭐ 4.9</strong> rating</div><div class="t-stat"><strong>127</strong> sessions</div><div class="t-stat"><strong>Hindi, English</strong></div></div><button class="t-btn">Book a session →</button></div>
-    </div>
-    <div class="t-card reveal d1">
-      <div class="t-photo g">👨‍⚕️<div class="rci">✓ RCI</div></div>
-      <div class="t-body"><div class="t-name">Dr. Rohan Mehta</div><div class="t-spec">Psychiatrist · 12 yrs experience</div><div class="t-tags"><span class="t-tag">Depression</span><span class="t-tag">Trauma</span><span class="t-tag">PTSD</span></div><div class="t-stats"><div class="t-stat"><strong>⭐ 4.8</strong> rating</div><div class="t-stat"><strong>203</strong> sessions</div><div class="t-stat"><strong>English, Tamil</strong></div></div><button class="t-btn">Book a session →</button></div>
-    </div>
-    <div class="t-card reveal d2">
-      <div class="t-photo l">👩‍⚕️<div class="rci">✓ RCI</div></div>
-      <div class="t-body"><div class="t-name">Dr. Preethi Nair</div><div class="t-spec">Counselling Psychologist · 5 yrs experience</div><div class="t-tags"><span class="t-tag">Relationships</span><span class="t-tag">Self-esteem</span><span class="t-tag">Grief</span></div><div class="t-stats"><div class="t-stat"><strong>⭐ 4.7</strong> rating</div><div class="t-stat"><strong>89</strong> sessions</div><div class="t-stat"><strong>Malayalam, English</strong></div></div><button class="t-btn">Book a session →</button></div>
-    </div>
-  </div>
-</section>
 
-<!-- ── ENTERPRISE STRIP ── -->
-<div class="enterprise-strip reveal">
-  <div class="ent-left">
-    <span class="ent-badge">For organisations</span>
-    <span class="ent-text"><strong>getCalmly for Business</strong> — clinical-grade mental health infrastructure for hospitals, corporates & clinics.</span>
-    <div class="ent-pills">
-      <span class="ent-pill">Hospital integration</span>
-      <span class="ent-pill">Corporate wellness</span>
-      <span class="ent-pill">Clinic management</span>
-      <span class="ent-pill">HIPAA compliant</span>
-    </div>
-  </div>
-  <a href="#" class="ent-cta">Talk to our enterprise team →</a>
-</div>
 
 <!-- ── DASHBOARD PREVIEW ── -->
 <section class="preview-section" id="preview">
@@ -372,7 +318,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
           <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Sessions that know your history</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Your therapist sees your week before you even say hello.</div></div>
         </div>
       </div>
-      <button class="btn-hero fill" onclick="openModal()">✦ Try it free — no login needed</button>
+      <a href="/assess" class="btn-hero fill">✦ Try it free</a>
     </div>
   </div>
 
@@ -534,7 +480,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
           <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Hospital-ready reporting</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Structured notes, referral letters and progress reports — exportable instantly.</div></div>
         </div>
       </div>
-      <a href="#" class="btn-hero outline" style="border-color:rgba(26,127,122,.3);color:#1A7F7A;display:inline-flex;" onmouseover="this.style.background='rgba(26,127,122,.06)'" onmouseout="this.style.background='transparent'">Join as a therapist →</a>
+      <a href="/for-therapists" class="btn-hero outline" style="border-color:rgba(26,127,122,.3);color:#1A7F7A;display:inline-flex;" onmouseover="this.style.background='rgba(26,127,122,.06)'" onmouseout="this.style.background='transparent'">Join as a therapist →</a>
     </div>
   </div>
 </section>
@@ -561,7 +507,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
           <div class="quiz-opt" onclick="selOpt(this)">More than half the days</div>
           <div class="quiz-opt" onclick="selOpt(this)">Nearly every day</div>
         </div>
-        <button class="assess-big-btn" onclick="openModal()"><span>✦</span> Begin your free assessment</button>
+        <a class="assess-big-btn" href="/assess"><span>✦</span> Book your free session</a>
         <div class="assess-note">Trusted by 40,000+ people · Completely confidential</div>
       </div>
     </div>
@@ -586,7 +532,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
         <div class="plan-feat"><span class="ck">✓</span>Community group access</div>
         <div class="plan-feat"><span class="ck">✓</span>Basic AI mood insights</div>
       </div>
-      <button class="plan-btn pb-ol" onclick="openModal()">Get started free</button>
+      <a class="plan-btn pb-ol" href="/assess" style="display:block;text-align:center;text-decoration:none;">Get started free</a>
     </div>
     <div class="plan pro reveal d1">
       <div class="plan-tag">Most popular</div>
@@ -603,7 +549,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
         <div class="plan-feat"><span class="ck">✓</span>Weekly AI pattern reports</div>
         <div class="plan-feat"><span class="ck">✓</span>Priority therapist matching</div>
       </div>
-      <button class="plan-btn pb-dk" onclick="openModal()">Start 7-day free trial</button>
+      <a class="plan-btn pb-dk" href="/assess" style="display:block;text-align:center;text-decoration:none;">Start 7-day free trial</a>
     </div>
     <div class="plan reveal d2">
       <div class="plan-name">Clinical</div>
@@ -618,7 +564,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
         <div class="plan-feat"><span class="ck">✓</span>Hospital referral integration</div>
         <div class="plan-feat"><span class="ck">✓</span>Family account — up to 4 members</div>
       </div>
-      <button class="plan-btn pb-ol">Talk to our team</button>
+      <a class="plan-btn pb-ol" href="/contact" style="display:block;text-align:center;text-decoration:none;">Talk to our team</a>
     </div>
   </div>
 </section>
@@ -640,7 +586,7 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
         <div class="cg"><div class="cg-icon" style="background:#FFF8E7;">💼</div><div><div class="cg-t">Work Wellness</div><div class="cg-s">Burnout, stress & setting boundaries</div></div><div class="cg-ct">876 members</div></div>
         <div class="cg"><div class="cg-icon" style="background:var(--green-pale);">🧘</div><div><div class="cg-t">Mindfulness & Meditation</div><div class="cg-s">Daily practices & guided sessions</div></div><div class="cg-ct">3.4k members</div></div>
       </div>
-      <a href="#" class="btn-primary">Join the community free →</a>
+      <a href="/community" class="btn-primary">Join the community free →</a>
     </div>
   </div>
 </section>
@@ -663,8 +609,8 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
     <h2 class="sec-h2 reveal">The hardest part<br>is <span>just starting.</span></h2>
     <p class="sec-p reveal">Take the free 5-minute assessment. No login, no credit card, no commitment. Just an honest look at how you're doing — and a clear, gentle path forward.</p>
     <div class="fcta-btns reveal">
-      <button class="btn-xl c" onclick="openModal()">✦ Take the free assessment</button>
-      <a href="#therapists" class="btn-xl o">Browse therapists</a>
+      <a class="btn-xl c" href="/assess">✦ Book a free session</a>
+      <a href="#how" class="btn-xl o">See how it works</a>
     </div>
     <div class="fcta-trust reveal">
       <span class="fti">🔒 100% confidential</span>
@@ -673,37 +619,4 @@ export const LANDING_MARKUP = `<!-- ── NAV ── -->
       <span class="fti">🇮🇳 Made in India</span>
     </div>
   </div>
-</section>
-
-<!-- ── FOOTER ── -->
-<footer>
-  <div class="foot-grid">
-    <div class="foot-brand">
-      <a href="#" class="logo"><span class="get">get</span><span class="calm">Calmly.</span></a>
-      <p>Mental wellness reimagined. Clinical-grade therapy, AI insights, and a community that understands — all in one calm, trustworthy space.</p>
-    </div>
-    <div class="foot-col"><h4>Product</h4><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#" onclick="openModal();return false;">Free assessment</a></div>
-    <div class="foot-col"><h4>Care</h4><a href="#therapists">Find a therapist</a><a href="#">RCI verification</a><a href="#community">Community</a><a href="#">Crisis resources</a></div>
-    <div class="foot-col"><h4>Company</h4><a href="#">About getCalmly</a><a href="#">Blog</a><a href="#">Privacy policy</a><a href="#">Terms of use</a></div>
-  </div>
-  <div class="foot-bottom">
-    <p>© 2025 getCalmly. Made with care in India.</p>
-    <div class="foot-badges"><span class="fbadge">✓ RCI Compliant</span><span class="fbadge">🔒 HIPAA Safe</span><span class="fbadge">🇮🇳 India-made</span></div>
-  </div>
-</footer>
-
-<!-- ── MODAL ── -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeBg(event)">
-  <div class="modal" id="modal">
-    <button class="modal-x" onclick="closeModal()">×</button>
-    <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:8%"></div></div>
-    <div class="modal-eye" id="mEye">Free Mental Wellness Assessment · Question 1 of 12</div>
-    <div class="modal-q" id="mQ"></div>
-    <div class="modal-opts" id="mOpts"></div>
-    <div class="modal-acts">
-      <button class="modal-back" onclick="prevQ()">← Back</button>
-      <button class="modal-next" onclick="nextQ()" id="mNext">Continue →</button>
-    </div>
-    <div class="modal-note">🔒 Your answers are private and never stored without your consent</div>
-  </div>
-</div>`;
+</section>`;

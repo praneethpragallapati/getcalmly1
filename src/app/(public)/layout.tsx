@@ -1,6 +1,4 @@
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import CrisisBanner from '@/components/layout/CrisisBanner'
+import SiteShell from '@/components/site/SiteShell'
 import ConsentBanner from '@/components/layout/ConsentBanner'
 
 export default function PublicLayout({
@@ -9,12 +7,9 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
-      <CrisisBanner />
-      <Header />
-      <main>{children}</main>
-      <Footer />
+    <SiteShell>
+      {children}
       <ConsentBanner />
-    </>
+    </SiteShell>
   )
 }
