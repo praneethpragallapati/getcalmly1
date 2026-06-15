@@ -522,18 +522,36 @@
 .lp-page .feat-grid, .lp-page .t-grid, .lp-page .t3-grid, .lp-page .price-grid{grid-template-columns:1fr 1fr;}
 .lp-page .foot-grid{grid-template-columns:1fr 1fr;}
 .lp-page .nav-links{display:none;}
+/* On mobile the burger menu holds every link — hide the inline action
+   buttons so the nav bar doesn't crowd or overflow. */
+.lp-page .nav-actions .btn-ghost, .lp-page .nav-actions .btn-primary{display:none;}
 .lp-page .t-top{flex-direction:column;align-items:flex-start;gap:18px;}
 .lp-page .preview-pane.active{grid-template-columns:1fr;gap:40px;}
 .lp-page .enterprise-strip{flex-direction:column;align-items:flex-start;gap:18px;}
 }
 @media(max-width:600px){
+.lp-page{ -webkit-text-size-adjust:100%; }
+.lp-page section{padding:72px 5%;}
+.lp-page nav{padding:0 5%;height:62px;}
+.lp-page nav .gc-logo-tag{display:none;}
+.lp-page .hero{padding:80px 5% 56px;min-height:auto;}
+.lp-page .hero-layout{gap:40px;}
+.lp-page .hero-h1{font-size:clamp(40px,12vw,56px);letter-spacing:-1px;}
+.lp-page .hero-sub{font-size:16px;}
+.lp-page .hero-actions{width:100%;}
+.lp-page .hero-actions .btn-hero{flex:1;justify-content:center;text-align:center;}
+.lp-page .hero-trust{flex-wrap:wrap;gap:10px 16px;}
+.lp-page .phone-frame{max-width:300px;}
 .lp-page .weeks-track{grid-template-columns:1fr;}
 .lp-page .feat-grid, .lp-page .t-grid, .lp-page .t3-grid, .lp-page .price-grid, .lp-page .foot-grid{grid-template-columns:1fr;}
 .lp-page .quiz-opts, .lp-page .modal-opts{grid-template-columns:1fr;}
 .lp-page .trust-strip{flex-direction:column;}
 .lp-page .trust-item{border-right:none;border-bottom:1px solid var(--border);width:100%;padding:14px 0;justify-content:center;}
 .lp-page .trust-item:last-child{border-bottom:none;}
-.lp-page .sec-h2{transform:none;}
+.lp-page .sec-h2{transform:none;font-size:clamp(32px,9vw,44px);}
+.lp-page .sec-p{font-size:16px;}
 .lp-page .hero-h1{transform:none;}
 .lp-page .assess-stats{flex-wrap:wrap;}
+.lp-page .fcta-btns{flex-direction:column;}
+.lp-page .fcta-btns .btn-xl{width:100%;justify-content:center;text-align:center;}
 }

@@ -64,6 +64,7 @@ export default function Logo({
       {wordmark}
       {tagline && (
         <span
+          className="gc-logo-tag"
           style={{
             fontFamily: "'DM Sans',sans-serif",
             fontWeight: 700,
