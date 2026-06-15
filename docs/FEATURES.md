@@ -120,7 +120,7 @@ Models: `User`, `Account`, `Session`, `VerificationToken`, `TherapistProfile`,
 `Assessment`, `Appointment`, `MoodEntry`, `JournalEntry`.
 
 Migration: `prisma/migrations/0001_init`. Applied automatically on Railway via
-`prisma migrate deploy` (see §8).
+`prisma migrate deploy` in the start command (see §8). Hosted on Railway Postgres.
 
 ---
 
@@ -131,15 +131,16 @@ Migration: `prisma/migrations/0001_init`. Applied automatically on Railway via
 - **Build:** `npm ci && npm run build` (runs `prisma generate` first).
 - **Start:** `npx prisma migrate deploy && npm run start` — migrations apply on
   every deploy, so the schema stays in sync without manual SQL.
-- **Provision:** add a **PostgreSQL** plugin in Railway; it injects
-  `DATABASE_URL`. Set `DIRECT_URL` to the same value (no PgBouncer needed on
-  Railway), plus `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`, and
-  OAuth/Razorpay/MSG91 keys.
+- **Database:** Railway-managed **PostgreSQL** (single direct connection — no
+  pooler/`DIRECT_URL` needed). Add the Postgres plugin, then in the app service
+  set `DATABASE_URL = ${{ Postgres.DATABASE_URL }}` so it tracks automatically.
+- **Provision steps:** New Project → Deploy from GitHub repo → Add **PostgreSQL**
+  → set env vars below → deploy. Migrations apply on first boot.
 
 ### Required env vars
-`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`,
-`NEXT_PUBLIC_SITE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
-`MSG91_AUTH_KEY`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
+`DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`,
+`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MSG91_AUTH_KEY`,
+`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
 
 ---
 
