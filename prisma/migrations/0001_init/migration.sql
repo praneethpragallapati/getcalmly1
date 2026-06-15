@@ -119,7 +119,7 @@ CREATE TABLE "MoodEntry" (
     "userId" TEXT NOT NULL,
     "mood" INTEGER NOT NULL,
     "energy" INTEGER NOT NULL,
-    "anxiety" INTEGER NOT NULL,
+    "sleep" INTEGER NOT NULL,
     "note" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

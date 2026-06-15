@@ -9,13 +9,13 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
     <!-- LEFT: headline + CTA -->
     <div class="hero-left">
-      <div class="hero-pill"><span class="pill-dot"></span>India's most trusted mental health platform</div>
+      <div class="hero-pill"><span class="pill-dot"></span>First free session · No card needed</div>
       <h1 class="hero-h1">
         <span class="light">Your mind</span>
         deserves<br>
         <span class="accent">real care.</span>
       </h1>
-      <p class="hero-sub">Real therapists. AI-powered insights. A community that gets it. getCalmly meets you where you are — and walks forward with you.</p>
+      <p class="hero-sub">RCI-verified therapists, AI that understands your patterns, and a community that gets it — all in one calm space.</p>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Book a free session</a>
         <a href="#how" class="btn-hero outline">See how it works</a>
@@ -43,8 +43,20 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div class="ps-body">
             <div class="ps-card">
               <div class="ps-badge">AI Insight · just now</div>
-              <div class="ps-card-title">Mondays tend to weigh on you — and that's okay.</div>
-              <div class="ps-card-sub">A 5-min breathing exercise before your first call may help. Tap to try it.</div>
+              <div class="gc-cyc-track">
+                <div class="gc-cyc-item">
+                  <div class="ps-card-title">Mondays tend to weigh on you — and that's okay.</div>
+                  <div class="ps-card-sub">A 5-min breathing exercise before your first call may help. Tap to try it.</div>
+                </div>
+                <div class="gc-cyc-item">
+                  <div class="ps-card-title">Your sleep improved 3 nights running.</div>
+                  <div class="ps-card-sub">Mood tends to follow your rest — keep protecting that wind-down hour.</div>
+                </div>
+                <div class="gc-cyc-item">
+                  <div class="ps-card-title">You journaled 4 days straight. That's a streak.</div>
+                  <div class="ps-card-sub">Less self-criticism this week than last. Want to see the pattern?</div>
+                </div>
+              </div>
             </div>
             <div class="ps-card">
               <div class="ps-badge">Today's session</div>
@@ -77,15 +89,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="scroll-cue"><div class="sc-line"></div>Scroll</div>
 </section>
 
-<!-- ── TRUST STRIP ── -->
-<div class="trust-strip reveal">
-  <div class="trust-item"><span class="trust-n">40K+</span><div class="trust-l"><strong>People supported</strong>across India</div></div>
-  <div class="trust-item"><span class="trust-n">40+</span><div class="trust-l"><strong>RCI-verified</strong>clinical therapists</div></div>
-  <div class="trust-item"><span class="trust-n">4.9★</span><div class="trust-l"><strong>Average rating</strong>from patients</div></div>
-  <div class="trust-item"><span class="trust-n">94%</span><div class="trust-l"><strong>Improvement reported</strong>within 60 days</div></div>
-  <div class="trust-item"><span class="trust-n">₹0</span><div class="trust-l"><strong>To start</strong>your journey today</div></div>
-</div>
-
 <!-- ── HOW IT WORKS ── -->
 <section class="how-section" id="how">
   <div class="sec-label reveal">How it works</div>
@@ -93,7 +96,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="how-layout">
     <div class="how-steps">
       <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">Take the free assessment</div><div class="hs-d">Answer 12 clinically validated questions. Our AI instantly builds a personalised mental wellness profile — no login required, no obligation.</div></div></div>
-      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">Get matched with the right therapist</div><div class="hs-d">Browse 40+ RCI-verified clinical psychologists and psychiatrists. Filter by specialty, language, and availability. Every expert is credentialled and reviewed.</div></div></div>
+      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">Get matched with the right therapist</div><div class="hs-d">No endless directories to scroll. We match you with the right RCI-verified clinical psychologist or psychiatrist for your needs — every expert credentialled, reviewed, and ready when you are.</div></div></div>
       <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">Begin your calm space</div><div class="hs-d">Attend sessions via Google Meet. Between sessions, your AI companion Calm checks in daily, tracks your mood, and offers personalised coping strategies.</div></div></div>
       <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">Watch yourself grow</div><div class="hs-d">Mood trends, pattern detection, streak tracking, and weekly AI insight reports — quietly building evidence of the progress you're making, one day at a time.</div></div></div>
     </div>
@@ -112,7 +115,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="how-card">
         <div class="hc-badge">Mood intelligence · this month</div>
         <div class="hc-title" style="margin-bottom:12px;">Your anxiety peaks on Sunday evenings.</div>
-        <div style="display:flex;align-items:flex-end;gap:4px;height:36px;margin-bottom:8px;">
+        <div class="gc-bars" style="display:flex;align-items:flex-end;gap:4px;height:36px;margin-bottom:8px;">
           <div style="flex:1;background:rgba(200,85,61,.25);border-radius:3px 3px 0 0;height:60%;"></div>
           <div style="flex:1;background:rgba(200,85,61,.35);border-radius:3px 3px 0 0;height:80%;"></div>
           <div style="flex:1;background:rgba(200,85,61,.2);border-radius:3px 3px 0 0;height:40%;"></div>
@@ -162,7 +165,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
   <div class="feat-grid">
     <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — your 24/7 companion</div><div class="feat-d">An empathetic AI that learns your patterns, checks in every morning, and offers coping strategies drawn from your actual therapy sessions and journal history.</div><span class="feat-badge fb-dk">Powered by Claude</span></div>
-    <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood intelligence engine</div><div class="feat-d">Three-dimensional daily tracking — mood, energy, anxiety — building a rich picture over time that reveals patterns neither you nor your therapist could see alone.</div><span class="feat-badge fb-c">Science-backed</span></div>
+    <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood intelligence engine</div><div class="feat-d">Three-dimensional daily tracking — mood, energy, sleep — building a rich picture over time that reveals patterns neither you nor your therapist could see alone.</div><span class="feat-badge fb-c">Science-backed</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Smart journaling & AI insights</div><div class="feat-d">Write freely. getCalmly detects recurring themes, emotional triggers, and growth moments — then surfaces them in a clear weekly insight report.</div><span class="feat-badge fb-c">Pattern detection</span></div>
     <div class="feat-card reveal"><span class="feat-icon">👩‍⚕️</span><div class="feat-t">RCI-verified clinical therapists</div><div class="feat-d">Every therapist is registered with the Rehabilitation Council of India. Verified credentials, structured sessions, and real clinical outcomes — not wellness coaches.</div><span class="feat-badge fb-g">Clinically verified</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">🏥</span><div class="feat-t">Hospital & enterprise integration</div><div class="feat-d">Session notes, referral tracking, and progress reports structured for hospital workflows and corporate wellness programs. Clinical-grade from the ground up.</div><span class="feat-badge fb-c">Enterprise ready</span></div>
@@ -231,9 +234,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
                 <div style="font-size:9px;color:var(--gray);font-weight:500;margin-top:3px;">→ steady</div>
               </div>
               <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Anxiety</div>
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:var(--gold);transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">3.4</div>
-                <div style="font-size:9px;color:var(--green);font-weight:600;margin-top:3px;">↓ lower</div>
+                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Sleep</div>
+                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:#7FB3A8;transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">7.5</div>
+                <div style="font-size:9px;color:var(--green);font-weight:600;margin-top:3px;">↑ better</div>
               </div>
             </div>
 
@@ -250,7 +253,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
                       <stop offset="100%" stop-color="#C8553D" stop-opacity="0"/>
                     </linearGradient>
                   </defs>
-                  <path d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path class="gc-chart-line" d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14 L138,48 L0,48Z" fill="url(#mg)"/>
                   <circle cx="138" cy="14" r="3" fill="#C8553D"/>
                   <text x="138" y="10" text-anchor="middle" font-size="7" fill="#C8553D" font-weight="700">7.2</text>
@@ -307,7 +310,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">3-dimensional mood tracking</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Mood, energy and anxiety — tracked daily, visualised clearly.</div></div>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">3-dimensional mood tracking</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Mood, energy and sleep — tracked daily, visualised clearly.</div></div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
@@ -426,17 +429,17 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
                   <div style="display:flex;flex-direction:column;gap:5px;">
                     <div style="display:flex;align-items:center;gap:6px;">
                       <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">P</span>
-                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div style="width:72%;height:100%;background:var(--coral);border-radius:5px;"></div></div>
+                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div class="gc-grow" style="width:72%;height:100%;background:var(--coral);border-radius:5px;"></div></div>
                       <span style="font-size:9px;color:var(--coral);font-weight:700;">7.2</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                       <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">K</span>
-                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div style="width:68%;height:100%;background:var(--green);border-radius:5px;"></div></div>
+                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div class="gc-grow gc-d1" style="width:68%;height:100%;background:var(--green);border-radius:5px;"></div></div>
                       <span style="font-size:9px;color:var(--green);font-weight:700;">6.8</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                       <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">A</span>
-                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div style="width:41%;height:100%;background:var(--gold);border-radius:5px;"></div></div>
+                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div class="gc-grow gc-d2" style="width:41%;height:100%;background:var(--gold);border-radius:5px;"></div></div>
                       <span style="font-size:9px;color:var(--gold);font-weight:700;">4.1</span>
                     </div>
                   </div>
@@ -518,53 +521,50 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="pricing-section" id="pricing">
   <div class="sec-label reveal">Pricing</div>
   <h2 class="sec-h2 reveal">Your mental health<br>shouldn't cost <span>the earth.</span></h2>
-  <p class="sec-p reveal">Start free. Upgrade when you're ready. Every plan includes the assessment and community.</p>
+  <p class="sec-p reveal">Your first session is free. Pay only for the sessions you book — no subscriptions, no lock-in. The assessment, mood tracking, journaling and community are always free.</p>
   <div class="price-grid">
     <div class="plan reveal">
       <div class="plan-name">Free</div>
       <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">0</span></div>
-      <div class="plan-period">Forever free, no card needed</div>
+      <div class="plan-period">Always free, no card needed</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
         <div class="plan-feat"><span class="ck">✓</span>Free mental wellness assessment</div>
         <div class="plan-feat"><span class="ck">✓</span>Daily 3-dimensional mood check-in</div>
-        <div class="plan-feat"><span class="ck">✓</span>5 journal entries per month</div>
-        <div class="plan-feat"><span class="ck">✓</span>Community group access</div>
-        <div class="plan-feat"><span class="ck">✓</span>Basic AI mood insights</div>
+        <div class="plan-feat"><span class="ck">✓</span>Smart journaling with AI insights</div>
+        <div class="plan-feat"><span class="ck">✓</span>Calm AI companion</div>
+        <div class="plan-feat"><span class="ck">✓</span>Moderated community access</div>
       </div>
       <a class="plan-btn pb-ol" href="/assess" style="display:block;text-align:center;text-decoration:none;">Get started free</a>
     </div>
     <div class="plan pro reveal d1">
-      <div class="plan-tag">Most popular</div>
-      <div class="plan-name">Growth</div>
-      <div class="plan-pr"><span class="plan-cur" style="color:rgba(255,255,255,.7)">₹</span><span class="plan-amt">799</span></div>
-      <div class="plan-period">per month · billed annually</div>
+      <div class="plan-tag">First session free</div>
+      <div class="plan-name">Therapy session</div>
+      <div class="plan-pr"><span class="plan-cur" style="color:rgba(255,255,255,.7)">From ₹</span><span class="plan-amt">999</span></div>
+      <div class="plan-period">per session · first one free</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Everything in Free</div>
-        <div class="plan-feat"><span class="ck">✓</span>Unlimited journaling + AI insights</div>
-        <div class="plan-feat"><span class="ck">✓</span>Calm AI — 24/7 companion</div>
-        <div class="plan-feat"><span class="ck">✓</span>2 therapy sessions per month</div>
-        <div class="plan-feat"><span class="ck">✓</span>Full mood intelligence dashboard</div>
-        <div class="plan-feat"><span class="ck">✓</span>Weekly AI pattern reports</div>
-        <div class="plan-feat"><span class="ck">✓</span>Priority therapist matching</div>
+        <div class="plan-feat"><span class="ck">✓</span>50-min session with an RCI-verified therapist</div>
+        <div class="plan-feat"><span class="ck">✓</span>Matched to your needs — we find the right fit</div>
+        <div class="plan-feat"><span class="ck">✓</span>Secure video via Google Meet</div>
+        <div class="plan-feat"><span class="ck">✓</span>AI pre-session brief shared with your therapist</div>
+        <div class="plan-feat"><span class="ck">✓</span>Book one at a time — no commitment</div>
       </div>
-      <a class="plan-btn pb-dk" href="/assess" style="display:block;text-align:center;text-decoration:none;">Start 7-day free trial</a>
+      <a class="plan-btn pb-dk" href="/assess" style="display:block;text-align:center;text-decoration:none;">Book your free session</a>
     </div>
     <div class="plan reveal d2">
-      <div class="plan-name">Clinical</div>
-      <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">1,999</span></div>
-      <div class="plan-period">per month · for serious care</div>
+      <div class="plan-name">Psychiatry session</div>
+      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">1,299</span></div>
+      <div class="plan-period">per session · with a psychiatrist</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Everything in Growth</div>
-        <div class="plan-feat"><span class="ck">✓</span>Unlimited therapy sessions</div>
-        <div class="plan-feat"><span class="ck">✓</span>Dedicated care coordinator</div>
-        <div class="plan-feat"><span class="ck">✓</span>Psychiatrist access</div>
-        <div class="plan-feat"><span class="ck">✓</span>Hospital referral integration</div>
-        <div class="plan-feat"><span class="ck">✓</span>Family account — up to 4 members</div>
+        <div class="plan-feat"><span class="ck">✓</span>Consultation with an RCI-verified psychiatrist</div>
+        <div class="plan-feat"><span class="ck">✓</span>Medication review &amp; management</div>
+        <div class="plan-feat"><span class="ck">✓</span>Secure video via Google Meet</div>
+        <div class="plan-feat"><span class="ck">✓</span>Coordinated with your therapist when needed</div>
+        <div class="plan-feat"><span class="ck">✓</span>Hospital referral when clinically required</div>
       </div>
-      <a class="plan-btn pb-ol" href="/contact" style="display:block;text-align:center;text-decoration:none;">Talk to our team</a>
+      <a class="plan-btn pb-ol" href="/assess" style="display:block;text-align:center;text-decoration:none;">Book a consultation</a>
     </div>
   </div>
 </section>
@@ -573,9 +573,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="comm-section" id="community">
   <div class="comm-layout">
     <div class="comm-posts reveal">
-      <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">meera_k</div><div class="cp-grp">Anxiety Warriors</div></div></div><div class="cp-text">Has anyone tried the 5-4-3-2-1 grounding technique? It's been a game-changer for my panic attacks. Happy to share how I use it 🌿</div><div class="cp-acts"><span class="cp-act liked">❤️ 34</span><span class="cp-act">💬 12 replies</span><span class="cp-act">↗ Share</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">arjun_22</div><div class="cp-grp">Work Wellness</div></div></div><div class="cp-text">Finally set a boundary with my manager about after-hours messages. It felt terrifying but so necessary. Small win for today 🙌</div><div class="cp-acts"><span class="cp-act">❤️ 58</span><span class="cp-act">💬 7 replies</span><span class="cp-act">↗ Share</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months into therapy and I actually laughed at something today. I forgot what that felt like. Progress isn't always loud 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">meera_k</div><div class="cp-grp">Anxiety Warriors</div></div></div><div class="cp-text">I had my first panic attack in months yesterday. Instead of hating myself for it, I used what my therapist taught me and just breathed through it. It passed. That feels like a win I never thought I'd have 🌿</div><div class="cp-acts"><span class="cp-act liked">❤️ 34</span><span class="cp-act">💬 12 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">arjun_22</div><div class="cp-grp">Work Wellness</div></div></div><div class="cp-text">First time opening up about my burnout out loud. I've been pretending I'm fine for two years. Typing this is terrifying but I'm so tired of carrying it alone 🙌</div><div class="cp-acts"><span class="cp-act">❤️ 58</span><span class="cp-act">💬 7 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months in and I actually laughed at something today — really laughed. I'd forgotten what that felt like. To anyone in the dark right now: it doesn't stay this heavy forever 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
     </div>
     <div class="comm-right reveal d2">
       <div class="sec-label">Community</div>
@@ -606,8 +606,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="final-cta">
   <div class="fcta">
     <div class="sec-label">Begin today</div>
-    <h2 class="sec-h2 reveal">The hardest part<br>is <span>just starting.</span></h2>
-    <p class="sec-p reveal">Take the free 5-minute assessment. No login, no credit card, no commitment. Just an honest look at how you're doing — and a clear, gentle path forward.</p>
+    <h2 class="sec-h2 reveal">Your first session<br>is <span>on us.</span></h2>
+    <p class="sec-p reveal">No card. No commitment. Start with the free 5-minute assessment, get matched with the right expert, and have your first session free — just an honest look at how you're doing, and a clear path forward.</p>
     <div class="fcta-btns reveal">
       <a class="btn-xl c" href="/assess">✦ Book a free session</a>
       <a href="#how" class="btn-xl o">See how it works</a>

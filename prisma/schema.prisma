@@ -145,7 +145,7 @@ model MoodEntry {
   user      User     @relation(fields: [userId], references: [id])
   mood      Int
   energy    Int
-  anxiety   Int
+  sleep     Int
   note      String?
   createdAt DateTime @default(now())
 }

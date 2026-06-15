@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const benefits = [
   { icon: '🧠', t: 'AI pre-session briefs', d: 'Walk into every session knowing your client’s week — mood trends, journal themes, and risk flags summarised for you.' },
-  { icon: '🗓️', t: 'Matched clients, not cold leads', d: 'We match clients to you by specialty, language and availability. No bidding, no chasing — just the right fit.' },
+  { icon: '🗓️', t: 'Matched clients, not cold leads', d: 'We match clients to you by specialty and availability. No bidding, no chasing — just the right fit.' },
   { icon: '📋', t: 'Structured clinical notes', d: 'Session notes, referral letters and progress reports built for hospital workflows — exportable instantly.' },
   { icon: '🔔', t: 'Between-session monitoring', d: 'AI watches mood patterns and alerts you when a client needs attention, so nothing slips through.' },
   { icon: '💳', t: 'Reliable, transparent payouts', d: 'Razorpay-backed payments, clear fees, and on-time settlements. You focus on care, we handle billing.' },

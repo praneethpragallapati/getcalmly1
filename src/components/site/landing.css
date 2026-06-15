@@ -422,6 +422,51 @@
 .lp-page .doc-alert-s{font-size:10px;color:var(--gray);margin-top:2px;}
 .lp-page .doc-alert-tag{font-size:9px;font-weight:700;color:var(--coral);background:var(--coral-pale);
   padding:2px 8px;border-radius:10px;margin-left:auto;white-space:nowrap;flex-shrink:0;}
+/* ── Live "video-glimpse" dashboard animations ── */
+@media (prefers-reduced-motion: no-preference){
+  /* gentle breathing on the phone + dash frames */
+  .lp-page .phone-frame{animation:gcBreathe 7s ease-in-out infinite;}
+  @keyframes gcBreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+  /* floating badges bob independently */
+  .lp-page .float-1{animation:gcBob1 5.5s ease-in-out infinite;}
+  .lp-page .float-2{animation:gcBob2 6.5s ease-in-out infinite;}
+  @keyframes gcBob1{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @keyframes gcBob2{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+
+  /* live "online" dots pulse */
+  .lp-page .float-dot{animation:gcPulse 2.2s ease-in-out infinite;}
+  @keyframes gcPulse{0%,100%{box-shadow:0 0 0 0 rgba(61,158,114,.5)}70%{box-shadow:0 0 0 6px rgba(61,158,114,0)}}
+
+  /* cycling AI insight card (the "video" effect) */
+  .lp-page .gc-cyc-track{position:relative;min-height:60px;}
+  .lp-page .gc-cyc-item{position:absolute;inset:0;opacity:0;animation:gcCyc 13.5s ease-in-out infinite;}
+  .lp-page .gc-cyc-item:nth-child(2){animation-delay:4.5s;}
+  .lp-page .gc-cyc-item:nth-child(3){animation-delay:9s;}
+  @keyframes gcCyc{0%{opacity:0;transform:translateY(7px)}6%,28%{opacity:1;transform:translateY(0)}34%,100%{opacity:0;transform:translateY(-7px)}}
+
+  /* self-drawing mood line chart */
+  .lp-page .gc-chart-line{stroke-dasharray:200;stroke-dashoffset:200;animation:gcDraw 4.5s ease-in-out infinite;}
+  @keyframes gcDraw{0%{stroke-dashoffset:200}45%,100%{stroke-dashoffset:0}}
+
+  /* mood-trend bars grow from the baseline, left to right */
+  .lp-page .gc-bars > div{transform:scaleY(0);transform-origin:bottom;animation:gcBar 4s ease-in-out infinite;}
+  .lp-page .gc-bars > div:nth-child(1){animation-delay:0s}
+  .lp-page .gc-bars > div:nth-child(2){animation-delay:.12s}
+  .lp-page .gc-bars > div:nth-child(3){animation-delay:.24s}
+  .lp-page .gc-bars > div:nth-child(4){animation-delay:.36s}
+  .lp-page .gc-bars > div:nth-child(5){animation-delay:.48s}
+  .lp-page .gc-bars > div:nth-child(6){animation-delay:.6s}
+  .lp-page .gc-bars > div:nth-child(7){animation-delay:.72s}
+  @keyframes gcBar{0%{transform:scaleY(0)}30%,100%{transform:scaleY(1)}}
+
+  /* horizontal patient-mood bars sweep in */
+  .lp-page .gc-grow{transform:scaleX(0);transform-origin:left;animation:gcGrow 4.5s ease-in-out infinite;}
+  .lp-page .gc-grow.gc-d1{animation-delay:.25s}
+  .lp-page .gc-grow.gc-d2{animation-delay:.5s}
+  @keyframes gcGrow{0%{transform:scaleX(0)}40%,100%{transform:scaleX(1)}}
+}
+
 @media(max-width:1000px){
 .lp-page .hero-layout{grid-template-columns:1fr;gap:52px;}
 .lp-page .hero-phone{display:flex;justify-content:center;}

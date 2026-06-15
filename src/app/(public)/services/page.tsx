@@ -99,7 +99,7 @@ export default function ServicesPage() {
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Whatever you’re going through, there’s a qualified professional here for you —
-            in your language, within your budget.
+            matched to your needs, within your budget.
           </p>
           <Link
             href="/assess"

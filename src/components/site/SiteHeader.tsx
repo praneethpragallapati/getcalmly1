@@ -30,24 +30,44 @@ export default function SiteHeader() {
       </ul>
 
       <div className="nav-actions">
-        <Link href="/for-therapists" className="btn-ghost">For Therapists</Link>
+        <Link
+          href="/for-therapists"
+          className="btn-ghost"
+          style={{ color: '#1A7F7A', borderColor: 'rgba(26,127,122,.35)' }}
+        >
+          For Therapists
+        </Link>
         <Link href="/login" className="btn-ghost" style={{ border: 'none', padding: '8px 10px' }}>Log in</Link>
         <Link href="/assess" className="btn-primary">Book a free session</Link>
         <button
-          aria-label="Menu"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           style={{
             display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            fontSize: 22,
+            padding: 4,
             color: 'var(--charcoal)',
-            lineHeight: 1,
+            lineHeight: 0,
           }}
           className="nav-burger"
         >
-          ☰
+          {open ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="6" y1="6" x2="18" y2="18" />
+              <line x1="18" y1="6" x2="6" y2="18" />
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="7" x2="21" y2="7" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="17" x2="21" y2="17" />
+            </svg>
+          )}
         </button>
       </div>
 
@@ -80,7 +100,7 @@ export default function SiteHeader() {
 
       <style>{`
         @media(max-width:1000px){
-          .lp-page .nav-burger{display:inline-block !important;}
+          .lp-page .nav-burger{display:inline-flex !important;}
         }
       `}</style>
     </nav>

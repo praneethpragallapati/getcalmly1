@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const values = [
   { icon: '🔒', title: 'Privacy First', desc: 'DPDP-compliant, encrypted, and confidential by design.' },
-  { icon: '🗣️', title: 'In Your Language', desc: 'Therapy in 10+ Indian languages, with cultural context that fits.' },
+  { icon: '🗣️', title: 'Culturally Attuned', desc: 'Care that understands your context — matched to fit, not one-size-fits-all.' },
   { icon: '✅', title: 'Clinically Credible', desc: 'Only RCI-licensed psychologists and NMC-registered psychiatrists.' },
   { icon: '🤝', title: 'Accessible & Affordable', desc: 'Quality care within your budget, from your couch or in person.' },
 ]
@@ -26,9 +26,9 @@ export default function AboutPage() {
             Mental health support that understands you
           </h1>
           <p className="text-lg text-gray-600">
-            GetCalmly is a privacy-first, vernacular-enabled digital therapy platform connecting
-            people across India with the right licensed professional — paired not just by symptoms,
-            but by language, culture, and budget.
+            GetCalmly is a privacy-first digital therapy platform connecting people across India
+            with the right licensed professional — matched not just by symptoms, but by your needs,
+            context, and budget.
           </p>
         </div>
       </section>
@@ -48,7 +48,7 @@ export default function AboutPage() {
             <h2 className="text-2xl font-bold text-[#C8553D] mb-3">Our Approach</h2>
             <p className="text-gray-600">
               A strictly-vetted network of RCI-licensed professionals, a “vibe-match” that pairs you
-              on cultural fit and language — not just diagnosis — and a hybrid emergency protocol so
+              on cultural fit and your needs — not just diagnosis — and a hybrid emergency protocol so
               care is safe, not just digital. After therapy, a supportive community stays with you.
             </p>
           </div>

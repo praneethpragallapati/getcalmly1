@@ -98,15 +98,18 @@ State is held in `sessionStorage` between steps. Therapist data in
 
 ---
 
-## 6. Subscription plans
+## 6. Pricing (pay-per-session, no subscriptions)
 
-| Plan | Price | Highlights |
+The free tier is **always free**. Care is billed **per session** — no monthly
+plans or trials. The **first session is free**.
+
+| Tier | Price | Notes |
 | --- | --- | --- |
-| Free | ₹0 | Assessment, daily mood check-in, 5 journals/mo, community, basic AI insights |
-| Growth | ₹799/mo | Unlimited journaling + AI, Calm AI 24/7, 2 sessions/mo, full mood dashboard, weekly reports, priority matching |
-| Clinical | ₹1,999/mo | Unlimited sessions, care coordinator, psychiatrist access, hospital referral, family (up to 4) |
+| Free | ₹0 | Assessment, daily mood check-in (mood/energy/sleep), journaling + AI, Calm AI, community |
+| Therapy session | **From ₹999 / session** | 50-min session with an RCI-verified therapist; first session free |
+| Psychiatry session | **From ₹1,299 / session** | RCI-verified psychiatrist; medication review, hospital referral when needed |
 
-All plan CTAs route to `/assess` (start free, then convert).
+All CTAs route to `/assess` (start free, get matched, first session free).
 
 ---
 
