@@ -10,7 +10,10 @@ const services: Record<ServiceSlug, {
   pale: string
   title: string
   tagline: string
+  question: string
   hero: string
+  stat: { big: string; label: string }
+  recognise: string[]
   why: string
   items: { name: string; desc: string }[]
   whoFor: string[]
@@ -23,7 +26,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(200,85,61,.08)',
     title: 'Individual Therapy',
     tagline: 'For when things feel too heavy to carry alone.',
+    question: 'Is it just stress — or something more?',
     hero: 'You\'ve probably been holding it together for a while now. Doing fine on the outside while something heavier is happening underneath. Therapy isn\'t a sign things have gone wrong, it\'s what makes things go right.',
+    stat: { big: '1 in 7', label: 'adults in India live with a mental health condition — and most never get the support they deserve.' },
+    recognise: [
+      '"I\'m fine," I keep saying — even when I\'m not.',
+      'I lie awake replaying conversations from years ago.',
+      'I get through the day, but I barely feel anything.',
+      'Everyone leans on me. I have no one to lean on.',
+    ],
     why: 'Our therapists are RCI-licensed clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 50 minutes, online, and completely confidential.',
     items: [
       { name: 'Anxiety & Overthinking', desc: 'Racing thoughts, constant worry, the feeling that something\'s about to go wrong, we help you slow it down.' },
@@ -49,7 +60,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(124,92,191,.08)',
     title: 'Couples & Relationship Counselling',
     tagline: 'Because good relationships take work, and that\'s not a failure.',
+    question: 'When did talking become so hard?',
     hero: 'Every relationship goes through seasons. Sometimes those seasons are hard, more arguments, more distance, more silence. Couples therapy isn\'t about deciding who\'s right. It\'s about finding a way forward, together or apart, with clarity.',
+    stat: { big: '69%', label: 'of relationship conflicts are never fully resolved — the goal was never winning. It\'s understanding.' },
+    recognise: [
+      'We have the same fight, over and over.',
+      'We\'re more like roommates than partners now.',
+      'I don\'t feel heard anymore.',
+      'I can\'t tell if we\'re growing apart or just tired.',
+    ],
     why: 'Our couples therapists use Emotionally Focused Therapy (EFT) and Gottman-informed approaches to help you understand each other at a deeper level, not just fix surface arguments.',
     items: [
       { name: 'Communication & Conflict', desc: 'The same fight on repeat, no matter the topic. Therapy helps you break the cycle and actually hear each other.' },
@@ -73,7 +92,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(61,158,114,.08)',
     title: 'Children & Adolescent Therapy',
     tagline: 'They\'re not "just going through a phase."',
+    question: 'Is my child okay — or is this more than a phase?',
     hero: 'You know your child. And when something feels off, whether they\'re withdrawn, anxious, acting out, or just not themselves, you\'re usually right to be concerned. Child therapy gives them a safe, judgment-free space to understand what they\'re feeling, in age-appropriate ways.',
+    stat: { big: '50%', label: 'of all mental health conditions begin by age 14 — which is exactly why early support changes everything.' },
+    recognise: [
+      'My child just isn\'t themselves lately.',
+      'The meltdowns are getting harder to reach.',
+      'They say they\'re fine, but I can tell they\'re not.',
+      'School has quietly become a daily battle.',
+    ],
     why: 'Our child specialists use play therapy, art therapy, and CBT adapted for younger minds. They work with both the child and, where helpful, the parents, because children heal in the context of their relationships.',
     items: [
       { name: 'Anxiety & Worry', desc: 'School anxiety, separation anxiety, social fears, children experience anxiety differently, and they need a therapist who gets that.' },
@@ -99,7 +126,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(217,140,95,.10)',
     title: 'Motherhood & Postpartum Care',
     tagline: 'Everyone asks about the baby. We ask about you.',
+    question: 'Why doesn\'t this feel the way it\'s "supposed" to?',
     hero: 'From the outside, you\'re doing everything right. Inside, you might feel anxious, numb, overwhelmed, or like a stranger to yourself. Pregnancy and the months after birth bring some of the biggest emotional shifts a person can go through, and almost nobody talks about how hard they can be. You don\'t have to pretend you\'re fine.',
+    stat: { big: '1 in 5', label: 'new mothers experience a perinatal mood or anxiety disorder. If this is you, you are far from alone.' },
+    recognise: [
+      'I love my baby, but I don\'t feel like myself.',
+      'I cry, and I can\'t always explain why.',
+      'I feel guilty for not being happier.',
+      'Everyone asks about the baby. No one asks about me.',
+    ],
     why: 'Our maternal mental health specialists are trained in perinatal care, they understand the hormonal, physical, and identity changes of pregnancy and postpartum. This isn\'t generic therapy with a baby mentioned occasionally. It\'s care built for this exact season of life.',
     items: [
       { name: 'Prenatal Anxiety', desc: 'Worry that goes beyond normal nerves, about the baby, the birth, whether you\'ll be enough. We help you carry it more gently.' },
@@ -124,7 +159,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(26,127,122,.08)',
     title: 'Psychiatry',
     tagline: 'Sometimes the brain needs medical support too.',
+    question: 'Have you done the work, but still feel stuck?',
     hero: 'Therapy is powerful. But for some conditions, persistent depression, OCD, bipolar disorder, or severe anxiety, medication alongside therapy makes a meaningful difference. Our psychiatrists are here to evaluate, diagnose, and support you with the right medical care.',
+    stat: { big: '60%', label: 'of people with depression respond significantly better to therapy and medication combined than to either alone.' },
+    recognise: [
+      'Therapy helps, but something still isn\'t shifting.',
+      'I\'m not sure my current medication is right for me.',
+      'I want a real diagnosis, not guesswork.',
+      'I think I\'ve been managing this undiagnosed for years.',
+    ],
     why: 'All our psychiatrists are registered with the National Medical Commission (NMC). They work collaboratively with your therapist to ensure your care is joined-up, not fragmented.',
     items: [
       { name: 'Diagnosis & Evaluation', desc: 'A thorough assessment to understand what you\'re experiencing and whether a diagnosis applies, without rushing to labels.' },
@@ -148,7 +191,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(201,151,58,.08)',
     title: 'Psychological Assessments',
     tagline: 'A clearer picture changes everything.',
+    question: 'What if you could finally understand why?',
     hero: 'Sometimes you just need to understand what\'s going on. Not a diagnosis to carry around, a map. A good psychological assessment gives you and your professional a clearer starting point, so care is targeted rather than guesswork.',
+    stat: { big: '7+ yrs', label: 'is the average delay before adults receive an accurate ADHD diagnosis. Clarity shouldn\'t take that long.' },
+    recognise: [
+      'I\'ve always felt different, but never knew why.',
+      'I want to understand my child, not label them.',
+      'I keep guessing about myself. I want a real answer.',
+      'I\'m at a crossroads and need clarity to decide.',
+    ],
     why: 'Our assessments are administered by qualified clinical psychologists using validated tools. Reports are detailed, readable, and focused on what to do next, not just what\'s wrong.',
     items: [
       { name: 'ADHD Assessment', desc: 'For children and adults who suspect attention difficulties. Includes standardised tools and a clinical interview.' },
@@ -173,7 +224,15 @@ const services: Record<ServiceSlug, {
     pale: 'rgba(192,75,138,.08)',
     title: 'Specialised Support',
     tagline: 'Life is not one-size-fits-all. Neither is care.',
+    question: 'What if you didn\'t have to explain yourself first?',
     hero: 'Some experiences need a professional who truly understands the context, not a generalist who\'s read a chapter about it. Whether you\'re navigating a chronic illness, pregnancy, gender identity, or loss, we have professionals trained specifically for your situation.',
+    stat: { big: 'Zero', label: 'times you should ever have to educate your own therapist on who you are before the real work can begin.' },
+    recognise: [
+      'I\'m tired of explaining my identity before therapy even starts.',
+      'My situation needs someone who actually gets the context.',
+      'I need a true specialist, not a generalist.',
+      'I want to be understood, not just managed.',
+    ],
     why: 'Our specialist roster includes professionals with advanced training in LGBTQIA+ affirmative care, perinatal mental health, palliative support, and clinical supervision. You\'ll never be asked to educate your therapist on who you are.',
     items: [
       { name: 'LGBTQIA+ Affirmative Care', desc: 'A space where you don\'t have to explain your identity before getting to what actually needs talking about. Our therapists are trained in affirmative, non-pathologising care.' },
@@ -211,96 +270,201 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const s = services[slug as ServiceSlug]
   if (!s) notFound()
 
+  const charcoal = '#1C2B3A'
+  const cream = '#F9F5F2'
+
   return (
-    <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
-      {/* Hero */}
-      <section style={{ background: '#1C2B3A', padding: '72px 24px 64px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.15)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
+    <div style={{ background: cream, minHeight: '100vh' }}>
+      {/* ─── HERO: opens with the visitor's own question ─── */}
+      <section style={{ background: charcoal, padding: '64px 24px 80px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 720, margin: '0 auto', position: 'relative' }}>
-          <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 24, fontWeight: 500 }}>
+          <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 40, fontWeight: 500 }}>
             ← All services
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: s.pale, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>
-              {s.icon}
-            </div>
-            <div>
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 4 }}>{s.tagline}</p>
-              <h1 style={{
-                fontFamily: "'Big Shoulders Display', sans-serif",
-                fontWeight: 900, fontSize: 'clamp(32px, 5vw, 52px)',
-                color: '#fff', letterSpacing: '-1px', lineHeight: 1.05,
-              }}>
-                {s.title}
-              </h1>
-            </div>
-          </div>
-          <p style={{ fontSize: 17, color: 'rgba(255,255,255,.72)', lineHeight: 1.75, maxWidth: 620, fontWeight: 300 }}>{s.hero}</p>
-        </div>
-      </section>
-
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '56px 24px' }}>
-        {/* Why us */}
-        <div style={{ background: s.pale, border: `1.5px solid ${s.accent}22`, borderRadius: 16, padding: '20px 24px', marginBottom: 48, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 20, flexShrink: 0, marginTop: 2 }}>✓</span>
-          <p style={{ fontSize: 15, color: '#1C2B3A', lineHeight: 1.7 }}>{s.why}</p>
-        </div>
-
-        {/* What we help with */}
-        <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 28, color: '#1C2B3A', marginBottom: 20 }}>What we help with</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14, marginBottom: 56 }}>
-          {s.items.map((it) => (
-            <div key={it.name} style={{ background: '#fff', borderRadius: 14, padding: '18px 20px', border: '1.5px solid rgba(0,0,0,.06)' }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: s.accent, marginBottom: 6 }}>{it.name}</p>
-              <p style={{ fontSize: 13.5, color: '#6B7D8E', lineHeight: 1.6 }}>{it.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Who this is for */}
-        <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 28, color: '#1C2B3A', marginBottom: 16 }}>Who this is for</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 56 }}>
-          {s.whoFor.map((w) => (
-            <span key={w} style={{ padding: '8px 16px', borderRadius: 50, background: '#fff', border: `1.5px solid ${s.accent}33`, color: s.accent, fontSize: 13.5, fontWeight: 600 }}>{w}</span>
-          ))}
-        </div>
-
-        {/* FAQ */}
-        <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 28, color: '#1C2B3A', marginBottom: 20 }}>Common questions</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 56 }}>
-          {s.faq.map((f) => (
-            <div key={f.q} style={{ background: '#fff', borderRadius: 14, padding: '20px 22px', border: '1.5px solid rgba(0,0,0,.06)' }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#1C2B3A', marginBottom: 8 }}>{f.q}</p>
-              <p style={{ fontSize: 14, color: '#6B7D8E', lineHeight: 1.65 }}>{f.a}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div style={{ background: '#1C2B3A', borderRadius: 20, padding: '40px', textAlign: 'center' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 12 }}>Free first session</p>
-          <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#fff', marginBottom: 12 }}>Ready to start?</h3>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,.6)', marginBottom: 28, lineHeight: 1.6 }}>
-            Take our 5-minute assessment and we&apos;ll match you with the right professional, or book directly if you already know what you need.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 20 }}>{s.title}</p>
+          <h1 style={{
+            fontFamily: "'Big Shoulders Display', sans-serif",
+            fontWeight: 900, fontSize: 'clamp(36px, 6vw, 60px)',
+            color: '#fff', letterSpacing: '-1.5px', lineHeight: 1.04, marginBottom: 28, maxWidth: 640,
+          }}>
+            {s.question}
+          </h1>
+          <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, maxWidth: 600, fontWeight: 300, marginBottom: 36 }}>{s.hero}</p>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             <Link href="/assess" style={{
               padding: '14px 28px', borderRadius: 50, background: s.accent, color: '#fff',
               fontSize: 15, fontWeight: 700, textDecoration: 'none',
-              fontFamily: "'DM Sans', sans-serif", boxShadow: `0 6px 20px ${s.accent}44`,
+              fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
+            }}>
+              ✦ Take the free assessment
+            </Link>
+            <Link href="/pricing" style={{
+              padding: '14px 26px', borderRadius: 50, background: 'transparent',
+              color: 'rgba(255,255,255,.85)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
+              fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.22)',
+            }}>
+              {s.cta} →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── NORMALISING STAT: you are not alone ─── */}
+      <section style={{ padding: '72px 24px 56px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 620, margin: '0 auto' }}>
+          <p style={{
+            fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+            fontSize: 'clamp(56px, 11vw, 96px)', color: s.accent, lineHeight: 1, letterSpacing: '-2px', marginBottom: 16,
+          }}>
+            {s.stat.big}
+          </p>
+          <p style={{ fontSize: 19, color: '#3A4A5A', lineHeight: 1.7, fontWeight: 300, maxWidth: 520, margin: '0 auto' }}>
+            {s.stat.label}
+          </p>
+        </div>
+      </section>
+
+      {/* ─── YOU MIGHT RECOGNISE THIS: problem-statements, flowing ─── */}
+      <section style={{ padding: '40px 24px 64px' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 28, textAlign: 'center' }}>You might recognise this</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {s.recognise.map((r, idx) => (
+              <p key={r} style={{
+                fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 700,
+                fontSize: 'clamp(22px, 3.4vw, 30px)', color: charcoal, lineHeight: 1.3,
+                letterSpacing: '-0.5px', padding: '20px 0',
+                borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
+                textAlign: 'center',
+              }}>
+                {r}
+              </p>
+            ))}
+          </div>
+          <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300, textAlign: 'center', marginTop: 28 }}>
+            If any of this sounds familiar, you don&apos;t have to keep carrying it alone.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── THE STORY / WHY: flowing prose, no box ─── */}
+      <section style={{ background: '#fff', padding: '76px 24px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 24, lineHeight: 1.1 }}>
+            What care looks like here.
+          </h2>
+          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>{s.why}</p>
+        </div>
+      </section>
+
+      {/* ─── WHAT WE HELP WITH: flowing list, dividers not boxes ─── */}
+      <section style={{ padding: '76px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
+            What we help with
+          </h2>
+          <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300, marginBottom: 40 }}>
+            Whatever you&apos;re carrying, there&apos;s a place to start.
+          </p>
+          <div>
+            {s.items.map((it, idx) => (
+              <div key={it.name} style={{
+                display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
+                padding: '24px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
+              }}>
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: s.accent, marginTop: 9 }} />
+                <div>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: charcoal, marginBottom: 7, letterSpacing: '-0.2px' }}>{it.name}</p>
+                  <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>{it.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── HOW CARE WORKS: simple 3-step path ─── */}
+      <section style={{ background: '#fff', padding: '76px 24px' }}>
+        <div style={{ maxWidth: 820, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 44, textAlign: 'center' }}>
+            How it works
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 36 }}>
+            {[
+              { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment — no login, no judgement. Just an honest starting point.' },
+              { n: '02', t: 'Get matched, not assigned', d: 'We pair you with a professional who fits what you\'re going through, your language and your budget.' },
+              { n: '03', t: 'Your first session is free', d: 'No card, no commitment. Just one real conversation to see if it feels right.' },
+            ].map((step) => (
+              <div key={step.n}>
+                <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: s.accent, opacity: 0.28, lineHeight: 1, marginBottom: 12 }}>{step.n}</p>
+                <p style={{ fontSize: 17, fontWeight: 700, color: charcoal, marginBottom: 8, letterSpacing: '-0.2px' }}>{step.t}</p>
+                <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>{step.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── WHO THIS IS FOR ─── */}
+      <section style={{ padding: '72px 24px 56px' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 24 }}>
+            Who this is for
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+            {s.whoFor.map((w) => (
+              <span key={w} style={{ padding: '9px 18px', borderRadius: 50, background: '#fff', border: `1.5px solid ${s.accent}33`, color: s.accent, fontSize: 14, fontWeight: 600 }}>{w}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ: flowing, divider-based ─── */}
+      <section style={{ padding: '40px 24px 80px' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
+            Common questions
+          </h2>
+          <div>
+            {s.faq.map((f, idx) => (
+              <div key={f.q} style={{ padding: '26px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.08)' }}>
+                <p style={{ fontSize: 17, fontWeight: 700, color: charcoal, marginBottom: 10, letterSpacing: '-0.2px' }}>{f.q}</p>
+                <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.75, fontWeight: 300 }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FINAL CTA ─── */}
+      <section style={{ background: charcoal, padding: '80px 24px' }}>
+        <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 16 }}>Your first session is free</p>
+          <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
+            You don&apos;t have to figure this out alone.
+          </h3>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', marginBottom: 32, lineHeight: 1.7, fontWeight: 300 }}>
+            Take the 5-minute assessment and we&apos;ll match you with the right professional, or book directly if you already know what you need.
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/assess" style={{
+              padding: '15px 30px', borderRadius: 50, background: s.accent, color: '#fff',
+              fontSize: 16, fontWeight: 700, textDecoration: 'none',
+              fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
             }}>
               ✦ {s.cta}
             </Link>
             <Link href="/services" style={{
-              padding: '14px 24px', borderRadius: 50, background: 'rgba(255,255,255,.08)',
-              color: 'rgba(255,255,255,.7)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
-              fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.15)',
+              padding: '15px 26px', borderRadius: 50, background: 'rgba(255,255,255,.08)',
+              color: 'rgba(255,255,255,.75)', fontSize: 16, fontWeight: 600, textDecoration: 'none',
+              fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.18)',
             }}>
               View all services
             </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
