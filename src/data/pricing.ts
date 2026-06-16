@@ -41,6 +41,7 @@ export const inr = (n: number) => '₹' + n.toLocaleString('en-IN')
 // discount against these so the saving is always visible.
 export const THERAPY_BASE = 1899
 export const PSYCHIATRY_BASE = 1999
+export const CALMPLUS_BASE = 499
 
 export const discountVsBase = (perSessionPrice: number, base: number) =>
   Math.round((1 - perSessionPrice / base) * 100)

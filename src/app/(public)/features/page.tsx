@@ -134,25 +134,6 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* Philosophy strip (with icons) */}
-      <section style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,.05)' }}>
-        <div style={{ maxWidth: 980, margin: '0 auto', padding: '44px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
-          {[
-            ['🫶', 'Human-led, always', 'AI assists. Licensed clinicians decide. Every clinical output is reviewed by a human.'],
-            ['🎛️', 'Opt-in by design', 'Every AI feature is optional. Turn any of it off, anytime, without losing your care.'],
-            ['🔐', 'Private & compliant', 'Encrypted records and consent management, built to India\'s DPDP Act 2023 from day one.'],
-          ].map(([icon, t, d]) => (
-            <div key={t} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFF1EC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
-              <div>
-                <p style={{ fontSize: 15, fontWeight: 800, color: charcoal, marginBottom: 5 }}>{t}</p>
-                <p style={{ fontSize: 13.5, color: '#6B7D8E', lineHeight: 1.6 }}>{d}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Detailed alternating feature rows */}
       <section style={{ maxWidth: 1080, margin: '0 auto', padding: '72px 24px 32px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 64 }}>
@@ -204,8 +185,8 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* App download */}
-      <section style={{ background: charcoal, marginTop: 64, padding: '72px 24px', overflow: 'hidden' }}>
+      {/* App download + CTA */}
+      <section style={{ background: charcoal, marginTop: 64, padding: '72px 24px 80px', overflow: 'hidden' }}>
         <div className="app-row" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 48, alignItems: 'center' }}>
           <div>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#1FB6A8', textTransform: 'uppercase', marginBottom: 14 }}>The app</p>
@@ -241,23 +222,24 @@ export default function FeaturesPage() {
             <div style={{ width: 248, background: '#0F1C28', borderRadius: 40, padding: 9, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
               <div style={{ borderRadius: 32, overflow: 'hidden', background: '#F9F5F2' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/mockups/patient-home-2.png" alt="The GetCalmly app, mood check-in and today's session" loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
+                <img src="/mockups/doctor-app.png" alt="GetCalmly mobile app" loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
               </div>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* CTA */}
-      <section style={{ background: '#fff', padding: '72px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 560, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 38, color: charcoal, marginBottom: 16, letterSpacing: '-0.5px' }}>
-            Care that remembers you.
+        {/* Inline CTA — stays in the same dark section, no seam */}
+        <div style={{ maxWidth: 600, margin: '72px auto 0', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,.1)', paddingTop: 56 }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px,5vw,40px)', color: '#fff', letterSpacing: '-0.5px', marginBottom: 14 }}>
+            Ready to feel better?
           </h2>
-          <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.7, marginBottom: 30 }}>
-            Start free, meet your match, and let the rest take care of itself.
+          <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, marginBottom: 28, fontWeight: 300 }}>
+            A free 5-minute assessment is all it takes to meet your match.
           </p>
-          <Link href="/pricing" style={ctaPrimary}>✦ Book a session</Link>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/pricing" style={ctaPrimary}>✦ Book a session</Link>
+            <Link href="/assess" style={ctaGhost}>Start free assessment</Link>
+          </div>
         </div>
       </section>
 

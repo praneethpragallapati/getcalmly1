@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import {
   therapyPacks, psychiatryPacks, calmPlusPacks, perSession, inr, discountVsBase,
-  THERAPY_FROM, PSYCHIATRY_FROM, THERAPY_BASE, PSYCHIATRY_BASE,
+  THERAPY_FROM, PSYCHIATRY_FROM, THERAPY_BASE, PSYCHIATRY_BASE, CALMPLUS_BASE,
   freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures,
   type SessionPack,
 } from '@/data/pricing'
@@ -123,7 +123,7 @@ function CalmPlusCard() {
         <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(pack.total)}</span>
         <span style={{ fontSize: 14, color: '#6B7D8E' }}>/ {pack.label}</span>
       </div>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8 }}>Just <strong style={{ color: teal }}>{inr(perMonth)}</strong> per month</p>
+      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8 }}>Just <strong style={{ color: teal }}>{inr(perMonth)}</strong> per month · <span style={{ textDecoration: 'line-through', color: '#A0ADB8' }}>{inr(CALMPLUS_BASE)}</span></p>
 
       <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>

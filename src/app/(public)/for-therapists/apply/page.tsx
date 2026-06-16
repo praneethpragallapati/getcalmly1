@@ -81,7 +81,7 @@ export default function TherapistApplyPage() {
       {/* Header */}
       <section style={{ background: '#1C2B3A', padding: '64px 24px 56px', textAlign: 'center' }}>
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <Link href="/for-therapists" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 20 }}>← Back to Join our team</Link>
+          <Link href="/for-therapists" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 20 }}>← Back to Join our experts</Link>
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 48px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05, marginBottom: 14 }}>
             Apply to practice on GetCalmly
           </h1>

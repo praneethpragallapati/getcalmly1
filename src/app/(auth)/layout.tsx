@@ -30,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </Link>
 
         <div style={{ paddingTop: 64, paddingBottom: 48 }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.3, color: 'rgba(255,255,255,.4)', marginBottom: 22 }}>
+          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.3, color: 'rgba(255,255,255,.72)', marginBottom: 22 }}>
             India&apos;s mental healthcare, done right.
           </p>
           <h2 style={{
