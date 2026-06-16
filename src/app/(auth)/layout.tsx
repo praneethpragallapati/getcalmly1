@@ -11,7 +11,7 @@ const trust = [
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ minHeight: '100svh', display: 'flex', background: '#0F1C28' }}>
-      {/* Left panel — brand & reassurance */}
+      {/* Left panel, brand & reassurance */}
       <div style={{
         flex: '0 0 48%',
         display: 'flex',
@@ -45,7 +45,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             The right professional.<br /><span style={{ color: '#C8553D' }}>The very first time.</span>
           </h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', lineHeight: 1.7, maxWidth: 390, fontWeight: 300 }}>
-            No endless scrolling through profiles. We match you by what you&apos;re actually going through, the language you think in, and what fits your budget — so your first session already feels like the right one.
+            No endless scrolling through profiles. We match you by what you&apos;re actually going through, the language you think in, and what fits your budget, so your first session already feels like the right one.
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      {/* Right panel — auth form */}
+      {/* Right panel, auth form */}
       <div style={{
         flex: 1,
         display: 'flex',

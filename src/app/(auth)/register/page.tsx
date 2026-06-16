@@ -1,11 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
 type CareFor = 'self' | 'couple' | 'child'
+
+const CARE_LABELS: Record<string, string> = {
+  therapy: 'Therapy with a psychologist',
+  psychiatry: 'Psychiatric care',
+  app: 'Calm+ (the full app)',
+  free: 'the free plan',
+}
 
 const LANGS = ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other']
 const TRACKS = ['Anxiety', 'Low mood / depression', 'Stress & burnout', 'Relationships', 'Trauma & grief', 'Sleep', 'Self-worth', 'Anger', 'Motherhood / postpartum', 'Something else']
@@ -35,6 +42,13 @@ export default function RegisterPage() {
   const [llmConsent, setLlmConsent] = useState(true)
   const [consents, setConsents] = useState({ retention: false, ai: false, liability: false, terms: false })
   const [done, setDone] = useState(false)
+  // Care type chosen on the pricing page (therapy / psychiatry / app / free).
+  const [careType, setCareType] = useState<string | null>(null)
+
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get('care')
+    if (c && CARE_LABELS[c]) setCareType(c)
+  }, [])
 
   // The partner/child step only exists for couple/child care.
   const hasExtraStep = careFor !== 'self'
@@ -97,9 +111,15 @@ export default function RegisterPage() {
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 34, color: '#1C2B3A', marginBottom: 6, lineHeight: 1.05 }}>
             Let&apos;s begin with you.
           </h1>
-          <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: 24 }}>
+          <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: careType ? 16 : 24 }}>
             Free to join, and your first session is on us. Takes about two minutes.
           </p>
+          {careType && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', background: '#FFF1EC', border: '1px solid rgba(200,85,61,.2)', borderRadius: 12, marginBottom: 24 }}>
+              <span style={{ fontSize: 16 }}>✦</span>
+              <span style={{ fontSize: 13.5, color: '#1C2B3A' }}>You&apos;re signing up for <strong>{CARE_LABELS[careType]}</strong>. We&apos;ll tailor a few questions to that.</span>
+            </div>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 22 }}>
             <button style={socialBtn}>
@@ -197,6 +217,24 @@ export default function RegisterPage() {
                 ))}
               </div>
             </Field>
+
+            {/* Psychiatry-specific intake, shown only when that care was chosen. */}
+            {careType === 'psychiatry' && (
+              <>
+                <Field label="Are you currently taking any psychiatric medication?">
+                  <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>No, not currently</option><option>Yes, currently</option><option>I have in the past</option></select>
+                </Field>
+                <Field label="Have you been diagnosed by a professional before?">
+                  <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>No</option><option>Yes</option><option>I&apos;m not sure</option></select>
+                </Field>
+              </>
+            )}
+
+            {careType === 'therapy' && (
+              <Field label="Have you been to therapy before?">
+                <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>This would be my first time</option><option>Yes, in the past</option><option>Yes, currently</option></select>
+              </Field>
+            )}
           </div>
           <button onClick={() => setStep(3)} style={{ ...primaryBtn, marginTop: 24 }}>Continue →</button>
         </>
@@ -256,7 +294,7 @@ export default function RegisterPage() {
       {/* ─── Step 4: Emergency contact ──────────────────── */}
       {screen === 'emergency' && (
         <>
-          <StepHead title="Emergency contact" sub="Because your safety matters most. We'll only ever reach out to them in a genuine crisis — never for anything routine." />
+          <StepHead title="Emergency contact" sub="Because your safety matters most. We'll only ever reach out to them in a genuine crisis, never for anything routine." />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Field label="Contact's name"><input type="text" placeholder="Someone you trust" style={inputStyle} /></Field>
             <Field label="Their mobile">
@@ -276,7 +314,7 @@ export default function RegisterPage() {
       {/* ─── Step 5: Consents ───────────────────────────── */}
       {screen === 'consents' && (
         <>
-          <StepHead title="Your privacy & consent" sub="Mental health is sensitive. Please read these — they explain exactly how your information is used." />
+          <StepHead title="Your privacy & consent" sub="Mental health is sensitive. Please read these, they explain exactly how your information is used." />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Consent
@@ -285,13 +323,13 @@ export default function RegisterPage() {
               text={<>I understand my health information is stored securely and retained in line with the{' '}<Link href="/privacy" style={linkStyle}>Data Retention Policy</Link>{' '}(DPDP Act 2023).</>}
             />
 
-            {/* LLM sharing — optional toggle */}
+            {/* LLM sharing, optional toggle */}
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', background: '#F9F5FF', border: '1px solid rgba(124,92,191,.16)', borderRadius: 12 }}>
               <Toggle on={llmConsent} onChange={setLlmConsent} />
               <div>
                 <p style={{ fontSize: 13.5, color: '#1C2B3A', fontWeight: 600, marginBottom: 3 }}>Help improve AI features</p>
                 <p style={{ fontSize: 12.5, color: '#6B7D8E', lineHeight: 1.55 }}>
-                  Allow GetCalmly to share <strong>de-identified</strong> data with trusted AI/LLM partners to power features like Calm AI and journaling insights. Optional — you can switch this off anytime in Settings.
+                  Allow GetCalmly to share <strong>de-identified</strong> data with trusted AI/LLM partners to power features like Calm AI and journaling insights. Optional, you can switch this off anytime in Settings.
                 </p>
               </div>
             </div>

@@ -25,7 +25,7 @@ export default function LoginPage() {
           Good to see you again.
         </h1>
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.6, fontWeight: 400 }}>
-          Pick up right where you left off — your space is exactly as you left it.
+          Pick up right where you left off, your space is exactly as you left it.
         </p>
       </div>
 

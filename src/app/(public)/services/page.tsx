@@ -10,7 +10,7 @@ const branches = [
     pale: 'rgba(200,85,61,.08)',
     title: 'Individual Therapy',
     tagline: 'For when things feel too heavy to carry alone.',
-    desc: 'Whether it\'s anxiety that won\'t quiet down, a sadness you can\'t explain, or stress that\'s seeping into everything — a therapist gives you a private space to work through it. One conversation at a time.',
+    desc: 'Whether it\'s anxiety that won\'t quiet down, a sadness you can\'t explain, or stress that\'s seeping into everything, a therapist gives you a private space to work through it. One conversation at a time.',
     items: ['Anxiety & Overthinking', 'Depression', 'Stress & Burnout', 'Trauma & Grief', 'OCD', 'Anger', 'Sleep Issues', 'Life Transitions'],
   },
   {
@@ -19,7 +19,7 @@ const branches = [
     accent: '#7C5CBF',
     pale: 'rgba(124,92,191,.08)',
     title: 'Couples & Relationships',
-    tagline: 'Because good relationships take work — and that\'s not a failure.',
+    tagline: 'Because good relationships take work, and that\'s not a failure.',
     desc: 'Every couple hits walls. Communication that used to flow easily now leads to arguments. Or maybe the silence has become louder than words. Couples therapy helps you find your way back to each other.',
     items: ['Communication & Conflict', 'Rebuilding Trust', 'Separation / Divorce', 'Breakup Support', 'Pre-marital Counselling', 'Intimacy Concerns'],
   },
@@ -30,7 +30,7 @@ const branches = [
     pale: 'rgba(61,158,114,.08)',
     title: 'Children & Teens',
     tagline: 'They\'re not "just going through a phase."',
-    desc: 'Kids and teenagers are navigating enormous pressures — exams, social anxiety, family change, identity questions. A child therapist gives them a judgment-free space to understand what they\'re feeling and why.',
+    desc: 'Kids and teenagers are navigating enormous pressures, exams, social anxiety, family change, identity questions. A child therapist gives them a judgment-free space to understand what they\'re feeling and why.',
     items: ['Anxiety & Worry', 'Low Mood', 'Exam Stress', 'ADHD Support', 'Behavioural Challenges', 'Adolescent Identity', 'Grief & Loss', 'Family Change'],
   },
   {
@@ -40,7 +40,7 @@ const branches = [
     pale: 'rgba(217,140,95,.10)',
     title: 'Motherhood & Postpartum',
     tagline: 'Everyone asks about the baby. We ask about you.',
-    desc: 'Becoming a mother changes everything — your body, your sleep, your sense of who you are. The exhaustion, the anxiety, the guilt for not feeling the way you "should" — none of it means you\'re failing. It means you need support, and that\'s allowed.',
+    desc: 'Becoming a mother changes everything, your body, your sleep, your sense of who you are. The exhaustion, the anxiety, the guilt for not feeling the way you "should", none of it means you\'re failing. It means you need support, and that\'s allowed.',
     items: ['Prenatal Anxiety', 'Postpartum Depression', 'Birth Trauma', 'Identity & Role Shift', 'Parenting Overwhelm', 'Pregnancy Loss & Grief', 'Fertility Stress'],
   },
   {
@@ -60,7 +60,7 @@ const branches = [
     pale: 'rgba(201,151,58,.08)',
     title: 'Psychological Assessments',
     tagline: 'A clearer picture changes everything.',
-    desc: 'Standardised assessments that help you understand yourself — or your child — better. These aren\'t labels, they\'re tools. A good assessment leads to a better plan.',
+    desc: 'Standardised assessments that help you understand yourself, or your child, better. These aren\'t labels, they\'re tools. A good assessment leads to a better plan.',
     items: ['ADHD Assessment', 'Anxiety & Depression Screening', 'Personality Profile', 'Emotional Intelligence', 'Career Maturity (Students)', 'Couples Assessment', 'Occupational Stress'],
   },
   {
@@ -70,7 +70,7 @@ const branches = [
     pale: 'rgba(192,75,138,.08)',
     title: 'Specialised Support',
     tagline: 'Life is not one-size-fits-all. Neither is care.',
-    desc: 'Some experiences need a professional who truly understands the context — not a generalist. Whether you\'re navigating chronic illness, gender identity, or supporting someone in crisis, we have the right person.',
+    desc: 'Some experiences need a professional who truly understands the context, not a generalist. Whether you\'re navigating chronic illness, gender identity, or supporting someone in crisis, we have the right person.',
     items: ['LGBTQIA+ Affirmative Care', 'Chronic / Terminal Illness', 'Grief & Bereavement', 'Geriatric Mental Health', 'Clinical Supervision for Professionals'],
   },
 ]
@@ -94,7 +94,7 @@ export default function ServicesPage() {
             Care that fits<br />your life.
           </h1>
           <p style={{ fontSize: 17, color: '#6B7D8E', lineHeight: 1.7, marginBottom: 32, fontWeight: 300 }}>
-            We don&apos;t believe in one-size-fits-all mental health. Choose a branch below — or let our assessment find the right match for you.
+            We don&apos;t believe in one-size-fits-all mental health. Choose a branch below, or let our assessment find the right match for you.
           </p>
           <Link href="/assess" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -190,7 +190,7 @@ export default function ServicesPage() {
             Let us find the right fit for you.
           </h2>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, marginBottom: 32 }}>
-            Our 5-minute assessment matches you with the right professional — by what you&apos;re going through, your language preference, and your budget.
+            Our 5-minute assessment matches you with the right professional, by what you&apos;re going through, your language preference, and your budget.
           </p>
           <Link href="/assess" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,

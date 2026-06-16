@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Features | GetCalmly',
-  description: 'Human care, amplified by thoughtful AI — matching, Calm AI companion, mood insights, smart journaling, and a clinician co-pilot. Always human-led, never automated away.',
+  description: 'Human care, amplified by thoughtful AI. Matching, Calm AI companion, mood insights, smart journaling, and a clinician co-pilot. Always human-led, never automated away.',
   alternates: { canonical: '/features' },
 }
 
@@ -13,35 +13,35 @@ const pillars = [
     accent: '#C8553D',
     pale: 'rgba(200,85,61,.08)',
     title: 'Matching that actually fits',
-    body: 'No browsing dozens of profiles hoping you guess right. A short assessment reads what you\'re going through, the language you think in, and your budget — then matches you to a professional who genuinely fits. The first session feels right because it is.',
+    body: 'No browsing dozens of profiles hoping you guess right. A short assessment reads what you\'re going through, the language you think in, and your budget, then matches you to a professional who genuinely fits. The first session feels right because it is.',
   },
   {
     icon: '💬',
     accent: '#7C5CBF',
     pale: 'rgba(124,92,191,.08)',
     title: 'Calm — your AI companion',
-    body: 'For the 2am spirals and the in-between moments your therapist can\'t be there for. Calm is a gentle, always-available space to talk things through, breathe, and steady yourself. It notices when you\'re struggling and surfaces real help — never pretending to be your therapist.',
+    body: 'For the 2am spirals and the in-between moments your therapist can\'t be there for. Calm is a gentle, always-available space to talk things through, breathe, and steady yourself. It notices when you\'re struggling and surfaces real help. It never pretends to be your therapist.',
   },
   {
     icon: '📈',
     accent: '#3D9E72',
     pale: 'rgba(61,158,114,.08)',
     title: 'Mood tracking that does something',
-    body: 'Most apps just draw you a chart. Ours watches for patterns and acts — a few low days nudges a breathing exercise; a fortnight of low mood gently suggests talking to someone, with the words to start. Your tracking becomes a quiet early-warning system, not a diary you forget.',
+    body: 'Most apps just draw you a chart. Ours watches for patterns and acts. A few low days nudges a breathing exercise; a fortnight of low mood gently suggests talking to someone, with the words to start. Your tracking becomes a quiet early-warning system, not a diary you forget.',
   },
   {
     icon: '📔',
     accent: '#C9973A',
     pale: 'rgba(201,151,58,.08)',
     title: 'Journaling that reflects back',
-    body: 'Write freely. Calm gently surfaces the patterns in your own words — the thoughts that keep circling, the moments that lift you — drawing on CBT principles to help you see them. Reflections to support self-understanding, always clearly marked as not a diagnosis.',
+    body: 'Write freely. Calm gently surfaces the patterns in your own words, the thoughts that keep circling and the moments that lift you, drawing on CBT principles to help you see them. Reflections to support self-understanding, always clearly marked as not a diagnosis.',
   },
   {
     icon: '🩺',
     accent: '#1A7F7A',
     pale: 'rgba(26,127,122,.08)',
     title: 'A co-pilot for your therapist',
-    body: 'Your clinician walks into every session already caught up — your week, your mood trend, last session\'s homework, summarised for them. Less time on paperwork, more time on you. Every AI summary is reviewed and approved by a human before it ever counts.',
+    body: 'Your clinician walks into every session already caught up: your week, your mood trend, last session\'s homework, summarised for them. Less time on paperwork, more time on you. Every AI summary is reviewed and approved by a human before it ever counts.',
   },
   {
     icon: '🛟',
@@ -68,7 +68,7 @@ export default function FeaturesPage() {
             Human care.<br /><span style={{ color: '#C8553D' }}>Amplified by AI.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.75, maxWidth: 600, margin: '0 auto', fontWeight: 300 }}>
-            Real therapy with real, licensed professionals — sits at the heart of everything. The technology around it just makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
+            Real therapy with real, licensed professionals, sits at the heart of everything. The technology around it just makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
             <Link href="/assess" style={ctaPrimary}>✦ Find your match</Link>
@@ -117,10 +117,10 @@ export default function FeaturesPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              ['01', 'Assess', 'A short, gentle assessment helps us understand what you\'re carrying — no jargon, no judgement.'],
+              ['01', 'Assess', 'A short, gentle assessment helps us understand what you\'re carrying, with no jargon, no judgement.'],
               ['02', 'Match', 'We pair you with the right licensed professional by concern, language, and budget. No guesswork.'],
               ['03', 'Meet', 'Sessions happen securely over Google Meet, at times that work for you. Your first one is free.'],
-              ['04', 'Heal', 'Between sessions, Calm, mood tracking and journaling keep you supported — and keep your therapist informed.'],
+              ['04', 'Heal', 'Between sessions, Calm, mood tracking and journaling keep you supported, and keep your therapist informed.'],
             ].map(([n, t, d]) => (
               <div key={n} style={{ display: 'flex', gap: 20, alignItems: 'flex-start', padding: '20px 0', borderBottom: '1px solid #EEF0F3' }}>
                 <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 32, color: '#C8553D', lineHeight: 1, flexShrink: 0, width: 48 }}>{n}</span>

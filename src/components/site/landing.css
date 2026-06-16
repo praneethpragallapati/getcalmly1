@@ -457,7 +457,8 @@
 .lp-page .wk-item{display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 12px;position:relative;z-index:1;}
 .lp-page .wk-dot{width:32px;height:32px;border-radius:50%;flex-shrink:0;}
 .lp-page .wk-label{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:13px;color:var(--charcoal-l);letter-spacing:1px;text-transform:uppercase;}
-.lp-page .wk-card{background:var(--bg-warm);border-radius:18px;padding:18px;border:1.5px solid var(--border);width:100%;transition:all .3s;}
+.lp-page .wk-item{align-self:stretch;}
+.lp-page .wk-card{background:var(--bg-warm);border-radius:18px;padding:18px;border:1.5px solid var(--border);width:100%;flex:1;transition:all .3s;}
 .lp-page .wk-card:hover{box-shadow:var(--sh-sm);border-color:rgba(200,85,61,.18);}
 .lp-page .wk-tag{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 9px;border-radius:20px;display:inline-block;margin-bottom:8px;}
 .lp-page .wk-title{font-size:13px;font-weight:700;color:var(--charcoal);line-height:1.4;margin-bottom:6px;}

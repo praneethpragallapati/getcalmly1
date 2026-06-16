@@ -15,14 +15,14 @@ export default function SiteFooter() {
         <div className="foot-col">
           <h4>Product</h4>
           <Link href="/#how">How it works</Link>
-          <Link href="/#features">Features</Link>
-          <Link href="/#pricing">Pricing</Link>
-          <Link href="/assess">Book a free session</Link>
+          <Link href="/features">Features</Link>
+          <Link href="/pricing">Pricing</Link>
+          <Link href="/pricing">Book session</Link>
         </div>
         <div className="foot-col">
           <h4>Care</h4>
           <Link href="/services">Services</Link>
-          <Link href="/for-therapists">For therapists</Link>
+          <Link href="/for-therapists">Join our team</Link>
           <Link href="/community">Community</Link>
           <Link href="/safety">Crisis resources</Link>
         </div>

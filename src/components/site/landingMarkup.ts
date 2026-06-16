@@ -17,7 +17,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </h1>
       <p class="hero-sub">getCalmly matches you with an RCI-verified therapist or NMC-registered psychiatrist, understands your patterns with AI, and walks forward with you — starting with a free session.</p>
       <div class="hero-actions">
-        <a href="/assess" class="btn-hero fill">✦ Book a free session</a>
+        <a href="/pricing" class="btn-hero fill">✦ Book a session</a>
         <a href="#how" class="btn-hero outline">See how it works</a>
       </div>
       <div class="hero-trust">
@@ -109,10 +109,11 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <p class="sec-p reveal" style="margin-bottom:48px;">She'd been fine for a long time — officially. Here's what changed.</p>
   <div class="how-layout">
     <div class="how-steps">
-      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">Take the free assessment</div><div class="hs-d">Priya did this at 11 PM, from her couch. 12 clinically validated questions. No login, no judgment, no obligation — just honest answers and an instant wellness profile.</div></div></div>
-      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">We match you — you don't browse</div><div class="hs-d">She didn't scroll through profiles hoping. We matched her with Dr. Ananya — a CBT-trained psychologist who specialises in the exact thing Priya was carrying.</div></div></div>
-      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">Your first session. Free.</div><div class="hs-d">Session one was free. By session three, Priya had words for feelings she'd been suppressing for two years. Between sessions, Calm AI was there whenever she reached out — with every session note and journal entry already in context.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">The data shows what you feel</div><div class="hs-d">Week 8: sleep up 3 nights running, mood trend +18%, journal streak. Priya didn't just feel better — she could see why. That's the difference between therapy and getCalmly.</div></div></div>
+      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">Take the free assessment</div><div class="hs-d">Priya did this at 11 PM, from her couch. Twelve clinically validated questions, no login and no judgment. She walked away with an instant wellness profile and a professional matched to exactly what she was carrying.</div></div></div>
+      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">Your first session is free</div><div class="hs-d">Session one cost her nothing. By session three, Priya had words for feelings she had been holding quietly for two years. No pressure, no commitment, just a real conversation with the right person.</div></div></div>
+      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">A specialist who stays with you</div><div class="hs-d">Dr. Ananya knew Priya's history, her progress and her patterns. There was no starting over each week and no explaining herself to a new face. Just one professional who genuinely remembered her, session after session.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">An app that supports you daily</div><div class="hs-d">Between sessions Priya had daily mood check-ins, smart journaling and the Calm AI companion whenever she needed to talk. Everything stayed in context, so the support never felt like it started from scratch.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">Progress you can actually see</div><div class="hs-d">By week eight her sleep was steadier, her mood trend was up 18 percent and her journal streak held. Priya did not just feel better. She could see why, and that is what real care makes possible.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
       <!-- Therapist match card (no portrait — monogram only) -->
@@ -138,7 +139,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
               <div class="tmc-rating">⭐ 4.9 <span>(340 sessions)</span></div>
               <div class="tmc-avail">● Available Thu</div>
             </div>
-            <a href="/assess" class="tmc-btn">Book your free session →</a>
+            <a href="/pricing" class="tmc-btn">Book your session →</a>
           </div>
         </div>
       </div>
@@ -174,13 +175,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="sec-label reveal">What getCalmly actually does</div>
       <h2 class="sec-h2 reveal">Not just an app.<br><span>A care system.</span></h2>
     </div>
-    <p class="sec-p reveal">Every feature exists because a patient or therapist needed it. Here's what that looks like in practice.</p>
   </div>
   <div class="feat-grid">
     <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — there when you reach out</div><div class="feat-d">Calm AI doesn't push. But when Priya messaged at midnight — "I don't know how to explain this" — it already knew her last three sessions, her mood dip that week, her journal. That's what made the conversation actually useful.</div><span class="feat-badge fb-dk">Always on</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood, energy & sleep — tracked together</div><div class="feat-d">Priya didn't know her Sundays were the problem until she saw the data. Mood, energy and sleep tracked daily, patterns surfaced weekly — for her and for Dr. Ananya.</div><span class="feat-badge fb-c">Science-backed</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for themes — self-criticism, boundary patterns, progress moments — and adds them to the brief Dr. Ananya reads before every session.</div><span class="feat-badge fb-c">Pattern detection</span></div>
-    <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI-verified. Not wellness coaches.</div><div class="feat-d">Every therapist on getCalmly holds a Rehabilitation Council of India registration. Psychiatrists are NMC-registered. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
+    <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI verified</div><div class="feat-d">Every therapist on getCalmly holds a Rehabilitation Council of India registration. Psychiatrists are NMC-registered. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">🏥</span><div class="feat-t">Care that follows you if it needs to</div><div class="feat-d">When something needs more than therapy, getCalmly connects you to hospital partners. Referral letters, session notes, and progress reports are structured for clinical handoff.</div><span class="feat-badge fb-c">Hospital-ready</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">👥</span><div class="feat-t">A community, not a forum</div><div class="feat-d">Shruti typed "I actually laughed today" in the Depression Support Circle after 3 months. 142 people hit ❤️. Human moderation means it stays safe. Crisis support is built in.</div><span class="feat-badge fb-g">Safe & moderated</span></div>
   </div>
@@ -498,7 +498,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Hospital-ready reporting</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Structured notes, referral letters and progress reports — exportable instantly.</div></div>
         </div>
       </div>
-      <a href="/for-therapists" class="btn-hero outline" style="border-color:rgba(26,127,122,.3);color:#1A7F7A;display:inline-flex;" onmouseover="this.style.background='rgba(26,127,122,.06)'" onmouseout="this.style.background='transparent'">Join as a therapist →</a>
+      <a href="/for-therapists" class="btn-hero outline" style="border-color:rgba(61,158,114,.35);color:#3D9E72;display:inline-flex;" onmouseover="this.style.background='rgba(61,158,114,.06)'" onmouseout="this.style.background='transparent'">Join our expert team →</a>
     </div>
   </div>
 </section>
@@ -581,53 +581,54 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <!-- ── PRICING ── -->
 <section class="pricing-section" id="pricing">
   <div class="sec-label reveal">Pricing</div>
-  <h2 class="sec-h2 reveal">Your mental health<br>shouldn't cost <span>the earth.</span></h2>
-  <p class="sec-p reveal">Your first session is free. Pay only for the sessions you book — no subscriptions, no lock-in. The assessment, mood tracking, journaling and community are always free.</p>
+  <h2 class="sec-h2 reveal">Real care, at a price<br>that <span>makes sense.</span></h2>
+  <p class="sec-p reveal">Your first session is free. After that, the more you commit to your healing, the less each session costs. Every paid plan includes the full app: unlimited Calm AI, daily tracking, insights, and a guide who stays with you.</p>
   <div class="price-grid">
     <div class="plan reveal">
-      <div class="plan-name">Free</div>
-      <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">0</span></div>
-      <div class="plan-period">Always free, no card needed</div>
+      <div class="plan-name">Calm+</div>
+      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">399</span></div>
+      <div class="plan-period">per month · the full app, no sessions</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Free mental wellness assessment</div>
-        <div class="plan-feat"><span class="ck">✓</span>Daily 3-dimensional mood check-in</div>
-        <div class="plan-feat"><span class="ck">✓</span>Smart journaling with AI insights</div>
-        <div class="plan-feat"><span class="ck">✓</span>Calm AI companion</div>
-        <div class="plan-feat"><span class="ck">✓</span>Moderated community access</div>
+        <div class="plan-feat"><span class="ck">✓</span>Unlimited Calm AI chat and insights</div>
+        <div class="plan-feat"><span class="ck">✓</span>Daily mood tracker and smart journaling</div>
+        <div class="plan-feat"><span class="ck">✓</span>Daily and weekly insights</div>
+        <div class="plan-feat"><span class="ck">✓</span>A constant guide for the everyday</div>
+        <div class="plan-feat"><span class="ck">✓</span>From ₹100/month on the yearly plan</div>
       </div>
-      <a class="plan-btn pb-ol" href="/assess" style="display:block;text-align:center;text-decoration:none;">Get started free</a>
+      <a class="plan-btn pb-ol" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Explore Calm+</a>
     </div>
     <div class="plan pro reveal d1">
       <div class="plan-tag">First session free</div>
-      <div class="plan-name">Therapy session</div>
+      <div class="plan-name">Therapy</div>
       <div class="plan-pr"><span class="plan-cur" style="color:rgba(255,255,255,.7)">From ₹</span><span class="plan-amt">999</span></div>
-      <div class="plan-period">per session · first one free</div>
+      <div class="plan-period">per session · everything in Calm+ included</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>50-min session with an RCI-verified therapist</div>
-        <div class="plan-feat"><span class="ck">✓</span>Matched to your needs — we find the right fit</div>
-        <div class="plan-feat"><span class="ck">✓</span>Secure video via Google Meet</div>
-        <div class="plan-feat"><span class="ck">✓</span>AI pre-session brief shared with your therapist</div>
-        <div class="plan-feat"><span class="ck">✓</span>Book one at a time — no commitment</div>
+        <div class="plan-feat"><span class="ck">✓</span>Sessions with an RCI-verified psychologist</div>
+        <div class="plan-feat"><span class="ck">✓</span>A clear summary after every session</div>
+        <div class="plan-feat"><span class="ck">✓</span>Daily and weekly insights on your progress</div>
+        <div class="plan-feat"><span class="ck">✓</span>A constant guide for the whole journey</div>
+        <div class="plan-feat"><span class="ck">✓</span>Best value on the 6-session pack</div>
       </div>
-      <a class="plan-btn pb-dk" href="/assess" style="display:block;text-align:center;text-decoration:none;">Book your free session</a>
+      <a class="plan-btn pb-dk" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Book session</a>
     </div>
     <div class="plan reveal d2">
-      <div class="plan-name">Psychiatry session</div>
-      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">1,299</span></div>
-      <div class="plan-period">per session · with a psychiatrist</div>
+      <div class="plan-name">Psychiatry</div>
+      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">1,099</span></div>
+      <div class="plan-period">per session · everything in Calm+ included</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Consultation with an NMC-registered psychiatrist</div>
-        <div class="plan-feat"><span class="ck">✓</span>Medication review &amp; management</div>
-        <div class="plan-feat"><span class="ck">✓</span>Secure video via Google Meet</div>
+        <div class="plan-feat"><span class="ck">✓</span>Sessions with an NMC-registered psychiatrist</div>
+        <div class="plan-feat"><span class="ck">✓</span>Medication support and a built-in tracker</div>
+        <div class="plan-feat"><span class="ck">✓</span>Medicines delivered to your door</div>
         <div class="plan-feat"><span class="ck">✓</span>Coordinated with your therapist when needed</div>
-        <div class="plan-feat"><span class="ck">✓</span>Hospital referral when clinically required</div>
+        <div class="plan-feat"><span class="ck">✓</span>Best value on the 6-session pack</div>
       </div>
-      <a class="plan-btn pb-ol" href="/assess" style="display:block;text-align:center;text-decoration:none;">Book a consultation</a>
+      <a class="plan-btn pb-ol" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Book session</a>
     </div>
   </div>
+  <p class="sec-p reveal" style="text-align:center;margin-top:28px;font-size:14px;">Just exploring? Our free plan gives you mood tracking and journaling, always. <a href="/pricing" style="color:var(--coral);font-weight:600;text-decoration:none;">See all plans →</a></p>
 </section>
 
 <!-- ── COMMUNITY ── -->
@@ -670,7 +671,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <h2 class="sec-h2 reveal">Your first session<br>is <span>on us.</span></h2>
     <p class="sec-p reveal">No card. No commitment. Start with the free 5-minute assessment, get matched with the right expert, and have your first session free — just an honest look at how you're doing, and a clear path forward.</p>
     <div class="fcta-btns reveal">
-      <a class="btn-xl c" href="/assess">✦ Book a free session</a>
+      <a class="btn-xl c" href="/pricing">✦ Book a session</a>
       <a href="#how" class="btn-xl o">See how it works</a>
     </div>
     <div class="fcta-trust reveal">

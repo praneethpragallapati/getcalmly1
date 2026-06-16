@@ -8,7 +8,7 @@ const NAV = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
   { label: 'Features', href: '/features' },
-  { label: 'Pricing', href: '/#pricing' },
+  { label: 'Pricing', href: '/pricing' },
   { label: 'Blog', href: '/blog' },
   { label: 'Community', href: '/community' },
   { label: 'About', href: '/about' },
@@ -33,12 +33,12 @@ export default function SiteHeader() {
         <Link
           href="/for-therapists"
           className="btn-ghost"
-          style={{ color: '#1A7F7A', borderColor: 'rgba(26,127,122,.35)' }}
+          style={{ color: '#3D9E72', borderColor: 'rgba(61,158,114,.35)' }}
         >
-          For Therapists
+          Join Our Team
         </Link>
         <Link href="/login" className="btn-ghost" style={{ border: 'none', padding: '8px 10px' }}>Log in</Link>
-        <Link href="/assess" className="btn-primary">Book a free session</Link>
+        <Link href="/pricing" className="btn-primary">Book session</Link>
         <button
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
@@ -92,9 +92,9 @@ export default function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: 'var(--coral)', textDecoration: 'none' }}>For Therapists</Link>
+          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#3D9E72', textDecoration: 'none' }}>Join Our Team</Link>
           <Link href="/login" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, color: 'var(--charcoal)', textDecoration: 'none' }}>Log in</Link>
-          <Link href="/assess" onClick={() => setOpen(false)} className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>Book a free session</Link>
+          <Link href="/pricing" onClick={() => setOpen(false)} className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>Book session</Link>
         </div>
       )}
 

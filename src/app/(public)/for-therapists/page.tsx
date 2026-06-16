@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 }
 
 const benefits = [
-  { icon: '🧠', t: 'An AI co-pilot, not a replacement', d: 'Auto-drafted session notes, homework tracking, and pre-session briefs you review and approve. The judgement stays yours — the paperwork doesn\'t.' },
-  { icon: '🎯', t: 'Matched clients, not cold leads', d: 'We route clients to you by specialty, language, and availability. No bidding, no chasing, no marketing spend — just the right fit walking in.' },
+  { icon: '🧠', t: 'An AI co-pilot, not a replacement', d: 'Auto-drafted session notes, homework tracking, and pre-session briefs you review and approve. The judgement stays yours. The paperwork does not.' },
+  { icon: '🎯', t: 'Matched clients, not cold leads', d: 'We route clients to you by specialty, language, and availability. No bidding, no chasing, no marketing spend. Just the right fit walking in.' },
   { icon: '📋', t: 'Pre-session briefs', d: 'Walk into every session already caught up: mood trends, journal themes, last session\'s homework, and PHQ-9/GAD-7 history, summarised.' },
   { icon: '🔔', t: 'Between-session safety net', d: 'Severity-tiered alerts surface the clients who need attention now, so nothing slips through the gaps between appointments.' },
-  { icon: '👥', t: 'Built-in supervision', d: 'Supervise associates or get supervised — track cases under supervision, share notes, and grow clinically, all in one place.' },
+  { icon: '👥', t: 'Built-in supervision', d: 'Supervise associates or get supervised. Track cases under supervision, share notes, and keep growing clinically, all in one place.' },
   { icon: '🗓️', t: 'Calendar that runs itself', d: 'Two-way Google Calendar sync, recurring availability, and one-tap Google Meet. Set your hours and let it handle the rest.' },
   { icon: '💳', t: 'Transparent, on-time payouts', d: 'Razorpay-backed payments, clear fees, and reliable settlements with a live earnings summary. You focus on care; we handle billing.' },
-  { icon: '🔒', t: 'Compliance from day one', d: 'DPDP-aligned data handling, encrypted records, consent management, and NIMHANS telepsychotherapy standards — built in, not bolted on.' },
+  { icon: '🔒', t: 'Compliance from day one', d: 'DPDP-aligned data handling, encrypted records, consent management, and NIMHANS telepsychotherapy standards, built in from the start.' },
 ]
 
 export default function ForTherapistsPage() {
@@ -24,17 +24,17 @@ export default function ForTherapistsPage() {
     <div style={{ background: '#F9F5F2' }}>
       {/* Hero */}
       <section style={{ background: '#1C2B3A', padding: '84px 24px 72px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,127,122,.22) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.22) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>For therapists & psychiatrists</p>
+          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>Join our expert team</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
             fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22,
           }}>
-            Spend your time<br /><span style={{ color: '#1FB6A8' }}>on care, not admin.</span>
+            Spend your time<br /><span style={{ color: '#3D9E72' }}>on care, not admin.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.75, maxWidth: 600, margin: '0 auto', fontWeight: 300 }}>
-            GetCalmly gives you matched clients, an AI clinical co-pilot, supervision tools, and a calendar that runs itself — so the parts of practice that drain you fade into the background, and the part you trained for takes centre stage.
+            GetCalmly gives you matched clients, an AI clinical co-pilot, supervision tools, and a calendar that runs itself. The parts of practice that drain you fade into the background, and the part you trained for takes centre stage.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
             <Link href="/for-therapists/apply" style={ctaPrimary}>Apply to join →</Link>
@@ -55,7 +55,7 @@ export default function ForTherapistsPage() {
             ['100%', 'sessions on secure Google Meet'],
           ].map(([n, d]) => (
             <div key={d}>
-              <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 38, color: '#C8553D', lineHeight: 1 }}>{n}</p>
+              <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 38, color: '#3D9E72', lineHeight: 1 }}>{n}</p>
               <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 6 }}>{d}</p>
             </div>
           ))}
@@ -87,19 +87,19 @@ export default function ForTherapistsPage() {
       <section style={{ background: '#fff', padding: '72px 24px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 14 }}>Joining is simple</p>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#3D9E72', textTransform: 'uppercase', marginBottom: 14 }}>Joining is simple</p>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 40px)', color: '#1C2B3A', letterSpacing: '-1px' }}>
               From application to first client.
             </h2>
           </div>
           {[
-            ['01', 'Apply', 'Tell us about your practice, qualifications, and specialisations — and upload your registration and certificates.'],
+            ['01', 'Apply', 'Tell us about your practice, qualifications, and specialisations, and upload your registration and certificates.'],
             ['02', 'Verify', 'We verify your RCI / NMC registration and review your documents. Quality is non-negotiable for us.'],
             ['03', 'Interview', 'A short conversation with our clinical team to get to know you and your approach.'],
             ['04', 'Go live', 'Set your availability, connect Google Calendar, and start receiving matched clients.'],
           ].map(([n, t, d]) => (
             <div key={n} style={{ display: 'flex', gap: 20, alignItems: 'flex-start', padding: '20px 0', borderBottom: '1px solid #EEF0F3' }}>
-              <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#1FB6A8', lineHeight: 1, flexShrink: 0, width: 46 }}>{n}</span>
+              <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#3D9E72', lineHeight: 1, flexShrink: 0, width: 46 }}>{n}</span>
               <div>
                 <p style={{ fontSize: 17, fontWeight: 800, color: '#1C2B3A', marginBottom: 4 }}>{t}</p>
                 <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.65 }}>{d}</p>
@@ -129,9 +129,9 @@ export default function ForTherapistsPage() {
 }
 
 const ctaPrimary: React.CSSProperties = {
-  display: 'inline-flex', alignItems: 'center', gap: 8, background: '#C8553D', color: '#fff',
+  display: 'inline-flex', alignItems: 'center', gap: 8, background: '#3D9E72', color: '#fff',
   padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none',
-  fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)',
+  fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(61,158,114,.35)',
 }
 const ctaGhost: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)',
