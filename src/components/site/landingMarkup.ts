@@ -89,40 +89,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="scroll-cue"><div class="sc-line"></div>Scroll</div>
 </section>
 
-<!-- ── THE PROBLEM ── -->
-<div class="problem-strip reveal">
-  <div class="problem-glow"></div>
-  <div class="problem-inner">
-    <div class="problem-head">
-      <span class="prob-eyebrow">The mental health gap in India</span>
-      <h3 class="prob-headline">The numbers no one<br>talks about.</h3>
-    </div>
-    <div class="problem-stats">
-      <div class="prob-stat">
-        <span class="prob-ico">🧩</span>
-        <span class="prob-n">60<small>%</small></span>
-        <span class="prob-l">of people who need care<br>never receive it</span>
-      </div>
-      <span class="prob-divider"></span>
-      <div class="prob-stat">
-        <span class="prob-ico">🩺</span>
-        <span class="prob-n">0.75</span>
-        <span class="prob-l">psychiatrists for every<br>100,000 people</span>
-      </div>
-      <span class="prob-divider"></span>
-      <div class="prob-stat">
-        <span class="prob-ico">⏳</span>
-        <span class="prob-n">Months</span>
-        <span class="prob-l">of waiting just for<br>a first appointment</span>
-      </div>
-    </div>
-    <div class="problem-mission">
-      <span class="prob-mission-dot"></span>
-      <p class="prob-mission">We built <strong>getCalmly</strong> to change all three.</p>
-    </div>
-  </div>
-</div>
-
 <!-- ── HOW IT WORKS ── -->
 <section class="how-section" id="how">
   <div class="sec-label reveal">How it works</div>
@@ -723,21 +689,4 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
 </section>
 
-<!-- ── FINAL CTA ── -->
-<section class="final-cta">
-  <div class="fcta">
-    <div class="sec-label">Begin today</div>
-    <h2 class="sec-h2 reveal">Your first session<br>is <span>on us.</span></h2>
-    <p class="sec-p reveal">No card. No commitment. Start with the free 5-minute assessment, get matched with the right expert, and have your first session free — just an honest look at how you're doing, and a clear path forward.</p>
-    <div class="fcta-btns reveal">
-      <a class="btn-xl c" href="/pricing">✦ Book a session</a>
-      <a href="#how" class="btn-xl o">See how it works</a>
-    </div>
-    <div class="fcta-trust reveal">
-      <span class="fti">🔒 100% confidential</span>
-      <span class="fti">✓ RCI & NMC-verified clinicians</span>
-      <span class="fti">💙 Free to start</span>
-      <span class="fti">🇮🇳 Made in India</span>
-    </div>
-  </div>
-</section>`;
+`;

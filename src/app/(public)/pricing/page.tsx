@@ -119,11 +119,13 @@ function CalmPlusCard() {
 
       <PackSelector items={calmPlusPacks} i={i} setI={setI} accent={teal} badges={badges} label={(p) => p.label} />
 
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(pack.total)}</span>
-        <span style={{ fontSize: 14, color: '#6B7D8E' }}>/ {pack.label}</span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 13, color: '#A0ADB8', fontWeight: 500 }}>From</span>
+        <span style={{ fontSize: 15, color: '#A0ADB8', textDecoration: 'line-through', fontWeight: 600 }}>{inr(CALMPLUS_BASE)}</span>
+        <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(perMonth)}</span>
+        <span style={{ fontSize: 14, color: '#6B7D8E' }}>/ month</span>
       </div>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8 }}>Just <strong style={{ color: teal }}>{inr(perMonth)}</strong> per month · <span style={{ textDecoration: 'line-through', color: '#A0ADB8' }}>{inr(CALMPLUS_BASE)}</span></p>
+      <p style={{ fontSize: 13, color: '#6B7D8E', marginTop: 6 }}>Billed {pack.label.toLowerCase()} · {inr(pack.total)} total</p>
 
       <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>
