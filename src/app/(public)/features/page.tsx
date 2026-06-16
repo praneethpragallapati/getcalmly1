@@ -203,24 +203,10 @@ export default function FeaturesPage() {
 
           {/* Phone frame */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: 248, background: '#0F1C28', borderRadius: 36, padding: 10, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
-              <div style={{ background: '#F9F5F2', borderRadius: 28, padding: '18px 14px', height: 420, overflow: 'hidden' }}>
-                <p style={{ fontSize: 11, color: '#8E9EAE', fontWeight: 600 }}>Good morning, Priya</p>
-                <p style={{ fontSize: 15, fontWeight: 800, color: charcoal, marginTop: 2 }}>How are you today?</p>
-                <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-                  {['😣', '😕', '🙂', '😊', '😄'].map((e, i) => (
-                    <div key={i} style={{ flex: 1, textAlign: 'center', padding: '8px 0', borderRadius: 10, background: i === 3 ? '#FFF1EC' : '#fff', border: i === 3 ? '1.5px solid rgba(200,85,61,.4)' : '1px solid #EEF0F3', fontSize: 16 }}>{e}</div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 14, background: charcoal, borderRadius: 14, padding: '14px' }}>
-                  <p style={{ fontSize: 10, color: '#1FB6A8', fontWeight: 700 }}>TODAY&apos;S SESSION · 3:00 PM</p>
-                  <p style={{ fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 4 }}>Dr. Ananya Sharma</p>
-                  <div style={{ marginTop: 10, background: '#1FB6A8', color: '#062a26', fontSize: 11, fontWeight: 800, textAlign: 'center', padding: '7px', borderRadius: 8 }}>Join session</div>
-                </div>
-                <div style={{ marginTop: 12, background: '#fff', borderRadius: 14, padding: '12px', border: '1px solid #EEF0F3' }}>
-                  <p style={{ fontSize: 10, color: coral, fontWeight: 700 }}>CALM AI</p>
-                  <p style={{ fontSize: 11.5, color: '#3A4A5A', marginTop: 4, lineHeight: 1.45 }}>Mondays look tougher for you. Want a 5-minute reset before your day starts?</p>
-                </div>
+            <div style={{ width: 248, background: '#0F1C28', borderRadius: 40, padding: 9, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
+              <div style={{ borderRadius: 32, overflow: 'hidden', background: '#F9F5F2' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/mockups/patient-home-2.png" alt="The GetCalmly app, mood check-in and today's session" loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
               </div>
             </div>
           </div>

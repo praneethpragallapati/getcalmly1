@@ -693,26 +693,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
     </div>
     <div style="display:flex;justify-content:center;">
-      <div style="width:240px;background:#0F1C28;border-radius:36px;padding:10px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
-        <div style="background:#F9F5F2;border-radius:28px;padding:18px 14px;">
-          <div style="font-size:11px;color:#8E9EAE;font-weight:600;">Good morning, Priya</div>
-          <div style="font-size:15px;font-weight:800;color:#1C2B3A;margin-top:2px;">How are you today?</div>
-          <div style="display:flex;gap:6px;margin-top:12px;">
-            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">😣</div>
-            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">😕</div>
-            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">🙂</div>
-            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#FFF1EC;border:1.5px solid rgba(200,85,61,.4);font-size:16px;">😊</div>
-            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">😄</div>
-          </div>
-          <div style="margin-top:14px;background:#1C2B3A;border-radius:14px;padding:14px;">
-            <div style="font-size:10px;color:#1FB6A8;font-weight:700;">TODAY'S SESSION · 3:00 PM</div>
-            <div style="font-size:13px;color:#fff;font-weight:700;margin-top:4px;">Dr. Ananya Sharma</div>
-            <div style="margin-top:10px;background:#1FB6A8;color:#062a26;font-size:11px;font-weight:800;text-align:center;padding:7px;border-radius:8px;">Join session</div>
-          </div>
-          <div style="margin-top:12px;background:#fff;border-radius:14px;padding:12px;border:1px solid #EEF0F3;">
-            <div style="font-size:10px;color:var(--coral);font-weight:700;">CALM AI</div>
-            <div style="font-size:11.5px;color:#3A4A5A;margin-top:4px;line-height:1.45;">Mondays look tougher for you. Want a 5-minute reset before your day starts?</div>
-          </div>
+      <div style="width:248px;background:#0F1C28;border-radius:40px;padding:9px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
+        <div style="border-radius:32px;overflow:hidden;background:#F9F5F2;">
+          <img src="/mockups/patient-home-1.png" alt="The GetCalmly app home screen" loading="lazy" style="display:block;width:100%;height:auto;" />
         </div>
       </div>
     </div>
