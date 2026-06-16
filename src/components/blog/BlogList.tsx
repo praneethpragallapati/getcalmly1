@@ -70,7 +70,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
             width: 420,
             height: 420,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(200,85,61,0.38), transparent 65%)',
+            background: 'radial-gradient(circle, rgba(200,85,61,0.10), transparent 65%)',
             filter: 'blur(20px)',
             pointerEvents: 'none',
           }}
@@ -84,7 +84,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
             width: 460,
             height: 460,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(61,158,114,0.30), transparent 65%)',
+            background: 'radial-gradient(circle, rgba(61,158,114,0.10), transparent 65%)',
             filter: 'blur(20px)',
             pointerEvents: 'none',
           }}
@@ -97,7 +97,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
               fontWeight: 700,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color: '#E8896F',
+              color: '#C8553D',
               marginBottom: 18,
             }}
           >

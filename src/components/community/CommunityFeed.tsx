@@ -343,7 +343,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
             left: '8%',
             width: 420,
             height: 420,
-            background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(200,85,61,.10) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
@@ -354,7 +354,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
             right: '6%',
             width: 460,
             height: 460,
-            background: 'radial-gradient(circle, rgba(61,158,114,.16) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(61,158,114,.10) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
@@ -694,7 +694,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
                 right: '-60px',
                 width: 320,
                 height: 320,
-                background: 'radial-gradient(circle, rgba(200,85,61,.25) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(200,85,61,.12) 0%, transparent 70%)',
                 pointerEvents: 'none',
               }}
             />
