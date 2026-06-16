@@ -91,16 +91,16 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
 <!-- ── HOW IT WORKS ── -->
 <section class="how-section" id="how">
-  <div class="sec-label reveal">How it works</div>
-  <h2 class="sec-h2 reveal">Priya's story.<br><span>And maybe yours.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:48px;">She'd been fine for a long time — officially. Here's what changed.</p>
+  <div class="sec-label reveal">A real journey</div>
+  <h2 class="sec-h2 reveal">This is Priya.<br><span>Her story might feel familiar.</span></h2>
+  <p class="sec-p reveal" style="margin-bottom:48px;">For two years she told everyone she was fine. One night, she finally stopped pretending. Here's what the next eight weeks looked like.</p>
   <div class="how-layout">
     <div class="how-steps">
-      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">Take the free assessment</div><div class="hs-d">Priya did this at 11 PM, from her couch. Twelve clinically validated questions, no login and no judgment. She walked away with an instant wellness profile and a professional matched to exactly what she was carrying.</div></div></div>
-      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">Your first session is free</div><div class="hs-d">Session one cost her nothing. By session three, Priya had words for feelings she had been holding quietly for two years. No pressure, no commitment, just a real conversation with the right person.</div></div></div>
-      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">A specialist who stays with you</div><div class="hs-d">Dr. Ananya knew Priya's history, her progress and her patterns. There was no starting over each week and no explaining herself to a new face. Just one professional who genuinely remembered her, session after session.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">An app that supports you daily</div><div class="hs-d">Between sessions Priya had daily mood check-ins, smart journaling and the Calm AI companion whenever she needed to talk. Everything stayed in context, so the support never felt like it started from scratch.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">Progress you can actually see</div><div class="hs-d">By week eight her sleep was steadier, her mood trend was up 18 percent and her journal streak held. Priya did not just feel better. She could see why, and that is what real care makes possible.</div></div></div>
+      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">She started with one honest answer</div><div class="hs-d">11 PM, on her couch, almost didn't. Twelve gentle questions later — no login, no judgement — Priya finally had words for what she'd been carrying, and the name of someone who could help.</div></div></div>
+      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">The first session cost her nothing</div><div class="hs-d">No card, no commitment — just one real conversation to see if it fit. By the third session, she was saying things out loud she'd held quietly for two years.</div></div></div>
+      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">The same person stayed with her</div><div class="hs-d">Same therapist, every week. Dr. Ananya already knew her history and her patterns, so Priya never had to start over or explain herself to a new face again.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">Support didn't end at the session</div><div class="hs-d">Hard nights don't wait for appointments. Daily check-ins, journalling and Calm AI were there at midnight — and everything stayed in context, so nothing started from scratch.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">And slowly, she could see it working</div><div class="hs-d">By week eight her sleep had steadied and her mood was up 18 percent. Priya didn't just feel better — she could see why. That's what makes it last.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
       <!-- Therapist match card (no portrait — monogram only) -->
