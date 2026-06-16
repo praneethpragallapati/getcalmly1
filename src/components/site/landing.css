@@ -567,5 +567,5 @@
 /* App band: stack on mobile */
 @media (max-width: 768px){
   .lp-page .app-grid{grid-template-columns:1fr !important;gap:36px !important;}
-  .lp-page .app-section{padding:44px 22px !important;margin:0 14px !important;}
+  .lp-page .app-section{padding:64px 6% 56px !important;}
 }

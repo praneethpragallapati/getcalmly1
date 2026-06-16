@@ -35,10 +35,10 @@ export default function TermsPage() {
 
           <H>Refund &amp; cancellation</H>
           <P>
-            You can cancel a session pack at any time. When you do, we refund you for every session you have <strong>not</strong> used. You only pay for the sessions you actually took.
+            Changing your mind is completely okay. You can drop out or switch your plan at any time, and we will always work out a fair refund for the rest of your pack. No awkward questions.
           </P>
           <P>
-            Because larger packs are sold at a lower per-session price, the sessions you used are re-priced at the rate of the <strong>nearest smaller pack</strong>, and the balance is returned to your original payment method.
+            Here is exactly how we keep it fair. Larger packs are priced lower per session, so when you stop early we simply re-price the sessions you have already had at the rate of the <strong>nearest smaller pack</strong>, and return the balance to your original payment method.
           </P>
 
           <div style={{ background: '#FFF8F5', border: '1px solid rgba(200,85,61,.2)', borderRadius: 14, padding: '20px 22px', margin: '8px 0 14px' }}>

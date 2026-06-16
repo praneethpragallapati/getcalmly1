@@ -240,39 +240,17 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Refund / money-back explainer */}
-      <section style={{ maxWidth: 860, margin: '0 auto', padding: '12px 24px 64px' }}>
-        <div style={{ background: '#fff', borderRadius: 20, padding: '32px', border: '1.5px solid rgba(61,158,114,.25)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-            <span style={{ fontSize: 24 }}>↩️</span>
-            <h3 style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>Change your mind? Get your money back.</h3>
-          </div>
-          <p style={{ fontSize: 14.5, color: '#3A4A5A', lineHeight: 1.7, marginBottom: 14 }}>
-            If you decide to stop part-way through a pack, we refund every session you have not used. You are simply charged for the sessions you did take, at the rate of the nearest smaller pack.
+      {/* Refund / money-back reassurance */}
+      <section style={{ maxWidth: 760, margin: '0 auto', padding: '12px 24px 80px' }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: '30px 34px', border: '1.5px solid rgba(61,158,114,.25)', textAlign: 'center' }}>
+          <div style={{ fontSize: 30, marginBottom: 10 }}>🤍</div>
+          <h3 style={{ fontSize: 22, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif", marginBottom: 10 }}>Changed your mind? That&apos;s okay.</h3>
+          <p style={{ fontSize: 15, color: '#3A4A5A', lineHeight: 1.7, maxWidth: 520, margin: '0 auto 18px' }}>
+            You can drop out or switch your plan whenever you need to. If you stop part-way, we work out a fair refund for the rest, no awkward questions and no fine print to fight.
           </p>
-          <div style={{ background: '#F9F5F2', borderRadius: 12, padding: '16px 18px', fontSize: 13.5, color: '#3A4A5A', lineHeight: 1.7 }}>
-            <strong style={{ color: charcoal }}>For example:</strong> on a 6-session therapy pack, if you have done 3 sessions, the nearest smaller pack is 2 sessions, so those 3 are billed at the 2-pack rate of {inr(perSession(therapyPacks[1]))}/session and the rest is refunded. If you have done 5 sessions, they are billed at the 4-pack rate of {inr(perSession(therapyPacks[2]))}/session.
-          </div>
-          <Link href="/terms" style={{ display: 'inline-block', marginTop: 16, fontSize: 13.5, color: coral, fontWeight: 700, textDecoration: 'none' }}>
-            Read the full refund &amp; cancellation terms →
+          <Link href="/terms" style={{ fontSize: 14, color: coral, fontWeight: 700, textDecoration: 'none' }}>
+            See how refunds work →
           </Link>
-        </div>
-      </section>
-
-      {/* Assurance row */}
-      <section style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,.05)' }}>
-        <div style={{ maxWidth: 920, margin: '0 auto', padding: '48px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 28, textAlign: 'center' }}>
-          {[
-            ['🎁', 'Your first session is free', 'Try therapy with no card and no commitment before you choose a pack.'],
-            ['↩️', 'Money back, always', 'Stop whenever you like and get refunded for every session you have not used.'],
-            ['🔄', 'Switch care anytime', 'Move between individual and couples care as your needs change.'],
-          ].map(([icon, t, d]) => (
-            <div key={t}>
-              <div style={{ fontSize: 28, marginBottom: 12 }}>{icon}</div>
-              <p style={{ fontSize: 15, fontWeight: 800, color: charcoal, marginBottom: 6 }}>{t}</p>
-              <p style={{ fontSize: 13.5, color: '#6B7D8E', lineHeight: 1.6 }}>{d}</p>
-            </div>
-          ))}
         </div>
       </section>
     </div>

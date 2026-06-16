@@ -676,8 +676,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 </section>
 
 <!-- ── APP ── -->
-<section class="app-section" style="background:#1C2B3A;border-radius:32px;margin:0 24px;padding:60px 40px;overflow:hidden;">
-  <div class="app-grid" style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
+<section class="app-section" style="background:#1C2B3A;padding:96px 6% 80px;overflow:hidden;">
+  <div class="app-grid" style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
       <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
       <h2 class="sec-h2" style="color:#fff;margin-bottom:16px;">Your care,<br><span style="color:var(--coral-l);">in your pocket.</span></h2>
