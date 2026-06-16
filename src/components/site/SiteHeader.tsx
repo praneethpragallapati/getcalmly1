@@ -7,7 +7,7 @@ import Logo from '@/components/ui/Logo'
 const NAV = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
-  { label: 'Features', href: '/#features' },
+  { label: 'Features', href: '/features' },
   { label: 'Pricing', href: '/#pricing' },
   { label: 'Blog', href: '/blog' },
   { label: 'Community', href: '/community' },

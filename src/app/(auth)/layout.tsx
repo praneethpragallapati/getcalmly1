@@ -30,20 +30,22 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </Link>
 
         <div style={{ paddingTop: 64, paddingBottom: 48 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 20 }}>Mental Health, Reimagined</p>
+          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.3, color: 'rgba(255,255,255,.4)', marginBottom: 22 }}>
+            India&apos;s mental healthcare, done right.
+          </p>
           <h2 style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
             fontWeight: 900,
-            fontSize: 44,
-            lineHeight: 1.05,
+            fontSize: 46,
+            lineHeight: 1.02,
             color: '#fff',
-            marginBottom: 20,
+            marginBottom: 22,
             letterSpacing: '-1px',
           }}>
-            You took the<br />hardest step<br /><span style={{ color: '#C8553D' }}>just showing up.</span>
+            The right professional.<br /><span style={{ color: '#C8553D' }}>The very first time.</span>
           </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, maxWidth: 380, fontWeight: 300 }}>
-            Everything after this is easier. We&apos;ll match you with a professional who actually fits your life — language, schedule, and what you&apos;re going through.
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', lineHeight: 1.7, maxWidth: 390, fontWeight: 300 }}>
+            No endless scrolling through profiles. We match you by what you&apos;re actually going through, the language you think in, and what fits your budget — so your first session already feels like the right one.
           </p>
         </div>
 

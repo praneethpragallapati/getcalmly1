@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-type ServiceSlug = 'therapy' | 'couples' | 'child' | 'psychiatry' | 'assessments' | 'specialised'
+type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'assessments' | 'specialised'
 
 const services: Record<ServiceSlug, {
   icon: string
@@ -93,6 +93,31 @@ const services: Record<ServiceSlug, {
     ],
     cta: 'Book a free intro session',
   },
+  maternal: {
+    icon: '🤱',
+    accent: '#D98C5F',
+    pale: 'rgba(217,140,95,.10)',
+    title: 'Motherhood & Postpartum Care',
+    tagline: 'Everyone asks about the baby. We ask about you.',
+    hero: 'From the outside, you\'re doing everything right. Inside, you might feel anxious, numb, overwhelmed, or like a stranger to yourself. Pregnancy and the months after birth bring some of the biggest emotional shifts a person can go through — and almost nobody talks about how hard they can be. You don\'t have to pretend you\'re fine.',
+    why: 'Our maternal mental health specialists are trained in perinatal care — they understand the hormonal, physical, and identity changes of pregnancy and postpartum. This isn\'t generic therapy with a baby mentioned occasionally. It\'s care built for this exact season of life.',
+    items: [
+      { name: 'Prenatal Anxiety', desc: 'Worry that goes beyond normal nerves — about the baby, the birth, whether you\'ll be enough. We help you carry it more gently.' },
+      { name: 'Postpartum Depression', desc: 'The sadness that doesn\'t lift, the disconnection from your baby or yourself. It\'s common, it\'s real, and it\'s very treatable.' },
+      { name: 'Birth Trauma', desc: 'When the birth didn\'t go the way it should have, and it left a mark. Processing it helps you move forward.' },
+      { name: 'Identity & Role Shift', desc: 'Grieving the person you were before, while becoming someone new. That tension is real and worth talking about.' },
+      { name: 'Parenting Overwhelm', desc: 'The relentlessness of it. The guilt. The touched-out exhaustion. A space to be honest without being judged.' },
+      { name: 'Pregnancy Loss & Grief', desc: 'Miscarriage, stillbirth, or loss at any stage — grief that the world too often rushes you past. We sit with it at your pace.' },
+      { name: 'Fertility Stress', desc: 'The emotional weight of trying, waiting, and treatment cycles. Support for the toll it takes on you and your relationship.' },
+    ],
+    whoFor: ['Expectant mothers', 'New mothers (and partners)', 'Anyone navigating pregnancy loss', 'People going through fertility treatment'],
+    faq: [
+      { q: 'Is it normal to feel this way after having a baby?', a: 'More normal than anyone tells you. Up to 1 in 7 mothers experience postpartum depression, and many more feel anxious or overwhelmed. Feeling this way is not a reflection of your love for your child.' },
+      { q: 'Can my partner join sessions?', a: 'Yes. Partners are often deeply affected too, and including them can help. We also offer support specifically for partners.' },
+      { q: 'I had a loss a while ago. Is it too late to seek help?', a: 'Never. Grief doesn\'t follow a timeline. Whether it was weeks or years ago, support is available whenever you\'re ready.' },
+    ],
+    cta: 'Talk to a maternal specialist',
+  },
   psychiatry: {
     icon: '💊',
     accent: '#1A7F7A',
@@ -152,13 +177,12 @@ const services: Record<ServiceSlug, {
     why: 'Our specialist roster includes professionals with advanced training in LGBTQIA+ affirmative care, perinatal mental health, palliative support, and clinical supervision. You\'ll never be asked to educate your therapist on who you are.',
     items: [
       { name: 'LGBTQIA+ Affirmative Care', desc: 'A space where you don\'t have to explain your identity before getting to what actually needs talking about. Our therapists are trained in affirmative, non-pathologising care.' },
-      { name: 'Pregnancy & Postpartum', desc: 'Prenatal anxiety, postnatal depression, the identity shift of becoming a parent — all real, all treatable, all worth taking seriously.' },
       { name: 'Chronic & Terminal Illness', desc: 'Living with an ongoing or life-limiting illness changes everything. Psychological support helps you cope, adapt, and find meaning alongside medical care.' },
       { name: 'Grief & Bereavement', desc: 'There\'s no right way to grieve. Our specialists meet you wherever you are in the process — weeks, months, or years after a loss.' },
       { name: 'Geriatric Mental Health', desc: 'Older adults face distinct challenges — isolation, cognitive changes, end-of-life questions. Specialised care makes a real difference.' },
       { name: 'Clinical Supervision for Professionals', desc: 'Mental health professionals need support too. Individual and group supervision with experienced supervisors, including research guidance.' },
     ],
-    whoFor: ['LGBTQIA+ individuals', 'Expectant or new parents', 'People living with chronic illness', 'Mental health professionals seeking supervision'],
+    whoFor: ['LGBTQIA+ individuals', 'People living with chronic illness', 'Older adults & families', 'Mental health professionals seeking supervision'],
     faq: [
       { q: 'What does "affirmative care" mean in practice?', a: 'It means your therapist starts from a position of accepting and affirming your identity — not questioning it, not trying to change it. You come to work on your mental health, not to defend who you are.' },
       { q: 'Can I get support during pregnancy if I\'m already anxious?', a: 'Absolutely. Prenatal anxiety is common and very treatable. Early support often prevents more serious postnatal difficulties.' },

@@ -2,10 +2,13 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import CountrySelect from '@/components/ui/CountrySelect'
+import { defaultCountry } from '@/data/countries'
 
 export default function LoginPage() {
   const [tab, setTab] = useState<'phone' | 'email'>('phone')
   const [sent, setSent] = useState(false)
+  const [country, setCountry] = useState(defaultCountry)
 
   return (
     <div style={{ width: '100%', maxWidth: 420 }}>
@@ -13,16 +16,16 @@ export default function LoginPage() {
         <h1 style={{
           fontFamily: "'Big Shoulders Display', sans-serif",
           fontWeight: 900,
-          fontSize: 36,
+          fontSize: 38,
           color: '#1C2B3A',
           letterSpacing: '-0.5px',
           marginBottom: 8,
-          lineHeight: 1.1,
+          lineHeight: 1.05,
         }}>
-          Welcome back
+          Good to see you again.
         </h1>
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.6, fontWeight: 400 }}>
-          Your sessions, your progress, your care team — all waiting for you.
+          Pick up right where you left off — your space is exactly as you left it.
         </p>
       </div>
 
@@ -88,12 +91,12 @@ export default function LoginPage() {
       {!sent ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {tab === 'phone' ? (
-            <div style={{ display: 'flex', gap: 0, border: '1.5px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
-              <span style={{ padding: '13px 16px', background: '#F5F7FA', color: '#6B7D8E', fontSize: 15, fontWeight: 600, borderRight: '1.5px solid #E2E8F0', whiteSpace: 'nowrap' }}>🇮🇳 +91</span>
+            <div style={{ display: 'flex', border: '1.5px solid #E2E8F0', borderRadius: 12, overflow: 'visible' }}>
+              <CountrySelect value={country} onChange={setCountry} />
               <input
                 type="tel"
                 placeholder="98765 43210"
-                style={{ flex: 1, padding: '13px 16px', border: 'none', fontSize: 15, color: '#1C2B3A', background: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif" }}
+                style={{ flex: 1, padding: '13px 16px', border: 'none', fontSize: 15, color: '#1C2B3A', background: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif", borderRadius: '0 12px 12px 0' }}
               />
             </div>
           ) : (

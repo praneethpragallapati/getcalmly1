@@ -38,6 +38,30 @@ enum SeverityLevel {
   SEVERE
 }
 
+// Whether a patient is currently in individual or couple care. A patient can be
+// moved between modes over time; when in COUPLE mode they also carry a coupleId
+// shared with their partner, while keeping their own stable individual patientId.
+enum CareMode {
+  INDIVIDUAL
+  COUPLE
+}
+
+// A person attached to a patient's care context — a partner (for couples work)
+// or a child/dependent (for child & adolescent therapy).
+enum RelationType {
+  PARTNER
+  CHILD
+  DEPENDENT
+}
+
+enum TherapistApplicationStatus {
+  APPLIED
+  INTERVIEW_SCHEDULED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -83,13 +107,99 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts        Account[]
-  sessions        Session[]
-  therapistProfile TherapistProfile?
-  assessments     Assessment[]
-  patientAppointments Appointment[] @relation("PatientAppointments")
-  moodEntries     MoodEntry[]
-  journalEntries  JournalEntry[]
+  accounts            Account[]
+  sessions            Session[]
+  therapistProfile    TherapistProfile?
+  patientProfile      PatientProfile?
+  assessments         Assessment[]
+  patientAppointments Appointment[]     @relation("PatientAppointments")
+  moodEntries         MoodEntry[]
+  journalEntries      JournalEntry[]
+}
+
+// Patient-side record holding identity, care context, contacts and consents.
+model PatientProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Stable, human-readable individual identifier (e.g. "GC-P-000123"). A patient
+  // keeps this for life, regardless of moving between individual and couple care.
+  patientId String   @unique
+  // Shared identifier across both partners in a couple; null for individuals.
+  // Both partners still keep their own patientId.
+  coupleId  String?
+  careMode  CareMode @default(INDIVIDUAL)
+
+  // What the patient is being treated for — concern "tracks" (e.g. ["anxiety",
+  // "postpartum"]). Drives matching, the care journey, and clinician context.
+  track String[]
+
+  // Personal & contact
+  dateOfBirth       DateTime?
+  gender            String?
+  country           String    @default("IN") // ISO 3166-1 alpha-2, India default
+  preferredLanguage String?
+
+  // Emergency contact
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
+
+  // Consents (mental-health sensitive — captured explicitly at signup)
+  dataRetentionConsent  Boolean   @default(false)
+  // Whether de-identified data may be shared with LLM partners; user can toggle
+  // this off later from settings without affecting other services.
+  llmDataSharingConsent Boolean   @default(false)
+  aiDisclaimerAck       Boolean   @default(false)
+  liabilityAck          Boolean   @default(false)
+  termsAcceptedAt       DateTime?
+
+  relatedPeople RelatedPerson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([coupleId])
+}
+
+// A partner or child/dependent linked to a patient's care context.
+model RelatedPerson {
+  id          String         @id @default(cuid())
+  profileId   String
+  profile     PatientProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  relation    RelationType
+  name        String
+  dateOfBirth DateTime?
+  gender      String?
+  phone       String?
+  email       String?
+  notes       String?        @db.Text
+  createdAt   DateTime       @default(now())
+
+  @@index([profileId])
+}
+
+// Specialist onboarding application. Submitted from the "For Therapists" signup,
+// routed to admins for verification + interview before a TherapistProfile is live.
+model TherapistApplication {
+  id                   String                     @id @default(cuid())
+  fullName             String
+  email                String
+  phone                String
+  council              String // "RCI", "NMC", or "RCI+NMC"
+  registrationNo       String
+  yearsExp             Int
+  qualifications       String[]
+  specializations      String[]
+  languages            String[]
+  bio                  String?                    @db.Text
+  documentUrls         String[] // uploaded certificates, registration proof, ID
+  preferredInterviewAt DateTime?
+  status               TherapistApplicationStatus @default(APPLIED)
+  reviewerNotes        String?                    @db.Text
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
 }
 
 model TherapistProfile {
@@ -110,7 +220,7 @@ model TherapistProfile {
   photoUrl        String?
   createdAt       DateTime @default(now())
 
-  appointments    Appointment[] @relation("TherapistAppointments")
+  appointments Appointment[] @relation("TherapistAppointments")
 }
 
 model Assessment {

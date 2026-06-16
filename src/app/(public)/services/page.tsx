@@ -34,6 +34,16 @@ const branches = [
     items: ['Anxiety & Worry', 'Low Mood', 'Exam Stress', 'ADHD Support', 'Behavioural Challenges', 'Adolescent Identity', 'Grief & Loss', 'Family Change'],
   },
   {
+    slug: 'maternal',
+    icon: '🤱',
+    accent: '#D98C5F',
+    pale: 'rgba(217,140,95,.10)',
+    title: 'Motherhood & Postpartum',
+    tagline: 'Everyone asks about the baby. We ask about you.',
+    desc: 'Becoming a mother changes everything — your body, your sleep, your sense of who you are. The exhaustion, the anxiety, the guilt for not feeling the way you "should" — none of it means you\'re failing. It means you need support, and that\'s allowed.',
+    items: ['Prenatal Anxiety', 'Postpartum Depression', 'Birth Trauma', 'Identity & Role Shift', 'Parenting Overwhelm', 'Pregnancy Loss & Grief', 'Fertility Stress'],
+  },
+  {
     slug: 'psychiatry',
     icon: '💊',
     accent: '#1A7F7A',
@@ -60,8 +70,8 @@ const branches = [
     pale: 'rgba(192,75,138,.08)',
     title: 'Specialised Support',
     tagline: 'Life is not one-size-fits-all. Neither is care.',
-    desc: 'Some experiences need a professional who truly understands the context — not a generalist. Whether you\'re navigating chronic illness, pregnancy, gender identity, or supporting someone in crisis, we have the right person.',
-    items: ['LGBTQIA+ Affirmative Care', 'Pregnancy & Postpartum', 'Chronic / Terminal Illness', 'Grief & Bereavement', 'Geriatric Mental Health', 'Clinical Supervision for Professionals'],
+    desc: 'Some experiences need a professional who truly understands the context — not a generalist. Whether you\'re navigating chronic illness, gender identity, or supporting someone in crisis, we have the right person.',
+    items: ['LGBTQIA+ Affirmative Care', 'Chronic / Terminal Illness', 'Grief & Bereavement', 'Geriatric Mental Health', 'Clinical Supervision for Professionals'],
   },
 ]
 

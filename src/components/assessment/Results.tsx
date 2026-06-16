@@ -152,8 +152,6 @@ export default function Results() {
                   ))}
                 </div>
                 <div className="rm-meta">
-                  <span>⭐ {t.rating}</span>
-                  <span>·</span>
                   <span>{t.yearsExp} yrs exp</span>
                   <span>·</span>
                   <span>{t.languages.slice(0, 2).join(', ')}</span>
@@ -215,8 +213,9 @@ function matchTherapists(result: Result, lang: string | null, support: string | 
     if (lang && t.languages.includes(lang)) s += 2
     // Gender preference — strong boost for a match, soft penalty otherwise
     if (wantGender) s += t.gender === wantGender ? 4 : -3
-    // Random tiebreak
-    s += Math.random() * 0.5
+    // Rating breaks ties between otherwise equally-good matches (kept small so it
+    // never overrides genuine clinical fit); tiny random term shuffles exact ties.
+    s += t.rating * 0.02 + Math.random() * 0.001
     return { t, s }
   })
 
