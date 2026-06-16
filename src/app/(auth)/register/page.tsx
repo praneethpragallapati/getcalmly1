@@ -70,21 +70,25 @@ export default function RegisterPage() {
   const canSubmit = consents.retention && consents.ai && consents.liability && consents.terms
 
   if (done) {
+    const isPaid = careType === 'therapy' || careType === 'psychiatry' || careType === 'app'
+    const nextHref = isPaid ? `/checkout?care=${careType}` : '/assess'
     return (
       <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
         <div style={{ fontSize: 44, marginBottom: 16 }}>🎉</div>
         <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 34, color: '#1C2B3A', marginBottom: 12, lineHeight: 1.1 }}>
-          You&apos;re all set.
+          Account created.
         </h1>
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 28 }}>
-          Your account is ready. Next, we&apos;ll match you with the right professional and book your free first session.
+          {isPaid
+            ? 'One quick step left. Review exactly what you’re getting and confirm your plan, your first session is still free.'
+            : 'Your account is ready. Next, we’ll match you with the right professional and book your free first session.'}
         </p>
-        <Link href="/assess" style={{
+        <Link href={nextHref} style={{
           display: 'inline-block', padding: '14px 28px', borderRadius: 50, background: '#C8553D',
           color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
           boxShadow: '0 6px 20px rgba(200,85,61,.3)',
         }}>
-          ✦ Find my match
+          {isPaid ? 'Continue to checkout →' : '✦ Find my match'}
         </Link>
       </div>
     )

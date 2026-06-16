@@ -180,7 +180,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — there when you reach out</div><div class="feat-d">Calm AI doesn't push. But when Priya messaged at midnight — "I don't know how to explain this" — it already knew her last three sessions, her mood dip that week, her journal. That's what made the conversation actually useful.</div><span class="feat-badge fb-dk">Always on</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood, energy & sleep — tracked together</div><div class="feat-d">Priya didn't know her Sundays were the problem until she saw the data. Mood, energy and sleep tracked daily, patterns surfaced weekly — for her and for Dr. Ananya.</div><span class="feat-badge fb-c">Science-backed</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for themes — self-criticism, boundary patterns, progress moments — and adds them to the brief Dr. Ananya reads before every session.</div><span class="feat-badge fb-c">Pattern detection</span></div>
-    <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI verified</div><div class="feat-d">Every therapist on getCalmly holds a Rehabilitation Council of India registration. Psychiatrists are NMC-registered. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
+    <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI &amp; NMC certified</div><div class="feat-d">Every therapist holds a Rehabilitation Council of India registration and every psychiatrist is certified by the National Medical Commission. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon">🏥</span><div class="feat-t">Care that follows you if it needs to</div><div class="feat-d">When something needs more than therapy, getCalmly connects you to hospital partners. Referral letters, session notes, and progress reports are structured for clinical handoff.</div><span class="feat-badge fb-c">Hospital-ready</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon">👥</span><div class="feat-t">A community, not a forum</div><div class="feat-d">Shruti typed "I actually laughed today" in the Depression Support Circle after 3 months. 142 people hit ❤️. Human moderation means it stays safe. Crisis support is built in.</div><span class="feat-badge fb-g">Safe & moderated</span></div>
   </div>
@@ -582,53 +582,64 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="pricing-section" id="pricing">
   <div class="sec-label reveal">Pricing</div>
   <h2 class="sec-h2 reveal">Real care, at a price<br>that <span>makes sense.</span></h2>
-  <p class="sec-p reveal">Your first session is free. After that, the more you commit to your healing, the less each session costs. Every paid plan includes the full app: unlimited Calm AI, daily tracking, insights, and a guide who stays with you.</p>
+  <p class="sec-p reveal">Your first session is free. After that, the more you commit to your healing, the less each session costs. Every paid plan includes the full app, and if you stop early you only pay for the sessions you used. <strong>No questions asked refunds on what you haven't.</strong></p>
   <div class="price-grid">
     <div class="plan reveal">
+      <div class="plan-name">Free</div>
+      <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">0</span></div>
+      <div class="plan-period">forever · no card needed</div>
+      <div class="plan-div"></div>
+      <div class="plan-feats">
+        <div class="plan-feat"><span class="ck">✓</span>Daily mood tracker</div>
+        <div class="plan-feat"><span class="ck">✓</span>Smart journaling</div>
+        <div class="plan-feat"><span class="ck">✓</span>Moderated community access</div>
+        <div class="plan-feat"><span class="ck">✓</span>A few Calm AI chats to start</div>
+      </div>
+      <a class="plan-btn pb-ol" href="/register?care=free" style="display:block;text-align:center;text-decoration:none;">Get started</a>
+    </div>
+    <div class="plan reveal d1">
+      <div class="plan-tag" style="background:#1A7F7A;">7-day free trial</div>
       <div class="plan-name">Calm+</div>
-      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">399</span></div>
-      <div class="plan-period">per month · the full app, no sessions</div>
+      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">99</span></div>
+      <div class="plan-period">per month · billed yearly</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
         <div class="plan-feat"><span class="ck">✓</span>Unlimited Calm AI chat and insights</div>
-        <div class="plan-feat"><span class="ck">✓</span>Daily mood tracker and smart journaling</div>
+        <div class="plan-feat"><span class="ck">✓</span>Daily mood tracker and journaling</div>
         <div class="plan-feat"><span class="ck">✓</span>Daily and weekly insights</div>
         <div class="plan-feat"><span class="ck">✓</span>A constant guide for the everyday</div>
-        <div class="plan-feat"><span class="ck">✓</span>From ₹100/month on the yearly plan</div>
       </div>
-      <a class="plan-btn pb-ol" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Explore Calm+</a>
+      <a class="plan-btn pb-ol" href="/register?care=app" style="display:block;text-align:center;text-decoration:none;">Start free trial</a>
     </div>
-    <div class="plan pro reveal d1">
+    <div class="plan pro reveal d2">
       <div class="plan-tag">First session free</div>
       <div class="plan-name">Therapy</div>
       <div class="plan-pr"><span class="plan-cur" style="color:rgba(255,255,255,.7)">From ₹</span><span class="plan-amt">999</span></div>
-      <div class="plan-period">per session · everything in Calm+ included</div>
+      <div class="plan-period"><span style="text-decoration:line-through;opacity:.55;">₹1,899</span> per session · save up to 47%</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
         <div class="plan-feat"><span class="ck">✓</span>Sessions with an RCI-verified psychologist</div>
-        <div class="plan-feat"><span class="ck">✓</span>A clear summary after every session</div>
-        <div class="plan-feat"><span class="ck">✓</span>Daily and weekly insights on your progress</div>
+        <div class="plan-feat"><span class="ck">✓</span>Everything in Calm+, included</div>
+        <div class="plan-feat"><span class="ck">✓</span>Session summaries and weekly insights</div>
         <div class="plan-feat"><span class="ck">✓</span>A constant guide for the whole journey</div>
-        <div class="plan-feat"><span class="ck">✓</span>Best value on the 6-session pack</div>
       </div>
       <a class="plan-btn pb-dk" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Book session</a>
     </div>
-    <div class="plan reveal d2">
+    <div class="plan reveal d3">
       <div class="plan-name">Psychiatry</div>
       <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">1,099</span></div>
-      <div class="plan-period">per session · everything in Calm+ included</div>
+      <div class="plan-period"><span style="text-decoration:line-through;opacity:.55;">₹1,999</span> per session · save up to 45%</div>
       <div class="plan-div"></div>
       <div class="plan-feats">
         <div class="plan-feat"><span class="ck">✓</span>Sessions with an NMC-registered psychiatrist</div>
         <div class="plan-feat"><span class="ck">✓</span>Medication support and a built-in tracker</div>
         <div class="plan-feat"><span class="ck">✓</span>Medicines delivered to your door</div>
-        <div class="plan-feat"><span class="ck">✓</span>Coordinated with your therapist when needed</div>
-        <div class="plan-feat"><span class="ck">✓</span>Best value on the 6-session pack</div>
+        <div class="plan-feat"><span class="ck">✓</span>Everything in Calm+, included</div>
       </div>
       <a class="plan-btn pb-ol" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Book session</a>
     </div>
   </div>
-  <p class="sec-p reveal" style="text-align:center;margin-top:28px;font-size:14px;">Just exploring? Our free plan gives you mood tracking and journaling, always. <a href="/pricing" style="color:var(--coral);font-weight:600;text-decoration:none;">See all plans →</a></p>
+  <p class="sec-p reveal" style="text-align:center;margin-top:28px;font-size:14px;max-width:none;">Bigger packs cost less per session, and you only ever pay for the sessions you use. <a href="/pricing" style="color:var(--coral);font-weight:600;text-decoration:none;">Compare all plans →</a></p>
 </section>
 
 <!-- ── COMMUNITY ── -->
@@ -661,6 +672,50 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say — it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
     <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Rohan read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
     <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real — and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
+  </div>
+</section>
+
+<!-- ── APP ── -->
+<section class="app-section" style="background:#1C2B3A;border-radius:32px;margin:0 24px;padding:60px 40px;overflow:hidden;">
+  <div class="app-grid" style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
+      <h2 class="sec-h2" style="color:#fff;margin-bottom:16px;">Your care,<br><span style="color:var(--coral-l);">in your pocket.</span></h2>
+      <p style="font-size:16px;color:rgba(255,255,255,.66);line-height:1.7;margin-bottom:22px;font-weight:300;">Your care really comes alive in the app. Check in each day, talk to Calm whenever you need to, journal, and join sessions, all in one calm place. Because it is right there with you, the gentle reminders and personalised nudges land exactly when they help.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px;">
+        <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Daily check-ins that take seconds</span></div>
+        <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Calm AI a tap away, day or night</span></div>
+        <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Timely, personalised nudges that keep you going</span></div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 18px;"><span style="font-size:18px;"></span><div style="line-height:1.1;"><div style="font-size:9px;color:rgba(255,255,255,.5);">Coming soon to</div><div style="font-size:14px;color:#fff;font-weight:700;">App Store</div></div></div>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 18px;"><span style="font-size:16px;">▶</span><div style="line-height:1.1;"><div style="font-size:9px;color:rgba(255,255,255,.5);">Coming soon to</div><div style="font-size:14px;color:#fff;font-weight:700;">Google Play</div></div></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;">
+      <div style="width:240px;background:#0F1C28;border-radius:36px;padding:10px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
+        <div style="background:#F9F5F2;border-radius:28px;padding:18px 14px;">
+          <div style="font-size:11px;color:#8E9EAE;font-weight:600;">Good morning, Priya</div>
+          <div style="font-size:15px;font-weight:800;color:#1C2B3A;margin-top:2px;">How are you today?</div>
+          <div style="display:flex;gap:6px;margin-top:12px;">
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">😣</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">😕</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">🙂</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#FFF1EC;border:1.5px solid rgba(200,85,61,.4);font-size:16px;">😊</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #EEF0F3;font-size:16px;">😄</div>
+          </div>
+          <div style="margin-top:14px;background:#1C2B3A;border-radius:14px;padding:14px;">
+            <div style="font-size:10px;color:#1FB6A8;font-weight:700;">TODAY'S SESSION · 3:00 PM</div>
+            <div style="font-size:13px;color:#fff;font-weight:700;margin-top:4px;">Dr. Ananya Sharma</div>
+            <div style="margin-top:10px;background:#1FB6A8;color:#062a26;font-size:11px;font-weight:800;text-align:center;padding:7px;border-radius:8px;">Join session</div>
+          </div>
+          <div style="margin-top:12px;background:#fff;border-radius:14px;padding:12px;border:1px solid #EEF0F3;">
+            <div style="font-size:10px;color:var(--coral);font-weight:700;">CALM AI</div>
+            <div style="font-size:11.5px;color:#3A4A5A;margin-top:4px;line-height:1.45;">Mondays look tougher for you. Want a 5-minute reset before your day starts?</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 

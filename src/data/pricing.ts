@@ -37,6 +37,14 @@ export const calmPlusPacks: AppPack[] = [
 export const perSession = (p: SessionPack) => Math.round(p.total / p.sessions)
 export const inr = (n: number) => '₹' + n.toLocaleString('en-IN')
 
+// Standalone "list" price per single session. Pack prices are shown as a
+// discount against these so the saving is always visible.
+export const THERAPY_BASE = 1899
+export const PSYCHIATRY_BASE = 1999
+
+export const discountVsBase = (perSessionPrice: number, base: number) =>
+  Math.round((1 - perSessionPrice / base) * 100)
+
 // Lowest per-session figures used for "from ₹X" copy.
 export const THERAPY_FROM = perSession(therapyPacks[therapyPacks.length - 1]) // 999
 export const PSYCHIATRY_FROM = perSession(psychiatryPacks[psychiatryPacks.length - 1]) // 1099

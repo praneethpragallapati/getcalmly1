@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  therapyPacks, psychiatryPacks, calmPlusPacks, perSession, inr,
-  THERAPY_FROM, PSYCHIATRY_FROM, freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures,
+  therapyPacks, psychiatryPacks, calmPlusPacks, perSession, inr, discountVsBase,
+  THERAPY_FROM, PSYCHIATRY_FROM, THERAPY_BASE, PSYCHIATRY_BASE,
+  freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures,
   type SessionPack,
 } from '@/data/pricing'
 
@@ -13,61 +14,72 @@ const coral = '#C8553D'
 const green = '#3D9E72'
 const teal = '#1A7F7A'
 
-function CareCard({
-  name, subtitle, accent, pale, packs, features, fromText, href, featured,
-}: {
-  name: string; subtitle: string; accent: string; pale: string
-  packs: SessionPack[]; features: string[]; fromText: string; href: string; featured?: boolean
+// Small pill shown on/under a pack option (e.g. "Most chosen", "Cheapest").
+function tabBadge(text: string, color: string) {
+  return (
+    <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.3, color, background: color + '1f', padding: '2px 6px', borderRadius: 50, textTransform: 'uppercase', marginTop: 4, display: 'inline-block' }}>{text}</span>
+  )
+}
+
+function PackSelector<T>({ items, i, setI, label, badges, accent }: {
+  items: T[]; i: number; setI: (n: number) => void
+  label: (t: T) => string; badges: Record<number, string>; accent: string
 }) {
-  const [i, setI] = useState(packs.length - 1) // default to the best-value 6-pack
+  return (
+    <div style={{ display: 'flex', gap: 6, background: '#F5F7FA', padding: 4, borderRadius: 12, marginBottom: 18 }}>
+      {items.map((t, idx) => (
+        <button key={idx} onClick={() => setI(idx)} style={{
+          flex: 1, padding: '8px 2px', borderRadius: 9, border: 'none', cursor: 'pointer',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
+          fontSize: 12.5, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+          background: idx === i ? '#fff' : 'transparent', color: idx === i ? accent : '#8E9EAE',
+          boxShadow: idx === i ? '0 1px 4px rgba(0,0,0,.1)' : 'none',
+        }}>
+          {label(t)}
+          {badges[idx] && tabBadge(badges[idx], idx === i ? accent : '#8E9EAE')}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function CareCard({
+  name, subtitle, accent, packs, features, fromText, href, base, fill,
+}: {
+  name: string; subtitle: string; accent: string; packs: SessionPack[]
+  features: string[]; fromText: string; href: string; base: number; fill?: boolean
+}) {
+  const [i, setI] = useState(packs.length - 1) // default to best-value 6-pack
   const pack = packs[i]
-  const single = packs[0].total
   const ps = perSession(pack)
-  const savePct = Math.round((1 - ps / single) * 100)
+  const disc = discountVsBase(ps, base)
+  const badges = { [packs.length - 1]: 'Most chosen' }
 
   return (
     <div style={{
       background: '#fff', borderRadius: 24, padding: '32px 28px',
-      border: featured ? `2px solid ${accent}` : '1.5px solid rgba(0,0,0,.08)',
-      boxShadow: featured ? `0 20px 50px ${accent}1f` : '0 6px 20px rgba(28,43,58,.05)',
-      position: 'relative', display: 'flex', flexDirection: 'column',
+      border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 6px 22px rgba(28,43,58,.06)',
+      display: 'flex', flexDirection: 'column',
     }}>
-      {featured && (
-        <div style={{ position: 'absolute', top: -13, left: 28, background: accent, color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 14px', borderRadius: 50 }}>
-          Most chosen
-        </div>
-      )}
       <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>{name}</p>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18 }}>{subtitle}</p>
+      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18, minHeight: 38 }}>{subtitle}</p>
 
-      {/* Pack selector */}
-      <div style={{ display: 'flex', gap: 6, background: '#F5F7FA', padding: 4, borderRadius: 12, marginBottom: 18 }}>
-        {packs.map((p, idx) => (
-          <button key={p.sessions} onClick={() => setI(idx)} style={{
-            flex: 1, padding: '8px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-            background: idx === i ? '#fff' : 'transparent',
-            color: idx === i ? accent : '#8E9EAE',
-            boxShadow: idx === i ? '0 1px 4px rgba(0,0,0,.1)' : 'none',
-          }}>
-            {p.sessions} {p.sessions === 1 ? 'session' : 'sessions'}
-          </button>
-        ))}
-      </div>
+      <PackSelector items={packs} i={i} setI={setI} accent={accent} badges={badges}
+        label={(p) => `${p.sessions} ${p.sessions === 1 ? 'session' : 'sessions'}`} />
 
-      {/* Price */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
         <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(pack.total)}</span>
-        {savePct > 0 && (
-          <span style={{ fontSize: 12.5, fontWeight: 700, color: green, background: 'rgba(61,158,114,.1)', padding: '3px 10px', borderRadius: 50 }}>Save {savePct}%</span>
-        )}
+        <span style={{ fontSize: 13, color: '#A0ADB8' }}>for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'}</span>
       </div>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8 }}>
-        <strong style={{ color: accent }}>{inr(ps)}</strong> per session · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
+      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ textDecoration: 'line-through', color: '#B6C0CA' }}>{inr(base)}</span>
+        <strong style={{ color: accent, fontSize: 15 }}>{inr(ps)}</strong>
+        <span>per session</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: green, background: 'rgba(61,158,114,.1)', padding: '2px 8px', borderRadius: 50 }}>Save {disc}%</span>
       </p>
+      <p style={{ fontSize: 12.5, color: '#A0ADB8', marginTop: 6 }}>Valid for {pack.months} {pack.months === 1 ? 'month' : 'months'}</p>
 
       <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>
         {features.map((f) => (
           <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -79,44 +91,39 @@ function CareCard({
 
       <Link href={href} style={{
         display: 'block', textAlign: 'center', marginTop: 24, padding: '14px', borderRadius: 12,
-        background: featured ? accent : '#fff', color: featured ? '#fff' : accent,
-        border: featured ? 'none' : `1.5px solid ${accent}`,
+        background: fill ? accent : '#fff', color: fill ? '#fff' : accent,
+        border: fill ? 'none' : `1.5px solid ${accent}`,
         fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
-        boxShadow: featured ? `0 6px 18px ${accent}40` : 'none',
+        boxShadow: fill ? `0 6px 18px ${accent}40` : 'none',
       }}>
         Book session
       </Link>
-      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>{fromText}</p>
+      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>{fromText} · first session free</p>
     </div>
   )
 }
 
 function CalmPlusCard() {
-  const [i, setI] = useState(2) // default to 6 months
+  const [i, setI] = useState(3) // default to 1 year (the cheapest per month)
   const pack = calmPlusPacks[i]
-  const perMonth = Math.round(pack.total / pack.months)
+  const perMonth = Math.floor(pack.total / pack.months)
+  const badges = { 2: 'Most chosen', 3: 'Cheapest' }
 
   return (
     <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', border: `2px solid ${teal}`, boxShadow: `0 16px 40px ${teal}1a`, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 6, background: 'rgba(26,127,122,.1)', color: teal, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 50, marginBottom: 12 }}>
+        ✦ 7-day free trial
+      </div>
       <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>Calm+</p>
       <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18 }}>All the everyday support, no sessions. Your AI companion, insights and journaling, unlimited.</p>
 
-      <div style={{ display: 'flex', gap: 6, background: '#F5F7FA', padding: 4, borderRadius: 12, marginBottom: 18, flexWrap: 'wrap' }}>
-        {calmPlusPacks.map((p, idx) => (
-          <button key={p.label} onClick={() => setI(idx)} style={{
-            flex: '1 1 60px', padding: '8px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
-            fontSize: 12.5, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-            background: idx === i ? '#fff' : 'transparent', color: idx === i ? teal : '#8E9EAE',
-            boxShadow: idx === i ? '0 1px 4px rgba(0,0,0,.1)' : 'none',
-          }}>{p.label}</button>
-        ))}
-      </div>
+      <PackSelector items={calmPlusPacks} i={i} setI={setI} accent={teal} badges={badges} label={(p) => p.label} />
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
         <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(pack.total)}</span>
         <span style={{ fontSize: 14, color: '#6B7D8E' }}>/ {pack.label}</span>
       </div>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8 }}><strong style={{ color: teal }}>{inr(perMonth)}</strong> per month</p>
+      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8 }}>Just <strong style={{ color: teal }}>{inr(perMonth)}</strong> per month</p>
 
       <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>
@@ -135,8 +142,9 @@ function CalmPlusCard() {
       </div>
 
       <Link href="/register?care=app" style={{ display: 'block', textAlign: 'center', marginTop: 24, padding: '14px', borderRadius: 12, background: teal, color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", boxShadow: `0 6px 18px ${teal}40` }}>
-        Start Calm+
+        Start 7-day free trial
       </Link>
+      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>Cancel anytime during the trial</p>
     </div>
   )
 }
@@ -184,7 +192,7 @@ export default function PricingPage() {
             Real care, at a price<br /><span style={{ color: coral }}>that makes sense.</span>
           </h1>
           <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.7, fontWeight: 300 }}>
-            The more you commit to your healing, the less each session costs. Pick the care you need below, choose a pack, and book in minutes.
+            The more you commit to your healing, the less each session costs. Your first session is free, and if you ever stop early, you only pay for the sessions you used.
           </p>
         </div>
       </section>
@@ -202,22 +210,22 @@ export default function PricingPage() {
         <p style={{ textAlign: 'center', fontSize: 13, color: green, fontWeight: 700, marginBottom: 30 }}>
           💚 Bigger packs unlock a lower price per session
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 22 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 22, alignItems: 'stretch' }}>
           <CareCard
             name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
-            accent={coral} pale="rgba(200,85,61,.08)" packs={therapyPacks} features={therapyFeatures}
-            fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy" featured
+            accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} fill
+            fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy"
           />
           <CareCard
             name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
-            accent={teal} pale="rgba(26,127,122,.08)" packs={psychiatryPacks} features={psychiatryFeatures}
+            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE}
             fromText={`From ${inr(PSYCHIATRY_FROM)} per session`} href="/register?care=psychiatry"
           />
         </div>
       </section>
 
       {/* App & Free */}
-      <section style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px 72px' }}>
+      <section style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px 40px' }}>
         <div style={{ textAlign: 'center', marginBottom: 30 }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
             Not ready for sessions yet?
@@ -226,21 +234,41 @@ export default function PricingPage() {
             Start with the app. Build the habit, understand your patterns, and step up to a professional whenever you feel ready.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 22 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 22, alignItems: 'stretch' }}>
           <CalmPlusCard />
           <FreeCard />
         </div>
       </section>
 
-      {/* Assurance */}
+      {/* Refund / money-back explainer */}
+      <section style={{ maxWidth: 860, margin: '0 auto', padding: '12px 24px 64px' }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: '32px', border: '1.5px solid rgba(61,158,114,.25)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <span style={{ fontSize: 24 }}>↩️</span>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>Change your mind? Get your money back.</h3>
+          </div>
+          <p style={{ fontSize: 14.5, color: '#3A4A5A', lineHeight: 1.7, marginBottom: 14 }}>
+            If you decide to stop part-way through a pack, we refund every session you have not used. You are simply charged for the sessions you did take, at the rate of the nearest smaller pack.
+          </p>
+          <div style={{ background: '#F9F5F2', borderRadius: 12, padding: '16px 18px', fontSize: 13.5, color: '#3A4A5A', lineHeight: 1.7 }}>
+            <strong style={{ color: charcoal }}>For example:</strong> on a 6-session therapy pack, if you have done 3 sessions, the nearest smaller pack is 2 sessions, so those 3 are billed at the 2-pack rate of {inr(perSession(therapyPacks[1]))}/session and the rest is refunded. If you have done 5 sessions, they are billed at the 4-pack rate of {inr(perSession(therapyPacks[2]))}/session.
+          </div>
+          <Link href="/terms" style={{ display: 'inline-block', marginTop: 16, fontSize: 13.5, color: coral, fontWeight: 700, textDecoration: 'none' }}>
+            Read the full refund &amp; cancellation terms →
+          </Link>
+        </div>
+      </section>
+
+      {/* Assurance row */}
       <section style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,.05)' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '44px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 28, textAlign: 'center' }}>
+        <div style={{ maxWidth: 920, margin: '0 auto', padding: '48px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 28, textAlign: 'center' }}>
           {[
-            ['Your first session is free', 'Try therapy with no card and no commitment before you choose a pack.'],
-            ['Cancel anytime', 'Packs are validity-based, never auto-renewing subscriptions you forget about.'],
-            ['Switch or pause', 'Move between individual and couples care, or pause when life gets busy.'],
-          ].map(([t, d]) => (
+            ['🎁', 'Your first session is free', 'Try therapy with no card and no commitment before you choose a pack.'],
+            ['↩️', 'Money back, always', 'Stop whenever you like and get refunded for every session you have not used.'],
+            ['🔄', 'Switch care anytime', 'Move between individual and couples care as your needs change.'],
+          ].map(([icon, t, d]) => (
             <div key={t}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>{icon}</div>
               <p style={{ fontSize: 15, fontWeight: 800, color: charcoal, marginBottom: 6 }}>{t}</p>
               <p style={{ fontSize: 13.5, color: '#6B7D8E', lineHeight: 1.6 }}>{d}</p>
             </div>

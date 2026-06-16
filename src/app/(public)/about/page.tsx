@@ -75,6 +75,45 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="pb-16 px-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-3xl p-8 md:p-10 shadow-sm">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 style={{ fontFamily: "'Big Shoulders Display',sans-serif" }} className="text-2xl md:text-3xl font-black text-[#1C2B3A] mb-3">
+                Let&apos;s stay connected
+              </h2>
+              <p className="text-gray-600 mb-5">
+                Follow along for everyday mental health, honest conversations, and the occasional reminder to breathe. Questions about care, billing, or partnerships? We would love to hear from you.
+              </p>
+              <div className="flex flex-col gap-2 text-sm">
+                <a href="mailto:connect@getcalmly.com" className="text-[#C8553D] font-semibold">connect@getcalmly.com</a>
+                <Link href="/contact" className="text-[#C8553D] font-semibold">Visit our Contact page →</Link>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3 md:justify-end">
+              {[
+                ['Instagram', 'https://instagram.com/getcalmly', '📷'],
+                ['LinkedIn', 'https://linkedin.com/company/getcalmly', '💼'],
+                ['X (Twitter)', 'https://x.com/getcalmly', '𝕏'],
+                ['YouTube', 'https://youtube.com/@getcalmly', '▶️'],
+                ['Facebook', 'https://facebook.com/getcalmly', '👍'],
+              ].map(([name, url, icon]) => (
+                <a
+                  key={name}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={name}
+                  className="flex items-center gap-2 bg-[#FFF8F5] border border-[#F0D9D1] rounded-full px-4 py-2.5 text-sm font-semibold text-[#1C2B3A] hover:border-[#C8553D] transition"
+                >
+                  <span>{icon}</span>{name}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="pb-24 px-4">
         <div className="max-w-3xl mx-auto bg-[#C8553D] rounded-3xl p-10 text-center text-white">
           <h2
