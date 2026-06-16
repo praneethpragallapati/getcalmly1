@@ -7,77 +7,156 @@ import EmergencyModal from './EmergencyModal'
 type Question = {
   id: string
   text: string
+  hint?: string
   type: 'single' | 'multi' | 'scale'
+  layout?: 'list' | 'grid' | 'chips'
   options?: string[]
+  maxSelect?: number
   concern?: string
   risk?: boolean
+  /** map an option label → matching tags */
+  tagMap?: Record<string, string[]>
 }
 
 const SCALE = ['Very Low', 'Low', 'Moderate', 'High', 'Very High']
 
+const LANGS = ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other']
+
 const adultQuestions: Question[] = [
   {
+    id: 'focus',
+    text: 'What feels heaviest right now?',
+    hint: 'Pick up to 3 — this helps us find the right professional for you.',
+    type: 'multi',
+    maxSelect: 3,
+    concern: 'Primary Concerns',
+    options: [
+      'Anxiety & constant worry',
+      'Sadness or low mood',
+      'Work or career stress',
+      'Relationship difficulties',
+      'Family conflict',
+      'Loneliness',
+      'Self-worth & confidence',
+      'Sleep problems',
+      'Grief or a recent loss',
+      'Something from my past',
+      'A big life change',
+      'Anger or irritability',
+    ],
+    tagMap: {
+      'Anxiety & constant worry': ['anxiety', 'panic'],
+      'Sadness or low mood': ['low-mood', 'depression'],
+      'Work or career stress': ['work-stress', 'burnout', 'career'],
+      'Relationship difficulties': ['relationships', 'couples'],
+      'Family conflict': ['family', 'conflict'],
+      'Loneliness': ['loneliness'],
+      'Self-worth & confidence': ['self-esteem', 'confidence'],
+      'Sleep problems': ['sleep'],
+      'Grief or a recent loss': ['grief', 'loss'],
+      'Something from my past': ['trauma'],
+      'A big life change': ['life-transitions'],
+      'Anger or irritability': ['anger'],
+    },
+  },
+  {
     id: 'duration',
-    text: 'How long have you been experiencing these challenges?',
+    text: 'How long have you been feeling this way?',
     type: 'single',
+    layout: 'grid',
     options: ['Less than 2 weeks', '2–4 weeks', '1–3 months', 'More than 3 months'],
   },
   {
     id: 'mood',
-    text: 'How would you rate your overall mood in the past two weeks?',
+    text: 'How would you rate your overall mood lately?',
     type: 'scale',
     concern: 'Low Mood',
   },
   {
     id: 'sleep',
-    text: 'How has your sleep been recently?',
+    text: 'How has your sleep been?',
     type: 'single',
-    options: ['Sleep is fine', 'Difficulty falling asleep', 'Waking frequently', 'Sleeping too much'],
+    layout: 'grid',
+    options: ['Sleeping well', 'Hard to fall asleep', 'Waking through the night', 'Sleeping too much'],
     concern: 'Sleep Difficulties',
+    tagMap: {
+      'Hard to fall asleep': ['sleep'],
+      'Waking through the night': ['sleep'],
+      'Sleeping too much': ['sleep', 'low-mood'],
+    },
   },
   {
     id: 'interest',
-    text: 'How are you feeling about daily activities you usually enjoy?',
+    text: 'Are you still enjoying the things you usually do?',
     type: 'single',
-    options: ['Enjoying them', 'Less interest than usual', 'Minimal interest', 'No interest at all'],
+    layout: 'grid',
+    options: ['Yes, mostly', 'A little less', 'Much less than before', 'Not at all'],
     concern: 'Loss of Interest',
+    tagMap: {
+      'Much less than before': ['low-mood', 'depression'],
+      'Not at all': ['low-mood', 'depression'],
+    },
   },
   {
     id: 'stress',
-    text: 'How would you rate your stress levels?',
+    text: 'How overwhelmed have you felt recently?',
     type: 'scale',
     concern: 'Stress & Burnout',
   },
   {
     id: 'physical',
-    text: 'Are you experiencing any physical symptoms? Select all that apply.',
+    text: 'Have you noticed any of these in your body?',
+    hint: 'Select any that apply.',
     type: 'multi',
-    options: ['Headaches', 'Fatigue', 'Appetite changes', 'Chest tightness', 'None of these'],
+    options: ['Racing heart', 'Tight chest', 'Constant fatigue', 'Appetite changes', 'Headaches', 'Trouble concentrating', 'Restlessness', 'None of these'],
+    tagMap: {
+      'Racing heart': ['anxiety', 'panic'],
+      'Tight chest': ['anxiety', 'panic'],
+      'Constant fatigue': ['low-mood', 'depression'],
+      'Trouble concentrating': ['anxiety', 'low-mood'],
+      'Restlessness': ['anxiety'],
+    },
   },
   {
-    id: 'prior',
-    text: 'Have you seen a mental health professional before?',
+    id: 'support',
+    text: 'How are the people around you right now?',
     type: 'single',
-    options: ['Yes', 'No'],
+    layout: 'grid',
+    options: ['I feel well supported', 'Some support', 'Very little support', 'I feel quite alone'],
+    tagMap: {
+      'Very little support': ['loneliness'],
+      'I feel quite alone': ['loneliness'],
+    },
   },
   {
-    id: 'risk',
-    text: 'Have you had any thoughts of harming yourself or ending your life in the recent past?',
+    id: 'coping',
+    // Subtle risk screen — phrased gently, no explicit wording.
+    text: 'Over the last two weeks, how often have things felt like too much to carry?',
     type: 'single',
-    options: ['No', 'Yes'],
+    layout: 'grid',
+    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
     risk: true,
   },
   {
-    id: 'language',
-    text: 'What is your preferred language for sessions?',
+    id: 'prior',
+    text: 'Have you spoken to a mental health professional before?',
     type: 'single',
-    options: ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other'],
+    layout: 'grid',
+    options: ['Yes', 'No'],
+  },
+  {
+    id: 'language',
+    text: 'Which language feels most comfortable for sessions?',
+    type: 'single',
+    layout: 'chips',
+    options: LANGS,
   },
   {
     id: 'time',
-    text: 'What is your preferred session time?',
+    text: 'When would you prefer your sessions?',
     type: 'single',
-    options: ['Morning (8am–12pm)', 'Afternoon (12pm–5pm)', 'Evening (5pm–9pm)'],
+    layout: 'grid',
+    options: ['Morning (8am–12pm)', 'Afternoon (12pm–5pm)', 'Evening (5pm–9pm)', 'Flexible'],
   },
 ]
 
@@ -86,88 +165,133 @@ const childQuestions: Question[] = [
     id: 'age',
     text: 'How old is your child?',
     type: 'single',
+    layout: 'grid',
     options: ['Under 6', '6–10', '11–14', '15–17'],
+    tagMap: { 'Under 6': ['child'], '6–10': ['child'], '11–14': ['adolescent'], '15–17': ['adolescent'] },
   },
   {
-    id: 'concern',
-    text: 'What is your main area of concern?',
-    type: 'single',
-    options: ['Anxiety / Worry', 'Low mood', 'Exam / Academic stress', 'Behavioural difficulties', 'Major life event'],
+    id: 'focus',
+    text: 'What are you noticing most?',
+    hint: 'Pick up to 3.',
+    type: 'multi',
+    maxSelect: 3,
     concern: 'Child Wellbeing',
+    options: ['Worry or anxiety', 'Low mood', 'Exam or school stress', 'Trouble focusing', 'Behaviour changes', 'Withdrawing from others', 'Sleep changes', 'After a difficult event'],
+    tagMap: {
+      'Worry or anxiety': ['anxiety', 'child'],
+      'Low mood': ['low-mood', 'child'],
+      'Exam or school stress': ['exam-stress', 'academic', 'school'],
+      'Trouble focusing': ['adhd', 'school'],
+      'Behaviour changes': ['behaviour'],
+      'Withdrawing from others': ['low-mood', 'loneliness'],
+      'Sleep changes': ['sleep'],
+      'After a difficult event': ['trauma'],
+    },
   },
   {
     id: 'duration',
     text: 'How long have you noticed these changes?',
     type: 'single',
+    layout: 'grid',
     options: ['Less than 2 weeks', '2–4 weeks', '1–3 months', 'More than 3 months'],
   },
   {
     id: 'school',
-    text: 'How is your child doing at school recently?',
+    text: 'How is your child doing at school lately?',
     type: 'scale',
     concern: 'Academic Difficulties',
   },
   {
-    id: 'risk',
-    text: 'Has your child expressed any thoughts of self-harm or not wanting to live?',
+    id: 'coping',
+    text: 'Over the last two weeks, how often has your child seemed overwhelmed or withdrawn?',
     type: 'single',
-    options: ['No', 'Yes'],
+    layout: 'grid',
+    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
     risk: true,
   },
   {
     id: 'language',
     text: 'Preferred language for sessions?',
     type: 'single',
-    options: ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other'],
+    layout: 'chips',
+    options: LANGS,
   },
 ]
 
 const coupleQuestions: Question[] = [
   {
-    id: 'concern',
-    text: 'What best describes your main concern as a couple?',
-    type: 'single',
-    options: ['Communication issues', 'Frequent conflict', 'Trust concerns', 'Considering separation', 'Pre-marital guidance'],
+    id: 'focus',
+    text: 'What brings you in as a couple?',
+    hint: 'Pick up to 3.',
+    type: 'multi',
+    maxSelect: 3,
     concern: 'Relationship Concerns',
+    options: ['Communication issues', 'Frequent conflict', 'Trust concerns', 'Growing apart', 'Considering separation', 'Intimacy', 'Parenting differences', 'Pre-marital guidance'],
+    tagMap: {
+      'Communication issues': ['communication', 'couples'],
+      'Frequent conflict': ['conflict', 'couples'],
+      'Trust concerns': ['trust', 'couples'],
+      'Growing apart': ['couples', 'relationships'],
+      'Considering separation': ['separation', 'couples'],
+      'Intimacy': ['couples', 'relationships'],
+      'Parenting differences': ['family', 'couples'],
+      'Pre-marital guidance': ['pre-marital', 'couples'],
+    },
   },
   {
     id: 'duration',
     text: 'How long have these concerns been present?',
     type: 'single',
+    layout: 'grid',
     options: ['Less than a month', '1–3 months', '3–6 months', 'More than 6 months'],
   },
   {
     id: 'satisfaction',
-    text: 'How would you rate your current relationship satisfaction?',
+    text: 'How would you rate your relationship satisfaction right now?',
     type: 'scale',
     concern: 'Relationship Satisfaction',
   },
   {
     id: 'both',
-    text: 'Are both partners willing to attend sessions?',
+    text: 'Are both partners open to attending sessions?',
     type: 'single',
+    layout: 'grid',
     options: ['Yes, both of us', 'Only me for now', 'Unsure'],
   },
   {
     id: 'language',
     text: 'Preferred language for sessions?',
     type: 'single',
-    options: ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other'],
+    layout: 'chips',
+    options: LANGS,
   },
 ]
 
 const psychiatryQuestions: Question[] = [
   {
-    id: 'reason',
+    id: 'focus',
     text: 'What brings you to seek psychiatric support?',
-    type: 'single',
-    options: ['Persistent low mood', 'Severe anxiety / panic', 'Sleep problems', 'Existing diagnosis / refill', 'Second opinion'],
+    hint: 'Pick up to 3.',
+    type: 'multi',
+    maxSelect: 3,
     concern: 'Psychiatric Evaluation',
+    options: ['Persistent low mood', 'Severe anxiety or panic', 'Sleep problems', 'Intrusive thoughts', 'Mood swings', 'Existing diagnosis / refill', 'Focus & attention', 'Second opinion'],
+    tagMap: {
+      'Persistent low mood': ['low-mood', 'depression', 'medication'],
+      'Severe anxiety or panic': ['anxiety', 'panic', 'medication'],
+      'Sleep problems': ['sleep', 'medication'],
+      'Intrusive thoughts': ['ocd', 'medication'],
+      'Mood swings': ['bipolar', 'medication'],
+      'Existing diagnosis / refill': ['medication', 'psychiatry'],
+      'Focus & attention': ['adhd', 'medication'],
+      'Second opinion': ['psychiatry'],
+    },
   },
   {
     id: 'medication',
     text: 'Are you currently taking any psychiatric medication?',
     type: 'single',
+    layout: 'grid',
     options: ['No', 'Yes — currently', 'Previously, not now'],
   },
   {
@@ -177,17 +301,19 @@ const psychiatryQuestions: Question[] = [
     concern: 'Functional Impairment',
   },
   {
-    id: 'risk',
-    text: 'Have you had any thoughts of harming yourself or ending your life in the recent past?',
+    id: 'coping',
+    text: 'Over the last two weeks, how often have things felt like too much to carry?',
     type: 'single',
-    options: ['No', 'Yes'],
+    layout: 'grid',
+    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
     risk: true,
   },
   {
     id: 'language',
-    text: 'Preferred language for consultation?',
+    text: 'Preferred language for your consultation?',
     type: 'single',
-    options: ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other'],
+    layout: 'chips',
+    options: LANGS,
   },
 ]
 
@@ -210,20 +336,35 @@ export default function AssessmentForm({ type }: { type: string }) {
   const q = questions[step]
   const progress = ((step + 1) / questions.length) * 100
 
-  const setSingle = (value: string) => {
+  const advance = () => {
+    if (step < questions.length - 1) setStep((s) => s + 1)
+    else finish()
+  }
+
+  // Single-choice / scale: record + auto-advance after a short beat.
+  const pickSingle = (value: string) => {
     setAnswers((a) => ({ ...a, [q.id]: value }))
-    if (q.risk && value.toLowerCase() === 'yes') setShowEmergency(true)
+    // Risk screen fires gently when answers lean toward "almost every day".
+    if (q.risk && (value === 'Almost every day' || value === 'More than half the days')) {
+      setShowEmergency(true)
+      return // wait — they continue from the modal
+    }
+    setTimeout(advance, 220)
   }
 
   const toggleMulti = (value: string) => {
     setAnswers((a) => {
       const current = Array.isArray(a[q.id]) ? (a[q.id] as string[]) : []
-      if (value === 'None of these') return { ...a, [q.id]: ['None of these'] }
-      const without = current.filter((v) => v !== 'None of these')
-      const next = without.includes(value)
-        ? without.filter((v) => v !== value)
-        : [...without, value]
-      return { ...a, [q.id]: next }
+      const noneLabel = q.options?.find((o) => o.startsWith('None'))
+      if (value === noneLabel) return { ...a, [q.id]: [value] }
+      let without = current.filter((v) => v !== noneLabel)
+      if (without.includes(value)) {
+        without = without.filter((v) => v !== value)
+      } else {
+        if (q.maxSelect && without.length >= q.maxSelect) return a // cap reached
+        without = [...without, value]
+      }
+      return { ...a, [q.id]: without }
     })
   }
 
@@ -233,55 +374,42 @@ export default function AssessmentForm({ type }: { type: string }) {
     return Boolean(v)
   }
 
-  const next = () => {
-    if (step < questions.length - 1) setStep((s) => s + 1)
-    else finish()
-  }
-
   const finish = () => {
-    const { severity, concerns, riskFlag } = score(questions, answers)
-    sessionStorage.setItem('assess_result', JSON.stringify({ type, severity, concerns, riskFlag, answers }))
+    const { severity, concerns, riskFlag, tags } = score(questions, answers)
+    sessionStorage.setItem('assess_result', JSON.stringify({ type, severity, concerns, riskFlag, tags, answers }))
     router.push('/assess/results')
   }
 
-  const scaleLabels = ['Very Low', 'Low', 'Moderate', 'High', 'Very High']
   const scaleColors = ['#3D9E72', '#7FBD9E', '#C9973A', '#D4703A', '#C8553D']
+  const isMulti = q.type === 'multi'
 
   return (
     <div className="assess-shell">
-      {showEmergency && <EmergencyModal onClose={() => setShowEmergency(false)} />}
+      {showEmergency && <EmergencyModal onClose={() => { setShowEmergency(false); setTimeout(advance, 50) }} />}
       <div className="assess-inner assess-inner-sm">
         {/* Progress */}
         <div className="assess-progress">
           <div className="ap-meta">
-            <span className="ap-step">Step 3 of 3 — Pre-assessment</span>
+            <span className="ap-step">Pre-assessment</span>
             <span className="ap-label">{step + 1} of {questions.length}</span>
           </div>
           <div className="ap-track">
             <div className="ap-fill" style={{ width: `${progress}%` }} />
           </div>
-          <div className="ap-dots">
-            <span className="ap-dot done" />
-            <span className="ap-dot done" />
-            <span className="ap-dot active" />
-          </div>
         </div>
 
         <div className="assess-card aq-card">
-          {q.risk && (
-            <div className="aq-risk-badge">🔒 Confidential safety check</div>
-          )}
-
-          <p className="aq-qnum">Q{step + 1}</p>
+          <p className="aq-qnum">Question {step + 1}</p>
           <h2 className="aq-text">{q.text}</h2>
+          {q.hint && <p className="aq-hint">{q.hint}</p>}
 
           {/* Scale */}
           {q.type === 'scale' && (
             <div className="aq-scale">
-              {scaleLabels.map((label, i) => (
+              {SCALE.map((label, i) => (
                 <button
                   key={label}
-                  onClick={() => setSingle(label)}
+                  onClick={() => pickSingle(label)}
                   className={`aq-scale-btn${answers[q.id] === label ? ' sel' : ''}`}
                   style={answers[q.id] === label ? { borderColor: scaleColors[i], background: scaleColors[i] + '18', color: scaleColors[i] } : {}}
                 >
@@ -292,41 +420,53 @@ export default function AssessmentForm({ type }: { type: string }) {
             </div>
           )}
 
-          {/* Single select */}
+          {/* Single — list / grid / chips */}
           {q.type === 'single' && (
-            <div className="aq-opts">
-              {q.options!.map((opt, i) => (
-                <button
-                  key={opt}
-                  onClick={() => setSingle(opt)}
-                  className={`aq-opt${answers[q.id] === opt ? ' sel' : ''}`}
-                >
-                  <span className="aq-opt-letter">{String.fromCharCode(65 + i)}</span>
-                  <span className="aq-opt-text">{opt}</span>
-                  {answers[q.id] === opt && <span className="aq-opt-check">✓</span>}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Multi select */}
-          {q.type === 'multi' && (
-            <div className="aq-opts">
+            <div className={`aq-${q.layout || 'list'}`}>
               {q.options!.map((opt, i) => {
-                const selected = Array.isArray(answers[q.id]) && (answers[q.id] as string[]).includes(opt)
+                const sel = answers[q.id] === opt
+                if (q.layout === 'chips') {
+                  return (
+                    <button key={opt} onClick={() => pickSingle(opt)} className={`aq-chip${sel ? ' sel' : ''}`}>
+                      {opt}
+                    </button>
+                  )
+                }
                 return (
-                  <button
-                    key={opt}
-                    onClick={() => toggleMulti(opt)}
-                    className={`aq-opt${selected ? ' sel' : ''}`}
-                  >
-                    <span className={`aq-check-box${selected ? ' checked' : ''}`}>{selected ? '✓' : ''}</span>
+                  <button key={opt} onClick={() => pickSingle(opt)} className={`aq-opt${sel ? ' sel' : ''}`}>
+                    {q.layout !== 'grid' && <span className="aq-opt-letter">{String.fromCharCode(65 + i)}</span>}
                     <span className="aq-opt-text">{opt}</span>
+                    {sel && <span className="aq-opt-check">✓</span>}
                   </button>
                 )
               })}
-              <p className="aq-multi-hint">Select all that apply</p>
             </div>
+          )}
+
+          {/* Multi — needs a Continue button */}
+          {isMulti && (
+            <>
+              <div className="aq-multi-grid">
+                {q.options!.map((opt) => {
+                  const selected = Array.isArray(answers[q.id]) && (answers[q.id] as string[]).includes(opt)
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => toggleMulti(opt)}
+                      className={`aq-pill${selected ? ' sel' : ''}`}
+                    >
+                      <span className={`aq-pill-check${selected ? ' on' : ''}`}>{selected ? '✓' : '+'}</span>
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
+              {q.maxSelect && (
+                <p className="aq-cap">
+                  {Array.isArray(answers[q.id]) ? (answers[q.id] as string[]).length : 0} / {q.maxSelect} selected
+                </p>
+              )}
+            </>
           )}
 
           <div className="aq-nav">
@@ -336,17 +476,15 @@ export default function AssessmentForm({ type }: { type: string }) {
             >
               ← Back
             </button>
-            <button
-              onClick={next}
-              disabled={!isAnswered()}
-              className="aq-next"
-            >
-              {step === questions.length - 1 ? '✦ See My Results' : 'Next →'}
-            </button>
+            {isMulti && (
+              <button onClick={advance} disabled={!isAnswered()} className="aq-next">
+                {step === questions.length - 1 ? '✦ See matches' : 'Continue →'}
+              </button>
+            )}
           </div>
         </div>
 
-        <p className="assess-footnote">This pre-assessment is a screening tool, not a clinical diagnosis. A qualified professional will review your needs.</p>
+        <p className="assess-footnote">A screening tool, not a diagnosis. A qualified professional reviews everything before your session.</p>
       </div>
     </div>
   )
@@ -356,12 +494,25 @@ function score(questions: Question[], answers: Record<string, string | string[]>
   let points = 0
   let max = 0
   const concerns: string[] = []
+  const tags = new Set<string>()
   let riskFlag = false
 
   for (const q of questions) {
     const a = answers[q.id]
+
+    // Collect matching tags from any tagged answers
+    if (q.tagMap) {
+      if (Array.isArray(a)) a.forEach((v) => q.tagMap![v]?.forEach((t) => tags.add(t)))
+      else if (typeof a === 'string') q.tagMap[a]?.forEach((t) => tags.add(t))
+    }
+
     if (q.risk) {
-      if (typeof a === 'string' && a.toLowerCase() === 'yes') riskFlag = true
+      if (typeof a === 'string' && (a === 'Almost every day' || a === 'More than half the days')) riskFlag = true
+      // contributes to severity too
+      if (typeof a === 'string') {
+        const idx = ['Rarely', 'Some days', 'More than half the days', 'Almost every day'].indexOf(a)
+        if (idx >= 0) { max += 3; points += idx }
+      }
       continue
     }
     if (q.type === 'scale' && typeof a === 'string') {
@@ -371,6 +522,8 @@ function score(questions: Question[], answers: Record<string, string | string[]>
       const sev = inverted ? 4 - idx : idx
       points += sev
       if (sev >= 3 && q.concern) concerns.push(q.concern)
+    } else if (q.type === 'multi' && Array.isArray(a) && q.concern) {
+      if (a.length > 0 && !(a.length === 1 && a[0].startsWith('None'))) concerns.push(q.concern)
     } else if (q.type === 'single' && typeof a === 'string' && q.options && q.concern) {
       const idx = q.options.indexOf(a)
       max += q.options.length - 1
@@ -385,5 +538,5 @@ function score(questions: Question[], answers: Record<string, string | string[]>
   else if (ratio >= 0.45) severity = 'Moderate'
   else if (ratio >= 0.2) severity = 'Mild'
 
-  return { severity, concerns: Array.from(new Set(concerns)), riskFlag }
+  return { severity, concerns: Array.from(new Set(concerns)), riskFlag, tags: Array.from(tags) }
 }

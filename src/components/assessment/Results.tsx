@@ -9,6 +9,7 @@ type Result = {
   severity: 'Minimal' | 'Mild' | 'Moderate' | 'Severe'
   concerns: string[]
   riskFlag: boolean
+  tags?: string[]
   answers: Record<string, string | string[]>
 }
 
@@ -62,7 +63,8 @@ export default function Results() {
 
   const cfg = severityConfig[result.severity]
   const lang = typeof result.answers.language === 'string' ? result.answers.language : null
-  const matched = matchTherapists(result, lang)
+  const support = typeof window !== 'undefined' ? sessionStorage.getItem('assess_support') : null
+  const matched = matchTherapists(result, lang, support)
 
   return (
     <div className="assess-shell results-shell">
@@ -140,9 +142,9 @@ export default function Results() {
                     <p className="rm-desig">{t.designation}</p>
                   </div>
                 </div>
-                {t.rciVerified && (
-                  <span className="rm-verified">✓ RCI Verified · Clinically registered</span>
-                )}
+                <span className="rm-verified">
+                  ✓ {t.nmcVerified ? 'NMC-registered' : 'RCI-verified'} · {t.availableNext ? `Available ${t.availableNext}` : 'Clinically registered'}
+                </span>
                 <div className="rm-tags">
                   {t.specializations.slice(0, 3).map((s) => (
                     <span key={s} className="rm-tag">{s}</span>
@@ -151,15 +153,13 @@ export default function Results() {
                 <div className="rm-meta">
                   <span>⭐ {t.rating}</span>
                   <span>·</span>
-                  <span>{t.yearsExp} yrs experience</span>
+                  <span>{t.yearsExp} yrs exp</span>
                   <span>·</span>
                   <span>{t.languages.slice(0, 2).join(', ')}</span>
                 </div>
                 <div className="rm-footer">
                   <span className="rm-fee">From ₹{t.sessionFee}<span className="rm-fee-sub">/session</span></span>
-                  <Link href="/login" className="rm-btn">
-                    {i === 0 ? '✦ Book free session' : 'Book session'}
-                  </Link>
+                  <Link href="/login" className="rm-btn">Book session</Link>
                 </div>
               </div>
             ))}
@@ -170,13 +170,12 @@ export default function Results() {
         <div className="results-cta">
           <div className="rcta-inner">
             <div className="rcta-left">
-              <p className="rcta-eyebrow">Free to start</p>
-              <h3 className="rcta-title">Your first session is on us.</h3>
-              <p className="rcta-sub">No card. No commitment. Create your free account to book — it takes 30 seconds.</p>
+              <p className="rcta-eyebrow">Your first session is free</p>
+              <h3 className="rcta-title">Not sure yet?</h3>
+              <p className="rcta-sub">Start with a free first session with your matched professional. No card, no commitment — just a conversation.</p>
             </div>
             <div className="rcta-actions">
-              <Link href="/register" className="rcta-btn-primary">✦ Create free account</Link>
-              <Link href="/assess" className="rcta-btn-ghost">Retake assessment</Link>
+              <Link href="/login" className="rcta-btn-primary">✦ Book a free session</Link>
             </div>
           </div>
         </div>
@@ -186,11 +185,37 @@ export default function Results() {
   )
 }
 
-function matchTherapists(result: Result, lang: string | null) {
-  let pool = [...therapists]
-  if (result.type === 'psychiatry') pool.sort((a, b) => Number(b.designation.includes('Psychiatrist')) - Number(a.designation.includes('Psychiatrist')))
-  else if (result.type === 'couple') pool.sort((a, b) => Number(b.designation.includes('Couples')) - Number(a.designation.includes('Couples')))
-  else if (result.type === 'child') pool.sort((a, b) => Number(b.designation.includes('Child')) - Number(a.designation.includes('Child')))
-  if (lang) pool.sort((a, b) => Number(b.languages.includes(lang)) - Number(a.languages.includes(lang)))
-  return pool.slice(0, 3)
+/**
+ * Rank professionals by how many of their tags overlap with the patient's
+ * derived tags. Care type strongly gates the right specialism, language
+ * preference is a soft boost, and a tiny random term breaks ties so equally
+ * good matches don't always appear in the same order. Top 3 are returned.
+ */
+function matchTherapists(result: Result, lang: string | null, support: string | null) {
+  const patientTags = new Set(result.tags ?? [])
+  if (result.type === 'psychiatry') ['medication', 'psychiatry'].forEach((t) => patientTags.add(t))
+  if (result.type === 'couple') ['couples', 'relationships'].forEach((t) => patientTags.add(t))
+  if (result.type === 'child') ['child', 'adolescent'].forEach((t) => patientTags.add(t))
+
+  const wantsPsychiatry = result.type === 'psychiatry' || support === 'medication'
+  const therapyOnly = support === 'therapy' // pure therapy seeker — don't surface psychiatrists
+
+  const scored = therapists.map((t) => {
+    const isPsych = t.designation.includes('Psychiatrist')
+    let s = t.tags.filter((tag) => patientTags.has(tag)).length
+    // Care-type gating
+    if (wantsPsychiatry) s += isPsych ? 6 : -5
+    else if (therapyOnly && isPsych) s -= 8 // effectively excludes psychiatrists
+    else if (isPsych) s -= 2 // 'both' / 'not sure' — slight preference for therapists
+    if (result.type === 'couple') s += t.designation.includes('Couples') ? 6 : 0
+    if (result.type === 'child') s += t.designation.includes('Child') ? 6 : 0
+    // Language preference
+    if (lang && t.languages.includes(lang)) s += 2
+    // Random tiebreak
+    s += Math.random() * 0.5
+    return { t, s }
+  })
+
+  scored.sort((a, b) => b.s - a.s)
+  return scored.slice(0, 3).map((x) => x.t)
 }
