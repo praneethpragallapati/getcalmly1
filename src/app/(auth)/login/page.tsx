@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [sent, setSent] = useState(false)
   const [country, setCountry] = useState(defaultCountry)
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,24 +22,46 @@ export default function LoginPage() {
 
   async function handleSend() {
     setError('')
-    if (phone.replace(/\D/g, '').length < 10) {
-      setError('Enter a valid mobile number.')
-      return
-    }
-    setLoading(true)
-    try {
-      const res = await fetch('/api/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile }),
-      })
-      const data = await res.json()
-      if (data.ok) setSent(true)
-      else setError(data.message || 'Could not send OTP. Please try again.')
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
+    if (tab === 'phone') {
+      if (phone.replace(/\D/g, '').length < 10) {
+        setError('Enter a valid mobile number.')
+        return
+      }
+      setLoading(true)
+      try {
+        const res = await fetch('/api/otp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile }),
+        })
+        const data = await res.json()
+        if (data.ok) setSent(true)
+        else setError(data.message || 'Could not send OTP. Please try again.')
+      } catch {
+        setError('Network error. Please try again.')
+      } finally {
+        setLoading(false)
+      }
+    } else {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('Enter a valid email address.')
+        return
+      }
+      setLoading(true)
+      try {
+        const res = await fetch('/api/otp/email-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        })
+        const data = await res.json()
+        if (data.ok) setSent(true)
+        else setError(data.message || 'Could not send code. Please try again.')
+      } catch {
+        setError('Network error. Please try again.')
+      } finally {
+        setLoading(false)
+      }
     }
   }
 
@@ -51,7 +74,9 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const result = await signIn('phone-otp', { mobile, otp: code, redirect: false })
+      const result = tab === 'phone'
+        ? await signIn('phone-otp', { mobile, otp: code, redirect: false })
+        : await signIn('email-otp', { email, otp: code, redirect: false })
       if (result?.ok) router.push('/')
       else setError('That code did not match. Please try again.')
     } catch {
@@ -170,6 +195,8 @@ export default function LoginPage() {
             <input
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 15, color: '#1C2B3A', background: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
             />
           )}
@@ -186,14 +213,14 @@ export default function LoginPage() {
             onMouseOver={e => e.currentTarget.style.opacity = loading ? '.7' : '.9'}
             onMouseOut={e => e.currentTarget.style.opacity = loading ? '.7' : '1'}
           >
-            {loading ? 'Sending…' : 'Send OTP →'}
+            {loading ? 'Sending…' : tab === 'phone' ? 'Send OTP →' : 'Send Code →'}
           </button>
           {error && <p style={{ fontSize: 13, color: '#C8553D', textAlign: 'center', margin: 0 }}>{error}</p>}
         </div>
       ) : (
         <div>
           <p style={{ fontSize: 14, color: '#6B7D8E', marginBottom: 16, lineHeight: 1.6 }}>
-            We&apos;ve sent a 6-digit code. Enter it below.
+            We&apos;ve sent a 6-digit code to your {tab === 'phone' ? 'phone' : 'email'}. Enter it below.
           </p>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 16 }}>
             {[0,1,2,3,4,5].map((i) => (

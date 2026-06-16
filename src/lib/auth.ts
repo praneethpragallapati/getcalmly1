@@ -3,6 +3,7 @@ import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import { verifyOtp } from '@/lib/msg91'
+import { verifyEmailOtp } from '@/lib/email'
 
 export const authOptions: NextAuthOptions = {
   // Credentials providers require JWT sessions (DB sessions are not supported
@@ -25,18 +26,37 @@ export const authOptions: NextAuthOptions = {
         const otp = credentials?.otp?.trim()
         if (!mobile || !otp) return null
 
-        // The OTP is verified against MSG91 here — only a genuinely verified
-        // code lets us mint a session, so this endpoint is the trust boundary.
         const result = await verifyOtp(mobile, otp)
         if (!result.ok) return null
 
-        // Upsert the user by phone. Profile details (patientId, couple id,
-        // address, etc.) are filled in by the registration wizard separately.
         const phone = `+${mobile}`
         const user = await prisma.user.upsert({
           where: { phone },
           update: {},
           create: { phone, role: 'PATIENT' },
+        })
+        return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
+      },
+    }),
+    CredentialsProvider({
+      id: 'email-otp',
+      name: 'Email OTP',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        otp: { label: 'OTP', type: 'text' },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.toLowerCase().trim()
+        const otp = credentials?.otp?.trim()
+        if (!email || !otp) return null
+
+        const result = await verifyEmailOtp(email, otp)
+        if (!result.ok) return null
+
+        const user = await prisma.user.upsert({
+          where: { email },
+          update: {},
+          create: { email, role: 'PATIENT' },
         })
         return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
       },
