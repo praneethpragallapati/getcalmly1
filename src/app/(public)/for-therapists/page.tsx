@@ -24,7 +24,7 @@ export default function ForTherapistsPage() {
     <div style={{ background: '#F9F5F2' }}>
       {/* Hero */}
       <section style={{ background: '#1C2B3A', padding: '84px 24px 72px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.22) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>Join our expert team</p>
           <h1 style={{
@@ -63,23 +63,30 @@ export default function ForTherapistsPage() {
       </section>
 
       {/* Benefits */}
-      <section style={{ maxWidth: 1080, margin: '0 auto', padding: '72px 24px 40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(30px, 5vw, 44px)', color: '#1C2B3A', letterSpacing: '-1px', marginBottom: 14 }}>
-            Clinical tools, finally on your side.
-          </h2>
-          <p style={{ fontSize: 16, color: '#6B7D8E', maxWidth: 560, margin: '0 auto', lineHeight: 1.65 }}>
-            Everything below is built around one idea: protect your clinical time and judgement.
-          </p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {benefits.map((b) => (
-            <div key={b.t} style={{ background: '#fff', borderRadius: 18, padding: '26px 24px', border: '1.5px solid rgba(0,0,0,.06)' }}>
-              <div style={{ fontSize: 26, marginBottom: 14 }}>{b.icon}</div>
-              <h3 style={{ fontSize: 17, fontWeight: 800, color: '#1C2B3A', marginBottom: 8, fontFamily: "'DM Sans', sans-serif" }}>{b.t}</h3>
-              <p style={{ fontSize: 14, color: '#6B7D8E', lineHeight: 1.65 }}>{b.d}</p>
-            </div>
-          ))}
+      <section style={{ padding: '76px 24px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ marginBottom: 40 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(30px, 5vw, 44px)', color: '#1C2B3A', letterSpacing: '-1px', marginBottom: 14 }}>
+              Clinical tools, finally on your side.
+            </h2>
+            <p style={{ fontSize: 17, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>
+              Everything below is built around one idea: protect your clinical time and judgement.
+            </p>
+          </div>
+          <div>
+            {benefits.map((b, idx) => (
+              <div key={b.t} style={{
+                display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
+                padding: '24px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
+              }}>
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#3D9E72', marginTop: 9 }} />
+                <div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1C2B3A', marginBottom: 7, letterSpacing: '-0.2px' }}>{b.t}</h3>
+                  <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>{b.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
