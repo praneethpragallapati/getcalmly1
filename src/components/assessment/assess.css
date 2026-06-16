@@ -522,6 +522,42 @@
   transform: none;
 }
 
+/* ── Emergency modal actions ── */
+.em-actions {
+  display: flex;
+  gap: 12px;
+}
+.em-btn-call, .em-btn-continue {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.em-btn-call {
+  background: #C8553D;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(200,85,61,.35);
+}
+.em-btn-continue {
+  background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.8);
+  font-weight: 600;
+}
+@media (max-width: 460px) {
+  .em-actions { flex-direction: column; }
+}
+
 /* ── Results page ── */
 .results-shell {
   padding-top: 72px;
@@ -917,9 +953,40 @@
   .aq-scale-l { font-size: 8.5px; }
   .aq-nav { margin-top: 16px; padding-top: 14px; }
 
-  .results-top-grid { grid-template-columns: 1fr; }
-  .rm-grid { grid-template-columns: 1fr; }
-  .rcta-inner { flex-direction: column; align-items: flex-start; }
+  /* ── Compact results on mobile to cut scrolling ── */
+  .results-inner { gap: 16px; }
+  .results-header .assess-h1 { font-size: 30px; }
+  .results-label { margin-bottom: 8px; }
+  .results-top-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Severity: tighter horizontal layout */
+  .results-sev-card { padding: 16px; gap: 10px; border-radius: 16px; }
+  .rsc-icon { font-size: 26px; }
+  .rsc-level { font-size: 26px; }
+  .rsc-desc { font-size: 12.5px; line-height: 1.55; }
+  .results-concern-card { padding: 16px; border-radius: 16px; }
+  .rcc-eyebrow { margin-bottom: 10px; }
+  .rcc-tag { font-size: 12px; padding: 4px 11px; }
+
+  /* Therapist cards: compact card, avatar+info row, condensed */
+  .rm-grid { grid-template-columns: 1fr; gap: 12px; }
+  .rm-card { padding: 16px; gap: 9px; border-radius: 16px; }
+  .rm-avatar { width: 42px; height: 42px; font-size: 16px; }
+  .rm-name { font-size: 14.5px; }
+  .rm-desig { font-size: 11.5px; }
+  .rm-verified { font-size: 10.5px; padding: 3px 9px; }
+  .rm-tag { font-size: 10.5px; padding: 3px 9px; }
+  .rm-meta { font-size: 11px; gap: 5px; }
+  .rm-title { font-size: 24px; }
+  .rm-footer { padding-top: 10px; }
+  .rm-fee { font-size: 16px; }
+  .rm-btn { padding: 9px 18px; font-size: 13px; }
+
+  /* Crisis + CTA */
+  .results-crisis { padding: 18px; border-radius: 16px; }
+  .results-cta { padding: 24px 20px; border-radius: 18px; }
+  .rcta-inner { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .rcta-title { font-size: 26px; }
   .rcta-actions { width: 100%; }
   .rcta-btn-primary, .rcta-btn-ghost { width: 100%; }
 }

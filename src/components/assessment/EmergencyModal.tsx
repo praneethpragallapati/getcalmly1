@@ -74,39 +74,11 @@ export default function EmergencyModal({ onClose }: { onClose: () => void }) {
           Our care team will prioritise connecting you with a professional. getCalmly is not intended for emergency intervention.
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
-          <a
-            href={`tel:${helplines[0].tel}`}
-            style={{
-              flex: 1,
-              background: '#C8553D',
-              color: '#fff',
-              textAlign: 'center',
-              padding: '13px 20px',
-              borderRadius: 50,
-              fontWeight: 700,
-              fontSize: 14,
-              textDecoration: 'none',
-              boxShadow: '0 4px 16px rgba(200,85,61,.35)',
-            }}
-          >
-            Call iCall now
+        <div className="em-actions">
+          <a href={`tel:${helplines[0].tel}`} className="em-btn-call">
+            📞 Call now
           </a>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1,
-              background: 'rgba(255,255,255,.08)',
-              border: '1.5px solid rgba(255,255,255,.15)',
-              color: 'rgba(255,255,255,.8)',
-              padding: '13px 20px',
-              borderRadius: 50,
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: 'pointer',
-              fontFamily: "'DM Sans',sans-serif",
-            }}
-          >
+          <button onClick={onClose} className="em-btn-continue">
             Continue booking
           </button>
         </div>

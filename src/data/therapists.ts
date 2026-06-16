@@ -15,6 +15,7 @@ export type Therapist = {
   accent: string
   tags: string[]
   availableNext: string
+  gender: 'female' | 'male'
 }
 
 export const therapists: Therapist[] = [
@@ -33,6 +34,7 @@ export const therapists: Therapist[] = [
     rciVerified: true,
     accent: '#C8553D',
     availableNext: 'Thu',
+    gender: 'female',
     tags: ['anxiety', 'depression', 'burnout', 'sleep', 'low-mood', 'work-stress', 'cbt', 'adults', 'self-esteem'],
   },
   {
@@ -50,6 +52,7 @@ export const therapists: Therapist[] = [
     rciVerified: true,
     accent: '#3D9E72',
     availableNext: 'Fri',
+    gender: 'male',
     tags: ['trauma', 'grief', 'loss', 'relationships', 'breakup', 'loneliness', 'adults', 'mindfulness'],
   },
   {
@@ -68,6 +71,7 @@ export const therapists: Therapist[] = [
     nmcVerified: true,
     accent: '#C9973A',
     availableNext: 'Wed',
+    gender: 'female',
     tags: ['depression', 'ocd', 'bipolar', 'medication', 'psychiatry', 'low-mood', 'panic', 'anxiety', 'sleep'],
   },
   {
@@ -85,6 +89,7 @@ export const therapists: Therapist[] = [
     rciVerified: true,
     accent: '#2E3E50',
     availableNext: 'Sat',
+    gender: 'female',
     tags: ['child', 'adolescent', 'exam-stress', 'adhd', 'school', 'academic', 'behaviour', 'parenting'],
   },
   {
@@ -102,6 +107,7 @@ export const therapists: Therapist[] = [
     rciVerified: true,
     accent: '#3D9E72',
     availableNext: 'Thu',
+    gender: 'male',
     tags: ['couples', 'relationships', 'conflict', 'pre-marital', 'family', 'communication', 'trust', 'separation'],
   },
   {
@@ -119,6 +125,7 @@ export const therapists: Therapist[] = [
     rciVerified: true,
     accent: '#6D5BD0',
     availableNext: 'Mon',
+    gender: 'female',
     tags: ['anxiety', 'social-anxiety', 'self-esteem', 'panic', 'phobia', 'confidence', 'adults', 'cbt'],
   },
   {
@@ -136,6 +143,7 @@ export const therapists: Therapist[] = [
     rciVerified: true,
     accent: '#C8553D',
     availableNext: 'Tue',
+    gender: 'male',
     tags: ['work-stress', 'burnout', 'career', 'life-transitions', 'mindfulness', 'adults', 'anger'],
   },
   {
@@ -154,6 +162,7 @@ export const therapists: Therapist[] = [
     nmcVerified: true,
     accent: '#1A7F7A',
     availableNext: 'Wed',
+    gender: 'female',
     tags: ['anxiety', 'sleep', 'depression', 'medication', 'psychiatry', 'panic', 'low-mood', 'ocd'],
   },
 ]

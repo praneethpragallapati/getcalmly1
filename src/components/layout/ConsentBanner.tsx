@@ -12,23 +12,79 @@ export default function ConsentBanner() {
 
   if (!visible) return null
 
+  const dismiss = (choice: string) => {
+    localStorage.setItem('cookieConsent', choice)
+    setVisible(false)
+  }
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[600] bg-white border-t border-gray-200 shadow-[0_-4px_24px_rgba(0,0,0,0.10)] p-4 pb-safe">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-gray-600">
-          We use cookies to improve your experience. By continuing, you agree to our{' '}
-          <Link href="/privacy" className="text-[#C8553D] underline">Privacy Policy</Link>.
-        </p>
-        <div className="flex gap-3 flex-shrink-0">
+    <div
+      style={{
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 600,
+        background: '#1C2B3A',
+        borderTop: '1px solid rgba(200,85,61,.25)',
+        boxShadow: '0 -8px 32px rgba(28,43,58,.25)',
+        padding: '18px 24px',
+        paddingBottom: 'max(18px, env(safe-area-inset-bottom))',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 24,
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 260 }}>
+          <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>🍪</span>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', lineHeight: 1.55, margin: 0 }}>
+            We use cookies to keep you signed in and improve your experience. By continuing, you
+            agree to our{' '}
+            <Link href="/privacy" style={{ color: '#E8896F', textDecoration: 'underline', fontWeight: 600 }}>
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
           <button
-            onClick={() => { localStorage.setItem('cookieConsent', 'declined'); setVisible(false) }}
-            className="text-sm border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50"
+            onClick={() => dismiss('declined')}
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'rgba(255,255,255,.7)',
+              background: 'rgba(255,255,255,.08)',
+              border: '1.5px solid rgba(255,255,255,.15)',
+              padding: '10px 22px',
+              borderRadius: 50,
+              cursor: 'pointer',
+              fontFamily: "'DM Sans',sans-serif",
+            }}
           >
             Decline
           </button>
           <button
-            onClick={() => { localStorage.setItem('cookieConsent', 'accepted'); setVisible(false) }}
-            className="text-sm bg-[#C8553D] text-white px-4 py-2 rounded-lg hover:bg-[#A8432D]"
+            onClick={() => dismiss('accepted')}
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#fff',
+              background: '#C8553D',
+              border: 'none',
+              padding: '10px 26px',
+              borderRadius: 50,
+              cursor: 'pointer',
+              fontFamily: "'DM Sans',sans-serif",
+              boxShadow: '0 4px 16px rgba(200,85,61,.35)',
+            }}
           >
             Accept
           </button>

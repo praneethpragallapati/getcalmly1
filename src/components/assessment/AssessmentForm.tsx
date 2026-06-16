@@ -145,6 +145,14 @@ const adultQuestions: Question[] = [
     options: ['Yes', 'No'],
   },
   {
+    id: 'gender',
+    text: 'Any preference for your professional?',
+    hint: 'Totally optional — we\'ll honour it where we can.',
+    type: 'single',
+    layout: 'grid',
+    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
+  },
+  {
     id: 'language',
     text: 'Which language feels most comfortable for sessions?',
     type: 'single',
@@ -210,6 +218,14 @@ const childQuestions: Question[] = [
     risk: true,
   },
   {
+    id: 'gender',
+    text: 'Any preference for your professional?',
+    hint: 'Totally optional — we\'ll honour it where we can.',
+    type: 'single',
+    layout: 'grid',
+    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
+  },
+  {
     id: 'language',
     text: 'Preferred language for sessions?',
     type: 'single',
@@ -257,6 +273,14 @@ const coupleQuestions: Question[] = [
     type: 'single',
     layout: 'grid',
     options: ['Yes, both of us', 'Only me for now', 'Unsure'],
+  },
+  {
+    id: 'gender',
+    text: 'Any preference for your professional?',
+    hint: 'Totally optional — we\'ll honour it where we can.',
+    type: 'single',
+    layout: 'grid',
+    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
   },
   {
     id: 'language',
@@ -307,6 +331,14 @@ const psychiatryQuestions: Question[] = [
     layout: 'grid',
     options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
     risk: true,
+  },
+  {
+    id: 'gender',
+    text: 'Any preference for your professional?',
+    hint: 'Totally optional — we\'ll honour it where we can.',
+    type: 'single',
+    layout: 'grid',
+    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
   },
   {
     id: 'language',

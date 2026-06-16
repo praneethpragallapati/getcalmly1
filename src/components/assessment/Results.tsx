@@ -63,8 +63,9 @@ export default function Results() {
 
   const cfg = severityConfig[result.severity]
   const lang = typeof result.answers.language === 'string' ? result.answers.language : null
+  const genderPref = typeof result.answers.gender === 'string' ? result.answers.gender : null
   const support = typeof window !== 'undefined' ? sessionStorage.getItem('assess_support') : null
-  const matched = matchTherapists(result, lang, support)
+  const matched = matchTherapists(result, lang, support, genderPref)
 
   return (
     <div className="assess-shell results-shell">
@@ -191,7 +192,7 @@ export default function Results() {
  * preference is a soft boost, and a tiny random term breaks ties so equally
  * good matches don't always appear in the same order. Top 3 are returned.
  */
-function matchTherapists(result: Result, lang: string | null, support: string | null) {
+function matchTherapists(result: Result, lang: string | null, support: string | null, genderPref: string | null) {
   const patientTags = new Set(result.tags ?? [])
   if (result.type === 'psychiatry') ['medication', 'psychiatry'].forEach((t) => patientTags.add(t))
   if (result.type === 'couple') ['couples', 'relationships'].forEach((t) => patientTags.add(t))
@@ -199,6 +200,7 @@ function matchTherapists(result: Result, lang: string | null, support: string | 
 
   const wantsPsychiatry = result.type === 'psychiatry' || support === 'medication'
   const therapyOnly = support === 'therapy' // pure therapy seeker — don't surface psychiatrists
+  const wantGender = genderPref === 'Prefer a woman' ? 'female' : genderPref === 'Prefer a man' ? 'male' : null
 
   const scored = therapists.map((t) => {
     const isPsych = t.designation.includes('Psychiatrist')
@@ -211,6 +213,8 @@ function matchTherapists(result: Result, lang: string | null, support: string | 
     if (result.type === 'child') s += t.designation.includes('Child') ? 6 : 0
     // Language preference
     if (lang && t.languages.includes(lang)) s += 2
+    // Gender preference — strong boost for a match, soft penalty otherwise
+    if (wantGender) s += t.gender === wantGender ? 4 : -3
     // Random tiebreak
     s += Math.random() * 0.5
     return { t, s }
