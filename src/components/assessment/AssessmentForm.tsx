@@ -219,7 +219,7 @@ const childQuestions: Question[] = [
   },
   {
     id: 'gender',
-    text: 'Any preference for your professional?',
+    text: 'Any preference for your child\'s therapist?',
     hint: 'Totally optional — we\'ll honour it where we can.',
     type: 'single',
     layout: 'grid',

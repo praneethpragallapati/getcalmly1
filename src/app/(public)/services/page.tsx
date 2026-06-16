@@ -1,146 +1,195 @@
+'use client'
+
 import Link from 'next/link'
-import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Services | GetCalmly',
-  description:
-    'Therapy, psychiatric care, psychological assessments and corporate wellness — delivered by RCI-licensed professionals across India.',
-}
-
-const sections = [
+const branches = [
   {
-    title: 'Comprehensive Psychological Assessments',
-    groups: [
-      {
-        sub: 'Children',
-        items: [
-          'ADHD',
-          'Emotional & Behavioural Difficulties',
-          'Academic — Study & Career Maturity',
-          'Personality & Emotional Functioning',
-        ],
-      },
-      {
-        sub: 'Clinical',
-        items: [
-          '5-Factor Personality Assessment',
-          'Emotional Intelligence',
-          'Anxiety, Depression & Stress',
-          'Marriage / Couples Assessment',
-          'Behavioural & Emotional Conflicts',
-          'Procrastination',
-          'Psychological Well-Being',
-          'Personal Adjustment',
-          'Defense Mechanism',
-          'Occupational & Job Stress',
-        ],
-      },
-    ],
+    slug: 'therapy',
+    icon: '🧠',
+    accent: '#C8553D',
+    pale: 'rgba(200,85,61,.08)',
+    title: 'Individual Therapy',
+    tagline: 'For when things feel too heavy to carry alone.',
+    desc: 'Whether it\'s anxiety that won\'t quiet down, a sadness you can\'t explain, or stress that\'s seeping into everything — a therapist gives you a private space to work through it. One conversation at a time.',
+    items: ['Anxiety & Overthinking', 'Depression', 'Stress & Burnout', 'Trauma & Grief', 'OCD', 'Anger', 'Sleep Issues', 'Life Transitions'],
   },
   {
-    title: 'Individual Therapy for Adults',
-    items: [
-      'Anxiety & Overthinking',
-      'Depression',
-      'Stress & Burnout',
-      'Trauma & Grief',
-      'OCD',
-      'Behavioural & Emotional Conflicts',
-      'Procrastination',
-      'Life Transitions & Adjustment',
-      'Anger Management',
-      'Sleep Issues',
-    ],
+    slug: 'couples',
+    icon: '💑',
+    accent: '#7C5CBF',
+    pale: 'rgba(124,92,191,.08)',
+    title: 'Couples & Relationships',
+    tagline: 'Because good relationships take work — and that\'s not a failure.',
+    desc: 'Every couple hits walls. Communication that used to flow easily now leads to arguments. Or maybe the silence has become louder than words. Couples therapy helps you find your way back to each other.',
+    items: ['Communication & Conflict', 'Rebuilding Trust', 'Separation / Divorce', 'Breakup Support', 'Pre-marital Counselling', 'Intimacy Concerns'],
   },
   {
-    title: 'Psychological Support for Medical Conditions',
-    items: ['Chronic Illness', 'Terminal Illness', 'Surgical Support', 'Geriatric Mental Health'],
+    slug: 'child',
+    icon: '🌱',
+    accent: '#3D9E72',
+    pale: 'rgba(61,158,114,.08)',
+    title: 'Children & Teens',
+    tagline: 'They\'re not "just going through a phase."',
+    desc: 'Kids and teenagers are navigating enormous pressures — exams, social anxiety, family change, identity questions. A child therapist gives them a judgment-free space to understand what they\'re feeling and why.',
+    items: ['Anxiety & Worry', 'Low Mood', 'Exam Stress', 'ADHD Support', 'Behavioural Challenges', 'Adolescent Identity', 'Grief & Loss', 'Family Change'],
   },
   {
-    title: 'LGBTQIA+ & Gender Identity',
-    items: ['Identity & Affirmative Support', 'Coming Out', 'Relationship & Family Concerns'],
-  },
-  {
-    title: 'Pregnancy & Postpartum',
-    items: ['Prenatal Support', 'Postpartum Care', 'Parenting Stress', 'Pre-adoption (PAPs) Counselling'],
-  },
-  {
-    title: 'Work & Job Stress',
-    items: ['Workplace Burnout', 'Performance Pressure', 'Interpersonal Conflict', 'Career Uncertainty'],
-  },
-  {
-    title: 'Couple & Relationship Counselling',
-    items: ['Relationship Concerns', 'Conflict & Communication', 'Separation / Divorce', 'Breakup Support', 'Pre-marital Counselling'],
-  },
-  {
-    title: 'Child & Adolescent Therapy',
-    items: ['Worry / Anxiety / Depression', 'Exam Stress', 'Major Life Events', 'Behavioural Difficulties'],
-  },
-  {
+    slug: 'psychiatry',
+    icon: '💊',
+    accent: '#1A7F7A',
+    pale: 'rgba(26,127,122,.08)',
     title: 'Psychiatry',
-    items: ['Diagnosis & Evaluation', 'Medication Management', 'Second Opinion', 'Follow-up Care'],
+    tagline: 'Sometimes the brain needs medical support too.',
+    desc: 'Our NMC-registered psychiatrists evaluate, diagnose, and when needed, prescribe medication alongside therapy. Getting a second opinion? We do that too.',
+    items: ['Diagnosis & Evaluation', 'Medication Management', 'Second Opinion', 'Follow-up Care', 'OCD / Bipolar / Schizophrenia', 'ADHD (Adult)'],
   },
   {
-    title: 'Clinical Supervision for Mental Health Professionals',
-    items: ['Individual Supervision', 'Group Supervision', 'Research Guidance & Supervision'],
+    slug: 'assessments',
+    icon: '📋',
+    accent: '#C9973A',
+    pale: 'rgba(201,151,58,.08)',
+    title: 'Psychological Assessments',
+    tagline: 'A clearer picture changes everything.',
+    desc: 'Standardised assessments that help you understand yourself — or your child — better. These aren\'t labels, they\'re tools. A good assessment leads to a better plan.',
+    items: ['ADHD Assessment', 'Anxiety & Depression Screening', 'Personality Profile', 'Emotional Intelligence', 'Career Maturity (Students)', 'Couples Assessment', 'Occupational Stress'],
+  },
+  {
+    slug: 'specialised',
+    icon: '🫶',
+    accent: '#C04B8A',
+    pale: 'rgba(192,75,138,.08)',
+    title: 'Specialised Support',
+    tagline: 'Life is not one-size-fits-all. Neither is care.',
+    desc: 'Some experiences need a professional who truly understands the context — not a generalist. Whether you\'re navigating chronic illness, pregnancy, gender identity, or supporting someone in crisis, we have the right person.',
+    items: ['LGBTQIA+ Affirmative Care', 'Pregnancy & Postpartum', 'Chronic / Terminal Illness', 'Grief & Bereavement', 'Geriatric Mental Health', 'Clinical Supervision for Professionals'],
   },
 ]
 
 export default function ServicesPage() {
   return (
-    <div className="bg-[#FFF8F5]">
-      <section className="py-16 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1
-            style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-4xl md:text-6xl font-black text-[#1C2B3A] mb-4"
-          >
-            Our Services
+    <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
+      {/* Hero */}
+      <section style={{ padding: '80px 24px 56px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 16 }}>What we offer</p>
+          <h1 style={{
+            fontFamily: "'Big Shoulders Display', sans-serif",
+            fontWeight: 900,
+            fontSize: 'clamp(40px, 7vw, 68px)',
+            color: '#1C2B3A',
+            lineHeight: 1.0,
+            letterSpacing: '-2px',
+            marginBottom: 20,
+          }}>
+            Care that fits<br />your life.
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Whatever you’re going through, there’s a qualified professional here for you —
-            matched to your needs, within your budget.
+          <p style={{ fontSize: 17, color: '#6B7D8E', lineHeight: 1.7, marginBottom: 32, fontWeight: 300 }}>
+            We don&apos;t believe in one-size-fits-all mental health. Choose a branch below — or let our assessment find the right match for you.
           </p>
-          <Link
-            href="/assess"
-            className="inline-block mt-8 bg-[#C8553D] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#A8432D] transition shadow-lg"
-          >
-            Find My Match →
+          <Link href="/assess" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: '#1C2B3A', color: '#fff', padding: '14px 28px',
+            borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
+            fontFamily: "'DM Sans', sans-serif",
+          }}>
+            ✦ Take the free assessment
           </Link>
         </div>
       </section>
 
-      <section className="pb-20 px-4">
-        <div className="max-w-5xl mx-auto space-y-6">
-          {sections.map((s) => (
-            <div key={s.title} className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
-              <h2 className="text-2xl font-bold text-[#C8553D] mb-4">{s.title}</h2>
-              {s.groups ? (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {s.groups.map((g) => (
-                    <div key={g.sub}>
-                      <p className="font-semibold text-gray-800 mb-2">{g.sub}</p>
-                      <ul className="space-y-1">
-                        {g.items.map((it) => (
-                          <li key={it} className="text-gray-600 text-sm flex gap-2">
-                            <span className="text-[#3D9E72]">•</span> {it}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
+      {/* Service branches grid */}
+      <section style={{ padding: '0 24px 80px', maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: 20,
+        }}>
+          {branches.map((b) => (
+            <Link
+              key={b.slug}
+              href={`/services/${b.slug}`}
+              style={{ textDecoration: 'none', display: 'block' }}
+            >
+              <div style={{
+                background: '#fff',
+                borderRadius: 20,
+                padding: '28px 28px 24px',
+                border: '1.5px solid rgba(0,0,0,.06)',
+                transition: 'transform .2s, box-shadow .2s',
+                height: '100%',
+                cursor: 'pointer',
+              }}
+                onMouseOver={e => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.transform = 'translateY(-3px)'
+                  el.style.boxShadow = '0 12px 40px rgba(0,0,0,.09)'
+                }}
+                onMouseOut={e => {
+                  const el = e.currentTarget as HTMLDivElement
+                  el.style.transform = 'none'
+                  el.style.boxShadow = 'none'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 14, background: b.pale,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 22, flexShrink: 0,
+                  }}>
+                    {b.icon}
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 18, fontWeight: 800, color: '#1C2B3A', marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>{b.title}</p>
+                    <p style={{ fontSize: 13, color: b.accent, fontWeight: 600, lineHeight: 1.4 }}>{b.tagline}</p>
+                  </div>
                 </div>
-              ) : (
-                <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-1">
-                  {s.items!.map((it) => (
-                    <li key={it} className="text-gray-600 text-sm flex gap-2">
-                      <span className="text-[#3D9E72]">•</span> {it}
-                    </li>
+
+                <p style={{ fontSize: 14, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 18 }}>{b.desc}</p>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
+                  {b.items.slice(0, 4).map((it) => (
+                    <span key={it} style={{
+                      fontSize: 12, padding: '5px 10px', borderRadius: 50,
+                      background: b.pale, color: b.accent, fontWeight: 600,
+                    }}>{it}</span>
                   ))}
-                </ul>
-              )}
-            </div>
+                  {b.items.length > 4 && (
+                    <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 50, background: '#F5F7FA', color: '#8E9EAE', fontWeight: 600 }}>
+                      +{b.items.length - 4} more
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: b.accent, fontSize: 13, fontWeight: 700 }}>
+                  Learn more <span style={{ fontSize: 16 }}>→</span>
+                </div>
+              </div>
+            </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section style={{ background: '#1C2B3A', padding: '64px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 560, margin: '0 auto' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 16 }}>Not sure where to start?</p>
+          <h2 style={{
+            fontFamily: "'Big Shoulders Display', sans-serif",
+            fontWeight: 900, fontSize: 36, color: '#fff', marginBottom: 16, letterSpacing: '-0.5px',
+          }}>
+            Let us find the right fit for you.
+          </h2>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, marginBottom: 32 }}>
+            Our 5-minute assessment matches you with the right professional — by what you&apos;re going through, your language preference, and your budget.
+          </p>
+          <Link href="/assess" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: '#C8553D', color: '#fff', padding: '15px 32px',
+            borderRadius: 50, fontSize: 16, fontWeight: 700, textDecoration: 'none',
+            fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)',
+          }}>
+            ✦ Start free assessment
+          </Link>
         </div>
       </section>
     </div>
