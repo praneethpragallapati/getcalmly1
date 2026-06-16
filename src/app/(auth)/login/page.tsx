@@ -2,13 +2,77 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<'phone' | 'email'>('phone')
   const [sent, setSent] = useState(false)
   const [country, setCountry] = useState(defaultCountry)
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const mobile = `${country.dial}${phone.replace(/\D/g, '')}`
+
+  async function handleSend() {
+    setError('')
+    if (phone.replace(/\D/g, '').length < 10) {
+      setError('Enter a valid mobile number.')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile }),
+      })
+      const data = await res.json()
+      if (data.ok) setSent(true)
+      else setError(data.message || 'Could not send OTP. Please try again.')
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleVerify() {
+    setError('')
+    const code = otp.join('')
+    if (code.length < 6) {
+      setError('Enter the 6-digit code.')
+      return
+    }
+    setLoading(true)
+    try {
+      const result = await signIn('phone-otp', { mobile, otp: code, redirect: false })
+      if (result?.ok) router.push('/')
+      else setError('That code did not match. Please try again.')
+    } catch {
+      setError('Could not verify. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function setOtpDigit(i: number, val: string) {
+    const d = val.replace(/\D/g, '').slice(-1)
+    setOtp((prev) => {
+      const next = [...prev]
+      next[i] = d
+      return next
+    })
+    if (d && i < 5) {
+      const el = document.getElementById(`otp-${i + 1}`) as HTMLInputElement | null
+      el?.focus()
+    }
+  }
 
   return (
     <div style={{ width: '100%', maxWidth: 420 }}>
@@ -38,6 +102,7 @@ export default function LoginPage() {
           cursor: 'pointer', transition: 'border-color .2s, box-shadow .2s', width: '100%',
           fontFamily: "'DM Sans', sans-serif",
         }}
+          onClick={() => signIn('google', { callbackUrl: '/' })}
           onMouseOver={e => { e.currentTarget.style.borderColor = '#C8553D'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(200,85,61,.08)' }}
           onMouseOut={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none' }}
         >
@@ -96,6 +161,8 @@ export default function LoginPage() {
               <input
                 type="tel"
                 placeholder="98765 43210"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 style={{ flex: 1, padding: '13px 16px', border: 'none', fontSize: 15, color: '#1C2B3A', background: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif", borderRadius: '0 12px 12px 0' }}
               />
             </div>
@@ -107,18 +174,21 @@ export default function LoginPage() {
             />
           )}
           <button
-            onClick={() => setSent(true)}
+            onClick={() => (tab === 'phone' ? handleSend() : setSent(true))}
+            disabled={loading}
             style={{
               width: '100%', padding: '14px', borderRadius: 12, border: 'none',
               background: '#C8553D', color: '#fff', fontSize: 15, fontWeight: 700,
-              cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+              cursor: loading ? 'wait' : 'pointer', fontFamily: "'DM Sans', sans-serif",
               boxShadow: '0 4px 16px rgba(200,85,61,.3)', transition: 'opacity .2s',
+              opacity: loading ? 0.7 : 1,
             }}
-            onMouseOver={e => e.currentTarget.style.opacity = '.9'}
-            onMouseOut={e => e.currentTarget.style.opacity = '1'}
+            onMouseOver={e => e.currentTarget.style.opacity = loading ? '.7' : '.9'}
+            onMouseOut={e => e.currentTarget.style.opacity = loading ? '.7' : '1'}
           >
-            Send OTP →
+            {loading ? 'Sending…' : 'Send OTP →'}
           </button>
+          {error && <p style={{ fontSize: 13, color: '#C8553D', textAlign: 'center', margin: 0 }}>{error}</p>}
         </div>
       ) : (
         <div>
@@ -129,8 +199,12 @@ export default function LoginPage() {
             {[0,1,2,3,4,5].map((i) => (
               <input
                 key={i}
+                id={`otp-${i}`}
                 type="text"
+                inputMode="numeric"
                 maxLength={1}
+                value={otp[i]}
+                onChange={(e) => setOtpDigit(i, e.target.value)}
                 style={{
                   width: 46, height: 54, textAlign: 'center', fontSize: 22, fontWeight: 700,
                   border: '1.5px solid #E2E8F0', borderRadius: 10, color: '#1C2B3A',
@@ -141,15 +215,20 @@ export default function LoginPage() {
               />
             ))}
           </div>
-          <button style={{
-            width: '100%', padding: '14px', borderRadius: 12, border: 'none',
-            background: '#C8553D', color: '#fff', fontSize: 15, fontWeight: 700,
-            cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-            boxShadow: '0 4px 16px rgba(200,85,61,.3)',
-          }}>
-            Verify &amp; Sign in
+          {error && <p style={{ fontSize: 13, color: '#C8553D', textAlign: 'center', marginTop: 0, marginBottom: 12 }}>{error}</p>}
+          <button
+            onClick={handleVerify}
+            disabled={loading}
+            style={{
+              width: '100%', padding: '14px', borderRadius: 12, border: 'none',
+              background: '#C8553D', color: '#fff', fontSize: 15, fontWeight: 700,
+              cursor: loading ? 'wait' : 'pointer', fontFamily: "'DM Sans', sans-serif",
+              boxShadow: '0 4px 16px rgba(200,85,61,.3)', opacity: loading ? 0.7 : 1,
+            }}
+          >
+            {loading ? 'Verifying…' : 'Verify & Sign in'}
           </button>
-          <button onClick={() => setSent(false)} style={{ width: '100%', marginTop: 12, background: 'none', border: 'none', color: '#6B7D8E', fontSize: 13, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+          <button onClick={() => { setSent(false); setOtp(['', '', '', '', '', '']); setError('') }} style={{ width: '100%', marginTop: 12, background: 'none', border: 'none', color: '#6B7D8E', fontSize: 13, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
             ← Change {tab === 'phone' ? 'number' : 'email'}
           </button>
         </div>
