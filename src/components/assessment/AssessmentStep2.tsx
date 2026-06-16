@@ -7,19 +7,19 @@ const options = [
     key: 'adult',
     icon: '👤',
     title: 'Myself',
-    desc: 'Adult (18+) seeking support',
+    desc: 'Adult (18+) seeking support for my own wellbeing',
   },
   {
     key: 'child',
     icon: '🧒',
     title: 'My Child or Adolescent',
-    desc: 'Someone under 18 years',
+    desc: 'Someone under 18 — I am a parent or guardian',
   },
   {
     key: 'couple',
     icon: '💑',
     title: 'My Partner and I',
-    desc: 'Couples or relationship therapy',
+    desc: 'Couples or relationship therapy for both of us',
   },
 ]
 
@@ -30,8 +30,6 @@ export default function AssessmentStep2() {
     sessionStorage.setItem('assess_recipient', key)
     const support =
       typeof window !== 'undefined' ? sessionStorage.getItem('assess_support') : null
-
-    // If the user only wants medication, always route to the psychiatry pre-assessment.
     if (support === 'medication') {
       router.push('/assess/form/psychiatry')
       return
@@ -40,52 +38,55 @@ export default function AssessmentStep2() {
   }
 
   return (
-    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-[#C8553D]">
-            <span>Step 2 of 3</span>
+    <div className="assess-shell">
+      <div className="assess-inner">
+        {/* Progress */}
+        <div className="assess-progress">
+          <div className="ap-meta">
+            <span className="ap-step">Step 2 of 3</span>
+            <span className="ap-label">Who is the care for?</span>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-full w-2/3 bg-[#C8553D] rounded-full transition-all" />
+          <div className="ap-track">
+            <div className="ap-fill" style={{ width: '66%' }} />
+          </div>
+          <div className="ap-dots">
+            <span className="ap-dot done" />
+            <span className="ap-dot active" />
+            <span className="ap-dot" />
           </div>
         </div>
 
-        <h1
-          style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-          className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-3"
-        >
-          Who will be receiving support today?
-        </h1>
-        <p className="text-gray-600 mb-10">
-          We tailor the assessment based on who the care is for.
-        </p>
+        <div className="assess-card">
+          <h1 className="assess-h1">Who will be receiving<br />support today?</h1>
+          <p className="assess-sub">We tailor the assessment questions based on who the care is for.</p>
 
-        <div className="grid grid-cols-1 gap-4">
-          {options.map((o) => (
-            <button
-              key={o.key}
-              onClick={() => select(o.key)}
-              className="flex items-center gap-5 text-left bg-white border-2 border-transparent hover:border-[#C8553D] rounded-2xl p-6 shadow-sm hover:shadow-lg transition group"
-            >
-              <div className="text-4xl">{o.icon}</div>
-              <div>
-                <h3 className="text-xl font-bold text-[#1C2B3A] mb-1 group-hover:text-[#C8553D]">
-                  {o.title}
-                </h3>
-                <p className="text-sm text-gray-500">{o.desc}</p>
-              </div>
-            </button>
-          ))}
+          <div className="ao-grid ao-grid-1">
+            {options.map((o) => (
+              <button
+                key={o.key}
+                onClick={() => select(o.key)}
+                className="ao-btn ao-btn-row"
+              >
+                <span className="ao-icon">{o.icon}</span>
+                <span className="ao-body">
+                  <span className="ao-title">{o.title}</span>
+                  <span className="ao-desc">{o.desc}</span>
+                </span>
+                <span className="ao-arrow">→</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => router.push('/assess')}
+            className="ao-back"
+          >
+            ← Back
+          </button>
         </div>
 
-        <button
-          onClick={() => router.push('/assess')}
-          className="mt-8 text-sm text-gray-500 hover:text-[#C8553D]"
-        >
-          ← Back
-        </button>
+        <p className="assess-footnote">🔒 Your responses are confidential and protected under the DPDP Act 2023.</p>
       </div>
-    </section>
+    </div>
   )
 }

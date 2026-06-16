@@ -1,4 +1,5 @@
 import './landing.css'
+import '@/components/assessment/assess.css'
 import SiteHeader from './SiteHeader'
 import SiteFooter from './SiteFooter'
 import LandingRuntime from './LandingRuntime'

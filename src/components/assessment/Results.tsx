@@ -12,25 +12,29 @@ type Result = {
   answers: Record<string, string | string[]>
 }
 
-const severityStyles: Record<string, { bg: string; text: string; desc: string }> = {
+const severityConfig = {
   Minimal: {
-    bg: '#E5F4EE',
-    text: '#2f7a4f',
-    desc: 'Your responses suggest minimal distress. A few sessions or self-help tools may help you stay well.',
+    bg: '#E5F4EE', color: '#1A7F7A', border: 'rgba(26,127,122,.2)',
+    icon: '🌱',
+    label: 'Minimal',
+    desc: 'Your responses suggest minimal distress. A few sessions or self-help tools may help you stay well and build resilience.',
   },
   Mild: {
-    bg: '#fff7e0',
-    text: '#9a7b1f',
-    desc: 'Your responses suggest mild difficulties. Talking to a counsellor can help you build coping strategies.',
+    bg: '#FFF8E7', color: '#C9973A', border: 'rgba(201,151,58,.2)',
+    icon: '🌤️',
+    label: 'Mild',
+    desc: 'Your responses suggest mild difficulties. Talking to a counsellor can help you build coping strategies before things build up.',
   },
   Moderate: {
-    bg: '#ffeede',
-    text: '#b5631f',
-    desc: 'Your responses suggest moderate difficulties. We recommend regular sessions with a clinical psychologist.',
+    bg: '#FFF0EC', color: '#C8553D', border: 'rgba(200,85,61,.2)',
+    icon: '⛅',
+    label: 'Moderate',
+    desc: 'Your responses suggest moderate difficulties. We recommend regular sessions with a clinical psychologist who can work with you systematically.',
   },
   Severe: {
-    bg: '#fdecec',
-    text: '#c0392b',
+    bg: '#FDECEC', color: '#C0392B', border: 'rgba(192,57,43,.2)',
+    icon: '🌧️',
+    label: 'Severe',
     desc: 'Your responses suggest significant distress. We strongly recommend speaking with a professional soon. If you are in crisis, please use the helplines below.',
   },
 }
@@ -45,177 +49,148 @@ export default function Results() {
 
   if (!result) {
     return (
-      <section className="min-h-[70vh] bg-[#FFF8F5] py-20 px-4 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">We couldn&apos;t find your assessment.</p>
-          <Link
-            href="/assess"
-            className="bg-[#C8553D] text-white px-6 py-3 rounded-xl font-semibold"
-          >
-            Start Assessment
+      <div className="assess-shell">
+        <div className="assess-inner" style={{ textAlign: 'center', paddingTop: 80 }}>
+          <p style={{ color: '#8E9EAE', marginBottom: 24 }}>We couldn&apos;t find your assessment results.</p>
+          <Link href="/assess" className="aq-next" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+            ✦ Start Assessment
           </Link>
         </div>
-      </section>
+      </div>
     )
   }
 
-  const style = severityStyles[result.severity]
-  const lang =
-    typeof result.answers.language === 'string' ? result.answers.language : null
-
-  // Match therapists: psychiatry → psychiatrist; couple → couples therapist; child → child specialist.
+  const cfg = severityConfig[result.severity]
+  const lang = typeof result.answers.language === 'string' ? result.answers.language : null
   const matched = matchTherapists(result, lang)
 
   return (
-    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1
-          style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-          className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-3"
-        >
-          Your Assessment Results
-        </h1>
-        <p className="text-gray-600 mb-8">
-          Based on your responses. This is a screening summary, not a clinical diagnosis.
-        </p>
+    <div className="assess-shell results-shell">
+      <div className="assess-inner results-inner">
 
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <p className="text-sm text-gray-500 mb-2">Severity Level</p>
-            <span
-              className="inline-block px-4 py-2 rounded-full font-bold text-lg"
-              style={{ background: style.bg, color: style.text }}
-            >
-              {result.severity}
-            </span>
-            <p className="text-sm text-gray-600 mt-4">{style.desc}</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <p className="text-sm text-gray-500 mb-3">Areas of Concern</p>
-            {result.concerns.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {result.concerns.map((c) => (
-                  <span
-                    key={c}
-                    className="bg-[#FDEAE6] text-[#C8553D] text-sm font-medium px-3 py-1 rounded-full"
-                  >
-                    {c}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">No specific high-concern areas flagged.</p>
-            )}
-            {lang && (
-              <p className="text-sm text-gray-500 mt-4">
-                Preferred language: <span className="font-medium text-gray-700">{lang}</span>
-              </p>
-            )}
-          </div>
+        {/* Header */}
+        <div className="results-header">
+          <div className="results-label">✦ Assessment complete</div>
+          <h1 className="assess-h1" style={{ marginBottom: 8 }}>Your wellness profile</h1>
+          <p className="assess-sub" style={{ marginBottom: 0 }}>Based on your responses. This is a screening summary, not a clinical diagnosis.</p>
         </div>
 
+        {/* Severity + Concerns row */}
+        <div className="results-top-grid">
+          <div className="results-sev-card" style={{ background: cfg.bg, borderColor: cfg.border }}>
+            <div className="rsc-icon">{cfg.icon}</div>
+            <div>
+              <p className="rsc-eyebrow">Severity level</p>
+              <p className="rsc-level" style={{ color: cfg.color }}>{cfg.label}</p>
+            </div>
+            <p className="rsc-desc">{cfg.desc}</p>
+          </div>
+
+          {result.concerns.length > 0 && (
+            <div className="results-concern-card">
+              <p className="rcc-eyebrow">Areas of concern</p>
+              <div className="rcc-tags">
+                {result.concerns.map((c) => (
+                  <span key={c} className="rcc-tag">{c}</span>
+                ))}
+              </div>
+              {lang && (
+                <p className="rcc-lang">Preferred session language: <strong>{lang}</strong></p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Crisis block */}
         {result.riskFlag && (
-          <div className="bg-[#fdecec] border border-[#f5c6cb] rounded-2xl p-6 mb-10">
-            <h3 className="font-bold text-[#c0392b] mb-2">You don&apos;t have to face this alone</h3>
-            <p className="text-sm text-[#7a2820] mb-3">
-              If you are in crisis or thinking about harming yourself, please reach out now:
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm font-semibold text-[#c0392b]">
-              <a href="tel:+919152987821">iCall: 9152987821</a>
-              <a href="tel:+917893078930">One Life: 78930-78930</a>
-              <a href="tel:+912227546669">Asra: +91-22-27546669</a>
+          <div className="results-crisis">
+            <h3 className="crisis-title">You don&apos;t have to face this alone</h3>
+            <p className="crisis-sub">If you are in crisis or thinking about harming yourself, please reach out right now:</p>
+            <div className="crisis-lines">
+              <a href="tel:+919152987821" className="crisis-line">
+                <span className="cl-name">iCall (TISS)</span>
+                <span className="cl-num">9152987821</span>
+              </a>
+              <a href="tel:+917893078930" className="crisis-line">
+                <span className="cl-name">One Life</span>
+                <span className="cl-num">78930-78930</span>
+              </a>
+              <a href="tel:+912227546669" className="crisis-line">
+                <span className="cl-name">Asra (24/7)</span>
+                <span className="cl-num">+91-22-27546669</span>
+              </a>
             </div>
           </div>
         )}
 
-        <h2 className="text-2xl font-bold text-[#1C2B3A] mb-2">
-          Recommended therapists for you
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Matched by your concerns{lang ? `, ${lang} language` : ''} and care type.
-        </p>
+        {/* Therapist matches */}
+        <div className="results-matches">
+          <div className="rm-header">
+            <h2 className="rm-title">Your matched professionals</h2>
+            <p className="rm-sub">Matched by your concerns{lang ? ` and ${lang} language preference` : ''}. We find the right fit — you don&apos;t browse.</p>
+          </div>
+          <div className="rm-grid">
+            {matched.map((t, i) => (
+              <div key={t.id} className={`rm-card${i === 0 ? ' rm-card-featured' : ''}`}>
+                {i === 0 && <div className="rm-badge">✦ Best match</div>}
+                <div className="rm-head">
+                  <div className="rm-avatar" style={{ background: t.accent }}>{t.initials}</div>
+                  <div className="rm-info">
+                    <p className="rm-name">{t.name}</p>
+                    <p className="rm-desig">{t.designation}</p>
+                  </div>
+                </div>
+                {t.rciVerified && (
+                  <span className="rm-verified">✓ RCI Verified · Clinically registered</span>
+                )}
+                <div className="rm-tags">
+                  {t.specializations.slice(0, 3).map((s) => (
+                    <span key={s} className="rm-tag">{s}</span>
+                  ))}
+                </div>
+                <div className="rm-meta">
+                  <span>⭐ {t.rating}</span>
+                  <span>·</span>
+                  <span>{t.yearsExp} yrs experience</span>
+                  <span>·</span>
+                  <span>{t.languages.slice(0, 2).join(', ')}</span>
+                </div>
+                <div className="rm-footer">
+                  <span className="rm-fee">From ₹{t.sessionFee}<span className="rm-fee-sub">/session</span></span>
+                  <Link href="/login" className="rm-btn">
+                    {i === 0 ? '✦ Book free session' : 'Book session'}
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {matched.map((t) => (
-            <div key={t.id} className="bg-white rounded-2xl shadow-sm p-6 flex flex-col">
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                  style={{ background: t.accent }}
-                >
-                  {t.initials}
-                </div>
-                <div>
-                  <p className="font-bold text-[#1C2B3A] leading-tight">{t.name}</p>
-                  <p className="text-xs text-gray-500">{t.designation}</p>
-                </div>
-              </div>
-              {t.rciVerified && (
-                <span className="inline-block w-fit text-xs font-semibold text-[#C8553D] bg-[#FDEAE6] px-2 py-0.5 rounded-full mb-3">
-                  ✓ RCI Verified
-                </span>
-              )}
-              <div className="flex flex-wrap gap-1 mb-3">
-                {t.specializations.slice(0, 3).map((s) => (
-                  <span key={s} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-                    {s}
-                  </span>
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mb-1">{t.languages.join(', ')}</p>
-              <p className="text-xs text-gray-500 mb-4">
-                {t.yearsExp} yrs exp • ⭐ {t.rating}
-              </p>
-              <div className="mt-auto flex items-center justify-between">
-                <span className="font-bold text-[#C8553D]">₹{t.sessionFee}</span>
-                <Link
-                  href="/login"
-                  className="bg-[#C8553D] text-white text-sm px-4 py-2 rounded-lg font-semibold hover:bg-[#A8432D] transition"
-                >
-                  Book Session
-                </Link>
-              </div>
+        {/* Bottom CTA */}
+        <div className="results-cta">
+          <div className="rcta-inner">
+            <div className="rcta-left">
+              <p className="rcta-eyebrow">Free to start</p>
+              <h3 className="rcta-title">Your first session is on us.</h3>
+              <p className="rcta-sub">No card. No commitment. Create your free account to book — it takes 30 seconds.</p>
             </div>
-          ))}
+            <div className="rcta-actions">
+              <Link href="/register" className="rcta-btn-primary">✦ Create free account</Link>
+              <Link href="/assess" className="rcta-btn-ghost">Retake assessment</Link>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-[#C8553D] rounded-2xl p-8 text-center text-white">
-          <h3
-            style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-            className="text-3xl font-black mb-2"
-          >
-            Ready to begin your journey?
-          </h3>
-          <p className="opacity-90 mb-6">
-            Create your free account to book your first session and access your dashboard.
-          </p>
-          <Link
-            href="/register"
-            className="inline-block bg-white text-[#C8553D] px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
-          >
-            Book Your First Session
-          </Link>
-        </div>
       </div>
-    </section>
+    </div>
   )
 }
 
 function matchTherapists(result: Result, lang: string | null) {
   let pool = [...therapists]
-
-  if (result.type === 'psychiatry') {
-    pool.sort((a, b) => Number(b.designation.includes('Psychiatrist')) - Number(a.designation.includes('Psychiatrist')))
-  } else if (result.type === 'couple') {
-    pool.sort((a, b) => Number(b.designation.includes('Couples')) - Number(a.designation.includes('Couples')))
-  } else if (result.type === 'child') {
-    pool.sort((a, b) => Number(b.designation.includes('Child')) - Number(a.designation.includes('Child')))
-  }
-
-  if (lang) {
-    pool.sort((a, b) => Number(b.languages.includes(lang)) - Number(a.languages.includes(lang)))
-  }
-
+  if (result.type === 'psychiatry') pool.sort((a, b) => Number(b.designation.includes('Psychiatrist')) - Number(a.designation.includes('Psychiatrist')))
+  else if (result.type === 'couple') pool.sort((a, b) => Number(b.designation.includes('Couples')) - Number(a.designation.includes('Couples')))
+  else if (result.type === 'child') pool.sort((a, b) => Number(b.designation.includes('Child')) - Number(a.designation.includes('Child')))
+  if (lang) pool.sort((a, b) => Number(b.languages.includes(lang)) - Number(a.languages.includes(lang)))
   return pool.slice(0, 3)
 }

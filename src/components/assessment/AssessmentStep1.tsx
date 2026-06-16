@@ -7,25 +7,33 @@ const options = [
     key: 'therapy',
     icon: '🧠',
     title: 'Therapy',
-    desc: 'Talk therapy with a licensed psychologist or counsellor',
+    desc: 'Talk therapy with an RCI-verified psychologist or counsellor',
+    color: '#C8553D',
+    pale: '#FDEAE6',
   },
   {
     key: 'medication',
     icon: '💊',
     title: 'Medication',
-    desc: 'Psychiatric evaluation and medication management',
+    desc: 'Psychiatric evaluation and medication management with an NMC-registered psychiatrist',
+    color: '#1A7F7A',
+    pale: '#E5F4EE',
   },
   {
     key: 'both',
     icon: '🔄',
     title: 'Both',
-    desc: 'Combined therapy and psychiatric support',
+    desc: 'Combined therapy and psychiatric support — we coordinate both for you',
+    color: '#6D5BD0',
+    pale: '#EEF0FB',
   },
   {
     key: 'not-sure',
     icon: '🤔',
     title: 'Not Sure',
-    desc: 'Let us guide you to the right kind of help',
+    desc: "That's okay. We'll guide you to the right kind of help based on your answers",
+    color: '#C9973A',
+    pale: '#FFF8E7',
   },
 ]
 
@@ -38,47 +46,48 @@ export default function AssessmentStep1() {
   }
 
   return (
-    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-[#C8553D]">
-            <span>Step 1 of 3</span>
+    <div className="assess-shell">
+      <div className="assess-inner">
+        {/* Progress */}
+        <div className="assess-progress">
+          <div className="ap-meta">
+            <span className="ap-step">Step 1 of 3</span>
+            <span className="ap-label">Support type</span>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-full w-1/3 bg-[#C8553D] rounded-full transition-all" />
+          <div className="ap-track">
+            <div className="ap-fill" style={{ width: '33%' }} />
+          </div>
+          <div className="ap-dots">
+            <span className="ap-dot active" />
+            <span className="ap-dot" />
+            <span className="ap-dot" />
           </div>
         </div>
 
-        <h1
-          style={{ fontFamily: "'Big Shoulders Display',sans-serif" }}
-          className="text-4xl md:text-5xl font-black text-[#1C2B3A] mb-3"
-        >
-          What kind of support are you looking for?
-        </h1>
-        <p className="text-gray-600 mb-10">
-          This helps us connect you with the right professional. There are no wrong answers.
-        </p>
+        <div className="assess-card">
+          <div className="assess-pill">✦ Free · No card needed · 5 minutes</div>
+          <h1 className="assess-h1">What kind of support are<br />you looking for?</h1>
+          <p className="assess-sub">This helps us connect you with the right professional. There are no wrong answers.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {options.map((o) => (
-            <button
-              key={o.key}
-              onClick={() => select(o.key)}
-              className="text-left bg-white border-2 border-transparent hover:border-[#C8553D] rounded-2xl p-6 shadow-sm hover:shadow-lg transition group"
-            >
-              <div className="text-4xl mb-3">{o.icon}</div>
-              <h3 className="text-xl font-bold text-[#1C2B3A] mb-1 group-hover:text-[#C8553D]">
-                {o.title}
-              </h3>
-              <p className="text-sm text-gray-500">{o.desc}</p>
-            </button>
-          ))}
+          <div className="ao-grid ao-grid-2">
+            {options.map((o) => (
+              <button
+                key={o.key}
+                onClick={() => select(o.key)}
+                className="ao-btn"
+                style={{ '--ao-color': o.color, '--ao-pale': o.pale } as React.CSSProperties}
+              >
+                <span className="ao-icon">{o.icon}</span>
+                <span className="ao-title">{o.title}</span>
+                <span className="ao-desc">{o.desc}</span>
+                <span className="ao-arrow">→</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <p className="mt-8 text-xs text-gray-400 text-center">
-          Your responses are confidential and protected under the DPDP Act 2023.
-        </p>
+        <p className="assess-footnote">🔒 Your responses are confidential and protected under the DPDP Act 2023.</p>
       </div>
-    </section>
+    </div>
   )
 }

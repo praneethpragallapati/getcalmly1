@@ -9,7 +9,7 @@ type Question = {
   text: string
   type: 'single' | 'multi' | 'scale'
   options?: string[]
-  concern?: string // area of concern this question maps to when answered negatively
+  concern?: string
   risk?: boolean
 }
 
@@ -50,9 +50,9 @@ const adultQuestions: Question[] = [
   },
   {
     id: 'physical',
-    text: 'Are you experiencing any physical symptoms?',
+    text: 'Are you experiencing any physical symptoms? Select all that apply.',
     type: 'multi',
-    options: ['Headaches', 'Fatigue', 'Appetite changes', 'Chest tightness', 'None'],
+    options: ['Headaches', 'Fatigue', 'Appetite changes', 'Chest tightness', 'None of these'],
   },
   {
     id: 'prior',
@@ -193,14 +193,10 @@ const psychiatryQuestions: Question[] = [
 
 function getQuestions(type: string): Question[] {
   switch (type) {
-    case 'child':
-      return childQuestions
-    case 'couple':
-      return coupleQuestions
-    case 'psychiatry':
-      return psychiatryQuestions
-    default:
-      return adultQuestions
+    case 'child': return childQuestions
+    case 'couple': return coupleQuestions
+    case 'psychiatry': return psychiatryQuestions
+    default: return adultQuestions
   }
 }
 
@@ -216,16 +212,14 @@ export default function AssessmentForm({ type }: { type: string }) {
 
   const setSingle = (value: string) => {
     setAnswers((a) => ({ ...a, [q.id]: value }))
-    if (q.risk && value.toLowerCase() === 'yes') {
-      setShowEmergency(true)
-    }
+    if (q.risk && value.toLowerCase() === 'yes') setShowEmergency(true)
   }
 
   const toggleMulti = (value: string) => {
     setAnswers((a) => {
       const current = Array.isArray(a[q.id]) ? (a[q.id] as string[]) : []
-      if (value === 'None') return { ...a, [q.id]: ['None'] }
-      const without = current.filter((v) => v !== 'None')
+      if (value === 'None of these') return { ...a, [q.id]: ['None of these'] }
+      const without = current.filter((v) => v !== 'None of these')
       const next = without.includes(value)
         ? without.filter((v) => v !== value)
         : [...without, value]
@@ -240,137 +234,121 @@ export default function AssessmentForm({ type }: { type: string }) {
   }
 
   const next = () => {
-    if (step < questions.length - 1) {
-      setStep((s) => s + 1)
-    } else {
-      finish()
-    }
+    if (step < questions.length - 1) setStep((s) => s + 1)
+    else finish()
   }
 
   const finish = () => {
     const { severity, concerns, riskFlag } = score(questions, answers)
-    sessionStorage.setItem(
-      'assess_result',
-      JSON.stringify({ type, severity, concerns, riskFlag, answers })
-    )
+    sessionStorage.setItem('assess_result', JSON.stringify({ type, severity, concerns, riskFlag, answers }))
     router.push('/assess/results')
   }
 
+  const scaleLabels = ['Very Low', 'Low', 'Moderate', 'High', 'Very High']
+  const scaleColors = ['#3D9E72', '#7FBD9E', '#C9973A', '#D4703A', '#C8553D']
+
   return (
-    <section className="min-h-[80vh] bg-[#FFF8F5] py-16 px-4">
+    <div className="assess-shell">
       {showEmergency && <EmergencyModal onClose={() => setShowEmergency(false)} />}
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2 text-sm font-semibold text-[#C8553D]">
-            <span>Step 3 of 3 — Pre-assessment</span>
-            <span>
-              {step + 1} / {questions.length}
-            </span>
+      <div className="assess-inner assess-inner-sm">
+        {/* Progress */}
+        <div className="assess-progress">
+          <div className="ap-meta">
+            <span className="ap-step">Step 3 of 3 — Pre-assessment</span>
+            <span className="ap-label">{step + 1} of {questions.length}</span>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#C8553D] rounded-full transition-all"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="ap-track">
+            <div className="ap-fill" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="ap-dots">
+            <span className="ap-dot done" />
+            <span className="ap-dot done" />
+            <span className="ap-dot active" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+        <div className="assess-card aq-card">
           {q.risk && (
-            <span className="inline-block text-xs font-semibold text-[#d9534f] bg-[#fdf2f2] px-3 py-1 rounded-full mb-3">
-              Confidential safety check
-            </span>
+            <div className="aq-risk-badge">🔒 Confidential safety check</div>
           )}
-          <h2 className="text-2xl font-bold text-[#1C2B3A] mb-6">{q.text}</h2>
 
+          <p className="aq-qnum">Q{step + 1}</p>
+          <h2 className="aq-text">{q.text}</h2>
+
+          {/* Scale */}
           {q.type === 'scale' && (
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
-              {SCALE.map((label) => (
+            <div className="aq-scale">
+              {scaleLabels.map((label, i) => (
                 <button
                   key={label}
                   onClick={() => setSingle(label)}
-                  className={`px-3 py-4 rounded-xl text-sm font-medium border-2 transition ${
-                    answers[q.id] === label
-                      ? 'border-[#C8553D] bg-[#FDEAE6] text-[#C8553D]'
-                      : 'border-gray-200 hover:border-[#C8553D] text-gray-700'
-                  }`}
+                  className={`aq-scale-btn${answers[q.id] === label ? ' sel' : ''}`}
+                  style={answers[q.id] === label ? { borderColor: scaleColors[i], background: scaleColors[i] + '18', color: scaleColors[i] } : {}}
                 >
-                  {label}
+                  <span className="aq-scale-n">{i + 1}</span>
+                  <span className="aq-scale-l">{label}</span>
                 </button>
               ))}
             </div>
           )}
 
+          {/* Single select */}
           {q.type === 'single' && (
-            <div className="space-y-3">
-              {q.options!.map((opt) => (
+            <div className="aq-opts">
+              {q.options!.map((opt, i) => (
                 <button
                   key={opt}
                   onClick={() => setSingle(opt)}
-                  className={`w-full text-left px-5 py-4 rounded-xl border-2 transition ${
-                    answers[q.id] === opt
-                      ? 'border-[#C8553D] bg-[#FDEAE6] text-[#C8553D] font-semibold'
-                      : 'border-gray-200 hover:border-[#C8553D] text-gray-700'
-                  }`}
+                  className={`aq-opt${answers[q.id] === opt ? ' sel' : ''}`}
                 >
-                  {opt}
+                  <span className="aq-opt-letter">{String.fromCharCode(65 + i)}</span>
+                  <span className="aq-opt-text">{opt}</span>
+                  {answers[q.id] === opt && <span className="aq-opt-check">✓</span>}
                 </button>
               ))}
             </div>
           )}
 
+          {/* Multi select */}
           {q.type === 'multi' && (
-            <div className="space-y-3">
-              {q.options!.map((opt) => {
-                const selected =
-                  Array.isArray(answers[q.id]) && (answers[q.id] as string[]).includes(opt)
+            <div className="aq-opts">
+              {q.options!.map((opt, i) => {
+                const selected = Array.isArray(answers[q.id]) && (answers[q.id] as string[]).includes(opt)
                 return (
                   <button
                     key={opt}
                     onClick={() => toggleMulti(opt)}
-                    className={`w-full text-left px-5 py-4 rounded-xl border-2 transition flex items-center gap-3 ${
-                      selected
-                        ? 'border-[#C8553D] bg-[#FDEAE6] text-[#C8553D] font-semibold'
-                        : 'border-gray-200 hover:border-[#C8553D] text-gray-700'
-                    }`}
+                    className={`aq-opt${selected ? ' sel' : ''}`}
                   >
-                    <span
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center text-xs ${
-                        selected ? 'bg-[#C8553D] border-[#C8553D] text-white' : 'border-gray-300'
-                      }`}
-                    >
-                      {selected ? '✓' : ''}
-                    </span>
-                    {opt}
+                    <span className={`aq-check-box${selected ? ' checked' : ''}`}>{selected ? '✓' : ''}</span>
+                    <span className="aq-opt-text">{opt}</span>
                   </button>
                 )
               })}
+              <p className="aq-multi-hint">Select all that apply</p>
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-8">
+          <div className="aq-nav">
             <button
-              onClick={() => (step === 0 ? router.push('/assess/step2') : setStep((s) => s - 1))}
-              className="text-sm text-gray-500 hover:text-[#C8553D]"
+              onClick={() => step === 0 ? router.push('/assess/step2') : setStep((s) => s - 1)}
+              className="aq-back"
             >
               ← Back
             </button>
             <button
               onClick={next}
               disabled={!isAnswered()}
-              className="bg-[#C8553D] text-white px-8 py-3 rounded-xl font-semibold hover:bg-[#A8432D] transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="aq-next"
             >
-              {step === questions.length - 1 ? 'See My Results' : 'Next'}
+              {step === questions.length - 1 ? '✦ See My Results' : 'Next →'}
             </button>
           </div>
         </div>
 
-        <p className="mt-6 text-xs text-gray-400 text-center">
-          This pre-assessment is a screening tool, not a clinical diagnosis. A qualified
-          professional will review your needs.
-        </p>
+        <p className="assess-footnote">This pre-assessment is a screening tool, not a clinical diagnosis. A qualified professional will review your needs.</p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -389,7 +367,6 @@ function score(questions: Question[], answers: Record<string, string | string[]>
     if (q.type === 'scale' && typeof a === 'string') {
       const idx = SCALE.indexOf(a)
       max += 4
-      // For mood/satisfaction, low is worse; for stress/severity/impairment, high is worse.
       const inverted = ['mood', 'satisfaction', 'school'].includes(q.id)
       const sev = inverted ? 4 - idx : idx
       points += sev
@@ -397,7 +374,6 @@ function score(questions: Question[], answers: Record<string, string | string[]>
     } else if (q.type === 'single' && typeof a === 'string' && q.options && q.concern) {
       const idx = q.options.indexOf(a)
       max += q.options.length - 1
-      // later options generally indicate more difficulty
       points += idx
       if (idx >= Math.max(1, q.options.length - 2)) concerns.push(q.concern)
     }
