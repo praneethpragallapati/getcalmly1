@@ -424,13 +424,24 @@
 .lp-page .doc-alert-tag{font-size:9px;font-weight:700;color:var(--coral);background:var(--coral-pale);
   padding:2px 8px;border-radius:10px;margin-left:auto;white-space:nowrap;flex-shrink:0;}
 /* ── Problem strip ── */
-.lp-page .problem-strip{background:var(--charcoal);padding:28px 6%;border-top:1px solid rgba(255,255,255,.06);}
-.lp-page .problem-inner{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;max-width:1100px;margin:0 auto;}
-.lp-page .prob-stat{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 40px;text-align:center;}
-.lp-page .prob-n{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:32px;color:var(--coral-l);transform:scaleX(.8);transform-origin:center;display:inline-block;letter-spacing:-1px;line-height:1;}
-.lp-page .prob-l{font-size:12px;color:rgba(255,255,255,.38);font-weight:300;white-space:nowrap;}
-.lp-page .prob-divider{width:1px;height:44px;background:rgba(255,255,255,.1);flex-shrink:0;}
-.lp-page .prob-mission{font-size:15px;font-weight:600;color:rgba(255,255,255,.7);padding:10px 40px;border-left:1px solid rgba(255,255,255,.1);white-space:nowrap;}
+.lp-page .problem-strip{position:relative;background:linear-gradient(160deg,#16222F 0%,var(--charcoal) 55%,#0F1A24 100%);padding:64px 6% 60px;border-top:1px solid rgba(255,255,255,.06);overflow:hidden;}
+.lp-page .problem-glow{position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:480px;background:radial-gradient(ellipse at center,rgba(200,85,61,.16) 0%,transparent 68%);pointer-events:none;}
+.lp-page .problem-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:38px;max-width:1080px;margin:0 auto;text-align:center;}
+.lp-page .problem-head{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.lp-page .prob-eyebrow{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--coral-l);}
+.lp-page .prob-headline{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(30px,4.6vw,46px);line-height:1.0;letter-spacing:-1px;color:#fff;margin:0;}
+.lp-page .problem-stats{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;width:100%;}
+.lp-page .prob-stat{flex:1 1 0;min-width:220px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 36px;text-align:center;}
+.lp-page .prob-ico{font-size:26px;line-height:1;filter:saturate(1.1);}
+.lp-page .prob-n{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(46px,6vw,64px);color:#fff;letter-spacing:-1.5px;line-height:.95;background:linear-gradient(180deg,#fff 0%,var(--coral-l) 140%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.lp-page .prob-n small{font-size:.55em;font-weight:800;margin-left:1px;}
+.lp-page .prob-l{font-size:13.5px;color:rgba(255,255,255,.55);font-weight:400;line-height:1.5;}
+.lp-page .prob-divider{width:1px;align-self:center;height:88px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent);flex-shrink:0;}
+.lp-page .problem-mission{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:12px 28px;backdrop-filter:blur(6px);}
+.lp-page .prob-mission-dot{width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 4px rgba(200,85,61,.22);flex-shrink:0;}
+.lp-page .prob-mission{margin:0;}
+.lp-page .problem-mission p{font-size:16px;font-weight:500;color:rgba(255,255,255,.85);margin:0;white-space:nowrap;}
+.lp-page .problem-mission strong{color:#fff;font-weight:800;}
 
 /* ── Therapist match card ── */
 .lp-page .therapist-match-card{background:var(--white);border-radius:24px;border:1.5px solid var(--border);overflow:hidden;box-shadow:var(--sh-md);}
@@ -512,9 +523,9 @@
 @media(max-width:1000px){
 .lp-page .weeks-track{grid-template-columns:1fr 1fr;gap:28px;}
 .lp-page .wk-line{display:none;}
-.lp-page .problem-inner{flex-direction:column;gap:0;}
-.lp-page .prob-divider{width:80%;height:1px;}
-.lp-page .prob-mission{border-left:none;border-top:1px solid rgba(255,255,255,.1);}
+.lp-page .problem-stats{flex-direction:column;gap:0;}
+.lp-page .prob-divider{width:60%;height:1px;align-self:center;}
+.lp-page .problem-mission p{white-space:normal;text-align:center;}
 .lp-page .hero-layout{grid-template-columns:1fr;gap:52px;}
 .lp-page .hero-phone{display:flex;justify-content:center;}
 .lp-page .phone-frame{max-width:340px;width:100%;}

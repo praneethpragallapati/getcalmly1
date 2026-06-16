@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>getCalmly App</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@100;300;400;700;800;900&family=Big+Shoulders+Text:wght@900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #C8553D;
+    --coral-light: #F2A493;
+    --coral-pale: #FDEAE6;
+    --charcoal: #2D2D37;
+    --charcoal-light: #4A4A58;
+    --bg: #FFF8F5;
+    --white: #FFFFFF;
+    --gray: #8E8E9A;
+    --gray-light: #F0EEEC;
+    --green: #4CAF7D;
+    --green-pale: #E8F5EE;
+    --purple-pale: #EEF0FA;
+    --yellow-pale: #FFF8E7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: transparent; font-family:'Inter',sans-serif; }
+  
+  .phone {
+    width: 100%;
+    height: 100vh;
+    background: var(--bg);
+    overflow: hidden;
+    position: relative;
+  }
+  .phone-inner {
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .status-bar {
+    background: var(--bg);
+    padding: 14px 24px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-shrink:0;
+  }
+  .status-time { font-size:15px; font-weight:600; color:var(--charcoal); }
+  .status-icons { display:flex; gap:6px; align-items:center; font-size:13px; color:var(--charcoal); }
+  .notch { width:120px; height:34px; background:var(--charcoal); border-radius:0 0 20px 20px; margin:0 auto; margin-top:-34px; position:relative; z-index:10; }
+
+  /* SCREENS */
+  .screens { flex:1; overflow:hidden; position:relative; }
+  .screen { position:absolute; top:0; left:0; width:100%; height:100%; overflow-y:auto; overflow-x:hidden; display:none; background:var(--bg); }
+  .screen.active { display:block; }
+  #screen-aitalk.active { display:flex; flex-direction:column; }
+  .screen::-webkit-scrollbar { display:none; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    background:var(--white);
+    border-top: 1px solid #eee;
+    display:flex;
+    padding: 10px 0 20px;
+    flex-shrink:0;
+  }
+  .nav-item {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    cursor:pointer;
+    padding: 4px 0;
+    transition: all 0.2s;
+  }
+  .nav-icon { font-size:22px; line-height:1; }
+  .nav-label { font-size:10px; font-weight:500; color:var(--gray); }
+  .nav-item.active .nav-label { color:var(--coral); }
+  .nav-item.active .nav-icon-wrap { color:var(--coral); }
+
+  /* LOGO */
+  .logo { display:flex; align-items:flex-end; gap:2px; line-height:1; overflow:visible; }
+  .logo .get { font-family:'Big Shoulders Display',sans-serif; font-weight:300; font-size:13px; color:var(--charcoal); padding-bottom:8px; }
+  .logo .calmly { 
+    font-family:'Big Shoulders Display',sans-serif; 
+    font-weight:900; 
+    font-size:52px; 
+    color:var(--coral); 
+    letter-spacing:-2px; 
+    line-height:1;
+    display:inline-block;
+    transform: scaleX(0.65);
+    transform-origin: left bottom;
+    width: 195px; /* compensate for scaleX so it doesn't collapse space */
+  }
+
+  /* HEADER */
+  .app-header {
+    padding: 12px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--bg);
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
+  .header-actions { display:flex; gap:10px; align-items:center; }
+  .icon-btn {
+    width:38px; height:38px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+    position:relative;
+  }
+  .icon-btn.bell { background:var(--white); }
+  .icon-btn.avatar { background:var(--coral-pale); font-family:'Big Shoulders Display',sans-serif; font-weight:700; color:var(--coral); font-size:16px; }
+  .notif-dot { width:8px; height:8px; background:var(--coral); border-radius:50%; position:absolute; top:6px; right:6px; border:2px solid var(--bg); }
+
+  /* HOME */
+  .greeting { padding: 4px 20px 16px; }
+  .greeting h1 { font-size:26px; font-weight:700; color:var(--charcoal); }
+  .greeting h1 span { color:var(--coral); }
+  .greeting p { font-size:13px; color:var(--gray); margin-top:2px; }
+
+  .section-title { font-size:18px; font-weight:700; color:var(--charcoal); }
+  .section-header { display:flex; justify-content:space-between; align-items:center; padding: 0 20px; margin-bottom:12px; }
+  .view-all { font-size:13px; color:var(--coral); font-weight:500; cursor:pointer; }
+
+  /* MOOD CHECK-IN */
+  .mood-card {
+    margin: 0 20px 20px;
+    background:var(--white);
+    border-radius:20px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+  }
+  .mood-label { font-size:10px; font-weight:700; letter-spacing:1px; color:var(--coral); background:var(--coral-pale); padding:4px 10px; border-radius:20px; display:inline-block; margin-bottom:10px; }
+  .mood-label::before { content:'● '; }
+  .mood-q { font-size:16px; font-weight:700; color:var(--charcoal); margin-bottom:14px; }
+  .mood-options { display:flex; justify-content:space-between; }
+  .mood-opt {
+    display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer;
+    padding: 8px 6px;
+    border-radius:14px;
+    transition: all 0.2s;
+    flex:1;
+  }
+  .mood-opt.selected { background:var(--coral-pale); }
+  .mood-opt .emoji { font-size:28px; }
+  .mood-opt .mood-name { font-size:10px; color:var(--gray); font-weight:500; }
+  .mood-opt.selected .mood-name { color:var(--coral); font-weight:600; }
+  .mood-opt.selected .emoji { transform:scale(1.15); }
+
+  /* SESSION CARD */
+  .session-card {
+    margin: 0 20px 20px;
+    background:var(--charcoal);
+    border-radius:20px;
+    padding:18px;
+    color:var(--white);
+  }
+  .doc-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .doc-avatar { width:48px; height:48px; background:#444; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .doc-name { font-size:16px; font-weight:700; }
+  .doc-sub { font-size:12px; color:#aaa; margin-top:2px; }
+  .rci-badge { background:var(--green); color:var(--white); font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; margin-left:auto; }
+  .session-time-row { display:flex; justify-content:space-between; align-items:center; }
+  .session-time-info { }
+  .session-label { font-size:10px; font-weight:700; letter-spacing:1px; color:#aaa; margin-bottom:4px; }
+  .session-time { font-size:28px; font-weight:700; }
+  .session-detail { font-size:12px; color:#aaa; margin-top:2px; }
+  .join-btn { background:var(--coral); color:var(--white); border:none; padding:12px 18px; border-radius:30px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .session-actions { display:flex; gap:16px; margin-top:12px; padding-top:12px; border-top:1px solid #444; }
+  .session-action { font-size:13px; color:#aaa; cursor:pointer; }
+
+  /* PRE SESSION */
+  .pre-session {
+    margin: 0 20px 20px;
+    background:var(--white);
+    border-radius:20px;
+    padding:6px 0;
+    box-shadow:var(--card-shadow);
+  }
+  .pre-item { display:flex; align-items:center; gap:12px; padding:12px 16px; cursor:pointer; }
+  .pre-item + .pre-item { border-top:1px solid var(--gray-light); }
+  .pre-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .pre-icon.add { background:var(--coral-pale); }
+  .pre-icon.log { background:var(--yellow-pale); }
+  .pre-item p { font-size:14px; color:var(--charcoal); font-weight:500; }
+
+  /* PROGRESS */
+  .progress-row { display:flex; gap:12px; padding:0 20px; margin-bottom:20px; }
+  .prog-card { flex:1; background:var(--white); border-radius:20px; padding:14px; box-shadow:var(--card-shadow); }
+  .prog-card-title { font-size:10px; font-weight:700; letter-spacing:1px; color:var(--gray); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .prog-days { font-size:36px; font-weight:800; color:var(--charcoal); line-height:1; }
+  .prog-days span { font-size:16px; font-weight:500; }
+  .prog-sub { font-size:11px; color:var(--gray); margin-top:2px; margin-bottom:10px; }
+  .streak-dots { display:flex; gap:5px; }
+  .streak-dot { width:14px; height:14px; border-radius:50%; background:var(--coral); }
+  .streak-dot.empty { background:#eee; }
+  .mood-badge { background:var(--green-pale); color:var(--green); font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; margin-left:auto; }
+  .mood-bars { display:flex; align-items:flex-end; gap:5px; margin-top:8px; height:50px; }
+  .mbar-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; }
+  .mbar { width:100%; border-radius:4px; background:var(--coral-pale); }
+  .mbar.today { background:var(--coral); }
+  .mbar-day { font-size:9px; color:var(--gray); }
+  .mbar-day.today { color:var(--coral); font-weight:700; }
+
+  /* QUICK ACTIONS */
+  .quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 20px; margin-bottom:20px; }
+  .quick-card {
+    border-radius:20px;
+    padding:16px;
+    cursor:pointer;
+    position:relative;
+    min-height:110px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+  }
+  .quick-card.pink { background:var(--coral-pale); }
+  .quick-card.green { background:var(--green-pale); }
+  .quick-card.yellow { background:var(--yellow-pale); }
+  .quick-card.purple { background:var(--purple-pale); }
+  .quick-arrow { position:absolute; top:14px; right:14px; font-size:16px; color:var(--coral); }
+  .quick-card.green .quick-arrow { color:var(--green); }
+  .quick-card.purple .quick-arrow { color:#7B7FCC; }
+  .quick-card.yellow .quick-arrow { color:#D4A017; }
+  .quick-emoji { font-size:28px; margin-bottom:6px; }
+  .quick-title { font-size:15px; font-weight:700; color:var(--coral); }
+  .quick-card.green .quick-title { color:var(--green); }
+  .quick-card.purple .quick-title { color:#7B7FCC; }
+  .quick-card.yellow .quick-title { color:#C8860A; }
+  .quick-sub { font-size:11px; color:var(--gray); margin-top:2px; }
+
+  /* AI INSIGHT */
+  .ai-card {
+    margin: 0 20px 20px;
+    background:var(--charcoal);
+    border-radius:20px;
+    padding:20px;
+    color:var(--white);
+  }
+  .ai-badge { background:rgba(200,85,61,0.3); border:1px solid var(--coral); color:var(--coral-light); font-size:10px; font-weight:700; padding:4px 10px; border-radius:20px; display:inline-block; margin-bottom:12px; }
+  .ai-badge::before { content:'● '; }
+  .ai-title { font-size:18px; font-weight:700; line-height:1.3; margin-bottom:8px; }
+  .ai-body { font-size:13px; color:#bbb; line-height:1.5; margin-bottom:16px; }
+  .ai-btn { background:rgba(200,85,61,0.5); border:1px solid var(--coral); color:var(--white); padding:12px 20px; border-radius:30px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+
+  /* INNER TABS */
+  .inner-tabs {
+    display:flex;
+    background:var(--gray-light);
+    border-radius:12px;
+    margin: 0 20px 16px;
+    padding:4px;
+  }
+  .inner-tab {
+    flex:1; text-align:center; padding:8px; border-radius:10px; font-size:13px; font-weight:600; color:var(--gray); cursor:pointer; transition:all 0.2s;
+  }
+  .inner-tab.active { background:var(--white); color:var(--charcoal); box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+
+  /* JOURNAL */
+  .journal-entry {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+    cursor:pointer;
+  }
+  .entry-header { display:flex; justify-content:space-between; margin-bottom:6px; }
+  .entry-title { font-size:15px; font-weight:700; color:var(--charcoal); }
+  .entry-date { font-size:11px; color:var(--gray); }
+  .entry-preview { font-size:13px; color:var(--gray); line-height:1.5; }
+  .entry-tags { display:flex; gap:6px; margin-top:10px; }
+  .entry-tag { font-size:10px; padding:3px 8px; border-radius:20px; font-weight:600; }
+  .entry-tag.mood { background:var(--coral-pale); color:var(--coral); }
+  .entry-tag.topic { background:var(--purple-pale); color:#7B7FCC; }
+  .new-entry-btn {
+    margin: 0 20px 16px;
+    background:var(--coral);
+    color:var(--white);
+    border:none;
+    border-radius:16px;
+    padding:14px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    width:calc(100% - 40px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+
+  /* INSIGHTS */
+  .insight-card {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+  }
+  .insight-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .insight-title { font-size:15px; font-weight:700; color:var(--charcoal); }
+  .insight-period { font-size:11px; color:var(--gray); }
+  .mood-week { display:flex; gap:6px; justify-content:space-between; }
+  .mood-day-col { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+  .mood-day-bar { width:100%; border-radius:6px; }
+  .mood-day-label { font-size:9px; color:var(--gray); }
+  .mood-day-emoji { font-size:14px; }
+
+  .pattern-item { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--gray-light); }
+  .pattern-item:last-child { border-bottom:none; }
+  .pattern-icon { font-size:22px; margin-top:2px; }
+  .pattern-text h4 { font-size:14px; font-weight:600; color:var(--charcoal); }
+  .pattern-text p { font-size:12px; color:var(--gray); margin-top:2px; line-height:1.4; }
+
+  /* EXPERT CARE */
+  .session-past {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+  }
+  .doc-row-sm { display:flex; align-items:center; gap:10px; }
+  .doc-avatar-sm { width:40px; height:40px; background:var(--coral-pale); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .session-meta { flex:1; }
+  .session-meta h4 { font-size:14px; font-weight:700; color:var(--charcoal); }
+  .session-meta p { font-size:12px; color:var(--gray); }
+  .session-badge { font-size:10px; padding:3px 10px; border-radius:20px; font-weight:700; }
+  .session-badge.upcoming { background:var(--coral-pale); color:var(--coral); }
+  .session-badge.completed { background:var(--green-pale); color:var(--green); }
+  .session-actions-sm { display:flex; gap:8px; margin-top:12px; }
+  .btn-sm { padding:8px 14px; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; border:none; }
+  .btn-coral { background:var(--coral); color:var(--white); }
+  .btn-outline { background:transparent; color:var(--coral); border:1.5px solid var(--coral); }
+  .book-card {
+    margin: 0 20px 12px;
+    background:linear-gradient(135deg, var(--coral), #E07B60);
+    border-radius:20px;
+    padding:20px;
+    color:var(--white);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .book-card h3 { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .book-card p { font-size:12px; opacity:0.85; }
+  .book-card .book-btn { background:var(--white); color:var(--coral); padding:10px 16px; border-radius:30px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+
+  .therapist-card {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+  }
+  .therapist-avatar { width:52px; height:52px; border-radius:16px; background:var(--coral-pale); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+  .therapist-info { flex:1; }
+  .therapist-name { font-size:15px; font-weight:700; color:var(--charcoal); }
+  .therapist-spec { font-size:12px; color:var(--gray); }
+  .therapist-tags { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+  .therapist-tag { font-size:10px; padding:2px 8px; border-radius:20px; background:var(--coral-pale); color:var(--coral); font-weight:600; }
+  .rating { font-size:12px; color:var(--gray); display:flex; align-items:center; gap:3px; margin-top:4px; }
+
+  /* COMMUNITY */
+  .group-card {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+    cursor:pointer;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .group-icon { width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .group-info h4 { font-size:14px; font-weight:700; color:var(--charcoal); }
+  .group-info p { font-size:12px; color:var(--gray); margin-top:2px; line-height:1.4; }
+  .group-footer { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+  .group-members { font-size:11px; color:var(--gray); }
+  .join-btn-sm { background:var(--coral); color:var(--white); border:none; padding:6px 14px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; }
+  .join-btn-sm.joined { background:var(--green-pale); color:var(--green); }
+
+  .post-card {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+  }
+  .post-author { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .post-avatar { width:36px; height:36px; border-radius:50%; background:var(--coral-pale); display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .post-name { font-size:13px; font-weight:600; color:var(--charcoal); }
+  .post-time { font-size:11px; color:var(--gray); }
+  .post-body { font-size:14px; color:var(--charcoal); line-height:1.5; margin-bottom:12px; }
+  .post-actions { display:flex; gap:16px; }
+  .post-action { font-size:12px; color:var(--gray); cursor:pointer; display:flex; align-items:center; gap:4px; }
+  .post-action.liked { color:var(--coral); }
+  .new-post-btn {
+    margin: 0 20px 16px;
+    background:var(--charcoal);
+    color:var(--white);
+    border:none;
+    border-radius:16px;
+    padding:14px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    width:calc(100% - 40px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+
+  /* BLOGS */
+  .blog-cats { display:flex; gap:8px; padding:0 20px; margin-bottom:16px; overflow-x:auto; }
+  .blog-cats::-webkit-scrollbar { display:none; }
+  .blog-cat { padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; white-space:nowrap; cursor:pointer; background:var(--gray-light); color:var(--gray); }
+  .blog-cat.active { background:var(--coral); color:var(--white); }
+  .blog-card {
+    margin: 0 20px 12px;
+    background:var(--white);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:var(--card-shadow);
+    cursor:pointer;
+  }
+  .blog-img { height:120px; display:flex; align-items:center; justify-content:center; font-size:48px; }
+  .blog-content { padding:14px; }
+  .blog-cat-tag { font-size:10px; font-weight:700; color:var(--coral); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:4px; }
+  .blog-title { font-size:15px; font-weight:700; color:var(--charcoal); line-height:1.3; margin-bottom:6px; }
+  .blog-meta { font-size:11px; color:var(--gray); }
+  .blog-featured {
+    margin: 0 20px 12px;
+    background:var(--charcoal);
+    border-radius:16px;
+    padding:20px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+  }
+  .blog-featured-emoji { font-size:64px; position:absolute; right:-10px; top:-10px; opacity:0.3; }
+  .blog-featured-cat { font-size:10px; font-weight:700; color:var(--coral-light); letter-spacing:0.5px; margin-bottom:8px; }
+  .blog-featured-title { font-size:18px; font-weight:700; color:var(--white); line-height:1.3; margin-bottom:6px; }
+  .blog-featured-meta { font-size:11px; color:#aaa; }
+
+  /* AI TALK */
+  .ai-talk-screen { display:flex; flex-direction:column; height:100%; }
+  .chat-header { padding:16px 20px; border-bottom:1px solid var(--gray-light); display:flex; align-items:center; gap:12px; background:var(--white); }
+  .chat-avatar { width:40px; height:40px; border-radius:50%; background:var(--coral); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .chat-title { font-size:16px; font-weight:700; color:var(--charcoal); }
+  .chat-status { font-size:11px; color:var(--green); }
+  .chat-messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+  .chat-messages::-webkit-scrollbar { display:none; }
+  .msg { max-width:78%; }
+  .msg.ai { align-self:flex-start; }
+  .msg.user { align-self:flex-end; }
+  .msg-bubble { padding:12px 14px; border-radius:18px; font-size:14px; line-height:1.5; }
+  .msg.ai .msg-bubble { background:var(--white); color:var(--charcoal); border-radius:4px 18px 18px 18px; box-shadow:var(--card-shadow); }
+  .msg.user .msg-bubble { background:var(--coral); color:var(--white); border-radius:18px 18px 4px 18px; }
+  .msg-time { font-size:10px; color:var(--gray); margin-top:4px; }
+  .msg.user .msg-time { text-align:right; }
+  .chat-quick-replies { display:flex; gap:8px; padding:0 16px 12px; overflow-x:auto; }
+  .chat-quick-replies::-webkit-scrollbar { display:none; }
+  .quick-reply { background:var(--white); border:1.5px solid var(--coral); color:var(--coral); padding:7px 12px; border-radius:20px; font-size:12px; font-weight:600; white-space:nowrap; cursor:pointer; }
+  .chat-input-row { padding:12px 16px; background:var(--white); border-top:1px solid var(--gray-light); display:flex; gap:10px; align-items:center; }
+  .chat-input { flex:1; background:var(--gray-light); border:none; border-radius:30px; padding:10px 16px; font-size:14px; font-family:'Inter',sans-serif; outline:none; color:var(--charcoal); }
+  .send-btn { width:38px; height:38px; background:var(--coral); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; color:var(--white); }
+
+  /* SLIDER CHECK-IN */
+  .slider-group { display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
+  .slider-row { display:flex; flex-direction:column; gap:6px; }
+  .slider-meta { display:flex; justify-content:space-between; align-items:center; }
+  .slider-label { font-size:13px; font-weight:600; color:var(--charcoal); }
+  .slider-val {
+    font-size:13px; font-weight:700; color:var(--white);
+    background:var(--coral); width:24px; height:24px;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    line-height:1; font-family:'Big Shoulders Display',sans-serif;
+  }
+  .slider-track-wrap { display:flex; flex-direction:column; gap:4px; }
+  .slider-ends { display:flex; justify-content:space-between; }
+  .slider-ends span { font-size:10px; color:var(--gray); }
+
+  input[type=range].mood-slider {
+    -webkit-appearance:none;
+    width:100%; height:6px;
+    border-radius:10px;
+    background: linear-gradient(to right, var(--coral) 0%, var(--coral) 50%, var(--gray-light) 50%, var(--gray-light) 100%);
+    outline:none; cursor:pointer;
+  }
+  input[type=range].mood-slider::-webkit-slider-thumb {
+    -webkit-appearance:none;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--coral);
+    box-shadow:0 2px 8px rgba(200,85,61,0.4);
+    border:3px solid var(--white);
+    cursor:pointer;
+    transition: transform 0.15s;
+  }
+  input[type=range].mood-slider:active::-webkit-slider-thumb { transform:scale(1.2); }
+
+  .checkin-submit-btn {
+    width:100%; background:var(--coral); color:var(--white); border:none;
+    border-radius:14px; padding:12px; font-size:14px; font-weight:700;
+    cursor:pointer; font-family:'Inter',sans-serif;
+    transition: opacity 0.2s;
+  }
+  .checkin-submit-btn:active { opacity:0.85; }
+
+  /* time-of-day card tones */
+  .mood-card.morning { background:var(--white); }
+  .mood-card.afternoon { background:#FFFBF0; }
+  .mood-card.evening { background:#F2F0FA; }
+
+  .scroll-pb { height:24px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="phone-inner">
+    <div style="background:var(--bg); padding:14px 24px 0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+      <span style="font-size:15px; font-weight:600; color:var(--charcoal);">9:41</span>
+      <span style="font-size:13px; color:var(--charcoal);">▌▌▌ ▾ 🔋</span>
+    </div>
+
+    <div class="screens">
+      <!-- HOME SCREEN -->
+      <div class="screen active" id="screen-home">
+        <div class="app-header">
+          <div class="logo"><span class="get">get</span><span class="calmly">Calmly.</span></div>
+          <div class="header-actions">
+            <div class="icon-btn bell">🔔<span class="notif-dot"></span></div>
+            <div class="icon-btn avatar">P</div>
+          </div>
+        </div>
+
+        <div class="greeting" id="home-greeting">
+          <h1 id="greeting-text">Good morning, <span>Priya</span> ☀️</h1>
+          <p id="greeting-sub">Monday, 2 March · Here's your daily summary</p>
+        </div>
+
+        <div class="mood-card" id="checkin-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span class="mood-label" id="checkin-label">MORNING CHECK-IN</span>
+            <span id="checkin-saved" style="font-size:11px; color:var(--green); font-weight:600; display:none;">✓ Saved</span>
+          </div>
+          <div class="mood-q" id="checkin-question">How are you starting the day?</div>
+
+          <div class="slider-group">
+            <div class="slider-row">
+              <div class="slider-meta">
+                <span class="slider-label">😔 Mood</span>
+                <span class="slider-val" id="val-mood">5</span>
+              </div>
+              <div class="slider-track-wrap">
+                <input type="range" min="1" max="10" value="5" class="mood-slider" id="slider-mood" oninput="updateSlider('mood',this.value)">
+                <div class="slider-ends"><span>Low</span><span>High</span></div>
+              </div>
+            </div>
+            <div class="slider-row">
+              <div class="slider-meta">
+                <span class="slider-label">⚡ Energy</span>
+                <span class="slider-val" id="val-energy">5</span>
+              </div>
+              <div class="slider-track-wrap">
+                <input type="range" min="1" max="10" value="5" class="mood-slider" id="slider-energy" oninput="updateSlider('energy',this.value)">
+                <div class="slider-ends"><span>Drained</span><span>Energised</span></div>
+              </div>
+            </div>
+            <div class="slider-row" id="anxiety-row">
+              <div class="slider-meta">
+                <span class="slider-label">🌀 Anxiety</span>
+                <span class="slider-val" id="val-anxiety">5</span>
+              </div>
+              <div class="slider-track-wrap">
+                <input type="range" min="1" max="10" value="5" class="mood-slider" id="slider-anxiety" oninput="updateSlider('anxiety',this.value)">
+                <div class="slider-ends"><span>Calm</span><span>Anxious</span></div>
+              </div>
+            </div>
+          </div>
+
+          <button class="checkin-submit-btn" onclick="submitCheckin()">Log check-in →</button>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">Upcoming Session</span>
+          <span class="view-all">View all</span>
+        </div>
+        <div class="session-card">
+          <div class="doc-row">
+            <div class="doc-avatar">👩‍⚕️</div>
+            <div>
+              <div class="doc-name">Dr. Ananya Sharma</div>
+              <div class="doc-sub">Clinical Psychologist · 8 yrs exp</div>
+            </div>
+            <span class="rci-badge">✓ RCI</span>
+          </div>
+          <div class="session-time-row">
+            <div class="session-time-info">
+              <div class="session-label">TODAY'S SESSION</div>
+              <div class="session-time">3:00 PM</div>
+              <div class="session-detail">Mon, 2 March · 50 min · Google Meet</div>
+            </div>
+            <button class="join-btn">📹 Join Meet</button>
+          </div>
+          <div class="session-actions">
+            <span class="session-action">Reschedule</span>
+            <span style="color:#555">|</span>
+            <span class="session-action">Cancel</span>
+          </div>
+        </div>
+
+        <div class="pre-session">
+          <div class="pre-item">
+            <div class="pre-icon add">➕</div>
+            <p>Add notes for your therapist</p>
+          </div>
+          <div class="pre-item">
+            <div class="pre-icon log">🌀</div>
+            <p>Log how you're feeling before session</p>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top:4px;">
+          <span class="section-title">Your Progress</span>
+        </div>
+        <div class="progress-row">
+          <div class="prog-card">
+            <div class="prog-card-title">🔥 STREAK</div>
+            <div class="prog-days">7 <span>days</span></div>
+            <div class="prog-sub">Keep it going!</div>
+            <div class="streak-dots">
+              <div class="streak-dot"></div><div class="streak-dot"></div><div class="streak-dot"></div>
+              <div class="streak-dot"></div><div class="streak-dot"></div><div class="streak-dot"></div>
+              <div class="streak-dot"></div>
+            </div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-title">MOOD TREND <span class="mood-badge">↑12%</span></div>
+            <div class="mood-bars">
+              <div class="mbar-wrap"><div class="mbar" style="height:30px"></div><div class="mbar-day">M</div></div>
+              <div class="mbar-wrap"><div class="mbar" style="height:38px"></div><div class="mbar-day">T</div></div>
+              <div class="mbar-wrap"><div class="mbar" style="height:25px"></div><div class="mbar-day">W</div></div>
+              <div class="mbar-wrap"><div class="mbar" style="height:42px"></div><div class="mbar-day">T</div></div>
+              <div class="mbar-wrap"><div class="mbar" style="height:35px"></div><div class="mbar-day">F</div></div>
+              <div class="mbar-wrap"><div class="mbar today" style="height:48px"></div><div class="mbar-day today">S</div></div>
+              <div class="mbar-wrap"><div class="mbar" style="height:20px; opacity:0.3;"></div><div class="mbar-day">S</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">Quick Actions</span>
+        </div>
+        <div class="quick-grid">
+          <div class="quick-card pink" onclick="switchTab('journal')">
+            <span class="quick-arrow">↗</span>
+            <div class="quick-emoji">📓</div>
+            <div class="quick-title">Journal</div>
+            <div class="quick-sub">Write your thoughts</div>
+          </div>
+          <div class="quick-card green" onclick="switchTab('expert')">
+            <span class="quick-arrow">↗</span>
+            <div class="quick-emoji">🔍</div>
+            <div class="quick-title">Find Therapist</div>
+            <div class="quick-sub">Browse 40+ experts</div>
+          </div>
+          <div class="quick-card yellow" onclick="switchTab('aitalk')">
+            <span class="quick-arrow">↗</span>
+            <div class="quick-emoji">🧘</div>
+            <div class="quick-title">Meditate</div>
+            <div class="quick-sub">5-min breathing</div>
+          </div>
+          <div class="quick-card purple" onclick="switchTab('community')">
+            <span class="quick-arrow">↗</span>
+            <div class="quick-emoji">💬</div>
+            <div class="quick-title">Community</div>
+            <div class="quick-sub">12 new posts today</div>
+          </div>
+        </div>
+
+        <div class="ai-card">
+          <span class="ai-badge">AI INSIGHT</span>
+          <div class="ai-title">Mondays are tougher for you. You've got this.</div>
+          <div class="ai-body">Your mood data shows a dip every Monday. Try a 5-min breathing exercise before your first call — it's helped before.</div>
+          <button class="ai-btn">★ Try 5-min breathing now →</button>
+        </div>
+        <div class="scroll-pb"></div>
+      </div>
+
+      <!-- JOURNAL SCREEN -->
+      <div class="screen" id="screen-journal">
+        <div class="app-header">
+          <div class="logo"><span class="get">get</span><span class="calmly">Calmly.</span></div>
+          <div class="header-actions">
+            <div class="icon-btn bell">🔔<span class="notif-dot"></span></div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px;"><div class="section-title">Journal</div></div>
+        <div class="inner-tabs" id="journal-tabs">
+          <div class="inner-tab active" onclick="switchInnerTab('journal','entries',this)">Journal</div>
+          <div class="inner-tab" onclick="switchInnerTab('journal','insights',this)">Insights</div>
+        </div>
+
+        <div id="journal-entries">
+          <button class="new-entry-btn">✏️ New Entry</button>
+          <div class="journal-entry">
+            <div class="entry-header">
+              <span class="entry-title">Feeling more grounded today</span>
+              <span class="entry-date">Today, 8:30 AM</span>
+            </div>
+            <div class="entry-preview">Woke up and did the breathing exercise before checking my phone. It actually made a difference — I felt calmer heading into my morning...</div>
+            <div class="entry-tags">
+              <span class="entry-tag mood">😊 Good</span>
+              <span class="entry-tag topic">Mindfulness</span>
+              <span class="entry-tag topic">Morning routine</span>
+            </div>
+          </div>
+          <div class="journal-entry">
+            <div class="entry-header">
+              <span class="entry-title">Sunday reset reflections</span>
+              <span class="entry-date">Yesterday, 9:00 PM</span>
+            </div>
+            <div class="entry-preview">The week was tough but I'm proud I kept up my sessions. I want to talk to Dr. Ananya about the social anxiety at work...</div>
+            <div class="entry-tags">
+              <span class="entry-tag mood">😐 Meh</span>
+              <span class="entry-tag topic">Anxiety</span>
+              <span class="entry-tag topic">Work</span>
+            </div>
+          </div>
+          <div class="journal-entry">
+            <div class="entry-header">
+              <span class="entry-title">Post-session notes</span>
+              <span class="entry-date">Sat, 28 Feb</span>
+            </div>
+            <div class="entry-preview">Session went really well. We worked through the thought patterns around perfectionism. Three things I want to practice this week...</div>
+            <div class="entry-tags">
+              <span class="entry-tag mood">🥳 Amazing</span>
+              <span class="entry-tag topic">Session recap</span>
+            </div>
+          </div>
+          <div class="journal-entry">
+            <div class="entry-header">
+              <span class="entry-title">Hard day at work</span>
+              <span class="entry-date">Thu, 26 Feb</span>
+            </div>
+            <div class="entry-preview">Got feedback from my manager that stung more than it should have. Finding it hard to separate my identity from my work performance...</div>
+            <div class="entry-tags">
+              <span class="entry-tag mood">😔 Low</span>
+              <span class="entry-tag topic">Work</span>
+              <span class="entry-tag topic">Self-worth</span>
+            </div>
+          </div>
+          <div class="scroll-pb"></div>
+        </div>
+
+        <div id="journal-insights" style="display:none;">
+          <div class="insight-card">
+            <div class="insight-header">
+              <span class="insight-title">Mood This Week</span>
+              <span class="insight-period">Feb 24 – Mar 2</span>
+            </div>
+            <div class="mood-week">
+              <div class="mood-day-col"><div class="mood-day-emoji">😔</div><div class="mood-day-bar" style="height:40px; background:var(--coral-pale); border-radius:6px;"></div><div class="mood-day-label">Mon</div></div>
+              <div class="mood-day-col"><div class="mood-day-emoji">😐</div><div class="mood-day-bar" style="height:50px; background:var(--coral-pale);border-radius:6px;"></div><div class="mood-day-label">Tue</div></div>
+              <div class="mood-day-col"><div class="mood-day-emoji">😔</div><div class="mood-day-bar" style="height:35px; background:var(--coral-pale);border-radius:6px;"></div><div class="mood-day-label">Wed</div></div>
+              <div class="mood-day-col"><div class="mood-day-emoji">😊</div><div class="mood-day-bar" style="height:60px; background:var(--coral-pale);border-radius:6px;"></div><div class="mood-day-label">Thu</div></div>
+              <div class="mood-day-col"><div class="mood-day-emoji">😊</div><div class="mood-day-bar" style="height:55px; background:var(--coral);border-radius:6px;"></div><div class="mood-day-label">Fri</div></div>
+              <div class="mood-day-col"><div class="mood-day-emoji">🥳</div><div class="mood-day-bar" style="height:70px; background:var(--coral);border-radius:6px;"></div><div class="mood-day-label">Sat</div></div>
+              <div class="mood-day-col"><div class="mood-day-emoji">🙂</div><div class="mood-day-bar" style="height:58px; background:var(--coral);border-radius:6px;"></div><div class="mood-day-label">Sun</div></div>
+            </div>
+          </div>
+          <div class="insight-card">
+            <div class="insight-header"><span class="insight-title">Patterns Detected</span><span class="insight-period">by AI</span></div>
+            <div class="pattern-item">
+              <div class="pattern-icon">📉</div>
+              <div class="pattern-text">
+                <h4>Monday mood dips</h4>
+                <p>Your mood consistently scores lower on Mondays. A morning routine may help buffer this pattern.</p>
+              </div>
+            </div>
+            <div class="pattern-item">
+              <div class="pattern-icon">💼</div>
+              <div class="pattern-text">
+                <h4>Work is your top stressor</h4>
+                <p>"Work" appears in 7 of your last 10 lower-mood entries. Consider discussing with Dr. Ananya.</p>
+              </div>
+            </div>
+            <div class="pattern-item">
+              <div class="pattern-icon">✨</div>
+              <div class="pattern-text">
+                <h4>Post-session entries are most positive</h4>
+                <p>Entries written after your therapy sessions have the highest mood scores on average.</p>
+              </div>
+            </div>
+          </div>
+          <div class="insight-card">
+            <div class="insight-header"><span class="insight-title">Common Themes</span><span class="insight-period">Last 30 days</span></div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+              <span class="entry-tag topic" style="font-size:13px; padding:6px 12px;">Anxiety</span>
+              <span class="entry-tag mood" style="font-size:13px; padding:6px 12px;">Work</span>
+              <span class="entry-tag topic" style="font-size:13px; padding:6px 12px;">Mindfulness</span>
+              <span class="entry-tag mood" style="font-size:13px; padding:6px 12px;">Self-worth</span>
+              <span class="entry-tag topic" style="font-size:13px; padding:6px 12px;">Relationships</span>
+              <span class="entry-tag mood" style="font-size:13px; padding:6px 12px;">Progress</span>
+            </div>
+          </div>
+          <div class="scroll-pb"></div>
+        </div>
+      </div>
+
+      <!-- AI TALK SCREEN -->
+      <div class="screen" id="screen-aitalk">
+        <div class="app-header" style="border-bottom:1px solid var(--gray-light);">
+          <div class="logo"><span class="get">get</span><span class="calmly">Calmly.</span></div>
+        </div>
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-title">Calm AI</div>
+            <div class="chat-status">● Always here for you</div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg ai">
+            <div class="msg-bubble">Hi Priya! 👋 I'm Calm, your AI companion. I'm here to listen, support, and help you work through whatever's on your mind. How are you feeling today?</div>
+            <div class="msg-time">9:41 AM</div>
+          </div>
+          <div class="msg user">
+            <div class="msg-bubble">I've been feeling a bit anxious about work lately</div>
+            <div class="msg-time">9:42 AM</div>
+          </div>
+          <div class="msg ai">
+            <div class="msg-bubble">I hear you — work anxiety can be really draining. Based on your journal, this has been a recurring theme for you. Would you like to explore what specifically is triggering this, or would a quick breathing exercise first help you feel more centred? 💙</div>
+            <div class="msg-time">9:42 AM</div>
+          </div>
+        </div>
+        <div class="chat-quick-replies">
+          <div class="quick-reply" onclick="sendQuickReply(this)">Talk it through</div>
+          <div class="quick-reply" onclick="sendQuickReply(this)">Breathing exercise</div>
+          <div class="quick-reply" onclick="sendQuickReply(this)">I'm not sure</div>
+          <div class="quick-reply" onclick="sendQuickReply(this)">Something else</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" type="text" placeholder="Type a message..." id="chat-input" onkeydown="if(event.key==='Enter') sendMessage()">
+          <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+
+      <!-- EXPERT CARE SCREEN -->
+      <div class="screen" id="screen-expert">
+        <div class="app-header">
+          <div class="logo"><span class="get">get</span><span class="calmly">Calmly.</span></div>
+          <div class="header-actions">
+            <div class="icon-btn bell">🔔<span class="notif-dot"></span></div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px;"><div class="section-title">Expert Care</div></div>
+        <div class="inner-tabs" id="expert-tabs">
+          <div class="inner-tab active" onclick="switchInnerTab('expert','sessions',this)">Sessions</div>
+          <div class="inner-tab" onclick="switchInnerTab('expert','therapists',this)">Find Therapist</div>
+        </div>
+
+        <div id="expert-sessions">
+          <div class="book-card">
+            <div>
+              <h3>Book a Session</h3>
+              <p>40+ verified experts available</p>
+            </div>
+            <div class="book-btn">Book Now</div>
+          </div>
+
+          <div style="padding:0 20px 8px;"><span style="font-size:13px; font-weight:700; color:var(--gray); letter-spacing:0.5px;">UPCOMING</span></div>
+          <div class="session-past">
+            <div class="doc-row-sm">
+              <div class="doc-avatar-sm">👩‍⚕️</div>
+              <div class="session-meta">
+                <h4>Dr. Ananya Sharma</h4>
+                <p>Mon, 2 March · 3:00 PM · 50 min</p>
+              </div>
+              <span class="session-badge upcoming">Upcoming</span>
+            </div>
+            <div class="session-actions-sm">
+              <button class="btn-sm btn-coral">📹 Join Meet</button>
+              <button class="btn-sm btn-outline">Reschedule</button>
+              <button class="btn-sm btn-outline">Cancel</button>
+            </div>
+          </div>
+
+          <div class="session-past" style="margin-top:4px;">
+            <div class="doc-row-sm">
+              <div class="doc-avatar-sm">👩‍⚕️</div>
+              <div class="session-meta">
+                <h4>Dr. Ananya Sharma</h4>
+                <p>Mon, 9 March · 3:00 PM · 50 min</p>
+              </div>
+              <span class="session-badge upcoming">Scheduled</span>
+            </div>
+            <div class="session-actions-sm">
+              <button class="btn-sm btn-outline">Reschedule</button>
+              <button class="btn-sm btn-outline">Cancel</button>
+            </div>
+          </div>
+
+          <div style="padding:16px 20px 8px 20px;"><span style="font-size:13px; font-weight:700; color:var(--gray); letter-spacing:0.5px;">PAST SESSIONS</span></div>
+          <div class="session-past">
+            <div class="doc-row-sm">
+              <div class="doc-avatar-sm">👩‍⚕️</div>
+              <div class="session-meta">
+                <h4>Dr. Ananya Sharma</h4>
+                <p>Mon, 23 Feb · 3:00 PM · 50 min</p>
+              </div>
+              <span class="session-badge completed">Done</span>
+            </div>
+            <div class="session-actions-sm">
+              <button class="btn-sm btn-outline">View Notes</button>
+              <button class="btn-sm btn-coral">Book Again</button>
+            </div>
+          </div>
+          <div class="session-past">
+            <div class="doc-row-sm">
+              <div class="doc-avatar-sm">👨‍⚕️</div>
+              <div class="session-meta">
+                <h4>Dr. Rohan Mehta</h4>
+                <p>Thu, 19 Feb · 11:00 AM · 30 min</p>
+              </div>
+              <span class="session-badge completed">Done</span>
+            </div>
+            <div class="session-actions-sm">
+              <button class="btn-sm btn-outline">View Notes</button>
+              <button class="btn-sm btn-coral">Book Again</button>
+            </div>
+          </div>
+          <div class="scroll-pb"></div>
+        </div>
+
+        <div id="expert-therapists" style="display:none;">
+          <div style="padding:0 20px 12px; display:flex; gap:8px;">
+            <div style="flex:1; background:var(--gray-light); border-radius:12px; padding:10px 14px; font-size:13px; color:var(--gray);">🔍 Search therapists...</div>
+            <div style="background:var(--coral); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; cursor:pointer;">⚙️</div>
+          </div>
+          <div style="padding:0 20px 12px; display:flex; gap:8px; overflow-x:auto;" class="blog-cats">
+            <span class="blog-cat active">All</span>
+            <span class="blog-cat">Anxiety</span>
+            <span class="blog-cat">Depression</span>
+            <span class="blog-cat">Relationships</span>
+            <span class="blog-cat">Trauma</span>
+          </div>
+          <div class="therapist-card">
+            <div class="therapist-avatar">👩‍⚕️</div>
+            <div class="therapist-info">
+              <div class="therapist-name">Dr. Ananya Sharma <span style="font-size:10px; background:var(--green-pale); color:var(--green); padding:2px 6px; border-radius:10px; font-weight:700;">✓ RCI</span></div>
+              <div class="therapist-spec">Clinical Psychologist · 8 yrs exp</div>
+              <div class="rating">⭐ 4.9 · 127 sessions</div>
+              <div class="therapist-tags">
+                <span class="therapist-tag">Anxiety</span>
+                <span class="therapist-tag">CBT</span>
+                <span class="therapist-tag">Work stress</span>
+              </div>
+            </div>
+          </div>
+          <div class="therapist-card">
+            <div class="therapist-avatar">👨‍⚕️</div>
+            <div class="therapist-info">
+              <div class="therapist-name">Dr. Rohan Mehta <span style="font-size:10px; background:var(--green-pale); color:var(--green); padding:2px 6px; border-radius:10px; font-weight:700;">✓ RCI</span></div>
+              <div class="therapist-spec">Psychiatrist · 12 yrs exp</div>
+              <div class="rating">⭐ 4.8 · 203 sessions</div>
+              <div class="therapist-tags">
+                <span class="therapist-tag">Depression</span>
+                <span class="therapist-tag">Trauma</span>
+                <span class="therapist-tag">Mindfulness</span>
+              </div>
+            </div>
+          </div>
+          <div class="therapist-card">
+            <div class="therapist-avatar">👩‍⚕️</div>
+            <div class="therapist-info">
+              <div class="therapist-name">Dr. Preethi Nair</div>
+              <div class="therapist-spec">Counselling Psychologist · 5 yrs exp</div>
+              <div class="rating">⭐ 4.7 · 89 sessions</div>
+              <div class="therapist-tags">
+                <span class="therapist-tag">Relationships</span>
+                <span class="therapist-tag">Self-esteem</span>
+                <span class="therapist-tag">Grief</span>
+              </div>
+            </div>
+          </div>
+          <div class="scroll-pb"></div>
+        </div>
+      </div>
+
+      <!-- COMMUNITY SCREEN -->
+      <div class="screen" id="screen-community">
+        <div class="app-header">
+          <div class="logo"><span class="get">get</span><span class="calmly">Calmly.</span></div>
+          <div class="header-actions">
+            <div class="icon-btn bell">🔔<span class="notif-dot"></span></div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px;"><div class="section-title">Community</div></div>
+        <div class="inner-tabs" id="community-tabs">
+          <div class="inner-tab active" onclick="switchInnerTab('community','groups',this)">Community</div>
+          <div class="inner-tab" onclick="switchInnerTab('community','blogs',this)">Blogs</div>
+        </div>
+
+        <div id="community-groups">
+          <button class="new-post-btn">✏️ Share with the community</button>
+
+          <div style="padding:0 20px 8px;"><span style="font-size:13px; font-weight:700; color:var(--gray); letter-spacing:0.5px;">YOUR GROUPS</span></div>
+          <div class="group-card">
+            <div class="group-icon" style="background:var(--coral-pale);">😰</div>
+            <div class="group-info" style="flex:1;">
+              <h4>Anxiety Warriors</h4>
+              <p>A safe space to share coping strategies and support each other through anxiety.</p>
+              <div class="group-footer">
+                <span class="group-members">1.2k members · 8 posts today</span>
+                <button class="join-btn-sm joined">✓ Joined</button>
+              </div>
+            </div>
+          </div>
+          <div class="group-card">
+            <div class="group-icon" style="background:var(--yellow-pale);">💼</div>
+            <div class="group-info" style="flex:1;">
+              <h4>Work Wellness</h4>
+              <p>Navigating stress, burnout, and boundaries in professional life.</p>
+              <div class="group-footer">
+                <span class="group-members">876 members · 4 posts today</span>
+                <button class="join-btn-sm joined">✓ Joined</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:12px 20px 8px;"><span style="font-size:13px; font-weight:700; color:var(--gray); letter-spacing:0.5px;">DISCOVER GROUPS</span></div>
+          <div class="group-card">
+            <div class="group-icon" style="background:var(--green-pale);">🧘</div>
+            <div class="group-info" style="flex:1;">
+              <h4>Mindfulness & Meditation</h4>
+              <p>Daily practices, tips, and guided meditations from the community.</p>
+              <div class="group-footer">
+                <span class="group-members">3.4k members</span>
+                <button class="join-btn-sm">+ Join</button>
+              </div>
+            </div>
+          </div>
+          <div class="group-card">
+            <div class="group-icon" style="background:var(--purple-pale);">💙</div>
+            <div class="group-info" style="flex:1;">
+              <h4>Depression Support Circle</h4>
+              <p>Moderated group with weekly check-ins and peer support.</p>
+              <div class="group-footer">
+                <span class="group-members">2.1k members</span>
+                <button class="join-btn-sm">+ Join</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:12px 20px 8px;"><span style="font-size:13px; font-weight:700; color:var(--gray); letter-spacing:0.5px;">RECENT POSTS</span></div>
+          <div class="post-card">
+            <div class="post-author">
+              <div class="post-avatar">M</div>
+              <div>
+                <div class="post-name">meera_k</div>
+                <div class="post-time">2 hours ago · Anxiety Warriors</div>
+              </div>
+            </div>
+            <div class="post-body">Has anyone tried the 5-4-3-2-1 grounding technique? It's been a game-changer for my panic attacks. Happy to share how I use it 🌿</div>
+            <div class="post-actions">
+              <span class="post-action liked">❤️ 34</span>
+              <span class="post-action">💬 12 replies</span>
+              <span class="post-action">↗ Share</span>
+            </div>
+          </div>
+          <div class="post-card">
+            <div class="post-author">
+              <div class="post-avatar" style="background:var(--green-pale);">A</div>
+              <div>
+                <div class="post-name">arjun_22</div>
+                <div class="post-time">5 hours ago · Work Wellness</div>
+              </div>
+            </div>
+            <div class="post-body">Finally set a boundary with my manager about after-hours messages. It felt terrifying but so necessary. Small win for today 🙌</div>
+            <div class="post-actions">
+              <span class="post-action">❤️ 58</span>
+              <span class="post-action">💬 7 replies</span>
+              <span class="post-action">↗ Share</span>
+            </div>
+          </div>
+          <div class="scroll-pb"></div>
+        </div>
+
+        <div id="community-blogs" style="display:none;">
+          <div class="blog-cats">
+            <span class="blog-cat active">All</span>
+            <span class="blog-cat">Anxiety</span>
+            <span class="blog-cat">Depression</span>
+            <span class="blog-cat">Relationships</span>
+            <span class="blog-cat">Mindfulness</span>
+            <span class="blog-cat">Work & Burnout</span>
+            <span class="blog-cat">Self-care</span>
+          </div>
+
+          <div class="blog-featured">
+            <div class="blog-featured-emoji">🧠</div>
+            <div class="blog-featured-cat">FEATURED · MENTAL HEALTH</div>
+            <div class="blog-featured-title">Why Therapy Works: The Science Behind Talking It Out</div>
+            <div class="blog-featured-meta">Dr. Ananya Sharma · 8 min read · Feb 28</div>
+          </div>
+
+          <div class="blog-card">
+            <div class="blog-img" style="background:var(--coral-pale);">😰</div>
+            <div class="blog-content">
+              <div class="blog-cat-tag">Anxiety</div>
+              <div class="blog-title">5 Grounding Techniques for Panic Attacks That Actually Work</div>
+              <div class="blog-meta">6 min read · Feb 27 · 2.3k reads</div>
+            </div>
+          </div>
+
+          <div class="blog-card">
+            <div class="blog-img" style="background:var(--yellow-pale);">💼</div>
+            <div class="blog-content">
+              <div class="blog-cat-tag">Work & Burnout</div>
+              <div class="blog-title">Burnout vs Stress: How to Tell the Difference and What to Do</div>
+              <div class="blog-meta">7 min read · Feb 25 · 4.1k reads</div>
+            </div>
+          </div>
+
+          <div class="blog-card">
+            <div class="blog-img" style="background:var(--green-pale);">🌿</div>
+            <div class="blog-content">
+              <div class="blog-cat-tag">Mindfulness</div>
+              <div class="blog-title">A Beginner's Guide to Meditation: Starting with Just 5 Minutes</div>
+              <div class="blog-meta">5 min read · Feb 22 · 1.8k reads</div>
+            </div>
+          </div>
+
+          <div class="blog-card">
+            <div class="blog-img" style="background:var(--purple-pale);">💙</div>
+            <div class="blog-content">
+              <div class="blog-cat-tag">Relationships</div>
+              <div class="blog-title">Setting Emotional Boundaries: A Compassionate How-To</div>
+              <div class="blog-meta">9 min read · Feb 20 · 3.5k reads</div>
+            </div>
+          </div>
+          <div class="scroll-pb"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
+        <div class="nav-icon-wrap" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:var(--coral-pale);border-radius:8px;">🏠</div>
+        <span class="nav-label" style="color:var(--coral);">Home</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('journal')" id="nav-journal">
+        <div class="nav-icon-wrap">📓</div>
+        <span class="nav-label">Journal</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('aitalk')" id="nav-aitalk">
+        <div class="nav-icon-wrap" style="background:var(--coral-pale);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--coral);font-family:'Big Shoulders Display',sans-serif;">Ai</div>
+        <span class="nav-label">AI Talk</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('expert')" id="nav-expert">
+        <div class="nav-icon-wrap">👨‍⚕️</div>
+        <span class="nav-label">Expert Care</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('community')" id="nav-community">
+        <div class="nav-icon-wrap">👥</div>
+        <span class="nav-label">Community</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Time-of-day adaptive check-in ──────────────────────────────
+const TOD_CONFIG = {
+  morning: {
+    hours: [5, 11],
+    greeting: 'Good morning, <span>Priya</span> ☀️',
+    sub: 'Monday, 2 March · Here\'s your daily summary',
+    label: 'MORNING CHECK-IN',
+    question: 'How are you starting the day?',
+    cardClass: 'morning',
+    sliders: ['mood','energy','anxiety'],
+    sliderDefaults: { mood:5, energy:5, anxiety:5 }
+  },
+  afternoon: {
+    hours: [12, 16],
+    greeting: 'Good afternoon, <span>Priya</span> 🌤️',
+    sub: 'Monday, 2 March · Quick mid-day pulse',
+    label: 'AFTERNOON CHECK-IN',
+    question: 'How\'s the day going so far?',
+    cardClass: 'afternoon',
+    sliders: ['mood','energy'],
+    sliderDefaults: { mood:5, energy:5 }
+  },
+  evening: {
+    hours: [17, 23],
+    greeting: 'Good evening, <span>Priya</span> 🌙',
+    sub: 'Monday, 2 March · Time to wind down',
+    label: 'EVENING CHECK-IN',
+    question: 'How are you feeling as the day wraps up?',
+    cardClass: 'evening',
+    sliders: ['mood','energy','anxiety'],
+    sliderDefaults: { mood:5, energy:4, anxiety:5 }
+  }
+};
+
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h >= 5 && h <= 11) return 'morning';
+  if (h >= 12 && h <= 16) return 'afternoon';
+  return 'evening';
+}
+
+// For demo purposes, allow cycling through states with a toggle button
+let demoTOD = getTimeOfDay();
+const todOrder = ['morning','afternoon','evening'];
+
+function initCheckin(tod) {
+  const cfg = TOD_CONFIG[tod];
+
+  // Greeting
+  document.getElementById('greeting-text').innerHTML = cfg.greeting;
+  document.getElementById('greeting-sub').textContent = cfg.sub;
+
+  // Card
+  const card = document.getElementById('checkin-card');
+  card.className = 'mood-card ' + cfg.cardClass;
+
+  // Label & question
+  document.getElementById('checkin-label').textContent = cfg.label;
+  document.getElementById('checkin-question').textContent = cfg.question;
+
+  // Show/hide anxiety slider
+  const anxietyRow = document.getElementById('anxiety-row');
+  anxietyRow.style.display = cfg.sliders.includes('anxiety') ? 'flex' : 'none';
+
+  // Reset slider values & gradients
+  cfg.sliders.forEach(s => {
+    const el = document.getElementById('slider-' + s);
+    const def = cfg.sliderDefaults[s] || 5;
+    el.value = def;
+    updateSlider(s, def);
+  });
+
+  // Reset saved state
+  document.getElementById('checkin-saved').style.display = 'none';
+  document.querySelector('.checkin-submit-btn').style.display = 'block';
+}
+
+function updateSlider(dim, val) {
+  const v = parseInt(val);
+  document.getElementById('val-' + dim).textContent = v;
+  const pct = ((v - 1) / 9) * 100;
+  const el = document.getElementById('slider-' + dim);
+  el.style.background = `linear-gradient(to right, var(--coral) 0%, var(--coral) ${pct}%, var(--gray-light) ${pct}%, var(--gray-light) 100%)`;
+}
+
+function submitCheckin() {
+  const btn = document.querySelector('.checkin-submit-btn');
+  btn.textContent = 'Saving...';
+  setTimeout(() => {
+    btn.style.display = 'none';
+    document.getElementById('checkin-saved').style.display = 'flex';
+
+    // Show a quick AI insight nudge after saving
+    const card = document.getElementById('checkin-card');
+    const existing = card.querySelector('.checkin-feedback');
+    if (!existing) {
+      const moodVal = parseInt(document.getElementById('slider-mood').value);
+      const energyVal = parseInt(document.getElementById('slider-energy').value);
+      const msg = moodVal <= 4
+        ? '💙 Your mood seems low today. A short breathing exercise might help before your session.'
+        : energyVal <= 3
+        ? '⚡ Low energy noted. Try a 5-min walk before your 3PM session.'
+        : '✨ You\'re doing well! Keep the momentum going.';
+      const fb = document.createElement('div');
+      fb.className = 'checkin-feedback';
+      fb.style.cssText = 'margin-top:12px; padding:10px 14px; background:rgba(200,85,61,0.08); border-radius:12px; font-size:13px; color:var(--charcoal); line-height:1.5;';
+      fb.textContent = msg;
+      card.appendChild(fb);
+    }
+  }, 600);
+}
+
+// Demo cycle button — small floating button to switch time of day for demo
+function cycleTOD() {
+  const idx = todOrder.indexOf(demoTOD);
+  demoTOD = todOrder[(idx + 1) % todOrder.length];
+  // Remove feedback if any
+  const fb = document.querySelector('.checkin-feedback');
+  if (fb) fb.remove();
+  initCheckin(demoTOD);
+
+// ── Embed init: pick screen from URL (?screen=home | ?screen=journal&tab=insights) ──
+(function(){
+  try {
+    var p = new URLSearchParams(window.location.search);
+    var screen = p.get('screen');
+    var tab = p.get('tab');
+    if (screen) { switchTab(screen); }
+    if (screen === 'journal' && tab === 'insights') {
+      var insTab = document.querySelectorAll('#journal-tabs .inner-tab')[1];
+      if (insTab) switchInnerTab('journal','insights', insTab);
+    }
+  } catch(e) {}
+})();
+
+}
+
+// ── Navigation ─────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active');
+    n.querySelector('.nav-label').style.color = '';
+    const wrap = n.querySelector('.nav-icon-wrap');
+    if(wrap) { wrap.style.background = ''; wrap.style.borderRadius = ''; }
+  });
+
+  const screen = document.getElementById('screen-' + tab);
+  const navItem = document.getElementById('nav-' + tab);
+  if(screen) screen.classList.add('active');
+  if(navItem) {
+    navItem.classList.add('active');
+    navItem.querySelector('.nav-label').style.color = 'var(--coral)';
+  }
+  if(screen) screen.scrollTop = 0;
+}
+
+function switchInnerTab(section, tabId, el) {
+  if (section === 'journal') {
+    document.getElementById('journal-entries').style.display = tabId === 'entries' ? 'block' : 'none';
+    document.getElementById('journal-insights').style.display = tabId === 'insights' ? 'block' : 'none';
+  } else if (section === 'expert') {
+    document.getElementById('expert-sessions').style.display = tabId === 'sessions' ? 'block' : 'none';
+    document.getElementById('expert-therapists').style.display = tabId === 'therapists' ? 'block' : 'none';
+  } else if (section === 'community') {
+    document.getElementById('community-groups').style.display = tabId === 'groups' ? 'block' : 'none';
+    document.getElementById('community-blogs').style.display = tabId === 'blogs' ? 'block' : 'none';
+  }
+  document.querySelectorAll('#' + section + '-tabs .inner-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function sendQuickReply(el) {
+  document.getElementById('chat-input').value = el.textContent;
+  sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const msgs = document.getElementById('chat-messages');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'msg user';
+  userMsg.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">Just now</div>`;
+  msgs.appendChild(userMsg);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  setTimeout(() => {
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'msg ai';
+    aiMsg.innerHTML = `<div class="msg-bubble">I understand. It takes courage to open up about this. Let's work through it together. Can you tell me more about what specifically feels most challenging right now? 💙</div><div class="msg-time">Just now</div>`;
+    msgs.appendChild(aiMsg);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1000);
+}
+
+// ── Init ───────────────────────────────────────────────────────
+initCheckin(demoTOD);
+</script>
+
+
+</body>
+</html>

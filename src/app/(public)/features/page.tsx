@@ -217,12 +217,17 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          {/* Phone frame */}
+          {/* Phone frame — live patient-app mockup, Journal → Insights */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: 248, background: '#0F1C28', borderRadius: 40, padding: 9, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
-              <div style={{ borderRadius: 32, overflow: 'hidden', background: '#F9F5F2' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/mockups/doctor-app.png" alt="GetCalmly mobile app" loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
+            <div style={{ width: 270, background: '#0F1C28', borderRadius: 44, padding: 10, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
+              <div style={{ borderRadius: 36, overflow: 'hidden', background: '#FFF8F5', position: 'relative' }}>
+                <iframe
+                  src="/mockups/app-mock.html?screen=journal&tab=insights"
+                  title="GetCalmly app — journal insights"
+                  loading="lazy"
+                  scrolling="no"
+                  style={{ display: 'block', width: 250, height: 541, border: 'none', borderRadius: 36 }}
+                />
               </div>
             </div>
           </div>

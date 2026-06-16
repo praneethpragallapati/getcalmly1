@@ -162,51 +162,124 @@ const posts = [
   },
 ]
 
+const tagGradients: Record<string, { from: string; to: string }> = {
+  anxiety: { from: '#2E4A5C', to: '#1C2B3A' },
+  postpartum: { from: '#7A4A52', to: '#3E2A38' },
+  'men-mental-health': { from: '#2D4A45', to: '#1C302C' },
+  cbt: { from: '#5A4A6E', to: '#2E2740' },
+  grief: { from: '#3A4A6E', to: '#222B45' },
+}
+
+function coverFor(tag: string) {
+  return tagGradients[tag] ?? { from: '#2E4A5C', to: '#1C2B3A' }
+}
+
+function initials(name: string) {
+  return name
+    .replace(/^Dr\.?\s*/i, '')
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
 export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const post = posts.find((p) => p.slug === slug)
   if (!post) notFound()
+
+  const cover = coverFor(post.tags[0])
 
   return (
     <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
       {/* Hero */}
       <section
         style={{
-          background: '#1C2B3A',
-          padding: '56px 24px 56px',
+          position: 'relative',
+          overflow: 'hidden',
+          background: `linear-gradient(160deg, ${cover.from}, ${cover.to})`,
+          padding: '64px 24px 72px',
         }}
       >
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+        {/* gradient glow orbs */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: -140,
+            right: '6%',
+            width: 440,
+            height: 440,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(200,85,61,0.30), transparent 65%)',
+            filter: 'blur(24px)',
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            bottom: -180,
+            left: '4%',
+            width: 420,
+            height: 420,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(61,158,114,0.22), transparent 65%)',
+            filter: 'blur(24px)',
+            pointerEvents: 'none',
+          }}
+        />
+        <span
+          aria-hidden
+          style={{
+            fontFamily: "'Big Shoulders Display', sans-serif",
+            fontSize: 320,
+            fontWeight: 900,
+            lineHeight: 1,
+            color: 'rgba(255,255,255,0.05)',
+            position: 'absolute',
+            right: -10,
+            bottom: -90,
+            pointerEvents: 'none',
+          }}
+        >
+          {initials(post.author)}
+        </span>
+
+        <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <Link
             href="/blog"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              color: 'rgba(255,255,255,0.55)',
+              color: 'rgba(255,255,255,0.62)',
               fontSize: 13,
               fontWeight: 600,
               textDecoration: 'none',
-              marginBottom: 28,
+              marginBottom: 30,
             }}
           >
             ← Back to blog
           </Link>
 
           {/* Tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 22 }}>
             {post.tags.map((t) => (
               <span
                 key={t}
                 style={{
-                  background: 'rgba(200,85,61,0.22)',
-                  color: '#E8896F',
+                  background: 'rgba(255,255,255,0.14)',
+                  color: '#fff',
                   fontSize: 11,
                   fontWeight: 700,
-                  padding: '4px 12px',
+                  padding: '5px 13px',
                   borderRadius: 999,
-                  letterSpacing: '0.5px',
+                  letterSpacing: '1px',
                   textTransform: 'uppercase',
+                  backdropFilter: 'blur(4px)',
                 }}
               >
                 {t}
@@ -217,11 +290,12 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           <h1
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",
-              fontSize: 'clamp(30px, 5vw, 52px)',
+              fontSize: 'clamp(34px, 6vw, 60px)',
               fontWeight: 900,
               color: '#fff',
-              lineHeight: 1.08,
-              marginBottom: 24,
+              lineHeight: 1.03,
+              letterSpacing: '-0.5px',
+              marginBottom: 30,
             }}
           >
             {post.title}
@@ -232,59 +306,152 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
               display: 'flex',
               flexWrap: 'wrap',
               alignItems: 'center',
-              gap: '8px 20px',
+              gap: 14,
             }}
           >
-            <div>
-              <span style={{ fontWeight: 700, color: '#fff', fontSize: 14 }}>{post.author}</span>
-              <span
-                style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginLeft: 8 }}
-              >
-                · {post.role}
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: '50%',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(255,255,255,0.16)',
+                border: '1.5px solid rgba(255,255,255,0.28)',
+                color: '#fff',
+                fontFamily: "'Big Shoulders Display', sans-serif",
+                fontWeight: 800,
+                fontSize: 18,
+              }}
+            >
+              {initials(post.author)}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ fontWeight: 700, color: '#fff', fontSize: 15 }}>{post.author}</span>
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>
+                {post.role} · {post.date} · {post.readTime}
               </span>
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-              {post.date} · {post.readTime}
-            </span>
           </div>
         </div>
       </section>
 
       {/* Article */}
-      <section style={{ padding: '48px 24px', maxWidth: 760, margin: '0 auto' }}>
+      <section style={{ padding: '48px 24px', maxWidth: 768, margin: '0 auto' }}>
         <article
           style={{
             background: '#fff',
-            borderRadius: 20,
-            padding: '40px 40px',
-            boxShadow: '0 2px 16px rgba(28,43,58,0.08)',
+            borderRadius: 24,
+            padding: 'clamp(28px, 5vw, 56px)',
+            boxShadow: '0 6px 30px rgba(28,43,58,0.10)',
+            marginTop: -64,
+            position: 'relative',
+            zIndex: 2,
           }}
         >
           {post.content.map((para, i) => (
             <p
               key={i}
               style={{
-                fontSize: 16.5,
-                lineHeight: 1.78,
+                fontSize: 17.5,
+                lineHeight: 1.82,
                 color: '#2e3d4e',
-                marginBottom: i < post.content.length - 1 ? 24 : 0,
+                margin: 0,
+                marginBottom: i < post.content.length - 1 ? 26 : 0,
+                ...(i === 0
+                  ? {
+                      fontSize: 19,
+                      color: '#1C2B3A',
+                    }
+                  : {}),
               }}
             >
-              {para}
+              {i === 0 ? (
+                <>
+                  <span
+                    style={{
+                      float: 'left',
+                      fontFamily: "'Big Shoulders Display', sans-serif",
+                      fontSize: 68,
+                      lineHeight: 0.82,
+                      fontWeight: 900,
+                      color: '#C8553D',
+                      marginRight: 12,
+                      marginTop: 6,
+                    }}
+                  >
+                    {para.charAt(0)}
+                  </span>
+                  {para.slice(1)}
+                </>
+              ) : (
+                para
+              )}
             </p>
           ))}
+
+          {/* Author bio strip */}
+          <div
+            style={{
+              marginTop: 40,
+              paddingTop: 28,
+              borderTop: '1px solid #f0eae6',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: `linear-gradient(140deg, ${cover.from}, ${cover.to})`,
+                color: '#fff',
+                fontFamily: "'Big Shoulders Display', sans-serif",
+                fontWeight: 800,
+                fontSize: 19,
+              }}
+            >
+              {initials(post.author)}
+            </div>
+            <div>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#1C2B3A' }}>{post.author}</span>
+              <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6B7D8E', lineHeight: 1.55 }}>
+                {post.author} is a {post.role.toLowerCase()} practising on GetCalmly.
+              </p>
+            </div>
+          </div>
         </article>
       </section>
 
       {/* Related community discussions */}
-      <section style={{ padding: '0 24px 48px', maxWidth: 760, margin: '0 auto' }}>
+      <section style={{ padding: '24px 24px 48px', maxWidth: 768, margin: '0 auto' }}>
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            color: '#C8553D',
+            marginBottom: 8,
+          }}
+        >
+          Keep the conversation going
+        </p>
         <h2
           style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
-            fontSize: 24,
+            fontSize: 28,
             fontWeight: 800,
             color: '#1C2B3A',
-            marginBottom: 16,
+            marginBottom: 18,
           }}
         >
           Related community discussions
@@ -299,24 +466,32 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
               <div
                 style={{
                   background: '#fff',
-                  borderRadius: 14,
-                  padding: '18px 22px',
+                  borderRadius: 16,
+                  padding: '20px 24px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   gap: 12,
-                  boxShadow: '0 1px 8px rgba(28,43,58,0.06)',
+                  boxShadow: '0 2px 10px rgba(28,43,58,0.06)',
                   border: '1.5px solid #f0eae6',
-                  transition: 'border-color 0.15s',
+                  transition: 'border-color 0.18s, transform 0.18s, box-shadow 0.18s',
                 }}
                 onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.borderColor = '#C8553D'
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = '#C8553D'
+                  el.style.transform = 'translateX(4px)'
+                  el.style.boxShadow = '0 8px 22px rgba(28,43,58,0.12)'
                 }}
                 onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.borderColor = '#f0eae6'
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = '#f0eae6'
+                  el.style.transform = 'translateX(0)'
+                  el.style.boxShadow = '0 2px 10px rgba(28,43,58,0.06)'
                 }}
               >
-                <span style={{ fontSize: 14, color: '#1C2B3A', fontWeight: 500 }}>{r.title}</span>
+                <span style={{ fontSize: 15, color: '#1C2B3A', fontWeight: 600, lineHeight: 1.4 }}>
+                  {r.title}
+                </span>
                 <span
                   style={{
                     fontSize: 12,
@@ -335,15 +510,31 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       </section>
 
       {/* CTA */}
-      <section style={{ padding: '0 24px 80px', maxWidth: 760, margin: '0 auto' }}>
+      <section style={{ padding: '0 24px 88px', maxWidth: 768, margin: '0 auto' }}>
         <div
           style={{
-            background: '#C8553D',
-            borderRadius: 20,
-            padding: '44px 40px',
+            position: 'relative',
+            overflow: 'hidden',
+            background: 'linear-gradient(135deg, #C8553D, #A8412C)',
+            borderRadius: 24,
+            padding: '52px 40px',
             textAlign: 'center',
+            boxShadow: '0 12px 36px rgba(200,85,61,0.30)',
           }}
         >
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: -120,
+              right: -60,
+              width: 300,
+              height: 300,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.18), transparent 65%)',
+              pointerEvents: 'none',
+            }}
+          />
           <h2
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",

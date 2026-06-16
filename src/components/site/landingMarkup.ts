@@ -91,14 +91,35 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
 <!-- ── THE PROBLEM ── -->
 <div class="problem-strip reveal">
+  <div class="problem-glow"></div>
   <div class="problem-inner">
-    <span class="prob-stat"><span class="prob-n">60%</span><span class="prob-l">treatment gap in India</span></span>
-    <span class="prob-divider"></span>
-    <span class="prob-stat"><span class="prob-n">0.75</span><span class="prob-l">psychiatrists per 100,000 people</span></span>
-    <span class="prob-divider"></span>
-    <span class="prob-stat"><span class="prob-n">Months</span><span class="prob-l">of waiting for a first appointment</span></span>
-    <span class="prob-divider"></span>
-    <p class="prob-mission">We built getCalmly to change all three.</p>
+    <div class="problem-head">
+      <span class="prob-eyebrow">The mental health gap in India</span>
+      <h3 class="prob-headline">The numbers no one<br>talks about.</h3>
+    </div>
+    <div class="problem-stats">
+      <div class="prob-stat">
+        <span class="prob-ico">🧩</span>
+        <span class="prob-n">60<small>%</small></span>
+        <span class="prob-l">of people who need care<br>never receive it</span>
+      </div>
+      <span class="prob-divider"></span>
+      <div class="prob-stat">
+        <span class="prob-ico">🩺</span>
+        <span class="prob-n">0.75</span>
+        <span class="prob-l">psychiatrists for every<br>100,000 people</span>
+      </div>
+      <span class="prob-divider"></span>
+      <div class="prob-stat">
+        <span class="prob-ico">⏳</span>
+        <span class="prob-n">Months</span>
+        <span class="prob-l">of waiting just for<br>a first appointment</span>
+      </div>
+    </div>
+    <div class="problem-mission">
+      <span class="prob-mission-dot"></span>
+      <p class="prob-mission">We built <strong>getCalmly</strong> to change all three.</p>
+    </div>
   </div>
 </div>
 
@@ -693,9 +714,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
     </div>
     <div style="display:flex;justify-content:center;">
-      <div style="width:248px;background:#0F1C28;border-radius:40px;padding:9px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
-        <div style="border-radius:32px;overflow:hidden;background:#F9F5F2;">
-          <img src="/mockups/patient-home-1.png" alt="The GetCalmly app home screen" loading="lazy" style="display:block;width:100%;height:auto;" />
+      <div style="width:270px;background:#0F1C28;border-radius:44px;padding:10px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
+        <div style="border-radius:36px;overflow:hidden;background:#FFF8F5;">
+          <iframe src="/mockups/app-mock.html?screen=home" title="The GetCalmly app home screen" loading="lazy" scrolling="no" style="display:block;width:250px;height:541px;border:none;border-radius:36px;"></iframe>
         </div>
       </div>
     </div>
