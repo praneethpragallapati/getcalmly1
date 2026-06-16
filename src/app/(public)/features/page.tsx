@@ -169,6 +169,41 @@ export default function FeaturesPage() {
         </div>
       </section>
 
+      {/* See it in action */}
+      <section style={{ background: '#fff', padding: '72px 24px' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: coral, textTransform: 'uppercase', marginBottom: 12 }}>See it in action</p>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 4.5vw, 42px)', color: charcoal, letterSpacing: '-1px' }}>
+              Built for both sides of care
+            </h2>
+            <p style={{ fontSize: 15.5, color: '#6B7D8E', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.65 }}>
+              A calm, intelligent space for you, and the clinical tools your professional needs to give you their best.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
+            {[
+              ['Your space', 'Mood, sessions, journal and Calm AI, all in one place.', '/mockups/patient-dashboard.png'],
+              ["Your therapist's view", 'Pre-session briefs, mood trends and structured notes.', '/mockups/doctor-dashboard.png'],
+            ].map(([label, sub, src]) => (
+              <div key={label}>
+                <div style={{ borderRadius: 16, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 18px 44px rgba(28,43,58,.12)' }}>
+                  <div style={{ background: '#EEF0F3', padding: '9px 12px', display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#E2856F' }} />
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#E8C16A' }} />
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#8FCBA3' }} />
+                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={label} loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
+                </div>
+                <p style={{ fontSize: 16, fontWeight: 800, color: charcoal, marginTop: 16 }}>{label}</p>
+                <p style={{ fontSize: 14, color: '#6B7D8E', marginTop: 4, lineHeight: 1.55 }}>{sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* App download */}
       <section style={{ background: charcoal, marginTop: 64, padding: '72px 24px', overflow: 'hidden' }}>
         <div className="app-row" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 48, alignItems: 'center' }}>
