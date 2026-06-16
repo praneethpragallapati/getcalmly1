@@ -201,9 +201,10 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
   <!-- PATIENT PANE -->
   <div class="preview-pane active" id="pane-patient">
-    <div class="reveal">
+    <div class="reveal dash-mock-wrap">
+      <span class="dash-swipe-hint">← swipe to explore →</span>
       <!-- Full patient dashboard: sidebar + main content -->
-      <div style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid var(--border);background:var(--bg-warm);font-size:12px;">
+      <div class="dash-mock" style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid var(--border);background:var(--bg-warm);font-size:12px;">
 
         <!-- Sidebar -->
         <div style="width:56px;background:var(--charcoal);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;">
@@ -340,9 +341,10 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
   <!-- DOCTOR PANE -->
   <div class="preview-pane" id="pane-doctor">
-    <div class="reveal">
+    <div class="reveal dash-mock-wrap">
+      <span class="dash-swipe-hint">← swipe to explore →</span>
       <!-- Full therapist portal: sidebar + main -->
-      <div style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid rgba(26,127,122,.2);background:#EEF3F8;font-size:12px;">
+      <div class="dash-mock" style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid rgba(26,127,122,.2);background:#EEF3F8;font-size:12px;">
 
         <!-- Sidebar -->
         <div style="width:56px;background:#1A7F7A;display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;">

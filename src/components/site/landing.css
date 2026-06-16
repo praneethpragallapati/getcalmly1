@@ -40,6 +40,7 @@
 .lp-page .d3{transition-delay:.3s;}
 .lp-page .d4{transition-delay:.4s;}
 .lp-page section{padding:108px 6%;}
+.lp-page .dash-swipe-hint{display:none;}
 .lp-page .sec-label{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;
   letter-spacing:2.5px;text-transform:uppercase;color:var(--coral);margin-bottom:16px;}
 .lp-page .sec-label::after{content:'';width:28px;height:1.5px;background:var(--coral);opacity:.5;}
@@ -527,6 +528,12 @@
 .lp-page .nav-actions .btn-ghost, .lp-page .nav-actions .btn-primary{display:none;}
 .lp-page .t-top{flex-direction:column;align-items:flex-start;gap:18px;}
 .lp-page .preview-pane.active{grid-template-columns:1fr;gap:40px;}
+/* Dashboard mocks are desktop-shaped — keep them legible on mobile by
+   letting the user swipe horizontally instead of cramming into 390px. */
+.lp-page .dash-mock-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:20px;scrollbar-width:none;}
+.lp-page .dash-mock-wrap::-webkit-scrollbar{display:none;}
+.lp-page .dash-mock{min-width:680px;}
+.lp-page .dash-swipe-hint{display:block;text-align:center;font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--gray);margin-bottom:10px;}
 .lp-page .enterprise-strip{flex-direction:column;align-items:flex-start;gap:18px;}
 }
 @media(max-width:600px){
