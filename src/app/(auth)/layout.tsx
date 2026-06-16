@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div style={{ position: 'absolute', bottom: 80, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         <Link href="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: 'auto' }}>
-          <Logo size={32} />
+          <Logo size={32} onDark />
         </Link>
 
         <div style={{ paddingTop: 64, paddingBottom: 48 }}>

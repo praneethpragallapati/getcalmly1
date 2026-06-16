@@ -24,7 +24,7 @@ const values = [
 const contacts = [
   { icon: '✉️', label: 'Email us', value: 'connect@getcalmly.com', href: 'mailto:connect@getcalmly.com' },
   { icon: '📞', label: 'Call us', value: '+91 88845 18688', href: 'tel:+918884518688' },
-  { icon: '💬', label: 'Partnerships', value: 'partnerships@getcalmly.com', href: 'mailto:partnerships@getcalmly.com' },
+  { icon: '💬', label: 'Partnerships', value: 'connect@getcalmly.com', href: 'mailto:connect@getcalmly.com' },
 ]
 
 const socials = [

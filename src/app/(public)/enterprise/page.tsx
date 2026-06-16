@@ -216,7 +216,7 @@ export default function EnterprisePage() {
           )}
         </div>
         <p style={{ textAlign: 'center', fontSize: 14, color: '#6B7D8E', marginTop: 20 }}>
-          Prefer to talk first? Email <a href="mailto:partnerships@getcalmly.com" style={{ color: coral, fontWeight: 600 }}>partnerships@getcalmly.com</a>
+          Prefer to talk first? Email <a href="mailto:connect@getcalmly.com" style={{ color: coral, fontWeight: 600 }}>connect@getcalmly.com</a>
         </p>
       </section>
     </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { use } from 'react'
 
 const posts = [
   {
@@ -161,8 +162,9 @@ const posts = [
   },
 ]
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = posts.find((p) => p.slug === params.slug)
+export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)
+  const post = posts.find((p) => p.slug === slug)
   if (!post) notFound()
 
   return (
