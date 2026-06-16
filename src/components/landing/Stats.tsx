@@ -2,7 +2,7 @@ const stats = [
   { value: '500+', label: 'Verified Therapists' },
   { value: '50,000+', label: 'Sessions Completed' },
   { value: '4.8★', label: 'Average Rating' },
-  { value: '15+', label: 'Languages Supported' },
+  { value: '100%', label: 'Confidential & Secure' },
 ]
 
 export default function Stats() {

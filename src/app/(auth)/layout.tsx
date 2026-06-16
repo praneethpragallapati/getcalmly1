@@ -5,7 +5,7 @@ const trust = [
   { icon: '🔒', text: 'End-to-end encrypted sessions' },
   { icon: '🧑‍⚕️', text: 'RCI & NMC verified professionals only' },
   { icon: '🇮🇳', text: 'DPDP Act 2023 compliant' },
-  { icon: '💬', text: '15+ languages supported' },
+  { icon: '💬', text: 'Care that speaks your language' },
 ]
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

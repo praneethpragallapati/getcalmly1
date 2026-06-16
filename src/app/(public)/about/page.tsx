@@ -14,7 +14,6 @@ const cream = '#F9F5F2'
 const stats: [string, string][] = [
   ['60%+', 'treatment gap in India'],
   ['0.75', 'psychiatrists per 100,000 people'],
-  ['15+', 'languages we support'],
   ['100%', 'RCI & NMC verified clinicians'],
 ]
 

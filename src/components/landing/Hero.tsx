@@ -38,7 +38,6 @@ export default function Hero() {
             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
               <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> RCI Verified Therapists</span>
               <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> DPDP Compliant</span>
-              <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> 10+ Languages</span>
               <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> Sessions from ₹1,500</span>
             </div>
           </div>

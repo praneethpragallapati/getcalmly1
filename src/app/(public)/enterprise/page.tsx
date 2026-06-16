@@ -46,7 +46,7 @@ export default function EnterprisePage() {
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <a href="#interest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff', padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)' }}>
-                Book a conversation →
+                Submit interest →
               </a>
               <a href="#segments" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)', color: 'rgba(255,255,255,.85)', padding: '15px 26px', borderRadius: 50, fontSize: 15.5, fontWeight: 600, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.16)' }}>
                 See what we offer
@@ -58,7 +58,7 @@ export default function EnterprisePage() {
             <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 24, letterSpacing: 0.3 }}>Used by teams that take care seriously</p>
             {[
               ['RCI & NMC verified', 'Every clinician credentialed'],
-              ['15+ languages', 'Vernacular-first for India'],
+              ['Aggregate-only insights', 'Individuals always anonymous'],
               ['DPDP aligned', 'Privacy from day one'],
               ['48-hr onboarding', 'Pilot-ready in days, not months'],
             ].map(([t, d]) => (
@@ -70,29 +70,6 @@ export default function EnterprisePage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── WHY THIS MATTERS: full-width editorial band ─── */}
-      <section style={{ background: '#fff', padding: '80px 48px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
-          <div>
-            <p style={{ ...eyebrow, marginBottom: 20 }}>Why this matters now</p>
-            <h2 style={{
-              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
-              fontSize: 'clamp(30px, 4vw, 46px)', color: charcoal, letterSpacing: '-1.2px', lineHeight: 1.08, marginBottom: 0,
-            }}>
-              People do their best work when they are well — not when they are simply present.
-            </h2>
-          </div>
-          <div>
-            <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22 }}>
-              A perk no one uses is not a benefit. Real support has to be confidential enough to trust, clinical enough to help, and easy enough to actually reach on the hardest day.
-            </p>
-            <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300 }}>
-              That is what we are building: verified clinicians, an AI-assisted support app for every day in between, and measurable outcomes — brought together as one platform you can stand behind.
-            </p>
           </div>
         </div>
       </section>
@@ -165,39 +142,104 @@ export default function EnterprisePage() {
         </div>
       </section>
 
-      {/* ─── WHY US: 2×2 grid, full content width ─── */}
-      <section style={{ background: '#fff', padding: '80px 48px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 80, alignItems: 'flex-start' }}>
-            <div style={{ position: 'sticky', top: 40 }}>
-              <p style={{ ...eyebrow, marginBottom: 18 }}>Why organisations choose us</p>
-              <h2 style={{
-                fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
-                fontSize: 'clamp(28px, 4vw, 42px)', color: charcoal, letterSpacing: '-1px', lineHeight: 1.08, marginBottom: 20,
-              }}>
-                Credible care, measurable trust.
-              </h2>
-              <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.75, fontWeight: 300 }}>
-                Every decision we make comes back to one question: would a clinician stake their reputation on this?
-              </p>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 40px' }}>
+      {/* ─── HR ADMIN DASHBOARD: copy left, mock dashboard right ─── */}
+      <section style={{ background: '#fff', padding: '88px 48px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '400px 1fr', gap: 72, alignItems: 'center' }}>
+          {/* Left: copy */}
+          <div>
+            <p style={{ ...eyebrow, marginBottom: 18 }}>For HR & people leaders</p>
+            <h2 style={{
+              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+              fontSize: 'clamp(28px, 4vw, 44px)', color: charcoal, letterSpacing: '-1.2px', lineHeight: 1.06, marginBottom: 22,
+            }}>
+              See the wellbeing of your people — never the person.
+            </h2>
+            <p style={{ fontSize: 17, color: '#5A6B7A', lineHeight: 1.82, fontWeight: 300, marginBottom: 28 }}>
+              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. Everything is aggregated and anonymised — you see the signal, never an individual&apos;s records.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
-                ['Clinically credible', 'Only RCI-verified psychologists and NMC-registered psychiatrists. We verify every professional before they ever see a member of your community.'],
-                ['AI that supports, never replaces', 'Calm AI, mood insights and journaling keep people supported between sessions, with every clinical output reviewed by a human.'],
-                ['Outcomes you can measure', 'Anonymised, aggregate dashboards show engagement and wellbeing trends — so you can see impact without touching individual records.'],
-                ['Built for India', 'Vernacular-first care across 15+ languages, designed for the realities of Indian workplaces, campuses and hospitals.'],
-              ].map(([t, d], idx) => (
-                <div key={t} style={{
-                  padding: '32px 0',
-                  borderTop: idx < 2 ? 'none' : '1px solid rgba(0,0,0,.08)',
-                  paddingTop: idx < 2 ? 8 : 32,
-                }}>
-                  <p style={{ fontSize: 17, fontWeight: 700, color: charcoal, marginBottom: 10, letterSpacing: '-0.2px' }}>{t}</p>
-                  <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.75, fontWeight: 300 }}>{d}</p>
+                ['Spot strain before it spreads', 'Department-level trends flag where burnout risk is climbing, so you can act early.'],
+                ['Prove the ROI', 'Engagement and utilisation in one view — show leadership the programme is being used.'],
+                ['Zero admin overhead', 'No spreadsheets, no manual reports. Live numbers refresh on their own.'],
+              ].map(([t, d]) => (
+                <div key={t} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <span style={{ color: coral, fontSize: 16, marginTop: 2, flexShrink: 0 }}>✓</span>
+                  <div>
+                    <p style={{ fontSize: 15.5, fontWeight: 700, color: charcoal, marginBottom: 3 }}>{t}</p>
+                    <p style={{ fontSize: 14, color: '#6B7D8E', lineHeight: 1.6, fontWeight: 300 }}>{d}</p>
+                  </div>
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Right: mock dashboard */}
+          <div style={{
+            background: cream, borderRadius: 24, padding: 24,
+            border: '1px solid rgba(0,0,0,.06)', boxShadow: '0 30px 60px -20px rgba(28,43,58,.22)',
+          }}>
+            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(0,0,0,.05)' }}>
+              {/* Dash top bar */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ width: 26, height: 26, borderRadius: 8, background: charcoal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 13, fontFamily: "'Big Shoulders Display', sans-serif" }}>G</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: charcoal }}>Wellbeing Overview</span>
+                </div>
+                <span style={{ fontSize: 11.5, color: '#8E9EAE', background: '#F2F5F8', padding: '5px 10px', borderRadius: 20, fontWeight: 600 }}>Last 30 days ▾</span>
+              </div>
+
+              {/* KPI row */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'rgba(0,0,0,.05)' }}>
+                {[
+                  ['Active members', '412', '68% of staff', coral],
+                  ['Sessions booked', '189', '+23% MoM', green],
+                  ['Wellbeing index', '7.4', '+0.6 vs last mo', teal],
+                ].map(([label, val, sub, c]) => (
+                  <div key={label} style={{ background: '#fff', padding: '18px 18px 16px' }}>
+                    <p style={{ fontSize: 11.5, color: '#8E9EAE', fontWeight: 600, marginBottom: 8 }}>{label}</p>
+                    <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: charcoal, lineHeight: 1 }}>{val}</p>
+                    <p style={{ fontSize: 11.5, color: c as string, fontWeight: 700, marginTop: 6 }}>{sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Trend chart */}
+              <div style={{ padding: '18px 20px', borderTop: '1px solid rgba(0,0,0,.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: charcoal }}>Engagement trend</p>
+                  <span style={{ fontSize: 11, color: '#8E9EAE' }}>weekly active</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 78 }}>
+                  {[38, 46, 42, 55, 61, 58, 72, 80].map((h, i) => (
+                    <div key={i} style={{ flex: 1, height: `${h}%`, background: i >= 6 ? coral : 'rgba(200,85,61,.22)', borderRadius: '5px 5px 0 0' }} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Themes row */}
+              <div style={{ padding: '16px 20px 20px', borderTop: '1px solid rgba(0,0,0,.06)' }}>
+                <p style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 12 }}>Top themes raised <span style={{ fontWeight: 400, color: '#8E9EAE' }}>· anonymised</span></p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                  {[
+                    ['Workload & stress', 34, coral],
+                    ['Sleep', 26, teal],
+                    ['Work–life balance', 21, green],
+                  ].map(([name, pct, c]) => (
+                    <div key={name as string} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 12.5, color: '#5A6B7A', width: 130, flexShrink: 0 }}>{name}</span>
+                      <div style={{ flex: 1, height: 7, background: '#EEF1F4', borderRadius: 10, overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: c as string, borderRadius: 10 }} />
+                      </div>
+                      <span style={{ fontSize: 11.5, color: '#8E9EAE', fontWeight: 600, width: 32, textAlign: 'right' }}>{pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <p style={{ fontSize: 11.5, color: '#A0ADB8', textAlign: 'center', marginTop: 14, lineHeight: 1.5 }}>
+              Illustrative view. Aggregate data only — individual records are never visible to your organisation.
+            </p>
           </div>
         </div>
       </section>
@@ -216,7 +258,7 @@ export default function EnterprisePage() {
               </h2>
             </div>
             <a href="#interest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff', padding: '14px 26px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>
-              Start the conversation →
+              Submit interest →
             </a>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
