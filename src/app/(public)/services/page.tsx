@@ -94,7 +94,7 @@ const branches = [
 
 export default function ServicesPage() {
   return (
-    <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
+    <div style={{ background: '#EBE9E4', minHeight: '100vh' }}>{/* PREVIEW: stone-grey canvas */}
       {/* Hero — full-bleed charcoal */}
       <section style={{ background: '#1C2B3A', padding: '88px 48px 84px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -150, right: -120, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.13) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -145,20 +145,21 @@ export default function ServicesPage() {
                 background: '#fff',
                 borderRadius: 20,
                 padding: '28px 28px 24px',
-                border: '1.5px solid rgba(0,0,0,.06)',
+                border: '1px solid rgba(28,43,58,.07)',
+                boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
                 transition: 'transform .2s, box-shadow .2s',
                 height: '100%',
                 cursor: 'pointer',
               }}
                 onMouseOver={e => {
                   const el = e.currentTarget as HTMLDivElement
-                  el.style.transform = 'translateY(-3px)'
-                  el.style.boxShadow = '0 12px 40px rgba(0,0,0,.09)'
+                  el.style.transform = 'translateY(-4px)'
+                  el.style.boxShadow = '0 18px 48px rgba(28,43,58,.12)'
                 }}
                 onMouseOut={e => {
                   const el = e.currentTarget as HTMLDivElement
                   el.style.transform = 'none'
-                  el.style.boxShadow = 'none'
+                  el.style.boxShadow = '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
