@@ -40,8 +40,8 @@ jobs:
             exit 1
           fi
 
-      - name: Apply migrations (baseline-aware)
-        run: npx tsx prisma/migrate-baseline.ts
+      - name: Reset + apply all migrations (DESTRUCTIVE — drops existing tables)
+        run: npx prisma migrate reset --force --skip-seed
 
       - name: Seed demo data
         if: ${{ inputs.seed }}
