@@ -145,3 +145,119 @@ export async function requestSession(slotIso: string): Promise<ActionResult> {
     return { ok: false, persisted: false, error: 'Could not request this slot.' }
   }
 }
+
+/**
+ * Update the patient's per-category data-collection switches (#17). This is the
+ * compliance control surface: turning a category off keeps the patient's own raw
+ * record but excludes it from the AI pipeline, and feedToLlm is the master kill
+ * switch. We persist the consent, then rebuild the abridged AiProfile so the
+ * change takes effect immediately (it drops any now-disallowed context).
+ */
+export type PrivacyInput = {
+  collectMood: boolean
+  collectJournals: boolean
+  collectSessions: boolean
+  collectChats: boolean
+  feedToLlm: boolean
+}
+
+export async function updatePrivacy(input: PrivacyInput): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    await prisma.privacySettings.upsert({
+      where: { userId },
+      create: { userId, ...input },
+      update: { ...input },
+    })
+    await rebuildAiProfile(userId)
+    revalidatePath('/app/settings')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not save your privacy settings.' }
+  }
+}
+
+/**
+ * Switch the patient's care category — Individual / Couple / Kids (#19). Updates
+ * the live active subscription. Clinical reassignment (CareMode, partner/child
+ * linking) is handled by the care team; this records the product-side switch.
+ */
+export async function switchCategory(
+  category: 'Individual' | 'Couple' | 'Kids'
+): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  const enumValue = { Individual: 'INDIVIDUAL', Couple: 'COUPLE', Kids: 'KIDS' }[category] as
+    | 'INDIVIDUAL'
+    | 'COUPLE'
+    | 'KIDS'
+  try {
+    const sub = await prisma.subscription.findFirst({
+      where: { userId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true },
+    })
+    if (!sub) return { ok: true, persisted: false }
+    await prisma.subscription.update({ where: { id: sub.id }, data: { category: enumValue } })
+    revalidatePath('/app/settings')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not switch your care category.' }
+  }
+}
+
+/** Add a medication to the patient's regimen (#14). Patient-owned record. */
+export async function addMedication(input: {
+  name: string
+  dosage?: string
+  frequency?: string
+  times?: string[]
+  prescribedBy?: string
+}): Promise<ActionResult> {
+  const name = input.name?.trim()
+  if (!name) return { ok: false, persisted: false, error: 'Enter a medication name.' }
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    await prisma.medication.create({
+      data: {
+        userId,
+        name,
+        dosage: input.dosage?.trim() || null,
+        frequency: input.frequency?.trim() || null,
+        times: input.times ?? [],
+        prescribedBy: input.prescribedBy?.trim() || null,
+        active: true,
+      },
+    })
+    revalidatePath('/app/medications')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not add this medication.' }
+  }
+}
+
+/** Mark a medication active/stopped. Scoped to the signed-in patient's rows. */
+export async function setMedicationActive(id: string, active: boolean): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const result = await prisma.medication.updateMany({
+      where: { id, userId }, // ownership gate
+      data: { active, endedAt: active ? null : new Date() },
+    })
+    if (result.count === 0) return { ok: true, persisted: false }
+    revalidatePath('/app/medications')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not update this medication.' }
+  }
+}
