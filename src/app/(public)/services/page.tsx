@@ -94,7 +94,7 @@ const branches = [
 
 export default function ServicesPage() {
   return (
-    <div style={{ background: '#EBE9E4', minHeight: '100vh' }}>{/* PREVIEW: stone-grey canvas */}
+    <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
       {/* Hero — full-bleed charcoal */}
       <section style={{ background: '#1C2B3A', padding: '88px 48px 84px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -150, right: -120, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.13) 0%, transparent 70%)', pointerEvents: 'none' }} />
