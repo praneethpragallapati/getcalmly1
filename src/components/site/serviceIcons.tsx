@@ -1,0 +1,22 @@
+import {
+  Brain,
+  Pill,
+  HeartHandshake,
+  Sprout,
+  Baby,
+  ClipboardList,
+  HandHeart,
+} from 'lucide-react'
+
+type IconCmp = React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>
+
+/** Shared line icons for each service, used in the nav menu and listing cards. */
+export const SERVICE_ICONS: Record<string, IconCmp> = {
+  therapy: Brain,
+  psychiatry: Pill,
+  couples: HeartHandshake,
+  child: Sprout,
+  maternal: Baby,
+  assessments: ClipboardList,
+  specialised: HandHeart,
+}

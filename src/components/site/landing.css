@@ -45,7 +45,7 @@
 .lp-page .nav-mega-item{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:12px;text-decoration:none;transition:background .15s;}
 .lp-page .nav-mega-item:hover{background:var(--cream);}
 .lp-page .nav-mega-item::after{display:none;}
-.lp-page .nav-mega-ic{font-size:20px;line-height:1;margin-top:1px;flex-shrink:0;}
+.lp-page .nav-mega-ic{width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
 .lp-page .nav-mega-t{display:block;font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:2px;}
 .lp-page .nav-mega-d{display:block;font-size:12px;color:var(--charcoal-l);line-height:1.4;}
 .lp-page .nav-actions{display:flex;gap:10px;align-items:center;}

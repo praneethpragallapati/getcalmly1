@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { SERVICE_ICONS } from '@/components/site/serviceIcons'
 
 // Ordered by how people actually arrive: core 1:1 care first, the medical
 // layer next, then relationships, life-stage, tools, and specialised care.
@@ -132,7 +133,9 @@ export default function ServicesPage() {
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 20,
         }}>
-          {branches.map((b) => (
+          {branches.map((b) => {
+            const Icon = SERVICE_ICONS[b.slug]
+            return (
             <Link
               key={b.slug}
               href={`/services/${b.slug}`}
@@ -162,9 +165,9 @@ export default function ServicesPage() {
                   <div style={{
                     width: 48, height: 48, borderRadius: 14, background: b.pale,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 22, flexShrink: 0,
+                    flexShrink: 0,
                   }}>
-                    {b.icon}
+                    <Icon size={23} color={b.accent} strokeWidth={1.9} />
                   </div>
                   <div>
                     <p style={{ fontSize: 18, fontWeight: 800, color: '#1C2B3A', marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>{b.title}</p>
@@ -205,7 +208,8 @@ export default function ServicesPage() {
                 </div>
               </div>
             </Link>
-          ))}
+            )
+          })}
         </div>
       </section>
 
