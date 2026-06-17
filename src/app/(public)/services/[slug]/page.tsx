@@ -357,6 +357,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               What care looks like here.
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
+            <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.8, fontWeight: 300, marginTop: 18 }}>
+              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between — daily mood check-ins, private journaling, and Calm AI whenever you need to talk things through, so your next session picks up right where you left off.
+            </p>
           </div>
           <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
             <p style={{ fontSize: 13.5, fontWeight: 700, color: charcoal, marginBottom: 18 }}>Who this is for</p>

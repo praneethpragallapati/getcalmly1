@@ -155,7 +155,7 @@ export default function EnterprisePage() {
               See the wellbeing of your people — never the person.
             </h2>
             <p style={{ fontSize: 17, color: '#5A6B7A', lineHeight: 1.82, fontWeight: 300, marginBottom: 28 }}>
-              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. Everything is aggregated and anonymised — you see the signal, never an individual&apos;s records.
+              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. The signal is drawn quietly from everyday use of the app — mood check-ins, journaling and Calm AI conversations — then aggregated and anonymised, so you see the trend, never an individual&apos;s records.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[

@@ -113,7 +113,7 @@ export default function ServicesPage() {
             However you&apos;re hurting, there&apos;s a way through.
           </h1>
           <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, marginBottom: 36, fontWeight: 300, maxWidth: 620 }}>
-            We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Every path below pairs a real expert with the Calm+ app, so you&apos;re supported in the session and every day in between.
+            We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Every path below pairs a real expert with the Calm+ app — mood check-ins, journaling and Calm AI — so you&apos;re supported in the session and every day in between.
           </p>
           <Link href="/assess" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
