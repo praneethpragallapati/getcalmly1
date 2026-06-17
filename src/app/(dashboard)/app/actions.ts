@@ -261,3 +261,101 @@ export async function setMedicationActive(id: string, active: boolean): Promise<
     return { ok: false, persisted: false, error: 'Could not update this medication.' }
   }
 }
+
+/**
+ * Start a community discussion (#20). Posted under the patient's display name with
+ * a Paid Member tenure badge derived from their subscription. Only a signed-in
+ * patient can post; with no session the preview accepts it without persisting.
+ */
+export async function createCommunityPost(input: {
+  title: string
+  body: string
+  tags?: string[]
+}): Promise<ActionResult> {
+  const title = input.title?.trim()
+  const body = input.body?.trim()
+  if (!title || !body) return { ok: false, persisted: false, error: 'Add a title and a message.' }
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const [user, sub] = await Promise.all([
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+      prisma.subscription.findFirst({
+        where: { userId, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' },
+        select: { paidMonths: true },
+      }),
+    ])
+    const parts = (user?.name ?? 'Member').split(' ')
+    const displayName =
+      parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1].charAt(0)}.` : parts[0]
+
+    await prisma.communityPost.create({
+      data: {
+        title,
+        body,
+        authorId: userId,
+        authorName: displayName,
+        authorRole: sub ? 'PAID_MEMBER' : 'MEMBER',
+        tenure: sub ? `${sub.paidMonths} months` : null,
+        tags: input.tags ?? [],
+      },
+    })
+    revalidatePath('/app/community')
+    revalidatePath('/community')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not post your discussion.' }
+  }
+}
+
+// A gentle, rule-based stand-in for the deferred Calm AI model. It reflects,
+// validates, and nudges toward a concrete coping step — and surfaces a safety
+// message when the text suggests crisis. Deliberately simple and transparent.
+function calmAiStandInReply(text: string): string {
+  const t = text.toLowerCase()
+  const crisis = ['suicid', 'kill myself', 'end my life', 'self harm', 'self-harm', 'hurt myself']
+  if (crisis.some((k) => t.includes(k))) {
+    return "I'm really glad you told me — what you're feeling matters, and you don't have to carry it alone. I'm not able to help in an emergency, so please reach out right now to your expert or a helpline (in India, iCall: 9152987821, or Tele-MANAS: 14416). If you're in immediate danger, please call your local emergency number."
+  }
+  const opener = ['anxious', 'anxiety', 'panic', 'worried'].some((k) => t.includes(k))
+    ? "It sounds like anxiety is sitting heavy with you right now. That's exhausting, and it makes sense that you'd want some relief."
+    : ['sad', 'depress', 'empty', 'low', 'hopeless'].some((k) => t.includes(k))
+      ? 'Thank you for naming that — low, heavy days are hard, and reaching out takes real strength.'
+      : ['sleep', 'tired', 'insomnia', 'awake'].some((k) => t.includes(k))
+        ? 'Rest that won’t come is its own kind of tiring. Your mind and body are asking for some care.'
+        : ['work', 'job', 'boss', 'deadline'].some((k) => t.includes(k))
+          ? 'Work pressure has a way of following us home. It’s okay to want a boundary around it.'
+          : 'I hear you, and I’m glad you’re putting words to it here.'
+  return `${opener}\n\nWould it help to try one small thing right now — a slow 4-7-8 breath, or jotting the loudest thought in your journal so it’s out of your head? And it might be worth bringing this to your next session; I can help you note it down.\n\n(I’m a supportive companion, not a substitute for your expert or for care in an emergency.)`
+}
+
+/**
+ * Send a message to Calm AI (#11). Persists the patient's raw message and a reply
+ * for the signed-in patient only. The reply is a transparent rule-based stand-in
+ * until the model integration lands; the AI profile is refreshed afterwards so
+ * chat context flows into the pipeline only when PrivacySettings.collectChats
+ * (and feedToLlm) allow it.
+ */
+export async function sendCalmAiMessage(
+  text: string
+): Promise<{ ok: boolean; reply?: string; error?: string }> {
+  const content = text?.trim()
+  if (!content) return { ok: false, error: 'Type a message first.' }
+
+  const reply = calmAiStandInReply(content)
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, reply } // preview: respond without persisting
+
+  try {
+    await prisma.calmAiMessage.create({ data: { userId, role: 'USER', content } })
+    await prisma.calmAiMessage.create({ data: { userId, role: 'ASSISTANT', content: reply } })
+    await rebuildAiProfile(userId)
+    revalidatePath('/app/calm-ai')
+    return { ok: true, reply }
+  } catch {
+    return { ok: false, error: 'Could not send your message.' }
+  }
+}
