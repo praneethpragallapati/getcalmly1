@@ -40,8 +40,8 @@ jobs:
             exit 1
           fi
 
-      - name: Apply migrations
-        run: npm run db:deploy
+      - name: Apply migrations (baseline-aware)
+        run: npx tsx prisma/migrate-baseline.ts
 
       - name: Seed demo data
         if: ${{ inputs.seed }}
