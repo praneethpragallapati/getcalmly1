@@ -131,6 +131,7 @@ function TagChip({
 function PostCard({ post }: { post: CommunityPostView }) {
   const [hover, setHover] = useState(false)
   return (
+    <Link href={`/community/${post.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
     <article
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -144,6 +145,7 @@ function PostCard({ post }: { post: CommunityPostView }) {
         gap: 18,
         transition: 'box-shadow 0.25s, transform 0.25s',
         transform: hover ? 'translateY(-3px)' : 'none',
+        cursor: 'pointer',
       }}
     >
       {/* Upvote pill */}
@@ -254,6 +256,7 @@ function PostCard({ post }: { post: CommunityPostView }) {
         </div>
       </div>
     </article>
+    </Link>
   )
 }
 

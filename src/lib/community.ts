@@ -64,6 +64,33 @@ export async function getCommunityPosts(): Promise<CommunityPostView[]> {
   }
 }
 
+/** A single discussion by id, with DB fallback to bundled sample content. */
+export async function getCommunityPost(id: string): Promise<CommunityPostView | null> {
+  try {
+    const r = await prisma.communityPost.findUnique({
+      where: { id },
+      include: { _count: { select: { comments: true } } },
+    })
+    if (r) {
+      return {
+        id: r.id,
+        title: r.title,
+        body: r.body,
+        author: r.authorName,
+        role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
+        tenure: r.tenure,
+        date: relativeTime(r.createdAt),
+        tags: r.tags,
+        upvotes: r.upvotes,
+        comments: r._count.comments,
+      }
+    }
+  } catch {
+    // fall through to seed
+  }
+  return seedView.find((p) => p.id === id) ?? null
+}
+
 /**
  * Discussions that share at least one tag with the given set — used to surface
  * "related community chatter" on a blog post. Ranked by overlap count.

@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useState, useMemo } from 'react'
 import type { BlogPostView } from '@/lib/blog'
+import BlogCover from '@/components/blog/BlogCover'
+import { blogImage } from '@/data/blogImages'
 
 // Tasteful gradient "cover" varied by the post's primary tag/category.
 const tagGradients: Record<string, { from: string; to: string }> = {
@@ -257,8 +259,10 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
                   overflow: 'hidden',
                 }}
               >
+                <BlogCover src={blogImage(lead.tags)} alt={lead.title} />
                 <span
                   style={{
+                    position: 'relative',
                     alignSelf: 'flex-start',
                     fontSize: 11,
                     fontWeight: 700,
@@ -378,8 +382,10 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
                   overflow: 'hidden',
                 }}
               >
+                <BlogCover src={blogImage(post.tags)} alt={post.title} />
                 <span
                   style={{
+                    position: 'relative',
                     fontSize: 10,
                     fontWeight: 700,
                     letterSpacing: '1.5px',

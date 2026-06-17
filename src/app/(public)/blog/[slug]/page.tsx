@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getBlogPost } from '@/lib/blog'
+import { getBlogPost, getRelatedBlogPosts } from '@/lib/blog'
 import { getRelatedDiscussions } from '@/lib/community'
+import BlogCover from '@/components/blog/BlogCover'
+import { blogImage } from '@/data/blogImages'
 
 const tagGradients: Record<string, { from: string; to: string }> = {
   anxiety: { from: '#2E4A5C', to: '#1C2B3A' },
@@ -34,6 +36,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post) notFound()
 
   const related = await getRelatedDiscussions(post.tags, 3)
+  const relatedReads = await getRelatedBlogPosts(post.tags, post.slug, 3)
   const cover = coverFor(post.tags[0])
 
   return (
@@ -47,6 +50,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           padding: '64px 24px 72px',
         }}
       >
+        {/* cover photo behind the gradient/orbs (falls back to gradient) */}
+        <BlogCover
+          src={blogImage(post.tags)}
+          alt={post.title}
+          scrim={`linear-gradient(160deg, ${cover.from}cc 0%, ${cover.to}e6 100%)`}
+        />
         {/* gradient glow orbs */}
         <div
           aria-hidden
@@ -304,7 +313,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {related.map((r) => (
-              <Link key={r.id} href="/community" className="gc-related-card" style={{ textDecoration: 'none' }}>
+              <Link key={r.id} href={`/community/${r.id}`} className="gc-related-card" style={{ textDecoration: 'none' }}>
                 <div className="gc-related-inner">
                   <span style={{ fontSize: 15, color: '#1C2B3A', fontWeight: 600, lineHeight: 1.4 }}>
                     {r.title}
@@ -321,6 +330,35 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     View on community →
                   </span>
                 </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Related reads (other articles with shared tags) */}
+      {relatedReads.length > 0 && (
+        <section style={{ padding: '8px 24px 48px', maxWidth: 768, margin: '0 auto' }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C8553D', marginBottom: 8 }}>
+            More on these themes
+          </p>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 28, fontWeight: 800, color: '#1C2B3A', marginBottom: 18 }}>
+            Related reads
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+            {relatedReads.map((r) => (
+              <Link key={r.slug} href={`/blog/${r.slug}`} style={{ textDecoration: 'none' }}>
+                <article style={{ position: 'relative', height: '100%', background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
+                  <div style={{ position: 'relative', height: 96, background: `linear-gradient(140deg, ${coverFor(r.tags[0]).from}, ${coverFor(r.tags[0]).to})`, overflow: 'hidden' }}>
+                    <BlogCover src={blogImage(r.tags)} alt={r.title} />
+                  </div>
+                  <div style={{ padding: '14px 16px' }}>
+                    <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 17, fontWeight: 800, color: '#1C2B3A', lineHeight: 1.2, margin: '0 0 6px' }}>
+                      {r.title}
+                    </h3>
+                    <p style={{ fontSize: 12.5, color: '#6B7D8E', margin: 0 }}>{r.readTime}</p>
+                  </div>
+                </article>
               </Link>
             ))}
           </div>

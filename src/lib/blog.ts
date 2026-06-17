@@ -68,3 +68,38 @@ export async function getBlogSlugs(): Promise<string[]> {
   }
   return blogSeed.map((p) => p.slug)
 }
+
+export type RelatedBlog = {
+  slug: string
+  title: string
+  excerpt: string
+  tags: string[]
+  readTime: string
+}
+
+/**
+ * Published posts that share at least one tag with the given set — used to
+ * surface "related reads" on a blog post or a community discussion. Ranked by
+ * tag overlap, excluding the current post when a slug is provided.
+ */
+export async function getRelatedBlogPosts(
+  tags: string[],
+  excludeSlug?: string,
+  limit = 3,
+): Promise<RelatedBlog[]> {
+  const all = await getBlogPosts()
+  return all
+    .filter((p) => p.slug !== excludeSlug)
+    .map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      tags: p.tags,
+      readTime: p.readTime,
+      overlap: p.tags.filter((t) => tags.includes(t)).length,
+    }))
+    .filter((p) => p.overlap > 0)
+    .sort((a, b) => b.overlap - a.overlap)
+    .slice(0, limit)
+    .map(({ slug, title, excerpt, tags, readTime }) => ({ slug, title, excerpt, tags, readTime }))
+}

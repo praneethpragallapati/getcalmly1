@@ -220,13 +220,13 @@ export default function FeaturesPage() {
           {/* Phone frame — live patient-app mockup, Journal → Insights */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{ width: 270, background: '#0F1C28', borderRadius: 44, padding: 10, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
-              <div style={{ borderRadius: 36, overflow: 'hidden', background: '#FFF8F5', position: 'relative' }}>
+              <div style={{ width: 250, height: 541, borderRadius: 36, overflow: 'hidden', background: '#FFF8F5', position: 'relative' }}>
                 <iframe
                   src="/mockups/app-mock.html?screen=journal&tab=insights"
                   title="GetCalmly app — journal insights"
                   loading="lazy"
                   scrolling="no"
-                  style={{ display: 'block', width: 250, height: 541, border: 'none', borderRadius: 36 }}
+                  style={{ display: 'block', width: 375, height: 812, border: 'none', transform: 'scale(0.6667)', transformOrigin: 'top left' }}
                 />
               </div>
             </div>
