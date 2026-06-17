@@ -159,6 +159,9 @@ model User {
   emailVerified DateTime?
   phone         String?   @unique
   image         String?
+  // Salted scrypt hash for email+password sign-in (scrypt$salt$hash). Null for
+  // accounts that only use OAuth / OTP. Never the raw password.
+  passwordHash  String?
   role          Role      @default(PATIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

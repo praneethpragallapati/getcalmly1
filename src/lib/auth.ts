@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import { verifyOtp } from '@/lib/msg91'
 import { verifyEmailOtp } from '@/lib/email'
+import { verifyPassword } from '@/lib/password'
 
 export const authOptions: NextAuthOptions = {
   // Credentials providers require JWT sessions (DB sessions are not supported
@@ -58,6 +59,24 @@ export const authOptions: NextAuthOptions = {
           update: {},
           create: { email, role: 'PATIENT' },
         })
+        return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
+      },
+    }),
+    CredentialsProvider({
+      id: 'password',
+      name: 'Email & Password',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.toLowerCase().trim()
+        const password = credentials?.password
+        if (!email || !password) return null
+
+        const user = await prisma.user.findUnique({ where: { email } })
+        if (!user || !verifyPassword(password, user.passwordHash)) return null
+
         return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
       },
     }),

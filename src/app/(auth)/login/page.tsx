@@ -9,14 +9,37 @@ import { defaultCountry } from '@/data/countries'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [tab, setTab] = useState<'phone' | 'email'>('phone')
+  const [tab, setTab] = useState<'phone' | 'email' | 'password'>('phone')
   const [sent, setSent] = useState(false)
   const [country, setCountry] = useState(defaultCountry)
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  async function handlePasswordLogin() {
+    setError('')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Enter a valid email address.')
+      return
+    }
+    if (!password) {
+      setError('Enter your password.')
+      return
+    }
+    setLoading(true)
+    try {
+      const result = await signIn('password', { email, password, redirect: false })
+      if (result?.ok) router.push('/app')
+      else setError('Email or password is incorrect.')
+    } catch {
+      setError('Could not sign in. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const mobile = `${country.dial}${phone.replace(/\D/g, '')}`
 
@@ -77,7 +100,7 @@ export default function LoginPage() {
       const result = tab === 'phone'
         ? await signIn('phone-otp', { mobile, otp: code, redirect: false })
         : await signIn('email-otp', { email, otp: code, redirect: false })
-      if (result?.ok) router.push('/')
+      if (result?.ok) router.push('/app')
       else setError('That code did not match. Please try again.')
     } catch {
       setError('Could not verify. Please try again.')
@@ -127,7 +150,7 @@ export default function LoginPage() {
           cursor: 'pointer', transition: 'border-color .2s, box-shadow .2s', width: '100%',
           fontFamily: "'DM Sans', sans-serif",
         }}
-          onClick={() => signIn('google', { callbackUrl: '/' })}
+          onClick={() => signIn('google', { callbackUrl: '/app' })}
           onMouseOver={e => { e.currentTarget.style.borderColor = '#C8553D'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(200,85,61,.08)' }}
           onMouseOut={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none' }}
         >
@@ -159,10 +182,10 @@ export default function LoginPage() {
 
       {/* Tab switcher */}
       <div style={{ display: 'flex', background: '#F5F7FA', borderRadius: 10, padding: 3, marginBottom: 20 }}>
-        {(['phone', 'email'] as const).map((t) => (
+        {(['phone', 'email', 'password'] as const).map((t) => (
           <button
             key={t}
-            onClick={() => { setTab(t); setSent(false) }}
+            onClick={() => { setTab(t); setSent(false); setError('') }}
             style={{
               flex: 1, padding: '9px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
               fontSize: 14, fontWeight: 600, transition: 'all .2s',
@@ -172,13 +195,44 @@ export default function LoginPage() {
               fontFamily: "'DM Sans', sans-serif",
             }}
           >
-            {t === 'phone' ? '📱 Mobile' : '✉️ Email'}
+            {t === 'phone' ? '📱 Mobile' : t === 'email' ? '✉️ Email' : '🔑 Password'}
           </button>
         ))}
       </div>
 
       {/* Form */}
-      {!sent ? (
+      {tab === 'password' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 15, color: '#1C2B3A', background: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handlePasswordLogin() }}
+            style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 15, color: '#1C2B3A', background: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box' }}
+          />
+          <button
+            onClick={handlePasswordLogin}
+            disabled={loading}
+            style={{
+              width: '100%', padding: '14px', borderRadius: 12, border: 'none',
+              background: '#C8553D', color: '#fff', fontSize: 15, fontWeight: 700,
+              cursor: loading ? 'wait' : 'pointer', fontFamily: "'DM Sans', sans-serif",
+              boxShadow: '0 4px 16px rgba(200,85,61,.3)', opacity: loading ? 0.7 : 1,
+            }}
+          >
+            {loading ? 'Signing in…' : 'Sign in →'}
+          </button>
+          {error && <p style={{ fontSize: 13, color: '#C8553D', textAlign: 'center', margin: 0 }}>{error}</p>}
+        </div>
+      ) : !sent ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {tab === 'phone' ? (
             <div style={{ display: 'flex', border: '1.5px solid #E2E8F0', borderRadius: 12, overflow: 'visible' }}>
