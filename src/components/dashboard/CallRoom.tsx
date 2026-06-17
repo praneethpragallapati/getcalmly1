@@ -275,10 +275,10 @@ export function CallRoom({
       {errorMsg && <div className="call-error">{errorMsg}</div>}
 
       <div className="call-controls">
-        {phase === 'idle' || phase === 'ended' ? (
+        {phase === 'idle' || phase === 'ended' || phase === 'error' ? (
           <>
             <button className="btn btn-primary" type="button" onClick={join}>
-              <Video size={16} /> {phase === 'ended' ? 'Rejoin session' : 'Join session'}
+              <Video size={16} /> {phase === 'idle' ? 'Join session' : 'Try again'}
             </button>
             <Link href="/app/sessions" className="btn btn-outline">
               Back to sessions
