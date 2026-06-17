@@ -54,6 +54,52 @@ enum RelationType {
   DEPENDENT
 }
 
+// The "Paid member" sub-category a patient sits in. Distinct from CareMode:
+// CareMode is the clinical individual/couple distinction; CareCategory is the
+// product bucket the subscription is sold under (Individual / Couple / Kids).
+// A patient can switch between these (e.g. individual <-> couple, #19).
+enum CareCategory {
+  INDIVIDUAL
+  COUPLE
+  KIDS
+}
+
+// Tenure-based membership tier. Derived from the number of paid months on an
+// active subscription (#18) and surfaced as a badge across the app.
+enum PlanTier {
+  STARTER // < 3 paid months
+  BRONZE // 3–5 months
+  SILVER // 6–11 months
+  GOLD // 12–23 months
+  PLATINUM // 24+ months
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PAUSED
+}
+
+// Kind of expert-assigned task surfaced in the Home > Tasks tab (#16).
+enum TaskType {
+  EXERCISE
+  VIDEO
+  READING
+  REFLECTION
+  BREATHING
+}
+
+enum InsightKind {
+  DAILY // home-page daily insight from mood tracker (#10)
+  WEEKLY // weekly journal insight (#12)
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
 enum TherapistApplicationStatus {
   APPLIED
   INTERVIEW_SCHEDULED
@@ -122,12 +168,19 @@ model User {
   therapistProfile    TherapistProfile?
   patientProfile      PatientProfile?
   assessments         Assessment[]
-  patientAppointments Appointment[]     @relation("PatientAppointments")
+  patientAppointments Appointment[]      @relation("PatientAppointments")
   moodEntries         MoodEntry[]
   journalEntries      JournalEntry[]
   blogPosts           BlogPost[]
   communityPosts      CommunityPost[]    @relation("UserCommunityPosts")
   communityComments   CommunityComment[] @relation("UserCommunityComments")
+  subscriptions       Subscription[]
+  tasks               Task[]
+  medications         Medication[]
+  privacySettings     PrivacySettings?
+  aiProfile           AiProfile?
+  aiInsights          AiInsight[]
+  calmAiMessages      CalmAiMessage[]
 }
 
 // Patient-side record holding identity, care context, contacts and consents.
@@ -248,18 +301,155 @@ model Assessment {
 }
 
 model Appointment {
-  id           String            @id @default(cuid())
-  patientId    String
-  patient      User              @relation("PatientAppointments", fields: [patientId], references: [id])
-  therapistId  String
-  therapist    TherapistProfile  @relation("TherapistAppointments", fields: [therapistId], references: [id])
-  scheduledAt  DateTime
-  durationMins Int               @default(50)
-  status       AppointmentStatus @default(PENDING)
-  meetLink     String?
-  fee          Int
-  notes        String?           @db.Text
-  createdAt    DateTime          @default(now())
+  id             String            @id @default(cuid())
+  patientId      String
+  patient        User              @relation("PatientAppointments", fields: [patientId], references: [id])
+  therapistId    String
+  therapist      TherapistProfile  @relation("TherapistAppointments", fields: [therapistId], references: [id])
+  scheduledAt    DateTime
+  durationMins   Int               @default(50)
+  status         AppointmentStatus @default(PENDING)
+  // Proprietary in-app WebRTC room. The patient & expert join the same roomId;
+  // no external meeting provider is used (#4). meetLink kept for legacy/back-compat.
+  roomId         String?
+  meetLink       String?
+  fee            Int
+  notes          String?           @db.Text
+  // Notes the patient prepares before the session, shared with the expert (#9).
+  preSessionNote String?           @db.Text
+  // Clinician's post-session summary the patient can read back later (#3).
+  summary        String?           @db.Text
+  createdAt      DateTime          @default(now())
+
+  @@index([patientId])
+}
+
+// A patient's purchased care package. Drives session balance, category and the
+// tenure-based membership tier (#5, #6, #7, #18). A patient may have history of
+// several; the most recent ACTIVE one is the live plan.
+model Subscription {
+  id            String             @id @default(cuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      CareCategory       @default(INDIVIDUAL)
+  // Which of the 7 service tracks this package is for (slug: therapy,
+  // psychiatry, couples, child, maternal, assessments, specialised).
+  trackSlug     String
+  planName      String // e.g. "Calm+ Quarterly"
+  tier          PlanTier           @default(STARTER)
+  status        SubscriptionStatus @default(ACTIVE)
+  // Cumulative paid months across renewals — feeds the tier calculation (#18).
+  paidMonths    Int                @default(0)
+  sessionsTotal Int                @default(0)
+  sessionsUsed  Int                @default(0)
+  // Remaining counselling minutes in the package, where sold by time (#6).
+  minutesTotal  Int?
+  minutesUsed   Int?
+  startedAt     DateTime           @default(now())
+  renewsAt      DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+// A daily task an expert assigns to a patient (exercise, video, reading…) shown
+// under Home > Tasks (#16).
+model Task {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        TaskType  @default(REFLECTION)
+  title       String
+  description String?   @db.Text
+  // Optional link for VIDEO/READING tasks.
+  resourceUrl String?
+  assignedBy  String? // therapist display name, denormalised
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// A medication on the patient's regimen, with the prescribing doctor. Surfaced
+// in the Expert Care > Medications tab, primarily for psychiatry patients (#14).
+model Medication {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  dosage       String? // e.g. "20 mg"
+  frequency    String? // e.g. "Once daily"
+  // Times of day to take it, free-form (e.g. ["Morning", "Night"]).
+  times        String[]
+  prescribedBy String? // doctor name, patient- or doctor-entered
+  notes        String?   @db.Text
+  startedAt    DateTime?
+  endedAt      DateTime?
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Per-category data-collection switches (#17). When a category is off, that data
+// is neither gathered for AI nor fed to any LLM. feedToLlm is a global override.
+model PrivacySettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collectSessions Boolean  @default(true)
+  collectChats    Boolean  @default(true)
+  collectMood     Boolean  @default(true)
+  collectJournals Boolean  @default(true)
+  // Master switch: even collected data is excluded from LLM inputs when false.
+  feedToLlm       Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
+// The "abridged AI version" of a patient's data (#13): a compact, de-identified
+// summary derived from raw data (respecting PrivacySettings) and used as the
+// context input for Calm AI and insights. Populated by the AI pipeline later.
+model AiProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Compact rolling summary the AI pipeline maintains.
+  summary     String?   @db.Text
+  // Structured signals (themes, recurring stressors, coping wins, etc.).
+  signals     Json?
+  lastBuiltAt DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+// A generated insight — daily (home, from mood) or weekly (journal tab). Body is
+// produced by the deferred AI integration (#10, #12); rows are scaffolded now.
+model AiInsight {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      InsightKind
+  title     String
+  body      String      @db.Text
+  forDate   DateTime    @default(now())
+  createdAt DateTime    @default(now())
+
+  @@index([userId, kind])
+}
+
+// A single Calm AI chat message (#11). Stored per patient; AI replies are added
+// by the deferred AI integration.
+model CalmAiMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ChatRole
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model MoodEntry {
