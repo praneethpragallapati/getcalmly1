@@ -138,8 +138,8 @@ function PostCard({ post }: { post: CommunityPostView }) {
         background: '#fff',
         borderRadius: 18,
         padding: '22px 24px',
-        boxShadow: hover ? '0 18px 40px rgba(28,43,58,.16)' : '0 1px 4px rgba(28,43,58,.07)',
-        border: '1px solid rgba(28,43,58,.05)',
+        boxShadow: hover ? '0 18px 48px rgba(28,43,58,.12)' : '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
+        border: '1px solid rgba(28,43,58,.07)',
         display: 'flex',
         gap: 18,
         transition: 'box-shadow 0.25s, transform 0.25s',
@@ -264,8 +264,8 @@ function SidebarCard({ title, children }: { title: string; children: React.React
         background: '#fff',
         borderRadius: 18,
         padding: '20px 22px',
-        boxShadow: '0 1px 4px rgba(28,43,58,.07)',
-        border: '1px solid rgba(28,43,58,.05)',
+        boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
+        border: '1px solid rgba(28,43,58,.07)',
       }}
     >
       <h3
@@ -619,8 +619,8 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
               background: '#fff',
               borderRadius: 18,
               padding: '16px 20px',
-              boxShadow: '0 1px 4px rgba(28,43,58,.07)',
-              border: '1px solid rgba(28,43,58,.05)',
+              boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
+              border: '1px solid rgba(28,43,58,.07)',
             }}
           >
             <div

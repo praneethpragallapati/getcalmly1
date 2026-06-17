@@ -226,18 +226,19 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
                 background: '#fff',
                 borderRadius: 26,
                 overflow: 'hidden',
-                boxShadow: '0 4px 24px rgba(28,43,58,0.10)',
+                border: '1px solid rgba(28,43,58,.07)',
+                boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
                 transition: 'box-shadow 0.25s, transform 0.25s',
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
                 ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 16px 44px rgba(28,43,58,0.18)'
+                  '0 18px 48px rgba(28,43,58,.12)'
                 ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
               }}
               onMouseLeave={(e) => {
                 ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 4px 24px rgba(28,43,58,0.10)'
+                  '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
                 ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
               }}
             >
@@ -346,19 +347,20 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: '0 2px 12px rgba(28,43,58,0.07)',
+                border: '1px solid rgba(28,43,58,.07)',
+                boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
                 transition: 'box-shadow 0.22s, transform 0.22s',
                 cursor: 'pointer',
                 flex: 1,
               }}
               onMouseEnter={(e) => {
                 ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 14px 36px rgba(28,43,58,0.16)'
+                  '0 18px 48px rgba(28,43,58,.12)'
                 ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
               }}
               onMouseLeave={(e) => {
                 ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 2px 12px rgba(28,43,58,0.07)'
+                  '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
                 ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
               }}
             >

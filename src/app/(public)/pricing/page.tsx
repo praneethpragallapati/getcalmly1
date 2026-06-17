@@ -58,7 +58,7 @@ function CareCard({
   return (
     <div style={{
       background: '#fff', borderRadius: 24, padding: '32px 28px',
-      border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 6px 22px rgba(28,43,58,.06)',
+      border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
       display: 'flex', flexDirection: 'column',
     }}>
       <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>{name}</p>
@@ -153,7 +153,7 @@ function CalmPlusCard() {
 
 function FreeCard() {
   return (
-    <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', border: '1.5px solid rgba(0,0,0,.08)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)', display: 'flex', flexDirection: 'column' }}>
       <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>Free</p>
       <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18 }}>A genuine place to start. No card, no pressure.</p>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>

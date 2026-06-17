@@ -358,7 +358,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
           </div>
-          <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(0,0,0,.06)' }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
             <p style={{ fontSize: 13.5, fontWeight: 700, color: charcoal, marginBottom: 18 }}>Who this is for</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {s.whoFor.map((w) => (

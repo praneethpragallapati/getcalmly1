@@ -261,8 +261,8 @@ export default function FeaturesPage() {
 }
 
 const mockCard: React.CSSProperties = {
-  background: '#fff', borderRadius: 18, padding: '20px', border: '1.5px solid rgba(0,0,0,.07)',
-  boxShadow: '0 16px 44px rgba(28,43,58,.10)',
+  background: '#fff', borderRadius: 18, padding: '20px', border: '1px solid rgba(28,43,58,.07)',
+  boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
 }
 const mockLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: 0.4, color: '#A0ADB8', textTransform: 'uppercase' }
 const chip: React.CSSProperties = { fontSize: 11, fontWeight: 600, color: '#3A4A5A', background: '#F5F7FA', padding: '6px 11px', borderRadius: 50 }

@@ -300,7 +300,7 @@ export default function EnterprisePage() {
               ].map(([t, d]) => (
                 <div key={t} style={{
                   background: '#fff', borderRadius: 14, padding: '14px 18px',
-                  border: `1.5px solid rgba(26,127,122,.18)`, flex: '1 1 160px',
+                  border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)', flex: '1 1 160px',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{ color: teal, fontSize: 13, fontWeight: 800 }}>✓</span>
