@@ -3,6 +3,7 @@ import {
   type DashboardData,
   type DashJournal,
   type MoodWeekPoint,
+  type Pattern,
   type PlanTierName,
 } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
@@ -55,7 +56,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   if (!userId) return base
 
   try {
-    const [moods, journals, journalCount, user] = await Promise.all([
+    const [moods, journals, journalCount, user, dailyInsight, weeklyInsight] = await Promise.all([
       prisma.moodEntry.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
@@ -68,6 +69,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       }),
       prisma.journalEntry.count({ where: { userId } }),
       prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+      prisma.aiInsight.findFirst({
+        where: { userId, kind: 'DAILY' },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.aiInsight.findFirst({
+        where: { userId, kind: 'WEEKLY' },
+        orderBy: { createdAt: 'desc' },
+      }),
     ])
 
     if (moods.length === 0 && journalCount === 0) return base
@@ -114,6 +123,24 @@ export async function getDashboardData(): Promise<DashboardData> {
       }))
     }
     data.journalCount = journalCount || base.journalCount
+
+    // Overlay real AI insights when the scheduled jobs have produced them. The
+    // Pattern cards live in AiInsight.meta.patterns (daily → detectedThisWeek on
+    // Home, weekly → journalPatterns on the Journal tab); fall back to demo when absent.
+    const patternsOf = (meta: unknown): Pattern[] => {
+      const arr = (meta as { patterns?: unknown })?.patterns
+      return Array.isArray(arr) ? (arr as Pattern[]) : []
+    }
+    if (dailyInsight) {
+      data.dailyInsight = { title: dailyInsight.title, body: dailyInsight.body }
+      const p = patternsOf(dailyInsight.meta)
+      if (p.length) data.detectedThisWeek = p
+    }
+    if (weeklyInsight) {
+      data.weeklyInsight = { title: weeklyInsight.title, body: weeklyInsight.body }
+      const p = patternsOf(weeklyInsight.meta)
+      if (p.length) data.journalPatterns = p
+    }
 
     return data
   } catch {

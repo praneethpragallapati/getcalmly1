@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
-import { rebuildAiProfile } from '@/lib/ai'
+import { rebuildAiProfile, runChat } from '@/lib/ai'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
@@ -333,11 +333,12 @@ function calmAiStandInReply(text: string): string {
 }
 
 /**
- * Send a message to Calm AI (#11). Persists the patient's raw message and a reply
- * for the signed-in patient only. The reply is a transparent rule-based stand-in
- * until the model integration lands; the AI profile is refreshed afterwards so
- * chat context flows into the pipeline only when PrivacySettings.collectChats
- * (and feedToLlm) allow it.
+ * Send a message to Calm AI (#11). For a signed-in patient this runs the real
+ * classified-routing pipeline (lib/ai/chat.ts) when a model is configured — it
+ * classifies the turn, routes to the right model, persists both turns with
+ * metadata, and writes a crisis hand-off when needed. With no model configured
+ * (or no session) it falls back to the transparent rule-based stand-in. All AI
+ * context use stays gated by PrivacySettings inside the pipeline.
  */
 export async function sendCalmAiMessage(
   text: string
@@ -345,11 +346,20 @@ export async function sendCalmAiMessage(
   const content = text?.trim()
   if (!content) return { ok: false, error: 'Type a message first.' }
 
-  const reply = calmAiStandInReply(content)
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, reply } // preview: respond without persisting
+  if (!userId) return { ok: true, reply: calmAiStandInReply(content) } // preview: no persistence
 
   try {
+    // Real pipeline (persists both turns + any crisis alert) when an LLM is set up.
+    const result = await runChat(userId, content)
+    if (result) {
+      await rebuildAiProfile(userId)
+      revalidatePath('/app/calm-ai')
+      return { ok: true, reply: result.reply }
+    }
+
+    // Fallback: rule-based stand-in, persisted the same way.
+    const reply = calmAiStandInReply(content)
     await prisma.calmAiMessage.create({ data: { userId, role: 'USER', content } })
     await prisma.calmAiMessage.create({ data: { userId, role: 'ASSISTANT', content: reply } })
     await rebuildAiProfile(userId)

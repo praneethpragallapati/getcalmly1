@@ -181,6 +181,9 @@ model User {
   aiProfile           AiProfile?
   aiInsights          AiInsight[]
   calmAiMessages      CalmAiMessage[]
+  clinicalContext     ClinicalContext?
+  assessmentScores    AssessmentScore[]
+  crisisAlerts        CrisisAlert[]
 }
 
 // Patient-side record holding identity, care context, contacts and consents.
@@ -200,6 +203,21 @@ model PatientProfile {
   // What the patient is being treated for — concern "tracks" (e.g. ["anxiety",
   // "postpartum"]). Drives matching, the care journey, and clinician context.
   track String[]
+
+  // Display + clinical context the AI pipeline reads (mirrors the notebook
+  // `patients.json` vocabulary so the expert dashboard and the AI share fields).
+  // A human-readable label for the primary track (e.g. "Anxiety and Overthinking")
+  // and an optional finer sub-track. trackLabel is an override; when null it is
+  // derived from the track slug in code (lib/tracks.ts).
+  trackLabel       String?
+  subTrack         String?
+  // Working clinical diagnosis, expert-authored (e.g. "Generalized Anxiety Disorder").
+  diagnosis        String?
+  // Free-text situational note the AI must read before suggesting actions, so it
+  // never proposes partner/relationship steps that don't fit the patient's life.
+  currentSituation String? @db.Text
+  // Lifecycle of care (e.g. "active", "paused", "discharged").
+  therapyStatus    String?
 
   // Personal & contact
   dateOfBirth       DateTime?
@@ -433,21 +451,95 @@ model AiInsight {
   kind      InsightKind
   title     String
   body      String      @db.Text
+  // Generation metadata: { suggSource, dataSufficient, model, costUsd, patterns }.
+  // `patterns` carries the Pattern[] cards (title/sub/tone) the dashboard renders.
+  meta      Json?
   forDate   DateTime    @default(now())
   createdAt DateTime    @default(now())
 
   @@index([userId, kind])
 }
 
-// A single Calm AI chat message (#11). Stored per patient; AI replies are added
-// by the deferred AI integration.
+// A single Calm AI chat message (#11). Stored per patient. Assistant replies are
+// produced by the classified-routing pipeline (lib/ai/chat.ts); the classifier
+// metadata is denormalised onto the row so trends, de-escalation and crisis
+// detection survive across turns without re-classifying history.
 model CalmAiMessage {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   role      ChatRole
   content   String   @db.Text
+  // Classifier output for the turn this message belongs to (null for legacy /
+  // rule-based rows). label e.g. "VENT_DISTRESS", intent, intensity low|high|crisis.
+  label     String?
+  intent    String?
+  intensity String?
+  // True when this turn was routed as high-stake (CRISIS / VENT_DISTRESS).
+  highStake Boolean  @default(false)
+  // Model that produced an assistant reply (e.g. "claude-haiku-4-5-20251001").
+  model     String?
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// Expert-authored clinical context for a patient (1:1). Mirrors the notebook
+// `assessment_track` block. Written by the care team on the expert dashboard and
+// read (privacy-gated) by the AI pipeline — never invented by the model.
+model ClinicalContext {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Current clinical scale in use and the latest trend word.
+  scale             String? // e.g. "GAD-7", "PHQ-9"
+  trend             String? // "improving" | "stable" | "declining"
+  // What has and hasn't helped, and known recurring triggers.
+  whatHasHelped     String[]
+  whatHasNotHelped  String[]
+  recurringTriggers String[]
+  // Risk flags — drive crisis handling care level.
+  passiveSiHistory  Boolean  @default(false)
+  sleepDisturbance  Boolean  @default(false)
+  safetyPlanActive  Boolean  @default(false)
+  safetyPlanContact String?
+  // Denormalised display name of the clinician who last edited this.
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// A point-in-time clinical scale score (time series). Mirrors the notebook
+// `assessment_track.scores[]`. Lets the AI describe trends without inventing them.
+model AssessmentScore {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scale      String // "GAD-7", "PHQ-9", ...
+  score      Int
+  label      String? // "Moderate", "Mild", ...
+  recordedAt DateTime @default(now())
+
+  @@index([userId, recordedAt])
+}
+
+// A crisis hand-off record. When the chat pipeline routes a turn as high-stake it
+// writes one of these for the care team to follow up on, with a ready-to-read
+// handoff note. This is the durable replacement for the notebook's
+// crisis_alerts.jsonl side file.
+model CrisisAlert {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patientName    String?
+  therapistName  String?
+  therapistEmail String?
+  label          String // "CRISIS" | "VENT_DISTRESS"
+  question       String   @db.Text // what the patient said
+  answer         String   @db.Text // what Calm AI replied
+  handoffNote    String   @db.Text
+  resolved       Boolean  @default(false)
+  createdAt      DateTime @default(now())
 
   @@index([userId, createdAt])
 }
