@@ -28,6 +28,26 @@
 .lp-page .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--coral);transition:width .25s;}
 .lp-page .nav-links a:hover{color:var(--coral);}
 .lp-page .nav-links a:hover::after{width:100%;}
+
+/* Services hover mega-menu */
+.lp-page .nav-links .nav-item{position:relative;display:flex;align-items:center;}
+.lp-page .nav-trigger{font-size:14px;font-weight:500;color:var(--charcoal-l);cursor:pointer;letter-spacing:.1px;transition:color .2s;display:inline-flex;align-items:center;gap:5px;}
+.lp-page .nav-item:hover .nav-trigger{color:var(--coral);}
+.lp-page .nav-caret{transition:transform .25s;opacity:.6;}
+.lp-page .nav-item:hover .nav-caret{transform:rotate(180deg);}
+.lp-page .nav-mega-wrap{position:absolute;top:100%;left:50%;padding-top:16px;
+  transform:translateX(-50%) translateY(6px);opacity:0;visibility:hidden;
+  transition:opacity .22s ease,transform .22s ease;z-index:600;}
+.lp-page .nav-item:hover .nav-mega-wrap{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+.lp-page .nav-mega{background:var(--white);border:1px solid var(--border);border-radius:16px;
+  box-shadow:0 22px 54px rgba(28,43,58,.16);padding:12px;width:560px;
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.lp-page .nav-mega-item{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:12px;text-decoration:none;transition:background .15s;}
+.lp-page .nav-mega-item:hover{background:var(--cream);}
+.lp-page .nav-mega-item::after{display:none;}
+.lp-page .nav-mega-ic{font-size:20px;line-height:1;margin-top:1px;flex-shrink:0;}
+.lp-page .nav-mega-t{display:block;font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:2px;}
+.lp-page .nav-mega-d{display:block;font-size:12px;color:var(--charcoal-l);line-height:1.4;}
 .lp-page .nav-actions{display:flex;gap:10px;align-items:center;}
 .lp-page .btn-ghost{padding:8px 20px;border-radius:30px;font-size:14px;font-weight:600;color:var(--charcoal);border:1.5px solid rgba(28,43,58,.14);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .2s;}
 .lp-page .btn-ghost:hover{border-color:var(--coral);color:var(--coral);}

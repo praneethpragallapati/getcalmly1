@@ -4,9 +4,20 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
 
+// Ordered by how people actually arrive: core 1:1 care first, then the
+// medical layer, then relationships, life-stage, tools, and specialised.
+const SERVICES = [
+  { slug: 'therapy', icon: '🧠', title: 'Individual Therapy', tag: 'Anxiety, depression, stress & burnout' },
+  { slug: 'psychiatry', icon: '💊', title: 'Psychiatry', tag: 'Evaluation, diagnosis & medication' },
+  { slug: 'couples', icon: '💑', title: 'Couples & Relationships', tag: 'Communication, trust & repair' },
+  { slug: 'child', icon: '🌱', title: 'Children & Teens', tag: 'Age-appropriate, judgment-free care' },
+  { slug: 'maternal', icon: '🤱', title: 'Motherhood & Postpartum', tag: 'Support built for this season' },
+  { slug: 'assessments', icon: '📋', title: 'Psychological Assessments', tag: 'Clarity through validated tools' },
+  { slug: 'specialised', icon: '🫶', title: 'Specialised Support', tag: 'LGBTQIA+, grief, chronic illness' },
+]
+
 const NAV = [
   { label: 'Home', href: '/' },
-  { label: 'Services', href: '/services' },
   { label: 'Features', href: '/features' },
   { label: 'Blog', href: '/blog' },
   { label: 'Community', href: '/community' },
@@ -22,7 +33,30 @@ export default function SiteHeader() {
       <Logo size={26} href="/" tagline />
 
       <ul className="nav-links">
-        {NAV.map((n) => (
+        <li><Link href="/">Home</Link></li>
+
+        {/* Services — hover mega-menu, no standalone tab */}
+        <li className="nav-item">
+          <span className="nav-trigger">
+            Services
+            <svg className="nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </span>
+          <div className="nav-mega-wrap">
+            <div className="nav-mega">
+              {SERVICES.map((s) => (
+                <Link key={s.slug} href={`/services/${s.slug}`} className="nav-mega-item">
+                  <span className="nav-mega-ic">{s.icon}</span>
+                  <span>
+                    <span className="nav-mega-t">{s.title}</span>
+                    <span className="nav-mega-d">{s.tag}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </li>
+
+        {NAV.slice(1).map((n) => (
           <li key={n.href}>
             <Link href={n.href}>{n.label}</Link>
           </li>
@@ -85,10 +119,22 @@ export default function SiteHeader() {
             flexDirection: 'column',
             padding: '12px 6%',
             gap: 4,
+            maxHeight: 'calc(100vh - 68px)',
+            overflowY: 'auto',
           }}
         >
-          {NAV.map((n) => (
-            <Link key={n.href} href={n.href} onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 500, color: 'var(--charcoal)', textDecoration: 'none' }}>
+          <Link href="/" onClick={() => setOpen(false)} style={mobLink}>Home</Link>
+
+          {/* Services group — expanded inline on mobile */}
+          <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>Services</p>
+          {SERVICES.map((s) => (
+            <Link key={s.slug} href={`/services/${s.slug}`} onClick={() => setOpen(false)} style={{ ...mobLink, paddingLeft: 14, display: 'flex', gap: 10, alignItems: 'center' }}>
+              <span style={{ fontSize: 16 }}>{s.icon}</span> {s.title}
+            </Link>
+          ))}
+
+          {NAV.slice(1).map((n) => (
+            <Link key={n.href} href={n.href} onClick={() => setOpen(false)} style={mobLink}>
               {n.label}
             </Link>
           ))}
@@ -106,3 +152,5 @@ export default function SiteHeader() {
     </nav>
   )
 }
+
+const mobLink: React.CSSProperties = { padding: '10px 0', fontSize: 15, fontWeight: 500, color: 'var(--charcoal)', textDecoration: 'none' }
