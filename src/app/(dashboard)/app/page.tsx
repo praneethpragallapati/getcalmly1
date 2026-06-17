@@ -1,151 +1,264 @@
 import Link from 'next/link'
-import { ArrowRight, Flame, TrendingUp, Video } from 'lucide-react'
+import {
+  Sparkles,
+  PenLine,
+  Video,
+  FileText,
+  Flame,
+  TrendingUp,
+  NotebookPen,
+  CalendarCheck,
+  Pill,
+  Heart,
+  MessageCircle,
+  AlertCircle,
+} from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard'
-import { SERVICE_ICONS } from '@/components/site/serviceIcons'
-import { MoodCheckIn } from '@/components/dashboard/MoodCheckIn'
+import { CheckIn } from '@/components/dashboard/CheckIn'
+import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
+import type { Pattern } from '@/data/dashboardDemo'
+
+const TONE_CLASS: Record<Pattern['tone'], string> = {
+  coral: 't-coral',
+  green: 't-green',
+  gold: 't-gold',
+  purple: 't-purple',
+}
+const TONE_ICON: Record<Pattern['tone'], typeof AlertCircle> = {
+  coral: AlertCircle,
+  green: Sparkles,
+  gold: TrendingUp,
+  purple: Heart,
+}
 
 export default async function AppHomePage() {
   const d = await getDashboardData()
-  const TrackIcon = SERVICE_ICONS[d.trackSlug] ?? SERVICE_ICONS.therapy
   const openTasks = d.tasks.filter((t) => !t.done).length
-
-  // Mood trend bar heights (score 1–5 → % of the 52px track).
-  const maxScore = 5
+  const med = d.medications.find((m) => m.active)
 
   return (
-    <>
-      <div className="greeting">
-        <h1>
-          Hi <span>{d.name}</span> 👋
-        </h1>
-        <p>Here&apos;s your space for today.</p>
-      </div>
-
-      {/* Current plan / track */}
-      <Link href="/app/account" className="app-card plan-strip">
-        <span className="plan-icon">
-          <TrackIcon size={22} />
-        </span>
-        <div className="plan-meta">
-          <div className="plan-track">{d.trackTitle}</div>
-          <div className="plan-sub">
-            {d.category} · {d.sessionsTotal - d.sessionsUsed} of {d.sessionsTotal} sessions left
+    <div className="stack">
+      {/* Hero — daily Calm AI insight (#10) */}
+      <section className="hero">
+        <div>
+          <span className="hero-badge">CALM AI · TODAY’S INSIGHT</span>
+          <h2>{d.dailyInsight.title}</h2>
+          <p>{d.dailyInsight.body}</p>
+          <div className="hero-actions">
+            <Link href="/app/calm-ai" className="btn btn-primary">
+              <Sparkles size={16} /> Open Calm AI
+            </Link>
+            <Link href="/app/journal" className="btn btn-ghost-d">
+              <PenLine size={16} /> Start a journal entry
+            </Link>
           </div>
         </div>
-        <span className="tier-badge">{d.tier.toUpperCase()}</span>
-      </Link>
+        <div className="hero-side">
+          <div className="hero-side-label">DETECTED THIS WEEK</div>
+          {d.detectedThisWeek.map((p) => {
+            const Icon = TONE_ICON[p.tone]
+            return (
+              <div className="detected" key={p.title}>
+                <span className={`detected-ic ${TONE_CLASS[p.tone]}`}>
+                  <Icon size={15} />
+                </span>
+                <div>
+                  <div className="detected-title">{p.title}</div>
+                  <div className="detected-sub">{p.sub}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
 
-      {/* Mood check-in */}
-      <MoodCheckIn />
+      {/* Morning check-in (#8) */}
+      <CheckIn initial={d.checkin} streakDays={d.streakDays} />
 
-      {/* Streak + mood trend */}
-      <div className="progress-row">
-        <div className="app-card prog-card">
-          <div className="prog-title">
-            <Flame size={13} /> STREAK
+      {/* Mood trend (#15) + today's session (#3) */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 20 }}>
+        <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} />
+
+        {d.todaySession && (
+          <div className="card">
+            <div
+              style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}
+            >
+              <div className="section-title">Today’s session</div>
+              <Link href="/app/sessions" className="link-action">
+                All →
+              </Link>
+            </div>
+            <div className="session-card-row">
+              <span className="doc-avatar">👩‍⚕️</span>
+              <div>
+                <div className="doc-name">{d.todaySession.expert}</div>
+                <div className="doc-sub">{d.todaySession.expertRole}</div>
+                <div className="tag-row">
+                  {d.todaySession.tags.map((t) => (
+                    <span className="tag" key={t}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="session-info-grid">
+              <div>
+                <div className="lbl">TIME</div>
+                <div className="val">{d.todaySession.when.split('·').pop()?.trim()}</div>
+              </div>
+              <div>
+                <div className="lbl">DURATION</div>
+                <div className="val">{d.todaySession.durationMins} min</div>
+              </div>
+              <div>
+                <div className="lbl">SESSION</div>
+                <div className="val">#{d.todaySession.sessionNo}</div>
+              </div>
+            </div>
+            <Link
+              href={`/app/sessions/${d.todaySession.id}/room`}
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              <Video size={16} /> Join session
+            </Link>
+            <Link
+              href={`/app/sessions/${d.todaySession.id}`}
+              className="link-action"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14 }}
+            >
+              <FileText size={14} /> Add pre-session note
+            </Link>
           </div>
-          <div className="prog-days">
+        )}
+      </div>
+
+      {/* Quick stats (#8) */}
+      <div className="grid-4">
+        <div className="card stat-card">
+          <span className="stat-ic t-coral">
+            <Flame size={20} />
+          </span>
+          <span className="stat-badge t-coral">Personal best</span>
+          <div className="stat-n">
             {d.streakDays}
             <span> days</span>
           </div>
-          <div className="prog-sub">Check-ins in a row</div>
-          <div className="streak-dots">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <span key={i} className={`streak-dot${i < d.streakDays ? '' : ' empty'}`} />
-            ))}
-          </div>
+          <div className="stat-l">Current streak</div>
         </div>
-        <div className="app-card prog-card">
-          <div className="prog-title">
-            <TrendingUp size={13} /> MOOD TREND
+        <div className="card stat-card">
+          <span className="stat-ic t-purple">
+            <TrendingUp size={20} />
+          </span>
+          <span className="stat-badge t-green">↑18% month</span>
+          <div className="stat-n">
+            {d.avgMood.toFixed(1)}
+            <span> /10</span>
           </div>
-          <div className="mood-bars">
-            {d.moodTrend.map((m) => (
-              <div className="mbar-wrap" key={m.day}>
-                <span
-                  className={`mbar${m.today ? ' today' : ''}`}
-                  style={{ height: `${(m.score / maxScore) * 100}%` }}
-                />
-                <span className={`mbar-day${m.today ? ' today' : ''}`}>{m.day[0]}</span>
+          <div className="stat-l">Avg mood score</div>
+        </div>
+        <div className="card stat-card">
+          <span className="stat-ic t-green">
+            <CalendarCheck size={20} />
+          </span>
+          <span className="stat-badge t-green">Active</span>
+          <div className="stat-n">{d.sessionsDone}</div>
+          <div className="stat-l">Therapy sessions</div>
+        </div>
+        <div className="card stat-card">
+          <span className="stat-ic t-gold">
+            <NotebookPen size={20} />
+          </span>
+          <span className="stat-badge t-gold">Consistent</span>
+          <div className="stat-n">{d.journalCount}</div>
+          <div className="stat-l">Journal entries</div>
+        </div>
+      </div>
+
+      {/* Recent journal · tasks + meds · community */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 20 }}>
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div className="section-title">Recent journal</div>
+            <Link href="/app/journal" className="link-action">
+              All entries →
+            </Link>
+          </div>
+          {d.journals.slice(0, 3).map((j) => (
+            <div className="entry" key={j.id}>
+              <div className="entry-head">
+                <span className="entry-title">{j.title}</span>
+                <span className="entry-date">{j.date}</span>
               </div>
-            ))}
+              <div className="entry-preview">{j.preview.slice(0, 110)}…</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="stack">
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div className="section-title">Today’s tasks</div>
+              <span className="link-action">{openTasks} left</span>
+            </div>
+            <TaskList tasks={d.tasks} />
           </div>
+
+          {/* Medications glimpse (#14 — full screen at /app/medications) */}
+          {med && (
+            <Link href="/app/medications" className="card" style={{ display: 'block' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div className="section-title">Medications</div>
+                <span className="link-action">Manage →</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="task-ic">
+                  <Pill size={16} />
+                </span>
+                <div>
+                  <div className="doc-name" style={{ fontSize: 15 }}>
+                    {med.name} {med.dosage}
+                  </div>
+                  <div className="doc-sub">
+                    {med.frequency} · {med.times.join(', ')}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+        </div>
+
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div className="section-title">Community</div>
+            <Link href="/app/community" className="link-action">
+              See all →
+            </Link>
+          </div>
+          {d.community.map((c) => (
+            <div className="comm-item" key={c.author}>
+              <span className="comm-avatar">{c.author.charAt(0).toUpperCase()}</span>
+              <div style={{ minWidth: 0 }}>
+                <div className="comm-meta">
+                  {c.author} · {c.role}
+                </div>
+                <div className="comm-text">{c.text}</div>
+                <div className="comm-stats">
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <Heart size={12} /> {c.likes}
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <MessageCircle size={12} /> {c.comments}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Daily AI insight (#10 — body comes from the AI integration later) */}
-      <div className="ai-card">
-        <span className="ai-badge">CALM AI · DAILY INSIGHT</span>
-        <div className="ai-title">{d.dailyInsight.title}</div>
-        <div className="ai-body">{d.dailyInsight.body}</div>
-        <Link href="/app/calm-ai" className="ai-btn">
-          Talk to Calm AI <ArrowRight size={15} />
-        </Link>
-      </div>
-
-      {/* Next session */}
-      {d.nextSession && (
-        <div className="session-card">
-          <div className="doc-row">
-            <span className="doc-avatar">👩‍⚕️</span>
-            <div>
-              <div className="doc-name">{d.nextSession.expert}</div>
-              <div className="doc-sub">{d.nextSession.expertRole}</div>
-            </div>
-            <span className="rci-badge">✓ RCI</span>
-          </div>
-          <div className="session-time-row">
-            <div>
-              <div className="session-label">NEXT SESSION</div>
-              <div className="session-time">{d.nextSession.when}</div>
-              <div className="session-detail">{d.nextSession.durationMins} min · Video call</div>
-            </div>
-            <Link href={`/app/care`} className="join-btn">
-              <Video size={15} /> Join
-            </Link>
-          </div>
-          <div className="session-actions">
-            <Link href={`/app/care`} className="session-action">
-              Pre-session notes
-            </Link>
-            <Link href="/app/care" className="session-action">
-              Reschedule
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Tasks (#16) */}
-      <div className="section-header">
-        <span className="section-title">Today&apos;s tasks</span>
-        <span className="view-all">{openTasks} left</span>
-      </div>
-      <TaskList tasks={d.tasks} />
-
-      {/* Quick actions */}
-      <div className="quick-grid">
-        <Link href="/app/journal" className="quick-card pink">
-          <ArrowRight className="quick-icon" size={20} />
-          <span className="quick-title">New journal</span>
-          <span className="quick-sub">Write it out</span>
-        </Link>
-        <Link href="/app/care" className="quick-card green">
-          <ArrowRight className="quick-icon" size={20} />
-          <span className="quick-title">Book session</span>
-          <span className="quick-sub">With your expert</span>
-        </Link>
-        <Link href="/app/calm-ai" className="quick-card purple">
-          <ArrowRight className="quick-icon" size={20} />
-          <span className="quick-title">Calm AI</span>
-          <span className="quick-sub">Chat anytime</span>
-        </Link>
-        <Link href="/app/journal?tab=insights" className="quick-card yellow">
-          <ArrowRight className="quick-icon" size={20} />
-          <span className="quick-title">Insights</span>
-          <span className="quick-sub">Your week</span>
-        </Link>
-      </div>
-    </>
+    </div>
   )
 }

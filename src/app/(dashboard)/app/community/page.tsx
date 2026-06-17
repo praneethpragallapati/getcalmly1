@@ -1,7 +1,9 @@
 export default function Page() {
   return (
     <>
-      <div className="tab-title">Expert Care</div>
+      <div className="page-head">
+        <h1 className="page-title">Community</h1>
+      </div>
       <div className="app-placeholder">Coming together in the next phase.</div>
     </>
   )

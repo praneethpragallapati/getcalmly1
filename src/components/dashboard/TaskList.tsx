@@ -22,7 +22,7 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
   )
 
   return (
-    <div className="app-card task-list">
+    <div>
       {tasks.map((t) => {
         const Icon = TYPE_ICON[t.type]
         const isDone = done[t.id]
@@ -36,11 +36,11 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
             >
               {isDone && <Check size={14} strokeWidth={3} />}
             </button>
-            <div className="task-body">
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div className={`task-title${isDone ? ' done' : ''}`}>{t.title}</div>
               {t.detail && <div className="task-detail">{t.detail}</div>}
             </div>
-            <span className="task-type-icon">
+            <span className="task-ic">
               <Icon size={16} />
             </span>
           </div>
