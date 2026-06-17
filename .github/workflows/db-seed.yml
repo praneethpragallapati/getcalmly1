@@ -40,8 +40,12 @@ jobs:
             exit 1
           fi
 
-      - name: Reset + apply all migrations (DESTRUCTIVE — drops existing tables)
-        run: npx prisma migrate reset --force --skip-seed
+      # The hand-written migration files are incomplete (they don't CREATE
+      # several models that exist in schema.prisma, e.g. PatientProfile), so we
+      # sync the full schema directly. --force-reset drops existing tables first
+      # (DESTRUCTIVE) to guarantee a clean, complete schema.
+      - name: Sync full schema (DESTRUCTIVE — drops existing tables)
+        run: npx prisma db push --force-reset --accept-data-loss
 
       - name: Seed demo data
         if: ${{ inputs.seed }}
