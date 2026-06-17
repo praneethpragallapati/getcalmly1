@@ -928,6 +928,56 @@
   color: var(--c-gray);
 }
 
+/* journal editor inputs */
+.entry-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: #fff;
+  resize: vertical;
+}
+.entry-input::placeholder {
+  color: #8595a4;
+}
+.entry-input:focus {
+  outline: none;
+  border-color: var(--c-coral);
+}
+
+/* detected/pattern row on light cards */
+.pattern {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 0;
+}
+.pattern + .pattern {
+  border-top: 1px solid var(--c-line);
+}
+.pattern-ic {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pattern-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-charcoal);
+}
+.pattern-sub {
+  font-size: 12px;
+  color: var(--c-gray);
+  margin-top: 1px;
+}
+
 /* placeholder for unbuilt phases */
 .app-placeholder {
   padding: 60px 20px;

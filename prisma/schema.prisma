@@ -452,25 +452,37 @@ model CalmAiMessage {
   @@index([userId, createdAt])
 }
 
+// One row per check-in (the grain we report on). mood/energy/calm are 0–10.
+// Raw, patient-owned record; whether it feeds the AI pipeline is decided later
+// by PrivacySettings, not here.
 model MoodEntry {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   mood      Int
   energy    Int
-  sleep     Int
+  calm      Int?
+  sleep     Int?
   note      String?
+  source    String? // e.g. "home-checkin"
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
+// A patient's journal entry — raw, patient-owned. AI inclusion is gated by
+// PrivacySettings downstream.
 model JournalEntry {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  title     String?
   content   String   @db.Text
   moodTag   String?
   topicTags String[]
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 // Editorial blog post, authored in a clinician's voice. Body is stored as an

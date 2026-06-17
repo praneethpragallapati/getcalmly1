@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
+import { saveCheckin } from '@/app/(dashboard)/app/actions'
 import type { CheckinScores } from '@/data/dashboardDemo'
 
 const DIMS: { key: keyof CheckinScores; label: string; color: string }[] = [
@@ -18,6 +19,17 @@ const DIMS: { key: keyof CheckinScores; label: string; color: string }[] = [
 export function CheckIn({ initial, streakDays }: { initial: CheckinScores; streakDays: number }) {
   const [scores, setScores] = useState<CheckinScores>(initial)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [pending, startTransition] = useTransition()
+
+  function onSave() {
+    setError(null)
+    startTransition(async () => {
+      const res = await saveCheckin(scores)
+      if (res.ok) setSaved(true)
+      else setError(res.error ?? 'Something went wrong.')
+    })
+  }
 
   return (
     <div className="card">
@@ -63,16 +75,20 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
       })}
 
       <div className="checkin-foot">
-        <button className="btn btn-primary" onClick={() => setSaved(true)} type="button">
+        <button className="btn btn-primary" onClick={onSave} type="button" disabled={pending}>
           {saved ? (
             <>
               <Check size={15} /> Saved
             </>
+          ) : pending ? (
+            'Saving…'
           ) : (
             'Save check-in'
           )}
         </button>
-        <span className="checkin-note">Saved privately · used to personalise your insights</span>
+        <span className="checkin-note">
+          {error ?? 'Saved privately · used to personalise your insights'}
+        </span>
       </div>
     </div>
   )
