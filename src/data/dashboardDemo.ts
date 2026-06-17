@@ -24,6 +24,7 @@ export type DashSession = {
   expert: string
   expertRole: string
   when: string // human readable
+  scheduledISO?: string // machine-readable start, when known (real appointments)
   durationMins: number
   status: 'UPCOMING' | 'SCHEDULED' | 'COMPLETED'
   sessionNo?: number

@@ -991,6 +991,321 @@
   height: 160px;
 }
 
+/* ===== Sessions list ===== */
+.btn-sm {
+  padding: 8px 13px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+.sess-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--c-line);
+}
+.sess-row:last-child {
+  border-bottom: none;
+}
+.sess-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.sess-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sess-status.done {
+  color: var(--c-green);
+}
+.note-area {
+  width: 100%;
+  background: var(--c-bg);
+  border: 1px solid var(--c-line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--c-charcoal);
+  resize: vertical;
+  line-height: 1.55;
+}
+.note-area:focus {
+  outline: none;
+  border-color: var(--c-coral);
+}
+
+/* ===== Patient calendar ===== */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 14px;
+}
+.cal-head {
+  margin-bottom: 2px;
+}
+.cal-dow {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-gray);
+  padding: 4px 0;
+}
+.cal-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--c-charcoal);
+  border-radius: 9px;
+}
+.cal-cell.empty {
+  background: none;
+}
+.cal-cell.today {
+  background: var(--c-coral);
+  color: #fff;
+  font-weight: 700;
+}
+.cal-cell.has-session:not(.today) {
+  background: var(--c-coral-pale);
+  font-weight: 600;
+}
+.cal-dot {
+  position: absolute;
+  bottom: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c-coral);
+}
+.cal-cell.today .cal-dot {
+  background: #fff;
+}
+.cal-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--c-gray-d);
+}
+.cal-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.cal-legend .dot-today {
+  background: var(--c-coral);
+}
+.cal-legend .dot-session {
+  background: var(--c-coral-pale);
+  border: 1px solid var(--c-coral);
+}
+
+/* ===== Booking slots ===== */
+.slot-cal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.slot-day {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.slot-day-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-gray-d);
+  width: 92px;
+  flex-shrink: 0;
+}
+.slot-times {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.slot-chip {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 10px;
+  border: 1px solid var(--c-line);
+  background: var(--c-white);
+  color: var(--c-charcoal);
+  cursor: pointer;
+}
+.slot-chip:hover:not(.taken) {
+  border-color: var(--c-coral);
+  color: var(--c-coral);
+}
+.slot-chip.selected {
+  background: var(--c-coral);
+  border-color: var(--c-coral);
+  color: #fff;
+}
+.slot-chip.taken {
+  background: #f1eeeb;
+  color: var(--c-gray);
+  cursor: not-allowed;
+}
+
+/* ===== Video call room ===== */
+.call-room {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.call-stage {
+  position: relative;
+  background: #0f1822;
+  border-radius: 22px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  max-height: 64vh;
+}
+.call-remote {
+  position: absolute;
+  inset: 0;
+}
+.call-remote video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #0f1822;
+}
+.call-local {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 22%;
+  min-width: 160px;
+  aspect-ratio: 16 / 11;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  background: #16212d;
+}
+.call-local video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* mirror self-view */
+}
+.call-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  text-align: center;
+  background: radial-gradient(circle at center, #1c2b3a 0%, #0f1822 100%);
+}
+.call-overlay.sm {
+  font-size: 12px;
+  color: #b9c3cd;
+  background: #16212d;
+}
+.call-overlay-name {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+.call-overlay-sub {
+  font-size: 13px;
+  color: #b9c3cd;
+}
+.call-tag {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+.call-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.call-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--c-line);
+  background: var(--c-white);
+  color: var(--c-charcoal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.call-btn:hover {
+  border-color: var(--c-coral);
+  color: var(--c-coral);
+}
+.call-btn.off {
+  background: var(--c-charcoal);
+  color: #fff;
+  border-color: var(--c-charcoal);
+}
+.call-btn.end {
+  background: var(--c-coral);
+  color: #fff;
+  border-color: var(--c-coral);
+}
+.call-btn.end:hover {
+  background: var(--c-coral-d);
+  color: #fff;
+}
+.call-error {
+  background: var(--c-coral-pale);
+  color: var(--c-coral-d);
+  border: 1px solid var(--c-coral-l);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.call-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--c-gray);
+}
+.spin {
+  animation: calmly-spin 1s linear infinite;
+  color: var(--c-coral-l);
+}
+@keyframes calmly-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 1100px) {
   .calmly-app {
     grid-template-columns: 1fr;

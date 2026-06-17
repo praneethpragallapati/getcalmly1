@@ -76,3 +76,72 @@ export async function createJournalEntry(input: {
     return { ok: false, persisted: false, error: 'Could not save your entry.' }
   }
 }
+
+/**
+ * Save the note a patient prepares before a session, shared with the expert (#9).
+ * Authorization: the update is scoped to an appointment the signed-in patient
+ * owns, so a patient can only write to their own session. The note may feed the
+ * AI pipeline later, gated by PrivacySettings.collectSessions — hence the AI
+ * profile refresh.
+ */
+export async function savePreSessionNote(
+  appointmentId: string,
+  note: string
+): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const result = await prisma.appointment.updateMany({
+      where: { id: appointmentId, patientId: userId }, // ownership gate
+      data: { preSessionNote: note.trim() || null },
+    })
+    if (result.count === 0) return { ok: true, persisted: false }
+    await rebuildAiProfile(userId)
+    revalidatePath(`/app/sessions/${appointmentId}`)
+    revalidatePath('/app/sessions')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not save your note.' }
+  }
+}
+
+/**
+ * Request a session at one of the expert's open slots (#9). Creates a PENDING
+ * appointment the expert confirms later. Persists only for the signed-in patient
+ * and only when an active expert exists; otherwise it succeeds without persisting
+ * so the preview stays usable (same posture as the other actions).
+ */
+export async function requestSession(slotIso: string): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  const scheduledAt = new Date(slotIso)
+  if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now()) {
+    return { ok: false, persisted: false, error: 'Please pick a valid upcoming slot.' }
+  }
+
+  try {
+    const therapist = await prisma.therapistProfile.findFirst({
+      where: { isActive: true },
+      select: { id: true, sessionFee: true },
+    })
+    if (!therapist) return { ok: true, persisted: false }
+
+    await prisma.appointment.create({
+      data: {
+        patientId: userId,
+        therapistId: therapist.id,
+        scheduledAt,
+        status: 'PENDING',
+        fee: therapist.sessionFee,
+        roomId: crypto.randomUUID(),
+      },
+    })
+    revalidatePath('/app/sessions')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not request this slot.' }
+  }
+}
