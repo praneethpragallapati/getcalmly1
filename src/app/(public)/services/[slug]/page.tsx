@@ -273,110 +273,123 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const charcoal = '#1C2B3A'
   const cream = '#F9F5F2'
 
+  const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase' }
+
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
-      {/* ─── HERO: opens with the visitor's own question ─── */}
-      <section style={{ background: charcoal, padding: '64px 24px 80px', position: 'relative', overflow: 'hidden' }}>
+      {/* ─── HERO: question + normalising stat, side by side ─── */}
+      <section style={{ background: charcoal, padding: '64px 48px 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 720, margin: '0 auto', position: 'relative' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
           <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 40, fontWeight: 500 }}>
             ← All services
           </Link>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 20 }}>{s.title}</p>
-          <h1 style={{
-            fontFamily: "'Big Shoulders Display', sans-serif",
-            fontWeight: 900, fontSize: 'clamp(36px, 6vw, 60px)',
-            color: '#fff', letterSpacing: '-1.5px', lineHeight: 1.04, marginBottom: 28, maxWidth: 640,
-          }}>
-            {s.question}
-          </h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, maxWidth: 600, fontWeight: 300, marginBottom: 36 }}>{s.hero}</p>
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            <Link href="/assess" style={{
-              padding: '14px 28px', borderRadius: 50, background: s.accent, color: '#fff',
-              fontSize: 15, fontWeight: 700, textDecoration: 'none',
-              fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
-            }}>
-              ✦ Take the free assessment
-            </Link>
-            <Link href="/pricing" style={{
-              padding: '14px 26px', borderRadius: 50, background: 'transparent',
-              color: 'rgba(255,255,255,.85)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
-              fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.22)',
-            }}>
-              {s.cta} →
-            </Link>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 64, alignItems: 'center' }}>
+            <div>
+              <p style={{ ...eyebrow, marginBottom: 20 }}>{s.title}</p>
+              <h1 style={{
+                fontFamily: "'Big Shoulders Display', sans-serif",
+                fontWeight: 900, fontSize: 'clamp(34px, 5.4vw, 56px)',
+                color: '#fff', letterSpacing: '-1.5px', lineHeight: 1.04, marginBottom: 26, maxWidth: 620,
+              }}>
+                {s.question}
+              </h1>
+              <p style={{ fontSize: 17, color: 'rgba(255,255,255,.72)', lineHeight: 1.78, maxWidth: 580, fontWeight: 300, marginBottom: 32 }}>{s.hero}</p>
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                <Link href="/assess" style={{
+                  padding: '14px 28px', borderRadius: 50, background: s.accent, color: '#fff',
+                  fontSize: 15, fontWeight: 700, textDecoration: 'none',
+                  fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
+                }}>
+                  ✦ Take the free assessment
+                </Link>
+                <Link href="/pricing" style={{
+                  padding: '14px 26px', borderRadius: 50, background: 'transparent',
+                  color: 'rgba(255,255,255,.85)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
+                  fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.22)',
+                }}>
+                  {s.cta} →
+                </Link>
+              </div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
+              <p style={{
+                fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+                fontSize: 'clamp(48px, 6vw, 64px)', color: s.accent, lineHeight: 1, letterSpacing: '-1.5px', marginBottom: 14,
+              }}>
+                {s.stat.big}
+              </p>
+              <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,.65)', lineHeight: 1.65, fontWeight: 300 }}>
+                {s.stat.label}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── NORMALISING STAT: you are not alone ─── */}
-      <section style={{ padding: '72px 24px 56px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 620, margin: '0 auto' }}>
-          <p style={{
-            fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
-            fontSize: 'clamp(56px, 11vw, 96px)', color: s.accent, lineHeight: 1, letterSpacing: '-2px', marginBottom: 16,
-          }}>
-            {s.stat.big}
-          </p>
-          <p style={{ fontSize: 19, color: '#3A4A5A', lineHeight: 1.7, fontWeight: 300, maxWidth: 520, margin: '0 auto' }}>
-            {s.stat.label}
-          </p>
-        </div>
-      </section>
-
-      {/* ─── YOU MIGHT RECOGNISE THIS: problem-statements, flowing ─── */}
-      <section style={{ padding: '40px 24px 64px' }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 28, textAlign: 'center' }}>You might recognise this</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      {/* ─── YOU MIGHT RECOGNISE THIS: 2×2 grid, full width ─── */}
+      <section style={{ background: '#fff', padding: '76px 48px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <p style={{ ...eyebrow, marginBottom: 36, textAlign: 'center' }}>You might recognise this</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
             {s.recognise.map((r, idx) => (
               <p key={r} style={{
                 fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 700,
-                fontSize: 'clamp(22px, 3.4vw, 30px)', color: charcoal, lineHeight: 1.3,
-                letterSpacing: '-0.5px', padding: '20px 0',
-                borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
-                textAlign: 'center',
+                fontSize: 'clamp(20px, 2.6vw, 26px)', color: charcoal, lineHeight: 1.32,
+                letterSpacing: '-0.4px', padding: '22px 0',
+                borderTop: idx < 2 ? 'none' : '1px solid rgba(0,0,0,.07)',
               }}>
                 {r}
               </p>
             ))}
           </div>
-          <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300, textAlign: 'center', marginTop: 28 }}>
+          <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300, textAlign: 'center', marginTop: 32 }}>
             If any of this sounds familiar, you don&apos;t have to keep carrying it alone.
           </p>
         </div>
       </section>
 
-      {/* ─── THE STORY / WHY: flowing prose, no box ─── */}
-      <section style={{ background: '#fff', padding: '76px 24px' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 24, lineHeight: 1.1 }}>
-            What care looks like here.
-          </h2>
-          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>{s.why}</p>
+      {/* ─── WHAT CARE LOOKS LIKE + WHO IT'S FOR: side by side ─── */}
+      <section style={{ padding: '80px 48px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
+          <div>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
+              What care looks like here.
+            </h2>
+            <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
+          </div>
+          <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(0,0,0,.06)' }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: charcoal, marginBottom: 18 }}>Who this is for</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {s.whoFor.map((w) => (
+                <span key={w} style={{ padding: '8px 14px', borderRadius: 50, background: s.pale, color: s.accent, fontSize: 13.5, fontWeight: 600 }}>{w}</span>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ─── WHAT WE HELP WITH: flowing list, dividers not boxes ─── */}
-      <section style={{ padding: '76px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
-            What we help with
-          </h2>
-          <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300, marginBottom: 40 }}>
-            Whatever you&apos;re carrying, there&apos;s a place to start.
-          </p>
-          <div>
+      {/* ─── WHAT WE HELP WITH: grid, full width ─── */}
+      <section style={{ background: '#fff', padding: '80px 48px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ marginBottom: 36 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
+              What we help with
+            </h2>
+            <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>
+              Whatever you&apos;re carrying, there&apos;s a place to start.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
             {s.items.map((it, idx) => (
               <div key={it.name} style={{
                 display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
-                padding: '24px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
+                padding: '24px 0', borderTop: idx < 2 ? 'none' : '1px solid rgba(0,0,0,.07)',
               }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: s.accent, marginTop: 9 }} />
                 <div>
                   <p style={{ fontSize: 18, fontWeight: 700, color: charcoal, marginBottom: 7, letterSpacing: '-0.2px' }}>{it.name}</p>
-                  <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>{it.desc}</p>
+                  <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.68, fontWeight: 300 }}>{it.desc}</p>
                 </div>
               </div>
             ))}
@@ -384,45 +397,45 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      {/* ─── HOW CARE WORKS: simple 3-step path ─── */}
-      <section style={{ background: '#fff', padding: '76px 24px' }}>
-        <div style={{ maxWidth: 820, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 44, textAlign: 'center' }}>
-            How it works
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 36 }}>
+      {/* ─── HOW CARE WORKS: 3-column, charcoal band ─── */}
+      <section style={{ background: charcoal, padding: '80px 48px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52, flexWrap: 'wrap', gap: 20 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', letterSpacing: '-0.8px' }}>
+              How it works
+            </h2>
+            <Link href="/assess" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, background: s.accent, color: '#fff',
+              padding: '14px 26px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
+              fontFamily: "'DM Sans', sans-serif", flexShrink: 0,
+            }}>
+              ✦ Take the free assessment
+            </Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
             {[
               { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment — no login, no judgement. Just an honest starting point.' },
               { n: '02', t: 'Get matched, not assigned', d: 'We pair you with a professional who fits what you\'re going through, your language and your budget.' },
               { n: '03', t: 'Your first session is free', d: 'No card, no commitment. Just one real conversation to see if it feels right.' },
-            ].map((step) => (
-              <div key={step.n}>
-                <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: s.accent, opacity: 0.28, lineHeight: 1, marginBottom: 12 }}>{step.n}</p>
-                <p style={{ fontSize: 17, fontWeight: 700, color: charcoal, marginBottom: 8, letterSpacing: '-0.2px' }}>{step.t}</p>
-                <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>{step.d}</p>
+            ].map((step, i) => (
+              <div key={step.n} style={{
+                padding: '36px 32px',
+                background: i % 2 === 0 ? 'rgba(255,255,255,.04)' : 'rgba(255,255,255,.02)',
+                borderRadius: i === 0 ? '16px 0 0 16px' : i === 2 ? '0 16px 16px 0' : 0,
+                borderLeft: i > 0 ? '1px solid rgba(255,255,255,.08)' : 'none',
+              }}>
+                <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 40, color: s.accent, opacity: 0.35, lineHeight: 1, marginBottom: 16 }}>{step.n}</p>
+                <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: '-0.2px' }}>{step.t}</p>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,.55)', lineHeight: 1.72, fontWeight: 300 }}>{step.d}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── WHO THIS IS FOR ─── */}
-      <section style={{ padding: '72px 24px 56px' }}>
-        <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 24 }}>
-            Who this is for
-          </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-            {s.whoFor.map((w) => (
-              <span key={w} style={{ padding: '9px 18px', borderRadius: 50, background: '#fff', border: `1.5px solid ${s.accent}33`, color: s.accent, fontSize: 14, fontWeight: 600 }}>{w}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FAQ: flowing, divider-based ─── */}
-      <section style={{ padding: '40px 24px 80px' }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+      {/* ─── FAQ: wide divider list ─── */}
+      <section style={{ padding: '80px 48px' }}>
+        <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
             Common questions
           </h2>
@@ -440,7 +453,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: charcoal, padding: '80px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase', marginBottom: 16 }}>Your first session is free</p>
+          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             You don&apos;t have to figure this out alone.
           </h3>

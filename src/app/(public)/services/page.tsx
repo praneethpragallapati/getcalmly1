@@ -78,42 +78,54 @@ const branches = [
 export default function ServicesPage() {
   return (
     <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
-      {/* Hero — full-bleed charcoal */}
-      <section style={{ background: '#1C2B3A', padding: '84px 24px 88px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -130, right: -110, width: 460, height: 460, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 720, margin: '0 auto', position: 'relative' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 20 }}>What we offer</p>
-          <h1 style={{
-            fontFamily: "'Big Shoulders Display', sans-serif",
-            fontWeight: 900,
-            fontSize: 'clamp(40px, 7vw, 68px)',
-            color: '#fff',
-            lineHeight: 1.0,
-            letterSpacing: '-2px',
-            marginBottom: 24,
-            maxWidth: 600,
-          }}>
-            However you&apos;re hurting, there&apos;s a way through.
-          </h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, marginBottom: 36, fontWeight: 300, maxWidth: 580 }}>
-            We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Find the support that fits yours — or let our assessment find it for you.
-          </p>
-          <Link href="/assess" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: '#C8553D', color: '#fff', padding: '15px 30px',
-            borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
-            fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.4)',
-          }}>
-            ✦ Take the free assessment
-          </Link>
+      {/* Hero — full-bleed charcoal, split layout */}
+      <section style={{ background: '#1C2B3A', padding: '88px 48px 84px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -150, right: -120, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.13) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 72, alignItems: 'center' }}>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 20 }}>What we offer</p>
+            <h1 style={{
+              fontFamily: "'Big Shoulders Display', sans-serif",
+              fontWeight: 900,
+              fontSize: 'clamp(40px, 6vw, 66px)',
+              color: '#fff',
+              lineHeight: 1.0,
+              letterSpacing: '-2px',
+              marginBottom: 24,
+              maxWidth: 620,
+            }}>
+              However you&apos;re hurting, there&apos;s a way through.
+            </h1>
+            <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, marginBottom: 36, fontWeight: 300, maxWidth: 560 }}>
+              We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Find the support that fits yours — or let our assessment find it for you.
+            </p>
+            <Link href="/assess" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: '#C8553D', color: '#fff', padding: '15px 30px',
+              borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
+              fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.4)',
+            }}>
+              ✦ Take the free assessment
+            </Link>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '30px 26px', border: '1px solid rgba(255,255,255,.10)' }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 22 }}>7 ways we can help</p>
+            {branches.slice(0, 4).map((b) => (
+              <div key={b.slug} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
+                <span style={{ fontSize: 17 }}>{b.icon}</span>
+                <span style={{ fontSize: 14.5, fontWeight: 600, color: 'rgba(255,255,255,.85)' }}>{b.title}</span>
+              </div>
+            ))}
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,.4)', marginTop: 14 }}>+ {branches.length - 4} more below</p>
+          </div>
         </div>
       </section>
 
       {/* Service branches grid */}
-      <section style={{ padding: '76px 24px 80px', maxWidth: 1100, margin: '0 auto' }}>
+      <section style={{ padding: '80px 48px 84px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 20,
         }}>
           {branches.map((b) => (
