@@ -2,6 +2,7 @@ import {
   demoDashboard,
   type DashboardData,
   type DashJournal,
+  type DashTask,
   type MoodWeekPoint,
   type Pattern,
   type PlanTierName,
@@ -56,7 +57,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   if (!userId) return base
 
   try {
-    const [moods, journals, journalCount, user, dailyInsight, weeklyInsight] = await Promise.all([
+    const [moods, journals, journalCount, user, dailyInsight, weeklyInsight, tasks, sub] = await Promise.all([
       prisma.moodEntry.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
@@ -77,9 +78,11 @@ export async function getDashboardData(): Promise<DashboardData> {
         where: { userId, kind: 'WEEKLY' },
         orderBy: { createdAt: 'desc' },
       }),
+      prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }),
+      prisma.subscription.findFirst({ where: { userId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
     ])
 
-    if (moods.length === 0 && journalCount === 0) return base
+    if (moods.length === 0 && journalCount === 0 && tasks.length === 0 && !sub) return base
 
     const data: DashboardData = { ...base }
     if (user?.name) data.name = user.name.split(' ')[0]
@@ -123,6 +126,28 @@ export async function getDashboardData(): Promise<DashboardData> {
       }))
     }
     data.journalCount = journalCount || base.journalCount
+
+    if (tasks.length > 0) {
+      data.tasks = tasks.map<DashTask>((t) => ({
+        id: t.id,
+        type: t.type,
+        title: t.title,
+        detail: t.description ?? undefined,
+        done: Boolean(t.completedAt),
+        assignedBy: t.assignedBy ?? undefined,
+      }))
+    }
+
+    if (sub) {
+      data.sessionsTotal = sub.sessionsTotal
+      data.sessionsUsed = sub.sessionsUsed
+      data.sessionsDone = sub.sessionsUsed
+      data.minutesTotal = sub.minutesTotal
+      data.minutesUsed = sub.minutesUsed
+      data.tier = tierForMonths(sub.paidMonths)
+      data.paidMonths = sub.paidMonths
+      data.planName = sub.planName
+    }
 
     // Overlay real AI insights when the scheduled jobs have produced them. The
     // Pattern cards live in AiInsight.meta.patterns (daily → detectedThisWeek on
