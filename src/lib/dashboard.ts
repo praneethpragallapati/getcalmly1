@@ -3,12 +3,16 @@ import {
   type DashboardData,
   type DashJournal,
   type DashTask,
+  type Milestone,
+  type MoodOverTimePoint,
   type MoodWeekPoint,
   type Pattern,
   type PlanTierName,
+  type TodaySession,
 } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
+import { getCommunityPosts } from '@/lib/community'
 
 /**
  * Tenure-based membership tier from cumulative paid months (#18). Kept here so
@@ -94,32 +98,39 @@ export async function getDashboardData(): Promise<DashboardData> {
   if (!userId) return base
 
   try {
-    const [moods, journals, journalCount, user, dailyInsight, weeklyInsight, tasks, sub] = await Promise.all([
-      prisma.moodEntry.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: 30,
-      }),
-      prisma.journalEntry.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: 8,
-      }),
-      prisma.journalEntry.count({ where: { userId } }),
-      prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
-      prisma.aiInsight.findFirst({
-        where: { userId, kind: 'DAILY' },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.aiInsight.findFirst({
-        where: { userId, kind: 'WEEKLY' },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }),
-      prisma.subscription.findFirst({ where: { userId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
-    ])
+    const [moods, journals, journalCount, user, dailyInsight, weeklyInsight, tasks, sub, appts, communityPosts] =
+      await Promise.all([
+        prisma.moodEntry.findMany({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+          take: 90, // enough history for the 4-week mood-over-time chart
+        }),
+        prisma.journalEntry.findMany({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+        }),
+        prisma.journalEntry.count({ where: { userId } }),
+        prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+        prisma.aiInsight.findFirst({
+          where: { userId, kind: 'DAILY' },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.aiInsight.findFirst({
+          where: { userId, kind: 'WEEKLY' },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }),
+        prisma.subscription.findFirst({ where: { userId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
+        prisma.appointment.findMany({
+          where: { patientId: userId },
+          orderBy: { scheduledAt: 'asc' },
+          include: { therapist: { include: { user: { select: { name: true } } } } },
+        }),
+        getCommunityPosts(),
+      ])
 
-    if (moods.length === 0 && journalCount === 0 && tasks.length === 0 && !sub) return base
+    if (moods.length === 0 && journalCount === 0 && tasks.length === 0 && !sub && appts.length === 0) return base
 
     const data: DashboardData = { ...base }
     if (user?.name) data.name = user.name.split(' ')[0]
@@ -150,6 +161,31 @@ export async function getDashboardData(): Promise<DashboardData> {
       data.avgMood = scored.length
         ? Math.round((scored.reduce((a, m) => a + m.mood, 0) / scored.length) * 10) / 10
         : base.avgMood
+
+      // Last 4 calendar weeks, oldest→newest, averaged from whatever check-ins land in each.
+      const weekBuckets: { mood: number }[][] = [[], [], [], []]
+      const now2 = Date.now()
+      for (const m of moods) {
+        const daysAgo = Math.floor((now2 - m.createdAt.getTime()) / (24 * 60 * 60 * 1000))
+        const weekIndex = 3 - Math.floor(daysAgo / 7) // 3 = this week, 0 = oldest of the 4
+        if (weekIndex >= 0 && weekIndex < 4) weekBuckets[weekIndex].push({ mood: m.mood })
+      }
+      const hasAnyBucket = weekBuckets.some((b) => b.length > 0)
+      if (hasAnyBucket) {
+        data.moodOverTime = weekBuckets.map<MoodOverTimePoint>((bucket, i) => ({
+          label: `Week ${i + 1}`,
+          value: bucket.length ? Math.round((bucket.reduce((a, m) => a + m.mood, 0) / bucket.length) * 10) / 10 : 0,
+        }))
+        const firstNonEmpty = weekBuckets.find((b) => b.length > 0)
+        const lastNonEmpty = [...weekBuckets].reverse().find((b) => b.length > 0)
+        if (firstNonEmpty && lastNonEmpty && firstNonEmpty !== lastNonEmpty) {
+          const startAvg = firstNonEmpty.reduce((a, m) => a + m.mood, 0) / firstNonEmpty.length
+          const endAvg = lastNonEmpty.reduce((a, m) => a + m.mood, 0) / lastNonEmpty.length
+          data.moodMonthChangePct = startAvg > 0 ? Math.round(((endAvg - startAvg) / startAvg) * 100) : null
+        } else {
+          data.moodMonthChangePct = null
+        }
+      }
     }
 
     if (journals.length > 0) {
@@ -180,6 +216,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       }))
     }
 
+    const completedAppts = appts.filter((a) => a.status === 'COMPLETED' || a.scheduledAt.getTime() < Date.now())
     if (sub) {
       data.sessionsTotal = sub.sessionsTotal
       data.sessionsUsed = sub.sessionsUsed
@@ -189,6 +226,100 @@ export async function getDashboardData(): Promise<DashboardData> {
       data.tier = tierForMonths(sub.paidMonths)
       data.paidMonths = sub.paidMonths
       data.planName = sub.planName
+      data.planActive = true
+    } else if (appts.length > 0) {
+      // No active subscription row, but real appointments exist — count from those.
+      data.sessionsDone = completedAppts.length
+      data.planActive = false
+    }
+
+    // Today's session, computed straight from real appointments (same join window
+    // as the Sessions page) rather than from demo.
+    if (appts.length > 0) {
+      const now3 = Date.now()
+      const JOIN_WINDOW_MS = 10 * 60 * 1000
+      const todayAppt = appts.find((a) => {
+        const start = a.scheduledAt.getTime()
+        const end = start + a.durationMins * 60 * 1000
+        return a.status !== 'COMPLETED' && now3 >= start - JOIN_WINDOW_MS && now3 <= end
+      })
+      if (todayAppt) {
+        const startMs = todayAppt.scheduledAt.getTime() - now3
+        const mins = Math.max(0, Math.round(startMs / 60000))
+        const startsIn =
+          mins <= 0
+            ? 'Starting now'
+            : mins < 60
+              ? `Starting in ${mins} minute${mins === 1 ? '' : 's'}`
+              : `Starting in ${Math.floor(mins / 60)} hour${Math.floor(mins / 60) === 1 ? '' : 's'} ${mins % 60} minute${mins % 60 === 1 ? '' : 's'}`
+        data.todaySession = {
+          id: todayAppt.id,
+          expert: todayAppt.therapist.user.name ?? 'Your expert',
+          expertRole: 'Clinical Psychologist',
+          when: todayAppt.scheduledAt.toLocaleString('en-IN', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'short',
+            hour: 'numeric',
+            minute: '2-digit',
+          }),
+          scheduledISO: todayAppt.scheduledAt.toISOString(),
+          durationMins: todayAppt.durationMins,
+          status: 'UPCOMING',
+          sessionNo: completedAppts.length + 1,
+          tags: [],
+          startsIn,
+        } as TodaySession
+      } else {
+        data.todaySession = null
+      }
+    }
+
+    // Real milestones from actual activity — falls back to demo wording only when
+    // nothing has happened yet for a given milestone.
+    if (moods.length > 0 || completedAppts.length > 0 || data.streakDays > 0) {
+      const earliestMood = moods.length ? moods[moods.length - 1] : null
+      const firstCompletedAppt = completedAppts[0] ?? null
+      const sessionsForMilestone = sub ? sub.sessionsUsed : completedAppts.length
+      const fmt = (d: Date) => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+      data.milestones = [
+        {
+          label: 'First mood check-in',
+          sub: earliestMood ? `Completed ${fmt(earliestMood.createdAt)}` : 'Not yet logged',
+          done: Boolean(earliestMood),
+        },
+        {
+          label: 'First therapy session',
+          sub: firstCompletedAppt ? `Completed ${fmt(firstCompletedAppt.scheduledAt)}` : 'No sessions completed yet',
+          done: Boolean(firstCompletedAppt),
+        },
+        {
+          label: '7-day streak',
+          sub: data.streakDays >= 7 ? 'Achieved 🔥' : `${7 - data.streakDays} days to go`,
+          done: data.streakDays >= 7,
+        },
+        {
+          label: '30-day streak',
+          sub: data.streakDays >= 30 ? 'Achieved 🔥' : `${30 - data.streakDays} days to go`,
+          done: data.streakDays >= 30,
+        },
+        {
+          label: '10 therapy sessions',
+          sub: sessionsForMilestone >= 10 ? 'Achieved' : `${10 - sessionsForMilestone} sessions to go`,
+          done: sessionsForMilestone >= 10,
+        },
+      ] satisfies Milestone[]
+    }
+
+    // Real community discussions (top 3, newest first) instead of the demo preview.
+    if (communityPosts.length > 0) {
+      data.community = communityPosts.slice(0, 3).map((p) => ({
+        author: p.author,
+        role: p.role,
+        text: p.body,
+        likes: p.upvotes,
+        comments: p.comments,
+      }))
     }
 
     // Overlay real AI insights when the scheduled jobs have produced them. The

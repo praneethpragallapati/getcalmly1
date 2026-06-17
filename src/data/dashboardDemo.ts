@@ -93,12 +93,14 @@ export type DashboardData = {
   renewsOn: string | null
   startedOn: string
   daysOnPlatform: number
+  planActive: boolean
   // Mood / streak
   streakDays: number
   checkin: CheckinScores
   moodWeek: MoodWeekPoint[]
   avgMood: number
   moodOverTime: MoodOverTimePoint[]
+  moodMonthChangePct: number | null
   // Home content
   dailyInsight: DashInsight
   detectedThisWeek: Pattern[]
@@ -137,6 +139,7 @@ export const demoDashboard: DashboardData = {
   renewsOn: '12 Sep 2026',
   startedOn: '3 Feb 2026',
   daysOnPlatform: 28,
+  planActive: true,
   streakDays: 7,
   checkin: { mood: 6, energy: 5, calm: 4 },
   moodWeek: [
@@ -155,6 +158,7 @@ export const demoDashboard: DashboardData = {
     { label: 'Week 3', value: 6.1 },
     { label: 'Week 4', value: 6.4 },
   ],
+  moodMonthChangePct: 18,
   dailyInsight: {
     title: 'Mondays tend to feel heavier for you — and that’s okay.',
     body: 'Your data shows a gentle mood dip each Monday morning. Before your session with Dr. Ananya at 3 PM today, a short breathing exercise has helped you arrive calmer in the past. You’ve been consistent — and that matters more than how you feel right now.',

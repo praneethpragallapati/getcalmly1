@@ -76,7 +76,12 @@ export default async function ProgressPage() {
             <span className="stat-ic t-purple">
               <TrendingUp size={20} />
             </span>
-            <span className="stat-badge t-green">↑18% month</span>
+            {d.moodMonthChangePct !== null && (
+              <span className={`stat-badge ${d.moodMonthChangePct >= 0 ? 't-green' : 't-coral'}`}>
+                {d.moodMonthChangePct >= 0 ? '↑' : '↓'}
+                {Math.abs(d.moodMonthChangePct)}% month
+              </span>
+            )}
             <div className="stat-n">
               {d.avgMood.toFixed(1)}
               <span> /10</span>
@@ -87,7 +92,7 @@ export default async function ProgressPage() {
             <span className="stat-ic t-green">
               <CalendarCheck size={20} />
             </span>
-            <span className="stat-badge t-green">Active</span>
+            <span className={`stat-badge ${d.planActive ? 't-green' : 't-gold'}`}>{d.planActive ? 'Active' : 'No active plan'}</span>
             <div className="stat-n">{d.sessionsDone}</div>
             <div className="stat-l">Therapy sessions</div>
           </div>
@@ -118,7 +123,7 @@ export default async function ProgressPage() {
             >
               <span>Started: {first.toFixed(1)} avg</span>
               <span>
-                Now: <strong style={{ color: 'var(--c-charcoal)' }}>{last.toFixed(1)} avg ↑</strong>
+                Now: <strong style={{ color: 'var(--c-charcoal)' }}>{last.toFixed(1)} avg {last >= first ? '↑' : '↓'}</strong>
               </span>
             </div>
           </div>
