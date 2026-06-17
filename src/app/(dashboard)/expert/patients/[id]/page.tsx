@@ -1,6 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
-import { AlertTriangle, Flame } from 'lucide-react'
+import { AlertTriangle, Flame, Check } from 'lucide-react'
 import { getTherapistContext, getExpertPatientProfile } from '@/lib/expert'
+import { getWeeklyProgress } from '@/lib/dashboard'
+import { assignTask } from '../../actions'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -16,6 +18,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
 
   const p = await getExpertPatientProfile(ctx.therapistProfileId, id)
   if (!p) notFound()
+
+  const weekly = await getWeeklyProgress(id)
 
   return (
     <div className="stack">
@@ -100,6 +104,59 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
               ))}
             </ul>
           )}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 12 }}>This week&apos;s progress</div>
+        <div className="muted">
+          Tasks completed: {weekly.tasksCompleted}/{weekly.tasksAssigned} ({weekly.completionPct}%)
+        </div>
+        <div className="muted">
+          Mood check-ins: {weekly.moodCheckins}
+          {weekly.moodAvg !== null ? ` · avg ${weekly.moodAvg}/10` : ''}
+        </div>
+      </div>
+
+      <div className="grid-2" style={{ alignItems: 'start' }}>
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 12 }}>Assigned tasks ({p.taskCompletionPct}% done)</div>
+          {p.tasks.length === 0 && <p className="muted">No tasks assigned yet.</p>}
+          {p.tasks.map((t) => (
+            <div key={t.id} className="pattern">
+              <span className={`pattern-ic ${t.done ? 't-green' : t.expired ? 't-coral' : 't-purple'}`}>
+                {t.done ? <Check size={16} /> : <Flame size={16} />}
+              </span>
+              <div>
+                <div className="pattern-title">{t.title}</div>
+                <div className="pattern-sub">
+                  {t.type}
+                  {t.dueLabel ? ` · ${t.done ? 'done' : t.expired ? `expired ${t.dueLabel}` : `due ${t.dueLabel}`}` : ''}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
+          <form action={assignTask} className="stack" style={{ gap: 10 }}>
+            <input type="hidden" name="patientId" value={p.patientId} />
+            <input className="entry-input" name="title" placeholder="Task title" required />
+            <input className="entry-input" name="description" placeholder="Details (optional)" />
+            <select className="entry-input" name="type" defaultValue="REFLECTION">
+              <option value="EXERCISE">Exercise</option>
+              <option value="VIDEO">Video</option>
+              <option value="READING">Reading</option>
+              <option value="REFLECTION">Reflection</option>
+              <option value="BREATHING">Breathing</option>
+            </select>
+            <label className="muted" style={{ fontSize: 12 }}>
+              Expiry
+              <input className="entry-input" type="date" name="dueDate" style={{ marginTop: 4 }} />
+            </label>
+            <button type="submit" className="btn btn-primary btn-sm">Assign task</button>
+          </form>
         </div>
       </div>
 

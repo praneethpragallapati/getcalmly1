@@ -210,6 +210,29 @@ export async function switchCategory(
   }
 }
 
+/**
+ * Mark an expert-assigned task complete/incomplete (#16). Scoped to the signed-in
+ * patient's own task rows. Completion is what feeds the weekly progress summary
+ * both the patient and their expert see, so it must persist (not be local-only).
+ */
+export async function toggleTask(id: string, done: boolean): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const result = await prisma.task.updateMany({
+      where: { id, userId }, // ownership gate
+      data: { completedAt: done ? new Date() : null },
+    })
+    if (result.count === 0) return { ok: true, persisted: false }
+    revalidatePath('/app')
+    revalidatePath('/app/progress')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not update this task.' }
+  }
+}
+
 /** Add a medication to the patient's regimen (#14). Patient-owned record. */
 export async function addMedication(input: {
   name: string

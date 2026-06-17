@@ -17,6 +17,8 @@ export type DashTask = {
   detail?: string
   done: boolean
   assignedBy?: string
+  dueLabel?: string // human-readable expiry, when set
+  expired?: boolean // past its dueDate and not done
 }
 
 export type DashSession = {

@@ -24,6 +24,43 @@ export function tierForMonths(paidMonths: number): PlanTierName {
 
 const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+/**
+ * A patient's last-7-day progress summary — expert-assigned task completion plus
+ * mood check-in activity. Shared by the patient's Progress page and the expert's
+ * patient profile so both sides read the exact same numbers from the same source.
+ * Denominator is tasks assigned in the window; completion counts toward progress.
+ */
+export type WeeklyProgress = {
+  tasksAssigned: number
+  tasksCompleted: number
+  completionPct: number
+  moodCheckins: number
+  moodAvg: number | null
+}
+
+export async function getWeeklyProgress(userId: string): Promise<WeeklyProgress> {
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  try {
+    const [tasks, moods] = await Promise.all([
+      prisma.task.findMany({ where: { userId, createdAt: { gte: weekAgo } } }),
+      prisma.moodEntry.findMany({ where: { userId, createdAt: { gte: weekAgo } }, select: { mood: true } }),
+    ])
+    const tasksCompleted = tasks.filter((t) => t.completedAt).length
+    const moodAvg = moods.length
+      ? Math.round((moods.reduce((a, m) => a + m.mood, 0) / moods.length) * 10) / 10
+      : null
+    return {
+      tasksAssigned: tasks.length,
+      tasksCompleted,
+      completionPct: tasks.length ? Math.round((tasksCompleted / tasks.length) * 100) : 0,
+      moodCheckins: moods.length,
+      moodAvg,
+    }
+  } catch {
+    return { tasksAssigned: 0, tasksCompleted: 0, completionPct: 0, moodCheckins: 0, moodAvg: null }
+  }
+}
+
 function startOfDay(d: Date): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
 }
@@ -128,6 +165,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     data.journalCount = journalCount || base.journalCount
 
     if (tasks.length > 0) {
+      const now = Date.now()
       data.tasks = tasks.map<DashTask>((t) => ({
         id: t.id,
         type: t.type,
@@ -135,6 +173,10 @@ export async function getDashboardData(): Promise<DashboardData> {
         detail: t.description ?? undefined,
         done: Boolean(t.completedAt),
         assignedBy: t.assignedBy ?? undefined,
+        dueLabel: t.dueDate
+          ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+          : undefined,
+        expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       }))
     }
 

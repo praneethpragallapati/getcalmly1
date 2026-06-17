@@ -52,6 +52,7 @@ export type ExpertPatientProfile = {
   sessionsTotal: number
   sessionsRemaining: number
   taskCompletionPct: number
+  tasks: { id: string; title: string; type: string; dueLabel?: string; done: boolean; expired: boolean }[]
   medicationCompliancePct: number
   medications: { name: string; dosage?: string; active: boolean }[]
   openCrisisCount: number
@@ -59,17 +60,31 @@ export type ExpertPatientProfile = {
 }
 
 /** The signed-in therapist's verified TherapistProfile id, or null. */
-export async function getTherapistContext(): Promise<{ userId: string; therapistProfileId: string } | null> {
+export async function getTherapistContext(): Promise<
+  { userId: string; therapistProfileId: string; therapistName: string | null } | null
+> {
   try {
     const session = await getServerSession(authOptions)
     const userId = (session?.user as { id?: string } | undefined)?.id
     if (!userId) return null
-    const profile = await prisma.therapistProfile.findUnique({ where: { userId } })
+    const profile = await prisma.therapistProfile.findUnique({
+      where: { userId },
+      include: { user: { select: { name: true } } },
+    })
     if (!profile || !profile.isActive) return null
-    return { userId, therapistProfileId: profile.id }
+    return { userId, therapistProfileId: profile.id, therapistName: profile.user?.name ?? null }
   } catch {
     return null
   }
+}
+
+/** Whether this therapist has any appointment with the given patient (ownership gate). */
+export async function ownsPatient(therapistProfileId: string, patientId: string): Promise<boolean> {
+  const owns = await prisma.appointment.findFirst({
+    where: { therapistId: therapistProfileId, patientId },
+    select: { id: true },
+  })
+  return Boolean(owns)
 }
 
 /** Trend over the most recent check-ins: average of the older half vs the newer half. */
@@ -164,6 +179,7 @@ export async function getExpertPatientProfile(
   if (!user) return null
 
   const isoDate = (d: Date) => d.toISOString().slice(0, 10)
+  const now = Date.now()
   const taskCompletionPct = tasks.length ? Math.round((tasks.filter((t) => t.completedAt).length / tasks.length) * 100) : 0
   // Proxy: no daily dose log exists yet, so compliance is approximated from active vs total prescriptions.
   const medicationCompliancePct = meds.length ? Math.round((meds.filter((m) => m.active).length / meds.length) * 100) : 0
@@ -185,6 +201,16 @@ export async function getExpertPatientProfile(
     sessionsTotal: sub?.sessionsTotal ?? 0,
     sessionsRemaining: sub ? Math.max(0, sub.sessionsTotal - sub.sessionsUsed) : 0,
     taskCompletionPct,
+    tasks: tasks
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map((t) => ({
+        id: t.id,
+        title: t.title,
+        type: t.type,
+        dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
+        done: Boolean(t.completedAt),
+        expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
+      })),
     medicationCompliancePct,
     medications: meds.map((m) => ({ name: m.name, dosage: m.dosage ?? undefined, active: m.active })),
     openCrisisCount: crisisCount,

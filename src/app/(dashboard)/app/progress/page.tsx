@@ -1,5 +1,6 @@
 import { Flame, TrendingUp, CalendarCheck, NotebookPen, Check, Lock } from 'lucide-react'
-import { getDashboardData } from '@/lib/dashboard'
+import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
+import { getSessionUserId } from '@/lib/patient'
 
 function LineChart({ points }: { points: { label: string; value: number }[] }) {
   const w = 520
@@ -32,6 +33,8 @@ function LineChart({ points }: { points: { label: string; value: number }[] }) {
 
 export default async function ProgressPage() {
   const d = await getDashboardData()
+  const userId = await getSessionUserId()
+  const weekly = userId ? await getWeeklyProgress(userId) : null
   const first = d.moodOverTime[0]?.value ?? 0
   const last = d.moodOverTime[d.moodOverTime.length - 1]?.value ?? 0
 
@@ -45,6 +48,18 @@ export default async function ProgressPage() {
       </div>
 
       <div className="stack">
+        {weekly && (
+          <div className="card">
+            <div className="section-title" style={{ marginBottom: 8 }}>This week</div>
+            <div className="muted">
+              Tasks from your expert: {weekly.tasksCompleted}/{weekly.tasksAssigned} completed ({weekly.completionPct}%)
+            </div>
+            <div className="muted">
+              Mood check-ins: {weekly.moodCheckins}
+              {weekly.moodAvg !== null ? ` · avg ${weekly.moodAvg}/10` : ''}
+            </div>
+          </div>
+        )}
         <div className="grid-4">
           <div className="card stat-card">
             <span className="stat-ic t-coral">
