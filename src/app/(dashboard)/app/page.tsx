@@ -12,8 +12,12 @@ import {
   Heart,
   MessageCircle,
   AlertCircle,
+  Truck,
 } from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard'
+import { getMedications } from '@/lib/account'
+import { getSessionUserId } from '@/lib/patient'
+import { getMedicationOrders } from '@/lib/orders'
 import { CheckIn } from '@/components/dashboard/CheckIn'
 import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
@@ -33,12 +37,53 @@ const TONE_ICON: Record<Pattern['tone'], typeof AlertCircle> = {
 }
 
 export default async function AppHomePage() {
-  const d = await getDashboardData()
+  const userId = await getSessionUserId()
+  const [d, meds, orders] = await Promise.all([
+    getDashboardData(),
+    getMedications(),
+    userId ? getMedicationOrders(userId) : Promise.resolve([]),
+  ])
   const openTasks = d.tasks.filter((t) => !t.done).length
-  const med = d.medications.find((m) => m.active)
+  const med = meds.find((m) => m.active) ?? d.medications.find((m) => m.active)
+
+  // Prescribed (DB-backed) active meds that haven't been ordered/paid for yet.
+  const orderedMedIds = new Set(orders.map((o) => o.medicationId).filter(Boolean) as string[])
+  const awaitingPayment = meds.filter(
+    (m) => m.active && !m.id.startsWith('local-') && m.prescribedBy && !orderedMedIds.has(m.id)
+  )
 
   return (
     <div className="stack">
+      {awaitingPayment.length > 0 && (
+        <Link
+          href="/app/medications"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '14px 16px',
+            borderRadius: 12,
+            background: 'var(--c-coral-pale, #FDEEEA)',
+            border: '1px solid var(--c-coral, #E8765A)',
+            textDecoration: 'none',
+          }}
+        >
+          <span className="task-ic" style={{ background: 'var(--c-coral, #E8765A)', color: '#fff', flexShrink: 0 }}>
+            <Truck size={16} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, color: 'var(--c-charcoal)', fontSize: 14 }}>
+              {awaitingPayment.length === 1
+                ? 'A prescribed medicine is ready to order'
+                : `${awaitingPayment.length} prescribed medicines are ready to order`}
+            </div>
+            <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+              Pay & get {awaitingPayment.map((m) => m.name).join(', ')} delivered to your door →
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* Hero — daily Calm AI insight (#10) */}
       <section className="hero">
         <div>

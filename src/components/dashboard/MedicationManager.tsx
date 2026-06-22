@@ -39,6 +39,9 @@ export function MedicationManager({
   const active = meds.filter((m) => m.active)
   const stopped = meds.filter((m) => !m.active)
 
+  // Prescribed (DB-backed) active meds the patient hasn't ordered/paid for yet.
+  const awaitingPayment = active.filter((m) => !m.id.startsWith('local-') && !orderByMed.has(m.id))
+
   function add() {
     setError(null)
     startTransition(async () => {
@@ -93,6 +96,29 @@ export function MedicationManager({
                 .join(' · ') || '—'}
               {m.prescribedBy && ` · ${m.prescribedBy}`}
             </div>
+            {m.prescribedBy && (
+              <div
+                style={{
+                  display: 'inline-flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginTop: 8,
+                  padding: '6px 10px',
+                  borderRadius: 8,
+                  background: 'var(--c-purple-pale, #F1EEFB)',
+                  border: '1px dashed var(--c-purple, #6C5CE7)',
+                }}
+              >
+                <span style={{ fontWeight: 800, fontSize: 13, color: 'var(--c-purple, #6C5CE7)' }}>℞</span>
+                <span style={{ fontSize: 12, color: 'var(--c-charcoal)' }}>
+                  <strong>Prescription</strong> · {m.name}
+                  {m.dosage ? ` ${m.dosage}` : ''}
+                  {m.frequency ? `, ${m.frequency}` : ''}
+                  {m.durationDays ? ` for ${m.durationDays} days` : ''} · prescribed by {m.prescribedBy}
+                </span>
+              </div>
+            )}
           </div>
           <button className="btn btn-outline btn-sm" type="button" onClick={() => toggle(m.id, !m.active)} disabled={pending}>
             {m.active ? 'Mark stopped' : 'Restart'}
@@ -133,6 +159,35 @@ export function MedicationManager({
 
   return (
     <div className="stack">
+      {awaitingPayment.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '14px 16px',
+            borderRadius: 12,
+            background: 'var(--c-coral-pale, #FDEEEA)',
+            border: '1px solid var(--c-coral, #E8765A)',
+          }}
+        >
+          <span className="task-ic" style={{ background: 'var(--c-coral, #E8765A)', color: '#fff', flexShrink: 0 }}>
+            <Truck size={16} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, color: 'var(--c-charcoal)', fontSize: 14 }}>
+              {awaitingPayment.length === 1
+                ? '1 prescribed medicine is ready to order'
+                : `${awaitingPayment.length} prescribed medicines are ready to order`}
+            </div>
+            <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+              Enter your delivery details and pay to get {awaitingPayment.map((m) => m.name).join(', ')} delivered to your
+              door.
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
           <div className="section-title">Current medications</div>
