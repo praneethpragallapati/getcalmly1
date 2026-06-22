@@ -33,6 +33,18 @@
   grid-template-columns: 256px 1fr;
 }
 
+/* Expert (clinician) portal: same component classes, re-themed green per
+   docs/FEATURES.md (#1A7F7A) instead of the patient coral. Every rule below
+   targets --c-coral, so overriding it here re-skins the whole shared system
+   without duplicating CSS. */
+.calmly-app.expert-theme {
+  --c-coral: #1a7f7a;
+  --c-coral-d: #115f5b;
+  --c-coral-l: #4ba8a2;
+  --c-coral-pale: #e3f1f0;
+  --c-bg: #f5fafa;
+}
+
 /* ===== Sidebar ===== */
 .app-sidebar {
   background: var(--c-ink);

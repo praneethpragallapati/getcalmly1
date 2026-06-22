@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
-import { AlertTriangle, Flame, Check } from 'lucide-react'
-import { getTherapistContext, getExpertPatientProfile } from '@/lib/expert'
+import { AlertTriangle, Flame, Check, Sparkles } from 'lucide-react'
+import { getTherapistContext, getExpertPatientProfile, generatePreSessionBrief } from '@/lib/expert'
 import { getWeeklyProgress } from '@/lib/dashboard'
 import { assignTask } from '../../actions'
 
@@ -19,7 +19,10 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   const p = await getExpertPatientProfile(ctx.therapistProfileId, id)
   if (!p) notFound()
 
-  const weekly = await getWeeklyProgress(id)
+  const [weekly, brief] = await Promise.all([
+    getWeeklyProgress(id),
+    generatePreSessionBrief(ctx.therapistProfileId, id),
+  ])
 
   return (
     <div className="stack">
@@ -29,6 +32,20 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           <div className="page-meta">{p.trackLabel}{p.diagnosis ? ` · ${p.diagnosis}` : ''}{p.therapyStatus ? ` · ${p.therapyStatus}` : ''}</div>
         </div>
       </div>
+
+      {brief && (
+        <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
+          <div className="pattern" style={{ padding: 0 }}>
+            <span className="pattern-ic t-purple">
+              <Sparkles size={16} />
+            </span>
+            <div>
+              <div className="pattern-title">AI co-pilot brief</div>
+              <div className="pattern-sub">{brief}</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {(p.openCrisisCount > 0 || p.moodTrend === 'declining') && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>

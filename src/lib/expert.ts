@@ -13,6 +13,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { trackLabelFor } from '@/lib/ai/tracks'
+import { callModel } from '@/lib/ai/clients'
+import { SYNTH_MODEL } from '@/lib/ai/models'
+import { hasLlm } from '@/lib/ai/config'
 
 export type MoodTrend = 'improving' | 'stable' | 'declining' | 'insufficient'
 
@@ -269,4 +272,188 @@ export async function resolveCrisisAlert(therapistProfileId: string, alertId: st
   if (!owns) return false
   await prisma.crisisAlert.update({ where: { id: alertId }, data: { resolved: true } })
   return true
+}
+
+// ── Scheduling ────────────────────────────────────────────────────────────────
+
+export type ScheduleAppointment = {
+  id: string
+  patientId: string
+  patientName: string
+  scheduledAt: Date
+  durationMins: number
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED'
+  fee: number
+  roomId: string | null
+  meetLink: string | null
+  hasSummary: boolean
+  isPast: boolean
+}
+
+/** Every appointment on this therapist's calendar, most recent first. */
+export async function getTherapistSchedule(therapistProfileId: string): Promise<ScheduleAppointment[]> {
+  const rows = await prisma.appointment.findMany({
+    where: { therapistId: therapistProfileId },
+    orderBy: { scheduledAt: 'asc' },
+    include: { patient: { select: { name: true } } },
+  })
+  const now = Date.now()
+  return rows.map((r) => ({
+    id: r.id,
+    patientId: r.patientId,
+    patientName: r.patient.name ?? 'Patient',
+    scheduledAt: r.scheduledAt,
+    durationMins: r.durationMins,
+    status: r.status,
+    fee: r.fee,
+    roomId: r.roomId,
+    meetLink: r.meetLink,
+    hasSummary: Boolean(r.summary),
+    isPast: r.scheduledAt.getTime() < now,
+  }))
+}
+
+/** Whether the appointment belongs to this therapist (ownership gate for mutations). */
+async function ownsAppointment(therapistProfileId: string, appointmentId: string) {
+  return prisma.appointment.findFirst({ where: { id: appointmentId, therapistId: therapistProfileId } })
+}
+
+export async function setAppointmentStatus(
+  therapistProfileId: string,
+  appointmentId: string,
+  status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+): Promise<boolean> {
+  const appt = await ownsAppointment(therapistProfileId, appointmentId)
+  if (!appt) return false
+  await prisma.appointment.update({ where: { id: appointmentId }, data: { status } })
+  return true
+}
+
+export async function rescheduleAppointment(
+  therapistProfileId: string,
+  appointmentId: string,
+  newDate: Date
+): Promise<boolean> {
+  const appt = await ownsAppointment(therapistProfileId, appointmentId)
+  if (!appt || Number.isNaN(newDate.getTime())) return false
+  await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { scheduledAt: newDate, status: 'RESCHEDULED' },
+  })
+  return true
+}
+
+export async function writeSessionSummary(
+  therapistProfileId: string,
+  appointmentId: string,
+  summary: string
+): Promise<boolean> {
+  const appt = await ownsAppointment(therapistProfileId, appointmentId)
+  if (!appt) return false
+  await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { summary, status: 'COMPLETED' },
+  })
+  return true
+}
+
+// ── Earnings ──────────────────────────────────────────────────────────────────
+
+export type EarningsMonth = { label: string; total: number; sessions: number }
+export type Earnings = {
+  totalEarned: number
+  totalSessions: number
+  thisMonth: number
+  thisMonthSessions: number
+  pending: number // confirmed + upcoming, not yet completed/paid
+  byMonth: EarningsMonth[]
+}
+
+export async function getTherapistEarnings(therapistProfileId: string): Promise<Earnings> {
+  const rows = await prisma.appointment.findMany({
+    where: { therapistId: therapistProfileId, status: { in: ['COMPLETED', 'CONFIRMED'] } },
+    select: { fee: true, status: true, scheduledAt: true },
+  })
+
+  const completed = rows.filter((r) => r.status === 'COMPLETED')
+  const pendingRows = rows.filter((r) => r.status === 'CONFIRMED')
+
+  const now = new Date()
+  const monthKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}`
+  const thisKey = monthKey(now)
+
+  const byMonthMap = new Map<string, EarningsMonth>()
+  for (const r of completed) {
+    const key = monthKey(r.scheduledAt)
+    const label = r.scheduledAt.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+    const entry = byMonthMap.get(key) ?? { label, total: 0, sessions: 0 }
+    entry.total += r.fee
+    entry.sessions += 1
+    byMonthMap.set(key, entry)
+  }
+  const byMonth = [...byMonthMap.entries()]
+    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    .map(([, v]) => v)
+
+  return {
+    totalEarned: completed.reduce((sum, r) => sum + r.fee, 0),
+    totalSessions: completed.length,
+    thisMonth: byMonthMap.get(thisKey)?.total ?? 0,
+    thisMonthSessions: byMonthMap.get(thisKey)?.sessions ?? 0,
+    pending: pendingRows.reduce((sum, r) => sum + r.fee, 0),
+    byMonth,
+  }
+}
+
+// ── AI co-pilot: pre-session briefs & note drafting ──────────────────────────
+
+const BRIEF_PROMPT =
+  'You are an AI co-pilot for a licensed therapist preparing for a session. Given the structured ' +
+  'patient data below, write a concise pre-session brief (max 120 words) covering: mood trend, ' +
+  "any homework/task follow-up needed, notable journal themes, and one suggested focus for today's " +
+  'session. Plain prose, no headings, no markdown. Be specific, not generic.'
+
+/** AI-drafted pre-session brief from this patient's recent signals. Returns null without an LLM key. */
+export async function generatePreSessionBrief(
+  therapistProfileId: string,
+  patientId: string
+): Promise<string | null> {
+  if (!hasLlm()) return null
+  const p = await getExpertPatientProfile(therapistProfileId, patientId)
+  if (!p) return null
+
+  const moodLine = p.moodWeek.length
+    ? `Mood last ${p.moodWeek.length} check-ins: ${p.moodWeek.map((m) => m.mood).join(', ')} (trend: ${p.moodTrend}).`
+    : 'No recent mood check-ins.'
+  const taskLine = p.tasks.length
+    ? `Tasks: ${p.tasks.map((t) => `${t.title} (${t.done ? 'done' : t.expired ? 'overdue' : 'open'})`).join('; ')}.`
+    : 'No tasks assigned.'
+  const lastNote = p.sessionNotes[0]?.raw
+  const noteLine = lastNote ? `Last session note: ${lastNote}` : 'No prior session note on file.'
+  const dx = p.diagnosis ? `Working diagnosis: ${p.diagnosis}.` : ''
+
+  const input = [`Patient track: ${p.trackLabel}.`, dx, moodLine, taskLine, noteLine].filter(Boolean).join('\n')
+
+  const res = await callModel(SYNTH_MODEL, BRIEF_PROMPT, [{ role: 'user', content: input }], {
+    temperature: 0.4,
+    maxTokens: 200,
+  })
+  return res.answer
+}
+
+const NOTE_PROMPT =
+  'You are an AI co-pilot drafting a therapy session note for a licensed therapist to review and edit. ' +
+  "Given the therapist's brief bullet points below, write a structured clinical session summary " +
+  '(max 100 words) covering: what was discussed, technique/approach used, and homework assigned if any. ' +
+  'Plain prose, third person about the patient, no headings, no markdown. The therapist will edit this ' +
+  'before saving — write a solid draft, not a placeholder.'
+
+/** AI-drafted session note from the therapist's quick bullet points. Returns null without an LLM key. */
+export async function draftSessionNote(bullets: string): Promise<string | null> {
+  if (!hasLlm() || !bullets.trim()) return null
+  const res = await callModel(SYNTH_MODEL, NOTE_PROMPT, [{ role: 'user', content: bullets.trim() }], {
+    temperature: 0.5,
+    maxTokens: 180,
+  })
+  return res.answer
 }

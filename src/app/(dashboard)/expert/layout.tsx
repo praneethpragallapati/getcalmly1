@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users, AlertTriangle } from 'lucide-react'
+import { Users, AlertTriangle, CalendarClock, Wallet } from 'lucide-react'
 import '../app.css'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 
@@ -18,7 +18,7 @@ export default async function ExpertLayout({ children }: { children: React.React
   const openCount = risk.length
 
   return (
-    <div className="calmly-app">
+    <div className="calmly-app expert-theme">
       <aside className="app-sidebar">
         <Link href="/expert" className="sb-logo" aria-label="getCalmly expert portal">
           <span className="get">get</span>
@@ -30,10 +30,18 @@ export default async function ExpertLayout({ children }: { children: React.React
             <Users size={18} />
             <span>Patients</span>
           </Link>
+          <Link href="/expert/schedule" className="sb-link">
+            <CalendarClock size={18} />
+            <span>Schedule</span>
+          </Link>
           <Link href="/expert/risk" className="sb-link">
             <AlertTriangle size={18} />
             <span>Risk notifications</span>
             {openCount > 0 && <span className="sb-badge">{openCount}</span>}
+          </Link>
+          <Link href="/expert/earnings" className="sb-link">
+            <Wallet size={18} />
+            <span>Earnings</span>
           </Link>
         </nav>
       </aside>
