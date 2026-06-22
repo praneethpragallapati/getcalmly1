@@ -26,7 +26,7 @@ export type MedicationOrderView = {
   createdLabel: string
 }
 
-const STATUS_LABEL: Record<string, string> = {
+export const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Pending payment',
   PAID: 'Paid · awaiting dispatch',
   DISPATCHED: 'Dispatched',

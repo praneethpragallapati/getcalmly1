@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Pill, Plus, X, Truck, Check } from 'lucide-react'
 import { addMedication, setMedicationActive, orderMedicationDelivery } from '@/app/(dashboard)/app/actions'
 import type { DashMedication } from '@/data/dashboardDemo'
@@ -99,8 +100,28 @@ export function MedicationManager({
         </div>
         {m.active && !m.id.startsWith('local-') && (
           order ? (
-            <div className="doc-sub" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 0 12px 40px', color: 'var(--c-green, #1A7F7A)' }}>
-              <Check size={14} /> Delivery {order.statusLabel.toLowerCase()} · ₹{order.amount}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 8,
+                margin: '0 0 12px 40px',
+                padding: '10px 12px',
+                borderRadius: 10,
+                background: 'var(--c-green-pale, #E9F6F4)',
+                border: '1px solid var(--c-green, #1A7F7A)',
+                maxWidth: 460,
+              }}
+            >
+              <Check size={16} style={{ color: 'var(--c-green, #1A7F7A)', marginTop: 2, flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-charcoal)' }}>
+                  {order.statusLabel} · ₹{order.amount} paid
+                </div>
+                <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+                  {order.itemName} — ordered {order.createdLabel}
+                </div>
+              </div>
             </div>
           ) : (
             <DeliveryPanel medicationId={m.id} durationDays={m.durationDays} />
@@ -178,6 +199,7 @@ export function MedicationManager({
 
 /** Inline "order a home delivery" flow for one medication. Mock payment. */
 function DeliveryPanel({ medicationId, durationDays }: { medicationId: string; durationDays?: number }) {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [done, setDone] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -202,16 +224,38 @@ function DeliveryPanel({ medicationId, durationDays }: { medicationId: string; d
     setError(null)
     startTransition(async () => {
       const res = await orderMedicationDelivery(medicationId, d)
-      if (res.ok && res.persisted) setDone(true)
-      else if (res.ok) setError('Sign in to order a delivery.')
+      if (res.ok && res.persisted) {
+        setDone(true)
+        router.refresh()
+      } else if (res.ok) setError('Sign in to order a delivery.')
       else setError(res.error ?? 'Could not place order.')
     })
   }
 
   if (done) {
     return (
-      <div className="doc-sub" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 0 12px 40px', color: 'var(--c-green, #1A7F7A)' }}>
-        <Check size={14} /> Order placed · paid ₹{amount} · awaiting dispatch
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          margin: '0 0 12px 40px',
+          padding: '10px 12px',
+          borderRadius: 10,
+          background: 'var(--c-green-pale, #E9F6F4)',
+          border: '1px solid var(--c-green, #1A7F7A)',
+          maxWidth: 460,
+        }}
+      >
+        <Check size={16} style={{ color: 'var(--c-green, #1A7F7A)', marginTop: 2, flexShrink: 0 }} />
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-charcoal)' }}>
+            Paid · awaiting dispatch · ₹{amount} paid
+          </div>
+          <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+            Delivery to your saved address — we&apos;ll notify you when it ships.
+          </div>
+        </div>
       </div>
     )
   }

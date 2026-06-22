@@ -22,6 +22,7 @@ import {
   sessionPay,
   type EarningsConfigValues,
 } from '@/lib/earningsConfig'
+import { STATUS_LABEL } from '@/lib/orders'
 
 export type MoodTrend = 'improving' | 'stable' | 'declining' | 'insufficient'
 
@@ -71,6 +72,8 @@ export type ExpertPatientProfile = {
     durationDays?: number
     prescribedBy?: string
     active: boolean
+    orderStatusLabel?: string
+    orderAmount?: number
   }[]
   openCrisisCount: number
   highStakeChatCount: number
@@ -213,6 +216,15 @@ export async function getExpertPatientProfile(
   ])
   if (!user) return null
 
+  const orders = await prisma.medicationOrder.findMany({
+    where: { userId: patientId },
+    orderBy: { createdAt: 'desc' },
+  })
+  const latestOrderByMed = new Map<string, (typeof orders)[number]>()
+  for (const o of orders) {
+    if (o.medicationId && !latestOrderByMed.has(o.medicationId)) latestOrderByMed.set(o.medicationId, o)
+  }
+
   const isoDate = (d: Date) => d.toISOString().slice(0, 10)
   const now = Date.now()
   const taskCompletionPct = tasks.length ? Math.round((tasks.filter((t) => t.completedAt).length / tasks.length) * 100) : 0
@@ -247,15 +259,20 @@ export async function getExpertPatientProfile(
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       })),
     medicationCompliancePct,
-    medications: meds.map((m) => ({
-      id: m.id,
-      name: m.name,
-      dosage: m.dosage ?? undefined,
-      frequency: m.frequency ?? undefined,
-      durationDays: m.durationDays ?? undefined,
-      prescribedBy: m.prescribedBy ?? undefined,
-      active: m.active,
-    })),
+    medications: meds.map((m) => {
+      const order = latestOrderByMed.get(m.id)
+      return {
+        id: m.id,
+        name: m.name,
+        dosage: m.dosage ?? undefined,
+        frequency: m.frequency ?? undefined,
+        durationDays: m.durationDays ?? undefined,
+        prescribedBy: m.prescribedBy ?? undefined,
+        active: m.active,
+        orderStatusLabel: order ? STATUS_LABEL[order.status] ?? order.status : undefined,
+        orderAmount: order?.amount,
+      }
+    }),
     openCrisisCount: crisisCount,
     highStakeChatCount: highStakeCount,
   }

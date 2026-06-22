@@ -166,6 +166,11 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                     .filter(Boolean)
                     .join(' · ')}
                 </div>
+                <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+                  {m.orderStatusLabel
+                    ? `Delivery: ${m.orderStatusLabel}${m.orderAmount ? ` · ₹${m.orderAmount} paid` : ''}`
+                    : 'Delivery: not yet ordered by patient'}
+                </div>
               </div>
               <form action={toggleMedication}>
                 <input type="hidden" name="medicationId" value={m.id} />
