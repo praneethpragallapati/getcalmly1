@@ -10,6 +10,12 @@ import {
   rescheduleAppointment,
   writeSessionSummary,
   draftSessionNote,
+  setDayAvailability,
+  setAllDaysAvailability,
+  addAvailabilityException,
+  removeAvailabilityException,
+  addSupervisee,
+  addSupervisionNote,
 } from '@/lib/expert'
 
 export async function resolveAlert(formData: FormData): Promise<void> {
@@ -116,4 +122,70 @@ export async function getNoteDraft(bullets: string): Promise<string | null> {
   const ctx = await getTherapistContext()
   if (!ctx) return null
   return draftSessionNote(bullets)
+}
+
+// ── Availability ──────────────────────────────────────────────────────────────
+
+function parseHours(formData: FormData): number[] {
+  // Checkbox group named "hours" — each checked box contributes its start-hour.
+  return formData
+    .getAll('hours')
+    .map((v) => parseInt(String(v), 10))
+    .filter((n) => !Number.isNaN(n))
+}
+
+/** Save the weekly template: either one weekday, or all days when applyAll is set. */
+export async function saveAvailability(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const hours = parseHours(formData)
+  if (String(formData.get('applyAll') ?? '') === 'true') {
+    await setAllDaysAvailability(ctx.therapistProfileId, hours)
+  } else {
+    const day = parseInt(String(formData.get('dayOfWeek') ?? ''), 10)
+    if (Number.isNaN(day)) return
+    await setDayAvailability(ctx.therapistProfileId, day, hours)
+  }
+  revalidatePath('/expert/availability')
+}
+
+/** Block a specific date (whole day) — a date-specific unavailability override. */
+export async function blockDate(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const dateRaw = String(formData.get('date') ?? '')
+  if (!dateRaw) return
+  await addAvailabilityException(ctx.therapistProfileId, new Date(dateRaw), { fullDayOff: true })
+  revalidatePath('/expert/availability')
+}
+
+export async function unblockDate(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const id = String(formData.get('exceptionId') ?? '')
+  if (!id) return
+  await removeAvailabilityException(ctx.therapistProfileId, id)
+  revalidatePath('/expert/availability')
+}
+
+// ── Supervision ───────────────────────────────────────────────────────────────
+
+export async function linkSupervisee(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const email = String(formData.get('email') ?? '')
+  if (!email) return
+  await addSupervisee(ctx.therapistProfileId, email)
+  revalidatePath('/expert/supervision')
+}
+
+export async function postSupervisionNote(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const linkId = String(formData.get('linkId') ?? '')
+  const content = String(formData.get('content') ?? '')
+  const patientId = String(formData.get('patientId') ?? '') || undefined
+  if (!linkId || !content.trim()) return
+  await addSupervisionNote(ctx.therapistProfileId, linkId, content, patientId)
+  revalidatePath('/expert/supervision')
 }

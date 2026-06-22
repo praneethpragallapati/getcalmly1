@@ -307,7 +307,66 @@ model TherapistProfile {
   photoUrl        String?
   createdAt       DateTime @default(now())
 
-  appointments Appointment[] @relation("TherapistAppointments")
+  appointments           Appointment[]           @relation("TherapistAppointments")
+  availability           TherapistAvailability[]
+  availabilityExceptions AvailabilityException[]
+  supervisorLinks        SupervisionLink[]       @relation("Supervisor")
+  superviseeLinks        SupervisionLink[]       @relation("Supervisee")
+}
+
+// Recurring weekly availability template. One row per weekday the therapist works;
+// `hours` are the enabled 1-hour slot start-hours (0-23) applied to every
+// occurrence of that weekday. Date-specific changes live in AvailabilityException.
+model TherapistAvailability {
+  id          String           @id @default(cuid())
+  therapistId String
+  therapist   TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int // 0 = Sunday … 6 = Saturday
+  hours       Int[] // enabled slot start-hours, e.g. [7,8,9,10,12,13]
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([therapistId, dayOfWeek])
+}
+
+// A date-specific override of the recurring template. `fullDayOff` blocks the
+// entire date; otherwise `hoursOff` removes specific slot start-hours that date.
+model AvailabilityException {
+  id          String           @id @default(cuid())
+  therapistId String
+  therapist   TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  date        DateTime // midnight (UTC) of the affected calendar date
+  fullDayOff  Boolean          @default(true)
+  hoursOff    Int[]
+  createdAt   DateTime         @default(now())
+
+  @@unique([therapistId, date])
+}
+
+// Clinical supervision relationship between two therapists.
+model SupervisionLink {
+  id           String            @id @default(cuid())
+  supervisorId String
+  supervisor   TherapistProfile  @relation("Supervisor", fields: [supervisorId], references: [id], onDelete: Cascade)
+  superviseeId String
+  supervisee   TherapistProfile  @relation("Supervisee", fields: [superviseeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime          @default(now())
+  notes        SupervisionNote[]
+
+  @@unique([supervisorId, superviseeId])
+}
+
+// A note shared within a supervision relationship. Authored by either party; may
+// reference a specific patient case (User.id) the supervisee owns.
+model SupervisionNote {
+  id        String          @id @default(cuid())
+  linkId    String
+  link      SupervisionLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  authorId  String // TherapistProfile.id of the author
+  patientId String? // optional case reference (User.id)
+  content   String          @db.Text
+  createdAt DateTime        @default(now())
+
+  @@index([linkId, createdAt])
 }
 
 model Assessment {

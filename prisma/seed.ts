@@ -284,6 +284,78 @@ async function seedDemoPatient() {
   })
 
   console.log(`Done. Demo patient: ${patient.email} (password sign-in enabled).`)
+  return { therapist, patientUserId: uid }
+}
+
+/**
+ * Seeds the expert-portal extras: Dr. Ananya's weekly availability template and a
+ * supervision relationship (a senior therapist supervising her). Idempotent.
+ */
+async function seedExpertExtras(therapistId: string, demoPatientUserId: string) {
+  console.log('Seeding expert availability + supervision…')
+
+  // Weekly availability: weekdays, morning + afternoon + evening 1-hour slots.
+  const weekdayHours = [9, 10, 12, 13, 14, 17, 18]
+  await prisma.therapistAvailability.deleteMany({ where: { therapistId } })
+  for (let day = 1; day <= 5; day++) {
+    await prisma.therapistAvailability.create({
+      data: { therapistId, dayOfWeek: day, hours: weekdayHours },
+    })
+  }
+
+  // A senior therapist who supervises Dr. Ananya.
+  const supervisorUser = await prisma.user.upsert({
+    where: { email: 'dr.vikram@getcalmly.com' },
+    update: { name: 'Dr. Vikram Rao', role: 'THERAPIST' },
+    create: { email: 'dr.vikram@getcalmly.com', name: 'Dr. Vikram Rao', role: 'THERAPIST' },
+  })
+  const supervisor = await prisma.therapistProfile.upsert({
+    where: { userId: supervisorUser.id },
+    update: { isActive: true, isVerified: true },
+    create: {
+      userId: supervisorUser.id,
+      bio: 'Senior clinical psychologist and clinical supervisor; 18 years of practice.',
+      qualifications: ['PhD Clinical Psychology', 'RCI Registered', 'Certified Clinical Supervisor'],
+      yearsExp: 18,
+      languages: ['English', 'Hindi', 'Marathi'],
+      specializations: ['Supervision', 'Trauma', 'CBT'],
+      rciNumber: 'RCI-DEMO-0002',
+      sessionFee: 2500,
+      rating: 5.0,
+      totalReviews: 64,
+      isVerified: true,
+      isActive: true,
+    },
+  })
+
+  const link = await prisma.supervisionLink.upsert({
+    where: { supervisorId_superviseeId: { supervisorId: supervisor.id, superviseeId: therapistId } },
+    update: {},
+    create: { supervisorId: supervisor.id, superviseeId: therapistId },
+  })
+
+  // Seed a couple of supervision notes only if none exist yet (avoid duplicates).
+  const existingNotes = await prisma.supervisionNote.count({ where: { linkId: link.id } })
+  if (existingNotes === 0) {
+    await prisma.supervisionNote.create({
+      data: {
+        linkId: link.id,
+        authorId: supervisor.id,
+        patientId: demoPatientUserId,
+        content:
+          'Good formulation on the work-anxiety case. Consider a behavioural experiment around the Sunday-night spiral next session, and watch for avoidance creeping back in.',
+      },
+    })
+    await prisma.supervisionNote.create({
+      data: {
+        linkId: link.id,
+        authorId: therapistId,
+        content: 'Thanks — will set up the behavioural experiment and report back on adherence.',
+      },
+    })
+  }
+
+  console.log('Done. Availability + supervision seeded.')
 }
 
 // Turn "2 hours ago" / "Yesterday" / "1 week ago" into a real timestamp so the
@@ -359,7 +431,8 @@ async function main() {
     }
   }
 
-  await seedDemoPatient()
+  const { therapist, patientUserId } = await seedDemoPatient()
+  await seedExpertExtras(therapist.id, patientUserId)
 
   const blogCount = await prisma.blogPost.count()
   const postCount = await prisma.communityPost.count()

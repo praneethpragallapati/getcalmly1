@@ -1,6 +1,7 @@
 import { demoDashboard, type DashSession } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
+import { getBookableSlots } from '@/lib/expert'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
@@ -229,6 +230,22 @@ export async function getExpertCalendar(): Promise<ExpertCalendar> {
   const userId = await getSessionUserId()
   if (!userId) return base
   try {
+    // Prefer the patient's actual therapist's real availability, when set.
+    const lastAppt = await prisma.appointment.findFirst({
+      where: { patientId: userId },
+      orderBy: { scheduledAt: 'desc' },
+      include: { therapist: { include: { user: { select: { name: true } } } } },
+    })
+    if (lastAppt) {
+      const real = await getBookableSlots(lastAppt.therapistId)
+      base.expert = lastAppt.therapist.user.name ?? base.expert
+      if (real.length) {
+        base.slots = real.map((s) => ({ iso: s.iso, label: s.dateLabel, time: s.time, taken: s.taken }))
+        return base
+      }
+    }
+
+    // Fallback: mark generated demo slots the patient has already booked.
     const booked = await prisma.appointment.findMany({
       where: { patientId: userId, scheduledAt: { gte: new Date() } },
       select: { scheduledAt: true },

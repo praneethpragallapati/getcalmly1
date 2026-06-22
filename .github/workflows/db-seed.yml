@@ -10,6 +10,10 @@ on:
         description: 'Also run the seed (creates/updates the demo patient)?'
         type: boolean
         default: true
+      forceReset:
+        description: 'DESTRUCTIVE: drop all tables before syncing (wipes live data). Leave off for an additive schema sync.'
+        type: boolean
+        default: false
 
 jobs:
   migrate-and-seed:
@@ -42,9 +46,14 @@ jobs:
 
       # The hand-written migration files are incomplete (they don't CREATE
       # several models that exist in schema.prisma, e.g. PatientProfile), so we
-      # sync the full schema directly. --force-reset drops existing tables first
-      # (DESTRUCTIVE) to guarantee a clean, complete schema.
+      # sync the full schema directly with `db push`. Default is additive (adds
+      # new tables/columns, preserves data). forceReset drops everything first.
+      - name: Sync schema (additive)
+        if: ${{ !inputs.forceReset }}
+        run: npx prisma db push
+
       - name: Sync full schema (DESTRUCTIVE — drops existing tables)
+        if: ${{ inputs.forceReset }}
         run: npx prisma db push --force-reset --accept-data-loss
 
       - name: Seed demo data

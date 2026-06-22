@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users, AlertTriangle, CalendarClock, Wallet } from 'lucide-react'
+import { Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound } from 'lucide-react'
 import '../app.css'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 
@@ -34,10 +34,18 @@ export default async function ExpertLayout({ children }: { children: React.React
             <CalendarClock size={18} />
             <span>Schedule</span>
           </Link>
+          <Link href="/expert/availability" className="sb-link">
+            <CalendarCog size={18} />
+            <span>Availability</span>
+          </Link>
           <Link href="/expert/risk" className="sb-link">
             <AlertTriangle size={18} />
             <span>Risk notifications</span>
             {openCount > 0 && <span className="sb-badge">{openCount}</span>}
+          </Link>
+          <Link href="/expert/supervision" className="sb-link">
+            <UsersRound size={18} />
+            <span>Supervision</span>
           </Link>
           <Link href="/expert/earnings" className="sb-link">
             <Wallet size={18} />

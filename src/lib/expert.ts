@@ -457,3 +457,253 @@ export async function draftSessionNote(bullets: string): Promise<string | null> 
   })
   return res.answer
 }
+
+// ── Availability ──────────────────────────────────────────────────────────────
+
+/** The four named slot bands. Each is a set of 1-hour slot start-hours. */
+export const SLOT_GROUPS = {
+  morning: { label: 'Morning · 7–11 AM', hours: [7, 8, 9, 10] },
+  afternoon: { label: 'Afternoon · 12–4 PM', hours: [12, 13, 14, 15] },
+  evening: { label: 'Evening · 5–9 PM', hours: [17, 18, 19, 20] },
+  night: { label: 'Night · 9 PM–12 AM', hours: [21, 22, 23] },
+} as const
+export type SlotGroup = keyof typeof SLOT_GROUPS
+export const SLOT_GROUP_KEYS = Object.keys(SLOT_GROUPS) as SlotGroup[]
+
+export const DAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+export type DayAvailability = { dayOfWeek: number; hours: number[] }
+export type AvailabilityExceptionView = {
+  id: string
+  date: Date
+  dateLabel: string
+  fullDayOff: boolean
+  hoursOff: number[]
+}
+
+/** The therapist's weekly template as one row per weekday (missing days = closed). */
+export async function getAvailability(therapistProfileId: string): Promise<DayAvailability[]> {
+  const rows = await prisma.therapistAvailability.findMany({
+    where: { therapistId: therapistProfileId },
+    orderBy: { dayOfWeek: 'asc' },
+  })
+  const byDay = new Map(rows.map((r) => [r.dayOfWeek, [...r.hours].sort((a, b) => a - b)]))
+  return Array.from({ length: 7 }, (_, d) => ({ dayOfWeek: d, hours: byDay.get(d) ?? [] }))
+}
+
+/** Set (replace) the enabled hours for one weekday. Empty array closes the day. */
+export async function setDayAvailability(
+  therapistProfileId: string,
+  dayOfWeek: number,
+  hours: number[]
+): Promise<void> {
+  if (dayOfWeek < 0 || dayOfWeek > 6) return
+  const clean = [...new Set(hours.filter((h) => h >= 0 && h <= 23))].sort((a, b) => a - b)
+  await prisma.therapistAvailability.upsert({
+    where: { therapistId_dayOfWeek: { therapistId: therapistProfileId, dayOfWeek } },
+    update: { hours: clean },
+    create: { therapistId: therapistProfileId, dayOfWeek, hours: clean },
+  })
+}
+
+/** Apply the same set of hours to every day of the week (the "map to all days" action). */
+export async function setAllDaysAvailability(therapistProfileId: string, hours: number[]): Promise<void> {
+  for (let d = 0; d < 7; d++) await setDayAvailability(therapistProfileId, d, hours)
+}
+
+function startOfUtcDay(d: Date): Date {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+}
+
+/** Upcoming date-specific exceptions, soonest first. */
+export async function getAvailabilityExceptions(therapistProfileId: string): Promise<AvailabilityExceptionView[]> {
+  const rows = await prisma.availabilityException.findMany({
+    where: { therapistId: therapistProfileId, date: { gte: startOfUtcDay(new Date()) } },
+    orderBy: { date: 'asc' },
+  })
+  return rows.map((r) => ({
+    id: r.id,
+    date: r.date,
+    dateLabel: r.date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+    fullDayOff: r.fullDayOff,
+    hoursOff: [...r.hoursOff].sort((a, b) => a - b),
+  }))
+}
+
+/** Add or replace an exception for a specific date. Empty hoursOff + fullDayOff blocks the whole day. */
+export async function addAvailabilityException(
+  therapistProfileId: string,
+  date: Date,
+  opts: { fullDayOff: boolean; hoursOff?: number[] }
+): Promise<void> {
+  if (Number.isNaN(date.getTime())) return
+  const day = startOfUtcDay(date)
+  const hoursOff = [...new Set((opts.hoursOff ?? []).filter((h) => h >= 0 && h <= 23))].sort((a, b) => a - b)
+  await prisma.availabilityException.upsert({
+    where: { therapistId_date: { therapistId: therapistProfileId, date: day } },
+    update: { fullDayOff: opts.fullDayOff, hoursOff },
+    create: { therapistId: therapistProfileId, date: day, fullDayOff: opts.fullDayOff, hoursOff },
+  })
+}
+
+export async function removeAvailabilityException(therapistProfileId: string, exceptionId: string): Promise<void> {
+  const ex = await prisma.availabilityException.findFirst({
+    where: { id: exceptionId, therapistId: therapistProfileId },
+  })
+  if (ex) await prisma.availabilityException.delete({ where: { id: exceptionId } })
+}
+
+export type BookableSlot = { iso: string; dateLabel: string; time: string; taken: boolean }
+
+/**
+ * The therapist's real bookable slots over the next `daysAhead` days: the weekly
+ * template, minus date exceptions, minus slots already booked, future only.
+ * This is what the patient's booking calendar reads.
+ */
+export async function getBookableSlots(therapistProfileId: string, daysAhead = 21): Promise<BookableSlot[]> {
+  const [template, exceptions, booked] = await Promise.all([
+    getAvailability(therapistProfileId),
+    prisma.availabilityException.findMany({
+      where: { therapistId: therapistProfileId, date: { gte: startOfUtcDay(new Date()) } },
+    }),
+    prisma.appointment.findMany({
+      where: { therapistId: therapistProfileId, scheduledAt: { gte: new Date() }, status: { not: 'CANCELLED' } },
+      select: { scheduledAt: true },
+    }),
+  ])
+  const hoursByDay = new Map(template.map((t) => [t.dayOfWeek, t.hours]))
+  const exByDay = new Map(exceptions.map((e) => [startOfUtcDay(e.date).getTime(), e]))
+  const takenMs = new Set(booked.map((b) => b.scheduledAt.getTime()))
+
+  const slots: BookableSlot[] = []
+  const now = Date.now()
+  for (let d = 0; d < daysAhead; d++) {
+    const day = new Date()
+    day.setHours(0, 0, 0, 0)
+    day.setDate(day.getDate() + d)
+    const hours = hoursByDay.get(day.getDay()) ?? []
+    if (!hours.length) continue
+    const ex = exByDay.get(startOfUtcDay(day).getTime())
+    if (ex?.fullDayOff) continue
+    const offHours = new Set(ex?.hoursOff ?? [])
+    for (const h of hours) {
+      if (offHours.has(h)) continue
+      const slot = new Date(day)
+      slot.setHours(h, 0, 0, 0)
+      if (slot.getTime() <= now) continue
+      slots.push({
+        iso: slot.toISOString(),
+        dateLabel: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
+        time: slot.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+        taken: takenMs.has(slot.getTime()),
+      })
+    }
+  }
+  return slots
+}
+
+// ── Supervision ───────────────────────────────────────────────────────────────
+
+export type SupervisionNoteView = {
+  id: string
+  authorName: string
+  patientName?: string
+  content: string
+  createdAt: Date
+}
+export type SupervisionRelationship = {
+  linkId: string
+  counterpartName: string
+  notes: SupervisionNoteView[]
+}
+export type SupervisionView = {
+  supervising: SupervisionRelationship[] // people this therapist supervises
+  supervisedBy: SupervisionRelationship[] // this therapist's own supervisors
+}
+
+export async function getSupervision(therapistProfileId: string): Promise<SupervisionView> {
+  const links = await prisma.supervisionLink.findMany({
+    where: { OR: [{ supervisorId: therapistProfileId }, { superviseeId: therapistProfileId }] },
+    include: {
+      supervisor: { include: { user: { select: { name: true } } } },
+      supervisee: { include: { user: { select: { name: true } } } },
+      notes: { orderBy: { createdAt: 'desc' } },
+    },
+  })
+
+  // Resolve author + patient names across all notes in one pass.
+  const authorIds = new Set<string>()
+  const patientIds = new Set<string>()
+  for (const l of links)
+    for (const n of l.notes) {
+      authorIds.add(n.authorId)
+      if (n.patientId) patientIds.add(n.patientId)
+    }
+  const [authors, patients] = await Promise.all([
+    prisma.therapistProfile.findMany({ where: { id: { in: [...authorIds] } }, include: { user: { select: { name: true } } } }),
+    prisma.user.findMany({ where: { id: { in: [...patientIds] } }, select: { id: true, name: true } }),
+  ])
+  const authorName = (id: string) => authors.find((a) => a.id === id)?.user?.name ?? 'Therapist'
+  const patientName = (id: string) => patients.find((p) => p.id === id)?.name ?? 'Patient'
+
+  const toRel = (linkId: string, counterpartName: string, notes: typeof links[number]['notes']): SupervisionRelationship => ({
+    linkId,
+    counterpartName,
+    notes: notes.map((n) => ({
+      id: n.id,
+      authorName: authorName(n.authorId),
+      patientName: n.patientId ? patientName(n.patientId) : undefined,
+      content: n.content,
+      createdAt: n.createdAt,
+    })),
+  })
+
+  return {
+    supervising: links
+      .filter((l) => l.supervisorId === therapistProfileId)
+      .map((l) => toRel(l.id, l.supervisee.user?.name ?? 'Therapist', l.notes)),
+    supervisedBy: links
+      .filter((l) => l.superviseeId === therapistProfileId)
+      .map((l) => toRel(l.id, l.supervisor.user?.name ?? 'Therapist', l.notes)),
+  }
+}
+
+/** Create a supervision link where the caller supervises the therapist with `superviseeEmail`. */
+export async function addSupervisee(supervisorId: string, superviseeEmail: string): Promise<{ ok: boolean; error?: string }> {
+  const email = superviseeEmail.trim().toLowerCase()
+  if (!email) return { ok: false, error: 'Enter an email.' }
+  const user = await prisma.user.findUnique({ where: { email }, include: { therapistProfile: true } })
+  if (!user?.therapistProfile) return { ok: false, error: 'No therapist found with that email.' }
+  const superviseeId = user.therapistProfile.id
+  if (superviseeId === supervisorId) return { ok: false, error: 'You cannot supervise yourself.' }
+  await prisma.supervisionLink.upsert({
+    where: { supervisorId_superviseeId: { supervisorId, superviseeId } },
+    update: {},
+    create: { supervisorId, superviseeId },
+  })
+  return { ok: true }
+}
+
+/** Add a note to a supervision link the caller is part of (#supervision). */
+export async function addSupervisionNote(
+  therapistProfileId: string,
+  linkId: string,
+  content: string,
+  patientId?: string
+): Promise<boolean> {
+  const text = content.trim()
+  if (!text) return false
+  const link = await prisma.supervisionLink.findFirst({
+    where: { id: linkId, OR: [{ supervisorId: therapistProfileId }, { superviseeId: therapistProfileId }] },
+  })
+  if (!link) return false
+  // If a patient case is referenced, it must belong to the supervisee.
+  let patientRef: string | null = null
+  if (patientId) {
+    if (await ownsPatient(link.superviseeId, patientId)) patientRef = patientId
+  }
+  await prisma.supervisionNote.create({
+    data: { linkId, authorId: therapistProfileId, content: text, patientId: patientRef },
+  })
+  return true
+}
