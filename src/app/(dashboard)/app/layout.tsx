@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import { Search, Bell, HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { getDashboardData } from '@/lib/dashboard'
+import { authOptions } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -18,6 +21,9 @@ function greetingFor(date: Date): string {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions)
+  if ((session?.user as { role?: string } | undefined)?.role === 'THERAPIST') redirect('/expert')
+
   const d = await getDashboardData()
   const now = new Date()
   const dateLine = now.toLocaleDateString('en-IN', {

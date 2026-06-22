@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
@@ -19,6 +19,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  async function redirectAfterLogin() {
+    const session = await getSession()
+    const role = (session?.user as { role?: string } | undefined)?.role
+    router.push(role === 'THERAPIST' ? '/expert' : '/app')
+  }
+
   async function handlePasswordLogin() {
     setError('')
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -32,7 +38,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const result = await signIn('password', { email, password, redirect: false })
-      if (result?.ok) router.push('/app')
+      if (result?.ok) await redirectAfterLogin()
       else setError('Email or password is incorrect.')
     } catch {
       setError('Could not sign in. Please try again.')
@@ -100,7 +106,7 @@ export default function LoginPage() {
       const result = tab === 'phone'
         ? await signIn('phone-otp', { mobile, otp: code, redirect: false })
         : await signIn('email-otp', { email, otp: code, redirect: false })
-      if (result?.ok) router.push('/app')
+      if (result?.ok) await redirectAfterLogin()
       else setError('That code did not match. Please try again.')
     } catch {
       setError('Could not verify. Please try again.')
