@@ -16,6 +16,12 @@ import { trackLabelFor } from '@/lib/ai/tracks'
 import { callModel } from '@/lib/ai/clients'
 import { SYNTH_MODEL } from '@/lib/ai/models'
 import { hasLlm } from '@/lib/ai/config'
+import {
+  getEarningsConfig,
+  isNightSession,
+  sessionPay,
+  type EarningsConfigValues,
+} from '@/lib/earningsConfig'
 
 export type MoodTrend = 'improving' | 'stable' | 'declining' | 'insufficient'
 
@@ -62,6 +68,7 @@ export type ExpertPatientProfile = {
     name: string
     dosage?: string
     frequency?: string
+    durationDays?: number
     prescribedBy?: string
     active: boolean
   }[]
@@ -245,6 +252,7 @@ export async function getExpertPatientProfile(
       name: m.name,
       dosage: m.dosage ?? undefined,
       frequency: m.frequency ?? undefined,
+      durationDays: m.durationDays ?? undefined,
       prescribedBy: m.prescribedBy ?? undefined,
       active: m.active,
     })),
@@ -406,10 +414,13 @@ export type PrescribeInput = {
   dosage?: string
   frequency?: string
   times?: string[]
+  durationDays?: number | null
   notes?: string
 }
 
-/** Prescribe a new medication for a patient. Psychiatrists only; ownership-gated. */
+/** Prescribe a new medication for a patient. Psychiatrists only; ownership-gated.
+ * Also drops an in-app notification so the patient sees the new prescription and
+ * can order a home delivery. */
 export async function prescribeMedication(
   therapistProfileId: string,
   prescriberName: string | null,
@@ -419,17 +430,33 @@ export async function prescribeMedication(
   const name = input.name.trim()
   if (!name) return false
   if (!(await canPrescribe(therapistProfileId, patientId))) return false
-  await prisma.medication.create({
+  const durationDays =
+    input.durationDays != null && Number.isFinite(input.durationDays) && input.durationDays > 0
+      ? Math.round(input.durationDays)
+      : null
+  const med = await prisma.medication.create({
     data: {
       userId: patientId,
       name,
       dosage: input.dosage?.trim() || null,
       frequency: input.frequency?.trim() || null,
       times: (input.times ?? []).map((t) => t.trim()).filter(Boolean),
+      durationDays,
       notes: input.notes?.trim() || null,
       prescribedBy: prescriberName ?? null,
       startedAt: new Date(),
       active: true,
+    },
+  })
+  await prisma.notification.create({
+    data: {
+      userId: patientId,
+      type: 'prescription',
+      title: `New prescription: ${name}${med.dosage ? ` ${med.dosage}` : ''}`,
+      body: `${prescriberName ?? 'Your psychiatrist'} prescribed a new medication${
+        durationDays ? ` for ${durationDays} days` : ''
+      }. You can order a home delivery from your Medications page.`,
+      href: '/app/medications',
     },
   })
   return true
@@ -454,6 +481,13 @@ export async function setMedicationActive(
 // ── Earnings ──────────────────────────────────────────────────────────────────
 
 export type EarningsMonth = { label: string; total: number; sessions: number }
+export type EarningsBreakdown = {
+  base: number // sum of base fees across completed sessions
+  sessionBonus: number // sum of 2nd / 3rd-onwards session-number bonuses
+  nightBonus: number // sum of night-session bonuses
+  miscBonus: number // sum of misc bonuses
+  nightSessions: number // count of completed night-slot sessions
+}
 export type Earnings = {
   totalEarned: number
   totalSessions: number
@@ -461,15 +495,25 @@ export type Earnings = {
   thisMonthSessions: number
   pending: number // confirmed + upcoming, not yet completed/paid
   byMonth: EarningsMonth[]
+  config: EarningsConfigValues
+  breakdown: EarningsBreakdown
 }
 
 export async function getTherapistEarnings(therapistProfileId: string): Promise<Earnings> {
-  const rows = await prisma.appointment.findMany({
-    where: { therapistId: therapistProfileId, status: { in: ['COMPLETED', 'CONFIRMED'] } },
-    select: { fee: true, status: true, scheduledAt: true },
-  })
+  const [rows, config] = await Promise.all([
+    prisma.appointment.findMany({
+      where: { therapistId: therapistProfileId, status: { in: ['COMPLETED', 'CONFIRMED'] } },
+      select: { patientId: true, status: true, scheduledAt: true },
+    }),
+    getEarningsConfig(),
+  ])
 
-  const completed = rows.filter((r) => r.status === 'COMPLETED')
+  // Per-patient session ordinal is computed over that patient's completed
+  // sessions in chronological order, so the 2nd / 3rd-onwards bonuses reflect
+  // continuity with each patient.
+  const completed = rows
+    .filter((r) => r.status === 'COMPLETED')
+    .sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())
   const pendingRows = rows.filter((r) => r.status === 'CONFIRMED')
 
   const now = new Date()
@@ -477,11 +521,29 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
   const thisKey = monthKey(now)
 
   const byMonthMap = new Map<string, EarningsMonth>()
+  const breakdown: EarningsBreakdown = { base: 0, sessionBonus: 0, nightBonus: 0, miscBonus: 0, nightSessions: 0 }
+  const seenPerPatient = new Map<string, number>()
+  let totalEarned = 0
+
   for (const r of completed) {
+    const ordinal = (seenPerPatient.get(r.patientId) ?? 0) + 1
+    seenPerPatient.set(r.patientId, ordinal)
+    const night = isNightSession(r.scheduledAt)
+    const pay = sessionPay(config, ordinal, night)
+
+    breakdown.base += config.baseFee
+    breakdown.sessionBonus += ordinal >= 3 ? config.thirdOnwardsBonus : ordinal === 2 ? config.secondSessionBonus : 0
+    breakdown.miscBonus += config.miscBonus
+    if (night) {
+      breakdown.nightBonus += config.nightSessionBonus
+      breakdown.nightSessions += 1
+    }
+    totalEarned += pay
+
     const key = monthKey(r.scheduledAt)
     const label = r.scheduledAt.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
     const entry = byMonthMap.get(key) ?? { label, total: 0, sessions: 0 }
-    entry.total += r.fee
+    entry.total += pay
     entry.sessions += 1
     byMonthMap.set(key, entry)
   }
@@ -489,13 +551,19 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
     .sort((a, b) => (a[0] < b[0] ? 1 : -1))
     .map(([, v]) => v)
 
+  // Pending payout: estimate each confirmed session at base + misc (bonuses
+  // depend on completion ordering, so we keep the estimate conservative).
+  const pending = pendingRows.length * (config.baseFee + config.miscBonus)
+
   return {
-    totalEarned: completed.reduce((sum, r) => sum + r.fee, 0),
+    totalEarned,
     totalSessions: completed.length,
     thisMonth: byMonthMap.get(thisKey)?.total ?? 0,
     thisMonthSessions: byMonthMap.get(thisKey)?.sessions ?? 0,
-    pending: pendingRows.reduce((sum, r) => sum + r.fee, 0),
+    pending,
     byMonth,
+    config,
+    breakdown,
   }
 }
 

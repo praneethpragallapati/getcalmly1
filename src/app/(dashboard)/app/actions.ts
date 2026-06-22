@@ -6,6 +6,8 @@ import { getSessionUserId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
 import { buyPackageFor, type BuyableTrack } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm } from '@/lib/forms'
+import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
+import { markAllRead } from '@/lib/notifications'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
@@ -386,6 +388,42 @@ export async function submitAssignedForm(
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not submit this form.' }
+  }
+}
+
+/**
+ * Order a home delivery for a prescribed medication (#delivery). Mock payment for
+ * now — the order is marked paid and queued; pharmacy fulfilment is wired later.
+ */
+export async function orderMedicationDelivery(
+  medicationId: string,
+  details: DeliveryDetails
+): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const res = await placeMedicationOrder(userId, medicationId, details)
+    if (!res.ok) return { ok: false, persisted: false, error: res.error ?? 'Could not place order.' }
+    revalidatePath('/app/medications')
+    revalidatePath('/app/notifications')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not place order.' }
+  }
+}
+
+/** Mark all the patient's notifications read (clears the bell). */
+export async function markNotificationsRead(): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+  try {
+    await markAllRead(userId)
+    revalidatePath('/app/notifications')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not update notifications.' }
   }
 }
 

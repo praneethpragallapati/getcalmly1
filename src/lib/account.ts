@@ -124,6 +124,7 @@ export async function getMedications(): Promise<DashMedication[]> {
       dosage: m.dosage ?? undefined,
       frequency: m.frequency ?? undefined,
       times: m.times,
+      durationDays: m.durationDays ?? undefined,
       prescribedBy: m.prescribedBy ?? undefined,
       active: m.active,
     }))

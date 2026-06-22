@@ -6,6 +6,8 @@ import { Search, Bell, HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { getDashboardData } from '@/lib/dashboard'
+import { getSessionUserId } from '@/lib/patient'
+import { getUnreadCount } from '@/lib/notifications'
 import { authOptions } from '@/lib/auth'
 
 export const metadata: Metadata = {
@@ -25,6 +27,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if ((session?.user as { role?: string } | undefined)?.role === 'THERAPIST') redirect('/expert')
 
   const d = await getDashboardData()
+  const userId = await getSessionUserId()
+  const unread = userId ? await getUnreadCount(userId) : 0
   const now = new Date()
   const dateLine = now.toLocaleDateString('en-IN', {
     weekday: 'long',
@@ -49,10 +53,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <div className="tb-search">
               <Search size={15} /> Search anything…
             </div>
-            <button className="tb-icon" aria-label="Notifications">
+            <Link href="/app/notifications" className="tb-icon" aria-label="Notifications" style={{ position: 'relative' }}>
               <Bell size={17} />
-              <span className="notif-dot" />
-            </button>
+              {unread > 0 && (
+                <span
+                  style={{
+                    position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px',
+                    borderRadius: 8, background: 'var(--c-coral)', color: '#fff', fontSize: 10, fontWeight: 700,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
+            </Link>
             <button className="tb-icon" aria-label="Help">
               <HelpCircle size={17} />
             </button>

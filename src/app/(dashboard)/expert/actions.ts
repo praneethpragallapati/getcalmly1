@@ -205,11 +205,13 @@ export async function prescribe(formData: FormData): Promise<void> {
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean)
+  const durationRaw = parseInt(String(formData.get('durationDays') ?? ''), 10)
   await prescribeMedication(ctx.therapistProfileId, ctx.therapistName, patientId, {
     name,
     dosage: String(formData.get('dosage') ?? ''),
     frequency: String(formData.get('frequency') ?? ''),
     times,
+    durationDays: Number.isNaN(durationRaw) ? null : durationRaw,
     notes: String(formData.get('notes') ?? ''),
   })
   revalidatePath(`/expert/patients/${patientId}`)

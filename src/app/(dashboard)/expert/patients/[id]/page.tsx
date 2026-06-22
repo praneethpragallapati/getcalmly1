@@ -157,7 +157,12 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                   {m.dosage ? ` · ${m.dosage}` : ''}
                 </div>
                 <div className="pattern-sub">
-                  {[m.frequency, m.prescribedBy ? `by ${m.prescribedBy}` : null, m.active ? 'active' : 'discontinued']
+                  {[
+                    m.frequency,
+                    m.durationDays ? `${m.durationDays} days` : null,
+                    m.prescribedBy ? `by ${m.prescribedBy}` : null,
+                    m.active ? 'active' : 'discontinued',
+                  ]
                     .filter(Boolean)
                     .join(' · ')}
                 </div>

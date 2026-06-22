@@ -1,18 +1,26 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Pill, Plus, X } from 'lucide-react'
-import { addMedication, setMedicationActive } from '@/app/(dashboard)/app/actions'
+import { Pill, Plus, X, Truck, Check } from 'lucide-react'
+import { addMedication, setMedicationActive, orderMedicationDelivery } from '@/app/(dashboard)/app/actions'
 import type { DashMedication } from '@/data/dashboardDemo'
+import type { MedicationOrderView } from '@/lib/orders'
+import { estimateOrderAmount } from '@/data/delivery'
 
 const TIME_OPTIONS = ['Morning', 'Afternoon', 'Evening', 'Night']
 
 /**
- * Medications tab (#14) — surfaced as its own tab and glimpsed on Home. Patients
- * can add medications and mark them stopped. Records are patient-owned; the
- * prescribing doctor is captured for context.
+ * Medications tab (#14). Patients add medications, mark them stopped, and — for
+ * prescribed courses — order a home delivery (mock payment today; pharmacy
+ * partner integration later).
  */
-export function MedicationManager({ initial }: { initial: DashMedication[] }) {
+export function MedicationManager({
+  initial,
+  orders = [],
+}: {
+  initial: DashMedication[]
+  orders?: MedicationOrderView[]
+}) {
   const [meds, setMeds] = useState<DashMedication[]>(initial)
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
@@ -23,6 +31,10 @@ export function MedicationManager({ initial }: { initial: DashMedication[] }) {
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
+  // Latest order per medication, for status display.
+  const orderByMed = new Map<string, MedicationOrderView>()
+  for (const o of orders) if (o.medicationId && !orderByMed.has(o.medicationId)) orderByMed.set(o.medicationId, o)
+
   const active = meds.filter((m) => m.active)
   const stopped = meds.filter((m) => !m.active)
 
@@ -31,7 +43,6 @@ export function MedicationManager({ initial }: { initial: DashMedication[] }) {
     startTransition(async () => {
       const res = await addMedication({ name, dosage, frequency, prescribedBy, times })
       if (res.ok) {
-        // Reflect locally so the list updates even in the demo (non-persisted) case.
         setMeds((prev) => [
           {
             id: `local-${Date.now()}`,
@@ -64,28 +75,37 @@ export function MedicationManager({ initial }: { initial: DashMedication[] }) {
   }
 
   function Row({ m }: { m: DashMedication }) {
+    const order = orderByMed.get(m.id)
     return (
-      <div className="med-row">
-        <span className="task-ic">
-          <Pill size={16} />
-        </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="doc-name" style={{ fontSize: 15 }}>
-            {m.name} {m.dosage && <span style={{ color: 'var(--c-gray)', fontWeight: 600 }}>{m.dosage}</span>}
+      <div style={{ borderBottom: '1px solid var(--c-line)' }}>
+        <div className="med-row" style={{ borderBottom: 'none' }}>
+          <span className="task-ic">
+            <Pill size={16} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="doc-name" style={{ fontSize: 15 }}>
+              {m.name} {m.dosage && <span style={{ color: 'var(--c-gray)', fontWeight: 600 }}>{m.dosage}</span>}
+            </div>
+            <div className="doc-sub">
+              {[m.frequency, m.times.join(', '), m.durationDays ? `${m.durationDays} days` : null]
+                .filter(Boolean)
+                .join(' · ') || '—'}
+              {m.prescribedBy && ` · ${m.prescribedBy}`}
+            </div>
           </div>
-          <div className="doc-sub">
-            {[m.frequency, m.times.join(', ')].filter(Boolean).join(' · ') || '—'}
-            {m.prescribedBy && ` · ${m.prescribedBy}`}
-          </div>
+          <button className="btn btn-outline btn-sm" type="button" onClick={() => toggle(m.id, !m.active)} disabled={pending}>
+            {m.active ? 'Mark stopped' : 'Restart'}
+          </button>
         </div>
-        <button
-          className="btn btn-outline btn-sm"
-          type="button"
-          onClick={() => toggle(m.id, !m.active)}
-          disabled={pending}
-        >
-          {m.active ? 'Mark stopped' : 'Restart'}
-        </button>
+        {m.active && !m.id.startsWith('local-') && (
+          order ? (
+            <div className="doc-sub" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 0 12px 40px', color: 'var(--c-green, #1A7F7A)' }}>
+              <Check size={14} /> Delivery {order.statusLabel.toLowerCase()} · ₹{order.amount}
+            </div>
+          ) : (
+            <DeliveryPanel medicationId={m.id} durationDays={m.durationDays} />
+          )
+        )}
       </div>
     )
   }
@@ -152,6 +172,83 @@ export function MedicationManager({ initial }: { initial: DashMedication[] }) {
         💊 Keep this list current so your psychiatrist has the full picture. Always follow your
         prescriber’s guidance — never change a dose based on the app alone.
       </p>
+    </div>
+  )
+}
+
+/** Inline "order a home delivery" flow for one medication. Mock payment. */
+function DeliveryPanel({ medicationId, durationDays }: { medicationId: string; durationDays?: number }) {
+  const [open, setOpen] = useState(false)
+  const [done, setDone] = useState(false)
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const [d, setD] = useState({ contactName: '', phone: '', addressLine: '', city: '', pincode: '' })
+  const amount = estimateOrderAmount(durationDays)
+
+  function field(key: keyof typeof d, placeholder: string, full = false) {
+    return (
+      <input
+        key={key}
+        className="note-area"
+        style={{ resize: 'none', gridColumn: full ? '1 / -1' : undefined }}
+        placeholder={placeholder}
+        value={d[key]}
+        onChange={(e) => setD((p) => ({ ...p, [key]: e.target.value }))}
+      />
+    )
+  }
+
+  function pay() {
+    setError(null)
+    startTransition(async () => {
+      const res = await orderMedicationDelivery(medicationId, d)
+      if (res.ok && res.persisted) setDone(true)
+      else if (res.ok) setError('Sign in to order a delivery.')
+      else setError(res.error ?? 'Could not place order.')
+    })
+  }
+
+  if (done) {
+    return (
+      <div className="doc-sub" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 0 12px 40px', color: 'var(--c-green, #1A7F7A)' }}>
+        <Check size={14} /> Order placed · paid ₹{amount} · awaiting dispatch
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ padding: '0 0 12px 40px' }}>
+      {!open ? (
+        <button className="note-link" type="button" onClick={() => setOpen(true)} style={{ color: 'var(--c-coral)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600 }}>
+          <Truck size={14} /> Order home delivery (₹{amount})
+        </button>
+      ) : (
+        <div style={{ border: '1px solid var(--c-line)', borderRadius: 10, padding: 12, marginTop: 4, maxWidth: 460 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-charcoal)', marginBottom: 8 }}>
+            Delivery details
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {field('contactName', 'Full name', true)}
+            {field('phone', 'Phone number')}
+            {field('pincode', 'Pincode')}
+            {field('addressLine', 'Address', true)}
+            {field('city', 'City')}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
+            <button className="btn btn-primary btn-sm" type="button" onClick={pay} disabled={pending}>
+              {pending ? 'Processing…' : `Pay ₹${amount} & order`}
+            </button>
+            <button className="note-link" type="button" onClick={() => setOpen(false)} style={{ color: 'var(--c-gray)', cursor: 'pointer', fontSize: 13 }}>
+              Cancel
+            </button>
+            {error && <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>}
+          </div>
+          <p className="muted" style={{ fontSize: 11, marginTop: 8 }}>
+            🔒 Mock payment for now. Medicines will be fulfilled by our pharmacy partner (e.g. Tata 1mg) once that
+            integration is live.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

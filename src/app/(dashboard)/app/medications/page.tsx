@@ -1,8 +1,14 @@
 import { getMedications } from '@/lib/account'
+import { getSessionUserId } from '@/lib/patient'
+import { getMedicationOrders } from '@/lib/orders'
 import { MedicationManager } from '@/components/dashboard/MedicationManager'
 
 export default async function MedicationsPage() {
-  const meds = await getMedications()
+  const userId = await getSessionUserId()
+  const [meds, orders] = await Promise.all([
+    getMedications(),
+    userId ? getMedicationOrders(userId) : Promise.resolve([]),
+  ])
   const activeCount = meds.filter((m) => m.active).length
 
   return (
@@ -15,7 +21,7 @@ export default async function MedicationsPage() {
       </div>
 
       <div style={{ maxWidth: 720 }}>
-        <MedicationManager initial={meds} />
+        <MedicationManager initial={meds} orders={orders} />
       </div>
     </>
   )

@@ -79,6 +79,13 @@ export function PrescribeForm({ patientId }: { patientId: string }) {
           ))}
         </select>
         <input className="entry-input" name="times" placeholder="Times (comma-separated, e.g. Morning, Night)" />
+        <input
+          className="entry-input"
+          name="durationDays"
+          type="number"
+          min={1}
+          placeholder="Duration (number of days)"
+        />
       </div>
 
       {strengths.length > 0 && (

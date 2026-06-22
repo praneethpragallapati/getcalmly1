@@ -47,6 +47,54 @@ export default async function EarningsPage() {
         </div>
       </div>
 
+      <div className="grid-2" style={{ alignItems: 'start' }}>
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 12 }}>Pay structure</div>
+          <p className="muted" style={{ marginBottom: 12 }}>
+            Each completed session = base fee + session-number bonus + night bonus (if applicable) + misc.
+          </p>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['Base fee (per session)', e.config.baseFee],
+                ['2nd session bonus', e.config.secondSessionBonus],
+                ['3rd session onwards bonus', e.config.thirdOnwardsBonus],
+                ['Night session bonus', e.config.nightSessionBonus],
+                ['Misc bonus', e.config.miscBonus],
+              ].map(([label, val]) => (
+                <tr key={label as string} style={{ borderBottom: '1px solid var(--c-line)' }}>
+                  <td style={{ padding: '8px 4px', color: 'var(--c-gray-d)' }}>{label}</td>
+                  <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 700 }}>{inr(val as number)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 12 }}>How total earned breaks down</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['Base fees', e.breakdown.base],
+                ['Session-number bonuses', e.breakdown.sessionBonus],
+                [`Night bonuses (${e.breakdown.nightSessions} sessions)`, e.breakdown.nightBonus],
+                ['Misc bonuses', e.breakdown.miscBonus],
+              ].map(([label, val]) => (
+                <tr key={label as string} style={{ borderBottom: '1px solid var(--c-line)' }}>
+                  <td style={{ padding: '8px 4px', color: 'var(--c-gray-d)' }}>{label}</td>
+                  <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 700 }}>{inr(val as number)}</td>
+                </tr>
+              ))}
+              <tr>
+                <td style={{ padding: '10px 4px', fontWeight: 800 }}>Total earned</td>
+                <td style={{ padding: '10px 4px', textAlign: 'right', fontWeight: 800 }}>{inr(e.totalEarned)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div className="card">
         <div className="section-title" style={{ marginBottom: 12 }}>Monthly breakdown</div>
         {e.byMonth.length === 0 && <p className="muted">No completed sessions yet — earnings will appear here once you start seeing patients.</p>}

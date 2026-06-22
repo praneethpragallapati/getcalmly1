@@ -4,6 +4,33 @@ import { communitySeed, ROLE_NAME_TO_ENUM } from '../src/data/communitySeed'
 import { FORM_TEMPLATES } from '../src/data/forms'
 import { hashPassword } from '../src/lib/password'
 
+/** Seed the singleton earnings config + an admin account to manage it. */
+async function seedEarningsAndAdmin() {
+  console.log('Seeding earnings config + admin…')
+  await prisma.earningsConfig.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      baseFee: 600,
+      secondSessionBonus: 50,
+      thirdOnwardsBonus: 100,
+      miscBonus: 0,
+      nightSessionBonus: 200,
+    },
+  })
+  await prisma.user.upsert({
+    where: { email: 'admin@getcalmly.com' },
+    update: { role: 'ADMIN', name: 'Platform Admin', passwordHash: hashPassword('Admin07!demo') },
+    create: {
+      email: 'admin@getcalmly.com',
+      name: 'Platform Admin',
+      role: 'ADMIN',
+      passwordHash: hashPassword('Admin07!demo'),
+    },
+  })
+}
+
 /** Upsert the in-code clinical forms library into the DB (idempotent by slug). */
 async function seedFormTemplates() {
   console.log('Seeding form templates…')
@@ -543,6 +570,7 @@ async function seedMappedPatient(therapistId: string, therapistName: string, spe
       dosage: spec.moodPattern === 'declining' ? '10 mg' : '50 mg',
       frequency: 'Once daily',
       times: ['Morning'],
+      durationDays: 30,
       prescribedBy: therapistName,
       startedAt: daysAgo(60),
       active: true,
@@ -796,6 +824,7 @@ async function main() {
     }
   }
 
+  await seedEarningsAndAdmin()
   await seedFormTemplates()
   const { therapist, patientUserId } = await seedDemoPatient()
   await seedExpertExtras(therapist.id, patientUserId)

@@ -131,6 +131,17 @@ enum FormStatus {
   COMPLETED // patient has submitted responses
 }
 
+// Lifecycle of a medicine home-delivery order. The actual pharmacy fulfilment
+// (Tata 1mg etc.) is integrated later; PAID means the patient has paid in-app
+// and the order is queued for dispatch.
+enum MedicationOrderStatus {
+  PENDING_PAYMENT
+  PAID
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -201,6 +212,8 @@ model User {
   assessmentScores    AssessmentScore[]
   crisisAlerts        CrisisAlert[]
   formAssignments     FormAssignment[]
+  medicationOrders    MedicationOrder[]
+  notifications       Notification[]
 }
 
 // Patient-side record holding identity, care context, contacts and consents.
@@ -480,12 +493,74 @@ model Medication {
   times        String[]
   prescribedBy String? // doctor name, patient- or doctor-entered
   notes        String?   @db.Text
+  // How many days the course should be taken for (drives quantity for delivery).
+  durationDays Int?
   startedAt    DateTime?
   endedAt      DateTime?
   active       Boolean   @default(true)
   createdAt    DateTime  @default(now())
 
+  orders MedicationOrder[]
+
   @@index([userId])
+}
+
+// A home-delivery order for a prescribed medication. The patient enters delivery
+// contact + address and pays in-app (mock today); fulfilment is later handed to a
+// pharmacy partner (Tata 1mg etc.) via `provider` + `providerOrderId`.
+model MedicationOrder {
+  id             String                @id @default(cuid())
+  userId         String
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicationId   String?
+  medication     Medication?           @relation(fields: [medicationId], references: [id], onDelete: SetNull)
+  // Snapshot of what was ordered, so the order is stable if the medication
+  // record later changes: { name, dosage, durationDays }.
+  item           Json
+  status         MedicationOrderStatus @default(PENDING_PAYMENT)
+  // Delivery details
+  contactName    String
+  phone          String
+  addressLine    String
+  city           String
+  pincode        String
+  amount         Int // total charged, in INR
+  // Pharmacy partner once integrated.
+  provider       String?
+  providerOrderId String?
+  createdAt      DateTime              @default(now())
+  paidAt         DateTime?
+
+  @@index([userId, status])
+}
+
+// A lightweight in-app notification for a user (e.g. "new prescription"). Shown
+// in the topbar bell and the notifications page.
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // e.g. "prescription", "form", "order"
+  title     String
+  body      String?  @db.Text
+  href      String? // in-app link to act on it
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+// Singleton config for how therapist earnings are computed (#earnings). One row
+// (id = "default"). Admin-editable; the values are the commercial pay structure.
+model EarningsConfig {
+  id                 String   @id @default("default")
+  baseFee            Int      @default(600)
+  secondSessionBonus Int      @default(50)
+  thirdOnwardsBonus  Int      @default(100)
+  miscBonus          Int      @default(0)
+  nightSessionBonus  Int      @default(200)
+  updatedBy          String?
+  updatedAt          DateTime @updatedAt
 }
 
 // Per-category data-collection switches (#17). When a category is off, that data

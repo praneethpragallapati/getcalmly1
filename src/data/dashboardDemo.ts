@@ -54,6 +54,7 @@ export type DashMedication = {
   dosage?: string
   frequency?: string
   times: string[]
+  durationDays?: number
   prescribedBy?: string
   active: boolean
 }
