@@ -37,6 +37,23 @@ export const calmPlusPacks: AppPack[] = [
 export const perSession = (p: SessionPack) => Math.round(p.total / p.sessions)
 export const inr = (n: number) => '₹' + n.toLocaleString('en-IN')
 
+// Tracks a patient can buy packs for in-app. (Calm+ is a subscription, handled
+// separately.) Kept here — alongside the packs — so client components can read
+// them without importing server-only billing code.
+export type BuyableTrack = 'therapy' | 'psychiatry'
+export type BuyablePack = SessionPack & { trackSlug: BuyableTrack; index: number; perSession: number }
+
+/** The packs offered for a track, with derived per-session price. */
+export function packsFor(track: BuyableTrack): BuyablePack[] {
+  const packs = track === 'psychiatry' ? psychiatryPacks : therapyPacks
+  return packs.map((p, index) => ({
+    ...p,
+    trackSlug: track,
+    index,
+    perSession: Math.round(p.total / p.sessions),
+  }))
+}
+
 // Standalone "list" price per single session. Pack prices are shown as a
 // discount against these so the saving is always visible.
 export const THERAPY_BASE = 1899

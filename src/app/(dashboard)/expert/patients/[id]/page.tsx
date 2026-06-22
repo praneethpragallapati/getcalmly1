@@ -1,14 +1,23 @@
 import { notFound, redirect } from 'next/navigation'
-import { AlertTriangle, Flame, Check, Sparkles, Pill } from 'lucide-react'
+import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText, Send } from 'lucide-react'
 import { getTherapistContext, getExpertPatientProfile, generatePreSessionBrief } from '@/lib/expert'
+import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
 import { getWeeklyProgress } from '@/lib/dashboard'
-import { assignTask, prescribe, toggleMedication } from '../../actions'
+import { assignTask, toggleMedication, sendFormToPatient } from '../../actions'
+import { PrescribeForm } from '@/components/expert/PrescribeForm'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
   declining: 'Declining',
   stable: 'Stable',
   insufficient: 'Not enough data yet',
+}
+
+const FORM_KIND_LABEL: Record<string, string> = {
+  INTAKE: 'Intake',
+  CONSENT: 'Consent',
+  INFO: 'Information',
+  FEEDBACK: 'Feedback',
 }
 
 export default async function ExpertPatientPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,9 +28,11 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   const p = await getExpertPatientProfile(ctx.therapistProfileId, id)
   if (!p) notFound()
 
-  const [weekly, brief] = await Promise.all([
+  const [weekly, brief, formLibrary, sentForms] = await Promise.all([
     getWeeklyProgress(id),
     generatePreSessionBrief(ctx.therapistProfileId, id),
+    getFormLibrary(),
+    getPatientFormsForExpert(ctx.therapistProfileId, id),
   ])
 
   return (
@@ -162,21 +173,58 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             </div>
           ))}
 
-          <form action={prescribe} className="stack" style={{ gap: 10, marginTop: 14 }}>
-            <input type="hidden" name="patientId" value={p.patientId} />
-            <div className="grid-2" style={{ gap: 10 }}>
-              <input className="entry-input" name="name" placeholder="Medication name (e.g. Sertraline)" required />
-              <input className="entry-input" name="dosage" placeholder="Dosage (e.g. 50 mg)" />
-              <input className="entry-input" name="frequency" placeholder="Frequency (e.g. Once daily)" />
-              <input className="entry-input" name="times" placeholder="Times (comma-separated, e.g. Morning, Night)" />
-            </div>
-            <input className="entry-input" name="notes" placeholder="Notes (optional)" />
-            <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start' }}>
-              <Pill size={14} /> Prescribe medication
-            </button>
-          </form>
+          <PrescribeForm patientId={p.patientId} />
         </div>
       )}
+
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <FileText size={16} /> Forms
+        </div>
+        <p className="muted" style={{ marginBottom: 14 }}>
+          Send a consent or information form from the library. The patient fills it in from their dashboard and
+          you&apos;ll see it marked complete here.
+        </p>
+
+        {sentForms.length === 0 && <p className="muted">No forms sent yet.</p>}
+        {sentForms.map((f) => (
+          <div key={f.id} className="pattern">
+            <span className={`pattern-ic ${f.status === 'COMPLETED' ? 't-green' : 't-gold'}`}>
+              {f.status === 'COMPLETED' ? <Check size={16} /> : <FileText size={16} />}
+            </span>
+            <div style={{ flex: 1 }}>
+              <div className="pattern-title">
+                {f.title} <span className="muted" style={{ fontWeight: 400 }}>· {FORM_KIND_LABEL[f.kind] ?? f.kind}</span>
+              </div>
+              <div className="pattern-sub">
+                {[
+                  `sent ${f.sentLabel}${f.assignedBy ? ` by ${f.assignedBy}` : ''}`,
+                  f.status === 'COMPLETED' ? `completed ${f.completedLabel}` : 'awaiting completion',
+                ].join(' · ')}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <form action={sendFormToPatient} className="stack" style={{ gap: 10, marginTop: 14 }}>
+          <input type="hidden" name="patientId" value={p.patientId} />
+          <div className="grid-2" style={{ gap: 10 }}>
+            <select className="entry-input" name="templateId" defaultValue="" required>
+              <option value="" disabled>
+                Choose a form…
+              </option>
+              {formLibrary.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.title} ({FORM_KIND_LABEL[t.kind] ?? t.kind})
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="btn btn-primary btn-sm">
+              <Send size={14} /> Send form
+            </button>
+          </div>
+        </form>
+      </div>
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 12 }}>This week&apos;s progress</div>

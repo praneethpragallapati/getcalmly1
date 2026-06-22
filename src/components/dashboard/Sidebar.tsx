@@ -11,6 +11,7 @@ import {
   Users,
   LineChart,
   Pill,
+  FileText,
   Settings,
 } from 'lucide-react'
 
@@ -30,6 +31,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { href: '/app/therapist', label: 'My Therapist', icon: Stethoscope },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays, badge: '1 today' },
+      { href: '/app/forms', label: 'Forms', icon: FileText },
       { href: '/app/community', label: 'Community', icon: Users },
     ],
   },

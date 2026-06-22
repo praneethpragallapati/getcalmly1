@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
+import { buyPackageFor, type BuyableTrack } from '@/lib/billing'
+import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
@@ -128,6 +130,10 @@ export async function requestSession(slotIso: string): Promise<ActionResult> {
     })
     if (!therapist) return { ok: true, persisted: false }
 
+    // Count appointments BEFORE this booking so we can auto-send the intake form
+    // only on the patient's very first session (#default forms by session number).
+    const priorAppointments = await prisma.appointment.count({ where: { patientId: userId } })
+
     await prisma.appointment.create({
       data: {
         patientId: userId,
@@ -138,7 +144,12 @@ export async function requestSession(slotIso: string): Promise<ActionResult> {
         roomId: crypto.randomUUID(),
       },
     })
+
+    // First-ever booking → queue the category-matched intake/information form.
+    await autoSendIntakeForm(userId, priorAppointments)
+
     revalidatePath('/app/sessions')
+    revalidatePath('/app/forms')
     revalidatePath('/app')
     return { ok: true, persisted: true }
   } catch {
@@ -331,6 +342,50 @@ export async function createCommunityPost(input: {
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not post your discussion.' }
+  }
+}
+
+/**
+ * Buy a session package (#packages). Additive by design — sessions are added to
+ * any existing balance and validity is extended, never reset to zero (lib/billing).
+ * An expired plan is renewed by topping up the same record.
+ */
+export async function buyPackage(
+  track: BuyableTrack,
+  packIndex: number
+): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const result = await buyPackageFor(userId, track, packIndex)
+    if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    revalidatePath('/app/settings')
+    revalidatePath('/app/billing')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not complete purchase.' }
+  }
+}
+
+/** Submit answers to an assigned form (#forms). Scoped to the patient's own assignment. */
+export async function submitAssignedForm(
+  assignmentId: string,
+  responses: Record<string, string | boolean>
+): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const ok = await submitForm(userId, assignmentId, responses)
+    if (!ok) return { ok: false, persisted: false, error: 'This form is no longer available.' }
+    revalidatePath('/app/forms')
+    revalidatePath(`/app/forms/${assignmentId}`)
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not submit this form.' }
   }
 }
 

@@ -118,6 +118,19 @@ enum CommunityRole {
   ADMIN
 }
 
+// Kind of clinical form in the library — drives grouping and default-send rules.
+enum FormKind {
+  INTAKE // information form collected before the first session
+  CONSENT // consent / agreement to be acknowledged
+  INFO // general information sheet / questionnaire
+  FEEDBACK // post-session or periodic feedback
+}
+
+enum FormStatus {
+  PENDING // sent to the patient, awaiting completion
+  COMPLETED // patient has submitted responses
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -187,6 +200,7 @@ model User {
   clinicalContext     ClinicalContext?
   assessmentScores    AssessmentScore[]
   crisisAlerts        CrisisAlert[]
+  formAssignments     FormAssignment[]
 }
 
 // Patient-side record holding identity, care context, contacts and consents.
@@ -697,4 +711,50 @@ model CommunityComment {
   createdAt  DateTime      @default(now())
 
   @@index([postId])
+}
+
+// A reusable form in the clinical library — consent, intake/information sheets,
+// questionnaires. The actual fields live in `fields` as an ordered JSON array of
+// { key, label, type, options?, required } so new forms need no schema change.
+// Clinicians send these to patients on demand; INTAKE forms flagged `autoSend`
+// are dispatched automatically when a patient books their first session, picking
+// the variant whose `category` matches the patient's care category.
+model FormTemplate {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  title       String
+  description String?          @db.Text
+  kind        FormKind         @default(INFO)
+  // For INTAKE forms, which care category this variant is for (Individual /
+  // Couple / Kids). Null = applies regardless of category.
+  category    CareCategory?
+  // When true (INTAKE only), auto-sent on the patient's first booking.
+  autoSend    Boolean          @default(false)
+  fields      Json // ordered [{ key, label, type, options?, required }]
+  active      Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  assignments FormAssignment[]
+
+  @@index([kind])
+}
+
+// A form sent to a specific patient. Carries its own status + responses so the
+// patient fills it in from their dashboard and the clinician sees it completed.
+model FormAssignment {
+  id           String       @id @default(cuid())
+  templateId   String
+  template     FormTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  patientId    String
+  patient      User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  // Therapist display name, or "Auto" for default-rule sends. Denormalised.
+  assignedBy   String?
+  status       FormStatus   @default(PENDING)
+  // Patient's answers, keyed by field.key. Null until submitted.
+  responses    Json?
+  note         String?      @db.Text
+  sentAt       DateTime     @default(now())
+  completedAt  DateTime?
+
+  @@index([patientId, status])
 }

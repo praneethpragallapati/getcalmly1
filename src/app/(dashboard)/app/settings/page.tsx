@@ -68,7 +68,7 @@ export default async function SettingsPage() {
               </div>
             </div>
 
-            <Link href="/pricing" className="btn btn-primary" style={{ marginTop: 18, width: '100%', justifyContent: 'center' }}>
+            <Link href="/app/billing" className="btn btn-primary" style={{ marginTop: 18, width: '100%', justifyContent: 'center' }}>
               Buy a package
             </Link>
           </div>

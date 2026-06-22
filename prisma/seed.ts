@@ -1,7 +1,64 @@
 import { PrismaClient, type CommunityRole } from '@prisma/client'
 import { blogSeed } from '../src/data/blogSeed'
 import { communitySeed, ROLE_NAME_TO_ENUM } from '../src/data/communitySeed'
+import { FORM_TEMPLATES } from '../src/data/forms'
 import { hashPassword } from '../src/lib/password'
+
+/** Upsert the in-code clinical forms library into the DB (idempotent by slug). */
+async function seedFormTemplates() {
+  console.log('Seeding form templates…')
+  for (const t of FORM_TEMPLATES) {
+    await prisma.formTemplate.upsert({
+      where: { slug: t.slug },
+      update: {
+        title: t.title,
+        description: t.description,
+        kind: t.kind,
+        category: t.category ?? null,
+        autoSend: t.autoSend ?? false,
+        fields: t.fields,
+        active: true,
+      },
+      create: {
+        slug: t.slug,
+        title: t.title,
+        description: t.description,
+        kind: t.kind,
+        category: t.category ?? null,
+        autoSend: t.autoSend ?? false,
+        fields: t.fields,
+      },
+    })
+  }
+}
+
+/** Give a patient a sample sent form set: a completed intake + a pending consent. */
+async function seedPatientForms(patientId: string, category: 'INDIVIDUAL' | 'COUPLE' | 'KIDS', therapistName: string) {
+  const intakeSlug = { INDIVIDUAL: 'intake-individual', COUPLE: 'intake-couple', KIDS: 'intake-kids' }[category]
+  const [intake, consent] = await Promise.all([
+    prisma.formTemplate.findUnique({ where: { slug: intakeSlug }, select: { id: true } }),
+    prisma.formTemplate.findUnique({ where: { slug: 'consent-treatment' }, select: { id: true } }),
+  ])
+  await prisma.formAssignment.deleteMany({ where: { patientId } })
+  if (intake) {
+    await prisma.formAssignment.create({
+      data: {
+        templateId: intake.id,
+        patientId,
+        assignedBy: 'Auto',
+        status: 'COMPLETED',
+        responses: { mainConcern: 'Persistent anxiety and trouble sleeping.', goals: 'Feel calmer day to day.' },
+        completedAt: daysAgo(9),
+        sentAt: daysAgo(10),
+      },
+    })
+  }
+  if (consent) {
+    await prisma.formAssignment.create({
+      data: { templateId: consent.id, patientId, assignedBy: therapistName, status: 'PENDING', sentAt: daysAgo(1) },
+    })
+  }
+}
 
 const prisma = new PrismaClient()
 
@@ -526,6 +583,9 @@ async function seedMappedPatient(therapistId: string, therapistName: string, spe
     })
   }
 
+  // Sample forms (completed intake + pending consent) so the forms tools have data.
+  await seedPatientForms(uid, 'INDIVIDUAL', therapistName)
+
   return uid
 }
 
@@ -596,6 +656,9 @@ async function seedDoctorTestAccount() {
     await prisma.appointment.create({
       data: { ...base, scheduledAt: new Date(Date.now() + 5 * DAY_MS), status: 'PENDING' },
     })
+    // Sample forms so Praneeth's patient dashboard has a completed intake + a
+    // pending consent to fill.
+    await seedPatientForms(praneeth.id, 'INDIVIDUAL', docName)
   }
 
   // A few dummy patients with varied trends so every view has data.
@@ -733,6 +796,7 @@ async function main() {
     }
   }
 
+  await seedFormTemplates()
   const { therapist, patientUserId } = await seedDemoPatient()
   await seedExpertExtras(therapist.id, patientUserId)
   await seedDoctorTestAccount()

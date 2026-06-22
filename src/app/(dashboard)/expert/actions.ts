@@ -19,6 +19,7 @@ import {
   prescribeMedication,
   setMedicationActive,
 } from '@/lib/expert'
+import { sendForm } from '@/lib/forms'
 
 export async function resolveAlert(formData: FormData): Promise<void> {
   const alertId = String(formData.get('alertId') ?? '')
@@ -213,6 +214,19 @@ export async function prescribe(formData: FormData): Promise<void> {
   })
   revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app/medications')
+}
+
+// ── Forms ─────────────────────────────────────────────────────────────────────
+
+/** Send a library form (consent / info / feedback) to one of the therapist's patients. */
+export async function sendFormToPatient(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const patientId = String(formData.get('patientId') ?? '')
+  const templateId = String(formData.get('templateId') ?? '')
+  if (!patientId || !templateId) return
+  await sendForm(ctx.therapistProfileId, ctx.therapistName, patientId, templateId)
+  revalidatePath(`/expert/patients/${patientId}`)
 }
 
 export async function toggleMedication(formData: FormData): Promise<void> {
