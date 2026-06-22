@@ -51,9 +51,14 @@ with `relation "PatientProfile" does not exist`.
 Use `db push`, which syncs the full `schema.prisma` directly:
 
 ```bash
-npx prisma db push                 # safe, additive sync
+npx prisma db push                 # safe, additive sync (adds new tables/columns)
 npx prisma db push --force-reset   # DESTRUCTIVE: drops all tables, rebuilds clean
 ```
+
+The **DB migrate + seed** GitHub Action mirrors this: it runs the additive
+`db push` by default and only does `--force-reset` when you tick the `forceReset`
+input. Use the additive default when adding new models (e.g. the expert
+availability/supervision tables) so live data is preserved.
 
 See `docs/DEVELOPER_GUIDE.md` → "Database & migrations" for the full story and
 the recommended path to fix migration history later.
