@@ -1,8 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
-import { AlertTriangle, Flame, Check, Sparkles } from 'lucide-react'
+import { AlertTriangle, Flame, Check, Sparkles, Pill } from 'lucide-react'
 import { getTherapistContext, getExpertPatientProfile, generatePreSessionBrief } from '@/lib/expert'
 import { getWeeklyProgress } from '@/lib/dashboard'
-import { assignTask } from '../../actions'
+import { assignTask, prescribe, toggleMedication } from '../../actions'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -123,6 +123,60 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           )}
         </div>
       </div>
+
+      {ctx.isPsychiatrist && (
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Pill size={16} /> Medication management
+          </div>
+          <p className="muted" style={{ marginBottom: 14 }}>
+            As a psychiatrist you can prescribe and manage this patient&apos;s medication. Changes appear on the
+            patient&apos;s Medications page immediately.
+          </p>
+
+          {p.medications.length === 0 && <p className="muted">No medications on record.</p>}
+          {p.medications.map((m) => (
+            <div key={m.id} className="pattern">
+              <span className={`pattern-ic ${m.active ? 't-green' : 't-gold'}`}>
+                <Pill size={16} />
+              </span>
+              <div style={{ flex: 1 }}>
+                <div className="pattern-title">
+                  {m.name}
+                  {m.dosage ? ` · ${m.dosage}` : ''}
+                </div>
+                <div className="pattern-sub">
+                  {[m.frequency, m.prescribedBy ? `by ${m.prescribedBy}` : null, m.active ? 'active' : 'discontinued']
+                    .filter(Boolean)
+                    .join(' · ')}
+                </div>
+              </div>
+              <form action={toggleMedication}>
+                <input type="hidden" name="medicationId" value={m.id} />
+                <input type="hidden" name="patientId" value={p.patientId} />
+                <input type="hidden" name="active" value={m.active ? 'false' : 'true'} />
+                <button type="submit" className="btn btn-outline btn-sm">
+                  {m.active ? 'Discontinue' : 'Reactivate'}
+                </button>
+              </form>
+            </div>
+          ))}
+
+          <form action={prescribe} className="stack" style={{ gap: 10, marginTop: 14 }}>
+            <input type="hidden" name="patientId" value={p.patientId} />
+            <div className="grid-2" style={{ gap: 10 }}>
+              <input className="entry-input" name="name" placeholder="Medication name (e.g. Sertraline)" required />
+              <input className="entry-input" name="dosage" placeholder="Dosage (e.g. 50 mg)" />
+              <input className="entry-input" name="frequency" placeholder="Frequency (e.g. Once daily)" />
+              <input className="entry-input" name="times" placeholder="Times (comma-separated, e.g. Morning, Night)" />
+            </div>
+            <input className="entry-input" name="notes" placeholder="Notes (optional)" />
+            <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start' }}>
+              <Pill size={14} /> Prescribe medication
+            </button>
+          </form>
+        </div>
+      )}
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 12 }}>This week&apos;s progress</div>

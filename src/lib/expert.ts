@@ -57,15 +57,34 @@ export type ExpertPatientProfile = {
   taskCompletionPct: number
   tasks: { id: string; title: string; type: string; dueLabel?: string; done: boolean; expired: boolean }[]
   medicationCompliancePct: number
-  medications: { name: string; dosage?: string; active: boolean }[]
+  medications: {
+    id: string
+    name: string
+    dosage?: string
+    frequency?: string
+    prescribedBy?: string
+    active: boolean
+  }[]
   openCrisisCount: number
   highStakeChatCount: number
 }
 
+export type TherapistContext = {
+  userId: string
+  therapistProfileId: string
+  therapistName: string | null
+  specializations: string[]
+  /** Psychiatrists may prescribe/manage medication; derived from specializations. */
+  isPsychiatrist: boolean
+}
+
+/** Whether a specialization set marks a prescribing psychiatrist. */
+function looksPsychiatric(specializations: string[]): boolean {
+  return specializations.some((s) => /psychiat|medication|pharma/i.test(s))
+}
+
 /** The signed-in therapist's verified TherapistProfile id, or null. */
-export async function getTherapistContext(): Promise<
-  { userId: string; therapistProfileId: string; therapistName: string | null } | null
-> {
+export async function getTherapistContext(): Promise<TherapistContext | null> {
   try {
     const session = await getServerSession(authOptions)
     const userId = (session?.user as { id?: string } | undefined)?.id
@@ -75,7 +94,13 @@ export async function getTherapistContext(): Promise<
       include: { user: { select: { name: true } } },
     })
     if (!profile || !profile.isActive) return null
-    return { userId, therapistProfileId: profile.id, therapistName: profile.user?.name ?? null }
+    return {
+      userId,
+      therapistProfileId: profile.id,
+      therapistName: profile.user?.name ?? null,
+      specializations: profile.specializations,
+      isPsychiatrist: looksPsychiatric(profile.specializations),
+    }
   } catch {
     return null
   }
@@ -215,7 +240,14 @@ export async function getExpertPatientProfile(
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       })),
     medicationCompliancePct,
-    medications: meds.map((m) => ({ name: m.name, dosage: m.dosage ?? undefined, active: m.active })),
+    medications: meds.map((m) => ({
+      id: m.id,
+      name: m.name,
+      dosage: m.dosage ?? undefined,
+      frequency: m.frequency ?? undefined,
+      prescribedBy: m.prescribedBy ?? undefined,
+      active: m.active,
+    })),
     openCrisisCount: crisisCount,
     highStakeChatCount: highStakeCount,
   }
@@ -353,6 +385,68 @@ export async function writeSessionSummary(
   await prisma.appointment.update({
     where: { id: appointmentId },
     data: { summary, status: 'COMPLETED' },
+  })
+  return true
+}
+
+// ── Medication (psychiatrist) ────────────────────────────────────────────────
+
+/** Confirm the caller is a prescribing psychiatrist who owns this patient. */
+async function canPrescribe(therapistProfileId: string, patientId: string): Promise<boolean> {
+  const profile = await prisma.therapistProfile.findUnique({
+    where: { id: therapistProfileId },
+    select: { specializations: true },
+  })
+  if (!profile || !looksPsychiatric(profile.specializations)) return false
+  return ownsPatient(therapistProfileId, patientId)
+}
+
+export type PrescribeInput = {
+  name: string
+  dosage?: string
+  frequency?: string
+  times?: string[]
+  notes?: string
+}
+
+/** Prescribe a new medication for a patient. Psychiatrists only; ownership-gated. */
+export async function prescribeMedication(
+  therapistProfileId: string,
+  prescriberName: string | null,
+  patientId: string,
+  input: PrescribeInput
+): Promise<boolean> {
+  const name = input.name.trim()
+  if (!name) return false
+  if (!(await canPrescribe(therapistProfileId, patientId))) return false
+  await prisma.medication.create({
+    data: {
+      userId: patientId,
+      name,
+      dosage: input.dosage?.trim() || null,
+      frequency: input.frequency?.trim() || null,
+      times: (input.times ?? []).map((t) => t.trim()).filter(Boolean),
+      notes: input.notes?.trim() || null,
+      prescribedBy: prescriberName ?? null,
+      startedAt: new Date(),
+      active: true,
+    },
+  })
+  return true
+}
+
+/** Discontinue or reactivate a prescription. Psychiatrists only; ownership-gated. */
+export async function setMedicationActive(
+  therapistProfileId: string,
+  medicationId: string,
+  active: boolean
+): Promise<boolean> {
+  const med = await prisma.medication.findUnique({ where: { id: medicationId }, select: { userId: true } })
+  if (!med) return false
+  if (!(await canPrescribe(therapistProfileId, med.userId))) return false
+  await prisma.medication.update({
+    where: { id: medicationId },
+    data: { active, endedAt: active ? null : new Date() },
   })
   return true
 }

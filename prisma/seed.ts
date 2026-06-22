@@ -477,6 +477,21 @@ async function seedMappedPatient(therapistId: string, therapistName: string, spe
     ],
   })
 
+  // Current prescription (psychiatrist-managed) so medication tools have data.
+  await prisma.medication.deleteMany({ where: { userId: uid } })
+  await prisma.medication.create({
+    data: {
+      userId: uid,
+      name: spec.moodPattern === 'declining' ? 'Escitalopram' : 'Sertraline',
+      dosage: spec.moodPattern === 'declining' ? '10 mg' : '50 mg',
+      frequency: 'Once daily',
+      times: ['Morning'],
+      prescribedBy: therapistName,
+      startedAt: daysAgo(60),
+      active: true,
+    },
+  })
+
   // Appointments: two completed (drives earnings + session notes), one upcoming.
   await prisma.appointment.deleteMany({ where: { patientId: uid, therapistId } })
   const base = { patientId: uid, therapistId, durationMins: 50, fee: 1800 }
@@ -532,17 +547,18 @@ async function seedDoctorTestAccount() {
       passwordHash: hashPassword('Merind07!demo'),
     },
   })
+  const docSpecializations = ['Psychiatry', 'Medication management', 'Anxiety', 'Depression']
   const doc = await prisma.therapistProfile.upsert({
     where: { userId: docUser.id },
-    update: { isActive: true, isVerified: true },
+    update: { isActive: true, isVerified: true, specializations: docSpecializations },
     create: {
       userId: docUser.id,
-      bio: 'Clinical psychologist focused on anxiety, depression and stress management.',
-      qualifications: ['M.Phil Clinical Psychology', 'RCI Registered'],
+      bio: 'Consultant psychiatrist specialising in anxiety, depression and psychopharmacology.',
+      qualifications: ['MBBS', 'MD Psychiatry', 'NMC Registered'],
       yearsExp: 10,
       languages: ['English', 'Hindi', 'Telugu'],
-      specializations: ['Anxiety', 'Depression', 'CBT', 'Stress'],
-      rciNumber: 'RCI-DEMO-0003',
+      specializations: docSpecializations,
+      rciNumber: 'NMC-DEMO-0003',
       sessionFee: 1800,
       rating: 4.8,
       totalReviews: 96,

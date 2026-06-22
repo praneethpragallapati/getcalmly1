@@ -16,6 +16,8 @@ import {
   removeAvailabilityException,
   addSupervisee,
   addSupervisionNote,
+  prescribeMedication,
+  setMedicationActive,
 } from '@/lib/expert'
 
 export async function resolveAlert(formData: FormData): Promise<void> {
@@ -188,4 +190,39 @@ export async function postSupervisionNote(formData: FormData): Promise<void> {
   if (!linkId || !content.trim()) return
   await addSupervisionNote(ctx.therapistProfileId, linkId, content, patientId)
   revalidatePath('/expert/supervision')
+}
+
+// ── Medication (psychiatrist) ────────────────────────────────────────────────
+
+export async function prescribe(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const patientId = String(formData.get('patientId') ?? '')
+  const name = String(formData.get('name') ?? '').trim()
+  if (!patientId || !name) return
+  const times = String(formData.get('times') ?? '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean)
+  await prescribeMedication(ctx.therapistProfileId, ctx.therapistName, patientId, {
+    name,
+    dosage: String(formData.get('dosage') ?? ''),
+    frequency: String(formData.get('frequency') ?? ''),
+    times,
+    notes: String(formData.get('notes') ?? ''),
+  })
+  revalidatePath(`/expert/patients/${patientId}`)
+  revalidatePath('/app/medications')
+}
+
+export async function toggleMedication(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const medicationId = String(formData.get('medicationId') ?? '')
+  const patientId = String(formData.get('patientId') ?? '')
+  const active = String(formData.get('active') ?? '') === 'true'
+  if (!medicationId) return
+  await setMedicationActive(ctx.therapistProfileId, medicationId, active)
+  if (patientId) revalidatePath(`/expert/patients/${patientId}`)
+  revalidatePath('/app/medications')
 }
