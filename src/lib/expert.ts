@@ -58,6 +58,8 @@ export type ExpertPatientProfile = {
   moodTrend: MoodTrend
   moodWeek: { date: string; mood: number }[]
   sessionNotes: { date: string; raw: string; synthesized?: string }[]
+  /** The patient's sessions with this therapist, for writing/editing notes. */
+  sessions: { id: string; dateLabel: string; status: string; isPast: boolean; summary: string | null }[]
   sessionsDone: number
   sessionsTotal: number
   sessionsRemaining: number
@@ -199,7 +201,7 @@ export async function getExpertPatientProfile(
   const owns = await prisma.appointment.findFirst({ where: { therapistId: therapistProfileId, patientId } })
   if (!owns) return null
 
-  const [user, profile, moods, appts, tasks, meds, sub, crisisCount, highStakeCount] = await Promise.all([
+  const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount] = await Promise.all([
     prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }),
     prisma.patientProfile.findUnique({ where: { userId: patientId } }),
     prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30 }),
@@ -210,6 +212,11 @@ export async function getExpertPatientProfile(
     }),
     prisma.task.findMany({ where: { userId: patientId } }),
     prisma.medication.findMany({ where: { userId: patientId } }),
+    prisma.appointment.findMany({
+      where: { patientId, therapistId: therapistProfileId },
+      orderBy: { scheduledAt: 'desc' },
+      take: 20,
+    }),
     prisma.subscription.findFirst({ where: { userId: patientId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }),
     prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }),
@@ -243,6 +250,19 @@ export async function getExpertPatientProfile(
     sessionNotes: appts.map((a) => ({
       date: isoDate(a.scheduledAt),
       raw: a.summary ?? a.preSessionNote ?? '',
+    })),
+    sessions: allAppts.map((a) => ({
+      id: a.id,
+      dateLabel: a.scheduledAt.toLocaleString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+      status: a.status,
+      isPast: a.scheduledAt.getTime() < now,
+      summary: a.summary ?? null,
     })),
     sessionsDone: sub?.sessionsUsed ?? 0,
     sessionsTotal: sub?.sessionsTotal ?? 0,

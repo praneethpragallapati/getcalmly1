@@ -5,6 +5,7 @@ import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
 import { getWeeklyProgress } from '@/lib/dashboard'
 import { assignTask, toggleMedication, sendFormToPatient } from '../../actions'
 import { PrescribeForm } from '@/components/expert/PrescribeForm'
+import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -34,6 +35,9 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
     getFormLibrary(),
     getPatientFormsForExpert(ctx.therapistProfileId, id),
   ])
+
+  // Sessions a note can be written/edited for: past ones (plus any already noted).
+  const pastSessions = p.sessions.filter((s) => s.isPast || s.summary)
 
   return (
     <div className="stack">
@@ -290,13 +294,29 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
       </div>
 
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 12 }}>Session notes</div>
-        {p.sessionNotes.length === 0 && <p className="muted">No session notes recorded yet.</p>}
-        {p.sessionNotes.map((s, i) => (
-          <div key={i} className="pattern">
-            <div>
-              <div className="pattern-title">{s.date}</div>
-              <div className="pattern-sub">{s.raw || 'No note for this session.'}</div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Session notes</div>
+        <p className="muted" style={{ marginBottom: 14 }}>
+          Write a note for any past session, or update an existing one. Notes are saved to the patient&apos;s record.
+        </p>
+        {pastSessions.length === 0 && <p className="muted">No past sessions to note yet.</p>}
+        {pastSessions.map((s) => (
+          <div key={s.id} className="pattern" style={{ alignItems: 'flex-start' }}>
+            <span className={`pattern-ic ${s.summary ? 't-green' : 't-gold'}`}>
+              {s.summary ? <Check size={16} /> : <FileText size={16} />}
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="pattern-title">
+                {s.dateLabel} <span className="muted" style={{ fontWeight: 400 }}>· {s.status}</span>
+              </div>
+              {s.summary && <div className="pattern-sub" style={{ marginBottom: 8 }}>{s.summary}</div>}
+              <div style={{ maxWidth: 520, marginTop: 6 }}>
+                <SessionNoteForm
+                  appointmentId={s.id}
+                  patientId={p.patientId}
+                  initialSummary={s.summary ?? ''}
+                  submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
+                />
+              </div>
             </div>
           </div>
         ))}

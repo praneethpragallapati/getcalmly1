@@ -10,9 +10,19 @@ import { completeSession, getNoteDraft } from '@/app/(dashboard)/expert/actions'
  * saves — the edited text (never the raw AI output unreviewed) is what's
  * persisted to Appointment.summary.
  */
-export function SessionNoteForm({ appointmentId, patientId }: { appointmentId: string; patientId: string }) {
+export function SessionNoteForm({
+  appointmentId,
+  patientId,
+  initialSummary = '',
+  submitLabel = 'Save & mark complete',
+}: {
+  appointmentId: string
+  patientId: string
+  initialSummary?: string
+  submitLabel?: string
+}) {
   const [bullets, setBullets] = useState('')
-  const [summary, setSummary] = useState('')
+  const [summary, setSummary] = useState(initialSummary)
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -56,7 +66,7 @@ export function SessionNoteForm({ appointmentId, patientId }: { appointmentId: s
         />
       </label>
       <button type="submit" className="btn btn-primary btn-sm" disabled={!summary.trim()}>
-        Save & mark complete
+        {submitLabel}
       </button>
     </form>
   )
