@@ -101,7 +101,6 @@
   -webkit-text-fill-color:transparent;color:transparent;
   animation:shimmer 5s linear infinite;}
 @keyframes shimmer{to{background-position:220% center}}
-@media(prefers-reduced-motion:reduce){.lp-page .hero-h1 .accent{animation:none;}}
 .lp-page .hero-sub{font-size:18px;font-weight:300;color:var(--charcoal-l);line-height:1.72;
   max-width:460px;margin-top:22px;animation:rise .7s .18s ease both;}
 .lp-page .hero-actions{display:flex;gap:12px;align-items:center;margin-top:32px;flex-wrap:wrap;animation:rise .7s .26s ease both;}
