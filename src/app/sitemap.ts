@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getBlogSlugs } from '@/lib/blog'
+import { getBlogSitemap } from '@/lib/blog'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
 
@@ -50,12 +50,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   // Dynamic blog posts — the site's primary organic-search surface.
+  // Uses each post's real last-modified date for accurate freshness signals.
   let blogEntries: MetadataRoute.Sitemap = []
   try {
-    const slugs = await getBlogSlugs()
-    blogEntries = slugs.map((slug) => ({
+    const posts = await getBlogSitemap()
+    blogEntries = posts.map(({ slug, lastModified }) => ({
       url: `${SITE_URL}/blog/${slug}`,
-      lastModified: now,
+      lastModified,
       changeFrequency: 'monthly',
       priority: 0.6,
     }))

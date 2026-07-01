@@ -1,7 +1,11 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+
+export const viewport: Viewport = {
+  themeColor: '#C8553D',
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -22,7 +26,10 @@ export const metadata: Metadata = {
     'depression',
     'free therapy session',
   ],
-  alternates: { canonical: '/' },
+  alternates: {
+    canonical: '/',
+    types: { 'application/rss+xml': '/feed.xml' },
+  },
   openGraph: {
     type: 'website',
     siteName: 'getCalmly',

@@ -69,6 +69,25 @@ export async function getBlogSlugs(): Promise<string[]> {
   return blogSeed.map((p) => p.slug)
 }
 
+/** Slug + real last-modified date, for sitemap freshness signals. */
+export async function getBlogSitemap(): Promise<{ slug: string; lastModified: Date }[]> {
+  try {
+    const rows = await prisma.blogPost.findMany({
+      where: { published: true },
+      select: { slug: true, updatedAt: true, publishedAt: true },
+    })
+    if (rows.length > 0) {
+      return rows.map((r) => ({ slug: r.slug, lastModified: r.updatedAt ?? r.publishedAt }))
+    }
+  } catch {
+    // fall through to bundled content
+  }
+  return blogSeed.map((p) => {
+    const d = new Date(p.date)
+    return { slug: p.slug, lastModified: isNaN(d.getTime()) ? new Date() : d }
+  })
+}
+
 export type RelatedBlog = {
   slug: string
   title: string
