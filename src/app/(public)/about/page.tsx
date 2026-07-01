@@ -47,18 +47,36 @@ const heading: React.CSSProperties = {
 export default function AboutPage() {
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
+      <style>{`
+        .awrap{max-width:1140px;margin:0 auto;width:100%;}
+        .about-hero{display:grid;grid-template-columns:1.35fr 1fr;gap:64px;align-items:end;}
+        .about-split{display:grid;grid-template-columns:1.15fr 1fr;gap:72px;align-items:center;}
+        .about-edit{display:grid;grid-template-columns:330px 1fr;gap:80px;align-items:start;}
+        .about-edit .about-sticky{position:sticky;top:100px;}
+        .about-values{display:grid;grid-template-columns:1fr 1fr;gap:4px 64px;}
+        .about-contact{display:grid;grid-template-columns:0.85fr 1.15fr;gap:72px;align-items:start;}
+        @media (max-width: 900px){
+          .about-hero,.about-split,.about-edit,.about-values,.about-contact{
+            grid-template-columns:1fr;gap:32px;
+          }
+          .about-edit .about-sticky{position:static;}
+        }
+      `}</style>
+
       {/* ─── HERO: lead with the human, not the company ─── */}
-      <section style={{ background: charcoal, padding: '88px 24px 92px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -160, right: -130, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative' }}>
-          <p style={{ ...eyebrow, marginBottom: 22 }}>Our story</p>
-          <h1 style={{
-            ...heading, fontSize: 'clamp(40px, 7vw, 72px)', color: '#fff',
-            letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 30, maxWidth: 680,
-          }}>
-            Mental health support that understands you.
-          </h1>
-          <p style={{ fontSize: 20, color: 'rgba(255,255,255,.74)', lineHeight: 1.8, maxWidth: 620, fontWeight: 300 }}>
+      <section style={{ background: charcoal, padding: '96px 40px 100px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div className="awrap about-hero" style={{ position: 'relative' }}>
+          <div>
+            <p style={{ ...eyebrow, marginBottom: 22 }}>Our story</p>
+            <h1 style={{
+              ...heading, fontSize: 'clamp(40px, 6vw, 76px)', color: '#fff',
+              letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 0,
+            }}>
+              Mental health support that understands you.
+            </h1>
+          </div>
+          <p style={{ fontSize: 19, color: 'rgba(255,255,255,.74)', lineHeight: 1.8, fontWeight: 300, marginBottom: 6 }}>
             GetCalmly connects people across India with the right licensed professional, matched not just
             by symptoms but by your needs, context, language and budget. Real care from real experts, made
             easier to reach and easier to stay with.
@@ -66,42 +84,40 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ─── WHY WE EXIST: the emotional core ─── */}
-      <section style={{ padding: '84px 24px 64px' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <p style={{ ...eyebrow, marginBottom: 22 }}>Why we exist</p>
-          <p style={{
-            ...heading, fontWeight: 700, fontSize: 'clamp(26px, 4.4vw, 40px)',
-            color: charcoal, lineHeight: 1.18, marginBottom: 0,
-          }}>
-            Too many people in India carry their hardest moments alone, not because help doesn&apos;t exist,
-            but because it never quite reaches them.
-          </p>
-        </div>
-      </section>
-
-      {/* ─── THE NUMBERS: normalising the scale of the gap ─── */}
-      <section style={{ padding: '40px 24px 72px' }}>
-        <div style={{ maxWidth: 920, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 0 }}>
-          {stats.map(([n, d], idx) => (
-            <div key={d} style={{
-              textAlign: 'center', padding: '20px 18px',
-              borderLeft: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
+      {/* ─── WHY WE EXIST + THE NUMBERS: statement left, scale right ─── */}
+      <section style={{ padding: '84px 40px 76px' }}>
+        <div className="awrap about-split">
+          <div>
+            <p style={{ ...eyebrow, marginBottom: 22 }}>Why we exist</p>
+            <p style={{
+              ...heading, fontWeight: 700, fontSize: 'clamp(26px, 3.4vw, 40px)',
+              color: charcoal, lineHeight: 1.18, marginBottom: 0,
             }}>
-              <p style={{ ...heading, fontSize: 'clamp(40px, 6vw, 60px)', color: coral, lineHeight: 1, letterSpacing: '-1.5px', marginBottom: 12 }}>{n}</p>
-              <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.55, fontWeight: 300 }}>{d}</p>
-            </div>
-          ))}
+              Too many people in India carry their hardest moments alone, not because help doesn&apos;t exist,
+              but because it never quite reaches them.
+            </p>
+          </div>
+          <div>
+            {stats.map(([n, d], idx) => (
+              <div key={d} style={{
+                display: 'flex', alignItems: 'baseline', gap: 22,
+                padding: '22px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.09)',
+              }}>
+                <p style={{ ...heading, fontSize: 'clamp(38px, 5vw, 56px)', color: coral, lineHeight: 1, letterSpacing: '-1.5px', minWidth: 130 }}>{n}</p>
+                <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.55, fontWeight: 300 }}>{d}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ─── THE MISSION: charcoal band, single bold idea ─── */}
-      <section style={{ background: charcoal, padding: '92px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+      <section style={{ background: charcoal, padding: '96px 40px' }}>
+        <div className="awrap" style={{ maxWidth: 900, textAlign: 'center' }}>
           <p style={{ ...eyebrow, marginBottom: 24 }}>Our mission</p>
           <p style={{
-            ...heading, fontWeight: 900, fontSize: 'clamp(30px, 5vw, 50px)',
-            color: '#fff', letterSpacing: '-1px', lineHeight: 1.12, margin: '0 auto', maxWidth: 720,
+            ...heading, fontWeight: 900, fontSize: 'clamp(30px, 4.6vw, 52px)',
+            color: '#fff', letterSpacing: '-1px', lineHeight: 1.12, margin: '0 auto',
           }}>
             To make credible mental health care reach every corner of India, in the language you think in,
             at a price that never stands in the way.
@@ -109,60 +125,68 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ─── THE PROBLEM: flowing prose, no box ─── */}
-      <section style={{ background: '#fff', padding: '84px 24px' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <p style={{ ...eyebrow, marginBottom: 18 }}>The problem</p>
-          <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, marginBottom: 24, lineHeight: 1.1 }}>
-            Help exists. Reaching it is the hard part.
-          </h2>
-          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22 }}>
-            India faces a mental health treatment gap exceeding 60%. With roughly 0.75 psychiatrists per
-            100,000 people, and specialists concentrated in major cities, millions in Tier-2 and Tier-3
-            regions go underserved.
-          </p>
-          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
-            NRIs, meanwhile, often pay high fees for therapists who don&apos;t share their cultural context,
-            and end up explaining who they are before the real work can begin.
-          </p>
+      {/* ─── THE PROBLEM: editorial two-column ─── */}
+      <section style={{ background: '#fff', padding: '92px 40px' }}>
+        <div className="awrap about-edit">
+          <div className="about-sticky">
+            <p style={{ ...eyebrow, marginBottom: 18 }}>The problem</p>
+            <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
+              Help exists. Reaching it is the hard part.
+            </h2>
+          </div>
+          <div>
+            <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22, marginTop: 0 }}>
+              India faces a mental health treatment gap exceeding 60%. With roughly 0.75 psychiatrists per
+              100,000 people, and specialists concentrated in major cities, millions in Tier-2 and Tier-3
+              regions go underserved.
+            </p>
+            <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
+              NRIs, meanwhile, often pay high fees for therapists who don&apos;t share their cultural context,
+              and end up explaining who they are before the real work can begin.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* ─── OUR APPROACH: flowing prose ─── */}
-      <section style={{ padding: '84px 24px' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <p style={{ ...eyebrow, marginBottom: 18 }}>Our approach</p>
-          <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, marginBottom: 24, lineHeight: 1.1 }}>
-            Care that fits you, not the other way around.
-          </h2>
-          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22 }}>
-            We&apos;ve built a strictly vetted network of RCI-licensed professionals, and a match that pairs
-            you on cultural fit and your needs rather than diagnosis alone. A hybrid safety protocol keeps
-            care safe, not just digital.
-          </p>
-          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
-            And because healing happens between sessions too, a supportive app and community stay with you
-            the rest of the week, amplified by thoughtful AI that never replaces the human in the room.
-          </p>
+      {/* ─── OUR APPROACH: editorial two-column ─── */}
+      <section style={{ padding: '92px 40px' }}>
+        <div className="awrap about-edit">
+          <div className="about-sticky">
+            <p style={{ ...eyebrow, marginBottom: 18 }}>Our approach</p>
+            <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
+              Care that fits you, not the other way around.
+            </h2>
+          </div>
+          <div>
+            <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22, marginTop: 0 }}>
+              We&apos;ve built a strictly vetted network of RCI-licensed professionals, and a match that pairs
+              you on cultural fit and your needs rather than diagnosis alone. A hybrid safety protocol keeps
+              care safe, not just digital.
+            </p>
+            <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
+              And because healing happens between sessions too, a supportive app and community stay with you
+              the rest of the week, amplified by thoughtful AI that never replaces the human in the room.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* ─── WHAT WE STAND FOR: divider list, de-boxed ─── */}
-      <section style={{ background: '#fff', padding: '84px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      {/* ─── WHAT WE STAND FOR: two-column value grid ─── */}
+      <section style={{ background: '#fff', padding: '92px 40px' }}>
+        <div className="awrap">
           <p style={{ ...eyebrow, marginBottom: 18 }}>What we stand for</p>
-          <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, marginBottom: 36, lineHeight: 1.1 }}>
+          <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 44, lineHeight: 1.1 }}>
             The beliefs behind every match.
           </h2>
-          <div>
-            {values.map((v, idx) => (
+          <div className="about-values">
+            {values.map((v) => (
               <div key={v.title} style={{
                 display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
-                padding: '26px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
+                padding: '28px 0', borderTop: '1px solid rgba(0,0,0,.09)',
               }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: coral, marginTop: 9 }} />
                 <div>
-                  <p style={{ fontSize: 19, fontWeight: 700, color: charcoal, marginBottom: 8, letterSpacing: '-0.2px' }}>{v.title}</p>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: charcoal, marginBottom: 8, letterSpacing: '-0.2px' }}>{v.title}</p>
                   <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.75, fontWeight: 300 }}>{v.desc}</p>
                 </div>
               </div>
@@ -171,18 +195,20 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ─── TALK TO US: contact as conversation, not a card ─── */}
-      <section style={{ padding: '84px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
-          <p style={{ ...eyebrow, marginBottom: 18 }}>Talk to us</p>
-          <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, marginBottom: 16, lineHeight: 1.1 }}>
-            We&apos;re real people. We&apos;d love to hear from you.
-          </h2>
-          <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 44, maxWidth: 600 }}>
-            Questions about care, billing, or working together? We usually reply within a working day.
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, marginBottom: 8 }}>
+      {/* ─── TALK TO US: intro left, details right ─── */}
+      <section style={{ padding: '92px 40px' }}>
+        <div className="awrap about-contact">
+          <div className="about-sticky">
+            <p style={{ ...eyebrow, marginBottom: 18 }}>Talk to us</p>
+            <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 16, lineHeight: 1.1 }}>
+              We&apos;re real people. We&apos;d love to hear from you.
+            </h2>
+            <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
+              Questions about care, billing, or working together? We usually reply within a working day.
+            </p>
+          </div>
+          <div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 28, marginBottom: 8 }}>
             {contacts.map((c) => (
               <a key={c.label} href={c.href} style={{ textDecoration: 'none', display: 'block', paddingTop: 24, borderTop: '1px solid rgba(0,0,0,.07)' }}>
                 <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 8 }}>{c.label}</span>
@@ -227,6 +253,7 @@ export default function AboutPage() {
             }}>
               Go to Contact →
             </Link>
+          </div>
           </div>
         </div>
       </section>
