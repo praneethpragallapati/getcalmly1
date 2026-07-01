@@ -77,9 +77,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     headline: post.title,
     description: post.excerpt,
     datePublished: post.date,
+    dateModified: post.date,
     keywords: post.tags.join(', '),
     articleBody: post.content.join('\n\n'),
     author: { '@type': 'Person', name: post.author, jobTitle: post.role },
+    reviewedBy: { '@type': 'Organization', name: 'getCalmly clinical team' },
     publisher: {
       '@type': 'Organization',
       name: 'getCalmly',
@@ -277,6 +279,50 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             zIndex: 2,
           }}
         >
+          {/* E-E-A-T byline: who wrote it, clinical review, freshness */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '10px 18px',
+              padding: '12px 16px',
+              marginBottom: 32,
+              borderRadius: 14,
+              background: 'rgba(61,158,114,0.06)',
+              border: '1px solid rgba(61,158,114,0.18)',
+              fontSize: 13,
+              color: '#5A6A7A',
+            }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: '#3D9E72',
+                  color: '#fff',
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                ✓
+              </span>
+              <span>
+                Medically reviewed by the <strong style={{ color: '#1C2B3A' }}>getCalmly clinical team</strong>
+              </span>
+            </span>
+            <span style={{ opacity: 0.5 }}>·</span>
+            <span>
+              Written by <strong style={{ color: '#1C2B3A' }}>{post.author}</strong>, {post.role}
+            </span>
+            <span style={{ opacity: 0.5 }}>·</span>
+            <span>Last updated {post.date}</span>
+          </div>
           {post.content.map((para, i) => (
             <p
               key={i}
