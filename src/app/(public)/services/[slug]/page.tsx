@@ -255,13 +255,23 @@ export async function generateStaticParams() {
   return Object.keys(services).map((slug) => ({ slug }))
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const s = services[slug as ServiceSlug]
   if (!s) return {}
+  const description = s.hero.slice(0, 155)
   return {
-    title: `${s.title} | GetCalmly`,
-    description: s.hero.slice(0, 155),
+    title: `${s.title} in India — Online`,
+    description,
+    alternates: { canonical: `/services/${slug}` },
+    openGraph: {
+      type: 'website',
+      title: `${s.title} | getCalmly`,
+      description,
+      url: `${SITE_URL}/services/${slug}`,
+    },
   }
 }
 
@@ -273,10 +283,54 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const charcoal = '#1C2B3A'
   const cream = '#F9F5F2'
 
+  const serviceJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalWebPage',
+    name: `${s.title} — getCalmly`,
+    description: s.hero,
+    url: `${SITE_URL}/services/${slug}`,
+    about: {
+      '@type': 'MedicalTherapy',
+      name: s.title,
+    },
+    provider: {
+      '@type': 'MedicalOrganization',
+      name: 'getCalmly',
+      url: SITE_URL,
+    },
+  }
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Services', item: `${SITE_URL}/services` },
+      { '@type': 'ListItem', position: 3, name: s.title, item: `${SITE_URL}/services/${slug}` },
+    ],
+  }
+
+  const faqJsonLd = s.faq.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: s.faq.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null
+
   const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase' }
 
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
       <section style={{ background: charcoal, padding: '64px 48px 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />

@@ -44,16 +44,42 @@ const orgJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'MedicalOrganization',
   name: 'getCalmly',
+  legalName: 'GetCalmly Private Limited',
   url: SITE_URL,
+  logo: `${SITE_URL}/opengraph-image`,
+  image: `${SITE_URL}/opengraph-image`,
   description:
     'Mental healthcare platform connecting people in India with RCI-verified therapists and psychiatrists, powered by AI insights.',
-  areaServed: 'IN',
   slogan: 'Mental Healthcare, Powered by Experts, Personalized by AI',
+  medicalSpecialty: ['Psychiatric', 'PsychologicalTreatment'],
+  areaServed: { '@type': 'Country', name: 'India' },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '316, 11th A Cross, Classic Layout, Begur',
+    addressLocality: 'Bengaluru',
+    addressRegion: 'Karnataka',
+    postalCode: '560068',
+    addressCountry: 'IN',
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+91-88845-18688',
+    email: 'connect@getcalmly.com',
+    contactType: 'customer support',
+    areaServed: 'IN',
+    availableLanguage: ['en', 'hi'],
+  },
+  sameAs: [
+    'https://instagram.com/getcalmly',
+    'https://linkedin.com/company/getcalmly',
+    'https://x.com/getcalmly',
+    'https://youtube.com/@getcalmly',
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <body>
         {children}
         <script
