@@ -609,3 +609,35 @@
   .lp-page .app-grid{grid-template-columns:1fr !important;gap:36px !important;}
   .lp-page .app-section{padding:64px 6% 56px !important;}
 }
+
+/* ── FAQ ── */
+.lp-page .faq-section{background:var(--bg-warm);border-top:1px solid var(--border);
+  display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:start;}
+.lp-page .faq-head{position:sticky;top:100px;}
+.lp-page .faq-head .sec-p{margin-top:12px;}
+.lp-page .faq-list{display:flex;flex-direction:column;gap:12px;}
+.lp-page .faq-item{background:var(--white);border:1px solid var(--line-card);border-radius:16px;
+  box-shadow:var(--sh-card);overflow:hidden;transition:border-color .25s,box-shadow .25s;}
+.lp-page .faq-item:hover{border-color:rgba(200,85,61,.28);}
+.lp-page .faq-item.open{border-color:rgba(200,85,61,.35);box-shadow:var(--sh-card-h);}
+.lp-page .faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;
+  background:none;border:none;cursor:pointer;text-align:left;padding:22px 24px;
+  font-family:'DM Sans',sans-serif;font-size:17px;font-weight:600;color:var(--charcoal);transition:color .2s;}
+.lp-page .faq-item.open .faq-q,.lp-page .faq-q:hover{color:var(--coral);}
+/* animated +/− icon */
+.lp-page .faq-ic{position:relative;width:18px;height:18px;flex-shrink:0;}
+.lp-page .faq-ic::before,.lp-page .faq-ic::after{content:'';position:absolute;top:50%;left:50%;
+  background:var(--coral);border-radius:2px;transition:transform .3s ease;}
+.lp-page .faq-ic::before{width:14px;height:2px;transform:translate(-50%,-50%);}
+.lp-page .faq-ic::after{width:2px;height:14px;transform:translate(-50%,-50%);}
+.lp-page .faq-item.open .faq-ic::after{transform:translate(-50%,-50%) rotate(90deg);opacity:0;}
+/* smooth expand via grid-rows trick (no fixed max-height guesswork) */
+.lp-page .faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease;}
+.lp-page .faq-item.open .faq-a{grid-template-rows:1fr;}
+.lp-page .faq-a > p{overflow:hidden;margin:0;padding:0 24px;font-size:15px;font-weight:300;
+  line-height:1.72;color:var(--charcoal-l);transition:padding .32s ease;}
+.lp-page .faq-item.open .faq-a > p{padding:0 24px 24px;}
+@media (max-width: 900px){
+  .lp-page .faq-section{grid-template-columns:1fr;gap:36px;}
+  .lp-page .faq-head{position:static;}
+}

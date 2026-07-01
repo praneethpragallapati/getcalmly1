@@ -1,5 +1,7 @@
 // Faithful section markup ported from getcalmly-landing-v2.html (nav, footer,
 // therapists, enterprise & modal removed; CTAs routed to /assess).
+import { FAQ_MARKUP } from './faqData'
+
 export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="hero" id="home">
   <div class="orb orb-1"></div>
@@ -688,5 +690,5 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
   </div>
 </section>
-
+${FAQ_MARKUP}
 `;

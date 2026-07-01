@@ -1,9 +1,41 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getBlogPost, getRelatedBlogPosts } from '@/lib/blog'
 import { getRelatedDiscussions } from '@/lib/community'
 import BlogCover from '@/components/blog/BlogCover'
 import { blogImage } from '@/data/blogImages'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+
+// Per-post SEO: unique title, description, canonical and social card so each
+// article ranks (and previews) on its own rather than inheriting the homepage.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getBlogPost(slug)
+  if (!post) return { title: 'Article not found' }
+
+  const description = post.excerpt.slice(0, 158)
+  const url = `${SITE_URL}/blog/${post.slug}`
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: 'article',
+      title: post.title,
+      description,
+      url,
+      authors: [post.author],
+      tags: post.tags,
+    },
+    twitter: { card: 'summary_large_image', title: post.title, description },
+  }
+}
 
 const tagGradients: Record<string, { from: string; to: string }> = {
   anxiety: { from: '#2E4A5C', to: '#1C2B3A' },
@@ -39,8 +71,29 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const relatedReads = await getRelatedBlogPosts(post.tags, post.slug, 3)
   const cover = coverFor(post.tags[0])
 
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    keywords: post.tags.join(', '),
+    articleBody: post.content.join('\n\n'),
+    author: { '@type': 'Person', name: post.author, jobTitle: post.role },
+    publisher: {
+      '@type': 'Organization',
+      name: 'getCalmly',
+      url: SITE_URL,
+    },
+    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+  }
+
   return (
     <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       {/* Hero */}
       <section
         style={{

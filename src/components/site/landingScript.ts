@@ -21,5 +21,16 @@ export const LANDING_SCRIPT = `
     el.closest('.quiz-opts').querySelectorAll('.quiz-opt').forEach(function(o){o.classList.remove('sel');});
     el.classList.add('sel');
   };
+
+  window.toggleFaq=function(btn){
+    var item=btn.closest('.faq-item'); if(!item)return;
+    var open=item.classList.contains('open');
+    var list=item.closest('.faq-list');
+    if(list){list.querySelectorAll('.faq-item.open').forEach(function(o){
+      o.classList.remove('open');
+      var b=o.querySelector('.faq-q'); if(b)b.setAttribute('aria-expanded','false');
+    });}
+    if(!open){item.classList.add('open');btn.setAttribute('aria-expanded','true');}
+  };
 })();
 `;
