@@ -385,7 +385,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section style={{ background: '#fff', padding: '76px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <p style={{ ...eyebrow, marginBottom: 36, textAlign: 'center' }}>You might recognise this</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
+          <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
             {s.recognise.map((r, idx) => (
               <p key={r} style={{
                 fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 700,
@@ -437,7 +437,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               Whatever you&apos;re carrying, there&apos;s a place to start.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
+          <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
             {s.items.map((it, idx) => (
               <div key={it.name} style={{
                 display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
@@ -469,7 +469,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               ✦ Take the free assessment
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+          <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
             {[
               { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment — no login, no judgement. Just an honest starting point.' },
               { n: '02', t: 'Get matched, not assigned', d: 'We pair you with a professional who fits what you\'re going through, your language and your budget.' },

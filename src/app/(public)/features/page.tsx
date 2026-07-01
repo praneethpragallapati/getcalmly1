@@ -162,7 +162,7 @@ export default function FeaturesPage() {
               A calm, intelligent space for you, and the clinical tools your professional needs to give you their best.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 24 }}>
             {[
               ['Your space', 'Mood, sessions, journal and Calm AI, all in one place.', '/mockups/patient-dashboard.png'],
               ["Your therapist's view", 'Pre-session briefs, mood trends and structured notes.', '/mockups/doctor-dashboard.png'],

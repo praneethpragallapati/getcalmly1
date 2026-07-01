@@ -212,7 +212,7 @@ export default function PricingPage() {
         <p style={{ textAlign: 'center', fontSize: 13, color: green, fontWeight: 700, marginBottom: 30 }}>
           💚 Bigger packs unlock a lower price per session
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 22, alignItems: 'stretch' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 22, alignItems: 'stretch' }}>
           <CareCard
             name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
             accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} fill
@@ -236,7 +236,7 @@ export default function PricingPage() {
             Start with the app. Build the habit, understand your patterns, and step up to a professional whenever you feel ready.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 22, alignItems: 'stretch' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 22, alignItems: 'stretch' }}>
           <CalmPlusCard />
           <FreeCard />
         </div>

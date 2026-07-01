@@ -641,3 +641,18 @@
   .lp-page .faq-section{grid-template-columns:1fr;gap:36px;}
   .lp-page .faq-head{position:static;}
 }
+
+/* ── Mobile-collapse helpers for inline-styled marketing pages ──
+   Stylesheet !important beats inline styles, so tagging a fixed inline
+   grid with one of these classes lets it stack on small screens. */
+@media (max-width: 860px){
+  .lp-page .m-stack{grid-template-columns:1fr !important;gap:32px !important;}
+  .lp-page .m-2col{grid-template-columns:repeat(2,1fr) !important;}
+}
+@media (max-width: 520px){
+  .lp-page .m-2col{grid-template-columns:1fr !important;}
+}
+/* Trim oversized side padding on phones (opt-in) */
+@media (max-width: 600px){
+  .lp-page .m-pad{padding-left:22px !important;padding-right:22px !important;}
+}

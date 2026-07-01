@@ -86,7 +86,7 @@ export default function EnterprisePage() {
               One platform, shaped to your people.
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+          <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
             {[
               {
                 accent: coral,
@@ -144,7 +144,7 @@ export default function EnterprisePage() {
 
       {/* ─── HR ADMIN DASHBOARD: copy left, mock dashboard right ─── */}
       <section style={{ background: '#fff', padding: '88px 48px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '400px 1fr', gap: 72, alignItems: 'center' }}>
+        <div className="m-stack" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '400px 1fr', gap: 72, alignItems: 'center' }}>
           {/* Left: copy */}
           <div>
             <p style={{ ...eyebrow, marginBottom: 18 }}>For HR & people leaders</p>
@@ -190,7 +190,7 @@ export default function EnterprisePage() {
               </div>
 
               {/* KPI row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'rgba(0,0,0,.05)' }}>
+              <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'rgba(0,0,0,.05)' }}>
                 {[
                   ['Active members', '412', '68% of staff', coral],
                   ['Sessions booked', '189', '+23% MoM', green],
@@ -261,7 +261,7 @@ export default function EnterprisePage() {
               Submit interest →
             </a>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+          <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
             {[
               ['01', 'Discovery', 'We learn about your people, your goals and your constraints — then shape a programme that fits.'],
               ['02', 'Pilot', 'A focused rollout to one team or cohort, with clear success measures agreed up front.'],
@@ -316,7 +316,7 @@ export default function EnterprisePage() {
 
       {/* ─── INTEREST FORM ─── */}
       <section id="interest" style={{ background: '#fff', padding: '88px 48px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '420px 1fr', gap: 80, alignItems: 'flex-start' }}>
+        <div className="m-stack" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '420px 1fr', gap: 80, alignItems: 'flex-start' }}>
           {/* Left: copy */}
           <div style={{ position: 'sticky', top: 48 }}>
             <p style={{ ...eyebrow, marginBottom: 20 }}>Let&apos;s talk</p>

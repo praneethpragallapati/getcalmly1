@@ -128,7 +128,7 @@ export default function ServicesPage() {
 
       {/* Service branches grid */}
       <section style={{ padding: '80px 48px 84px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{
+        <div className="m-stack" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 20,
