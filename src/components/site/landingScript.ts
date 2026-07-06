@@ -64,19 +64,30 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // Priya scrollytelling: sync steps <-> cards
+  // Priya scrollytelling: pinned slideshow driven by scroll progress
   var steps=[].slice.call(document.querySelectorAll('.how-step'));
   var cards=[].slice.call(document.querySelectorAll('.scly-card'));
-  if(steps.length && cards.length){
+  var scroller=document.querySelector('.scly-scroller');
+  if(steps.length && cards.length && scroller){
+    var dots=document.createElement('div'); dots.className='scly-dots';
+    var dotEls=steps.map(function(){ var d=document.createElement('span'); d.className='scly-dot'; dots.appendChild(d); return d; });
+    var layout=scroller.querySelector('.how-layout'); if(layout){ layout.appendChild(dots); }
+    var cur=-1;
     function showCard(i){
+      if(i===cur) return; cur=i;
       cards.forEach(function(c,j){ c.classList.toggle('scly-show', j===i); });
       steps.forEach(function(s,j){ s.classList.toggle('scly-on', j===i); });
+      dotEls.forEach(function(d,j){ d.classList.toggle('on', j===i); });
     }
-    showCard(0);
-    var sObs=new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ showCard(steps.indexOf(e.target)); } });
-    },{rootMargin:'-45% 0px -45% 0px'});
-    steps.forEach(function(s){ sObs.observe(s); });
+    function updateScly(){
+      var r=scroller.getBoundingClientRect();
+      var total=scroller.offsetHeight-window.innerHeight;
+      if(total<=0){ showCard(0); return; }
+      var p=Math.min(1,Math.max(0,(-r.top)/total));
+      showCard(Math.min(steps.length-1, Math.floor(p*steps.length*0.999)));
+    }
+    window.addEventListener('scroll',updateScly,{passive:true});
+    updateScly();
   }
 
   // Testimonials auto-scroll marquee: duplicate cards for a seamless loop

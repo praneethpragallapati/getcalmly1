@@ -95,6 +95,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="sec-label reveal">A real journey</div>
   <h2 class="sec-h2 reveal">This is Priya.<br><span>You might know the feeling.</span></h2>
   <p class="sec-p reveal" style="margin-bottom:48px;">For two years, "I'm fine" was her reflex, not her truth. Here is what changed the night she finally stopped saying it.</p>
+  <div class="scly-scroller">
   <div class="how-layout">
     <div class="how-steps">
       <div class="how-step"><div class="hs-n">01</div><div><div class="hs-t">The night she stopped saying "I'm fine"</div><div class="hs-d">11 PM, thumb hovering over the close button. Twelve honest questions later, no login, no judgement, Priya finally had a name for what she'd been carrying for two years, and a therapist who actually fit.</div></div></div>
@@ -183,6 +184,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
       </div>
     </div>
+  </div>
   </div>
 </section>
 

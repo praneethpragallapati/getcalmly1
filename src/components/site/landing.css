@@ -701,30 +701,44 @@
 .lp-page .t3-grid .testi-card{flex:0 0 400px;}
 @keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* Priya scrollytelling (desktop) */
+/* Priya scrollytelling — pinned slideshow (desktop) */
 @media (min-width: 861px){
-  .lp-page .how-steps{gap:26vh;padding:12vh 0;}
-  .lp-page .how-step{opacity:.22;transform:translateX(-14px);
-    transition:opacity .5s ease,transform .5s ease;}
-  .lp-page .how-step.scly-on{opacity:1;transform:translateX(0);}
-  .lp-page .how-step.scly-on .hs-n{color:var(--coral);}
-  .lp-page .how-visual{position:sticky;top:0;height:100vh;display:flex;align-items:center;
-    justify-content:center;margin-top:0;}
+  /* tall track gives scroll distance; the layout inside is pinned */
+  .lp-page .scly-scroller{position:relative;height:540vh;}
+  .lp-page .how-layout{position:sticky;top:0;height:100vh;align-items:center;margin-top:0;gap:90px;}
+  /* LEFT: one step at a time, slides up */
+  .lp-page .how-steps{position:relative;height:330px;}
+  .lp-page .how-step{position:absolute;inset:0;align-content:center;padding:0;
+    opacity:0;transform:translateY(46px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);}
+  .lp-page .how-step.scly-on{opacity:1;transform:none;}
+  .lp-page .how-step .hs-n{color:var(--coral);}
+  /* RIGHT: one card at a time, slides up */
+  .lp-page .how-visual{position:relative;top:auto;height:auto;margin-top:0;}
   .lp-page .scly-stack{position:relative;width:100%;height:440px;}
   .lp-page .scly-card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
-    opacity:0;transform:translateY(22px) scale(.98);transition:opacity .5s ease,transform .5s ease;pointer-events:none;}
+    opacity:0;transform:translateY(46px) scale(.985);pointer-events:none;
+    transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);}
   .lp-page .scly-card.scly-show{opacity:1;transform:none;pointer-events:auto;}
   .lp-page .scly-card .how-card{margin-bottom:0;}
+  /* progress dots */
+  .lp-page .scly-dots{position:absolute;left:50%;bottom:5vh;transform:translateX(-50%);display:flex;gap:9px;z-index:3;}
+  .lp-page .scly-dot{width:8px;height:8px;border-radius:50%;background:rgba(28,43,58,.18);transition:all .3s;}
+  .lp-page .scly-dot.on{background:var(--coral);width:22px;border-radius:5px;}
 }
 @media (max-width: 860px){
   .lp-page .scly-card{margin-bottom:14px;}
+  .lp-page .scly-dots{display:none;}
 }
 
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
   .lp-page .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
+  .lp-page .scly-scroller{height:auto !important;}
+  .lp-page .how-layout{position:static !important;height:auto !important;}
+  .lp-page .how-steps{position:static !important;height:auto !important;gap:24px !important;padding:0 !important;}
+  .lp-page .how-step{position:relative !important;inset:auto !important;opacity:1 !important;transform:none !important;}
+  .lp-page .scly-stack{height:auto !important;}
   .lp-page .scly-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
-  .lp-page .how-step{opacity:1 !important;}
-  .lp-page .how-steps{gap:0 !important;padding:0 !important;}
+  .lp-page .scly-dots{display:none !important;}
 }
