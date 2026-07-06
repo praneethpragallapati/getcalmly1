@@ -703,9 +703,11 @@
 
 /* Priya scrollytelling (desktop) */
 @media (min-width: 861px){
-  .lp-page .how-steps{gap:32vh;padding:14vh 0;}
-  .lp-page .how-step{opacity:.25;transition:opacity .45s ease;}
-  .lp-page .how-step.scly-on{opacity:1;}
+  .lp-page .how-steps{gap:26vh;padding:12vh 0;}
+  .lp-page .how-step{opacity:.22;transform:translateX(-14px);
+    transition:opacity .5s ease,transform .5s ease;}
+  .lp-page .how-step.scly-on{opacity:1;transform:translateX(0);}
+  .lp-page .how-step.scly-on .hs-n{color:var(--coral);}
   .lp-page .how-visual{position:sticky;top:0;height:100vh;display:flex;align-items:center;
     justify-content:center;margin-top:0;}
   .lp-page .scly-stack{position:relative;width:100%;height:440px;}
