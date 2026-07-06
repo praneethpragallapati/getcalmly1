@@ -64,41 +64,19 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // Priya journey chapter player: auto-advance via the progress bar's
-  // animationend (so pausing the bar pauses everything). Click to jump.
+  // Priya journey: hover/click sync. The section stays still; pointing at
+  // (or tapping) a step cross-fades the right-hand card to match.
   var chSteps=[].slice.call(document.querySelectorAll('.how-step'));
   var chCards=[].slice.call(document.querySelectorAll('.chap-card'));
-  var chSec=document.querySelector('.how-section');
-  if(chSteps.length && chCards.length && chSec && !reduce){
-    var chI=0;
+  if(chSteps.length && chCards.length && !reduce){
     function chGo(i){
-      chI=((i%chSteps.length)+chSteps.length)%chSteps.length;
-      chSteps.forEach(function(s,j){
-        s.classList.toggle('chap-on', j===chI);
-        var b=s.querySelector('.hs-bar span');
-        if(b){ b.style.animation='none'; }
-      });
-      chCards.forEach(function(c,j){ c.classList.toggle('chap-show', j===chI); });
-      var bar=chSteps[chI].querySelector('.hs-bar span');
-      if(bar){ void bar.offsetWidth; bar.style.animation=''; }
+      chSteps.forEach(function(s,j){ s.classList.toggle('chap-on', j===i); });
+      chCards.forEach(function(c,j){ c.classList.toggle('chap-show', j===i); });
     }
     chSteps.forEach(function(s,i){
+      s.addEventListener('mouseenter',function(){ chGo(i); });
       s.addEventListener('click',function(){ chGo(i); });
-      var b=s.querySelector('.hs-bar span');
-      if(b){ b.addEventListener('animationend',function(){
-        if(s.classList.contains('chap-on')) chGo(chI+1);
-      }); }
     });
-    // pause while off-screen or while the reader hovers the section
-    var chObs=new IntersectionObserver(function(es){
-      es.forEach(function(e){ chSec.classList.toggle('chap-paused', !e.isIntersecting); });
-    },{threshold:.2});
-    chObs.observe(chSec);
-    var chLayout=chSec.querySelector('.how-layout');
-    if(chLayout){
-      chLayout.addEventListener('mouseenter',function(){ chSec.classList.add('chap-paused'); });
-      chLayout.addEventListener('mouseleave',function(){ chSec.classList.remove('chap-paused'); });
-    }
     chGo(0);
   }
 
