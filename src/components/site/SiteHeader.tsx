@@ -20,8 +20,7 @@ const SERVICES = [
 const NAV = [
   { label: 'Home', href: '/' },
   { label: 'Features', href: '/features' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Community', href: '/community' },
+  { label: 'Real Talk', href: '/real-talk' },
   { label: 'Enterprise', href: '/enterprise' },
 ]
 

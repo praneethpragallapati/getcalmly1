@@ -8,6 +8,7 @@ const STATIC_ROUTES = [
   '',
   '/services',
   '/features',
+  '/real-talk',
   '/blog',
   '/community',
   '/about',

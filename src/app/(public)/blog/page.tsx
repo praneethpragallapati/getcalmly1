@@ -5,7 +5,7 @@ import { getBlogPosts } from '@/lib/blog'
 export const metadata: Metadata = {
   title: 'Blog | GetCalmly',
   description:
-    'Evidence-based perspectives on anxiety, grief, relationships and more — written by RCI-verified mental health professionals.',
+    'Evidence-based perspectives on anxiety, grief, relationships and more, written by licensed mental health professionals.',
   alternates: { canonical: '/blog' },
 }
 
