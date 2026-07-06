@@ -326,8 +326,10 @@
   gap: 20px;
 }
 .section-title {
-  font-size: 17px;
+  font-family: var(--font-display);
+  font-size: 19px;
   font-weight: 700;
+  letter-spacing: 0.2px;
   color: var(--c-charcoal);
 }
 .eyebrow {
