@@ -10,8 +10,8 @@
   --color-charcoal: #1C2B3A;
   --color-charcoal-m: #2E3E50;
   --color-charcoal-l: #5A6A7A;
-  --color-bg: #FFF8F5;
-  --color-bg-warm: #FAF5F0;
+  --color-bg: #FFFCFA;
+  --color-bg-warm: #FBF7F2;
   --color-gray-soft: #8E9EAE;
   --color-gray-line: #EDECEA;
   /* Doctor accent (green) + admin accent (purple) for later sections */
@@ -31,7 +31,7 @@
 
 body {
   font-family: var(--font-body);
-  background-color: #FFF8F5;
+  background-color: #FFFCFA;
   color: #1C2B3A;
   overflow-x: hidden;
 }
