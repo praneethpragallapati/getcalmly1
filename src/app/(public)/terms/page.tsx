@@ -12,7 +12,7 @@ const charcoal = '#1C2B3A'
 const coral = '#C8553D'
 
 function H({ children }: { children: React.ReactNode }) {
-  return <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 26, color: charcoal, margin: '40px 0 14px' }}>{children}</h2>
+  return <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 26, color: charcoal, margin: '40px 0 14px' }}>{children}</h2>
 }
 function P({ children }: { children: React.ReactNode }) {
   return <p style={{ fontSize: 15, color: '#3A4A5A', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>

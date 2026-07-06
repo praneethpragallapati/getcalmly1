@@ -422,7 +422,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",
               fontSize: 28,
-              fontWeight: 800,
+              fontWeight: 300,
               color: '#1C2B3A',
               marginBottom: 18,
             }}
@@ -460,7 +460,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C8553D', marginBottom: 8 }}>
             More on these themes
           </p>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 28, fontWeight: 800, color: '#1C2B3A', marginBottom: 18 }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 28, fontWeight: 300, color: '#1C2B3A', marginBottom: 18 }}>
             Related reads
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
@@ -513,7 +513,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",
               fontSize: 30,
-              fontWeight: 900,
+              fontWeight: 300,
               color: '#fff',
               marginBottom: 10,
             }}

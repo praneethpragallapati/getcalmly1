@@ -113,7 +113,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
       {relatedReads.length > 0 && (
         <section style={{ padding: '40px 24px 8px', maxWidth: 760, margin: '0 auto' }}>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: coral, marginBottom: 8 }}>From our clinicians</p>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 26, fontWeight: 800, color: charcoal, marginBottom: 16 }}>Related reads</h2>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 26, fontWeight: 300, color: charcoal, marginBottom: 16 }}>Related reads</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
             {relatedReads.map((r) => (
               <Link key={r.slug} href={`/blog/${r.slug}`} style={{ textDecoration: 'none' }}>
@@ -135,7 +135,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
       {/* More discussions on these themes */}
       {moreDiscussions.length > 0 && (
         <section style={{ padding: '32px 24px 16px', maxWidth: 760, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 26, fontWeight: 800, color: charcoal, marginBottom: 16 }}>More discussions</h2>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 26, fontWeight: 300, color: charcoal, marginBottom: 16 }}>More discussions</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {moreDiscussions.map((d) => (
               <Link key={d.id} href={`/community/${d.id}`} style={{ textDecoration: 'none' }}>

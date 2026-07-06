@@ -220,7 +220,7 @@ export default function ServicesPage() {
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 16 }}>Not sure where to start?</p>
           <h2 style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
-            fontWeight: 900, fontSize: 36, color: '#fff', marginBottom: 16, letterSpacing: '-0.5px',
+            fontWeight: 300, fontSize: 36, color: '#fff', marginBottom: 16, letterSpacing: '-0.5px',
           }}>
             Let us find the right fit for you.
           </h2>

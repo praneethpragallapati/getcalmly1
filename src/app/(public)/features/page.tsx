@@ -188,7 +188,7 @@ export default function FeaturesPage() {
             <div key={f.title} className="feat-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
               <div style={{ order: i % 2 === 0 ? 1 : 2 }}>
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: coral, textTransform: 'uppercase', marginBottom: 12 }}>{f.eyebrow}</p>
-                <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 3.4vw, 36px)', color: charcoal, letterSpacing: '-0.5px', lineHeight: 1.08, marginBottom: 14 }}>{f.title}</h2>
+                <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 3.4vw, 36px)', color: charcoal, letterSpacing: '-0.5px', lineHeight: 1.08, marginBottom: 14 }}>{f.title}</h2>
                 <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.7 }}>{f.body}</p>
               </div>
               <div style={{ order: i % 2 === 0 ? 2 : 1 }}>{f.visual}</div>
@@ -202,7 +202,7 @@ export default function FeaturesPage() {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: coral, textTransform: 'uppercase', marginBottom: 12 }}>See it in action</p>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 4.5vw, 42px)', color: charcoal, letterSpacing: '-1px' }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4.5vw, 42px)', color: charcoal, letterSpacing: '-1px' }}>
               Built for both sides of care
             </h2>
             <p style={{ fontSize: 15.5, color: '#6B7D8E', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.65 }}>
@@ -237,7 +237,7 @@ export default function FeaturesPage() {
         <div className="app-row" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 48, alignItems: 'center' }}>
           <div>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#1FB6A8', textTransform: 'uppercase', marginBottom: 14 }}>The app</p>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(30px, 5vw, 46px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.04, marginBottom: 16 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(30px, 5vw, 46px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.04, marginBottom: 16 }}>
               Your care, in your pocket.
             </h2>
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,.66)', lineHeight: 1.7, marginBottom: 22, fontWeight: 300 }}>
@@ -282,7 +282,7 @@ export default function FeaturesPage() {
 
         {/* Inline CTA — stays in the same dark section, no seam */}
         <div style={{ maxWidth: 600, margin: '72px auto 0', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,.1)', paddingTop: 56 }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px,5vw,40px)', color: '#fff', letterSpacing: '-0.5px', marginBottom: 14 }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px,5vw,40px)', color: '#fff', letterSpacing: '-0.5px', marginBottom: 14 }}>
             Ready to feel better?
           </h2>
           <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, marginBottom: 28, fontWeight: 300 }}>

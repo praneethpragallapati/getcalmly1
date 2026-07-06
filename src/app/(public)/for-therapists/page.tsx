@@ -66,7 +66,7 @@ export default function ForTherapistsPage() {
       <section style={{ padding: '90px 24px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(30px, 5vw, 44px)', color: '#1C2B3A', letterSpacing: '-1px', marginBottom: 14 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(30px, 5vw, 44px)', color: '#1C2B3A', letterSpacing: '-1px', marginBottom: 14 }}>
               Clinical tools, finally on your side.
             </h2>
             <p style={{ fontSize: 17, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>
@@ -95,7 +95,7 @@ export default function ForTherapistsPage() {
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#3D9E72', textTransform: 'uppercase', marginBottom: 14 }}>Joining is simple</p>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 5vw, 40px)', color: '#1C2B3A', letterSpacing: '-1px' }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 5vw, 40px)', color: '#1C2B3A', letterSpacing: '-1px' }}>
               From application to first client.
             </h2>
           </div>
@@ -119,7 +119,7 @@ export default function ForTherapistsPage() {
       {/* CTA */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '85px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: 580, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 40, color: '#fff', marginBottom: 16, letterSpacing: '-0.5px' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 40, color: '#fff', marginBottom: 16, letterSpacing: '-0.5px' }}>
             Build your practice on solid ground.
           </h2>
           <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.62)', lineHeight: 1.7, marginBottom: 30 }}>

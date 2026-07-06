@@ -130,7 +130,7 @@ export default function AboutPage() {
         <div className="awrap about-edit">
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>The problem</p>
-            <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
+            <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
               Help exists. Reaching it is the hard part.
             </h2>
           </div>
@@ -153,7 +153,7 @@ export default function AboutPage() {
         <div className="awrap about-edit">
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>Our approach</p>
-            <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
+            <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
               Care that fits you, not the other way around.
             </h2>
           </div>
@@ -175,7 +175,7 @@ export default function AboutPage() {
       <section style={{ background: '#fff', padding: '109px 40px' }}>
         <div className="awrap">
           <p style={{ ...eyebrow, marginBottom: 18 }}>What we stand for</p>
-          <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 44, lineHeight: 1.1 }}>
+          <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 44, lineHeight: 1.1 }}>
             The beliefs behind every match.
           </h2>
           <div className="about-values">
@@ -200,7 +200,7 @@ export default function AboutPage() {
         <div className="awrap about-contact">
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>Talk to us</p>
-            <h2 style={{ ...heading, fontWeight: 800, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 16, lineHeight: 1.1 }}>
+            <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 16, lineHeight: 1.1 }}>
               We&apos;re real people. We&apos;d love to hear from you.
             </h2>
             <p style={{ fontSize: 18, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
@@ -276,7 +276,7 @@ export default function AboutPage() {
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '104px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
-          <h2 style={{ ...heading, fontWeight: 900, fontSize: 'clamp(32px, 5vw, 46px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
+          <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(32px, 5vw, 46px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             Take the first step today.
           </h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', marginBottom: 32, lineHeight: 1.7, fontWeight: 300 }}>

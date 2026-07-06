@@ -202,7 +202,7 @@ export default function PricingPage() {
       {/* Care with a professional */}
       <section style={{ maxWidth: 980, margin: '0 auto', padding: '76px 24px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 14 }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
             Care with a professional
           </h2>
           <p style={{ fontSize: 15, color: '#6B7D8E', marginTop: 8, maxWidth: 520, margin: '8px auto 0' }}>
@@ -229,7 +229,7 @@ export default function PricingPage() {
       {/* App & Free */}
       <section style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px 40px' }}>
         <div style={{ textAlign: 'center', marginBottom: 30 }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
             Not ready for sessions yet?
           </h2>
           <p style={{ fontSize: 15, color: '#6B7D8E', marginTop: 8, maxWidth: 520, margin: '8px auto 0' }}>

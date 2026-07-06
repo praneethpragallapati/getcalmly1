@@ -407,7 +407,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section style={{ padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
           <div>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
               What care looks like here.
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
@@ -430,7 +430,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section style={{ background: '#fff', padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ marginBottom: 36 }}>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
               What we help with
             </h2>
             <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>
@@ -458,7 +458,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52, flexWrap: 'wrap', gap: 20 }}>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', letterSpacing: '-0.8px' }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', letterSpacing: '-0.8px' }}>
               How it works
             </h2>
             <Link href="/assess" style={{
@@ -493,7 +493,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {/* ─── FAQ: wide divider list ─── */}
       <section style={{ padding: '94px 48px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
             Common questions
           </h2>
           <div>

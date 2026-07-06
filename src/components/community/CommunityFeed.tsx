@@ -195,7 +195,7 @@ function PostCard({ post }: { post: CommunityPostView }) {
           style={{
             fontFamily: HEAD_FONT,
             fontSize: 22,
-            fontWeight: 700,
+            fontWeight: 300,
             color: '#1C2B3A',
             margin: 0,
             lineHeight: 1.25,

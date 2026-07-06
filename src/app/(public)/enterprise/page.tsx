@@ -80,7 +80,7 @@ export default function EnterprisePage() {
           <div style={{ marginBottom: 52 }}>
             <p style={{ ...eyebrow, marginBottom: 16 }}>Built around how you work</p>
             <h2 style={{
-              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
               fontSize: 'clamp(32px, 5vw, 50px)', color: charcoal, letterSpacing: '-1.5px', lineHeight: 1.03, maxWidth: 600,
             }}>
               One platform, shaped to your people.
@@ -149,7 +149,7 @@ export default function EnterprisePage() {
           <div>
             <p style={{ ...eyebrow, marginBottom: 18 }}>For HR & people leaders</p>
             <h2 style={{
-              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
               fontSize: 'clamp(28px, 4vw, 44px)', color: charcoal, letterSpacing: '-1.2px', lineHeight: 1.06, marginBottom: 22,
             }}>
               See the wellbeing of your people — never the person.
@@ -251,7 +251,7 @@ export default function EnterprisePage() {
             <div>
               <p style={{ ...eyebrow, color: '#1FB6A8', marginBottom: 16 }}>How a partnership works</p>
               <h2 style={{
-                fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+                fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
                 fontSize: 'clamp(28px, 4vw, 42px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05,
               }}>
                 From first call to real impact.
@@ -321,7 +321,7 @@ export default function EnterprisePage() {
           <div style={{ position: 'sticky', top: 48 }}>
             <p style={{ ...eyebrow, marginBottom: 20 }}>Let&apos;s talk</p>
             <h2 style={{
-              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
               fontSize: 'clamp(32px, 4.4vw, 48px)', color: charcoal, letterSpacing: '-1.5px', lineHeight: 1.05, marginBottom: 20,
             }}>
               Tell us about your people.
@@ -354,7 +354,7 @@ export default function EnterprisePage() {
             {sent ? (
               <div style={{ padding: '48px 0' }}>
                 <p style={{ ...eyebrow, marginBottom: 16 }}>Received</p>
-                <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: charcoal, letterSpacing: '-1px', marginBottom: 16 }}>Thank you.</h2>
+                <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(32px, 5vw, 44px)', color: charcoal, letterSpacing: '-1px', marginBottom: 16 }}>Thank you.</h2>
                 <p style={{ fontSize: 17, color: '#5A6B7A', lineHeight: 1.8, fontWeight: 300, maxWidth: 480 }}>We have your details. Our partnerships team will be in touch as we open enterprise access, and sooner if there is a strong fit.</p>
               </div>
             ) : (

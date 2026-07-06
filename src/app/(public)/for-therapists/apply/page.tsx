@@ -24,7 +24,7 @@ function Section({ n, title, children }: { n: string; title: string; children: R
     <div style={{ background: '#fff', borderRadius: 20, padding: '28px', border: '1.5px solid rgba(0,0,0,.06)', marginBottom: 18 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
         <span style={{ width: 30, height: 30, borderRadius: 9, background: '#E9F6EF', color: '#3D9E72', fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>
-        <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1C2B3A', fontFamily: "'DM Sans', sans-serif" }}>{title}</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 300, color: '#1C2B3A', fontFamily: "'DM Sans', sans-serif" }}>{title}</h2>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{children}</div>
     </div>
