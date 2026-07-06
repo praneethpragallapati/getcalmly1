@@ -331,7 +331,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
       <section
         style={{
           position: 'relative',
-          background: '#1C2B3A',
+          background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29',
           color: '#fff',
           padding: '72px 24px 64px',
           textAlign: 'center',

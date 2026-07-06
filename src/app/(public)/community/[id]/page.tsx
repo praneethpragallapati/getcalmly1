@@ -48,7 +48,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
   return (
     <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
       {/* Header band */}
-      <section style={{ background: charcoal, padding: '56px 24px 40px' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '56px 24px 40px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <Link href="/community" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: 600, textDecoration: 'none', marginBottom: 26 }}>
             ← Back to community

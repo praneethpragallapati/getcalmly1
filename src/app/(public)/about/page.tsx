@@ -64,7 +64,7 @@ export default function AboutPage() {
       `}</style>
 
       {/* ─── HERO: lead with the human, not the company ─── */}
-      <section style={{ background: charcoal, padding: '96px 40px 100px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '96px 40px 100px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="awrap about-hero" style={{ position: 'relative' }}>
           <div>
@@ -112,7 +112,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── THE MISSION: charcoal band, single bold idea ─── */}
-      <section style={{ background: charcoal, padding: '96px 40px' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '96px 40px' }}>
         <div className="awrap" style={{ maxWidth: 900, textAlign: 'center' }}>
           <p style={{ ...eyebrow, marginBottom: 24 }}>Our mission</p>
           <p style={{
@@ -273,7 +273,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section style={{ background: charcoal, padding: '88px 24px' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '88px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
           <h2 style={{ ...heading, fontWeight: 900, fontSize: 'clamp(32px, 5vw, 46px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
