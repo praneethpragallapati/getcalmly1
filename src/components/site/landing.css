@@ -227,7 +227,10 @@
 .lp-page .t-btn{width:100%;padding:11px;border-radius:12px;border:none;cursor:pointer;font-size:13px;font-weight:700;
   font-family:'DM Sans',sans-serif;background:var(--coral-pale);color:var(--coral);transition:all .2s;}
 .lp-page .t-btn:hover{background:var(--coral);color:var(--white);}
-.lp-page .assess-break{background:var(--charcoal);padding:108px 6%;position:relative;overflow:hidden;}
+.lp-page .assess-break{background:
+  radial-gradient(ellipse 70% 60% at 85% 8%,rgba(200,85,61,.30),transparent 55%),
+  radial-gradient(ellipse 50% 55% at 3% 60%,rgba(200,85,61,.12),transparent 60%),
+  #141E29;padding:108px 6%;position:relative;overflow:hidden;}
 .lp-page .assess-break::before{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse 65% 80% at 50% 50%,rgba(200,85,61,.1) 0%,transparent 60%);}
 .lp-page .assess-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;}
