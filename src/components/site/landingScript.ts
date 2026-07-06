@@ -64,20 +64,48 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // Priya journey: hover/click sync. The section stays still; pointing at
-  // (or tapping) a step cross-fades the right-hand card to match.
-  var chSteps=[].slice.call(document.querySelectorAll('.how-step'));
-  var chCards=[].slice.call(document.querySelectorAll('.chap-card'));
-  if(chSteps.length && chCards.length && !reduce){
-    function chGo(i){
-      chSteps.forEach(function(s,j){ s.classList.toggle('chap-on', j===i); });
-      chCards.forEach(function(c,j){ c.classList.toggle('chap-show', j===i); });
+  // Priya journey: drawing timeline. A damped fill line draws down beside
+  // the steps as you scroll; steps light as the line passes them and the
+  // right-hand card follows the furthest lit step.
+  var tlSteps=[].slice.call(document.querySelectorAll('.how-step'));
+  var tlCards=[].slice.call(document.querySelectorAll('.chap-card'));
+  var tlWrap=document.querySelector('.how-steps');
+  var tlDesk=window.matchMedia('(min-width: 861px)');
+  if(tlSteps.length && tlCards.length && tlWrap && !reduce){
+    var track=document.createElement('div'); track.className='tl-track';
+    var fill=document.createElement('span'); fill.className='tl-fill';
+    track.appendChild(fill); tlWrap.appendChild(track);
+    var tlPos=0, tlTarget=0, tlRaf=null, tlCur=-1;
+    function tlApply(){
+      fill.style.height=tlPos+'px';
+      var idx=0;
+      for(var i=0;i<tlSteps.length;i++){
+        if(tlSteps[i].offsetTop + tlSteps[i].offsetHeight*0.35 <= tlPos + 24) idx=i;
+      }
+      if(idx!==tlCur){
+        tlCur=idx;
+        tlSteps.forEach(function(s,j){ s.classList.toggle('tl-on', j<=idx); });
+        tlCards.forEach(function(c,j){ c.classList.toggle('chap-show', j===idx); });
+      }
     }
-    chSteps.forEach(function(s,i){
-      s.addEventListener('mouseenter',function(){ chGo(i); });
-      s.addEventListener('click',function(){ chGo(i); });
-    });
-    chGo(0);
+    function tlFrame(){
+      tlPos+=(tlTarget-tlPos)*0.09;
+      if(Math.abs(tlTarget-tlPos)<0.5) tlPos=tlTarget;
+      tlApply();
+      tlRaf=(tlPos!==tlTarget)?requestAnimationFrame(tlFrame):null;
+    }
+    function tlScroll(){
+      if(!tlDesk.matches) return;
+      var r=tlWrap.getBoundingClientRect();
+      // the line finishes drawing when the list bottom nears mid-viewport
+      var f=(window.innerHeight*0.72 - r.top)/(r.height*0.92);
+      f=Math.min(1,Math.max(0,f));
+      tlTarget=f*(track.offsetHeight);
+      if(tlRaf===null) tlRaf=requestAnimationFrame(tlFrame);
+    }
+    window.addEventListener('scroll',tlScroll,{passive:true});
+    window.addEventListener('resize',tlScroll);
+    tlScroll(); tlApply();
   }
 
   // Testimonials auto-scroll marquee: duplicate cards for a seamless loop
