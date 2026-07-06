@@ -68,10 +68,10 @@
 .lp-page .sec-label{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;
   letter-spacing:2.5px;text-transform:uppercase;color:var(--coral);margin-bottom:16px;}
 .lp-page .sec-label::after{content:'';width:28px;height:1.5px;background:var(--coral);opacity:.5;}
-.lp-page .sec-h2{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
-  font-size:clamp(38px,4.8vw,62px);line-height:1.0;letter-spacing:-1.5px;
+.lp-page .sec-h2{font-family:'Big Shoulders Display',sans-serif;font-weight:300;
+  font-size:clamp(38px,4.8vw,62px);line-height:1.02;letter-spacing:-1px;
   color:var(--charcoal);margin-bottom:16px;transform:scaleX(.9);transform-origin:left;}
-.lp-page .sec-h2 span{color:var(--coral);}
+.lp-page .sec-h2 span{color:var(--coral);font-weight:900;}
 .lp-page .sec-p{font-size:17px;font-weight:300;color:var(--charcoal-l);line-height:1.85;max-width:480px;}
 .lp-page .hero{min-height:100vh;display:grid;place-items:center;padding:88px 6% 60px;position:relative;overflow:hidden;
   background:
