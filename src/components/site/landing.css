@@ -701,35 +701,8 @@
 .lp-page .t3-grid .testi-card{flex:0 0 400px;}
 @keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* Priya scrollytelling — pinned, scroll-driven with damping (desktop).
-   No CSS transitions here: JS sets opacity/transform every frame from a
-   smoothed (lerped) scroll position, which is what makes it feel fluid. */
-@media (min-width: 861px){
-  .lp-page .scly-scroller{position:relative;height:480vh;}
-  .lp-page .how-layout{position:sticky;top:0;height:100vh;align-items:center;margin-top:0;gap:90px;}
-  .lp-page .how-steps{position:relative;height:340px;}
-  .lp-page .how-step{position:absolute;inset:0;align-content:center;padding:0;
-    opacity:0;pointer-events:none;will-change:transform,opacity;}
-  .lp-page .how-step .hs-n{color:var(--coral);}
-  .lp-page .how-visual{position:relative;top:auto;height:auto;margin-top:0;}
-  .lp-page .scly-stack{position:relative;width:100%;height:440px;}
-  .lp-page .scly-card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
-    opacity:0;pointer-events:none;will-change:transform,opacity;}
-  .lp-page .scly-card .how-card{margin-bottom:0;}
-}
-@media (max-width: 860px){
-  .lp-page .scly-card{margin-bottom:14px;}
-}
-
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
   .lp-page .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
-  .lp-page .scly-scroller{height:auto !important;}
-  .lp-page .how-layout{position:static !important;height:auto !important;}
-  .lp-page .how-steps{position:static !important;height:auto !important;gap:24px !important;padding:0 !important;}
-  .lp-page .how-step{position:relative !important;inset:auto !important;opacity:1 !important;transform:none !important;}
-  .lp-page .scly-stack{height:auto !important;}
-  .lp-page .scly-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
-  .lp-page .scly-dots{display:none !important;}
 }
