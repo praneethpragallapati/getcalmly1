@@ -171,7 +171,7 @@ export default function ServicesPage() {
                     <Icon size={23} color={b.accent} strokeWidth={1.9} />
                   </div>
                   <div>
-                    <p style={{ fontSize: 18, fontWeight: 800, color: '#1C2B3A', marginBottom: 4, fontFamily: "'DM Sans', sans-serif" }}>{b.title}</p>
+                    <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 21, fontWeight: 700, color: '#1C2B3A', marginBottom: 4, letterSpacing: '-0.2px' }}>{b.title}</p>
                     <p style={{ fontSize: 13, color: b.accent, fontWeight: 600, lineHeight: 1.4 }}>{b.tagline}</p>
                   </div>
                 </div>

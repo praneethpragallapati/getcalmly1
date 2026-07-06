@@ -186,7 +186,7 @@ export default function AboutPage() {
               }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: coral, marginTop: 9 }} />
                 <div>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: charcoal, marginBottom: 8, letterSpacing: '-0.2px' }}>{v.title}</p>
+                  <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 22, fontWeight: 700, color: charcoal, marginBottom: 8, letterSpacing: 0 }}>{v.title}</p>
                   <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.75, fontWeight: 300 }}>{v.desc}</p>
                 </div>
               </div>

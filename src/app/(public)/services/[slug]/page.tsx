@@ -445,7 +445,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: s.accent, marginTop: 9 }} />
                 <div>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: charcoal, marginBottom: 7, letterSpacing: '-0.2px' }}>{it.name}</p>
+                  <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 20, fontWeight: 700, color: charcoal, marginBottom: 7, letterSpacing: 0 }}>{it.name}</p>
                   <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.68, fontWeight: 300 }}>{it.desc}</p>
                 </div>
               </div>
@@ -499,7 +499,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <div>
             {s.faq.map((f, idx) => (
               <div key={f.q} style={{ padding: '26px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.08)' }}>
-                <p style={{ fontSize: 17, fontWeight: 700, color: charcoal, marginBottom: 10, letterSpacing: '-0.2px' }}>{f.q}</p>
+                <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 19, fontWeight: 700, color: charcoal, marginBottom: 10, letterSpacing: 0 }}>{f.q}</p>
                 <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.75, fontWeight: 300 }}>{f.a}</p>
               </div>
             ))}
