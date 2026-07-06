@@ -691,24 +691,27 @@
   border:1.5px solid rgba(200,85,61,.3);}
 @keyframes gcBreatheRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.28);opacity:.25}}
 
-/* Testimonials — horizontal rail */
-.lp-page .t3-grid{display:flex !important;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;
-  padding:6px 2px 18px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
-.lp-page .t3-grid .testi-card{flex:0 0 min(420px,84vw);scroll-snap-align:center;}
-.lp-page .t3-grid::-webkit-scrollbar{height:6px;}
-.lp-page .t3-grid::-webkit-scrollbar-thumb{background:rgba(28,43,58,.18);border-radius:6px;}
-.lp-page .testi-hint{font-size:12px;color:var(--gray);margin-top:14px;letter-spacing:.3px;}
+/* Testimonials — auto-scrolling marquee (like a stock ticker) */
+.lp-page .testi-marquee{margin-top:52px;overflow:hidden;position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);}
+.lp-page .t3-grid{display:flex !important;gap:20px;width:max-content;
+  animation:testiScroll 46s linear infinite;}
+.lp-page .testi-marquee:hover .t3-grid{animation-play-state:paused;}
+.lp-page .t3-grid .testi-card{flex:0 0 400px;}
+@keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* Priya scrollytelling (desktop) */
 @media (min-width: 861px){
-  .lp-page .how-steps{gap:42vh;padding:24vh 0;}
-  .lp-page .how-step{opacity:.28;transition:opacity .45s ease;}
+  .lp-page .how-steps{gap:32vh;padding:14vh 0;}
+  .lp-page .how-step{opacity:.25;transition:opacity .45s ease;}
   .lp-page .how-step.scly-on{opacity:1;}
-  .lp-page .how-visual{position:sticky;top:0;height:100vh;display:flex;align-items:center;margin-top:0;}
-  .lp-page .scly-stack{position:relative;width:100%;min-height:360px;}
-  .lp-page .scly-card{position:absolute;left:0;right:0;top:50%;opacity:0;
-    transform:translateY(-46%) scale(.98);transition:opacity .5s ease,transform .5s ease;}
-  .lp-page .scly-card.scly-show{opacity:1;transform:translateY(-50%) scale(1);}
+  .lp-page .how-visual{position:sticky;top:0;height:100vh;display:flex;align-items:center;
+    justify-content:center;margin-top:0;}
+  .lp-page .scly-stack{position:relative;width:100%;height:440px;}
+  .lp-page .scly-card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    opacity:0;transform:translateY(22px) scale(.98);transition:opacity .5s ease,transform .5s ease;pointer-events:none;}
+  .lp-page .scly-card.scly-show{opacity:1;transform:none;pointer-events:auto;}
   .lp-page .scly-card .how-card{margin-bottom:0;}
 }
 @media (max-width: 860px){
@@ -717,6 +720,7 @@
 
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
+  .lp-page .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
   .lp-page .scly-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
   .lp-page .how-step{opacity:1 !important;}

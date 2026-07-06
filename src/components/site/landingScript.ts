@@ -78,5 +78,15 @@ export const LANDING_SCRIPT = `
     },{rootMargin:'-45% 0px -45% 0px'});
     steps.forEach(function(s){ sObs.observe(s); });
   }
+
+  // Testimonials auto-scroll marquee: duplicate cards for a seamless loop
+  var track=document.getElementById('testi-track');
+  if(track){
+    track.querySelectorAll('.testi-card').forEach(function(c){ c.classList.add('in'); });
+    if(!reduce){
+      var originals=[].slice.call(track.children);
+      originals.forEach(function(c){ var cl=c.cloneNode(true); cl.setAttribute('aria-hidden','true'); track.appendChild(cl); });
+    }
+  }
 })();
 `;

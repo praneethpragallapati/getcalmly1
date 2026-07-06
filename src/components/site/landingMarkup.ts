@@ -577,12 +577,13 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="testi-section">
   <div class="sec-label reveal">Real people. Real change.</div>
   <h2 class="sec-h2 reveal">You already met Priya.<br><span>Here's who else.</span></h2>
-  <div class="testi-hint reveal">← drag or scroll sideways →</div>
-  <div class="t3-grid">
+  <div class="testi-marquee reveal">
+  <div class="t3-grid" id="testi-track">
     <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say, it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
     <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Rohan read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
     <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real, and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
     <div class="testi-card reveal d3"><div class="stars">★★★★★</div><div class="testi-q">The first honest hour I'd had in years. I stopped performing "fine" for everyone, and for once someone actually stayed with me through it.</div><div class="testi-auth"><div class="testi-av" style="background:var(--coral-pale);color:var(--coral);">N</div><div><div class="testi-nm">Neha T., 31</div><div class="testi-dt">Teacher · 5 months in</div></div></div></div>
+  </div>
   </div>
 </section>
 
