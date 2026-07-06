@@ -5,15 +5,16 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
+  <div class="hero-breathe"></div>
   <div class="hero-layout">
 
     <!-- LEFT: headline + CTA -->
     <div class="hero-left">
       <div class="hero-pill"><span class="pill-dot"></span>Your first session, just ₹999</div>
       <h1 class="hero-h1">
-        <span class="light">You don't have to</span>
-        figure this out<br>
-        <span class="accent">alone.</span>
+        <span class="rl"><span class="light">You don't have to</span></span>
+        <span class="rl"><span>figure this out</span></span>
+        <span class="rl"><span class="accent">alone.</span></span>
       </h1>
       <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with the world's first context-aware mental health AI, and stays with you from your very first session.</p>
       <div class="hero-actions">
@@ -103,6 +104,22 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">She didn't just feel better. She saw why.</div><div class="hs-d">Sleep steadied. Mood climbed. And for the first time, the pattern was on a screen in front of her, not a weight she carried alone. That's what makes it last.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
+      <div class="scly-stack">
+      <!-- 01 · Assessment -->
+      <div class="scly-card" data-i="0">
+      <div class="how-card">
+        <div class="hc-badge">Assessment · just now</div>
+        <div class="hc-title">Twelve gentle questions. No login.</div>
+        <div class="hc-sub">A name for what she'd been carrying, and a match who could actually help.</div>
+        <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(200,85,61,.15);color:var(--coral-l);font-weight:700;">Anxiety</span>
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-weight:600;">Work stress</span>
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-weight:600;">Sleep</span>
+        </div>
+      </div>
+      </div>
+      <!-- 02 · Match -->
+      <div class="scly-card" data-i="1">
       <!-- Therapist match card (no portrait, monogram only) -->
       <div class="how-card" style="padding:0;overflow:hidden;background:transparent;border:none;box-shadow:none;">
         <div class="therapist-match-card">
@@ -130,7 +147,17 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           </div>
         </div>
       </div>
-      <!-- Journal entry card -->
+      </div>
+      <!-- 03 · Weekly continuity -->
+      <div class="scly-card" data-i="2">
+      <div class="how-card">
+        <div class="hc-badge">Your therapist · every week</div>
+        <div class="hc-title">Never starting over.</div>
+        <div class="hc-sub">Same face, every session. Your history and patterns already in the room before you say hello.</div>
+      </div>
+      </div>
+      <!-- 04 · Journal entry card -->
+      <div class="scly-card" data-i="3">
       <div class="how-card">
         <div class="hc-badge">Priya's journal · Thursday, 8:42 PM</div>
         <div class="hc-title">Today was hard but I didn't spiral. That's new.</div>
@@ -140,7 +167,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-weight:600;">Shared with Dr. Ananya</span>
         </div>
       </div>
-      <!-- Week 8 result card -->
+      </div>
+      <!-- 05 · Week 8 result card -->
+      <div class="scly-card" data-i="4">
       <div class="how-card">
         <div class="hc-badge">Week 8 · Priya's progress</div>
         <div class="hc-title">Sleep: 3 nights at 7+ hours. Mood up 18%.</div>
@@ -150,6 +179,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div class="hc-m"><span class="hc-mn" style="color:var(--coral-l);">7.5h</span><span class="hc-ml">Avg sleep</span></div>
           <div class="hc-m"><span class="hc-mn" style="color:#B8B4D4;">21</span><span class="hc-ml">Journals</span></div>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   </div>
@@ -546,10 +577,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="testi-section">
   <div class="sec-label reveal">Real people. Real change.</div>
   <h2 class="sec-h2 reveal">You already met Priya.<br><span>Here's who else.</span></h2>
+  <div class="testi-hint reveal">← drag or scroll sideways →</div>
   <div class="t3-grid">
     <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say, it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
     <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Rohan read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
     <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real, and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
+    <div class="testi-card reveal d3"><div class="stars">★★★★★</div><div class="testi-q">The first honest hour I'd had in years. I stopped performing "fine" for everyone, and for once someone actually stayed with me through it.</div><div class="testi-auth"><div class="testi-av" style="background:var(--coral-pale);color:var(--coral);">N</div><div><div class="testi-nm">Neha T., 31</div><div class="testi-dt">Teacher · 5 months in</div></div></div></div>
   </div>
 </section>
 

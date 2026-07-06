@@ -668,3 +668,57 @@
 @media (max-width: 600px){
   .lp-page .m-pad{padding-left:22px !important;padding-right:22px !important;}
 }
+
+/* ═══════════ Animations (scroll + micro-interactions) ═══════════ */
+
+/* Scroll progress bar */
+.lp-page #gc-prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:9000;
+  background:linear-gradient(90deg,var(--coral),var(--coral-l));pointer-events:none;}
+
+/* Hero headline line-reveal */
+.lp-page .hero-h1 .rl{display:block;overflow:hidden;}
+.lp-page .hero-h1 .rl > span{display:block;transform:translateY(108%);
+  transition:transform .85s cubic-bezier(.2,.7,.2,1);}
+.lp-page .hero-h1.reveal-in .rl > span{transform:translateY(0);}
+.lp-page .hero-h1.reveal-in .rl:nth-child(2) > span{transition-delay:.1s;}
+.lp-page .hero-h1.reveal-in .rl:nth-child(3) > span{transition-delay:.2s;}
+
+/* Breathing ring in hero */
+.lp-page .hero-breathe{position:absolute;left:6%;top:38%;width:130px;height:130px;border-radius:50%;
+  border:1.5px solid rgba(200,85,61,.22);pointer-events:none;z-index:0;
+  animation:gcBreatheRing 7s ease-in-out infinite;}
+.lp-page .hero-breathe::after{content:'';position:absolute;inset:20px;border-radius:50%;
+  border:1.5px solid rgba(200,85,61,.3);}
+@keyframes gcBreatheRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.28);opacity:.25}}
+
+/* Testimonials — horizontal rail */
+.lp-page .t3-grid{display:flex !important;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:6px 2px 18px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+.lp-page .t3-grid .testi-card{flex:0 0 min(420px,84vw);scroll-snap-align:center;}
+.lp-page .t3-grid::-webkit-scrollbar{height:6px;}
+.lp-page .t3-grid::-webkit-scrollbar-thumb{background:rgba(28,43,58,.18);border-radius:6px;}
+.lp-page .testi-hint{font-size:12px;color:var(--gray);margin-top:14px;letter-spacing:.3px;}
+
+/* Priya scrollytelling (desktop) */
+@media (min-width: 861px){
+  .lp-page .how-steps{gap:42vh;padding:24vh 0;}
+  .lp-page .how-step{opacity:.28;transition:opacity .45s ease;}
+  .lp-page .how-step.scly-on{opacity:1;}
+  .lp-page .how-visual{position:sticky;top:0;height:100vh;display:flex;align-items:center;margin-top:0;}
+  .lp-page .scly-stack{position:relative;width:100%;min-height:360px;}
+  .lp-page .scly-card{position:absolute;left:0;right:0;top:50%;opacity:0;
+    transform:translateY(-46%) scale(.98);transition:opacity .5s ease,transform .5s ease;}
+  .lp-page .scly-card.scly-show{opacity:1;transform:translateY(-50%) scale(1);}
+  .lp-page .scly-card .how-card{margin-bottom:0;}
+}
+@media (max-width: 860px){
+  .lp-page .scly-card{margin-bottom:14px;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
+  .lp-page .hero-h1 .rl > span{transform:none !important;}
+  .lp-page .scly-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
+  .lp-page .how-step{opacity:1 !important;}
+  .lp-page .how-steps{gap:0 !important;padding:0 !important;}
+}
