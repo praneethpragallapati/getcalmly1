@@ -337,7 +337,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          padding: '72px 24px 64px',
+          padding: '85px 24px 64px',
           textAlign: 'center',
           overflow: 'hidden',
         }}

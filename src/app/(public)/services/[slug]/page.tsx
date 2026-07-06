@@ -332,7 +332,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '64px 48px 80px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 48px 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
           <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 40, fontWeight: 500 }}>
@@ -382,7 +382,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── YOU MIGHT RECOGNISE THIS: 2×2 grid, full width ─── */}
-      <section style={{ background: '#fff', padding: '76px 48px' }}>
+      <section style={{ background: '#fff', padding: '90px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <p style={{ ...eyebrow, marginBottom: 36, textAlign: 'center' }}>You might recognise this</p>
           <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
@@ -404,7 +404,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT CARE LOOKS LIKE + WHO IT'S FOR: side by side ─── */}
-      <section style={{ padding: '80px 48px' }}>
+      <section style={{ padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
           <div>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
@@ -427,7 +427,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT WE HELP WITH: grid, full width ─── */}
-      <section style={{ background: '#fff', padding: '80px 48px' }}>
+      <section style={{ background: '#fff', padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ marginBottom: 36 }}>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
@@ -455,7 +455,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── HOW CARE WORKS: 3-column, charcoal band ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '80px 48px' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52, flexWrap: 'wrap', gap: 20 }}>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', letterSpacing: '-0.8px' }}>
@@ -491,7 +491,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FAQ: wide divider list ─── */}
-      <section style={{ padding: '80px 48px' }}>
+      <section style={{ padding: '94px 48px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 800, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
             Common questions
@@ -508,7 +508,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '80px 24px' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '94px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>

@@ -21,7 +21,7 @@ function P({ children }: { children: React.ReactNode }) {
 export default function TermsPage() {
   return (
     <div style={{ background: '#F9F5F2' }}>
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '64px 24px 52px', textAlign: 'center' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 24px 52px', textAlign: 'center' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 14 }}>Last updated 16 June 2026</p>
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(34px, 5vw, 50px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05 }}>

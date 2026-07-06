@@ -62,7 +62,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          padding: '88px 24px 64px',
+          padding: '104px 24px 64px',
           textAlign: 'center',
         }}
       >
@@ -216,7 +216,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
       </section>
 
       {filtered.length === 0 && (
-        <p style={{ color: '#6B7D8E', textAlign: 'center', padding: '64px 24px 96px' }}>
+        <p style={{ color: '#6B7D8E', textAlign: 'center', padding: '76px 24px 96px' }}>
           No articles match your search.
         </p>
       )}

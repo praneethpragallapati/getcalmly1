@@ -121,7 +121,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           position: 'relative',
           overflow: 'hidden',
           background: `linear-gradient(160deg, ${cover.from}, ${cover.to})`,
-          padding: '64px 24px 72px',
+          padding: '76px 24px 72px',
         }}
       >
         {/* cover photo behind the gradient/orbs (falls back to gradient) */}
