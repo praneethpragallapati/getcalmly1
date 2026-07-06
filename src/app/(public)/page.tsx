@@ -7,12 +7,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
 export const metadata: Metadata = {
   title: 'getCalmly — Online Therapy & Mental Health Care in India',
   description:
-    'Book a free first session with RCI-verified therapists and psychiatrists. AI-powered insights, daily mood tracking, and a supportive community. Start free — we match you with the right expert.',
+    'Book your first session for ₹999 with licensed therapists and psychiatrists. AI-powered insights, daily mood tracking and a supportive community, matched to the right expert for you.',
   alternates: { canonical: '/' },
   openGraph: {
     title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
     description:
-      'Book a free first session with RCI-verified therapists. AI-powered insights and a community that gets it.',
+      'Book your first session for ₹999 with licensed therapists. AI-powered insights and a community that gets it.',
     url: '/',
     type: 'website',
   },

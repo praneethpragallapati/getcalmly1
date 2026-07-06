@@ -43,7 +43,7 @@ export default function Image() {
               fontWeight: 600,
             }}
           >
-            First free session · No card needed
+            First session · just ₹999
           </div>
         </div>
 
@@ -83,8 +83,8 @@ export default function Image() {
               maxWidth: 900,
             }}
           >
-            RCI-verified therapists &amp; NMC-registered psychiatrists, with AI that
-            understands your patterns.
+            Licensed therapists &amp; psychiatrists, with the world&apos;s first
+            context-aware mental health AI.
           </div>
         </div>
 

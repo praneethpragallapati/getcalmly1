@@ -14,17 +14,17 @@ export const metadata: Metadata = {
     template: '%s | getCalmly',
   },
   description:
-    'Book a free first session with RCI-verified therapists and psychiatrists in India. AI-powered insights, daily mood tracking, and a supportive community.',
+    'Book your first session for ₹999 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
   applicationName: 'getCalmly',
   keywords: [
     'online therapy India',
     'mental health',
-    'RCI verified therapist',
+    'licensed therapist',
     'psychiatrist online',
     'counselling',
     'anxiety',
     'depression',
-    'free therapy session',
+    'affordable therapy',
   ],
   alternates: {
     canonical: '/',
@@ -35,14 +35,14 @@ export const metadata: Metadata = {
     siteName: 'getCalmly',
     title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
     description:
-      'Book a free first session with RCI-verified therapists. AI-powered insights and a community that gets it.',
+      'Book your first session for ₹999 with licensed therapists. AI-powered insights and a community that gets it.',
     url: SITE_URL,
     locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
-    description: 'Book a free first session with RCI-verified therapists in India.',
+    description: 'Book your first session for ₹999 with licensed therapists in India.',
   },
   robots: { index: true, follow: true },
 }

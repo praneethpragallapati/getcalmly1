@@ -128,7 +128,7 @@ export default function FeaturesPage() {
             Real therapy with licensed professionals sits at the heart of everything. The technology around it makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
-            <Link href="/pricing" style={ctaPrimary}>✦ Book a session</Link>
+            <Link href="/assess" style={ctaPrimary}>✦ Book a session</Link>
             <Link href="/assess" style={ctaGhost}>Take the free assessment</Link>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function FeaturesPage() {
             A free 5-minute assessment is all it takes to meet your match.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/pricing" style={ctaPrimary}>✦ Book a session</Link>
+            <Link href="/assess" style={ctaPrimary}>✦ Book a session</Link>
             <Link href="/assess" style={ctaGhost}>Start free assessment</Link>
           </div>
         </div>

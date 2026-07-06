@@ -524,7 +524,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             Our RCI-verified clinicians are here. A free first session is all it takes to find your match.
           </p>
           <Link
-            href="/pricing"
+            href="/assess"
             style={{
               display: 'inline-block',
               background: '#fff',

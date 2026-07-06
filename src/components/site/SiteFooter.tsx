@@ -29,8 +29,7 @@ export default function SiteFooter() {
           <h4>Product</h4>
           <Link href="/#how">How it works</Link>
           <Link href="/features">Features</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/pricing">Book session</Link>
+          <Link href="/assess">Book session</Link>
         </div>
         <div className="foot-col">
           <h4>Care</h4>
@@ -53,8 +52,7 @@ export default function SiteFooter() {
       <div className="foot-bottom">
         <p>© {new Date().getFullYear()} GetCalmly Private Limited. Made with care in India.</p>
         <div className="foot-badges">
-          <span className="fbadge">✓ RCI Compliant</span>
-          <span className="fbadge">✓ NMC Verified</span>
+          <span className="fbadge">✓ Licensed clinicians</span>
           <span className="fbadge">🔒 DPDP Safe</span>
           <span className="fbadge">🇮🇳 India-made</span>
         </div>

@@ -357,7 +357,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 }}>
                   ✦ Take the free assessment
                 </Link>
-                <Link href="/pricing" style={{
+                <Link href="/assess" style={{
                   padding: '14px 26px', borderRadius: 50, background: 'transparent',
                   color: 'rgba(255,255,255,.85)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
                   fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.22)',

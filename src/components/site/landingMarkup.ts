@@ -11,20 +11,20 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
     <!-- LEFT: headline + CTA -->
     <div class="hero-left">
-      <div class="hero-pill"><span class="pill-dot"></span>First free session · No card needed</div>
+      <div class="hero-pill"><span class="pill-dot"></span>Your first session, just ₹999</div>
       <h1 class="hero-h1">
         <span class="light">You don't have to</span>
         figure this out<br>
         <span class="accent">alone.</span>
       </h1>
-      <p class="hero-sub">getCalmly matches you with an RCI-verified therapist or NMC-registered psychiatrist, understands your patterns with AI, and walks forward with you — starting with a free session.</p>
+      <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with the world's first context-aware mental health AI, and stays with you from your very first session.</p>
       <div class="hero-actions">
-        <a href="/pricing" class="btn-hero fill">✦ Book a session</a>
+        <a href="/assess" class="btn-hero fill">✦ Book your first session</a>
         <a href="#how" class="btn-hero outline">See how it works</a>
       </div>
       <div class="hero-trust">
-        <span class="ht">First session free</span>
-        <span class="ht">RCI & NMC-verified clinicians</span>
+        <span class="ht">World's-first context-aware AI</span>
+        <span class="ht">Licensed, vetted clinicians</span>
         <span class="ht">100% confidential</span>
       </div>
     </div>
@@ -47,12 +47,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
               <div class="ps-badge">AI Insight · just now</div>
               <div class="gc-cyc-track">
                 <div class="gc-cyc-item">
-                  <div class="ps-card-title">Mondays tend to weigh on you — and that's okay.</div>
+                  <div class="ps-card-title">Mondays tend to weigh on you, and that's okay.</div>
                   <div class="ps-card-sub">A 5-min breathing exercise before your first call may help. Tap to try it.</div>
                 </div>
                 <div class="gc-cyc-item">
                   <div class="ps-card-title">Your sleep improved 3 nights running.</div>
-                  <div class="ps-card-sub">Mood tends to follow your rest — keep protecting that wind-down hour.</div>
+                  <div class="ps-card-sub">Mood tends to follow your rest, keep protecting that wind-down hour.</div>
                 </div>
                 <div class="gc-cyc-item">
                   <div class="ps-card-title">You journaled 4 days straight. That's a streak.</div>
@@ -63,7 +63,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
             <div class="ps-card">
               <div class="ps-badge">Today's session</div>
               <div class="ps-card-title">Dr. Ananya Sharma · 3:00 PM</div>
-              <div class="ps-card-sub">Clinical Psychologist · ✓ RCI Verified · Google Meet</div>
+              <div class="ps-card-sub">Clinical Psychologist · Google Meet</div>
             </div>
             <div class="ps-card">
               <div class="ps-badge">Your week so far</div>
@@ -98,21 +98,21 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <p class="sec-p reveal" style="margin-bottom:48px;">For two years she told everyone she was fine. One night, she finally stopped pretending. Here's what the next eight weeks looked like.</p>
   <div class="how-layout">
     <div class="how-steps">
-      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">She started with one honest answer</div><div class="hs-d">11 PM, on her couch, almost didn't. Twelve gentle questions later — no login, no judgement — Priya finally had words for what she'd been carrying, and the name of someone who could help.</div></div></div>
-      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">The first session cost her nothing</div><div class="hs-d">No card, no commitment — just one real conversation to see if it fit. By the third session, she was saying things out loud she'd held quietly for two years.</div></div></div>
+      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">She started with one honest answer</div><div class="hs-d">11 PM, on her couch, almost didn't. Twelve gentle questions later, no login, no judgement, Priya finally had words for what she'd been carrying, and the name of someone who could help.</div></div></div>
+      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">The first session cost her nothing</div><div class="hs-d">No card, no commitment, just one real conversation to see if it fit. By the third session, she was saying things out loud she'd held quietly for two years.</div></div></div>
       <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">The same person stayed with her</div><div class="hs-d">Same therapist, every week. Dr. Ananya already knew her history and her patterns, so Priya never had to start over or explain herself to a new face again.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">Support didn't end at the session</div><div class="hs-d">Hard nights don't wait for appointments. Daily check-ins, journalling and Calm AI were there at midnight — and everything stayed in context, so nothing started from scratch.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">And slowly, she could see it working</div><div class="hs-d">By week eight her sleep had steadied and her mood was up 18 percent. Priya didn't just feel better — she could see why. That's what makes it last.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">Support didn't end at the session</div><div class="hs-d">Hard nights don't wait for appointments. Daily check-ins, journalling and Calm AI were there at midnight, and everything stayed in context, so nothing started from scratch.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">And slowly, she could see it working</div><div class="hs-d">By week eight her sleep had steadied and her mood was up 18 percent. Priya didn't just feel better, she could see why. That's what makes it last.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
-      <!-- Therapist match card (no portrait — monogram only) -->
+      <!-- Therapist match card (no portrait, monogram only) -->
       <div class="how-card" style="padding:0;overflow:hidden;background:transparent;border:none;box-shadow:none;">
         <div class="therapist-match-card">
           <div class="tmc-label">✦ Your match · Based on your assessment</div>
           <div class="tmc-head">
             <div class="tmc-mono">AS</div>
             <div>
-              <div class="tmc-badge">✓ RCI Verified · Clinical Psychologist</div>
+              <div class="tmc-badge">Clinical Psychologist</div>
               <div class="tmc-name">Dr. Ananya Sharma</div>
               <div class="tmc-meta">8 years · CBT · Anxiety &amp; Work Stress</div>
             </div>
@@ -128,7 +128,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
               <div class="tmc-rating">⭐ 4.9 <span>(340 sessions)</span></div>
               <div class="tmc-avail">● Available Thu</div>
             </div>
-            <a href="/pricing" class="tmc-btn">Book your session →</a>
+            <a href="/assess" class="tmc-btn">Book your first session →</a>
           </div>
         </div>
       </div>
@@ -166,12 +166,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
   </div>
   <div class="feat-grid">
-    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">Calm AI — there when you reach out</div><div class="feat-d">Calm AI doesn't push. But when Priya messaged at midnight — "I don't know how to explain this" — it already knew her last three sessions, her mood dip that week, her journal. That's what made the conversation actually useful.</div><span class="feat-badge fb-dk">Always on</span></div>
-    <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood, energy & sleep — tracked together</div><div class="feat-d">Priya didn't know her Sundays were the problem until she saw the data. Mood, energy and sleep tracked daily, patterns surfaced weekly — for her and for Dr. Ananya.</div><span class="feat-badge fb-c">Science-backed</span></div>
-    <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">Journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for themes — self-criticism, boundary patterns, progress moments — and adds them to the brief Dr. Ananya reads before every session.</div><span class="feat-badge fb-c">Pattern detection</span></div>
-    <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">RCI &amp; NMC certified</div><div class="feat-d">Every therapist holds a Rehabilitation Council of India registration and every psychiatrist is certified by the National Medical Commission. Verified credentials, not just good reviews.</div><span class="feat-badge fb-g">Clinically verified</span></div>
-    <div class="feat-card reveal d1"><span class="feat-icon">🏥</span><div class="feat-t">Care that follows you if it needs to</div><div class="feat-d">When something needs more than therapy, getCalmly connects you to hospital partners. Referral letters, session notes, and progress reports are structured for clinical handoff.</div><span class="feat-badge fb-c">Hospital-ready</span></div>
-    <div class="feat-card reveal d2"><span class="feat-icon">👥</span><div class="feat-t">A community, not a forum</div><div class="feat-d">Shruti typed "I actually laughed today" in the Depression Support Circle after 3 months. 142 people hit ❤️. Human moderation means it stays safe. Crisis support is built in.</div><span class="feat-badge fb-g">Safe & moderated</span></div>
+    <div class="feat-card dk reveal"><span class="feat-icon">🤖</span><div class="feat-t">The world's first context-aware AI companion</div><div class="feat-d">It doesn't push. But when you message at midnight, it already knows your last sessions, your mood dip that week, your journal. No other platform does this. That's what turns a chat into something that actually helps.</div><span class="feat-badge fb-dk">World's first</span></div>
+    <div class="feat-card reveal d1"><span class="feat-icon">📊</span><div class="feat-t">Mood, energy and sleep, tracked together</div><div class="feat-d">You won't spot your own patterns. We will. Mood, energy and sleep tracked daily, the connections surfaced weekly, for you and for your therapist.</div><span class="feat-badge fb-c">Science-backed</span></div>
+    <div class="feat-card reveal d2"><span class="feat-icon">📓</span><div class="feat-t">A journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for the themes underneath, the self-criticism, the boundaries, the quiet wins, and hands your therapist the brief before every session.</div><span class="feat-badge fb-c">Pattern detection</span></div>
+    <div class="feat-card reveal"><span class="feat-icon">🩺</span><div class="feat-t">Real experts, verified for real</div><div class="feat-d">Every therapist and psychiatrist on getCalmly is licensed and background-checked before they ever meet you. Credentials we actually verify, not five stars a stranger left online.</div><span class="feat-badge fb-g">Verified, not vibes</span></div>
+    <div class="feat-card reveal d1"><span class="feat-icon">🏥</span><div class="feat-t">When therapy isn't enough, we don't ghost you</div><div class="feat-d">If you need more than sessions, getCalmly bridges you to hospital partners. Referral letters, session notes and progress reports, structured for a clean clinical handoff.</div><span class="feat-badge fb-c">Real backup</span></div>
+    <div class="feat-card reveal d2"><span class="feat-icon">👥</span><div class="feat-t">A community, not a comment section</div><div class="feat-d">Someone typed "I actually laughed today" after three months in the dark. 142 people felt it. Human moderation keeps it safe, and crisis support is built in.</div><span class="feat-badge fb-g">Safe &amp; moderated</span></div>
   </div>
 </section>
 
@@ -181,7 +181,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="preview-section" id="preview">
   <div class="sec-label reveal">See it in action</div>
   <h2 class="sec-h2 reveal">Built for both sides<br>of the <span>care equation.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:40px;">getCalmly gives patients a calm, intelligent space — and gives therapists the clinical tools they need to deliver better care. See both.</p>
+  <p class="sec-p reveal" style="margin-bottom:40px;">getCalmly gives patients a calm, intelligent space, and gives therapists the clinical tools they need to deliver better care. See both.</p>
 
   <div class="preview-tabs reveal">
     <div class="ptab active" onclick="switchTab('patient',this)">👤 Patient view</div>
@@ -288,7 +288,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
                   <span style="font-size:12px;">🤖</span>
                   <span style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--coral);">Calm AI</span>
                 </div>
-                <div style="font-size:11px;color:var(--charcoal);line-height:1.55;font-weight:400;">You've journaled 4 days in a row. Less self-criticism this week — that's real progress.</div>
+                <div style="font-size:11px;color:var(--charcoal);line-height:1.55;font-weight:400;">You've journaled 4 days in a row. Less self-criticism this week, that's real progress.</div>
                 <div style="margin-top:8px;font-size:9px;color:var(--coral);font-weight:600;cursor:pointer;">→ Full insight report</div>
               </div>
               <!-- Journal preview -->
@@ -309,11 +309,11 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="reveal d2">
       <div class="sec-label" style="margin-bottom:12px;">Patient experience</div>
       <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Everything your mind needs, in one calm space.</h3>
-      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Track your mood daily. Journal freely. Get AI-powered insights. Book and attend sessions — all from one dashboard designed to feel as calm as getCalmly's name promises.</p>
+      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Track your mood daily. Journal freely. Get AI-powered insights. Book and attend sessions, all from one dashboard designed to feel as calm as getCalmly's name promises.</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">3-dimensional mood tracking</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Mood, energy and sleep — tracked daily, visualised clearly.</div></div>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">3-dimensional mood tracking</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Mood, energy and sleep, tracked daily, visualised clearly.</div></div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
@@ -324,7 +324,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Sessions that know your history</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Your therapist sees your week before you even say hello.</div></div>
         </div>
       </div>
-      <a href="/assess" class="btn-hero fill">✦ Try it free</a>
+      <a href="/assess" class="btn-hero fill">✦ Book your first session</a>
     </div>
   </div>
 
@@ -457,7 +457,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
                 <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);">AI pre-session brief · Priya R. · 3:00 PM</div>
                 <span style="font-size:8px;background:var(--green-pale);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:700;">Session 4 · CBT</span>
               </div>
-              <div style="font-size:11px;color:var(--charcoal);line-height:1.6;font-weight:300;">Week 4. Notable themes: <strong style="font-weight:600;">boundary-setting, reduced self-criticism</strong>. Mood peak Thursday. Anxiety down 18% vs last week. Recommend continuing reframing on workplace relationships. Patient noted "not spiralling" as a win — worth acknowledging.</div>
+              <div style="font-size:11px;color:var(--charcoal);line-height:1.6;font-weight:300;">Week 4. Notable themes: <strong style="font-weight:600;">boundary-setting, reduced self-criticism</strong>. Mood peak Thursday. Anxiety down 18% vs last week. Recommend continuing reframing on workplace relationships. Patient noted "not spiralling" as a win, worth acknowledging.</div>
               <div style="margin-top:8px;display:flex;gap:6px;">
                 <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:var(--green-pale);color:var(--green);font-weight:700;">Progress ↑</span>
                 <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:#EEF0FB;color:#7B7FCC;font-weight:700;">4 journal entries</span>
@@ -472,11 +472,11 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="reveal d2">
       <div class="sec-label" style="margin-bottom:12px;color:#1A7F7A;">Therapist experience</div>
       <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Clinical tools that let you focus on what matters.</h3>
-      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Every therapist on getCalmly gets a powerful portal — patient mood history, AI-generated pre-session briefs, structured session notes, and referral tracking. Less admin. Better care.</p>
+      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Every therapist on getCalmly gets a powerful portal, patient mood history, AI-generated pre-session briefs, structured session notes, and referral tracking. Less admin. Better care.</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">AI pre-session briefs</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Patient mood, journal themes and flags — summarised before each session.</div></div>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">AI pre-session briefs</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Patient mood, journal themes and flags, summarised before each session.</div></div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
@@ -484,56 +484,10 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         </div>
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Hospital-ready reporting</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Structured notes, referral letters and progress reports — exportable instantly.</div></div>
+          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Hospital-ready reporting</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Structured notes, referral letters and progress reports, exportable instantly.</div></div>
         </div>
       </div>
       <a href="/for-therapists" class="btn-hero outline" style="border-color:rgba(61,158,114,.35);color:#3D9E72;display:inline-flex;" onmouseover="this.style.background='rgba(61,158,114,.06)'" onmouseout="this.style.background='transparent'">Join our expert team →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── 8 WEEKS ── -->
-<section class="eight-weeks-section">
-  <div class="sec-label reveal">The transformation</div>
-  <h2 class="sec-h2 reveal">What 8 weeks looks like<br><span>for most people.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:52px;">Based on how patients on getCalmly actually progress — not projections, just patterns we've observed.</p>
-  <div class="weeks-track reveal">
-    <div class="wk-line"></div>
-    <div class="wk-item">
-      <div class="wk-dot" style="background:var(--coral-pale);border:2px solid var(--coral);"></div>
-      <div class="wk-label">Week 1</div>
-      <div class="wk-card">
-        <div class="wk-tag" style="color:var(--gray);background:var(--bg-warm);">Getting started</div>
-        <div class="wk-title">Assessment complete. Matched with Dr. Ananya.</div>
-        <div class="wk-body">"I didn't know what I was feeling had a name. The assessment gave me one."</div>
-      </div>
-    </div>
-    <div class="wk-item">
-      <div class="wk-dot" style="background:var(--coral-pale);border:2px solid var(--coral);"></div>
-      <div class="wk-label">Week 3</div>
-      <div class="wk-card">
-        <div class="wk-tag" style="color:var(--coral);background:var(--coral-pale);">First shift</div>
-        <div class="wk-title">Sleep tracking reveals a pattern. CBT framework introduced.</div>
-        <div class="wk-body">"I never connected Sunday anxiety to Monday mornings until I saw the chart."</div>
-      </div>
-    </div>
-    <div class="wk-item">
-      <div class="wk-dot" style="background:rgba(61,158,114,.15);border:2px solid var(--green);"></div>
-      <div class="wk-label">Week 6</div>
-      <div class="wk-card">
-        <div class="wk-tag" style="color:var(--green);background:var(--green-pale);">Building momentum</div>
-        <div class="wk-title">Journal streak: 14 days. Mood trend: +12%.</div>
-        <div class="wk-body">"Calm AI caught that I hadn't eaten properly two days in a row. My therapist had already flagged it."</div>
-      </div>
-    </div>
-    <div class="wk-item">
-      <div class="wk-dot" style="background:var(--green-pale);border:2px solid var(--green);"></div>
-      <div class="wk-label">Week 8</div>
-      <div class="wk-card" style="border-color:rgba(61,158,114,.25);">
-        <div class="wk-tag" style="color:var(--green);background:var(--green-pale);">↑ Measurable change</div>
-        <div class="wk-title">Sleep avg 7.5h. Mood +18%. "I actually laughed today."</div>
-        <div class="wk-body">"I don't know when it shifted. The data does."</div>
-      </div>
     </div>
   </div>
 </section>
@@ -542,13 +496,13 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="assess-break">
   <div class="assess-layout">
     <div class="assess-left reveal">
-      <div class="sec-label">Free for everyone</div>
+      <div class="sec-label">Start here</div>
       <h2 class="sec-h2">Not sure<br>where to start?<br><span>Let's find out.</span></h2>
-      <p class="sec-p">12 carefully crafted questions. A personalised mental wellness plan, therapist matches, and your first steps — ready in 5 minutes.</p>
+      <p class="sec-p">12 carefully crafted questions. A personalised mental wellness plan, therapist matches, and your first steps, ready in 5 minutes.</p>
       <div class="assess-stats">
         <div class="as-stat"><span class="as-n">40K+</span><span class="as-l">People assessed</span></div>
         <div class="as-stat"><span class="as-n">5 min</span><span class="as-l">To complete</span></div>
-        <div class="as-stat"><span class="as-n">₹0</span><span class="as-l">Always free</span></div>
+        <div class="as-stat"><span class="as-n">5 min</span><span class="as-l">To your first match</span></div>
       </div>
     </div>
     <div class="assess-right reveal d2">
@@ -560,75 +514,11 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div class="quiz-opt" onclick="selOpt(this)">More than half the days</div>
           <div class="quiz-opt" onclick="selOpt(this)">Nearly every day</div>
         </div>
-        <a class="assess-big-btn" href="/assess"><span>✦</span> Book your free session</a>
+        <a class="assess-big-btn" href="/assess"><span>✦</span> Book your first session</a>
         <div class="assess-note">Trusted by 40,000+ people · Completely confidential</div>
       </div>
     </div>
   </div>
-</section>
-
-<!-- ── PRICING ── -->
-<section class="pricing-section" id="pricing">
-  <div class="sec-label reveal">Pricing</div>
-  <h2 class="sec-h2 reveal">Real care, at a price<br>that <span>makes sense.</span></h2>
-  <p class="sec-p reveal">Your first session is free. After that, the more you commit to your healing, the less each session costs. Every paid plan includes the full app, and if you stop early you only pay for the sessions you used. <strong>No questions asked refunds on what you haven't.</strong></p>
-  <div class="price-grid">
-    <div class="plan reveal">
-      <div class="plan-name">Free</div>
-      <div class="plan-pr"><span class="plan-cur">₹</span><span class="plan-amt">0</span></div>
-      <div class="plan-period">forever · no card needed</div>
-      <div class="plan-div"></div>
-      <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Daily mood tracker</div>
-        <div class="plan-feat"><span class="ck">✓</span>Smart journaling</div>
-        <div class="plan-feat"><span class="ck">✓</span>Moderated community access</div>
-        <div class="plan-feat"><span class="ck">✓</span>A few Calm AI chats to start</div>
-      </div>
-      <a class="plan-btn pb-ol" href="/register?care=free" style="display:block;text-align:center;text-decoration:none;">Get started</a>
-    </div>
-    <div class="plan reveal d1">
-      <div class="plan-tag" style="background:#1A7F7A;">7-day free trial</div>
-      <div class="plan-name">Calm+</div>
-      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">99</span></div>
-      <div class="plan-period">per month · billed yearly</div>
-      <div class="plan-div"></div>
-      <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Unlimited Calm AI chat and insights</div>
-        <div class="plan-feat"><span class="ck">✓</span>Daily mood tracker and journaling</div>
-        <div class="plan-feat"><span class="ck">✓</span>Daily and weekly insights</div>
-        <div class="plan-feat"><span class="ck">✓</span>A constant guide for the everyday</div>
-      </div>
-      <a class="plan-btn pb-ol" href="/register?care=app" style="display:block;text-align:center;text-decoration:none;">Start free trial</a>
-    </div>
-    <div class="plan pro reveal d2">
-      <div class="plan-tag">First session free</div>
-      <div class="plan-name">Therapy</div>
-      <div class="plan-pr"><span class="plan-cur" style="color:rgba(255,255,255,.7)">From ₹</span><span class="plan-amt">999</span></div>
-      <div class="plan-period"><span style="text-decoration:line-through;opacity:.55;">₹1,899</span> per session · save up to 47%</div>
-      <div class="plan-div"></div>
-      <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Sessions with an RCI-verified psychologist</div>
-        <div class="plan-feat"><span class="ck">✓</span>Everything in Calm+, included</div>
-        <div class="plan-feat"><span class="ck">✓</span>Session summaries and weekly insights</div>
-        <div class="plan-feat"><span class="ck">✓</span>A constant guide for the whole journey</div>
-      </div>
-      <a class="plan-btn pb-dk" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Book session</a>
-    </div>
-    <div class="plan reveal d3">
-      <div class="plan-name">Psychiatry</div>
-      <div class="plan-pr"><span class="plan-cur">From ₹</span><span class="plan-amt">1,099</span></div>
-      <div class="plan-period"><span style="text-decoration:line-through;opacity:.55;">₹1,999</span> per session · save up to 45%</div>
-      <div class="plan-div"></div>
-      <div class="plan-feats">
-        <div class="plan-feat"><span class="ck">✓</span>Sessions with an NMC-registered psychiatrist</div>
-        <div class="plan-feat"><span class="ck">✓</span>Medication support and a built-in tracker</div>
-        <div class="plan-feat"><span class="ck">✓</span>Medicines delivered to your door</div>
-        <div class="plan-feat"><span class="ck">✓</span>Everything in Calm+, included</div>
-      </div>
-      <a class="plan-btn pb-ol" href="/pricing" style="display:block;text-align:center;text-decoration:none;">Book session</a>
-    </div>
-  </div>
-  <p class="sec-p reveal" style="text-align:center;margin-top:28px;font-size:14px;max-width:none;">Bigger packs cost less per session, and you only ever pay for the sessions you use. <a href="/pricing" style="color:var(--coral);font-weight:600;text-decoration:none;">Compare all plans →</a></p>
 </section>
 
 <!-- ── COMMUNITY ── -->
@@ -643,12 +533,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <div class="cg"><div class="cg-icon" style="background:#FFF8E7;">💼</div><div><div class="cg-t">Work Wellness</div><div class="cg-s">Burnout, stress & setting boundaries</div></div><div class="cg-ct">876 members</div></div>
         <div class="cg"><div class="cg-icon" style="background:var(--green-pale);">🧘</div><div><div class="cg-t">Mindfulness & Meditation</div><div class="cg-s">Daily practices & guided sessions</div></div><div class="cg-ct">3.4k members</div></div>
       </div>
-      <a href="/community" class="btn-primary">Join the community free →</a>
+      <a href="/community" class="btn-primary">Join the community →</a>
     </div>
     <div class="comm-posts reveal d1">
       <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">meera_k</div><div class="cp-grp">Anxiety Warriors</div></div></div><div class="cp-text">I had my first panic attack in months yesterday. Instead of hating myself for it, I used what my therapist taught me and just breathed through it. It passed. That feels like a win I never thought I'd have 🌿</div><div class="cp-acts"><span class="cp-act liked">❤️ 34</span><span class="cp-act">💬 12 replies</span><span class="cp-act">↗ Share</span></div></div>
       <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">arjun_22</div><div class="cp-grp">Work Wellness</div></div></div><div class="cp-text">First time opening up about my burnout out loud. I've been pretending I'm fine for two years. Typing this is terrifying but I'm so tired of carrying it alone 🙌</div><div class="cp-acts"><span class="cp-act">❤️ 58</span><span class="cp-act">💬 7 replies</span><span class="cp-act">↗ Share</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months in and I actually laughed at something today — really laughed. I'd forgotten what that felt like. To anyone in the dark right now: it doesn't stay this heavy forever 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
+      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:#EEF0FB;color:#7B7FCC;">S</div><div><div class="cp-nm">shruti.m</div><div class="cp-grp">Depression Support Circle</div></div></div><div class="cp-text">3 months in and I actually laughed at something today, really laughed. I'd forgotten what that felt like. To anyone in the dark right now: it doesn't stay this heavy forever 🕊️</div><div class="cp-acts"><span class="cp-act">❤️ 142</span><span class="cp-act">💬 31 replies</span><span class="cp-act">↗ Share</span></div></div>
     </div>
   </div>
 </section>
@@ -658,9 +548,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="sec-label reveal">Real people. Real change.</div>
   <h2 class="sec-h2 reveal">You already met Priya.<br><span>Here's who else.</span></h2>
   <div class="t3-grid">
-    <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say — it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
+    <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say, it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">P</div><div><div class="testi-nm">Priya R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
     <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Rohan read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
-    <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real — and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
+    <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real, and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
   </div>
 </section>
 

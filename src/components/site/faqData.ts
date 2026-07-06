@@ -8,27 +8,27 @@ export type FaqItem = { q: string; a: string }
 export const FAQ_ITEMS: FaqItem[] = [
   {
     q: 'Is online therapy effective?',
-    a: 'Yes — for most common concerns like anxiety, depression, stress and burnout, online therapy is as effective as in-person care, backed by extensive clinical research. At getCalmly every session is with a licensed professional over secure video, and your therapist tracks your progress between sessions using your mood data and journal.',
+    a: 'Yes. For most common concerns like anxiety, depression, stress and burnout, online therapy is as effective as in-person care, backed by extensive clinical research. At getCalmly every session is with a licensed professional over secure video, and your therapist tracks your progress between sessions using your mood data and journal.',
   },
   {
-    q: 'What is an RCI-verified therapist or NMC-registered psychiatrist?',
-    a: 'RCI (Rehabilitation Council of India) is the statutory body that licenses clinical psychologists in India; NMC (National Medical Commission) registers medical doctors, including psychiatrists. Every getCalmly therapist holds a valid RCI registration and every psychiatrist is NMC-registered — verified credentials, not just good reviews.',
+    q: 'Are getCalmly’s therapists and psychiatrists qualified?',
+    a: 'Yes. Every therapist and psychiatrist on getCalmly is licensed and background-checked before they ever meet you. These are verified professionals, not five stars a stranger left online.',
   },
   {
-    q: 'Is the first session really free?',
-    a: 'Yes. Your first session is completely free, with no card and no commitment required. It is a real conversation with a matched clinician so you can see if the fit feels right before deciding to continue.',
+    q: 'How much is the first session?',
+    a: 'Your first session is just ₹999. It is a real conversation with a matched clinician, so you can see whether the fit feels right before you decide to continue.',
   },
   {
     q: 'How does getCalmly match me with the right expert?',
-    a: 'You start with a short, confidential assessment — around twelve gentle questions with no login needed. getCalmly uses your answers to match you with a therapist or psychiatrist suited to your concerns, preferences and goals, so you are not left guessing who to book.',
+    a: 'You start with a short, confidential assessment of around twelve gentle questions, with no login needed. getCalmly uses your answers to match you with a therapist or psychiatrist suited to your concerns, preferences and goals, so you are not left guessing who to book.',
   },
   {
     q: 'Are my sessions and data confidential?',
     a: 'Completely. Your sessions, journal entries and mood data are private and encrypted, and are never shared without your consent. getCalmly is built privacy-first and aligned with India’s Digital Personal Data Protection (DPDP) Act.',
   },
   {
-    q: 'How much does it cost after the free first session?',
-    a: 'After your free first session, ongoing sessions are paid per session with transparent pricing and no forced subscription — you can see current rates on the pricing page. Daily mood tracking, journaling, AI insights and the community are included at no extra cost.',
+    q: 'What do I get with getCalmly?',
+    a: 'Every plan includes daily mood tracking, smart journaling, AI insights and the moderated community. When you are ready for therapy or psychiatry, your first session is ₹999 and ongoing session details live inside your dashboard.',
   },
   {
     q: 'Can getCalmly help in a crisis?',
@@ -45,7 +45,7 @@ export const FAQ_MARKUP = `
   <div class="faq-head">
     <div class="sec-label reveal">Questions, answered</div>
     <h2 class="sec-h2 reveal">Everything you<br><span>might be wondering.</span></h2>
-    <p class="sec-p reveal">The things people ask us most — about therapy, credentials, privacy and cost. Still unsure? Your first session is free, so you can simply try.</p>
+    <p class="sec-p reveal">The things people ask us most, about therapy, credentials, privacy and cost. Still unsure? Your first session is just ₹999, so you can simply try.</p>
   </div>
   <div class="faq-list reveal d1">
     ${FAQ_ITEMS.map(

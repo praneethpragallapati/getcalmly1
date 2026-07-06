@@ -156,7 +156,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,.75)', margin: '0 auto 22px', maxWidth: 420, lineHeight: 1.6 }}>Join free to reply, share your own story, and talk to a verified clinician when you&apos;re ready.</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/register" style={{ padding: '12px 30px', borderRadius: 28, background: coral, color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 18px rgba(200,85,61,.4)' }}>Join for free</Link>
-            <Link href="/pricing" style={{ padding: '12px 30px', borderRadius: 28, background: 'rgba(255,255,255,.08)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', border: '2px solid rgba(255,255,255,.25)' }}>Book a session</Link>
+            <Link href="/assess" style={{ padding: '12px 30px', borderRadius: 28, background: 'rgba(255,255,255,.08)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', border: '2px solid rgba(255,255,255,.25)' }}>Book a session</Link>
           </div>
         </div>
       </section>

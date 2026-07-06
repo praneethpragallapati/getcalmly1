@@ -20,21 +20,16 @@ export default function Logo({
 }) {
   const getColor = onDark ? '#FFFFFF' : '#1C2B3A'
   const tagColor = onDark ? 'rgba(255,255,255,.78)' : '#1C2B3A'
-  const SCALE = 0.72
-  // scaleX leaves dead layout space on the right; pull it back so the
-  // logo box hugs the glyphs (≈ naturalWidth × (1 − scale)).
-  const pullBack = Math.round(size * 3.0 * (1 - SCALE) * 0.92)
 
   const wordmark = (
-    <span style={{ display: 'inline-flex', alignItems: 'flex-end', gap: `${Math.round(size * 0.06)}px`, overflow: 'visible', lineHeight: 1 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: `${Math.round(size * 0.04)}px`, overflow: 'visible', lineHeight: 1 }}>
       <span
         style={{
           fontFamily: "'Big Shoulders Display',sans-serif",
-          fontWeight: 600,
-          fontSize: `${Math.round(size * 0.4)}px`,
+          fontWeight: 300,
+          fontSize: `${Math.round(size * 0.5)}px`,
           color: getColor,
           letterSpacing: '0px',
-          paddingBottom: `${Math.round(size * 0.1)}px`,
           lineHeight: 1,
         }}
       >
@@ -46,12 +41,9 @@ export default function Logo({
           fontWeight: 900,
           fontSize: `${size}px`,
           color: '#C8553D',
-          letterSpacing: '-0.5px',
+          letterSpacing: '-1.5px',
           lineHeight: 1,
           display: 'inline-block',
-          transform: `scaleX(${SCALE})`,
-          transformOrigin: 'left bottom',
-          marginRight: `${-pullBack}px`,
         }}
       >
         Calmly.

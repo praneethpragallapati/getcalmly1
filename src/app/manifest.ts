@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
     short_name: 'getCalmly',
     description:
-      'Book a free first session with RCI-verified therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
+      'Book your first session for ₹999 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
     start_url: '/',
     display: 'standalone',
     background_color: '#FFF8F5',
