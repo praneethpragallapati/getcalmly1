@@ -343,7 +343,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <p style={{ ...eyebrow, marginBottom: 20 }}>{s.title}</p>
               <h1 style={{
                 fontFamily: "'Big Shoulders Display', sans-serif",
-                fontWeight: 900, fontSize: 'clamp(34px, 5.4vw, 56px)',
+                fontWeight: 300, fontSize: 'clamp(34px, 5.4vw, 56px)',
                 color: '#fff', letterSpacing: '-1.5px', lineHeight: 1.04, marginBottom: 26, maxWidth: 620,
               }}>
                 {s.question}

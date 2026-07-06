@@ -60,7 +60,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
               </Link>
             ))}
           </div>
-          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 'clamp(30px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.06, letterSpacing: '-0.5px', margin: 0 }}>
+          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 'clamp(30px, 5vw, 48px)', fontWeight: 300, color: '#fff', lineHeight: 1.06, letterSpacing: '-0.5px', margin: 0 }}>
             {post.title}
           </h1>
         </div>

@@ -390,7 +390,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
             style={{
               fontFamily: HEAD_FONT,
               fontSize: 'clamp(52px, 9vw, 92px)',
-              fontWeight: 800,
+              fontWeight: 300,
               margin: '0 0 18px',
               letterSpacing: '-1px',
               lineHeight: 1,

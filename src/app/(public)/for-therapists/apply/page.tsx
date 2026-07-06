@@ -62,7 +62,7 @@ export default function TherapistApplyPage() {
       <div style={{ background: '#FFFCFA', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
         <div style={{ maxWidth: 520, textAlign: 'center', background: '#fff', borderRadius: 24, padding: '48px 36px', border: '1.5px solid rgba(0,0,0,.06)' }}>
           <div style={{ fontSize: 46, marginBottom: 16 }}>✅</div>
-          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 34, color: '#1C2B3A', marginBottom: 14, lineHeight: 1.1 }}>
+          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 34, color: '#1C2B3A', marginBottom: 14, lineHeight: 1.1 }}>
             Application received.
           </h1>
           <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.7, marginBottom: 28 }}>
@@ -82,7 +82,7 @@ export default function TherapistApplyPage() {
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 24px 56px', textAlign: 'center' }}>
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <Link href="/for-therapists" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 20 }}>← Back to Join our experts</Link>
-          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 48px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05, marginBottom: 14 }}>
+          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(32px, 5vw, 48px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05, marginBottom: 14 }}>
             Apply to practice on GetCalmly
           </h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', lineHeight: 1.7 }}>

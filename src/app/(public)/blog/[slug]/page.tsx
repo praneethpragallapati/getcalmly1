@@ -219,7 +219,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",
               fontSize: 'clamp(34px, 6vw, 60px)',
-              fontWeight: 900,
+              fontWeight: 300,
               color: '#fff',
               lineHeight: 1.03,
               letterSpacing: '-0.5px',

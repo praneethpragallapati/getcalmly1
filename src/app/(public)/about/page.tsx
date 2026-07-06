@@ -70,7 +70,7 @@ export default function AboutPage() {
           <div>
             <p style={{ ...eyebrow, marginBottom: 22 }}>Our story</p>
             <h1 style={{
-              ...heading, fontSize: 'clamp(40px, 6vw, 76px)', color: '#fff',
+              ...heading, fontWeight: 300, fontSize: 'clamp(40px, 6vw, 76px)', color: '#fff',
               letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 0,
             }}>
               Mental health support that understands you.

@@ -28,7 +28,7 @@ export default function ForTherapistsPage() {
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>Join our expert team</p>
           <h1 style={{
-            fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+            fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
             fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22,
           }}>
             Spend your time<br /><span style={{ color: '#3D9E72' }}>on care, not admin.</span>

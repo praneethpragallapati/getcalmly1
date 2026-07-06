@@ -113,7 +113,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",
               fontSize: 'clamp(48px, 9vw, 92px)',
-              fontWeight: 900,
+              fontWeight: 300,
               color: '#fff',
               lineHeight: 0.98,
               letterSpacing: '-0.5px',

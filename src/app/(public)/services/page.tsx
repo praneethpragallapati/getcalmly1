@@ -102,7 +102,7 @@ export default function ServicesPage() {
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 20 }}>What we offer</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
-            fontWeight: 900,
+            fontWeight: 300,
             fontSize: 'clamp(40px, 7vw, 72px)',
             color: '#fff',
             lineHeight: 1.0,

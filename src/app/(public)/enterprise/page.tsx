@@ -35,7 +35,7 @@ export default function EnterprisePage() {
           <div>
             <p style={{ ...eyebrow, color: '#1FB6A8', marginBottom: 24 }}>GetCalmly for organisations · Coming soon</p>
             <h1 style={{
-              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
+              fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
               fontSize: 'clamp(40px, 5.6vw, 66px)', color: '#fff', lineHeight: 1.02,
               letterSpacing: '-2px', marginBottom: 28,
             }}>
