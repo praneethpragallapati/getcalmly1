@@ -281,7 +281,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   if (!s) notFound()
 
   const charcoal = '#1C2B3A'
-  const cream = '#F9F5F2'
+  const cream = '#FFFCFA'
 
   const serviceJsonLd = {
     '@context': 'https://schema.org',

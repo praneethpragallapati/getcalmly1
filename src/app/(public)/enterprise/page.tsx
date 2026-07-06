@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
-const cream = '#F9F5F2'
+const cream = '#FFFCFA'
 const teal = '#1A7F7A'
 const green = '#3D9E72'
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
-const cream = '#F9F5F2'
+const cream = '#FFFCFA'
 
 const stats: [string, string][] = [
   ['60%+', 'treatment gap in India'],

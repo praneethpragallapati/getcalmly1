@@ -326,7 +326,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
   }, [posts, search, activeTag])
 
   return (
-    <div style={{ background: '#F9F5F2', minHeight: '100vh', fontFamily: BODY_FONT }}>
+    <div style={{ background: '#FFFCFA', minHeight: '100vh', fontFamily: BODY_FONT }}>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section
         style={{
@@ -568,7 +568,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
                 fontSize: 14,
                 color: '#1C2B3A',
                 outline: 'none',
-                background: '#F9F5F2',
+                background: '#FFFCFA',
                 fontFamily: BODY_FONT,
                 boxSizing: 'border-box',
               }}

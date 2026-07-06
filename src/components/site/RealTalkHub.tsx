@@ -23,7 +23,7 @@ export default function RealTalkHub({
   const [tab, setTab] = useState<'read' | 'circles'>(initial)
 
   return (
-    <div style={{ background: '#F9F5F2' }}>
+    <div style={{ background: '#FFFCFA' }}>
       {/* Sticky tab switcher */}
       <div
         style={{

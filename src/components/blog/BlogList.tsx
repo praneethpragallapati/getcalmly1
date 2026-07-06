@@ -51,7 +51,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
   const [lead, ...rest] = filtered
 
   return (
-    <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
+    <div style={{ background: '#FFFCFA', minHeight: '100vh' }}>
       {/* Hero */}
       <section
         style={{

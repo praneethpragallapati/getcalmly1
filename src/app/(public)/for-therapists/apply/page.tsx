@@ -59,7 +59,7 @@ export default function TherapistApplyPage() {
 
   if (submitted) {
     return (
-      <div style={{ background: '#F9F5F2', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
+      <div style={{ background: '#FFFCFA', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
         <div style={{ maxWidth: 520, textAlign: 'center', background: '#fff', borderRadius: 24, padding: '48px 36px', border: '1.5px solid rgba(0,0,0,.06)' }}>
           <div style={{ fontSize: 46, marginBottom: 16 }}>✅</div>
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 34, color: '#1C2B3A', marginBottom: 14, lineHeight: 1.1 }}>
@@ -77,7 +77,7 @@ export default function TherapistApplyPage() {
   }
 
   return (
-    <div style={{ background: '#F9F5F2' }}>
+    <div style={{ background: '#FFFCFA' }}>
       {/* Header */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 24px 56px', textAlign: 'center' }}>
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
