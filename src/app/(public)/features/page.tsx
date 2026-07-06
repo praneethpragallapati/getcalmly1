@@ -104,12 +104,59 @@ function BriefMock() {
   )
 }
 
+function PrivacyMock() {
+  const rows: [string, boolean][] = [
+    ['Journal entries', true],
+    ['Mood check-ins', true],
+    ['Session notes', true],
+    ['Calm AI chats', false],
+  ]
+  return (
+    <div style={mockCard}>
+      <p style={mockLabel}>What Calm AI can see</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
+        {rows.map(([label, on]) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 13, color: '#3A4A5A', fontWeight: 500 }}>{label}</span>
+            <span
+              style={{
+                width: 34,
+                height: 20,
+                borderRadius: 20,
+                background: on ? coral : '#D8DEE4',
+                position: 'relative',
+                flexShrink: 0,
+                transition: 'background .2s',
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 2,
+                  left: on ? 16 : 2,
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  background: '#fff',
+                  boxShadow: '0 1px 2px rgba(0,0,0,.2)',
+                }}
+              />
+            </span>
+          </div>
+        ))}
+      </div>
+      <p style={{ marginTop: 14, fontSize: 11, color: '#A0ADB8' }}>Flip any off. A master switch turns it all off at once.</p>
+    </div>
+  )
+}
+
 const detailed = [
   { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a licensed professional who genuinely fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
   { eyebrow: 'Calm AI', title: 'Support for the in-between moments', body: 'Therapy is an hour a week. Life happens in all the hours between. Calm is a gentle, always-available space to talk things through and steady yourself, and it knows when to point you toward real help.', visual: <ChatMock /> },
   { eyebrow: 'Mood & insights', title: 'Tracking that actually does something', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
   { eyebrow: 'Journaling', title: 'Write freely, see clearly', body: 'Journal however you like. Calm reflects the patterns back in your own words, the thoughts that keep circling and the moments that lift you, drawing on CBT principles. Always reflections, never a diagnosis.', visual: <JournalMock /> },
   { eyebrow: 'Clinician co-pilot', title: 'Your therapist walks in already caught up', body: 'Before each session your professional sees a brief of your week, mood trend, homework and journal themes. Less time spent recapping, more spent on you. Every AI summary is human-reviewed first.', visual: <BriefMock /> },
+  { eyebrow: 'Privacy & control', title: 'You decide what the AI ever sees', body: 'Your journal, mood check-ins, session notes and chats are yours. Switch any of them off in settings and the AI simply never touches them, and one master switch turns everything off at once. Private by default, in your hands always.', visual: <PrivacyMock /> },
 ]
 
 export default function FeaturesPage() {
