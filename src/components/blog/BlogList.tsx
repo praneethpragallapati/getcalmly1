@@ -58,6 +58,10 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
           position: 'relative',
           overflow: 'hidden',
           background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
           padding: '88px 24px 64px',
           textAlign: 'center',
         }}
