@@ -104,7 +104,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="how-step"><div class="hs-n">04</div><div><div class="hs-t">3 AM finally had someone in it</div><div class="hs-d">The hardest nights don't wait for appointments. getCalmly's AI already knew her last session, her mood dip, her journal, so it met her right there, then handed the context straight back to Dr. Ananya.</div></div></div>
       <div class="how-step"><div class="hs-n">05</div><div><div class="hs-t">She didn't just feel better. She saw why.</div><div class="hs-d">Sleep steadied. Mood climbed. And for the first time, the pattern was on a screen in front of her, not a weight she carried alone. That's what makes it last.</div></div></div>
     </div>
-    <div class="how-visual reveal d1">
+    <div class="how-visual">
       <div class="scly-stack">
       <!-- 01 · Assessment -->
       <div class="scly-card" data-i="0">

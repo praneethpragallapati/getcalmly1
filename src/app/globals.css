@@ -33,7 +33,7 @@ body {
   font-family: var(--font-body);
   background-color: #FFFCFA;
   color: #1C2B3A;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .font-display {
