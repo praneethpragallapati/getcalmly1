@@ -11,11 +11,11 @@ const branches = [
     icon: '🧠',
     accent: '#C8553D',
     pale: 'rgba(200,85,61,.08)',
-    title: 'Individual Therapy',
-    tagline: 'For when things feel too heavy to carry alone.',
+    title: 'Therapy That Stays With You',
+    tagline: "You've been the strong one long enough. This hour is yours.",
     desc: 'Whether it\'s anxiety that won\'t quiet down, a sadness you can\'t explain, or stress that\'s seeping into everything, a therapist gives you a private space to work through it. One conversation at a time.',
     items: ['Anxiety & Overthinking', 'Depression', 'Stress & Burnout', 'Trauma & Grief', 'OCD', 'Anger', 'Sleep Issues', 'Life Transitions'],
-    expert: 'An RCI-licensed clinical psychologist, matched to you',
+    expert: 'A licensed clinical psychologist, matched to you',
     app: 'Calm+ app for mood tracking & journaling between sessions',
   },
   {
@@ -23,11 +23,11 @@ const branches = [
     icon: '💊',
     accent: '#1A7F7A',
     pale: 'rgba(26,127,122,.08)',
-    title: 'Psychiatry',
-    tagline: 'Sometimes the brain needs medical support too.',
-    desc: 'Our NMC-registered psychiatrists evaluate, diagnose, and when needed, prescribe medication alongside therapy. Getting a second opinion? We do that too.',
+    title: 'Psychiatry, Without the Stigma',
+    tagline: "You did the work and still feel stuck. That's chemistry, not failure.",
+    desc: 'Our licensed psychiatrists evaluate, diagnose, and when needed, prescribe medication alongside therapy. Getting a second opinion? We do that too.',
     items: ['Diagnosis & Evaluation', 'Medication Management', 'Second Opinion', 'Follow-up Care', 'OCD / Bipolar / Schizophrenia', 'ADHD (Adult)'],
-    expert: 'An NMC-registered psychiatrist who coordinates with your therapist',
+    expert: 'A licensed psychiatrist who coordinates with your therapist',
     app: 'In-app medication reminders & symptom tracking',
   },
   {
@@ -35,8 +35,8 @@ const branches = [
     icon: '💑',
     accent: '#7C5CBF',
     pale: 'rgba(124,92,191,.08)',
-    title: 'Couples & Relationships',
-    tagline: 'Because good relationships take work, and that\'s not a failure.',
+    title: 'Couples, Reconnected',
+    tagline: 'Before you give up on each other, give one honest hour a chance.',
     desc: 'Every couple hits walls. Communication that used to flow easily now leads to arguments. Or maybe the silence has become louder than words. Couples therapy helps you find your way back to each other.',
     items: ['Communication & Conflict', 'Rebuilding Trust', 'Separation / Divorce', 'Breakup Support', 'Pre-marital Counselling', 'Intimacy Concerns'],
     expert: 'An EFT & Gottman-informed couples therapist',
@@ -47,8 +47,8 @@ const branches = [
     icon: '🌱',
     accent: '#3D9E72',
     pale: 'rgba(61,158,114,.08)',
-    title: 'Children & Teens',
-    tagline: 'They\'re not "just going through a phase."',
+    title: 'Care for Growing Minds',
+    tagline: 'You knew something was off. Trust that. So do we.',
     desc: 'Kids and teenagers are navigating enormous pressures, exams, social anxiety, family change, identity questions. A child therapist gives them a judgment-free space to understand what they\'re feeling and why.',
     items: ['Anxiety & Worry', 'Low Mood', 'Exam Stress', 'ADHD Support', 'Behavioural Challenges', 'Adolescent Identity', 'Grief & Loss', 'Family Change'],
     expert: 'A child & adolescent specialist who works with you too',
@@ -59,7 +59,7 @@ const branches = [
     icon: '🤱',
     accent: '#D98C5F',
     pale: 'rgba(217,140,95,.10)',
-    title: 'Motherhood & Postpartum',
+    title: 'Motherhood, Held',
     tagline: 'Everyone asks about the baby. We ask about you.',
     desc: 'Becoming a mother changes everything, your body, your sleep, your sense of who you are. The exhaustion, the anxiety, the guilt for not feeling the way you "should", none of it means you\'re failing. It means you need support, and that\'s allowed.',
     items: ['Prenatal Anxiety', 'Postpartum Depression', 'Birth Trauma', 'Identity & Role Shift', 'Parenting Overwhelm', 'Pregnancy Loss & Grief', 'Fertility Stress'],
@@ -71,8 +71,8 @@ const branches = [
     icon: '📋',
     accent: '#C9973A',
     pale: 'rgba(201,151,58,.08)',
-    title: 'Psychological Assessments',
-    tagline: 'A clearer picture changes everything.',
+    title: 'Finally, Answers',
+    tagline: 'Stop guessing why your mind works the way it does.',
     desc: 'Standardised assessments that help you understand yourself, or your child, better. These aren\'t labels, they\'re tools. A good assessment leads to a better plan.',
     items: ['ADHD Assessment', 'Anxiety & Depression Screening', 'Personality Profile', 'Emotional Intelligence', 'Career Maturity (Students)', 'Couples Assessment', 'Occupational Stress'],
     expert: 'A qualified clinical psychologist who walks you through results',
@@ -83,11 +83,11 @@ const branches = [
     icon: '🫶',
     accent: '#C04B8A',
     pale: 'rgba(192,75,138,.08)',
-    title: 'Specialised Support',
-    tagline: 'Life is not one-size-fits-all. Neither is care.',
+    title: 'Care Built Around You',
+    tagline: "You shouldn't have to explain your whole world before someone gets it.",
     desc: 'Some experiences need a professional who truly understands the context, not a generalist. Whether you\'re navigating chronic illness, gender identity, or supporting someone in crisis, we have the right person.',
     items: ['LGBTQIA+ Affirmative Care', 'Chronic / Terminal Illness', 'Grief & Bereavement', 'Geriatric Mental Health', 'Clinical Supervision for Professionals'],
-    expert: 'A context-trained specialist — no need to explain yourself first',
+    expert: 'A context-trained specialist, no need to explain yourself first',
     app: 'Calm+ tools tailored to your situation',
   },
 ]
@@ -95,7 +95,7 @@ const branches = [
 export default function ServicesPage() {
   return (
     <div style={{ background: '#F9F5F2', minHeight: '100vh' }}>
-      {/* Hero — full-bleed charcoal */}
+      {/* Hero, full-bleed charcoal */}
       <section style={{ background: '#1C2B3A', padding: '88px 48px 84px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -150, right: -120, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.13) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
@@ -113,7 +113,7 @@ export default function ServicesPage() {
             However you&apos;re hurting, there&apos;s a way through.
           </h1>
           <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, marginBottom: 36, fontWeight: 300, maxWidth: 620 }}>
-            We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Every path below pairs a real expert with the Calm+ app — mood check-ins, journaling and Calm AI — so you&apos;re supported in the session and every day in between.
+            We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Every path below pairs a real expert with the Calm+ app, mood check-ins, journaling and Calm AI, so you&apos;re supported in the session and every day in between.
           </p>
           <Link href="/assess" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -121,7 +121,7 @@ export default function ServicesPage() {
             borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
             fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.4)',
           }}>
-            ✦ Take the free assessment
+            ✦ Take the assessment
           </Link>
         </div>
       </section>

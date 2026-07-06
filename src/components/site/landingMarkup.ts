@@ -1,7 +1,5 @@
 // Faithful section markup ported from getcalmly-landing-v2.html (nav, footer,
 // therapists, enterprise & modal removed; CTAs routed to /assess).
-import { FAQ_MARKUP } from './faqData'
-
 export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="hero" id="home">
   <div class="orb orb-1"></div>
@@ -94,15 +92,15 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <!-- ── HOW IT WORKS ── -->
 <section class="how-section" id="how">
   <div class="sec-label reveal">A real journey</div>
-  <h2 class="sec-h2 reveal">This is Priya.<br><span>Her story might feel familiar.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:48px;">For two years she told everyone she was fine. One night, she finally stopped pretending. Here's what the next eight weeks looked like.</p>
+  <h2 class="sec-h2 reveal">This is Priya.<br><span>You might know the feeling.</span></h2>
+  <p class="sec-p reveal" style="margin-bottom:48px;">For two years, "I'm fine" was her reflex, not her truth. Here is what changed the night she finally stopped saying it.</p>
   <div class="how-layout">
     <div class="how-steps">
-      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">She started with one honest answer</div><div class="hs-d">11 PM, on her couch, almost didn't. Twelve gentle questions later, no login, no judgement, Priya finally had words for what she'd been carrying, and the name of someone who could help.</div></div></div>
-      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">The first session cost her nothing</div><div class="hs-d">No card, no commitment, just one real conversation to see if it fit. By the third session, she was saying things out loud she'd held quietly for two years.</div></div></div>
-      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">The same person stayed with her</div><div class="hs-d">Same therapist, every week. Dr. Ananya already knew her history and her patterns, so Priya never had to start over or explain herself to a new face again.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">Support didn't end at the session</div><div class="hs-d">Hard nights don't wait for appointments. Daily check-ins, journalling and Calm AI were there at midnight, and everything stayed in context, so nothing started from scratch.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">And slowly, she could see it working</div><div class="hs-d">By week eight her sleep had steadied and her mood was up 18 percent. Priya didn't just feel better, she could see why. That's what makes it last.</div></div></div>
+      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">The night she stopped saying "I'm fine"</div><div class="hs-d">11 PM, thumb hovering over the close button. Twelve honest questions later, no login, no judgement, Priya finally had a name for what she'd been carrying for two years, and a therapist who actually fit.</div></div></div>
+      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">The first session felt like being seen</div><div class="hs-d">Not a stranger reading a script. Dr. Ananya had already read her week before "hello". By the third session, Priya was saying things out loud she'd never told anyone.</div></div></div>
+      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">The same face, every single week</div><div class="hs-d">No re-explaining. No starting over. Her therapist and her whole history stayed with her, so every session picked up exactly where the last one ended.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">3 AM finally had someone in it</div><div class="hs-d">The hardest nights don't wait for appointments. getCalmly's AI already knew her last session, her mood dip, her journal, so it met her right there, then handed the context straight back to Dr. Ananya.</div></div></div>
+      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">She didn't just feel better. She saw why.</div><div class="hs-d">Sleep steadied. Mood climbed. And for the first time, the pattern was on a screen in front of her, not a weight she carried alone. That's what makes it last.</div></div></div>
     </div>
     <div class="how-visual reveal d1">
       <!-- Therapist match card (no portrait, monogram only) -->
@@ -161,8 +159,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="features-section" id="features">
   <div class="feat-header">
     <div>
-      <div class="sec-label reveal">What getCalmly actually does</div>
-      <h2 class="sec-h2 reveal">Not just an app.<br><span>A care system.</span></h2>
+      <div class="sec-label reveal">Why no one else can copy this</div>
+      <h2 class="sec-h2 reveal">Your therapist and your AI<br><span>share the same brain.</span></h2>
+      <p class="sec-p reveal" style="margin-top:14px;">Every other app gives you a chatbot in one corner and a therapist in another, strangers to each other. getCalmly is the world's first platform where your sessions, your mood data and your journal feed a single context, so the AI at 3 AM and the human on Thursday are working from the exact same picture of you. That loop is our moat, and it gets smarter every week you stay.</p>
     </div>
   </div>
   <div class="feat-grid">
@@ -580,5 +579,4 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
   </div>
 </section>
-${FAQ_MARKUP}
 `;

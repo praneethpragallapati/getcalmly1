@@ -24,18 +24,18 @@ const services: Record<ServiceSlug, {
     icon: '🧠',
     accent: '#C8553D',
     pale: 'rgba(200,85,61,.08)',
-    title: 'Individual Therapy',
-    tagline: 'For when things feel too heavy to carry alone.',
-    question: 'Is it just stress — or something more?',
+    title: 'Therapy That Stays With You',
+    tagline: "You've been the strong one long enough. This hour is yours.",
+    question: 'Is it just stress, or something more?',
     hero: 'You\'ve probably been holding it together for a while now. Doing fine on the outside while something heavier is happening underneath. Therapy isn\'t a sign things have gone wrong, it\'s what makes things go right.',
-    stat: { big: '1 in 7', label: 'adults in India live with a mental health condition — and most never get the support they deserve.' },
+    stat: { big: '1 in 7', label: 'adults in India live with a mental health condition, and most never get the support they deserve.' },
     recognise: [
-      '"I\'m fine," I keep saying — even when I\'m not.',
+      '"I\'m fine," I keep saying, even when I\'m not.',
       'I lie awake replaying conversations from years ago.',
       'I get through the day, but I barely feel anything.',
       'Everyone leans on me. I have no one to lean on.',
     ],
-    why: 'Our therapists are RCI-licensed clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 50 minutes, online, and completely confidential.',
+    why: 'Our therapists are licensed clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 50 minutes, online, and completely confidential.',
     items: [
       { name: 'Anxiety & Overthinking', desc: 'Racing thoughts, constant worry, the feeling that something\'s about to go wrong, we help you slow it down.' },
       { name: 'Depression', desc: 'When the flatness won\'t lift. When motivation disappears. When you feel disconnected from your own life.' },
@@ -52,17 +52,17 @@ const services: Record<ServiceSlug, {
       { q: 'What if I don\'t click with my therapist?', a: 'That happens, and that\'s okay. Just let us know and we\'ll re-match you, no awkwardness, no charges.' },
       { q: 'Is this confidential?', a: 'Completely. Nothing you share leaves the session, except in rare cases where there is a serious safety concern, which your therapist will explain at the start.' },
     ],
-    cta: 'Book a free first session',
+    cta: 'Book your first session',
   },
   couples: {
     icon: '💑',
     accent: '#7C5CBF',
     pale: 'rgba(124,92,191,.08)',
-    title: 'Couples & Relationship Counselling',
-    tagline: 'Because good relationships take work, and that\'s not a failure.',
+    title: 'Couples, Reconnected',
+    tagline: 'Before you give up on each other, give one honest hour a chance.',
     question: 'When did talking become so hard?',
     hero: 'Every relationship goes through seasons. Sometimes those seasons are hard, more arguments, more distance, more silence. Couples therapy isn\'t about deciding who\'s right. It\'s about finding a way forward, together or apart, with clarity.',
-    stat: { big: '69%', label: 'of relationship conflicts are never fully resolved — the goal was never winning. It\'s understanding.' },
+    stat: { big: '69%', label: 'of relationship conflicts are never fully resolved, the goal was never winning. It\'s understanding.' },
     recognise: [
       'We have the same fight, over and over.',
       'We\'re more like roommates than partners now.',
@@ -84,17 +84,17 @@ const services: Record<ServiceSlug, {
       { q: 'What if one of us is reluctant?', a: 'Very common. Starting with your own individual sessions first is often a good path.' },
       { q: 'Can therapy save our relationship?', a: 'It depends on what you both want. Therapy creates clarity, sometimes that means coming back together, sometimes it means separating with more understanding.' },
     ],
-    cta: 'Book a free first session',
+    cta: 'Book your first session',
   },
   child: {
     icon: '🌱',
     accent: '#3D9E72',
     pale: 'rgba(61,158,114,.08)',
-    title: 'Children & Adolescent Therapy',
-    tagline: 'They\'re not "just going through a phase."',
-    question: 'Is my child okay — or is this more than a phase?',
+    title: 'Care for Growing Minds',
+    tagline: 'You knew something was off. Trust that. So do we.',
+    question: 'Is my child okay, or is this more than a phase?',
     hero: 'You know your child. And when something feels off, whether they\'re withdrawn, anxious, acting out, or just not themselves, you\'re usually right to be concerned. Child therapy gives them a safe, judgment-free space to understand what they\'re feeling, in age-appropriate ways.',
-    stat: { big: '50%', label: 'of all mental health conditions begin by age 14 — which is exactly why early support changes everything.' },
+    stat: { big: '50%', label: 'of all mental health conditions begin by age 14, which is exactly why early support changes everything.' },
     recognise: [
       'My child just isn\'t themselves lately.',
       'The meltdowns are getting harder to reach.',
@@ -124,7 +124,7 @@ const services: Record<ServiceSlug, {
     icon: '🤱',
     accent: '#D98C5F',
     pale: 'rgba(217,140,95,.10)',
-    title: 'Motherhood & Postpartum Care',
+    title: 'Motherhood, Held',
     tagline: 'Everyone asks about the baby. We ask about you.',
     question: 'Why doesn\'t this feel the way it\'s "supposed" to?',
     hero: 'From the outside, you\'re doing everything right. Inside, you might feel anxious, numb, overwhelmed, or like a stranger to yourself. Pregnancy and the months after birth bring some of the biggest emotional shifts a person can go through, and almost nobody talks about how hard they can be. You don\'t have to pretend you\'re fine.',
@@ -157,8 +157,8 @@ const services: Record<ServiceSlug, {
     icon: '💊',
     accent: '#1A7F7A',
     pale: 'rgba(26,127,122,.08)',
-    title: 'Psychiatry',
-    tagline: 'Sometimes the brain needs medical support too.',
+    title: 'Psychiatry, Without the Stigma',
+    tagline: "You did the work and still feel stuck. That's chemistry, not failure.",
     question: 'Have you done the work, but still feel stuck?',
     hero: 'Therapy is powerful. But for some conditions, persistent depression, OCD, bipolar disorder, or severe anxiety, medication alongside therapy makes a meaningful difference. Our psychiatrists are here to evaluate, diagnose, and support you with the right medical care.',
     stat: { big: '60%', label: 'of people with depression respond significantly better to therapy and medication combined than to either alone.' },
@@ -168,7 +168,7 @@ const services: Record<ServiceSlug, {
       'I want a real diagnosis, not guesswork.',
       'I think I\'ve been managing this undiagnosed for years.',
     ],
-    why: 'All our psychiatrists are registered with the National Medical Commission (NMC). They work collaboratively with your therapist to ensure your care is joined-up, not fragmented.',
+    why: 'All our psychiatrists are licensed medical doctors. They work collaboratively with your therapist to ensure your care is joined-up, not fragmented.',
     items: [
       { name: 'Diagnosis & Evaluation', desc: 'A thorough assessment to understand what you\'re experiencing and whether a diagnosis applies, without rushing to labels.' },
       { name: 'Medication Management', desc: 'If medication is right for you, we manage it carefully: starting low, monitoring closely, and adjusting as needed.' },
@@ -189,8 +189,8 @@ const services: Record<ServiceSlug, {
     icon: '📋',
     accent: '#C9973A',
     pale: 'rgba(201,151,58,.08)',
-    title: 'Psychological Assessments',
-    tagline: 'A clearer picture changes everything.',
+    title: 'Finally, Answers',
+    tagline: 'Stop guessing why your mind works the way it does.',
     question: 'What if you could finally understand why?',
     hero: 'Sometimes you just need to understand what\'s going on. Not a diagnosis to carry around, a map. A good psychological assessment gives you and your professional a clearer starting point, so care is targeted rather than guesswork.',
     stat: { big: '7+ yrs', label: 'is the average delay before adults receive an accurate ADHD diagnosis. Clarity shouldn\'t take that long.' },
@@ -222,8 +222,8 @@ const services: Record<ServiceSlug, {
     icon: '🫶',
     accent: '#C04B8A',
     pale: 'rgba(192,75,138,.08)',
-    title: 'Specialised Support',
-    tagline: 'Life is not one-size-fits-all. Neither is care.',
+    title: 'Care Built Around You',
+    tagline: "You shouldn't have to explain your whole world before someone gets it.",
     question: 'What if you didn\'t have to explain yourself first?',
     hero: 'Some experiences need a professional who truly understands the context, not a generalist who\'s read a chapter about it. Whether you\'re navigating a chronic illness, pregnancy, gender identity, or loss, we have professionals trained specifically for your situation.',
     stat: { big: 'Zero', label: 'times you should ever have to educate your own therapist on who you are before the real work can begin.' },
@@ -263,7 +263,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return {}
   const description = s.hero.slice(0, 155)
   return {
-    title: `${s.title} in India — Online`,
+    title: `${s.title} · getCalmly`,
     description,
     alternates: { canonical: `/services/${slug}` },
     openGraph: {
@@ -286,7 +286,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
-    name: `${s.title} — getCalmly`,
+    name: `${s.title}, getCalmly`,
     description: s.hero,
     url: `${SITE_URL}/services/${slug}`,
     about: {
@@ -355,7 +355,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                   fontSize: 15, fontWeight: 700, textDecoration: 'none',
                   fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
                 }}>
-                  ✦ Take the free assessment
+                  ✦ Take the assessment
                 </Link>
                 <Link href="/assess" style={{
                   padding: '14px 26px', borderRadius: 50, background: 'transparent',
@@ -412,7 +412,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
             <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.8, fontWeight: 300, marginTop: 18 }}>
-              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between — daily mood check-ins, private journaling, and Calm AI whenever you need to talk things through, so your next session picks up right where you left off.
+              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and Calm AI whenever you need to talk things through, so your next session picks up right where you left off.
             </p>
           </div>
           <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
@@ -466,12 +466,12 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               padding: '14px 26px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
               fontFamily: "'DM Sans', sans-serif", flexShrink: 0,
             }}>
-              ✦ Take the free assessment
+              ✦ Take the assessment
             </Link>
           </div>
           <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
             {[
-              { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment — no login, no judgement. Just an honest starting point.' },
+              { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment, no login, no judgement. Just an honest starting point.' },
               { n: '02', t: 'Get matched, not assigned', d: 'We pair you with a professional who fits what you\'re going through, your language and your budget.' },
               { n: '03', t: 'Your first session is free', d: 'No card, no commitment. Just one real conversation to see if it feels right.' },
             ].map((step, i) => (
