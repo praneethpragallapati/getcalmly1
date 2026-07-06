@@ -159,9 +159,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="features-section" id="features">
   <div class="feat-header">
     <div>
-      <div class="sec-label reveal">Why no one else can copy this</div>
+      <div class="sec-label reveal">One connected system</div>
       <h2 class="sec-h2 reveal">Your therapist and your AI<br><span>share the same brain.</span></h2>
-      <p class="sec-p reveal" style="margin-top:14px;">Every other app gives you a chatbot in one corner and a therapist in another, strangers to each other. getCalmly is the world's first platform where your sessions, your mood data and your journal feed a single context, so the AI at 3 AM and the human on Thursday are working from the exact same picture of you. That loop is our moat, and it gets smarter every week you stay.</p>
+      <p class="sec-p reveal" style="margin-top:14px;">Your sessions, your mood and your journal all feed one shared context. So the AI at 3 AM and your therapist on Thursday work from the same picture of you, and it only gets sharper the longer you stay.</p>
     </div>
   </div>
   <div class="feat-grid">
