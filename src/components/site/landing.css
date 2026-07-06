@@ -701,8 +701,39 @@
 .lp-page .t3-grid .testi-card{flex:0 0 400px;}
 @keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
+/* Priya journey — auto-advancing chapter player.
+   The five steps act as chapters: every ~5.5s the next one activates and
+   the right-hand card cross-fades to match. Click a step to jump. A slim
+   coral bar fills under the active step; its animationend drives the
+   advance, so pausing the bar pauses the whole player. */
+.lp-page .how-step{cursor:pointer;opacity:.45;transition:opacity .5s ease;}
+.lp-page .how-step:hover{opacity:.8;}
+.lp-page .how-step.chap-on{opacity:1;}
+.lp-page .how-step.chap-on .hs-n{color:var(--coral);}
+.lp-page .hs-bar{height:2px;background:rgba(28,43,58,.08);border-radius:2px;margin-top:14px;overflow:hidden;}
+.lp-page .hs-bar span{display:block;height:100%;width:0;background:var(--coral);border-radius:2px;}
+.lp-page .how-step.chap-on .hs-bar span{animation:chapFill 5.5s linear forwards;}
+.lp-page .chap-paused .hs-bar span{animation-play-state:paused !important;}
+@keyframes chapFill{from{width:0}to{width:100%}}
+@media (min-width: 861px){
+  .lp-page .chap-stack{position:relative;height:480px;}
+  .lp-page .chap-card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease;pointer-events:none;}
+  .lp-page .chap-card.chap-show{opacity:1;transform:none;pointer-events:auto;}
+  .lp-page .chap-card .how-card{margin-bottom:0;}
+}
+@media (max-width: 860px){
+  .lp-page .chap-card{margin-bottom:14px;}
+  .lp-page .hs-bar{display:none;}
+  .lp-page .how-step{opacity:1;}
+}
+
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
   .lp-page .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
+  .lp-page .hs-bar{display:none !important;}
+  .lp-page .how-step{opacity:1 !important;}
+  .lp-page .chap-stack{height:auto !important;}
+  .lp-page .chap-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
 }

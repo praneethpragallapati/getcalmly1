@@ -97,14 +97,29 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <p class="sec-p reveal" style="margin-bottom:48px;">For two years, "I'm fine" was her reflex, not her truth. Here is what changed the night she finally stopped saying it.</p>
   <div class="how-layout">
     <div class="how-steps">
-      <div class="how-step reveal"><div class="hs-n">01</div><div><div class="hs-t">The night she stopped saying "I'm fine"</div><div class="hs-d">11 PM, thumb hovering over the close button. Twelve honest questions later, no login, no judgement, Priya finally had a name for what she'd been carrying for two years, and a therapist who actually fit.</div></div></div>
-      <div class="how-step reveal d1"><div class="hs-n">02</div><div><div class="hs-t">The first session felt like being seen</div><div class="hs-d">Not a stranger reading a script. Dr. Ananya had already read her week before "hello". By the third session, Priya was saying things out loud she'd never told anyone.</div></div></div>
-      <div class="how-step reveal d2"><div class="hs-n">03</div><div><div class="hs-t">The same face, every single week</div><div class="hs-d">No re-explaining. No starting over. Her therapist and her whole history stayed with her, so every session picked up exactly where the last one ended.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">04</div><div><div class="hs-t">3 AM finally had someone in it</div><div class="hs-d">The hardest nights don't wait for appointments. getCalmly's AI already knew her last session, her mood dip, her journal, so it met her right there, then handed the context straight back to Dr. Ananya.</div></div></div>
-      <div class="how-step reveal d3"><div class="hs-n">05</div><div><div class="hs-t">She didn't just feel better. She saw why.</div><div class="hs-d">Sleep steadied. Mood climbed. And for the first time, the pattern was on a screen in front of her, not a weight she carried alone. That's what makes it last.</div></div></div>
+      <div class="how-step"><div class="hs-n">01</div><div><div class="hs-t">The night she stopped saying "I'm fine"</div><div class="hs-d">11 PM, thumb hovering over the close button. Twelve honest questions later, no login, no judgement, Priya finally had a name for what she'd been carrying for two years, and a therapist who actually fit.</div><div class="hs-bar"><span></span></div></div></div>
+      <div class="how-step"><div class="hs-n">02</div><div><div class="hs-t">The first session felt like being seen</div><div class="hs-d">Not a stranger reading a script. Dr. Ananya had already read her week before "hello". By the third session, Priya was saying things out loud she'd never told anyone.</div><div class="hs-bar"><span></span></div></div></div>
+      <div class="how-step"><div class="hs-n">03</div><div><div class="hs-t">The same face, every single week</div><div class="hs-d">No re-explaining. No starting over. Her therapist and her whole history stayed with her, so every session picked up exactly where the last one ended.</div><div class="hs-bar"><span></span></div></div></div>
+      <div class="how-step"><div class="hs-n">04</div><div><div class="hs-t">3 AM finally had someone in it</div><div class="hs-d">The hardest nights don't wait for appointments. getCalmly's AI already knew her last session, her mood dip, her journal, so it met her right there, then handed the context straight back to Dr. Ananya.</div><div class="hs-bar"><span></span></div></div></div>
+      <div class="how-step"><div class="hs-n">05</div><div><div class="hs-t">She didn't just feel better. She saw why.</div><div class="hs-d">Sleep steadied. Mood climbed. And for the first time, the pattern was on a screen in front of her, not a weight she carried alone. That's what makes it last.</div><div class="hs-bar"><span></span></div></div></div>
     </div>
     <div class="how-visual reveal d1">
-      <!-- Therapist match card (no portrait, monogram only) -->
+      <div class="chap-stack">
+      <!-- 01 · Assessment -->
+      <div class="chap-card">
+      <div class="how-card">
+        <div class="hc-badge">Assessment · just now</div>
+        <div class="hc-title">Twelve gentle questions. No login.</div>
+        <div class="hc-sub">A name for what she'd been carrying, and a match who could actually help.</div>
+        <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(200,85,61,.15);color:var(--coral-l);font-weight:700;">Anxiety</span>
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-weight:600;">Work stress</span>
+          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-weight:600;">Sleep</span>
+        </div>
+      </div>
+      </div>
+      <!-- 02 · Therapist match card (no portrait, monogram only) -->
+      <div class="chap-card">
       <div class="how-card" style="padding:0;overflow:hidden;background:transparent;border:none;box-shadow:none;">
         <div class="therapist-match-card">
           <div class="tmc-label">✦ Your match · Based on your assessment</div>
@@ -131,7 +146,17 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           </div>
         </div>
       </div>
-      <!-- Journal entry card -->
+      </div>
+      <!-- 03 · Weekly continuity -->
+      <div class="chap-card">
+      <div class="how-card">
+        <div class="hc-badge">Your therapist · every week</div>
+        <div class="hc-title">Never starting over.</div>
+        <div class="hc-sub">Same face, every session. Your history and your patterns already in the room before you say hello, so each conversation picks up exactly where the last one ended.</div>
+      </div>
+      </div>
+      <!-- 04 · Journal entry card -->
+      <div class="chap-card">
       <div class="how-card">
         <div class="hc-badge">Priya's journal · Thursday, 8:42 PM</div>
         <div class="hc-title">Today was hard but I didn't spiral. That's new.</div>
@@ -141,7 +166,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-weight:600;">Shared with Dr. Ananya</span>
         </div>
       </div>
-      <!-- Week 8 result card -->
+      </div>
+      <!-- 05 · Week 8 result card -->
+      <div class="chap-card">
       <div class="how-card">
         <div class="hc-badge">Week 8 · Priya's progress</div>
         <div class="hc-title">Sleep: 3 nights at 7+ hours. Mood up 18%.</div>
@@ -151,6 +178,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div class="hc-m"><span class="hc-mn" style="color:var(--coral-l);">7.5h</span><span class="hc-ml">Avg sleep</span></div>
           <div class="hc-m"><span class="hc-mn" style="color:#B8B4D4;">21</span><span class="hc-ml">Journals</span></div>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   </div>
