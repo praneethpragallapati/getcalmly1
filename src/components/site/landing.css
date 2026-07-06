@@ -701,18 +701,15 @@
 .lp-page .t3-grid .testi-card{flex:0 0 400px;}
 @keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* Priya journey — drawing timeline. A thin vertical line beside 01→05
-   draws itself downward as you scroll past (damped, scroll-linked); each
-   step lights up as the line reaches it and the right card follows. */
-.lp-page .how-steps{position:relative;padding-left:32px;}
-.lp-page .tl-track{position:absolute;left:7px;top:24px;bottom:24px;width:2px;
-  background:rgba(28,43,58,.08);border-radius:2px;}
-.lp-page .tl-fill{position:absolute;left:0;top:0;width:100%;height:0;
-  background:linear-gradient(to bottom,var(--coral),var(--coral-l));border-radius:2px;}
-.lp-page .how-step{opacity:.4;transition:opacity .6s ease;}
-.lp-page .how-step.tl-on{opacity:1;}
-.lp-page .how-step.tl-on .hs-n{color:var(--coral);}
-.lp-page .hs-bar{display:none;}
+/* Priya journey — hover/click sync. The section is still; pointing at a
+   step brightens it and cross-fades the right-hand card to match. */
+.lp-page .how-step{cursor:pointer;opacity:.5;transition:opacity .45s ease;}
+.lp-page .how-step.chap-on{opacity:1;}
+.lp-page .how-step.chap-on .hs-n{color:var(--coral);}
+.lp-page .hs-bar{height:2px;background:rgba(28,43,58,.08);border-radius:2px;margin-top:14px;overflow:hidden;}
+.lp-page .hs-bar span{display:block;height:100%;width:0;background:var(--coral);border-radius:2px;
+  transition:width .5s ease;}
+.lp-page .how-step.chap-on .hs-bar span{width:100%;}
 @media (min-width: 861px){
   .lp-page .chap-stack{position:relative;height:480px;}
   .lp-page .chap-card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
@@ -724,8 +721,6 @@
   .lp-page .chap-card{margin-bottom:14px;}
   .lp-page .hs-bar{display:none;}
   .lp-page .how-step{opacity:1;}
-  .lp-page .how-steps{padding-left:0;}
-  .lp-page .tl-track{display:none;}
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -734,8 +729,6 @@
   .lp-page .hero-h1 .rl > span{transform:none !important;}
   .lp-page .hs-bar{display:none !important;}
   .lp-page .how-step{opacity:1 !important;}
-  .lp-page .tl-track{display:none !important;}
-  .lp-page .how-steps{padding-left:0 !important;}
   .lp-page .chap-stack{height:auto !important;}
   .lp-page .chap-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
 }
