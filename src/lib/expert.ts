@@ -906,3 +906,83 @@ export async function addSupervisionNote(
   })
   return true
 }
+
+// ── Supervisor access (assignments are managed by admins) ───────────────────
+
+/** If `supervisorId` supervises a therapist who owns `patientId`, return that supervisee's profile id. */
+export async function superviseeOwningPatient(supervisorId: string, patientId: string): Promise<string | null> {
+  const links = await prisma.supervisionLink.findMany({ where: { supervisorId }, select: { superviseeId: true } })
+  for (const l of links) {
+    if (await ownsPatient(l.superviseeId, patientId)) return l.superviseeId
+  }
+  return null
+}
+
+export type SuperviseeCaseload = { superviseeId: string; superviseeName: string; patients: CaseloadPatient[] }
+
+/** Full caseloads of everyone this therapist supervises — supervisors can see all assignee patient info. */
+export async function getSuperviseeCaseloads(supervisorId: string): Promise<SuperviseeCaseload[]> {
+  const links = await prisma.supervisionLink.findMany({
+    where: { supervisorId },
+    include: { supervisee: { include: { user: { select: { name: true } } } } },
+    orderBy: { createdAt: 'asc' },
+  })
+  return Promise.all(
+    links.map(async (l) => ({
+      superviseeId: l.superviseeId,
+      superviseeName: l.supervisee.user?.name ?? 'Therapist',
+      patients: await getCaseload(l.superviseeId),
+    })),
+  )
+}
+
+// ── Admin-managed supervision assignments ────────────────────────────────────
+// Only admins may assign/de-assign a doctor to a supervising doctor; the
+// expert portal just reads the resulting links. Callers MUST gate on ADMIN.
+
+export type AdminTherapistOption = { profileId: string; name: string; email: string }
+export type AdminSupervisionLink = { id: string; supervisorName: string; superviseeName: string; createdAt: Date }
+
+export async function adminListTherapists(): Promise<AdminTherapistOption[]> {
+  const rows = await prisma.therapistProfile.findMany({
+    include: { user: { select: { name: true, email: true } } },
+  })
+  return rows
+    .map((r) => ({ profileId: r.id, name: r.user?.name ?? 'Therapist', email: r.user?.email ?? '' }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function adminListSupervisionLinks(): Promise<AdminSupervisionLink[]> {
+  const links = await prisma.supervisionLink.findMany({
+    include: {
+      supervisor: { include: { user: { select: { name: true } } } },
+      supervisee: { include: { user: { select: { name: true } } } },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+  return links.map((l) => ({
+    id: l.id,
+    supervisorName: l.supervisor.user?.name ?? 'Therapist',
+    superviseeName: l.supervisee.user?.name ?? 'Therapist',
+    createdAt: l.createdAt,
+  }))
+}
+
+export async function adminAssignSupervision(
+  supervisorProfileId: string,
+  superviseeProfileId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supervisorProfileId || !superviseeProfileId) return { ok: false, error: 'Pick both doctors.' }
+  if (supervisorProfileId === superviseeProfileId)
+    return { ok: false, error: 'A doctor cannot supervise themselves.' }
+  await prisma.supervisionLink.upsert({
+    where: { supervisorId_superviseeId: { supervisorId: supervisorProfileId, superviseeId: superviseeProfileId } },
+    update: {},
+    create: { supervisorId: supervisorProfileId, superviseeId: superviseeProfileId },
+  })
+  return { ok: true }
+}
+
+export async function adminRemoveSupervision(linkId: string): Promise<void> {
+  await prisma.supervisionLink.delete({ where: { id: linkId } }).catch(() => undefined)
+}

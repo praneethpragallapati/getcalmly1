@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound } from 'lucide-react'
 import '../app.css'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 
@@ -27,8 +27,12 @@ export default async function ExpertLayout({ children }: { children: React.React
         <div className="sb-section">CASELOAD</div>
         <nav className="sb-nav">
           <Link href="/expert" className="sb-link">
+            <Home size={18} />
+            <span>Dashboard</span>
+          </Link>
+          <Link href="/expert/patients" className="sb-link">
             <Users size={18} />
-            <span>Patients</span>
+            <span>My Patients</span>
           </Link>
           <Link href="/expert/schedule" className="sb-link">
             <CalendarClock size={18} />
@@ -57,8 +61,20 @@ export default async function ExpertLayout({ children }: { children: React.React
       <div className="app-main">
         <header className="app-topbar">
           <div>
-            <div className="tb-date">Expert portal</div>
-            <div className="tb-greeting">Your caseload</div>
+            <div className="tb-date">
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            <div className="tb-greeting">
+              {(() => {
+                const h = new Date().getHours()
+                const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
+                return (
+                  <>
+                    {g}, <span>{ctx.therapistName ?? 'Doctor'}</span>
+                  </>
+                )
+              })()}
+            </div>
           </div>
         </header>
         <main className="app-content">{children}</main>

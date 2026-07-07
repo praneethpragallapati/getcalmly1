@@ -1,7 +1,10 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { UserPlus, MessageSquare } from 'lucide-react'
-import { getTherapistContext, getSupervision, type SupervisionRelationship } from '@/lib/expert'
-import { linkSupervisee, postSupervisionNote } from '../actions'
+import {
+  getTherapistContext, getSupervision, getSuperviseeCaseloads, type SupervisionRelationship,
+} from '@/lib/expert'
+import { postSupervisionNote } from '../actions'
 
 function RelationshipCard({ rel, canAddNote }: { rel: SupervisionRelationship; canAddNote: boolean }) {
   return (
@@ -46,38 +49,54 @@ export default async function SupervisionPage() {
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
 
-  const { supervising, supervisedBy } = await getSupervision(ctx.therapistProfileId)
+  const [{ supervising, supervisedBy }, superviseeCaseloads] = await Promise.all([
+    getSupervision(ctx.therapistProfileId),
+    getSuperviseeCaseloads(ctx.therapistProfileId),
+  ])
 
   return (
     <div className="stack">
       <div className="page-head">
         <div className="page-title">Supervision</div>
         <div className="page-meta">
-          Supervising {supervising.length} · supervised by {supervisedBy.length}
+          Supervising {supervising.length} · supervised by {supervisedBy.length} · assignments managed by getCalmly admins
         </div>
-      </div>
-
-      {/* Add a supervisee */}
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 4 }}>Add an associate to supervise</div>
-        <p className="muted" style={{ marginBottom: 12 }}>
-          Enter the registered email of a therapist on getCalmly. You&apos;ll be able to share case notes and
-          support them between sessions.
-        </p>
-        <form action={linkSupervisee} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input className="entry-input" type="email" name="email" placeholder="associate@example.com" required style={{ maxWidth: 280 }} />
-          <button type="submit" className="btn btn-primary btn-sm">
-            <UserPlus size={14} /> Add associate
-          </button>
-        </form>
       </div>
 
       <div>
         <div className="section-title" style={{ margin: '4px 0 12px' }}>People you supervise</div>
         {supervising.length === 0 && (
-          <div className="card"><p className="muted">You aren&apos;t supervising anyone yet.</p></div>
+          <div className="card">
+            <p className="muted">
+              You aren&apos;t supervising anyone yet. Supervision assignments are made by getCalmly admins —
+              contact the clinical team to be set up as a supervisor.
+            </p>
+          </div>
         )}
         <div className="stack">
+          {superviseeCaseloads.map((sc) => (
+            <div key={sc.superviseeId} className="card">
+              <div className="section-title" style={{ marginBottom: 4 }}>{sc.superviseeName}&apos;s caseload</div>
+              <p className="muted" style={{ marginBottom: 10 }}>
+                As their supervisor you have full visibility of these patients.
+              </p>
+              {sc.patients.length === 0 && <p className="muted">No patients yet.</p>}
+              {sc.patients.map((p) => (
+                <Link key={p.patientId} href={`/expert/patients/${p.patientId}`} className="pattern" style={{ textDecoration: 'none' }}>
+                  <span className={`pattern-ic ${p.moodTrend === 'declining' ? 't-coral' : p.moodTrend === 'improving' ? 't-green' : 't-purple'}`}>
+                    <UserPlus size={16} />
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <div className="pattern-title">{p.name}</div>
+                    <div className="pattern-sub">
+                      {p.trackLabel} · Mood {p.moodTrend} · Sessions {p.sessionsDone}/{p.sessionsTotal}
+                      {p.openCrisisCount > 0 ? ` · ⚠ ${p.openCrisisCount} open alert(s)` : ''}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ))}
           {supervising.map((rel) => (
             <RelationshipCard key={rel.linkId} rel={rel} canAddNote />
           ))}

@@ -27,3 +27,28 @@ export async function saveEarningsConfig(values: EarningsConfigValues): Promise<
     return { ok: false, error: 'Could not save the configuration.' }
   }
 }
+
+// ── Supervision assignments (admin-only) ────────────────────────────────────
+// Only admins may assign or de-assign a doctor to a supervising doctor.
+
+export async function assignSupervisionAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  if (!admin) return
+  const supervisorId = String(formData.get('supervisorId') ?? '')
+  const superviseeId = String(formData.get('superviseeId') ?? '')
+  const { adminAssignSupervision } = await import('@/lib/expert')
+  await adminAssignSupervision(supervisorId, superviseeId)
+  revalidatePath('/admin/supervision')
+  revalidatePath('/expert/supervision')
+}
+
+export async function removeSupervisionAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  if (!admin) return
+  const linkId = String(formData.get('linkId') ?? '')
+  if (!linkId) return
+  const { adminRemoveSupervision } = await import('@/lib/expert')
+  await adminRemoveSupervision(linkId)
+  revalidatePath('/admin/supervision')
+  revalidatePath('/expert/supervision')
+}

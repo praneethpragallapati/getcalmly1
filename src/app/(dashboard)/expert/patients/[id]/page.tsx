@@ -1,6 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
 import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText, Send } from 'lucide-react'
-import { getTherapistContext, getExpertPatientProfile, generatePreSessionBrief } from '@/lib/expert'
+import {
+  getTherapistContext, getExpertPatientProfile, generatePreSessionBrief, superviseeOwningPatient,
+} from '@/lib/expert'
 import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
 import { getWeeklyProgress } from '@/lib/dashboard'
 import { assignTask, toggleMedication, sendFormToPatient } from '../../actions'
@@ -26,14 +28,28 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
 
-  const p = await getExpertPatientProfile(ctx.therapistProfileId, id)
+  // Owner first; otherwise a supervisor of the owning therapist gets full
+  // read-only visibility of the patient (assignments are admin-managed).
+  let effectiveTherapistId = ctx.therapistProfileId
+  let supervisorView = false
+  let p = await getExpertPatientProfile(ctx.therapistProfileId, id)
+  if (!p) {
+    const superviseeId = await superviseeOwningPatient(ctx.therapistProfileId, id)
+    if (superviseeId) {
+      p = await getExpertPatientProfile(superviseeId, id)
+      if (p) {
+        effectiveTherapistId = superviseeId
+        supervisorView = true
+      }
+    }
+  }
   if (!p) notFound()
 
   const [weekly, brief, formLibrary, sentForms] = await Promise.all([
     getWeeklyProgress(id),
-    generatePreSessionBrief(ctx.therapistProfileId, id),
+    generatePreSessionBrief(effectiveTherapistId, id),
     getFormLibrary(),
-    getPatientFormsForExpert(ctx.therapistProfileId, id),
+    getPatientFormsForExpert(effectiveTherapistId, id),
   ])
 
   // Sessions a note can be written/edited for: past ones (plus any already noted).
@@ -47,6 +63,23 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           <div className="page-meta">{p.trackLabel}{p.diagnosis ? ` · ${p.diagnosis}` : ''}{p.therapyStatus ? ` · ${p.therapyStatus}` : ''}</div>
         </div>
       </div>
+
+      {supervisorView && (
+        <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
+          <div className="pattern" style={{ padding: 0 }}>
+            <span className="pattern-ic t-purple">
+              <Sparkles size={16} />
+            </span>
+            <div>
+              <div className="pattern-title">Supervisor view · read-only</div>
+              <div className="pattern-sub">
+                You&apos;re viewing this patient as their therapist&apos;s supervisor. Notes, tasks, forms and
+                medication remain with the treating therapist.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {brief && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
@@ -139,7 +172,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      {ctx.isPsychiatrist && (
+      {ctx.isPsychiatrist && !supervisorView && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Pill size={16} /> Medication management
@@ -220,6 +253,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           </div>
         ))}
 
+        {!supervisorView && (
         <form action={sendFormToPatient} className="stack" style={{ gap: 10, marginTop: 14 }}>
           <input type="hidden" name="patientId" value={p.patientId} />
           <div className="grid-2" style={{ gap: 10 }}>
@@ -238,6 +272,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             </button>
           </div>
         </form>
+        )}
       </div>
 
       <div className="card">
@@ -271,6 +306,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           ))}
         </div>
 
+        {!supervisorView && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
           <form action={assignTask} className="stack" style={{ gap: 10 }}>
@@ -291,6 +327,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             <button type="submit" className="btn btn-primary btn-sm">Assign task</button>
           </form>
         </div>
+        )}
       </div>
 
       <div className="card">
@@ -309,6 +346,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                 {s.dateLabel} <span className="muted" style={{ fontWeight: 400 }}>· {s.status}</span>
               </div>
               {s.summary && <div className="pattern-sub" style={{ marginBottom: 8 }}>{s.summary}</div>}
+              {!supervisorView && (
               <div style={{ maxWidth: 520, marginTop: 6 }}>
                 <SessionNoteForm
                   appointmentId={s.id}
@@ -317,6 +355,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                   submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
                 />
               </div>
+              )}
             </div>
           </div>
         ))}

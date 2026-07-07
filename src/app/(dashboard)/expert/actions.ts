@@ -14,7 +14,6 @@ import {
   setAllDaysAvailability,
   addAvailabilityException,
   removeAvailabilityException,
-  addSupervisee,
   addSupervisionNote,
   prescribeMedication,
   setMedicationActive,
@@ -172,15 +171,6 @@ export async function unblockDate(formData: FormData): Promise<void> {
 }
 
 // ── Supervision ───────────────────────────────────────────────────────────────
-
-export async function linkSupervisee(formData: FormData): Promise<void> {
-  const ctx = await getTherapistContext()
-  if (!ctx) return
-  const email = String(formData.get('email') ?? '')
-  if (!email) return
-  await addSupervisee(ctx.therapistProfileId, email)
-  revalidatePath('/expert/supervision')
-}
 
 export async function postSupervisionNote(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
