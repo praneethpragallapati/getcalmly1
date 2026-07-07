@@ -1,21 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLocalStorageFlag } from '@/lib/useLocalStorageFlag'
 
 export default function ConsentBanner() {
-  const [visible, setVisible] = useState(false)
+  const [decided, setConsent] = useLocalStorageFlag('cookieConsent')
 
-  useEffect(() => {
-    const consent = localStorage.getItem('cookieConsent')
-    if (!consent) setVisible(true)
-  }, [])
+  if (decided) return null
 
-  if (!visible) return null
-
-  const dismiss = (choice: string) => {
-    localStorage.setItem('cookieConsent', choice)
-    setVisible(false)
-  }
+  const dismiss = (choice: string) => setConsent(choice)
 
   return (
     <div

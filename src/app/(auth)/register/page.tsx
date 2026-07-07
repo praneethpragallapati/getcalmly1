@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
@@ -33,7 +34,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [step, setStep] = useState(1)
   const [careFor, setCareFor] = useState<CareFor>('self')
   const [contactMethod, setContactMethod] = useState<'phone' | 'email'>('phone')
@@ -43,12 +44,8 @@ export default function RegisterPage() {
   const [consents, setConsents] = useState({ retention: false, ai: false, liability: false, terms: false })
   const [done, setDone] = useState(false)
   // Care type chosen on the pricing page (therapy / psychiatry / app / free).
-  const [careType, setCareType] = useState<string | null>(null)
-
-  useEffect(() => {
-    const c = new URLSearchParams(window.location.search).get('care')
-    if (c && CARE_LABELS[c]) setCareType(c)
-  }, [])
+  const c = useSearchParams().get('care')
+  const careType = c && CARE_LABELS[c] ? c : null
 
   // The partner/child step only exists for couple/child care.
   const hasExtraStep = careFor !== 'self'
@@ -403,6 +400,14 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
     }}>
       <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.2)' }} />
     </button>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   )
 }
 

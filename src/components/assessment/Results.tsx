@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { therapists } from '@/data/therapists'
 
@@ -40,13 +40,17 @@ const severityConfig = {
   },
 }
 
-export default function Results() {
-  const [result, setResult] = useState<Result | null>(null)
+// The stored result never changes while this page is mounted, so no
+// subscription is needed — only a hydration-safe read of sessionStorage.
+const noSubscription = () => () => {}
 
-  useEffect(() => {
-    const raw = sessionStorage.getItem('assess_result')
-    if (raw) setResult(JSON.parse(raw))
-  }, [])
+export default function Results() {
+  const raw = useSyncExternalStore(
+    noSubscription,
+    () => sessionStorage.getItem('assess_result'),
+    () => null,
+  )
+  const result = useMemo<Result | null>(() => (raw ? JSON.parse(raw) : null), [raw])
 
   if (!result) {
     return (

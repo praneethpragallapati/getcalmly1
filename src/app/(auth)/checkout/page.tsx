@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
@@ -78,15 +79,11 @@ const plans: Record<PlanKey, {
   },
 }
 
-export default function CheckoutPage() {
-  const [care, setCare] = useState<PlanKey>('therapy')
+function CheckoutContent() {
+  const c = useSearchParams().get('care')
+  const care: PlanKey = c === 'therapy' || c === 'psychiatry' || c === 'app' ? c : 'therapy'
   const [method, setMethod] = useState<'upi' | 'card'>('upi')
   const [paid, setPaid] = useState(false)
-
-  useEffect(() => {
-    const c = new URLSearchParams(window.location.search).get('care')
-    if (c === 'therapy' || c === 'psychiatry' || c === 'app') setCare(c)
-  }, [])
 
   const plan = plans[care]
 
@@ -166,6 +163,14 @@ export default function CheckoutPage() {
         Changed your mind? <Link href="/pricing" style={{ color: plan.accent, fontWeight: 600, textDecoration: 'none' }}>Back to plans</Link>
       </p>
     </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={null}>
+      <CheckoutContent />
+    </Suspense>
   )
 }
 

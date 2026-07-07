@@ -1,20 +1,12 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useLocalStorageFlag } from '@/lib/useLocalStorageFlag'
 
 export default function CrisisBanner() {
-  const [visible, setVisible] = useState(false)
+  const [dismissed, setDismissed] = useLocalStorageFlag('crisisBannerDismissed')
 
-  useEffect(() => {
-    const dismissed = localStorage.getItem('crisisBannerDismissed')
-    if (!dismissed) setVisible(true)
-  }, [])
+  const dismiss = () => setDismissed('1')
 
-  const dismiss = () => {
-    localStorage.setItem('crisisBannerDismissed', '1')
-    setVisible(false)
-  }
-
-  if (!visible) return null
+  if (dismissed) return null
 
   return (
     <div className="bg-red-50 border-b border-red-200 py-2 px-4 text-center text-sm text-red-800 relative">
