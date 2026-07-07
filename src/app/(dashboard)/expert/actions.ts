@@ -9,7 +9,6 @@ import {
   setAppointmentStatus,
   rescheduleAppointment,
   writeSessionSummary,
-  draftSessionNote,
   setDayAvailability,
   setAllDaysAvailability,
   addAvailabilityException,
@@ -19,6 +18,7 @@ import {
   setMedicationActive,
 } from '@/lib/expert'
 import { sendForm } from '@/lib/forms'
+import { normalizeFrequency } from '@/lib/taskRecurrence'
 
 export async function resolveAlert(formData: FormData): Promise<void> {
   const alertId = String(formData.get('alertId') ?? '')
@@ -27,6 +27,9 @@ export async function resolveAlert(formData: FormData): Promise<void> {
   if (!ctx) return
   await resolveCrisisAlert(ctx.therapistProfileId, alertId)
   revalidatePath('/expert/risk')
+  revalidatePath('/expert')
+  const patientId = String(formData.get('patientId') ?? '')
+  if (patientId) revalidatePath(`/expert/patients/${patientId}`)
 }
 
 const TASK_TYPES = ['EXERCISE', 'VIDEO', 'READING', 'REFLECTION', 'BREATHING'] as const
@@ -54,6 +57,7 @@ export async function assignTask(formData: FormData): Promise<void> {
   const description = String(formData.get('description') ?? '').trim()
   const dueRaw = String(formData.get('dueDate') ?? '').trim()
   const dueDate = dueRaw ? new Date(dueRaw) : null
+  const frequency = normalizeFrequency(String(formData.get('frequency') ?? ''))
 
   await prisma.task.create({
     data: {
@@ -61,6 +65,7 @@ export async function assignTask(formData: FormData): Promise<void> {
       type,
       title,
       description: description || null,
+      frequency: frequency === 'ONE_TIME' ? null : frequency,
       dueDate: dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate : null,
       assignedBy: ctx.therapistName ?? null,
     },
@@ -114,17 +119,6 @@ export async function completeSession(formData: FormData): Promise<void> {
   if (patientId) revalidatePath(`/expert/patients/${patientId}`)
 }
 
-/**
- * AI co-pilot note drafting (#1 in the spec: "auto-drafted session notes,
- * reviewed by expert"). Called directly from a client component — not a form
- * action — so the draft can be previewed and edited before the therapist saves
- * anything. Returns null (caller shows a message) when no LLM is configured.
- */
-export async function getNoteDraft(bullets: string): Promise<string | null> {
-  const ctx = await getTherapistContext()
-  if (!ctx) return null
-  return draftSessionNote(bullets)
-}
 
 // ── Availability ──────────────────────────────────────────────────────────────
 
@@ -151,13 +145,21 @@ export async function saveAvailability(formData: FormData): Promise<void> {
   revalidatePath('/expert/availability')
 }
 
-/** Block a specific date (whole day) — a date-specific unavailability override. */
+/** Block a specific date — the whole day, or just the selected hours. */
 export async function blockDate(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return
   const dateRaw = String(formData.get('date') ?? '')
   if (!dateRaw) return
-  await addAvailabilityException(ctx.therapistProfileId, new Date(dateRaw), { fullDayOff: true })
+  const hoursOff = formData
+    .getAll('hoursOff')
+    .map((h) => Number(h))
+    .filter((h) => Number.isInteger(h) && h >= 0 && h <= 23)
+  await addAvailabilityException(
+    ctx.therapistProfileId,
+    new Date(dateRaw),
+    hoursOff.length ? { fullDayOff: false, hoursOff } : { fullDayOff: true },
+  )
   revalidatePath('/expert/availability')
 }
 

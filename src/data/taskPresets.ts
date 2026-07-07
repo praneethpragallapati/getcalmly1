@@ -1,0 +1,67 @@
+// Curated task library for therapists: 10 ready-made tasks per type, so a
+// task can be assigned in two clicks. "Custom…" in the UI keeps free text.
+
+export type TaskTypeKey = 'EXERCISE' | 'VIDEO' | 'READING' | 'REFLECTION' | 'BREATHING'
+
+export const TASK_PRESETS: Record<TaskTypeKey, string[]> = {
+  EXERCISE: [
+    '10-minute morning walk outdoors',
+    'Progressive muscle relaxation before bed',
+    '5-minute grounding: 5-4-3-2-1 senses',
+    'Gentle 15-minute yoga stretch',
+    'Take the stairs instead of the lift today',
+    '20 jumping jacks when anxiety spikes',
+    'Evening wind-down stretch routine',
+    'Dance to one song you love',
+    '10 slow shoulder rolls at your desk',
+    '15-minute walk after dinner, no phone',
+  ],
+  VIDEO: [
+    'Watch: Understanding the anxiety cycle (10 min)',
+    'Watch: What is cognitive restructuring?',
+    'Watch: Sleep hygiene basics',
+    'Watch: Box breathing demonstration',
+    'Watch: Recognising burnout early',
+    'Watch: Self-compassion — Dr. Kristin Neff intro',
+    'Watch: How mood and food connect',
+    'Watch: Guided body-scan meditation (15 min)',
+    'Watch: Setting boundaries without guilt',
+    'Watch: The science of habit formation',
+  ],
+  READING: [
+    'Read: The thought-record worksheet guide',
+    'Read: Common cognitive distortions cheat-sheet',
+    'Read: Why avoidance keeps anxiety alive',
+    'Read: Sleep and mood — one pager',
+    'Read: Assertive communication basics',
+    'Read: Grounding techniques handout',
+    'Read: The window of tolerance explained',
+    'Read: Self-criticism vs. self-correction',
+    'Read: Relapse-prevention plan template',
+    'Read: How to support your own recovery between sessions',
+  ],
+  REFLECTION: [
+    'Journal: three things that went okay today',
+    'Thought record: one anxious thought, evidence for/against',
+    'Write a letter to yourself from a kind friend',
+    'Note one boundary you kept (or wish you had) today',
+    'List three values that matter to you and why',
+    'Describe one moment you felt calm this week',
+    'Write down the worry, then the most likely outcome',
+    'Gratitude note: one person, one place, one thing',
+    "Reflect: what would you tell a friend feeling what you're feeling?",
+    'End-of-day check: energy, mood, one word for today',
+  ],
+  BREATHING: [
+    '4-7-8 breathing, three rounds before sleep',
+    'Box breathing (4-4-4-4) for 3 minutes',
+    'One minute of slow exhale breathing when stressed',
+    'Morning: five deep belly breaths before your phone',
+    'Physiological sigh: double inhale, long exhale × 5',
+    'Alternate-nostril breathing, 3 minutes',
+    'Count 10 slow breaths during your commute',
+    'Pair 5 deep breaths with your tea or coffee',
+    '3-minute breathing space (mindfulness pause)',
+    'Exhale-focused breathing during the Sunday wind-down',
+  ],
+}

@@ -16,6 +16,7 @@ export type DashTask = {
   title: string
   detail?: string
   done: boolean
+  frequencyLabel?: string // "Daily" / "Weekly" … for recurring tasks
   assignedBy?: string
   dueLabel?: string // human-readable expiry, when set
   expired?: boolean // past its dueDate and not done

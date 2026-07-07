@@ -100,13 +100,31 @@ export default async function AvailabilityPage() {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Time off</div>
         <p className="muted" style={{ marginBottom: 12 }}>
-          Block a specific date (holiday, leave) without changing your weekly pattern.
+          Block a specific date (holiday, leave) without changing your weekly pattern. Tick specific hours
+          to block only part of the day — leave them all unticked to block the whole day.
         </p>
-        <form action={blockDate} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 14 }}>
-          <input className="entry-input" type="date" name="date" required style={{ maxWidth: 200 }} />
-          <button type="submit" className="btn btn-primary btn-sm">
-            <CalendarOff size={14} /> Block this day
-          </button>
+        <form action={blockDate} className="stack" style={{ gap: 12, marginBottom: 14 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input className="entry-input" type="date" name="date" required style={{ maxWidth: 200 }} />
+            <button type="submit" className="btn btn-primary btn-sm">
+              <CalendarOff size={14} /> Block
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+            {SLOT_GROUP_KEYS.map((key) => (
+              <div key={key} style={{ minWidth: 150 }}>
+                <div className="eyebrow" style={{ marginBottom: 6 }}>{SLOT_GROUPS[key].label}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {SLOT_GROUPS[key].hours.map((h) => (
+                    <label key={h} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, cursor: 'pointer' }}>
+                      <input type="checkbox" name="hoursOff" value={h} />
+                      {hourLabel(h)}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </form>
 
         {exceptions.length === 0 && <p className="muted">No upcoming days blocked.</p>}

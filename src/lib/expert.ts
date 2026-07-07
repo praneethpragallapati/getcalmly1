@@ -12,6 +12,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { frequencyChip, isDoneForPeriod } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
 import { callModel } from '@/lib/ai/clients'
 import { SYNTH_MODEL } from '@/lib/ai/models'
@@ -64,7 +65,7 @@ export type ExpertPatientProfile = {
   sessionsTotal: number
   sessionsRemaining: number
   taskCompletionPct: number
-  tasks: { id: string; title: string; type: string; dueLabel?: string; done: boolean; expired: boolean }[]
+  tasks: { id: string; title: string; type: string; frequencyLabel?: string; dueLabel?: string; done: boolean; expired: boolean }[]
   medicationCompliancePct: number
   medications: {
     id: string
@@ -274,8 +275,9 @@ export async function getExpertPatientProfile(
         id: t.id,
         title: t.title,
         type: t.type,
+        frequencyLabel: frequencyChip(t.frequency),
         dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
-        done: Boolean(t.completedAt),
+        done: isDoneForPeriod(t.completedAt, t.frequency),
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       })),
     medicationCompliancePct,
@@ -540,7 +542,7 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
   const [rows, config] = await Promise.all([
     prisma.appointment.findMany({
       where: { therapistId: therapistProfileId, status: { in: ['COMPLETED', 'CONFIRMED'] } },
-      select: { patientId: true, status: true, scheduledAt: true },
+      select: { patientId: true, status: true, scheduledAt: true, summary: true },
     }),
     getEarningsConfig(),
   ])
@@ -548,10 +550,12 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
   // Per-patient session ordinal is computed over that patient's completed
   // sessions in chronological order, so the 2nd / 3rd-onwards bonuses reflect
   // continuity with each patient.
+  // A session only counts (and pays) once its clinical note is written:
+  // completed-without-note stays in the pending bucket until the note lands.
   const completed = rows
-    .filter((r) => r.status === 'COMPLETED')
+    .filter((r) => r.status === 'COMPLETED' && r.summary)
     .sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())
-  const pendingRows = rows.filter((r) => r.status === 'CONFIRMED')
+  const pendingRows = rows.filter((r) => r.status === 'CONFIRMED' || (r.status === 'COMPLETED' && !r.summary))
 
   const now = new Date()
   const monthKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}`
@@ -985,4 +989,18 @@ export async function adminAssignSupervision(
 
 export async function adminRemoveSupervision(linkId: string): Promise<void> {
   await prisma.supervisionLink.delete({ where: { id: linkId } }).catch(() => undefined)
+}
+
+// ── Patient's weekly AI brief, reused on the expert side ────────────────────
+// The expert "co-pilot brief" is the SAME weekly insight the patient sees on
+// their dashboard, so both sides work from one narrative.
+export async function getPatientWeeklyInsight(
+  patientId: string,
+): Promise<{ title: string; body: string } | null> {
+  const row = await prisma.aiInsight.findFirst({
+    where: { userId: patientId, kind: 'WEEKLY' },
+    orderBy: { createdAt: 'desc' },
+    select: { title: true, body: true },
+  })
+  return row ? { title: row.title, body: row.body } : null
 }

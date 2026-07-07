@@ -42,8 +42,8 @@ function buildTasks(
     tasks.push({
       key: `risk-${r.id}`,
       label: `Review ${r.kind === 'crisis' ? 'crisis alert' : 'mood decline'} · ${r.patientName}`,
-      sub: 'Open risk notifications to resolve',
-      href: '/expert/risk',
+      sub: "Opens the patient's profile — resolve it there",
+      href: `/expert/patients/${r.patientId}`,
       urgent: true,
     }),
   )
@@ -241,7 +241,7 @@ export default async function ExpertHomePage() {
         {risk.length === 0 && <p className="muted" style={{ marginTop: 12 }}>No open alerts.</p>}
         <div style={{ marginTop: 8 }}>
           {risk.slice(0, 3).map((r) => (
-            <Link key={r.id} href="/expert/risk" style={{ display: 'block', padding: '13px 15px', marginTop: 8, borderRadius: 12, background: 'rgba(192,80,75,.06)', border: '1px solid rgba(192,80,75,.18)', textDecoration: 'none' }}>
+            <Link key={r.id} href={`/expert/patients/${r.patientId}`} style={{ display: 'block', padding: '13px 15px', marginTop: 8, borderRadius: 12, background: 'rgba(192,80,75,.06)', border: '1px solid rgba(192,80,75,.18)', textDecoration: 'none' }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-charcoal)' }}>
                 {r.patientName} — {r.message}
               </div>

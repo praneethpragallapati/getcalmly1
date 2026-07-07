@@ -1,11 +1,13 @@
 import { notFound, redirect } from 'next/navigation'
 import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText, Send } from 'lucide-react'
 import {
-  getTherapistContext, getExpertPatientProfile, generatePreSessionBrief, superviseeOwningPatient,
+  getTherapistContext, getExpertPatientProfile, getPatientWeeklyInsight, getRiskNotifications,
+  superviseeOwningPatient,
 } from '@/lib/expert'
 import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
 import { getWeeklyProgress } from '@/lib/dashboard'
-import { assignTask, toggleMedication, sendFormToPatient } from '../../actions'
+import { toggleMedication, sendFormToPatient, resolveAlert } from '../../actions'
+import { AssignTaskForm } from '@/components/expert/AssignTaskForm'
 import { PrescribeForm } from '@/components/expert/PrescribeForm'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 
@@ -45,12 +47,14 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   }
   if (!p) notFound()
 
-  const [weekly, brief, formLibrary, sentForms] = await Promise.all([
+  const [weekly, weeklyInsight, formLibrary, sentForms, allRisk] = await Promise.all([
     getWeeklyProgress(id),
-    generatePreSessionBrief(effectiveTherapistId, id),
+    getPatientWeeklyInsight(id),
     getFormLibrary(),
     getPatientFormsForExpert(effectiveTherapistId, id),
+    getRiskNotifications(effectiveTherapistId),
   ])
+  const patientAlerts = allRisk.filter((r) => r.patientId === id)
 
   // Sessions a note can be written/edited for: past ones (plus any already noted).
   const pastSessions = p.sessions.filter((s) => s.isPast || s.summary)
@@ -81,32 +85,49 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      {brief && (
+      {weeklyInsight && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
           <div className="pattern" style={{ padding: 0 }}>
             <span className="pattern-ic t-purple">
               <Sparkles size={16} />
             </span>
             <div>
-              <div className="pattern-title">AI co-pilot brief</div>
-              <div className="pattern-sub">{brief}</div>
+              <div className="pattern-title">AI co-pilot brief · {weeklyInsight.title}</div>
+              <div className="pattern-sub">{weeklyInsight.body}</div>
+              <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
+                The same weekly insight the patient sees on their dashboard.
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {(p.openCrisisCount > 0 || p.moodTrend === 'declining') && (
+      {(patientAlerts.length > 0 || p.moodTrend === 'declining') && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
           <div className="pattern" style={{ padding: 0 }}>
             <span className="pattern-ic t-coral">
               <AlertTriangle size={16} />
             </span>
-            <div>
+            <div style={{ flex: 1 }}>
               <div className="pattern-title">Needs attention</div>
-              <div className="pattern-sub">
-                {p.openCrisisCount > 0 ? `${p.openCrisisCount} unresolved high-risk chat flag(s). ` : ''}
-                {p.moodTrend === 'declining' ? 'Mood has been declining over recent check-ins.' : ''}
-              </div>
+              {p.moodTrend === 'declining' && (
+                <div className="pattern-sub">Mood has been declining over recent check-ins.</div>
+              )}
+              {patientAlerts.map((a) => (
+                <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <div className="pattern-sub" style={{ fontWeight: 600 }}>{a.message}</div>
+                    <div className="muted" style={{ fontSize: 12 }}>{a.detail}</div>
+                  </div>
+                  {!supervisorView && (
+                    <form action={resolveAlert}>
+                      <input type="hidden" name="alertId" value={a.id} />
+                      <input type="hidden" name="patientId" value={p.patientId} />
+                      <button type="submit" className="btn btn-outline btn-sm">Mark resolved</button>
+                    </form>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -299,7 +320,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                 <div className="pattern-title">{t.title}</div>
                 <div className="pattern-sub">
                   {t.type}
-                  {t.dueLabel ? ` · ${t.done ? 'done' : t.expired ? `expired ${t.dueLabel}` : `due ${t.dueLabel}`}` : ''}
+                  {t.frequencyLabel ? ` · ${t.frequencyLabel}` : ''}
+                  {t.dueLabel ? ` · ${t.done ? 'done' : t.expired ? `expired ${t.dueLabel}` : `until ${t.dueLabel}`}` : ''}
                 </div>
               </div>
             </div>
@@ -309,23 +331,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         {!supervisorView && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
-          <form action={assignTask} className="stack" style={{ gap: 10 }}>
-            <input type="hidden" name="patientId" value={p.patientId} />
-            <input className="entry-input" name="title" placeholder="Task title" required />
-            <input className="entry-input" name="description" placeholder="Details (optional)" />
-            <select className="entry-input" name="type" defaultValue="REFLECTION">
-              <option value="EXERCISE">Exercise</option>
-              <option value="VIDEO">Video</option>
-              <option value="READING">Reading</option>
-              <option value="REFLECTION">Reflection</option>
-              <option value="BREATHING">Breathing</option>
-            </select>
-            <label className="muted" style={{ fontSize: 12 }}>
-              Expiry
-              <input className="entry-input" type="date" name="dueDate" style={{ marginTop: 4 }} />
-            </label>
-            <button type="submit" className="btn btn-primary btn-sm">Assign task</button>
-          </form>
+          <AssignTaskForm patientId={p.patientId} />
         </div>
         )}
       </div>

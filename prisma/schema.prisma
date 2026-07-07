@@ -473,6 +473,10 @@ model Task {
   // Optional link for VIDEO/READING tasks.
   resourceUrl String?
   assignedBy  String? // therapist display name, denormalised
+  // Recurrence: ONE_TIME (default) or DAILY / WEEKLY / FORTNIGHTLY / MONTHLY.
+  // Recurring tasks re-open each period until dueDate; completedAt marks the
+  // latest completion and "done" is derived per period.
+  frequency   String?
   dueDate     DateTime?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
