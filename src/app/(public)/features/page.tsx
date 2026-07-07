@@ -23,7 +23,7 @@ function MatchMock() {
           <p style={{ fontSize: 12, color: '#6B7D8E' }}>Clinical Psychologist · 8 yrs · CBT</p>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 14 }}>
+      <div className="stagger" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 14 }}>
         {['Anxiety', 'Work stress', 'Hindi & English'].map((t) => (
           <span key={t} style={{ fontSize: 11, fontWeight: 600, color: coral, background: 'rgba(200,85,61,.08)', padding: '4px 10px', borderRadius: 50 }}>{t}</span>
         ))}
@@ -37,7 +37,7 @@ function ChatMock() {
   return (
     <div style={mockCard}>
       <p style={mockLabel}>Calm · 11:48 PM</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+      <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
         <div style={{ alignSelf: 'flex-end', maxWidth: '80%', background: charcoal, color: '#fff', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 2px 12px', lineHeight: 1.5 }}>I can&apos;t switch my head off tonight.</div>
         <div style={{ alignSelf: 'flex-start', maxWidth: '85%', background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>That sounds exhausting. Want to try a two-minute breathing reset together, or just talk it through?</div>
       </div>
@@ -54,7 +54,7 @@ function MoodMock() {
   return (
     <div style={mockCard}>
       <p style={mockLabel}>This week · mood trend ↑ 12%</p>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 96, marginTop: 16 }}>
+      <div className="growbars" style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 96, marginTop: 16 }}>
         {bars.map((h, i) => (
           <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 6, background: i === 5 ? coral : 'rgba(200,85,61,.22)' }} />
         ))}
@@ -73,7 +73,7 @@ function JournalMock() {
       <p style={mockLabel}>Your journal · Thursday</p>
       <p style={{ fontSize: 13.5, color: charcoal, fontWeight: 700, marginTop: 10, lineHeight: 1.5 }}>&ldquo;Today was hard but I didn&apos;t spiral. That&apos;s new.&rdquo;</p>
       <p style={{ fontSize: 12, color: '#6B7D8E', marginTop: 10 }}>Themes noticed in your words:</p>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+      <div className="stagger" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
         {['self-compassion', 'boundary-setting', 'resilience'].map((t) => (
           <span key={t} style={{ fontSize: 11, fontWeight: 600, color: '#7C5CBF', background: 'rgba(124,92,191,.1)', padding: '4px 10px', borderRadius: 50 }}>{t}</span>
         ))}
@@ -86,7 +86,7 @@ function BriefMock() {
   return (
     <div style={mockCard}>
       <p style={mockLabel}>Pre-session brief · for Dr. Ananya</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 12 }}>
+      <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 12 }}>
         {[
           ['Mood', 'Up since last session, dipped midweek'],
           ['Homework', 'Completed thought-record 4 of 5 days'],
@@ -114,7 +114,7 @@ function PrivacyMock() {
   return (
     <div style={mockCard}>
       <p style={mockLabel}>What Calm AI can see</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
+      <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
         {rows.map(([label, on]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13, color: '#3A4A5A', fontWeight: 500 }}>{label}</span>
@@ -186,12 +186,12 @@ export default function FeaturesPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 64 }}>
           {detailed.map((f, i) => (
             <div key={f.title} className="feat-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
-              <div style={{ order: i % 2 === 0 ? 1 : 2 }}>
+              <div className={i % 2 === 0 ? 'reveal-l' : 'reveal-r'} style={{ order: i % 2 === 0 ? 1 : 2 }}>
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: coral, textTransform: 'uppercase', marginBottom: 12 }}>{f.eyebrow}</p>
                 <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 3.4vw, 36px)', color: charcoal, letterSpacing: '-0.5px', lineHeight: 1.08, marginBottom: 14 }}>{f.title}</h2>
                 <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.7 }}>{f.body}</p>
               </div>
-              <div style={{ order: i % 2 === 0 ? 2 : 1 }}>{f.visual}</div>
+              <div className={i % 2 === 0 ? 'reveal-r' : 'reveal-l'} style={{ order: i % 2 === 0 ? 2 : 1 }}>{f.visual}</div>
             </div>
           ))}
         </div>

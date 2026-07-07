@@ -7,7 +7,7 @@ export const LANDING_SCRIPT = `
   if(nav){window.addEventListener('scroll',function(){nav.classList.toggle('stuck',window.scrollY>40);});}
 
   var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1});
-  document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+  document.querySelectorAll('.reveal, .reveal-l, .reveal-r').forEach(function(el){obs.observe(el);});
 
   window.switchTab=function(id, el){
     document.querySelectorAll('.preview-pane').forEach(function(p){p.classList.remove('active');});
