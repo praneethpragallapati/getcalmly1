@@ -220,119 +220,13 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <!-- PATIENT PANE -->
   <div class="preview-pane active" id="pane-patient">
     <div class="reveal dash-mock-wrap">
-      <span class="dash-swipe-hint">← swipe to explore →</span>
-      <!-- Full patient dashboard: sidebar + main content -->
-      <div class="dash-mock" style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid var(--border);background:var(--bg-warm);font-size:12px;">
-
-        <!-- Sidebar -->
-        <div style="width:56px;background:var(--charcoal);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;">
-          <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:16px;color:var(--coral);transform:scaleX(.63);transform-origin:center;letter-spacing:-1px;margin-bottom:12px;">C.</div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(200,85,61,.2);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8896F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><line x1="10.5" y1="19" x2="10.5" y2="14"/><line x1="13.5" y1="19" x2="13.5" y2="14"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Mood"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><polyline points="4,16 9,11 13,14 20,6"/><line x1="4" y1="20" x2="20" y2="20" opacity=".4"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Journal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M6 4h11a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Sessions"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><rect x="4" y="6" width="16" height="14" rx="2.5"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="8" y1="4" x2="8" y2="7"/><line x1="16" y1="4" x2="16" y2="7"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;" title="Community"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.4"/><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M15 19c0-1.7.8-3.2 2-4"/></svg></div>
-          <div style="margin-top:auto;width:30px;height:30px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">P</div>
+      <div style="border-radius:16px;overflow:hidden;border:1.5px solid rgba(0,0,0,.08);box-shadow:var(--sh-lg);">
+        <div style="background:#EEF0F3;padding:9px 12px;display:flex;gap:6px;align-items:center;">
+          <span style="width:9px;height:9px;border-radius:50%;background:#E2856F;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#E8C16A;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#8FCBA3;"></span>
         </div>
-
-        <!-- Main area -->
-        <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-
-          <!-- Top bar -->
-          <div style="background:var(--white);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-size:10px;color:var(--gray);font-weight:500;">Good morning</div>
-              <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;color:var(--charcoal);transform:scaleX(.88);transform-origin:left;letter-spacing:-.5px;">Priya ✦</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="background:var(--coral-pale);color:var(--coral);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;background:var(--coral);border-radius:50%;display:inline-block;"></span>14-day streak <svg width="12" height="12" viewBox="0 0 24 24" fill="#C8553D" style="vertical-align:middle;display:inline-block"><polygon points="13,3 6,13 11,13 10,21 18,10 13,10"/></svg></div>
-              <div style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">P</div>
-            </div>
-          </div>
-
-          <!-- Dashboard body -->
-          <div style="padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;">
-
-            <!-- Row 1: 3 stat cards -->
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Mood today</div>
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:var(--coral);transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">7.2</div>
-                <div style="font-size:9px;color:var(--green);font-weight:600;margin-top:3px;">↑ from 5.8</div>
-              </div>
-              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Energy</div>
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:#7B7FCC;transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">6.1</div>
-                <div style="font-size:9px;color:var(--gray);font-weight:500;margin-top:3px;">→ steady</div>
-              </div>
-              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Sleep</div>
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:#7FB3A8;transform:scaleX(.8);transform-origin:left;letter-spacing:-1px;line-height:1;">7.5</div>
-                <div style="font-size:9px;color:var(--green);font-weight:600;margin-top:3px;">↑ better</div>
-              </div>
-            </div>
-
-            <!-- Row 2: mood chart + session -->
-            <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:8px;">
-              <!-- Mood chart -->
-              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:10px;">Mood · past 7 days</div>
-                <!-- SVG line chart -->
-                <svg viewBox="0 0 160 48" style="width:100%;height:48px;overflow:visible;">
-                  <defs>
-                    <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#C8553D" stop-opacity=".18"/>
-                      <stop offset="100%" stop-color="#C8553D" stop-opacity="0"/>
-                    </linearGradient>
-                  </defs>
-                  <path class="gc-chart-line" d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M0,34 L23,28 L46,38 L69,18 L92,26 L115,8 L138,14 L138,48 L0,48Z" fill="url(#mg)"/>
-                  <circle cx="138" cy="14" r="3" fill="#C8553D"/>
-                  <text x="138" y="10" text-anchor="middle" font-size="7" fill="#C8553D" font-weight="700">7.2</text>
-                </svg>
-                <div style="display:flex;justify-content:space-between;margin-top:4px;">
-                  <span style="font-size:7px;color:var(--gray);">Mon</span><span style="font-size:7px;color:var(--gray);">Tue</span><span style="font-size:7px;color:var(--gray);">Wed</span><span style="font-size:7px;color:var(--gray);">Thu</span><span style="font-size:7px;color:var(--gray);">Fri</span><span style="font-size:7px;color:var(--gray);">Sat</span><span style="font-size:7px;color:var(--coral);font-weight:700;">Sun</span>
-                </div>
-              </div>
-              <!-- Next session -->
-              <div style="background:var(--charcoal);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);">Next session</div>
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#FFF0ED,#F5D8D1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><circle cx="12" cy="8" r="3"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M12 14v3M10.5 15.5h3"/></svg></div>
-                  <div>
-                    <div style="font-size:11px;font-weight:600;color:var(--white);line-height:1.2;">Dr. Ananya</div>
-                    <div style="font-size:9px;color:rgba(255,255,255,.4);">Today · 3:00 PM</div>
-                  </div>
-                </div>
-                <div style="font-size:9px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1.2"/><line x1="8.5" y1="12" x2="15" y2="12"/><line x1="8.5" y1="16" x2="13" y2="16"/></svg> Pre-session brief ready</div>
-                <button style="width:100%;padding:7px;border-radius:8px;background:var(--coral);color:white;border:none;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Join session →</button>
-              </div>
-            </div>
-
-            <!-- Row 3: AI insight + journal -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <!-- Calm AI -->
-              <div style="background:linear-gradient(135deg,rgba(200,85,61,.08),rgba(200,85,61,.03));border-radius:12px;padding:12px;border:1.5px solid rgba(200,85,61,.15);">
-                <div style="display:flex;align-items:center;gap:5px;margin-bottom:7px;">
-                  <span style="display:inline-flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><line x1="12" y1="5" x2="12" y2="8"/><rect x="6.5" y="8" width="11" height="9" rx="3"/><line x1="9.7" y1="11.8" x2="9.7" y2="13.4"/><line x1="14.3" y1="11.8" x2="14.3" y2="13.4"/><line x1="4" y1="11.5" x2="4" y2="13.5" opacity=".6"/><line x1="20" y1="11.5" x2="20" y2="13.5" opacity=".6"/></svg></span>
-                  <span style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--coral);">Calm AI</span>
-                </div>
-                <div style="font-size:11px;color:var(--charcoal);line-height:1.55;font-weight:400;">You've journaled 4 days in a row. Less self-criticism this week, that's real progress.</div>
-                <div style="margin-top:8px;font-size:9px;color:var(--coral);font-weight:600;cursor:pointer;">→ Full insight report</div>
-              </div>
-              <!-- Journal preview -->
-              <div style="background:var(--white);border-radius:12px;padding:12px;border:1.5px solid var(--border);">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:7px;">Latest journal</div>
-                <div style="font-size:11px;color:var(--charcoal);line-height:1.55;font-style:italic;">"Today was hard but I didn't spiral. That felt new..."</div>
-                <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;">
-                  <span style="font-size:8px;padding:2px 7px;border-radius:10px;background:var(--coral-pale);color:var(--coral);font-weight:700;">resilience</span>
-                  <span style="font-size:8px;padding:2px 7px;border-radius:10px;background:#EEF0FB;color:#7B7FCC;font-weight:700;">growth ✦</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        <img src="/mockups/patient-dashboard.png" alt="getCalmly patient dashboard" loading="lazy" style="display:block;width:100%;height:auto;">
       </div>
     </div>
     <div class="reveal d2">
@@ -360,142 +254,13 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <!-- DOCTOR PANE -->
   <div class="preview-pane" id="pane-doctor">
     <div class="reveal dash-mock-wrap">
-      <span class="dash-swipe-hint">← swipe to explore →</span>
-      <!-- Full therapist portal: sidebar + main -->
-      <div class="dash-mock" style="display:flex;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);border:1.5px solid rgba(26,127,122,.2);background:#EEF3F8;font-size:12px;">
-
-        <!-- Sidebar -->
-        <div style="width:56px;background:#1A7F7A;display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;">
-          <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:16px;color:rgba(255,255,255,.9);transform:scaleX(.63);transform-origin:center;letter-spacing:-1px;margin-bottom:12px;">C.</div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:15px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M4 11l8-6 8 6"/><path d="M6 10v9h12v-9"/><line x1="10.5" y1="19" x2="10.5" y2="14"/><line x1="13.5" y1="19" x2="13.5" y2="14"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.4"/><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M15 19c0-1.7.8-3.2 2-4"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><rect x="4" y="6" width="16" height="14" rx="2.5"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="8" y1="4" x2="8" y2="7"/><line x1="16" y1="4" x2="16" y2="7"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1.2"/><line x1="8.5" y1="12" x2="15" y2="12"/><line x1="8.5" y1="16" x2="13" y2="16"/></svg></div>
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><polyline points="4,16 9,11 13,14 20,6"/><line x1="4" y1="20" x2="20" y2="20" opacity=".4"/></svg></div>
-          <div style="margin-top:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">A</div>
+      <div style="border-radius:16px;overflow:hidden;border:1.5px solid rgba(0,0,0,.08);box-shadow:var(--sh-lg);">
+        <div style="background:#EEF0F3;padding:9px 12px;display:flex;gap:6px;align-items:center;">
+          <span style="width:9px;height:9px;border-radius:50%;background:#E2856F;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#E8C16A;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#8FCBA3;"></span>
         </div>
-
-        <!-- Main area -->
-        <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-
-          <!-- Top bar -->
-          <div style="background:white;border-bottom:1px solid rgba(26,127,122,.12);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-size:10px;color:var(--gray);font-weight:500;">Therapist portal</div>
-              <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;color:#1A7F7A;transform:scaleX(.88);transform-origin:left;letter-spacing:-.5px;">Dr. Ananya Sharma</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="background:#FFF3F1;color:var(--coral);font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(200,85,61,.2);">⚠️ 1 AI flag</div>
-              <div style="background:#E5F4EE;color:#1A7F7A;font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;">● Online</div>
-            </div>
-          </div>
-
-          <!-- Body -->
-          <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
-
-            <!-- Row 1: stat cards -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:#1A7F7A;transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">12</div>
-                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Active patients</div>
-              </div>
-              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:#1A7F7A;transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">3</div>
-                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Sessions today</div>
-              </div>
-              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--gold);transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">4.9★</div>
-                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Avg rating</div>
-              </div>
-              <div style="background:white;border-radius:12px;padding:10px;border:1px solid rgba(26,127,122,.1);text-align:center;">
-                <div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--green);transform:scaleX(.82);transform-origin:center;letter-spacing:-1px;display:block;">94%</div>
-                <div style="font-size:8px;color:var(--gray);margin-top:2px;">Improvement rate</div>
-              </div>
-            </div>
-
-            <!-- Row 2: today's schedule + AI flag -->
-            <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:8px;">
-              <!-- Today's schedule -->
-              <div style="background:white;border-radius:12px;overflow:hidden;border:1px solid rgba(26,127,122,.1);">
-                <div style="padding:8px 12px;border-bottom:1px solid rgba(26,127,122,.08);font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);">Today's schedule</div>
-                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(26,127,122,.06);">
-                  <div style="font-size:9px;color:#1A7F7A;font-weight:700;width:36px;flex-shrink:0;">3:00 PM</div>
-                  <div style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">P</div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-size:11px;font-weight:600;color:var(--charcoal);">Priya R.</div>
-                    <div style="font-size:9px;color:var(--gray);">Anxiety · Session 4</div>
-                  </div>
-                  <div style="background:#1A7F7A;color:white;font-size:8px;font-weight:700;padding:3px 8px;border-radius:8px;cursor:pointer;white-space:nowrap;">Join</div>
-                </div>
-                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(26,127,122,.06);">
-                  <div style="font-size:9px;color:var(--gray);font-weight:600;width:36px;flex-shrink:0;">4:30 PM</div>
-                  <div style="width:28px;height:28px;border-radius:50%;background:var(--green-pale);color:var(--green);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">K</div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-size:11px;font-weight:600;color:var(--charcoal);">Karan M.</div>
-                    <div style="font-size:9px;color:var(--gray);">Depression · Session 11</div>
-                  </div>
-                  <div style="background:rgba(26,127,122,.1);color:#1A7F7A;font-size:8px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap;">Prep</div>
-                </div>
-                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;">
-                  <div style="font-size:9px;color:var(--gray);font-weight:600;width:36px;flex-shrink:0;">6:00 PM</div>
-                  <div style="width:28px;height:28px;border-radius:50%;background:#EEF0FB;color:#7B7FCC;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">A</div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-size:11px;font-weight:600;color:var(--charcoal);">Aditya S.</div>
-                    <div style="font-size:9px;color:var(--coral);">Work stress · ⚠️ Flag</div>
-                  </div>
-                  <div style="background:var(--coral-pale);color:var(--coral);font-size:8px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap;">Review</div>
-                </div>
-              </div>
-
-              <!-- AI alert + mood summary -->
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                <div style="background:#FFF3F1;border-radius:12px;padding:12px;border:1px solid rgba(200,85,61,.18);">
-                  <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
-                    <span style="font-size:12px;">⚠️</span>
-                    <span style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--coral);">AI flag · Aditya</span>
-                  </div>
-                  <div style="font-size:11px;color:var(--charcoal);line-height:1.5;">Mood dropped 3 days running. Journal themes: <strong>overwhelm, isolation.</strong></div>
-                  <div style="margin-top:6px;font-size:9px;color:var(--coral);font-weight:600;cursor:pointer;">→ See full brief</div>
-                </div>
-                <div style="background:white;border-radius:12px;padding:12px;border:1px solid rgba(26,127,122,.1);flex:1;">
-                  <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:8px;">Patient mood overview</div>
-                  <div style="display:flex;flex-direction:column;gap:5px;">
-                    <div style="display:flex;align-items:center;gap:6px;">
-                      <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">P</span>
-                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div class="gc-grow" style="width:72%;height:100%;background:var(--coral);border-radius:5px;"></div></div>
-                      <span style="font-size:9px;color:var(--coral);font-weight:700;">7.2</span>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                      <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">K</span>
-                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div class="gc-grow gc-d1" style="width:68%;height:100%;background:var(--green);border-radius:5px;"></div></div>
-                      <span style="font-size:9px;color:var(--green);font-weight:700;">6.8</span>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                      <span style="font-size:10px;color:var(--charcoal);width:20px;font-weight:600;">A</span>
-                      <div style="flex:1;height:5px;border-radius:5px;background:var(--gray-l);overflow:hidden;"><div class="gc-grow gc-d2" style="width:41%;height:100%;background:var(--gold);border-radius:5px;"></div></div>
-                      <span style="font-size:9px;color:var(--gold);font-weight:700;">4.1</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 3: pre-session brief -->
-            <div style="background:white;border-radius:12px;padding:12px;border:1px solid rgba(26,127,122,.1);">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);">AI pre-session brief · Priya R. · 3:00 PM</div>
-                <span style="font-size:8px;background:var(--green-pale);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:700;">Session 4 · CBT</span>
-              </div>
-              <div style="font-size:11px;color:var(--charcoal);line-height:1.6;font-weight:300;">Week 4. Notable themes: <strong style="font-weight:600;">boundary-setting, reduced self-criticism</strong>. Mood peak Thursday. Anxiety down 18% vs last week. Recommend continuing reframing on workplace relationships. Patient noted "not spiralling" as a win, worth acknowledging.</div>
-              <div style="margin-top:8px;display:flex;gap:6px;">
-                <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:var(--green-pale);color:var(--green);font-weight:700;">Progress ↑</span>
-                <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:#EEF0FB;color:#7B7FCC;font-weight:700;">4 journal entries</span>
-                <span style="font-size:8px;padding:2px 8px;border-radius:10px;background:var(--coral-pale);color:var(--coral);font-weight:700;">Anxiety ↓ 18%</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        <img src="/mockups/doctor-dashboard.png" alt="getCalmly therapist dashboard" loading="lazy" style="display:block;width:100%;height:auto;">
       </div>
     </div>
     <div class="reveal d2">
