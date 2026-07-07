@@ -738,6 +738,28 @@
 .lp-page .in .stagger > *:nth-child(5){transition-delay:.85s;}
 .lp-page .in .stagger > *:nth-child(6){transition-delay:1s;}
 .lp-page .in .stagger > *:nth-child(7){transition-delay:1.15s;}
+/* Living chat mock: message → typing dots → reply, on a 10s loop.
+   Gated on the ancestor .in so the cycle starts when the row is seen. */
+.lp-page .chatloop .cl-m1,.lp-page .chatloop .cl-m2,.lp-page .chatloop .cl-typing{opacity:0;}
+.lp-page .in .chatloop .cl-m1{animation:clM1 10s ease infinite;}
+.lp-page .in .chatloop .cl-typing{animation:clTy 10s ease infinite;}
+.lp-page .in .chatloop .cl-m2{animation:clM2 10s ease infinite;}
+@keyframes clM1{0%{opacity:0;transform:translateY(8px)}6%{opacity:1;transform:none}92%{opacity:1}98%,100%{opacity:0}}
+@keyframes clTy{0%,10%{opacity:0}16%{opacity:1}36%{opacity:1}42%,100%{opacity:0}}
+@keyframes clM2{0%,42%{opacity:0;transform:translateY(8px)}50%{opacity:1;transform:none}92%{opacity:1}98%,100%{opacity:0}}
+.lp-page .cl-typing span{width:6px;height:6px;border-radius:50%;background:#9AABB8;
+  animation:clDot 1.2s ease-in-out infinite;}
+.lp-page .cl-typing span:nth-child(2){animation-delay:.15s;}
+.lp-page .cl-typing span:nth-child(3){animation-delay:.3s;}
+@keyframes clDot{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-3px);opacity:1}}
+
+/* Privacy demo toggle: starts on (coral), flips itself off once seen. */
+.lp-page .priv-demo{background:#C8553D;transition:background .5s ease 1.8s;}
+.lp-page .in .priv-demo{background:#D8DEE4;}
+.lp-page .priv-knob{position:absolute;top:2px;left:16px;width:16px;height:16px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .5s ease 1.8s;}
+.lp-page .in .priv-knob{left:2px;}
+
 .lp-page .growbars > *{transform:scaleY(0);transform-origin:bottom;
   transition:transform .8s cubic-bezier(.2,.7,.2,1);}
 .lp-page .in .growbars > *{transform:scaleY(1);}
@@ -755,6 +777,10 @@
   .lp-page .hero-h1 .rl > span{transform:none !important;}
   .lp-page .reveal-l,.lp-page .reveal-r{opacity:1 !important;transform:none !important;}
   .lp-page .stagger > *,.lp-page .growbars > *{opacity:1 !important;transform:none !important;transition:none !important;}
+  .lp-page .chatloop .cl-m1,.lp-page .chatloop .cl-m2{opacity:1 !important;animation:none !important;}
+  .lp-page .chatloop .cl-typing{display:none !important;}
+  .lp-page .priv-demo{background:#D8DEE4 !important;transition:none !important;}
+  .lp-page .priv-knob{left:2px !important;transition:none !important;}
   .lp-page .hs-bar{display:none !important;}
   .lp-page .how-step{opacity:1 !important;}
   .lp-page .chap-stack{height:auto !important;}

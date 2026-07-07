@@ -37,9 +37,15 @@ function ChatMock() {
   return (
     <div style={mockCard}>
       <p style={mockLabel}>Calm · 11:48 PM</p>
-      <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-        <div style={{ alignSelf: 'flex-end', maxWidth: '80%', background: charcoal, color: '#fff', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 2px 12px', lineHeight: 1.5 }}>I can&apos;t switch my head off tonight.</div>
-        <div style={{ alignSelf: 'flex-start', maxWidth: '85%', background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>That sounds exhausting. Want to try a two-minute breathing reset together, or just talk it through?</div>
+      {/* Looping conversation: message → typing dots → reply, forever */}
+      <div className="chatloop" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+        <div className="cl-m1" style={{ alignSelf: 'flex-end', maxWidth: '80%', background: charcoal, color: '#fff', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 2px 12px', lineHeight: 1.5 }}>I can&apos;t switch my head off tonight.</div>
+        <div style={{ position: 'relative', alignSelf: 'flex-start', maxWidth: '85%' }}>
+          <div className="cl-typing" style={{ position: 'absolute', top: 0, left: 0, background: '#F5F7FA', borderRadius: '12px 12px 12px 2px', padding: '12px 14px', display: 'flex', gap: 4 }}>
+            <span /><span /><span />
+          </div>
+          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>That sounds exhausting. Want to try a two-minute breathing reset together, or just talk it through?</div>
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
         <span style={chip}>Breathing space</span>
@@ -115,35 +121,44 @@ function PrivacyMock() {
     <div style={mockCard}>
       <p style={mockLabel}>What Calm AI can see</p>
       <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
-        {rows.map(([label, on]) => (
+        {rows.map(([label, on]) => {
+          // The last toggle demos itself: starts on, flips off once in view.
+          const demo = label === 'Calm AI chats'
+          return (
           <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13, color: '#3A4A5A', fontWeight: 500 }}>{label}</span>
             <span
+              className={demo ? 'priv-demo' : undefined}
               style={{
                 width: 34,
                 height: 20,
                 borderRadius: 20,
-                background: on ? coral : '#D8DEE4',
+                background: demo ? undefined : on ? coral : '#D8DEE4',
                 position: 'relative',
                 flexShrink: 0,
-                transition: 'background .2s',
               }}
             >
               <span
-                style={{
-                  position: 'absolute',
-                  top: 2,
-                  left: on ? 16 : 2,
-                  width: 16,
-                  height: 16,
-                  borderRadius: '50%',
-                  background: '#fff',
-                  boxShadow: '0 1px 2px rgba(0,0,0,.2)',
-                }}
+                className={demo ? 'priv-knob' : undefined}
+                style={
+                  demo
+                    ? undefined
+                    : {
+                        position: 'absolute',
+                        top: 2,
+                        left: on ? 16 : 2,
+                        width: 16,
+                        height: 16,
+                        borderRadius: '50%',
+                        background: '#fff',
+                        boxShadow: '0 1px 2px rgba(0,0,0,.2)',
+                      }
+                }
               />
             </span>
           </div>
-        ))}
+          )
+        })}
       </div>
       <p style={{ marginTop: 14, fontSize: 11, color: '#A0ADB8' }}>Flip any off. A master switch turns it all off at once.</p>
     </div>
