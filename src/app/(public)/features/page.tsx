@@ -37,20 +37,21 @@ function ChatMock() {
   return (
     <div style={mockCard}>
       <p style={mockLabel}>Calm · 11:48 PM</p>
-      {/* Looping conversation: message → typing dots → reply, forever */}
+      {/* Looping conversation: message → typing dots → context-aware reply */}
       <div className="chatloop" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
         <div className="cl-m1" style={{ alignSelf: 'flex-end', maxWidth: '80%', background: charcoal, color: '#fff', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 2px 12px', lineHeight: 1.5 }}>I can&apos;t switch my head off tonight.</div>
-        <div style={{ position: 'relative', alignSelf: 'flex-start', maxWidth: '85%' }}>
+        <div style={{ position: 'relative', alignSelf: 'flex-start', maxWidth: '90%' }}>
           <div className="cl-typing" style={{ position: 'absolute', top: 0, left: 0, background: '#F5F7FA', borderRadius: '12px 12px 12px 2px', padding: '12px 14px', display: 'flex', gap: 4 }}>
             <span /><span /><span />
           </div>
-          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>That sounds exhausting. Want to try a two-minute breathing reset together, or just talk it through?</div>
+          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>It&apos;s Sunday night — the spot where your anxiety usually peaks, and Thursday&apos;s journal hinted this week felt heavier. The 4-7-8 breathing that worked on the 12th, or should I note this for Dr. Ananya&apos;s session on Tuesday?</div>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-        <span style={chip}>Breathing space</span>
-        <span style={chip}>Talk it through</span>
+      <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
+        <span style={chip}>Start 4-7-8 breathing</span>
+        <span style={chip}>Note it for Tuesday</span>
       </div>
+      <p style={{ marginTop: 12, fontSize: 10.5, color: '#A0ADB8' }}>Drawing on: last session · Thursday&apos;s journal · your Sunday pattern</p>
     </div>
   )
 }
@@ -69,6 +70,32 @@ function MoodMock() {
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <span key={i}>{d}</span>)}
       </div>
       <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 10, background: 'rgba(200,85,61,.07)', fontSize: 12, color: '#9A4332', fontWeight: 600 }}>Sundays tend to dip. A short walk has helped before.</div>
+    </div>
+  )
+}
+
+function InsightMock() {
+  return (
+    <div style={mockCard}>
+      <p style={mockLabel}>Your week · decoded by Calm AI</p>
+      <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: coral, marginTop: 5, flexShrink: 0 }} />
+          <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Pattern found:</strong> your anxiety runs highest on Sunday nights — right before your Monday stand-up.</p>
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7C5CBF', marginTop: 5, flexShrink: 0 }} />
+          <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Hidden driver:</strong> nights under 6 hours of sleep double the self-criticism in your journal the next day.</p>
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#3D9E72', marginTop: 5, flexShrink: 0 }} />
+          <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Quiet win:</strong> on weeks you journal 4+ days, your mood recovers almost twice as fast.</p>
+        </div>
+        <div style={{ marginTop: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(200,85,61,.07)', fontSize: 12, color: '#9A4332', fontWeight: 600 }}>
+          Recommended: a 7 PM Sunday wind-down this week · added to Dr. Ananya&apos;s brief
+        </div>
+      </div>
+      <p style={{ marginTop: 12, fontSize: 11, color: '#A0ADB8' }}>Learned from six weeks of your mood, sleep, journal &amp; sessions</p>
     </div>
   )
 }
@@ -167,7 +194,8 @@ function PrivacyMock() {
 
 const detailed = [
   { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a licensed professional who genuinely fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
-  { eyebrow: 'Calm AI', title: 'Support for the in-between moments', body: 'Therapy is an hour a week. Life happens in all the hours between. Calm is a gentle, always-available space to talk things through and steady yourself, and it knows when to point you toward real help.', visual: <ChatMock /> },
+  { eyebrow: 'Calm AI', title: 'A companion that actually remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday — so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
+  { eyebrow: 'AI insights & recommendations', title: 'Intelligence that connects dots you can\'t see', body: 'Every mood check-in, journal line, sleep log and session note feeds one quiet engine. It cross-references all of it to surface the patterns underneath — then turns them into precise, gentle recommendations: a wind-down before your hardest night, a topic worth raising on Tuesday, a nudge before the dip instead of after it.', visual: <InsightMock /> },
   { eyebrow: 'Mood & insights', title: 'Tracking that actually does something', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
   { eyebrow: 'Journaling', title: 'Write freely, see clearly', body: 'Journal however you like. Calm reflects the patterns back in your own words, the thoughts that keep circling and the moments that lift you, drawing on CBT principles. Always reflections, never a diagnosis.', visual: <JournalMock /> },
   { eyebrow: 'Clinician co-pilot', title: 'Your therapist walks in already caught up', body: 'Before each session your professional sees a brief of your week, mood trend, homework and journal themes. Less time spent recapping, more spent on you. Every AI summary is human-reviewed first.', visual: <BriefMock /> },
