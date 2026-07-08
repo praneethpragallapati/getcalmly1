@@ -283,10 +283,10 @@ function deepToneA(hex: string, alpha: number): string {
 // duotones them into the band; darkBand stays as the loading/error
 // fallback via BlogCover. Roll out to the rest once approved.
 const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
-  // A real conversation in warm window light — what a session actually is.
+  // A lone figure on a dock, wide frame — room to hear yourself think.
   therapy: {
-    src: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&w=1600&q=70',
-    position: 'center 30%',
+    src: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 60%',
   },
   // Two people's hands over coffee — sitting down to actually talk.
   couples: {
@@ -298,10 +298,10 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
     src: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?auto=format&fit=crop&w=1600&q=70',
     position: 'center 55%',
   },
-  // A mother lifting her baby — motherhood itself, candid not glowy.
+  // A mother scooping up her son at the beach — candid, golden, unposed.
   maternal: {
-    src: 'https://images.unsplash.com/photo-1492725764893-90b379c2b6e7?auto=format&fit=crop&w=1600&q=70',
-    position: 'center 45%',
+    src: 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 40%',
   },
   // A doctor, stethoscope and phone — real medical care, online.
   psychiatry: {
@@ -313,9 +313,9 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
     src: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1600&q=70',
     position: 'center 55%',
   },
-  // A hand held in comfort — care that accepts you as you are.
+  // A "LOVE IS LOVE" mural — affirmative care, said out loud.
   specialised: {
-    src: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1600&q=70',
+    src: 'https://images.unsplash.com/photo-1561612217-e5147162fd31?auto=format&fit=crop&w=1600&q=70',
     position: 'center 45%',
   },
 }
@@ -403,7 +403,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <BlogCover
             src={photo.src}
             position={photo.position}
-            scrim={`linear-gradient(0deg, ${deepToneA(s.accent, 0.92)} 0%, transparent 26%), linear-gradient(97deg, ${deepToneA(s.accent, 0.97)} 0%, ${deepToneA(s.accent, 0.9)} 44%, ${deepToneA(s.accent, 0.52)} 76%, ${deepToneA(s.accent, 0.3)} 100%)`}
+            scrim={`linear-gradient(0deg, ${deepToneA(s.accent, 0.9)} 0%, transparent 20%), linear-gradient(97deg, ${deepToneA(s.accent, 0.96)} 0%, ${deepToneA(s.accent, 0.88)} 40%, ${deepToneA(s.accent, 0.38)} 68%, ${deepToneA(s.accent, 0.08)} 100%)`}
           />
         )}
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
