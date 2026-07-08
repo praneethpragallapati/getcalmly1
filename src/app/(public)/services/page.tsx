@@ -96,23 +96,23 @@ export default function ServicesPage() {
   return (
     <div style={{ background: '#FFFCFA', minHeight: '100vh' }}>
       {/* Hero, full-bleed charcoal */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(192,75,138,.26), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.14), transparent 60%), #2F1C2A', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '104px 48px 84px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 75% at 88% 8%, rgba(192,75,138,.26), transparent 55%), radial-gradient(ellipse 45% 60% at 4% 80%, rgba(200,85,61,.14), transparent 60%), #2F1C2A', padding: '124px 48px 56px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -150, right: -120, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(192,75,138,.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 20 }}>What we offer</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
             fontWeight: 300,
-            fontSize: 'clamp(40px, 7vw, 72px)',
+            fontSize: 'clamp(36px, 5vw, 56px)',
             color: '#fff',
             lineHeight: 1.0,
             letterSpacing: '-2px',
-            marginBottom: 24,
+            marginBottom: 18,
             maxWidth: 760,
           }}>
             However you&apos;re hurting, there&apos;s a way through.
           </h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,.72)', lineHeight: 1.8, marginBottom: 36, fontWeight: 300, maxWidth: 620 }}>
+          <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,.72)', lineHeight: 1.75, marginBottom: 28, fontWeight: 300, maxWidth: 620 }}>
             We don&apos;t believe in one-size-fits-all mental health. No two stories are the same, so neither is the care. Every path below pairs a real expert with the Calm+ app, mood check-ins, journaling and Calm AI, so you&apos;re supported in the session and every day in between.
           </p>
           <Link href="/assess" style={{

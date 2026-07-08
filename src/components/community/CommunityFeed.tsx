@@ -332,13 +332,9 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
       <section
         style={{
           position: 'relative',
-          background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29',
+          background: 'radial-gradient(ellipse 65% 75% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 60% at 4% 80%, rgba(200,85,61,.12), transparent 60%), #141E29',
           color: '#fff',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '85px 24px 64px',
+          padding: '124px 24px 56px',
           textAlign: 'center',
           overflow: 'hidden',
         }}
@@ -390,9 +386,9 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
           <h1
             style={{
               fontFamily: HEAD_FONT,
-              fontSize: 'clamp(52px, 9vw, 92px)',
+              fontSize: 'clamp(40px, 6vw, 62px)',
               fontWeight: 300,
-              margin: '0 0 18px',
+              margin: '0 0 16px',
               letterSpacing: '-1px',
               lineHeight: 1,
             }}

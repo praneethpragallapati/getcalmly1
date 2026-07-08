@@ -57,12 +57,8 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
         style={{
           position: 'relative',
           overflow: 'hidden',
-          background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '104px 24px 64px',
+          background: 'radial-gradient(ellipse 65% 75% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 60% at 4% 80%, rgba(200,85,61,.12), transparent 60%), #141E29',
+          padding: '124px 24px 56px',
           textAlign: 'center',
         }}
       >
@@ -112,12 +108,12 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
           <h1
             style={{
               fontFamily: "'Big Shoulders Display', sans-serif",
-              fontSize: 'clamp(48px, 9vw, 92px)',
+              fontSize: 'clamp(40px, 6vw, 62px)',
               fontWeight: 300,
               color: '#fff',
               lineHeight: 0.98,
               letterSpacing: '-0.5px',
-              marginBottom: 20,
+              marginBottom: 18,
             }}
           >
             Perspectives
