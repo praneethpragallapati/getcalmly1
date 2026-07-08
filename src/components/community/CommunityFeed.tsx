@@ -29,7 +29,7 @@ const ROLE_DOT: Record<Role, string> = {
 const HEAD_FONT = "'Big Shoulders Display', sans-serif"
 const BODY_FONT = "'DM Sans', sans-serif"
 
-function avatarColor(name: string): string {
+export function avatarColor(name: string): string {
   const palette = ['#C8553D', '#3D9E72', '#5A40B0', '#1C2B3A', '#D98C4A', '#2C7A57']
   let h = 0
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0
@@ -62,7 +62,7 @@ function Avatar({ name }: { name: string }) {
   )
 }
 
-function RoleBadge({ role }: { role: string }) {
+export function RoleBadge({ role }: { role: string }) {
   const cfg = ROLE_BADGE[role as Role] ?? {
     label: role,
     bg: 'rgba(0,0,0,.05)',

@@ -206,9 +206,9 @@ export default function FeaturesPage() {
   return (
     <div style={{ background: '#FFFCFA' }}>
       {/* Hero */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '99px 24px 72px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -100, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -80, left: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(31,182,168,.24), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.14), transparent 60%), #0D2E2B', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '99px 24px 72px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -120, right: -100, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,182,168,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -80, left: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 740, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>How GetCalmly works</p>
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(40px, 7vw, 66px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22 }}>
@@ -276,7 +276,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* App download + CTA */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', marginTop: 64, padding: '85px 24px 80px', overflow: 'hidden' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(31,182,168,.24), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.14), transparent 60%), #0D2E2B', marginTop: 64, padding: '85px 24px 80px', overflow: 'hidden' }}>
         <div className="app-row" style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 48, alignItems: 'center' }}>
           <div>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#1FB6A8', textTransform: 'uppercase', marginBottom: 14 }}>The app</p>

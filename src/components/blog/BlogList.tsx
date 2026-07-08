@@ -15,11 +15,11 @@ const tagGradients: Record<string, { from: string; to: string }> = {
   grief: { from: '#3A4A6E', to: '#222B45' },
 }
 
-function coverFor(tag: string) {
+export function coverFor(tag: string) {
   return tagGradients[tag] ?? { from: '#2E4A5C', to: '#1C2B3A' }
 }
 
-function initials(name: string) {
+export function initials(name: string) {
   return name
     .replace(/^Dr\.?\s*/i, '')
     .split(' ')
