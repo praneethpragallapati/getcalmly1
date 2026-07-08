@@ -313,10 +313,11 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
     src: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1600&q=70',
     position: 'center 55%',
   },
-  // A "LOVE IS LOVE" mural — affirmative care, said out loud.
+  // One person reaching to meet another's hand — being met wherever you
+  // are, whatever you're navigating. Identity-neutral on purpose.
   specialised: {
-    src: 'https://images.unsplash.com/photo-1561612217-e5147162fd31?auto=format&fit=crop&w=1600&q=70',
-    position: 'center 45%',
+    src: 'https://images.unsplash.com/photo-1461532257246-777de18cd58b?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 40%',
   },
 }
 
