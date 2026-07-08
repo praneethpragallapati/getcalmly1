@@ -4,8 +4,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="hero" id="home">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="hero-breathe"></div>
   <div class="hero-layout">
 
     <!-- LEFT: headline + CTA -->

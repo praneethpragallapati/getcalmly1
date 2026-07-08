@@ -1,11 +1,13 @@
 import Link from 'next/link'
 
 /**
- * GetCalmly brand mark — matches the official logo:
- *   "get"      — Big Shoulders Display, charcoal, lower-left, ~40% height
- *   "Calmly."  — Big Shoulders Display 900, large, burnt coral, condensed
- *   tagline    — "Mental Healthcare, Powered by Experts, Personalized by AI"
- *                ("Personalized by AI" in coral)
+ * GetCalmly brand mark — renders the official logo artwork (public/brand/*.png),
+ * NOT a font recreation, so the letterforms are always exact.
+ *
+ *   size     — target height of the "Calmly." wordmark, in px (rest scales to it)
+ *   onDark   — use the light-ink variant for dark backgrounds
+ *   tagline  — include the "Mental Healthcare…" strapline under the wordmark
+ *   href     — wrap in a link (null = no link, just the mark)
  */
 export default function Logo({
   size = 34,
@@ -18,65 +20,36 @@ export default function Logo({
   href?: string | null
   tagline?: boolean
 }) {
-  const getColor = onDark ? '#FFFFFF' : '#1C2B3A'
-  const tagColor = onDark ? 'rgba(255,255,255,.78)' : '#1C2B3A'
+  // Intrinsic art ratios (px): full art 1292×781, wordmark-only 1292×712.
+  // Height is derived from `size` (the wordmark cap) so it matches the old
+  // text logo's footprint at each call site.
+  const src = tagline
+    ? onDark
+      ? '/brand/logo-dark.png'
+      : '/brand/logo.png'
+    : onDark
+      ? '/brand/logo-mark-dark.png'
+      : '/brand/logo-mark.png'
 
-  const wordmark = (
-    <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: `${Math.round(size * 0.04)}px`, overflow: 'visible', lineHeight: 1 }}>
-      <span
-        style={{
-          fontFamily: "'Big Shoulders Display',sans-serif",
-          fontWeight: 300,
-          fontSize: `${Math.round(size * 0.5)}px`,
-          color: getColor,
-          letterSpacing: '0px',
-          lineHeight: 1,
-        }}
-      >
-        get
-      </span>
-      <span
-        style={{
-          fontFamily: "'Big Shoulders Display',sans-serif",
-          fontWeight: 900,
-          fontSize: `${size}px`,
-          color: '#C8553D',
-          letterSpacing: '-1.5px',
-          lineHeight: 1,
-          display: 'inline-block',
-        }}
-      >
-        Calmly.
-      </span>
-    </span>
+  const ratio = tagline ? 1292 / 781 : 1292 / 712
+  const height = Math.round(size * (tagline ? 1.42 : 1.12))
+  const width = Math.round(height * ratio)
+
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI"
+      width={width}
+      height={height}
+      style={{ height, width: 'auto', display: 'block' }}
+    />
   )
 
-  const inner = (
-    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: `${Math.round(size * 0.12)}px` }}>
-      {wordmark}
-      {tagline && (
-        <span
-          className="gc-logo-tag"
-          style={{
-            fontFamily: "'DM Sans',sans-serif",
-            fontWeight: 700,
-            fontSize: `${Math.max(9, Math.round(size * 0.23))}px`,
-            color: tagColor,
-            letterSpacing: '.1px',
-            lineHeight: 1.1,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Mental Healthcare, Powered by Experts, <span style={{ color: '#C8553D' }}>Personalized by AI</span>
-        </span>
-      )}
-    </span>
-  )
-
-  if (href === null) return inner
+  if (href === null) return img
   return (
-    <Link href={href} className="inline-block" aria-label="getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI">
-      {inner}
+    <Link href={href} className="inline-block" aria-label="getCalmly — home">
+      {img}
     </Link>
   )
 }
