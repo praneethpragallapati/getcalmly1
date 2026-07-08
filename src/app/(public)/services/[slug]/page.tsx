@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import BlogCover from '@/components/blog/BlogCover'
 
 type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'assessments' | 'specialised'
 
@@ -269,6 +270,29 @@ function darkBand(accent: string): string {
   return `radial-gradient(ellipse 65% 55% at 88% 8%, ${accent}48, transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, ${accent}1F, transparent 60%), ${deepTone(accent)}`
 }
 
+// deepTone with alpha, for scrims layered over hero photos.
+function deepToneA(hex: string, alpha: number): string {
+  const n = parseInt(hex.slice(1), 16)
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+  const mix = (c: number, base: number) => Math.round(base + (c - base) * 0.2)
+  return `rgba(${mix(r, 13)}, ${mix(g, 17)}, ${mix(b, 22)}, ${alpha})`
+}
+
+// Prototype: atmospheric hero photos for select services — candid,
+// golden-hour silhouettes (no staged stock faces). The accent scrim
+// duotones them into the band; darkBand stays as the loading/error
+// fallback via BlogCover. Roll out to the rest once approved.
+const heroPhoto: Partial<Record<ServiceSlug, { src: string; position: string }>> = {
+  therapy: {
+    src: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 38%',
+  },
+  couples: {
+    src: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 32%',
+  },
+}
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -337,6 +361,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     : null
 
   const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase' }
+  const photo = heroPhoto[slug as ServiceSlug]
 
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
@@ -347,6 +372,13 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
       <section style={{ background: darkBand(s.accent), padding: '118px 48px 72px', position: 'relative', overflow: 'hidden' }}>
+        {photo && (
+          <BlogCover
+            src={photo.src}
+            position={photo.position}
+            scrim={`linear-gradient(0deg, ${deepToneA(s.accent, 0.92)} 0%, transparent 26%), linear-gradient(97deg, ${deepToneA(s.accent, 0.97)} 0%, ${deepToneA(s.accent, 0.9)} 44%, ${deepToneA(s.accent, 0.52)} 76%, ${deepToneA(s.accent, 0.3)} 100%)`}
+          />
+        )}
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
           <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 40, fontWeight: 500 }}>
@@ -380,7 +412,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 </Link>
               </div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
+            <div style={{ background: photo ? 'rgba(12,9,8,.42)' : 'rgba(255,255,255,.06)', backdropFilter: photo ? 'blur(10px)' : undefined, borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
               <p style={{
                 fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900,
                 fontSize: 'clamp(48px, 6vw, 64px)', color: s.accent, lineHeight: 1, letterSpacing: '-1.5px', marginBottom: 14,

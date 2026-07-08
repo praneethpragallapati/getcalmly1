@@ -12,10 +12,12 @@ export default function BlogCover({
   src,
   alt = '',
   scrim = 'linear-gradient(160deg, rgba(28,43,58,.40) 0%, rgba(28,43,58,.66) 100%)',
+  position = 'center',
 }: {
   src: string
   alt?: string
   scrim?: string
+  position?: string
 }) {
   const [ok, setOk] = useState(true)
   if (!ok) return null
@@ -26,7 +28,7 @@ export default function BlogCover({
         src={src}
         alt={alt}
         onError={() => setOk(false)}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: position }}
       />
       <div style={{ position: 'absolute', inset: 0, background: scrim, pointerEvents: 'none' }} />
     </>
