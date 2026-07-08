@@ -282,7 +282,7 @@ function deepToneA(hex: string, alpha: number): string {
 // golden-hour silhouettes (no staged stock faces). The accent scrim
 // duotones them into the band; darkBand stays as the loading/error
 // fallback via BlogCover. Roll out to the rest once approved.
-const heroPhoto: Partial<Record<ServiceSlug, { src: string; position: string }>> = {
+const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
   // A real conversation in warm window light — what a session actually is.
   therapy: {
     src: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&w=1600&q=70',
@@ -291,6 +291,31 @@ const heroPhoto: Partial<Record<ServiceSlug, { src: string; position: string }>>
   // Two people's hands over coffee — sitting down to actually talk.
   couples: {
     src: 'https://images.unsplash.com/photo-1542338347-4fff3276af78?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 45%',
+  },
+  // A kid's hands drawing with crayons — play/art, how child sessions work.
+  child: {
+    src: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 55%',
+  },
+  // A mother lifting her baby — motherhood itself, candid not glowy.
+  maternal: {
+    src: 'https://images.unsplash.com/photo-1492725764893-90b379c2b6e7?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 45%',
+  },
+  // A doctor, stethoscope and phone — real medical care, online.
+  psychiatry: {
+    src: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 35%',
+  },
+  // Filling out the questionnaire at a desk with coffee.
+  assessments: {
+    src: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 55%',
+  },
+  // A hand held in comfort — care that accepts you as you are.
+  specialised: {
+    src: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1600&q=70',
     position: 'center 45%',
   },
 }
