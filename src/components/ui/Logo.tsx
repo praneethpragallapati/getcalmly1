@@ -25,8 +25,12 @@ export default function Logo({
 }) {
   const markSrc = onDark ? '/brand/logo-mark-dark.png' : '/brand/logo-mark.png'
   const markRatio = 1292 / 712
+  // Slight optical widening: the wordmark's condensed letterforms read
+  // cramped at nav scale, so stretch 10% horizontally. Keep this subtle —
+  // beyond ~1.15 the distortion of the artwork becomes noticeable.
+  const widen = 1.1
   const markHeight = Math.round(size * 1.2)
-  const markWidth = Math.round(markHeight * markRatio)
+  const markWidth = Math.round(markHeight * markRatio * widen)
   const tagColor = onDark ? 'rgba(255,255,255,.82)' : '#1C2B3A'
   const tagSize = Math.max(9, Math.round(size * 0.24))
 
@@ -38,7 +42,7 @@ export default function Logo({
         alt="getCalmly"
         width={markWidth}
         height={markHeight}
-        style={{ height: markHeight, width: 'auto', display: 'block' }}
+        style={{ height: markHeight, width: markWidth, display: 'block' }}
       />
       {tagline && (
         <span
