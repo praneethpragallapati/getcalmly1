@@ -283,13 +283,15 @@ function deepToneA(hex: string, alpha: number): string {
 // duotones them into the band; darkBand stays as the loading/error
 // fallback via BlogCover. Roll out to the rest once approved.
 const heroPhoto: Partial<Record<ServiceSlug, { src: string; position: string }>> = {
+  // A real conversation in warm window light — what a session actually is.
   therapy: {
-    src: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1600&q=70',
-    position: 'center 38%',
+    src: 'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 30%',
   },
+  // Two people's hands over coffee — sitting down to actually talk.
   couples: {
-    src: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1600&q=70',
-    position: 'center 32%',
+    src: 'https://images.unsplash.com/photo-1542338347-4fff3276af78?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 45%',
   },
 }
 
