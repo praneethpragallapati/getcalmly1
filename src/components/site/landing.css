@@ -19,7 +19,7 @@
 .lp-page::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   opacity:.5;}
-.lp-page nav{position:fixed;top:0;left:0;right:0;z-index:500;height:68px;padding:0 6%;
+.lp-page nav{position:fixed;top:0;left:0;right:0;z-index:500;height:84px;padding:0 6%;
   display:flex;align-items:center;justify-content:space-between;
   background:rgba(255,248,245,.85);backdrop-filter:blur(24px) saturate(1.4);
   border-bottom:1px solid transparent;transition:all .3s;}
@@ -73,7 +73,7 @@
   color:var(--charcoal);margin-bottom:16px;transform:scaleX(.9);transform-origin:left;}
 .lp-page .sec-h2 span{color:var(--coral);font-weight:900;}
 .lp-page .sec-p{font-size:17px;font-weight:300;color:var(--charcoal-l);line-height:1.85;max-width:480px;}
-.lp-page .hero{min-height:calc(100vh - 68px);display:grid;place-items:center;padding:76px 6% 48px;position:relative;overflow:hidden;
+.lp-page .hero{min-height:calc(100vh - 84px);display:grid;place-items:center;padding:64px 6% 48px;position:relative;overflow:hidden;
   background:
     radial-gradient(ellipse 95% 60% at 50% 0%,rgba(200,85,61,.34) 0%,transparent 62%),
     radial-gradient(ellipse 55% 60% at 92% 88%,rgba(200,85,61,.12) 0%,transparent 60%),
@@ -592,7 +592,7 @@
 @media(max-width:600px){
 .lp-page{ -webkit-text-size-adjust:100%; }
 .lp-page section{padding:72px 5%;}
-.lp-page nav{padding:0 5%;height:62px;}
+.lp-page nav{padding:0 5%;height:72px;}
 .lp-page nav .gc-logo-tag{display:none;}
 .lp-page .hero{padding:80px 5% 56px;min-height:auto;}
 .lp-page .hero-layout{gap:40px;}
@@ -676,7 +676,7 @@
   background:linear-gradient(90deg,var(--coral),var(--coral-l));pointer-events:none;}
 
 /* Hero headline line-reveal */
-.lp-page .hero-h1 .rl{display:block;overflow:hidden;}
+.lp-page .hero-h1 .rl{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em;}
 .lp-page .hero-h1 .rl > span{display:block;transform:translateY(108%);
   transition:transform .85s cubic-bezier(.2,.7,.2,1);}
 .lp-page .hero-h1.reveal-in .rl > span{transform:translateY(0);}

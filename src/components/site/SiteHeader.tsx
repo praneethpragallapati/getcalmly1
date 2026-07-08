@@ -29,7 +29,7 @@ export default function SiteHeader() {
 
   return (
     <nav id="nav">
-      <Logo size={26} href="/" tagline />
+      <Logo size={36} href="/" tagline />
 
       <ul className="nav-links">
         <li><Link href="/">Home</Link></li>
@@ -123,7 +123,7 @@ export default function SiteHeader() {
             flexDirection: 'column',
             padding: '12px 6%',
             gap: 4,
-            maxHeight: 'calc(100vh - 68px)',
+            maxHeight: 'calc(100vh - 84px)',
             overflowY: 'auto',
           }}
         >

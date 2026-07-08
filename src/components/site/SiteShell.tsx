@@ -15,7 +15,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
     <div className="lp-page">
       <SiteHeader />
       {/* paddingTop clears the fixed nav; the home hero bg blends into it. */}
-      <main style={{ paddingTop: 68 }}>{children}</main>
+      <main style={{ paddingTop: 84 }}>{children}</main>
       <SiteFooter />
       <LandingRuntime />
     </div>
