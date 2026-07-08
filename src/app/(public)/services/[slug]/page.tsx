@@ -255,6 +255,20 @@ export async function generateStaticParams() {
   return Object.keys(services).map((slug) => ({ slug }))
 }
 
+// Deep near-dark tone of a service accent, for hero/band backgrounds —
+// each service page gets its own atmosphere instead of a shared charcoal.
+function deepTone(hex: string): string {
+  const n = parseInt(hex.slice(1), 16)
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+  const mix = (c: number, base: number) => Math.round(base + (c - base) * 0.2)
+  return `rgb(${mix(r, 13)}, ${mix(g, 17)}, ${mix(b, 22)})`
+}
+
+// The shared dark-band background, tinted by the service accent.
+function darkBand(accent: string): string {
+  return `radial-gradient(ellipse 65% 55% at 88% 8%, ${accent}48, transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, ${accent}1F, transparent 60%), ${deepTone(accent)}`
+}
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -332,7 +346,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 48px 80px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: darkBand(s.accent), minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 48px 80px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
           <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 40, fontWeight: 500 }}>
@@ -455,7 +469,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── HOW CARE WORKS: 3-column, charcoal band ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '94px 48px' }}>
+      <section style={{ background: darkBand(s.accent), padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52, flexWrap: 'wrap', gap: 20 }}>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', letterSpacing: '-0.8px' }}>
@@ -508,7 +522,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '94px 24px' }}>
+      <section style={{ background: darkBand(s.accent), padding: '94px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
