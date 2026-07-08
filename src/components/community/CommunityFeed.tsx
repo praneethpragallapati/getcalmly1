@@ -128,7 +128,8 @@ function TagChip({
   )
 }
 
-function PostCard({ post }: { post: CommunityPostView }) {
+/** Community discussion card. Shared with the Real Talk hub. */
+export function CommunityPostCard({ post }: { post: CommunityPostView }) {
   const [hover, setHover] = useState(false)
   return (
     <Link href={`/community/${post.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -678,7 +679,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
               No discussions match your search.
             </div>
           ) : (
-            filtered.map((post) => <PostCard key={post.id} post={post} />)
+            filtered.map((post) => <CommunityPostCard key={post.id} post={post} />)
           )}
 
           {/* ── Locked guest banner ──────────────────────────────────────── */}

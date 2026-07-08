@@ -224,110 +224,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
       {/* Featured / lead post */}
       {lead && (
         <section style={{ maxWidth: 1120, margin: '0 auto', padding: '28px 24px 0' }}>
-          <Link href={`/blog/${lead.slug}`} style={{ textDecoration: 'none' }}>
-            <article
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0, 0.9fr) minmax(0, 1.1fr)',
-                background: '#fff',
-                borderRadius: 26,
-                overflow: 'hidden',
-                border: '1px solid rgba(28,43,58,.07)',
-                boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
-                transition: 'box-shadow 0.25s, transform 0.25s',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 18px 48px rgba(28,43,58,.12)'
-                ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
-                ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
-              }}
-            >
-              {/* Cover panel */}
-              <div
-                style={{
-                  position: 'relative',
-                  minHeight: 300,
-                  padding: '32px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  background: `linear-gradient(150deg, ${coverFor(lead.tags[0]).from}, ${
-                    coverFor(lead.tags[0]).to
-                  })`,
-                  overflow: 'hidden',
-                }}
-              >
-                <BlogCover src={blogImage(lead.tags)} alt={lead.title} />
-                <span
-                  style={{
-                    position: 'relative',
-                    alignSelf: 'flex-start',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    color: '#fff',
-                    background: 'rgba(255,255,255,0.16)',
-                    padding: '6px 14px',
-                    borderRadius: 999,
-                    backdropFilter: 'blur(4px)',
-                  }}
-                >
-                  Featured · {lead.tags[0]}
-                </span>
-                <span
-                  aria-hidden
-                  style={{
-                    fontFamily: "'Big Shoulders Display', sans-serif",
-                    fontSize: 160,
-                    fontWeight: 900,
-                    lineHeight: 1,
-                    color: 'rgba(255,255,255,0.10)',
-                    position: 'absolute',
-                    right: 18,
-                    bottom: -34,
-                  }}
-                >
-                  {initials(lead.author)}
-                </span>
-              </div>
-
-              {/* Content */}
-              <div style={{ padding: '36px 38px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {lead.tags.map((t) => (
-                    <span key={t} style={tagPillStyle}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <h2
-                  style={{
-                    fontFamily: "'Big Shoulders Display', sans-serif",
-                    fontSize: 'clamp(26px, 3.4vw, 38px)',
-                    fontWeight: 300,
-                    color: '#1C2B3A',
-                    lineHeight: 1.08,
-                    margin: 0,
-                  }}
-                >
-                  {lead.title}
-                </h2>
-                <p style={{ fontSize: 16, color: '#5a6a78', lineHeight: 1.7, margin: 0 }}>
-                  {lead.excerpt}
-                </p>
-                <div style={{ marginTop: 'auto', paddingTop: 18 }}>
-                  <AuthorRow post={lead} />
-                </div>
-              </div>
-            </article>
-          </Link>
+          <BlogLeadCard post={lead} />
         </section>
       )}
 
@@ -343,128 +240,241 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
         }}
       >
         {rest.map((post) => (
-          <Link
-            key={post.slug}
-            href={`/blog/${post.slug}`}
-            style={{ textDecoration: 'none', display: 'flex' }}
-          >
-            <article
-              style={{
-                background: '#fff',
-                borderRadius: 22,
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                border: '1px solid rgba(28,43,58,.07)',
-                boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
-                transition: 'box-shadow 0.22s, transform 0.22s',
-                cursor: 'pointer',
-                flex: 1,
-              }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 18px 48px rgba(28,43,58,.12)'
-                ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLElement).style.boxShadow =
-                  '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
-                ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
-              }}
-            >
-              {/* Generated cover band */}
-              <div
-                style={{
-                  position: 'relative',
-                  height: 132,
-                  padding: '18px 22px',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  background: `linear-gradient(140deg, ${coverFor(post.tags[0]).from}, ${
-                    coverFor(post.tags[0]).to
-                  })`,
-                  overflow: 'hidden',
-                }}
-              >
-                <BlogCover src={blogImage(post.tags)} alt={post.title} />
-                <span
-                  style={{
-                    position: 'relative',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.92)',
-                    background: 'rgba(255,255,255,0.15)',
-                    padding: '5px 12px',
-                    borderRadius: 999,
-                  }}
-                >
-                  {post.tags[0]}
-                </span>
-                <span
-                  aria-hidden
-                  style={{
-                    fontFamily: "'Big Shoulders Display', sans-serif",
-                    fontSize: 110,
-                    fontWeight: 900,
-                    lineHeight: 1,
-                    color: 'rgba(255,255,255,0.12)',
-                    position: 'absolute',
-                    right: 14,
-                    bottom: -26,
-                  }}
-                >
-                  {initials(post.author)}
-                </span>
-              </div>
-
-              <div style={{ padding: '22px 24px 22px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-                {/* Title */}
-                <h2
-                  style={{
-                    fontFamily: "'Big Shoulders Display', sans-serif",
-                    fontSize: 23,
-                    fontWeight: 300,
-                    color: '#1C2B3A',
-                    lineHeight: 1.18,
-                    margin: 0,
-                  }}
-                >
-                  {post.title}
-                </h2>
-
-                {/* Excerpt */}
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: '#5a6a78',
-                    lineHeight: 1.65,
-                    margin: 0,
-                    flexGrow: 1,
-                  }}
-                >
-                  {post.excerpt}
-                </p>
-
-                {/* Tags */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {post.tags.map((t) => (
-                    <span key={t} style={tagPillStyle}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-
-                <div style={{ borderTop: '1px solid #f0eae6', paddingTop: 14 }}>
-                  <AuthorRow post={post} />
-                </div>
-              </div>
-            </article>
-          </Link>
+          <BlogCard key={post.slug} post={post} />
         ))}
       </section>
     </div>
+  )
+}
+
+/** Large split featured-article card. Shared with the Real Talk hub. */
+export function BlogLeadCard({ post }: { post: BlogPostView }) {
+  return (
+    <Link href={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
+      <article
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 0.9fr) minmax(0, 1.1fr)',
+          background: '#fff',
+          borderRadius: 26,
+          overflow: 'hidden',
+          border: '1px solid rgba(28,43,58,.07)',
+          boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
+          transition: 'box-shadow 0.25s, transform 0.25s',
+          cursor: 'pointer',
+        }}
+        onMouseEnter={(e) => {
+          ;(e.currentTarget as HTMLElement).style.boxShadow =
+            '0 18px 48px rgba(28,43,58,.12)'
+          ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
+        }}
+        onMouseLeave={(e) => {
+          ;(e.currentTarget as HTMLElement).style.boxShadow =
+            '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
+          ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
+        }}
+      >
+        {/* Cover panel */}
+        <div
+          style={{
+            position: 'relative',
+            minHeight: 300,
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            background: `linear-gradient(150deg, ${coverFor(post.tags[0]).from}, ${
+              coverFor(post.tags[0]).to
+            })`,
+            overflow: 'hidden',
+          }}
+        >
+          <BlogCover src={blogImage(post.tags)} alt={post.title} />
+          <span
+            style={{
+              position: 'relative',
+              alignSelf: 'flex-start',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase',
+              color: '#fff',
+              background: 'rgba(255,255,255,0.16)',
+              padding: '6px 14px',
+              borderRadius: 999,
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            Featured · {post.tags[0]}
+          </span>
+          <span
+            aria-hidden
+            style={{
+              fontFamily: "'Big Shoulders Display', sans-serif",
+              fontSize: 160,
+              fontWeight: 900,
+              lineHeight: 1,
+              color: 'rgba(255,255,255,0.10)',
+              position: 'absolute',
+              right: 18,
+              bottom: -34,
+            }}
+          >
+            {initials(post.author)}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '36px 38px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {post.tags.map((t) => (
+              <span key={t} style={tagPillStyle}>
+                {t}
+              </span>
+            ))}
+          </div>
+          <h2
+            style={{
+              fontFamily: "'Big Shoulders Display', sans-serif",
+              fontSize: 'clamp(26px, 3.4vw, 38px)',
+              fontWeight: 300,
+              color: '#1C2B3A',
+              lineHeight: 1.08,
+              margin: 0,
+            }}
+          >
+            {post.title}
+          </h2>
+          <p style={{ fontSize: 16, color: '#5a6a78', lineHeight: 1.7, margin: 0 }}>
+            {post.excerpt}
+          </p>
+          <div style={{ marginTop: 'auto', paddingTop: 18 }}>
+            <AuthorRow post={post} />
+          </div>
+        </div>
+      </article>
+    </Link>
+  )
+}
+
+/** Standard grid article card. Shared with the Real Talk hub. */
+export function BlogCard({ post }: { post: BlogPostView }) {
+  return (
+    <Link href={`/blog/${post.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>
+      <article
+        style={{
+          background: '#fff',
+          borderRadius: 22,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          border: '1px solid rgba(28,43,58,.07)',
+          boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
+          transition: 'box-shadow 0.22s, transform 0.22s',
+          cursor: 'pointer',
+          flex: 1,
+        }}
+        onMouseEnter={(e) => {
+          ;(e.currentTarget as HTMLElement).style.boxShadow =
+            '0 18px 48px rgba(28,43,58,.12)'
+          ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
+        }}
+        onMouseLeave={(e) => {
+          ;(e.currentTarget as HTMLElement).style.boxShadow =
+            '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)'
+          ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
+        }}
+      >
+        {/* Generated cover band */}
+        <div
+          style={{
+            position: 'relative',
+            height: 132,
+            padding: '18px 22px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            background: `linear-gradient(140deg, ${coverFor(post.tags[0]).from}, ${
+              coverFor(post.tags[0]).to
+            })`,
+            overflow: 'hidden',
+          }}
+        >
+          <BlogCover src={blogImage(post.tags)} alt={post.title} />
+          <span
+            style={{
+              position: 'relative',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.92)',
+              background: 'rgba(255,255,255,0.15)',
+              padding: '5px 12px',
+              borderRadius: 999,
+            }}
+          >
+            {post.tags[0]}
+          </span>
+          <span
+            aria-hidden
+            style={{
+              fontFamily: "'Big Shoulders Display', sans-serif",
+              fontSize: 110,
+              fontWeight: 900,
+              lineHeight: 1,
+              color: 'rgba(255,255,255,0.12)',
+              position: 'absolute',
+              right: 14,
+              bottom: -26,
+            }}
+          >
+            {initials(post.author)}
+          </span>
+        </div>
+
+        <div style={{ padding: '22px 24px 22px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
+          {/* Title */}
+          <h2
+            style={{
+              fontFamily: "'Big Shoulders Display', sans-serif",
+              fontSize: 23,
+              fontWeight: 300,
+              color: '#1C2B3A',
+              lineHeight: 1.18,
+              margin: 0,
+            }}
+          >
+            {post.title}
+          </h2>
+
+          {/* Excerpt */}
+          <p
+            style={{
+              fontSize: 14,
+              color: '#5a6a78',
+              lineHeight: 1.65,
+              margin: 0,
+              flexGrow: 1,
+            }}
+          >
+            {post.excerpt}
+          </p>
+
+          {/* Tags */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {post.tags.map((t) => (
+              <span key={t} style={tagPillStyle}>
+                {t}
+              </span>
+            ))}
+          </div>
+
+          <div style={{ borderTop: '1px solid #f0eae6', paddingTop: 14 }}>
+            <AuthorRow post={post} />
+          </div>
+        </div>
+      </article>
+    </Link>
   )
 }
 
