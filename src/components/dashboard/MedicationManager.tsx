@@ -11,8 +11,8 @@ import { estimateOrderAmount } from '@/data/delivery'
 const TIME_OPTIONS = ['Morning', 'Afternoon', 'Evening', 'Night']
 
 /**
- * Medications tab (#14). Patients add medications, mark them stopped, and — for
- * prescribed courses — order a home delivery (mock payment today; pharmacy
+ * Medications tab (#14). Patients add medications, mark them stopped, and, for
+ * prescribed courses, order a home delivery (mock payment today; pharmacy
  * partner integration later).
  */
 export function MedicationManager({
@@ -145,7 +145,7 @@ export function MedicationManager({
                   {order.statusLabel} · ₹{order.amount} paid
                 </div>
                 <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-                  {order.itemName} — ordered {order.createdLabel}
+                  {order.itemName}, ordered {order.createdLabel}
                 </div>
               </div>
             </div>
@@ -246,7 +246,7 @@ export function MedicationManager({
 
       <p className="muted" style={{ fontSize: 12 }}>
         💊 Keep this list current so your psychiatrist has the full picture. Always follow your
-        prescriber’s guidance — never change a dose based on the app alone.
+        prescriber’s guidance, never change a dose based on the app alone.
       </p>
     </div>
   )
@@ -308,7 +308,7 @@ function DeliveryPanel({ medicationId, durationDays }: { medicationId: string; d
             Paid · awaiting dispatch · ₹{amount} paid
           </div>
           <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-            Delivery to your saved address — we&apos;ll notify you when it ships.
+            Delivery to your saved address, we&apos;ll notify you when it ships.
           </div>
         </div>
       </div>

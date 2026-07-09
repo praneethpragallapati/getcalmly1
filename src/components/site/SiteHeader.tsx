@@ -34,7 +34,7 @@ export default function SiteHeader() {
       <ul className="nav-links">
         <li><Link href="/">Home</Link></li>
 
-        {/* Services — hover mega-menu, no standalone tab */}
+        {/* Services, hover mega-menu, no standalone tab */}
         <li className="nav-item">
           <span className="nav-trigger">
             Services
@@ -129,7 +129,7 @@ export default function SiteHeader() {
         >
           <Link href="/" onClick={() => setOpen(false)} style={mobLink}>Home</Link>
 
-          {/* Services group — expanded inline on mobile */}
+          {/* Services group, expanded inline on mobile */}
           <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>Services</p>
           {SERVICES.map((s) => {
             const Icon = SERVICE_ICONS[s.slug]

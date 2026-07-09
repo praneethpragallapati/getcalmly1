@@ -6,7 +6,7 @@ import { getSessionUserId } from '@/lib/patient'
 // Signaling endpoint for in-app WebRTC video sessions (#4). Patient & expert
 // clients short-poll GET to receive the other side's offer/answer/ICE, and POST
 // to send their own. Access is gated to a room's participants for real rooms; the
-// relay is in-memory and ephemeral (see lib/signaling.ts) — no media or signal is
+// relay is in-memory and ephemeral (see lib/signaling.ts), no media or signal is
 // persisted, so there is nothing here for the AI pipeline to ever read.
 
 export const dynamic = 'force-dynamic'

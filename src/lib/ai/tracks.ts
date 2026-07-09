@@ -24,27 +24,27 @@ export const TRACK_LABELS: Record<string, string> = {
 }
 
 export const TRACK_FALLBACKS: Record<string, string> = {
-  anxiety: 'Try 2 minutes of box breathing — inhale for 4, hold for 4, exhale for 4, hold for 4.',
+  anxiety: 'Try 2 minutes of box breathing, inhale for 4, hold for 4, exhale for 4, hold for 4.',
   depression:
-    'Do one small behavioural activation step — water a plant, step outside briefly, text someone.',
+    'Do one small behavioural activation step, water a plant, step outside briefly, text someone.',
   stress_burnout:
-    "Set one hard boundary today — a stop time, a task you won't take on, a message you won't send.",
-  trauma_grief: 'Ground yourself with 5-4-3-2-1 — name five things you can see right now.',
+    "Set one hard boundary today, a stop time, a task you won't take on, a message you won't send.",
+  trauma_grief: 'Ground yourself with 5-4-3-2-1, name five things you can see right now.',
   ocd: 'Sit with one small uncertainty today without checking or seeking reassurance.',
   sleep: 'Keep your fixed rise time today no matter how last night went.',
   relationships:
-    'Write one sentence about what you need from your relationship today — just for yourself.',
-  psychotic_disorders: "Run through your daily routine anchor — is today's structure in place?",
+    'Write one sentence about what you need from your relationship today, just for yourself.',
+  psychotic_disorders: "Run through your daily routine anchor, is today's structure in place?",
   geriatric: 'Do one thing today that gives you a sense of purpose or connection.',
-  medical_psychology: 'Use the pacing rule — stop an activity at 80% energy, not at exhaustion.',
+  medical_psychology: 'Use the pacing rule, stop an activity at 80% energy, not at exhaustion.',
   impulse_control: 'If an urge comes today, try the 10-minute wait before acting on it.',
   anger_management:
     'When tension rises, pause and name the feeling underneath the anger before responding.',
   pregnancy_postpartum:
-    'Carve out ten minutes that belong only to you today — even a short walk counts.',
+    'Carve out ten minutes that belong only to you today, even a short walk counts.',
   parenting_stress: "Today, let 'fed, safe, and loved' be enough. That is genuinely enough.",
   lgbtqia_gender:
-    "Spend a little time today in a space — or with a person — where you don't have to translate yourself.",
+    "Spend a little time today in a space, or with a person, where you don't have to translate yourself.",
   pre_adoption: 'Revisit one moment from your preparation that reminded you why you chose this path.',
 }
 

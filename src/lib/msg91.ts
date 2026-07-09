@@ -2,8 +2,8 @@
 // Docs: https://docs.msg91.com/otp
 //
 // Required env:
-//   MSG91_AUTH_KEY      — your account auth key
-//   MSG91_OTP_TEMPLATE_ID — the approved OTP template id (DLT) used to send codes
+//   MSG91_AUTH_KEY     , your account auth key
+//   MSG91_OTP_TEMPLATE_ID, the approved OTP template id (DLT) used to send codes
 //
 // `mobile` must be the full number WITH country code and no "+", e.g. 919876543210.
 

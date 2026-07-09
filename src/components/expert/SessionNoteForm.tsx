@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { completeSession } from '@/app/(dashboard)/expert/actions'
 
 /**
- * Completing a session: the therapist writes the clinical note and saves —
+ * Completing a session: the therapist writes the clinical note and saves;
  * the session is only counted (and paid) once its note is on record.
  */
 export function SessionNoteForm({

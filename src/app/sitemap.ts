@@ -49,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  // Dynamic blog posts — the site's primary organic-search surface.
+  // Dynamic blog posts, the site's primary organic-search surface.
   // Uses each post's real last-modified date for accurate freshness signals.
   let blogEntries: MetadataRoute.Sitemap = []
   try {

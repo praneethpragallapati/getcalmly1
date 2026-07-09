@@ -406,7 +406,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
             }}
           >
             Real conversations, shared experiences, and the quiet relief of being understood. Read
-            freely — join to take part.
+            freely, join to take part.
           </p>
 
           {/* Live indicator + avatar stack */}
@@ -724,7 +724,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
                   lineHeight: 1.6,
                 }}
               >
-                Posting and commenting are open to all members — it takes 30 seconds to join, and
+                Posting and commenting are open to all members, it takes 30 seconds to join, and
                 it&apos;s free.
               </p>
 
@@ -851,7 +851,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
               ))}
             </div>
             <p style={{ fontSize: 12, color: '#9AABB8', margin: '14px 0 0', lineHeight: 1.5 }}>
-              Verified clinicians appear with a coloured badge. They share insight — but never
+              Verified clinicians appear with a coloured badge. They share insight, but never
               replace your own care team.
             </p>
           </SidebarCard>

@@ -4,7 +4,7 @@ import { aiConfig } from '@/lib/ai/config'
 /**
  * TEMPORARY diagnostic: reports whether the AI keys are present in the running
  * environment and whether a minimal live call to each provider succeeds. Never
- * returns key values — only presence, length, a masked fingerprint, and the
+ * returns key values, only presence, length, a masked fingerprint, and the
  * provider's HTTP status. Gated by CRON_SECRET so it isn't world-readable.
  *
  * Call: /api/ai-health?key=<CRON_SECRET>

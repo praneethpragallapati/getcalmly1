@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 
 /**
- * getCalmly icon system — minimal, geometric line icons (the "variant 3"
+ * getCalmly icon system, minimal, geometric line icons (the "variant 3"
  * language: straight lines, rounded rects, ticks instead of curves).
  * Stroke uses currentColor, so set the color via the parent's `color` or the
  * `color` prop. Self-contained SVG, no dependency.

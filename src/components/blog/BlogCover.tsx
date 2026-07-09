@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 /**
  * Photo layer for a blog cover. Sits inside a position:relative container that
- * already carries a brand gradient background — if the image fails to load it
+ * already carries a brand gradient background, if the image fails to load it
  * simply removes itself and the gradient shows through. The scrim keeps any
  * white text/pills on top legible over the photo.
  */

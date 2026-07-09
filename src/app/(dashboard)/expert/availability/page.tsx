@@ -63,7 +63,7 @@ export default async function AvailabilityPage() {
       <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
         <div className="section-title" style={{ marginBottom: 4 }}>Set a weekly default</div>
         <p className="muted" style={{ marginBottom: 12 }}>
-          Pick the 1-hour slots you usually work. Saving applies them to every day of the week — fine-tune
+          Pick the 1-hour slots you usually work. Saving applies them to every day of the week, fine-tune
           individual days below.
         </p>
         <form action={saveAvailability} className="stack" style={{ gap: 14 }}>
@@ -101,7 +101,7 @@ export default async function AvailabilityPage() {
         <div className="section-title" style={{ marginBottom: 4 }}>Time off</div>
         <p className="muted" style={{ marginBottom: 12 }}>
           Block a specific date (holiday, leave) without changing your weekly pattern. Tick specific hours
-          to block only part of the day — leave them all unticked to block the whole day.
+          to block only part of the day, leave them all unticked to block the whole day.
         </p>
         <form action={blockDate} className="stack" style={{ gap: 12, marginBottom: 14 }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

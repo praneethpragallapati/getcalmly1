@@ -3,7 +3,7 @@
  * strictly behind PrivacySettings. This is the single compliance boundary: a data
  * category is read ONLY when mayFeedToAi() allows it (per-category switch AND the
  * master feedToLlm switch). The patient's raw records always exist; this decides
- * what the model is ever allowed to see — nothing here bypasses that gate.
+ * what the model is ever allowed to see, nothing here bypasses that gate.
  *
  * Field names mirror the notebooks' patients.json vocabulary so the ported chat /
  * synthesizer / insight logic maps over with minimal translation.

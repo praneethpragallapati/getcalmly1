@@ -27,7 +27,7 @@ export default async function AdminEarningsPage() {
       <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: 28 }}>
         These values drive therapist earnings: each completed session pays the base fee plus the relevant
         session-number bonus, a night-session bonus where applicable, and the misc bonus. This is an early
-        stub — the full admin area lands later.
+        stub, the full admin area lands later.
       </p>
       <EarningsConfigForm initial={config} />
     </div>

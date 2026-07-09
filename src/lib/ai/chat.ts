@@ -51,10 +51,10 @@ const CLASSIFY_SYSTEM =
   '{"label": "VENT_MILD", "intent": "vent", "intensity": "low"}'
 
 const BLOCKED_REPLY =
-  "I'm here for how you're feeling and what's going on for you — that's a bit outside what I can help with. Is there something on your mind I can support you with?"
-const APP_REPLY = `For account, billing or technical help, the GetCalmly team can sort it out quickly — reach them at ${aiConfig.supportEmail}.`
+  "I'm here for how you're feeling and what's going on for you, that's a bit outside what I can help with. Is there something on your mind I can support you with?"
+const APP_REPLY = `For account, billing or technical help, the GetCalmly team can sort it out quickly, reach them at ${aiConfig.supportEmail}.`
 const SUBSCRIBE_MSG =
-  "You've reached today's free message limit. I'll be right here tomorrow — and GetCalmly Premium members can talk any time, with full access to their journal and session context. Upgrade at getcalmly.com/subscribe."
+  "You've reached today's free message limit. I'll be right here tomorrow, and GetCalmly Premium members can talk any time, with full access to their journal and session context. Upgrade at getcalmly.com/subscribe."
 
 const CRISIS_KEYWORDS = [
   'suicid',
@@ -92,7 +92,7 @@ function emotionalState(ctx: PatientContext): string {
   if (recent.length === 0) {
     if (ctx.scores.length) {
       const latest = ctx.scores[ctx.scores.length - 1]
-      return `${latest.scale}: ${latest.label ?? scoreToWords(latest.score)} — trend: ${ctx.trend ?? 'unknown'}`
+      return `${latest.scale}: ${latest.label ?? scoreToWords(latest.score)}, trend: ${ctx.trend ?? 'unknown'}`
     }
     return 'No mood data recorded.'
   }
@@ -114,7 +114,7 @@ function moodDataBlock(ctx: PatientContext): string {
   if (!recent.length) return 'No mood data.'
   const scores = recent.map((m) => m.score)
   const trend = scores[scores.length - 1] > scores[0] ? 'improving' : scores[scores.length - 1] < scores[0] ? 'declining' : 'stable'
-  const rows = recent.map((m) => `${weekday(m.date)}: felt ${scoreToWords(m.score)}${m.note ? ` — ${m.note}` : ''}`)
+  const rows = recent.map((m) => `${weekday(m.date)}: felt ${scoreToWords(m.score)}${m.note ? `, ${m.note}` : ''}`)
   return `Trend: ${trend}\n${rows.join('\n')}`
 }
 
@@ -140,7 +140,7 @@ function assessmentBlock(
     const flags: string[] = []
     if (ctx.risk.passiveSiHistory) flags.push('passive SI history: YES')
     if (ctx.risk.sleepDisturbance) flags.push('sleep disturbance noted')
-    if (ctx.risk.safetyPlanActive) flags.push('safety plan active — contact: ' + (ctx.risk.safetyPlanContact ?? ''))
+    if (ctx.risk.safetyPlanActive) flags.push('safety plan active, contact: ' + (ctx.risk.safetyPlanContact ?? ''))
     if (flags.length) parts.push('Risk flags: ' + flags.join(', '))
   }
   if (ctx.currentSituation) parts.push('Current situation: ' + ctx.currentSituation)
@@ -158,7 +158,8 @@ const NON_NEG =
   '- You are Calmly, a warm mental wellness companion. NOT a therapist or doctor.\n' +
   '- Never diagnose, never recommend or comment on medication, never make decisions for them.\n' +
   '- Read the FULL conversation before replying. Short replies (yes/ok/sure) continue the prior thread.\n' +
-  '- Be specific and human. Avoid hollow openers like "I hear you" or "That must be hard".'
+  '- Be specific and human. Avoid hollow openers like "I hear you" or "That must be hard".\n' +
+  '- Never use em dashes (—). Use a comma, period, or colon instead.'
 
 function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): string {
   const base =
@@ -171,7 +172,7 @@ function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): str
     '\n'
 
   if (label === 'GREETING') {
-    return base + 'RULES:\n- Respond warmly in 1-2 sentences only.\n- Do NOT mention mood scores, past incidents, or clinical data.\n- Just open the door — let them lead.'
+    return base + 'RULES:\n- Respond warmly in 1-2 sentences only.\n- Do NOT mention mood scores, past incidents, or clinical data.\n- Just open the door, let them lead.'
   }
   if (label === 'GENERIC_WELLNESS') {
     return base + 'RULES:\n- Answer the wellness question briefly and practically.\n- Tie it lightly to their current state if it adds value.\n- 1-2 sentences. No clinical language.'
@@ -197,7 +198,7 @@ function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): str
   }
   if (label === 'VENT_MILD') {
     const helped = assessmentBlock(ctx, { helped: true, triggers: true, risk: false })
-    return baseNn + 'RECENT JOURNALS:\n' + journalsBlock(ctx, 2, 80) + '\n\n' + (helped ? 'PERSONALISED CONTEXT:\n' + helped + '\n' : '') + 'RULES:\n- Validate first, advise second.\n- Use what_has_helped above for any coping suggestion — not a generic tip.\n- 1-2 sentences. Do not over-escalate.\n- If they say nothing helps — name one specific thing from their history.'
+    return baseNn + 'RECENT JOURNALS:\n' + journalsBlock(ctx, 2, 80) + '\n\n' + (helped ? 'PERSONALISED CONTEXT:\n' + helped + '\n' : '') + 'RULES:\n- Validate first, advise second.\n- Use what_has_helped above for any coping suggestion, not a generic tip.\n- 1-2 sentences. Do not over-escalate.\n- If they say nothing helps, name one specific thing from their history.'
   }
   if (label === 'VENT_DISTRESS') {
     const sessions = ctx.membership === 'paid' ? sessionsBlock(ctx, 2, 130) : 'Not available.'
@@ -205,7 +206,7 @@ function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): str
   }
   if (label === 'CRISIS') {
     const sessions = ctx.membership === 'paid' ? sessionsBlock(ctx, 2, 130) : 'Not available.'
-    return baseNn + 'JOURNALS:\n' + journalsBlock(ctx, 2, 100) + '\n\nSESSION NOTES:\n' + sessions + '\n\nRISK CONTEXT:\n' + assessmentBlock(ctx, { helped: false, triggers: true, risk: true }) + '\nRULES:\n- PRIORITY: Ask directly "are you safe right now" if not already established.\n- Provide iCall helpline: ' + ICALL + ' — say it clearly.\n- ' + counsellorLine(ctx) + '\n- If passive SI history is YES — take extra care; do not minimise.\n- If safety plan is active — remind them gently.\n- Do NOT ask multiple questions at once.\n- Stay calm, warm, and present. Do not lecture or over-explain.\n- Validate the pain without dramatising it.'
+    return baseNn + 'JOURNALS:\n' + journalsBlock(ctx, 2, 100) + '\n\nSESSION NOTES:\n' + sessions + '\n\nRISK CONTEXT:\n' + assessmentBlock(ctx, { helped: false, triggers: true, risk: true }) + '\nRULES:\n- PRIORITY: Ask directly "are you safe right now" if not already established.\n- Provide iCall helpline: ' + ICALL + ', say it clearly.\n- ' + counsellorLine(ctx) + '\n- If passive SI history is YES, take extra care; do not minimise.\n- If safety plan is active, remind them gently.\n- Do NOT ask multiple questions at once.\n- Stay calm, warm, and present. Do not lecture or over-explain.\n- Validate the pain without dramatising it.'
   }
   if (label === 'ADVICE_SEEK') {
     const helped = assessmentBlock(ctx, { helped: true, triggers: true, risk: false })
@@ -247,7 +248,7 @@ function buildMessages(label: string, question: string, ctx: PatientContext): Ch
   return [...trimmed, { role: 'user', content: question }]
 }
 
-// Heuristic classifier used when no OpenAI key is configured — crisis-safe.
+// Heuristic classifier used when no OpenAI key is configured, crisis-safe.
 function heuristicClassify(text: string): { label: string; intent: string; intensity: string } {
   const t = text.toLowerCase()
   if (CRISIS_KEYWORDS.some((k) => t.includes(k))) return { label: 'CRISIS', intent: 'crisis', intensity: 'crisis' }
@@ -334,7 +335,7 @@ async function saveCrisisAlert(ctx: PatientContext, question: string, answer: st
     `WHAT THEY SAID: ${question.slice(0, 200)}\n` +
     `WHAT CALMLY RESPONDED: ${answer.slice(0, 200)}\n` +
     `EMOTIONAL STATE THIS WEEK: Avg mood ${avgMood}/10 | ` +
-    `Clinical scale: ${ctx.scale ?? 'N/A'} — ${latestScale?.label ?? 'N/A'} | ` +
+    `Clinical scale: ${ctx.scale ?? 'N/A'}, ${latestScale?.label ?? 'N/A'} | ` +
     `SI history: ${ctx.risk.passiveSiHistory ? 'YES' : 'no'}\n` +
     `ACTION NEEDED: Please follow up with ${ctx.name} before their next scheduled session.`
   await prisma.crisisAlert.create({
@@ -424,7 +425,7 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
   let answer = res.answer
   if (!answer) {
     answer = isHs
-      ? `I'm here with you. Please reach out to ${ctx.therapistName ?? 'a professional'} or call iCall at ${ICALL} — you don't have to handle this alone.`
+      ? `I'm here with you. Please reach out to ${ctx.therapistName ?? 'a professional'} or call iCall at ${ICALL}, you don't have to handle this alone.`
       : 'Something went wrong on my end. Please try again in a moment.'
   }
 

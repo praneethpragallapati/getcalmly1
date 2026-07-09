@@ -30,7 +30,7 @@ export function tierForMonths(paidMonths: number): PlanTierName {
 const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 /**
- * A patient's last-7-day progress summary — expert-assigned task completion plus
+ * A patient's last-7-day progress summary, expert-assigned task completion plus
  * mood check-in activity. Shared by the patient's Progress page and the expert's
  * patient profile so both sides read the exact same numbers from the same source.
  * Denominator is tasks assigned in the window; completion counts toward progress.
@@ -90,7 +90,7 @@ function computeStreak(dates: Date[]): number {
  * Reads the data we now persist (mood check-ins, journal entries) for the
  * signed-in patient and overlays it on sensible demo defaults; everything not
  * yet captured (plan, sessions, etc.) stays on demo until its phase lands. With
- * no session or no DB it returns bundled demo data — same fallback approach used
+ * no session or no DB it returns bundled demo data, same fallback approach used
  * by blog/community.
  */
 export async function getDashboardData(): Promise<DashboardData> {
@@ -230,7 +230,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       data.planName = sub.planName
       data.planActive = true
     } else if (appts.length > 0) {
-      // No active subscription row, but real appointments exist — count from those.
+      // No active subscription row, but real appointments exist, count from those.
       data.sessionsDone = completedAppts.length
       data.planActive = false
     }
@@ -277,7 +277,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       }
     }
 
-    // Real milestones from actual activity — falls back to demo wording only when
+    // Real milestones from actual activity, falls back to demo wording only when
     // nothing has happened yet for a given milestone.
     if (moods.length > 0 || completedAppts.length > 0 || data.streakDays > 0) {
       const earliestMood = moods.length ? moods[moods.length - 1] : null

@@ -2,7 +2,7 @@ import { CalendarDays } from 'lucide-react'
 
 /**
  * The patient's own month-at-a-glance calendar (#9). Highlights today and dots
- * days that have a session. Pure/presentational — the page computes which days
+ * days that have a session. Pure/presentational, the page computes which days
  * are marked from the patient's appointments.
  */
 export function PatientCalendar({ markedDays }: { markedDays: number[] }) {

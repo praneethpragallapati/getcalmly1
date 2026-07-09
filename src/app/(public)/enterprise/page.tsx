@@ -42,7 +42,7 @@ export default function EnterprisePage() {
               The most stretched person on your team is probably the one who never says so.
             </h1>
             <p style={{ fontSize: 18.5, color: 'rgba(255,255,255,.7)', lineHeight: 1.82, fontWeight: 300, maxWidth: 580, marginBottom: 38 }}>
-              Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential, clinically real mental health care — and gives you the signal long before it becomes a statistic.
+              Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential, clinically real mental health care, and gives you the signal long before it becomes a statistic.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <a href="#interest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff', padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)' }}>
@@ -53,7 +53,7 @@ export default function EnterprisePage() {
               </a>
             </div>
           </div>
-          {/* Right column — compact trust signals */}
+          {/* Right column, compact trust signals */}
           <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 24, letterSpacing: 0.3 }}>Used by teams that take care seriously</p>
             {[
@@ -93,7 +93,7 @@ export default function EnterprisePage() {
                 pale: 'rgba(200,85,61,.07)',
                 label: 'Corporates',
                 headline: 'Mental health is the quietest cost on your balance sheet.',
-                body: 'Burnout, absenteeism and quiet quitting rarely show up until they are expensive. Give your people confidential access to real therapists and a daily support app — and give your leaders aggregate wellbeing signals, never individual data.',
+                body: 'Burnout, absenteeism and quiet quitting rarely show up until they are expensive. Give your people confidential access to real therapists and a daily support app, and give your leaders aggregate wellbeing signals, never individual data.',
                 points: ['Confidential therapy & psychiatry', 'Calm+ app from day one', 'Anonymised HR dashboards', '24×7 crisis support'],
               },
               {
@@ -101,7 +101,7 @@ export default function EnterprisePage() {
                 pale: 'rgba(61,158,114,.07)',
                 label: 'Education',
                 headline: 'Students are carrying more than ever, and most carry it alone.',
-                body: 'Exam pressure, identity, belonging and the weight of expectation. Bring age-appropriate counselling, child and adolescent specialists, and a safe digital space to your campus — with safeguarding built in.',
+                body: 'Exam pressure, identity, belonging and the weight of expectation. Bring age-appropriate counselling, child and adolescent specialists, and a safe digital space to your campus, with safeguarding built in.',
                 points: ['Counsellors trained for students', 'Confidential self-referral', 'Safeguarding & crisis escalation', 'Wellbeing programmes for staff'],
               },
               {
@@ -109,7 +109,7 @@ export default function EnterprisePage() {
                 pale: 'rgba(26,127,122,.07)',
                 label: 'Hospitals',
                 headline: 'A complete mental health layer for your patients, delivered as SaaS.',
-                body: 'Offer structured, AI-assisted mental health care under your own brand. Our platform handles matching, scheduling, clinical notes and the patient app — so your clinicians focus on care while you extend your services.',
+                body: 'Offer structured, AI-assisted mental health care under your own brand. Our platform handles matching, scheduling, clinical notes and the patient app, so your clinicians focus on care while you extend your services.',
                 points: ['White-label portals', 'Clinical notes & referral flows', 'Google Meet + calendar sync', 'DPDP & NIMHANS compliant'],
               },
             ].map((s, i) => (
@@ -152,15 +152,15 @@ export default function EnterprisePage() {
               fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
               fontSize: 'clamp(28px, 4vw, 44px)', color: charcoal, letterSpacing: '-1.2px', lineHeight: 1.06, marginBottom: 22,
             }}>
-              See the wellbeing of your people — never the person.
+              See the wellbeing of your people, never the person.
             </h2>
             <p style={{ fontSize: 17, color: '#5A6B7A', lineHeight: 1.82, fontWeight: 300, marginBottom: 28 }}>
-              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. The signal is drawn quietly from everyday use of the app — mood check-ins, journaling and Calm AI conversations — then aggregated and anonymised, so you see the trend, never an individual&apos;s records.
+              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. The signal is drawn quietly from everyday use of the app, mood check-ins, journaling and Calm AI conversations, then aggregated and anonymised, so you see the trend, never an individual&apos;s records.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
                 ['Spot strain before it spreads', 'Department-level trends flag where burnout risk is climbing, so you can act early.'],
-                ['Prove the ROI', 'Engagement and utilisation in one view — show leadership the programme is being used.'],
+                ['Prove the ROI', 'Engagement and utilisation in one view, show leadership the programme is being used.'],
                 ['Zero admin overhead', 'No spreadsheets, no manual reports. Live numbers refresh on their own.'],
               ].map(([t, d]) => (
                 <div key={t} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -238,7 +238,7 @@ export default function EnterprisePage() {
               </div>
             </div>
             <p style={{ fontSize: 11.5, color: '#A0ADB8', textAlign: 'center', marginTop: 14, lineHeight: 1.5 }}>
-              Illustrative view. Aggregate data only — individual records are never visible to your organisation.
+              Illustrative view. Aggregate data only, individual records are never visible to your organisation.
             </p>
           </div>
         </div>
@@ -263,9 +263,9 @@ export default function EnterprisePage() {
           </div>
           <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
             {[
-              ['01', 'Discovery', 'We learn about your people, your goals and your constraints — then shape a programme that fits.'],
+              ['01', 'Discovery', 'We learn about your people, your goals and your constraints, then shape a programme that fits.'],
               ['02', 'Pilot', 'A focused rollout to one team or cohort, with clear success measures agreed up front.'],
-              ['03', 'Rollout', 'Onboarding, comms and launch support to drive real adoption — not just sign-ups.'],
+              ['03', 'Rollout', 'Onboarding, comms and launch support to drive real adoption, not just sign-ups.'],
               ['04', 'Measure', 'Quarterly anonymised reporting and reviews, so you can see impact and keep improving.'],
             ].map(([n, t, d], i) => (
               <div key={n} style={{
@@ -391,7 +391,7 @@ export default function EnterprisePage() {
                 </div>
                 <div>
                   <label style={labelStyle}>What are you hoping to solve?</label>
-                  <textarea rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Tell us a little about your goals — what would success look like for your people?" />
+                  <textarea rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Tell us a little about your goals, what would success look like for your people?" />
                 </div>
                 <button onClick={() => setSent(true)} style={{
                   width: '100%', padding: '17px', borderRadius: 50, border: 'none',

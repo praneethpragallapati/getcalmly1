@@ -4,14 +4,14 @@ const testimonials = [
     location: 'Mumbai',
     avatar: 'PR',
     color: '#C8553D',
-    quote: 'GetCalmly helped me find a Hindi-speaking therapist who truly understood my cultural context. I never had to explain why family pressure affects me — she just got it. My anxiety has reduced significantly in just 2 months.',
+    quote: 'GetCalmly helped me find a Hindi-speaking therapist who truly understood my cultural context. I never had to explain why family pressure affects me, she just got it. My anxiety has reduced significantly in just 2 months.',
   },
   {
     name: 'Arjun K.',
     location: 'Bangalore',
     avatar: 'AK',
     color: '#3D9E72',
-    quote: 'The pre-assessment was spot-on. My matched therapist specializes in exactly what I needed — work burnout and imposter syndrome. The sessions via Google Meet are seamless, and the pricing is very reasonable.',
+    quote: 'The pre-assessment was spot-on. My matched therapist specializes in exactly what I needed, work burnout and imposter syndrome. The sessions via Google Meet are seamless, and the pricing is very reasonable.',
   },
   {
     name: 'Meera S.',

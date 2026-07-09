@@ -26,7 +26,7 @@ const adultQuestions: Question[] = [
   {
     id: 'focus',
     text: 'What feels heaviest right now?',
-    hint: 'Pick up to 3 — this helps us find the right professional for you.',
+    hint: 'Pick up to 3, this helps us find the right professional for you.',
     type: 'multi',
     maxSelect: 3,
     concern: 'Primary Concerns',
@@ -130,7 +130,7 @@ const adultQuestions: Question[] = [
   },
   {
     id: 'coping',
-    // Subtle risk screen — phrased gently, no explicit wording.
+    // Subtle risk screen, phrased gently, no explicit wording.
     text: 'Over the last two weeks, how often have things felt like too much to carry?',
     type: 'single',
     layout: 'grid',
@@ -147,7 +147,7 @@ const adultQuestions: Question[] = [
   {
     id: 'gender',
     text: 'Any preference for your professional?',
-    hint: 'Totally optional — we\'ll honour it where we can.',
+    hint: 'Totally optional, we\'ll honour it where we can.',
     type: 'single',
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
@@ -220,7 +220,7 @@ const childQuestions: Question[] = [
   {
     id: 'gender',
     text: 'Any preference for your child\'s therapist?',
-    hint: 'Totally optional — we\'ll honour it where we can.',
+    hint: 'Totally optional, we\'ll honour it where we can.',
     type: 'single',
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
@@ -277,7 +277,7 @@ const coupleQuestions: Question[] = [
   {
     id: 'gender',
     text: 'Any preference for your professional?',
-    hint: 'Totally optional — we\'ll honour it where we can.',
+    hint: 'Totally optional, we\'ll honour it where we can.',
     type: 'single',
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
@@ -316,7 +316,7 @@ const psychiatryQuestions: Question[] = [
     text: 'Are you currently taking any psychiatric medication?',
     type: 'single',
     layout: 'grid',
-    options: ['No', 'Yes — currently', 'Previously, not now'],
+    options: ['No', 'Yes, currently', 'Previously, not now'],
   },
   {
     id: 'severity',
@@ -335,7 +335,7 @@ const psychiatryQuestions: Question[] = [
   {
     id: 'gender',
     text: 'Any preference for your professional?',
-    hint: 'Totally optional — we\'ll honour it where we can.',
+    hint: 'Totally optional, we\'ll honour it where we can.',
     type: 'single',
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
@@ -379,7 +379,7 @@ export default function AssessmentForm({ type }: { type: string }) {
     // Risk screen fires gently when answers lean toward "almost every day".
     if (q.risk && (value === 'Almost every day' || value === 'More than half the days')) {
       setShowEmergency(true)
-      return // wait — they continue from the modal
+      return // wait, they continue from the modal
     }
     setTimeout(advance, 220)
   }
@@ -452,7 +452,7 @@ export default function AssessmentForm({ type }: { type: string }) {
             </div>
           )}
 
-          {/* Single — list / grid / chips */}
+          {/* Single, list / grid / chips */}
           {q.type === 'single' && (
             <div className={`aq-${q.layout || 'list'}`}>
               {q.options!.map((opt, i) => {
@@ -475,7 +475,7 @@ export default function AssessmentForm({ type }: { type: string }) {
             </div>
           )}
 
-          {/* Multi — needs a Continue button */}
+          {/* Multi, needs a Continue button */}
           {isMulti && (
             <>
               <div className="aq-multi-grid">

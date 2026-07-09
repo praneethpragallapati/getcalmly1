@@ -1,12 +1,12 @@
 /**
  * Expert (clinician) portal data access. Mirrors the DB-with-fallback discipline
- * used elsewhere, but with no demo fallback — there is no meaningful "preview"
+ * used elsewhere, but with no demo fallback, there is no meaningful "preview"
  * of another person's clinical record, so every function here returns null/empty
  * when there is no signed-in, verified therapist.
  *
  * Read-only by design: the only clinician-authored input this module writes is
  * the existing Appointment.summary/preSessionNote channel (already the sole
- * expert-authored text the AI pipeline synthesizes — see lib/ai/synthesizer.ts).
+ * expert-authored text the AI pipeline synthesizes, see lib/ai/synthesizer.ts).
  * Nothing here adds a new freeform field that feeds the AI directly.
  */
 import { getServerSession } from 'next-auth'
@@ -649,7 +649,7 @@ const NOTE_PROMPT =
   "Given the therapist's brief bullet points below, write a structured clinical session summary " +
   '(max 100 words) covering: what was discussed, technique/approach used, and homework assigned if any. ' +
   'Plain prose, third person about the patient, no headings, no markdown. The therapist will edit this ' +
-  'before saving — write a solid draft, not a placeholder.'
+  'before saving, write a solid draft, not a placeholder.'
 
 /** AI-drafted session note from the therapist's quick bullet points. Returns null without an LLM key. */
 export async function draftSessionNote(bullets: string): Promise<string | null> {
@@ -924,7 +924,7 @@ export async function superviseeOwningPatient(supervisorId: string, patientId: s
 
 export type SuperviseeCaseload = { superviseeId: string; superviseeName: string; patients: CaseloadPatient[] }
 
-/** Full caseloads of everyone this therapist supervises — supervisors can see all assignee patient info. */
+/** Full caseloads of everyone this therapist supervises, supervisors can see all assignee patient info. */
 export async function getSuperviseeCaseloads(supervisorId: string): Promise<SuperviseeCaseload[]> {
   const links = await prisma.supervisionLink.findMany({
     where: { supervisorId },

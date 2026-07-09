@@ -84,7 +84,7 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Hero — daily Calm AI insight (#10) */}
+      {/* Hero, daily Calm AI insight (#10) */}
       <section className="hero">
         <div>
           <span className="hero-badge">CALM AI · TODAY’S INSIGHT</span>
@@ -257,7 +257,7 @@ export default async function AppHomePage() {
             <TaskList tasks={d.tasks} />
           </div>
 
-          {/* Medications glimpse (#14 — full screen at /app/medications) */}
+          {/* Medications glimpse (#14, full screen at /app/medications) */}
           {med && (
             <Link href="/app/medications" className="card" style={{ display: 'block' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>

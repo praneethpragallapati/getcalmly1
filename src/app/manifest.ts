@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    name: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
     short_name: 'getCalmly',
     description:
       'Book your first session for ₹999 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',

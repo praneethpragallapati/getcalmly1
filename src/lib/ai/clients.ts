@@ -1,5 +1,5 @@
 /**
- * Minimal provider clients built on fetch — no SDK dependencies, works in the
+ * Minimal provider clients built on fetch, no SDK dependencies, works in the
  * serverless/Edge-friendly Next runtime. Each call returns the text plus token
  * usage so callers can estimate cost, and never throws: on any failure it returns
  * a null answer with the error string, mirroring the notebook's tolerant design.
@@ -65,7 +65,7 @@ async function callAnthropic(
       model,
       max_tokens: maxTokens,
       temperature,
-      // Cache the system prompt — it is large and stable across a conversation.
+      // Cache the system prompt, it is large and stable across a conversation.
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       messages,
     }),

@@ -12,7 +12,7 @@ const OPTIONS: { value: CareCategoryName; label: string; desc: string; icon: typ
 ]
 
 /**
- * Switch the product care category — Individual / Couple / Kids (#19). The actual
+ * Switch the product care category, Individual / Couple / Kids (#19). The actual
  * clinical move (partner/child linking) is arranged with the care team; this
  * records the patient's chosen track.
  */
@@ -39,7 +39,7 @@ export function CategorySwitcher({ current }: { current: CareCategoryName }) {
     <div className="card">
       <div className="section-title">Care category</div>
       <p className="muted" style={{ margin: '6px 0 14px' }}>
-        Choose who your care is for. Switching is arranged with your care team — they’ll reach out to
+        Choose who your care is for. Switching is arranged with your care team, they’ll reach out to
         set things up.
       </p>
       <div className="cat-options">

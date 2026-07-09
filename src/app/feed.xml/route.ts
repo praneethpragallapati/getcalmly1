@@ -12,7 +12,7 @@ function esc(s: string): string {
     .replace(/"/g, '&quot;')
 }
 
-// RSS 2.0 feed for the blog — lets readers, aggregators and AI crawlers
+// RSS 2.0 feed for the blog, lets readers, aggregators and AI crawlers
 // discover and follow new posts.
 export async function GET() {
   let posts: Awaited<ReturnType<typeof getBlogPosts>> = []
@@ -45,7 +45,7 @@ ${p.tags.map((t) => `      <category>${esc(t)}</category>`).join('\n')}
     <title>getCalmly Blog</title>
     <link>${SITE_URL}/blog</link>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />
-    <description>Mental health, therapy and wellbeing — from getCalmly’s clinicians.</description>
+    <description>Mental health, therapy and wellbeing, from getCalmly’s clinicians.</description>
     <language>en-IN</language>
 ${items}
   </channel>

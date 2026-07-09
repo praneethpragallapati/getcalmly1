@@ -157,7 +157,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
 
       <div className="grid-2">
         <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Mood — last 14 check-ins</div>
+          <div className="section-title" style={{ marginBottom: 12 }}>Mood, last 14 check-ins</div>
           {p.moodWeek.length === 0 && <p className="muted">No mood check-ins yet.</p>}
           {p.moodWeek.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 90 }}>
@@ -185,7 +185,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             <ul style={{ marginTop: 10, paddingLeft: 18 }}>
               {p.medications.map((m, i) => (
                 <li key={i} className="muted">
-                  {m.name}{m.dosage ? ` (${m.dosage})` : ''} — {m.active ? 'active' : 'discontinued'}
+                  {m.name}{m.dosage ? ` (${m.dosage})` : ''}, {m.active ? 'active' : 'discontinued'}
                 </li>
               ))}
             </ul>

@@ -97,7 +97,7 @@ export default async function EarningsPage() {
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 12 }}>Monthly breakdown</div>
-        {e.byMonth.length === 0 && <p className="muted">No noted sessions yet — a session counts toward earnings once you complete it and write its session note.</p>}
+        {e.byMonth.length === 0 && <p className="muted">No noted sessions yet, a session counts toward earnings once you complete it and write its session note.</p>}
         {e.byMonth.length > 0 && (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>

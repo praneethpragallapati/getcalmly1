@@ -12,7 +12,7 @@ async function main() {
     await prisma.$queryRawUnsafe('SELECT "passwordHash" FROM "User" LIMIT 1')
     console.log('✓ passwordHash column exists (migration 0006 applied).')
   } catch (e) {
-    console.log('✗ passwordHash column MISSING — run `npm run db:deploy`.')
+    console.log('✗ passwordHash column MISSING. Run `npm run db:deploy`.')
     console.log('  ', (e as Error).message)
     return
   }
@@ -20,14 +20,14 @@ async function main() {
   // 2) Does the user exist, and does the stored hash verify?
   const user = await prisma.user.findUnique({ where: { email: EMAIL } })
   if (!user) {
-    console.log(`✗ No user with email ${EMAIL} — run \`npm run db:seed\`.`)
+    console.log(`✗ No user with email ${EMAIL}. Run \`npm run db:seed\`.`)
     return
   }
   console.log(`✓ User found: id=${user.id} role=${user.role} name=${user.name}`)
   console.log(`  passwordHash present: ${user.passwordHash ? 'yes' : 'NO'}`)
 
   if (!user.passwordHash) {
-    console.log('✗ passwordHash is null — seed did not set it. Re-run `npm run db:seed`.')
+    console.log('✗ passwordHash is null. Seed did not set it. Re-run `npm run db:seed`.')
     return
   }
 

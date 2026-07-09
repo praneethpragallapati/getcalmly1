@@ -39,13 +39,13 @@ async function main() {
   const hasHistory = await tableExists('_prisma_migrations')
 
   if (hasHistory) {
-    console.log('Migration history table exists — running a normal migrate deploy.')
+    console.log('Migration history table exists, running a normal migrate deploy.')
   } else {
     const schemaIsEmpty = !(await tableExists('User'))
     if (schemaIsEmpty) {
-      console.log('Fresh/empty database — migrate deploy will apply everything.')
+      console.log('Fresh/empty database, migrate deploy will apply everything.')
     } else {
-      console.log('Existing schema with no migration history detected — baselining.')
+      console.log('Existing schema with no migration history detected, baselining.')
 
       // 0001–0004 produced the core schema the app already runs on, so they are
       // present whenever the User table exists.
@@ -56,7 +56,7 @@ async function main() {
         '0004_checkin_journal_grain',
       ]
 
-      // 0005/0006 are the new ones — only baseline them if their schema is
+      // 0005/0006 are the new ones, only baseline them if their schema is
       // genuinely already present, otherwise let migrate deploy apply them.
       if (await tableExists('ClinicalContext')) baseline.push('0005_ai_integration')
       if (await columnExists('User', 'passwordHash')) baseline.push('0006_password_auth')

@@ -2,7 +2,7 @@ import type { MoodWeekPoint } from '@/data/dashboardDemo'
 
 /**
  * Grouped mini bar chart of Mood / Energy / Calm across the week. Pure
- * presentational — heights are % of a 0–10 scale.
+ * presentational, heights are % of a 0–10 scale.
  */
 export function MoodWeekChart({ data, avgMood }: { data: MoodWeekPoint[]; avgMood: number }) {
   return (

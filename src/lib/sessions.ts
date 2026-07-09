@@ -5,7 +5,7 @@ import { getBookableSlots } from '@/lib/expert'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
- * and overlays them on bundled demo data — same DB-with-fallback pattern as the
+ * and overlays them on bundled demo data, same DB-with-fallback pattern as the
  * rest of the dashboard. A patient only ever sees their own appointments.
  */
 
@@ -175,7 +175,7 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
 /**
  * Whether a user may join a video room. Real rooms map to an Appointment and only
  * its patient or therapist may join. Demo rooms (no matching appointment) are
- * allowed through — the roomId is an unguessable id and nothing is persisted.
+ * allowed through, the roomId is an unguessable id and nothing is persisted.
  */
 export async function canAccessRoom(roomId: string, userId: string | null): Promise<boolean> {
   try {

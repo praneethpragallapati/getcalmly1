@@ -74,14 +74,14 @@ export function PrivacyControls({ initial }: { initial: PrivacyFlags }) {
       </div>
       <p className="muted" style={{ margin: '6px 0 4px' }}>
         You decide what helps personalise your insights. Turning something off keeps your own record
-        intact — it’s simply never used by Calm AI.
+        intact, it’s simply never used by Calm AI.
       </p>
 
       <div className="priv-master">
         <div>
           <div className="priv-label">Use my data to personalise Calm AI</div>
           <div className="priv-desc">
-            Master switch. When off, nothing below is ever sent to the AI — regardless of the
+            Master switch. When off, nothing below is ever sent to the AI, regardless of the
             individual toggles.
           </div>
         </div>

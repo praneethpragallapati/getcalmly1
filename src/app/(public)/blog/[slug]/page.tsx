@@ -541,7 +541,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
 
-      {/* Hover styles for related cards (server component — CSS, not JS handlers) */}
+      {/* Hover styles for related cards (server component, CSS, not JS handlers) */}
       <style>{`
         .gc-related-card .gc-related-inner {
           background: #fff;

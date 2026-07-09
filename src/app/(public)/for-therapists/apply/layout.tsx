@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Apply to Practice on getCalmly',
     description:
-      'For RCI-registered psychologists and NMC-registered psychiatrists — flexible online caseloads, modern tools.',
+      'For RCI-registered psychologists and NMC-registered psychiatrists, flexible online caseloads, modern tools.',
     url: '/for-therapists/apply',
     type: 'website',
   },

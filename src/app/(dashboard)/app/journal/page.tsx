@@ -56,7 +56,7 @@ export default async function JournalPage() {
         <div className="stack">
           <NewEntry />
 
-          {/* AI-detected patterns (#12 — copy from the AI integration later) */}
+          {/* AI-detected patterns (#12, copy from the AI integration later) */}
           <div className="card">
             <div className="section-title" style={{ marginBottom: 6 }}>
               AI-detected patterns

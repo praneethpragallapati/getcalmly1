@@ -44,7 +44,7 @@ function ChatMock() {
           <div className="cl-typing" style={{ position: 'absolute', top: 0, left: 0, background: '#F5F7FA', borderRadius: '12px 12px 12px 2px', padding: '12px 14px', display: 'flex', gap: 4 }}>
             <span /><span /><span />
           </div>
-          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>It&apos;s Sunday night — the spot where your anxiety usually peaks, and Thursday&apos;s journal hinted this week felt heavier. The 4-7-8 breathing that worked on the 12th, or should I note this for Dr. Ananya&apos;s session on Tuesday?</div>
+          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>It&apos;s Sunday night, the spot where your anxiety usually peaks, and Thursday&apos;s journal hinted this week felt heavier. The 4-7-8 breathing that worked on the 12th, or should I note this for Dr. Ananya&apos;s session on Tuesday?</div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
@@ -81,7 +81,7 @@ function InsightMock() {
       <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: coral, marginTop: 5, flexShrink: 0 }} />
-          <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Pattern found:</strong> your anxiety runs highest on Sunday nights — right before your Monday stand-up.</p>
+          <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Pattern found:</strong> your anxiety runs highest on Sunday nights, right before your Monday stand-up.</p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7C5CBF', marginTop: 5, flexShrink: 0 }} />
@@ -194,8 +194,8 @@ function PrivacyMock() {
 
 const detailed = [
   { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a licensed professional who genuinely fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
-  { eyebrow: 'Calm AI', title: 'A companion that actually remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday — so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
-  { eyebrow: 'AI insights & recommendations', title: 'Intelligence that connects dots you can\'t see', body: 'Every mood check-in, journal line, sleep log and session note feeds one quiet engine. It cross-references all of it to surface the patterns underneath — then turns them into precise, gentle recommendations: a wind-down before your hardest night, a topic worth raising on Tuesday, a nudge before the dip instead of after it.', visual: <InsightMock /> },
+  { eyebrow: 'Calm AI', title: 'A companion that actually remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday, so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
+  { eyebrow: 'AI insights & recommendations', title: 'Intelligence that connects dots you can\'t see', body: 'Every mood check-in, journal line, sleep log and session note feeds one quiet engine. It cross-references all of it to surface the patterns underneath, then turns them into precise, gentle recommendations: a wind-down before your hardest night, a topic worth raising on Tuesday, a nudge before the dip instead of after it.', visual: <InsightMock /> },
   { eyebrow: 'Mood & insights', title: 'Tracking that actually does something', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
   { eyebrow: 'Journaling', title: 'Write freely, see clearly', body: 'Journal however you like. Calm reflects the patterns back in your own words, the thoughts that keep circling and the moments that lift you, drawing on CBT principles. Always reflections, never a diagnosis.', visual: <JournalMock /> },
   { eyebrow: 'Clinician co-pilot', title: 'Your therapist walks in already caught up', body: 'Before each session your professional sees a brief of your week, mood trend, homework and journal themes. Less time spent recapping, more spent on you. Every AI summary is human-reviewed first.', visual: <BriefMock /> },
@@ -307,13 +307,13 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          {/* Phone frame — live patient-app mockup, Journal → Insights */}
+          {/* Phone frame, live patient-app mockup, Journal → Insights */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{ width: 270, background: '#0F1C28', borderRadius: 44, padding: 10, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
               <div style={{ width: 250, height: 541, borderRadius: 36, overflow: 'hidden', background: '#FFF8F5', position: 'relative' }}>
                 <iframe
                   src="/mockups/app-mock.html?screen=journal&tab=insights"
-                  title="GetCalmly app — journal insights"
+                  title="GetCalmly app, journal insights"
                   loading="lazy"
                   scrolling="no"
                   style={{ display: 'block', width: 375, height: 812, border: 'none', transform: 'scale(0.6667)', transformOrigin: 'top left' }}
@@ -323,7 +323,7 @@ export default function FeaturesPage() {
           </div>
         </div>
 
-        {/* Inline CTA — stays in the same dark section, no seam */}
+        {/* Inline CTA, stays in the same dark section, no seam */}
         <div style={{ maxWidth: 600, margin: '72px auto 0', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,.1)', paddingTop: 56 }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px,5vw,40px)', color: '#fff', letterSpacing: '-0.5px', marginBottom: 14 }}>
             Ready to feel better?

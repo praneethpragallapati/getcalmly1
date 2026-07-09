@@ -1,5 +1,5 @@
 // Bundled demo patient used to render the patient web dashboard when there is no
-// live database / signed-in patient — mirrors the DB-with-fallback pattern used
+// live database / signed-in patient, mirrors the DB-with-fallback pattern used
 // by blog & community. Shapes here match what `src/lib/dashboard.ts` returns.
 // Visual reference: Drive "getcalmly-patient-dashboard-v2.html" (desktop web).
 
@@ -162,8 +162,8 @@ export const demoDashboard: DashboardData = {
   ],
   moodMonthChangePct: 18,
   dailyInsight: {
-    title: 'Mondays tend to feel heavier for you — and that’s okay.',
-    body: 'Your data shows a gentle mood dip each Monday morning. Before your session with Dr. Ananya at 3 PM today, a short breathing exercise has helped you arrive calmer in the past. You’ve been consistent — and that matters more than how you feel right now.',
+    title: 'Mondays tend to feel heavier for you, and that’s okay.',
+    body: 'Your data shows a gentle mood dip each Monday morning. Before your session with Dr. Ananya at 3 PM today, a short breathing exercise has helped you arrive calmer in the past. You’ve been consistent, and that matters more than how you feel right now.',
   },
   detectedThisWeek: [
     { title: 'Work anxiety peaking Sundays', sub: '6 of 12 entries mention work', tone: 'coral' },
@@ -293,13 +293,13 @@ export const demoDashboard: DashboardData = {
       title: 'The meeting that spiralled',
       date: 'Sat, 28 Feb',
       preview:
-        'It started with a simple comment from my manager and I found myself replaying it for the next three hours. I kept thinking — did I say something wrong? Did they mean it as a criticism?…',
+        'It started with a simple comment from my manager and I found myself replaying it for the next three hours. I kept thinking, did I say something wrong? Did they mean it as a criticism?…',
       moodTag: 'Low',
       topicTags: ['Work', 'Rumination'],
     },
     {
       id: 'j4',
-      title: 'After the session — feeling lighter',
+      title: 'After the session, feeling lighter',
       date: 'Mon, 24 Feb',
       preview:
         'Dr. Ananya helped me reframe something I’ve been carrying for months. She asked me: what would I say to a friend who was in exactly my situation? And I realised I’d never speak to a friend the way I speak to myself…',

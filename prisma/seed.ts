@@ -245,7 +245,7 @@ async function seedDemoPatient() {
       },
       {
         userId: uid,
-        title: 'After the session — lighter',
+        title: 'After the session, lighter',
         content:
           'Dr. Ananya helped me reframe something I’ve carried for months. What would I say to a friend in my situation?',
         moodTag: 'Good',
@@ -255,7 +255,7 @@ async function seedDemoPatient() {
     ],
   })
 
-  // Expert-assigned tasks (some done, one expired) — assigned this week so they
+  // Expert-assigned tasks (some done, one expired), assigned this week so they
   // count toward the weekly progress summary both portals show.
   await prisma.task.deleteMany({ where: { userId: uid } })
   await prisma.task.createMany({
@@ -434,7 +434,7 @@ async function seedExpertExtras(therapistId: string, demoPatientUserId: string) 
       data: {
         linkId: link.id,
         authorId: therapistId,
-        content: 'Thanks — will set up the behavioural experiment and report back on adherence.',
+        content: 'Thanks, will set up the behavioural experiment and report back on adherence.',
       },
     })
   }
@@ -482,7 +482,7 @@ type DummyPatientSpec = {
 
 /**
  * Create (idempotently) a patient mapped to `therapistId` with mood history,
- * subscription, tasks and appointments — enough to populate the doctor's
+ * subscription, tasks and appointments, enough to populate the doctor's
  * caseload, risk feed, earnings and patient-profile views.
  */
 async function seedMappedPatient(therapistId: string, therapistName: string, spec: DummyPatientSpec) {
@@ -604,7 +604,7 @@ async function seedMappedPatient(therapistId: string, therapistName: string, spe
         therapistName,
         label: 'VENT_DISTRESS',
         question: 'I feel like everything is falling apart and I cannot cope.',
-        answer: "I hear how overwhelming this feels. You don't have to carry it alone — let's slow down together.",
+        answer: "I hear how overwhelming this feels. You don't have to carry it alone. Let's slow down together.",
         handoffNote: 'Patient expressed acute distress in Calm AI chat. Recommend a check-in within 24h.',
         resolved: false,
       },
@@ -664,7 +664,7 @@ async function seedDoctorTestAccount() {
   }
 
   // Map the EXISTING demo patient (praneethpragallapati@gmail.com) to this doctor
-  // by adding appointments — the caseload is derived from appointments.
+  // by adding appointments; the caseload is derived from appointments.
   const praneeth = await prisma.user.findUnique({ where: { email: 'praneethpragallapati@gmail.com' } })
   if (praneeth) {
     await prisma.appointment.deleteMany({ where: { patientId: praneeth.id, therapistId: doc.id } })

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Logo from '@/components/ui/Logo'
 import {
   Home,
   Sparkles,
@@ -51,10 +52,9 @@ export function Sidebar({ name, planLine }: { name: string; planLine: string }) 
 
   return (
     <aside className="app-sidebar">
-      <Link href="/app" className="sb-logo" aria-label="getCalmly home">
-        <span className="get">get</span>
-        <span className="calmly">Calmly.</span>
-      </Link>
+      <div className="sb-logo">
+        <Logo size={26} onDark tagline={false} href="/app" />
+      </div>
 
       <Link href="/app/settings" className="sb-profile">
         <span className="sb-avatar">{initial}</span>

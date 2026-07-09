@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound } from 'lucide-react'
 import '../app.css'
+import Logo from '@/components/ui/Logo'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 
 export const metadata: Metadata = {
@@ -20,10 +21,9 @@ export default async function ExpertLayout({ children }: { children: React.React
   return (
     <div className="calmly-app expert-theme">
       <aside className="app-sidebar">
-        <Link href="/expert" className="sb-logo" aria-label="getCalmly expert portal">
-          <span className="get">get</span>
-          <span className="calmly">Calmly.</span>
-        </Link>
+        <div className="sb-logo">
+          <Logo size={26} onDark tagline={false} href="/expert" />
+        </div>
         <div className="sb-section">CASELOAD</div>
         <nav className="sb-nav">
           <Link href="/expert" className="sb-link">

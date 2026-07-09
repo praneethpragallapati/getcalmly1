@@ -97,7 +97,7 @@ export type RelatedBlog = {
 }
 
 /**
- * Published posts that share at least one tag with the given set — used to
+ * Published posts that share at least one tag with the given set, used to
  * surface "related reads" on a blog post or a community discussion. Ranked by
  * tag overlap, excluding the current post when a slug is provided.
  */

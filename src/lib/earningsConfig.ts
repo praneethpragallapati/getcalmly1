@@ -42,7 +42,7 @@ export async function getEarningsConfig(): Promise<EarningsConfigValues> {
   }
 }
 
-/** Persist edited values (admin only — caller must gate on role). */
+/** Persist edited values (admin only, caller must gate on role). */
 export async function updateEarningsConfig(
   values: EarningsConfigValues,
   updatedBy: string | null

@@ -23,7 +23,7 @@ const options = [
     key: 'both',
     icon: '🔄',
     title: 'Both',
-    desc: 'Combined therapy and psychiatric support — we coordinate both for you',
+    desc: 'Combined therapy and psychiatric support, we coordinate both for you',
     color: '#6D5BD0',
     pale: '#EEF0FB',
   },

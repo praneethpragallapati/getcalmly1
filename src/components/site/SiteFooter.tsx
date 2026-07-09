@@ -9,7 +9,7 @@ export default function SiteFooter() {
           <Logo size={36} href="/" onDark />
           <p style={{ marginTop: 16, lineHeight: 1.6 }}>
             Mental wellness reimagined. Clinical-grade therapy, AI insights, and a community that
-            understands — all in one calm, trustworthy space.
+            understands, all in one calm, trustworthy space.
           </p>
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <a href="tel:+918884518688" style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>

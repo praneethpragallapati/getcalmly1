@@ -1,6 +1,6 @@
 /**
  * AI runtime configuration. Secrets live ONLY in environment variables (never in
- * the repo — the notebooks' bundled gc1.env / patients.json are intentionally not
+ * the repo, the notebooks' bundled gc1.env / patients.json are intentionally not
  * carried over). When a key is absent the pipeline degrades gracefully to the
  * transparent rule-based behaviour, so the app never breaks without credentials.
  */

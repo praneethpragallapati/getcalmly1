@@ -1,7 +1,7 @@
 // Single source of truth for the homepage FAQ.
 // Rendered visibly as an accordion (landingMarkup) AND emitted as FAQPage
-// JSON-LD (app/(public)/page.tsx) so answer engines — Google AI Overviews,
-// ChatGPT, Perplexity — can lift the answers directly. Keep answers
+// JSON-LD (app/(public)/page.tsx) so answer engines, Google AI Overviews,
+// ChatGPT, Perplexity, can lift the answers directly. Keep answers
 // "answer-first": a tight, quotable opening sentence, then context.
 export type FaqItem = { q: string; a: string }
 

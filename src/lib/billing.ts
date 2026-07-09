@@ -1,6 +1,6 @@
 /**
  * Package purchases. The key rule (per product): buying a package never resets a
- * patient's balance — new sessions are ADDED to whatever they already have, and
+ * patient's balance, new sessions are ADDED to whatever they already have, and
  * validity is extended. This works whether the current plan is active, expired,
  * or absent, so an expired plan is "renewed" by topping up the same record.
  */
@@ -32,8 +32,8 @@ export type BuyResult = { ok: boolean; sessionsTotal?: number; sessionsRemaining
 
 /**
  * Apply a pack purchase for a patient, additively. Tops up the patient's most
- * recent subscription (any status) in place — preserving sessionsUsed so the
- * remaining balance grows by the pack size — or creates the first one.
+ * recent subscription (any status) in place, preserving sessionsUsed so the
+ * remaining balance grows by the pack size, or creates the first one.
  */
 export async function buyPackageFor(patientId: string, track: BuyableTrack, packIndex: number): Promise<BuyResult> {
   const packs = packsFor(track)

@@ -41,7 +41,7 @@ const severityConfig = {
 }
 
 // The stored result never changes while this page is mounted, so no
-// subscription is needed — only a hydration-safe read of sessionStorage.
+// subscription is needed, only a hydration-safe read of sessionStorage.
 const noSubscription = () => () => {}
 
 export default function Results() {
@@ -134,7 +134,7 @@ export default function Results() {
         <div className="results-matches">
           <div className="rm-header">
             <h2 className="rm-title">Your matched professionals</h2>
-            <p className="rm-sub">Matched by your concerns{lang ? ` and ${lang} language preference` : ''}. We find the right fit — you don&apos;t browse.</p>
+            <p className="rm-sub">Matched by your concerns{lang ? ` and ${lang} language preference` : ''}. We find the right fit, you don&apos;t browse.</p>
           </div>
           <div className="rm-grid">
             {matched.map((t, i) => (
@@ -175,7 +175,7 @@ export default function Results() {
             <div className="rcta-left">
               <p className="rcta-eyebrow">Your first session is free</p>
               <h3 className="rcta-title">Not sure yet?</h3>
-              <p className="rcta-sub">Start with a free first session with your matched professional. No card, no commitment — just a conversation.</p>
+              <p className="rcta-sub">Start with a free first session with your matched professional. No card, no commitment, just a conversation.</p>
             </div>
             <div className="rcta-actions">
               <Link href="/login" className="rcta-btn-primary">✦ Book a free session</Link>
@@ -201,7 +201,7 @@ function matchTherapists(result: Result, lang: string | null, support: string | 
   if (result.type === 'child') ['child', 'adolescent'].forEach((t) => patientTags.add(t))
 
   const wantsPsychiatry = result.type === 'psychiatry' || support === 'medication'
-  const therapyOnly = support === 'therapy' // pure therapy seeker — don't surface psychiatrists
+  const therapyOnly = support === 'therapy' // pure therapy seeker, don't surface psychiatrists
   const wantGender = genderPref === 'Prefer a woman' ? 'female' : genderPref === 'Prefer a man' ? 'male' : null
 
   const scored = therapists.map((t) => {
@@ -210,12 +210,12 @@ function matchTherapists(result: Result, lang: string | null, support: string | 
     // Care-type gating
     if (wantsPsychiatry) s += isPsych ? 6 : -5
     else if (therapyOnly && isPsych) s -= 8 // effectively excludes psychiatrists
-    else if (isPsych) s -= 2 // 'both' / 'not sure' — slight preference for therapists
+    else if (isPsych) s -= 2 // 'both' / 'not sure', slight preference for therapists
     if (result.type === 'couple') s += t.designation.includes('Couples') ? 6 : 0
     if (result.type === 'child') s += t.designation.includes('Child') ? 6 : 0
     // Language preference
     if (lang && t.languages.includes(lang)) s += 2
-    // Gender preference — strong boost for a match, soft penalty otherwise
+    // Gender preference, strong boost for a match, soft penalty otherwise
     if (wantGender) s += t.gender === wantGender ? 4 : -3
     // Rating breaks ties between otherwise equally-good matches (kept small so it
     // never overrides genuine clinical fit); tiny random term shuffles exact ties.

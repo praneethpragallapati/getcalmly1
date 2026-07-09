@@ -52,7 +52,7 @@ export default function SafetyPage() {
           <div className="space-y-8">
             <Block title="Ethical Standards for Mental Health Professionals">
               Every professional on GetCalmly is bound by the ethical codes of their regulating
-              body — the Rehabilitation Council of India (RCI) for clinical psychologists and the
+              body, the Rehabilitation Council of India (RCI) for clinical psychologists and the
               National Medical Commission (NMC) for psychiatrists. They practise within their scope:
               counsellors do not diagnose or treat severe disorders reserved for clinical
               psychologists and psychiatrists under the Mental Healthcare Act (MHCA) 2017.

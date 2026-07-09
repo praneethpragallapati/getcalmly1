@@ -36,7 +36,7 @@ const DEMO_THERAPIST: Omit<MyTherapist, 'nextSessionWhen' | 'nextSessionId'> = {
   reviews: 214,
   rciVerified: true,
   nmcVerified: false,
-  bio: 'I work with adults navigating anxiety, burnout and life transitions. My approach blends CBT with mindfulness — practical tools you can use between our sessions, at a pace that feels right for you.',
+  bio: 'I work with adults navigating anxiety, burnout and life transitions. My approach blends CBT with mindfulness, practical tools you can use between our sessions, at a pace that feels right for you.',
 }
 
 function initialsOf(name: string): string {

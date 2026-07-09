@@ -10,7 +10,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    default: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
     template: '%s | getCalmly',
   },
   description:
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'getCalmly',
-    title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    title: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
     description:
       'Book your first session for ₹999 with licensed therapists. AI-powered insights and a community that gets it.',
     url: SITE_URL,
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'getCalmly — Mental Healthcare, Powered by Experts, Personalized by AI',
+    title: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
     description: 'Book your first session for ₹999 with licensed therapists in India.',
   },
   robots: { index: true, follow: true },

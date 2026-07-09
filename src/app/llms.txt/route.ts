@@ -2,7 +2,7 @@ import { getBlogPosts } from '@/lib/blog'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
 
-// /llms.txt — an emerging convention that gives LLMs / answer engines a
+// /llms.txt, an emerging convention that gives LLMs / answer engines a
 // concise, curated map of the site so they can cite it accurately.
 export const dynamic = 'force-dynamic'
 

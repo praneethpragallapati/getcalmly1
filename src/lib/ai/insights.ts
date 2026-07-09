@@ -2,7 +2,7 @@
  * Daily (#10) and weekly (#12) insight generators. Ported from the daily-patterns
  * and weekly-insights notebooks, with two adaptations the dashboard needs:
  *  - Output is reshaped to the existing card types: DashInsight { title, body }
- *    plus Pattern[] (title/sub/tone) — produced in a single structured JSON call.
+ *    plus Pattern[] (title/sub/tone), produced in a single structured JSON call.
  *  - No raw scores ever reach the model (natural language only), preserving the
  *    notebooks' privacy posture; all inputs are already privacy-gated.
  * Rows are written to AiInsight (kind DAILY|WEEKLY); the dashboard reads the latest.
@@ -84,7 +84,7 @@ function dailyContextBlocks(ctx: PatientContext) {
       : diff <= -0.5 ? 'usually a bit lower for you than the rest of the week'
       : diff >= 1.5 ? 'consistently one of your better days'
       : diff >= 0.5 ? 'usually a lighter, easier day for you'
-      : 'fairly typical for you — neither your best nor your hardest'
+      : 'fairly typical for you, neither your best nor your hardest'
   }
 
   const cutoff7 = new Date(today.getTime() - 7 * 864e5).toISOString().slice(0, 10)
@@ -128,7 +128,7 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
 
   const patternInstruction = b.dataSufficient && b.dayQuality
     ? `Their ${b.today}s have been: ${b.dayQuality}. Notes on past ${b.today}s: ${b.dowNotes.length ? b.dowNotes.map((n) => `"${n}"`).join(', ') : 'none'}. This week's notes: ${b.lwNotes.length ? b.lwNotes.map((n) => `"${n}"`).join(', ') : 'none'}.`
-    : `There isn't enough ${b.today} mood history yet — be honest about that and gently encourage logging mood today.`
+    : `There isn't enough ${b.today} mood history yet, be honest about that and gently encourage logging mood today.`
 
   const sit = ctx.currentSituation
     ? `PATIENT CONTEXT (read before writing): ${ctx.currentSituation}\nNever suggest partner/relationship actions if they are separated, divorced, widowed, or not in a relationship.\n`
@@ -142,9 +142,10 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
       ? `Suggestion must be drawn from this personal history: ${b.suggestion}. Name the actual technique; reference their own experience.\n`
       : `Use exactly this suggestion: "${b.suggestion}".\n`) +
     'Return ONLY a JSON object: {"title": short headline (max 8 words, warm, no scores), ' +
-    '"body": exactly two sentences — sentence 1 the mood pattern, sentence 2 the suggestion — second person, no numbers, ' +
+    '"body": exactly two sentences, sentence 1 the mood pattern, sentence 2 the suggestion, second person, no numbers, ' +
     '"patterns": up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": one of coral|green|gold|purple}] ' +
-    '(coral=concern, green=positive, gold=improvement, purple=observation), drawn from their mood/journal data, no scores}.'
+    '(coral=concern, green=positive, gold=improvement, purple=observation), drawn from their mood/journal data, no scores}. ' +
+    'Never use em dashes (—) in any text; use a comma, period, or colon instead.'
 
   const res = await callModel(INSIGHT_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
     temperature: 0.6,
@@ -171,7 +172,7 @@ function weeklyBlocks(ctx: PatientContext, days = 7) {
   const scores = week.map((m) => m.score)
 
   let arc: string | null = null
-  if (scores.length === 1) arc = `only one entry — felt ${scoreWord(scores[0])}`
+  if (scores.length === 1) arc = `only one entry, felt ${scoreWord(scores[0])}`
   else if (scores.length > 1) {
     const mid = Math.floor(scores.length / 2)
     const first = scores.slice(0, mid)
@@ -180,11 +181,11 @@ function weeklyBlocks(ctx: PatientContext, days = 7) {
     const overall = scores.reduce((a, b) => a + b, 0) / scores.length
     const direction = diff > 1 ? 'started harder and lifted toward the end' : diff < -1 ? 'started better and got heavier toward the end' : 'stayed fairly consistent through the week'
     const quality = overall >= 7 ? 'generally a good week' : overall >= 5 ? 'a mixed week overall' : overall >= 3 ? 'a difficult week overall' : 'a very hard week overall'
-    arc = `${quality} — ${direction}`
+    arc = `${quality}, ${direction}`
   }
 
-  const narrative = week.map((m) => `${DAYS[dowOf(m.date)]}: felt ${scoreWord(m.score)}${m.note ? ` — ${m.note}` : ''}`).join('\n')
-  const toWords = (e?: (typeof week)[number]) => (e ? `${DAYS[dowOf(e.date)]} (${scoreWord(e.score)})${e.note ? ` — ${e.note}` : ''}` : null)
+  const narrative = week.map((m) => `${DAYS[dowOf(m.date)]}: felt ${scoreWord(m.score)}${m.note ? `, ${m.note}` : ''}`).join('\n')
+  const toWords = (e?: (typeof week)[number]) => (e ? `${DAYS[dowOf(e.date)]} (${scoreWord(e.score)})${e.note ? `, ${e.note}` : ''}` : null)
   const low = week.length ? toWords(week.reduce((a, b) => (a.score <= b.score ? a : b))) : null
   const high = week.length ? toWords(week.reduce((a, b) => (a.score >= b.score ? a : b))) : null
 
@@ -205,7 +206,7 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
   if (!w.dataSufficient) {
     return {
       title: 'Building your weekly picture',
-      body: `There isn't enough mood data from this week to give you a proper picture yet, ${ctx.firstName}. The more days you log — even a quick note — the more I can reflect back. Try logging today and the next few days.`,
+      body: `There isn't enough mood data from this week to give you a proper picture yet, ${ctx.firstName}. The more days you log, even a quick note, the more I can reflect back. Try logging today and the next few days.`,
       patterns: [],
       meta: { dataSufficient: false, moodCount: w.moodCount },
     }
@@ -221,12 +222,12 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
   const prompt =
     `Write a short weekly wellness summary for ${ctx.firstName} on the '${ctx.trackLabel}' track.\n` +
     sit +
-    `MOOD TRACKER THIS WEEK (primary source — lead with this):\n${w.narrative}\nWeek arc: ${w.arc}\n` +
+    `MOOD TRACKER THIS WEEK (primary source, lead with this):\n${w.narrative}\nWeek arc: ${w.arc}\n` +
     (w.low ? `Lowest point: ${w.low}\n` : '') +
     (w.high ? `Highest point: ${w.high}\n` : '') +
     colour +
     'Return ONLY a JSON object: {"title": short headline (max 8 words, no scores), ' +
-    '"body": 3-4 sentences, second person, no numbers/scores — how the week felt (use the arc), one moment that stood out (named by day), one specific thing to carry forward grounded in what helped, "patterns": ' +
+    '"body": 3-4 sentences, second person, no numbers/scores, how the week felt (use the arc), one moment that stood out (named by day), one specific thing to carry forward grounded in what helped, "patterns": ' +
     'up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": coral|green|gold|purple}] drawn from journals/mood, no scores}.'
 
   const res = await callModel(INSIGHT_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
@@ -247,7 +248,7 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
 }
 
 /**
- * Generate insights for every patient — the unit of work a scheduler triggers via
+ * Generate insights for every patient, the unit of work a scheduler triggers via
  * the cron route handlers (daily each morning, weekly each Sunday). Patients whose
  * privacy settings disallow everything, or who lack a model/data, are skipped
  * (the generators return null). Processed serially to stay within rate limits.

@@ -34,7 +34,7 @@ export default function CommunityPreview() {
             </h2>
             <p className="text-gray-600 mb-6">
               Join a moderated, anonymous community where people support each other through
-              similar journeys — even after therapy ends.
+              similar journeys, even after therapy ends.
             </p>
             <div className="flex flex-wrap gap-2 mb-8">
               {categories.map((c) => (

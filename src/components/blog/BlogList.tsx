@@ -127,7 +127,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
               lineHeight: 1.65,
             }}
           >
-            Evidence-based reads on anxiety, grief, relationships and more — written by RCI-verified
+            Evidence-based reads on anxiety, grief, relationships and more, written by RCI-verified
             mental health professionals who work with real people every day.
           </p>
 

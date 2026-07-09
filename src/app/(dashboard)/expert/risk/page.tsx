@@ -29,7 +29,7 @@ export default async function RiskNotificationsPage() {
                 <Link href={`/expert/patients/${n.patientId}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                   {n.patientName}
                 </Link>
-                {' — '}
+                {', '}
                 {n.message}
               </div>
               <div className="pattern-sub">{n.detail}</div>

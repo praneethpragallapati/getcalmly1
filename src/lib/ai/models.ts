@@ -31,7 +31,7 @@ export const PROVIDERS: Record<ModelKey, Provider> = {
   opus: 'anthropic',
 }
 
-// USD per million tokens [input, output] — used for cost estimates only.
+// USD per million tokens [input, output], used for cost estimates only.
 export const COST_TABLE: Record<string, [number, number]> = {
   'gpt-4.1-nano': [0.1, 0.4],
   'gpt-4.1-mini': [0.4, 1.6],

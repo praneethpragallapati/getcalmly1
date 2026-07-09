@@ -85,7 +85,7 @@ export async function createJournalEntry(input: {
  * Save the note a patient prepares before a session, shared with the expert (#9).
  * Authorization: the update is scoped to an appointment the signed-in patient
  * owns, so a patient can only write to their own session. The note may feed the
- * AI pipeline later, gated by PrivacySettings.collectSessions — hence the AI
+ * AI pipeline later, gated by PrivacySettings.collectSessions, hence the AI
  * profile refresh.
  */
 export async function savePreSessionNote(
@@ -193,7 +193,7 @@ export async function updatePrivacy(input: PrivacyInput): Promise<ActionResult> 
 }
 
 /**
- * Switch the patient's care category — Individual / Couple / Kids (#19). Updates
+ * Switch the patient's care category, Individual / Couple / Kids (#19). Updates
  * the live active subscription. Clinical reassignment (CareMode, partner/child
  * linking) is handled by the care team; this records the product-side switch.
  */
@@ -348,7 +348,7 @@ export async function createCommunityPost(input: {
 }
 
 /**
- * Buy a session package (#packages). Additive by design — sessions are added to
+ * Buy a session package (#packages). Additive by design, sessions are added to
  * any existing balance and validity is extended, never reset to zero (lib/billing).
  * An expired plan is renewed by topping up the same record.
  */
@@ -393,7 +393,7 @@ export async function submitAssignedForm(
 
 /**
  * Order a home delivery for a prescribed medication (#delivery). Mock payment for
- * now — the order is marked paid and queued; pharmacy fulfilment is wired later.
+ * now, the order is marked paid and queued; pharmacy fulfilment is wired later.
  */
 export async function orderMedicationDelivery(
   medicationId: string,
@@ -428,29 +428,29 @@ export async function markNotificationsRead(): Promise<ActionResult> {
 }
 
 // A gentle, rule-based stand-in for the deferred Calm AI model. It reflects,
-// validates, and nudges toward a concrete coping step — and surfaces a safety
+// validates, and nudges toward a concrete coping step, and surfaces a safety
 // message when the text suggests crisis. Deliberately simple and transparent.
 function calmAiStandInReply(text: string): string {
   const t = text.toLowerCase()
   const crisis = ['suicid', 'kill myself', 'end my life', 'self harm', 'self-harm', 'hurt myself']
   if (crisis.some((k) => t.includes(k))) {
-    return "I'm really glad you told me — what you're feeling matters, and you don't have to carry it alone. I'm not able to help in an emergency, so please reach out right now to your expert or a helpline (in India, iCall: 9152987821, or Tele-MANAS: 14416). If you're in immediate danger, please call your local emergency number."
+    return "I'm really glad you told me, what you're feeling matters, and you don't have to carry it alone. I'm not able to help in an emergency, so please reach out right now to your expert or a helpline (in India, iCall: 9152987821, or Tele-MANAS: 14416). If you're in immediate danger, please call your local emergency number."
   }
   const opener = ['anxious', 'anxiety', 'panic', 'worried'].some((k) => t.includes(k))
     ? "It sounds like anxiety is sitting heavy with you right now. That's exhausting, and it makes sense that you'd want some relief."
     : ['sad', 'depress', 'empty', 'low', 'hopeless'].some((k) => t.includes(k))
-      ? 'Thank you for naming that — low, heavy days are hard, and reaching out takes real strength.'
+      ? 'Thank you for naming that, low, heavy days are hard, and reaching out takes real strength.'
       : ['sleep', 'tired', 'insomnia', 'awake'].some((k) => t.includes(k))
         ? 'Rest that won’t come is its own kind of tiring. Your mind and body are asking for some care.'
         : ['work', 'job', 'boss', 'deadline'].some((k) => t.includes(k))
           ? 'Work pressure has a way of following us home. It’s okay to want a boundary around it.'
           : 'I hear you, and I’m glad you’re putting words to it here.'
-  return `${opener}\n\nWould it help to try one small thing right now — a slow 4-7-8 breath, or jotting the loudest thought in your journal so it’s out of your head? And it might be worth bringing this to your next session; I can help you note it down.\n\n(I’m a supportive companion, not a substitute for your expert or for care in an emergency.)`
+  return `${opener}\n\nWould it help to try one small thing right now, a slow 4-7-8 breath, or jotting the loudest thought in your journal so it’s out of your head? And it might be worth bringing this to your next session; I can help you note it down.\n\n(I’m a supportive companion, not a substitute for your expert or for care in an emergency.)`
 }
 
 /**
  * Send a message to Calm AI (#11). For a signed-in patient this runs the real
- * classified-routing pipeline (lib/ai/chat.ts) when a model is configured — it
+ * classified-routing pipeline (lib/ai/chat.ts) when a model is configured, it
  * classifies the turn, routes to the right model, persists both turns with
  * metadata, and writes a crisis hand-off when needed. With no model configured
  * (or no session) it falls back to the transparent rule-based stand-in. All AI

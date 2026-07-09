@@ -14,7 +14,7 @@ const cardShadow = '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)
 const cardShadowHover = '0 18px 48px rgba(28,43,58,.12)'
 
 /**
- * "Real Talk" — getCalmly's content hub, laid out like a marketplace hub:
+ * "Real Talk", getCalmly's content hub, laid out like a marketplace hub:
  * a short warm hero band, then compact rows (header + "view all" + three
  * small cards) so several content types fit on one screen. New content
  * types (podcasts, videos…) slot in as additional <HubRow>s.
@@ -132,7 +132,7 @@ function HubRow({
   children: React.ReactNode
 }) {
   return (
-    // .lp-page gives bare <section>s 152px padding — this row manages its own spacing.
+    // .lp-page gives bare <section>s 152px padding, this row manages its own spacing.
     <section style={{ padding: 0 }}>
       <div
         style={{

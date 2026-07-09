@@ -13,7 +13,7 @@ const options = [
     key: 'child',
     icon: '🧒',
     title: 'My Child or Adolescent',
-    desc: 'Someone under 18 — I am a parent or guardian',
+    desc: 'Someone under 18, I am a parent or guardian',
   },
   {
     key: 'couple',

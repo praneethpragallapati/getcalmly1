@@ -2,7 +2,7 @@
  * Information synthesizer (backend job). Ported from the synthesizer notebook:
  * compresses raw text into either a clinical summary (session notes) or a warm
  * narrative (journals/chat/general). Runs server-side only and feeds the patient's
- * AiProfile — the "abridged AI version" (#13) the chat + insight pipelines read
+ * AiProfile, the "abridged AI version" (#13) the chat + insight pipelines read
  * instead of raw records. All inputs are already privacy-gated by buildPatientContext.
  */
 import { callModel } from './clients'
@@ -14,13 +14,13 @@ export type SourceType = 'session_note' | 'journal' | 'chat_log' | 'general'
 const PROMPTS: Record<SourceType, string> = {
   session_note:
     'Compress this therapy session note into a structured clinical summary.\n' +
-    'Use short sentences (max 10 words each) — not just keywords, not full paragraphs.\n' +
+    'Use short sentences (max 10 words each), not just keywords, not full paragraphs.\n' +
     'Output format (use exactly these headings):\n' +
     'Date: [date]\nScores: [PHQ/GAD scores if present, else NONE]\n' +
     'Themes: [2-3 sentences on key emotional/clinical themes]\n' +
     'Treatment: [1 sentence on current approach or technique]\n' +
     'Homework: [what was assigned, or NONE]\n' +
-    'Risk: [any SI, self-harm, or safety flags — NONE if absent]\n' +
+    'Risk: [any SI, self-harm, or safety flags, NONE if absent]\n' +
     'Plan: [next step in one sentence]\n' +
     'Max 90 words total. Short sentences. Clinical but readable.',
   journal:
@@ -52,7 +52,7 @@ export type SynthResult = { summary: string | null; sessionSummary: string | nul
 
 /**
  * Synthesize a patient's allowed journals + session notes into a compact profile.
- * Only categories permitted by ctx.allowed are compressed — a disallowed category
+ * Only categories permitted by ctx.allowed are compressed, a disallowed category
  * yields null and never reaches the model.
  */
 export async function synthesizeProfile(ctx: PatientContext): Promise<SynthResult> {

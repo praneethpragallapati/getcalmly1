@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'For Therapists — Practice on GetCalmly | RCI & NMC Clinicians',
+  title: 'For Therapists, Practice on GetCalmly | RCI & NMC Clinicians',
   description:
     'Join GetCalmly as a verified therapist or psychiatrist. AI pre-session briefs, matched clients, a clinical co-pilot, supervision tools, and reliable payouts. Less admin, better care.',
   alternates: { canonical: '/for-therapists' },
@@ -123,7 +123,7 @@ export default function ForTherapistsPage() {
             Build your practice on solid ground.
           </h2>
           <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.62)', lineHeight: 1.7, marginBottom: 30 }}>
-            Join a platform that takes clinical quality as seriously as you do. We&apos;ll handle the busywork — you do the work that matters.
+            Join a platform that takes clinical quality as seriously as you do. We&apos;ll handle the busywork, you do the work that matters.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/for-therapists/apply" style={ctaPrimary}>Apply to join →</Link>

@@ -85,7 +85,7 @@ export async function confirmAppointment(formData: FormData): Promise<void> {
   revalidatePath('/expert/schedule')
 }
 
-/** Cancel a booking — the patient sees it removed from their upcoming list. */
+/** Cancel a booking, the patient sees it removed from their upcoming list. */
 export async function cancelAppointment(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return
@@ -123,7 +123,7 @@ export async function completeSession(formData: FormData): Promise<void> {
 // ── Availability ──────────────────────────────────────────────────────────────
 
 function parseHours(formData: FormData): number[] {
-  // Checkbox group named "hours" — each checked box contributes its start-hour.
+  // Checkbox group named "hours", each checked box contributes its start-hour.
   return formData
     .getAll('hours')
     .map((v) => parseInt(String(v), 10))
@@ -145,7 +145,7 @@ export async function saveAvailability(formData: FormData): Promise<void> {
   revalidatePath('/expert/availability')
 }
 
-/** Block a specific date — the whole day, or just the selected hours. */
+/** Block a specific date, the whole day, or just the selected hours. */
 export async function blockDate(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return

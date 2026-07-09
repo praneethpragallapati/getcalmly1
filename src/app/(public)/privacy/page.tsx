@@ -41,7 +41,7 @@ export default function PrivacyPage() {
             <Block title="Your Consent">
               We process your personal and health data on the basis of your consent, which you give
               at sign-up, before your pre-assessment, and before each session. You can withdraw
-              consent at any time — withdrawal does not affect processing already carried out
+              consent at any time, withdrawal does not affect processing already carried out
               lawfully.
             </Block>
 

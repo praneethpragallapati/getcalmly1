@@ -33,7 +33,7 @@ export default async function BillingPage() {
           </p>
           {expired && (
             <p className="muted" style={{ marginTop: 6 }}>
-              Your package has run out. Buying a new one renews your plan — any sessions you add stack on top.
+              Your package has run out. Buying a new one renews your plan, any sessions you add stack on top.
             </p>
           )}
         </div>

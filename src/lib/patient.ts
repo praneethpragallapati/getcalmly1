@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
  * The signed-in patient's user id, or null when there is no session (e.g. the
  * public preview, which renders bundled demo data instead of patient data).
  * Every server action that touches patient data MUST call this and refuse to
- * write when it returns null — patients only ever read/write their own records.
+ * write when it returns null, patients only ever read/write their own records.
  */
 export async function getSessionUserId(): Promise<string | null> {
   try {
@@ -35,7 +35,7 @@ const PRIVACY_DEFAULT: Privacy = {
 
 /**
  * A patient's privacy switches (#17). These govern whether a data category is
- * gathered into the AI pipeline and fed to LLMs — they do NOT stop the patient's
+ * gathered into the AI pipeline and fed to LLMs, they do NOT stop the patient's
  * own raw record (their journal, their mood tracker) from being saved. Defaults
  * are permissive only as a code fallback; real consent is captured at signup.
  */

@@ -5,7 +5,7 @@ import { getCommunityPosts } from '@/lib/community'
 export const metadata: Metadata = {
   title: 'Community | GetCalmly',
   description:
-    'A safe, moderated space to share experiences and feel understood. Read freely — join to take part.',
+    'A safe, moderated space to share experiences and feel understood. Read freely, join to take part.',
   alternates: { canonical: '/community' },
 }
 

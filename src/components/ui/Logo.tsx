@@ -2,15 +2,15 @@ import Link from 'next/link'
 
 /**
  * GetCalmly brand mark. The "getCalmly." wordmark is the official artwork
- * (public/brand/logo-mark*.png) — NOT a font recreation, so the letterforms
+ * (public/brand/logo-mark*.png), NOT a font recreation, so the letterforms
  * are always exact. The tagline is set as live text beneath it so it stays
  * crisp and legible at nav scale (the strapline is intrinsically tiny inside
  * the raw logo image).
  *
- *   size     — target height of the "Calmly." wordmark cap, in px
- *   onDark   — light-ink variant for dark backgrounds
- *   tagline  — include the "Mental Healthcare…" strapline
- *   href     — wrap in a link (null = just the mark)
+ *   size    , target height of the "Calmly." wordmark cap, in px
+ *   onDark  , light-ink variant for dark backgrounds
+ *   tagline , include the "Mental Healthcare…" strapline
+ *   href    , wrap in a link (null = just the mark)
  */
 export default function Logo({
   size = 34,
@@ -26,7 +26,7 @@ export default function Logo({
   const markSrc = onDark ? '/brand/logo-mark-dark.png' : '/brand/logo-mark.png'
   const markRatio = 1292 / 712
   // Slight optical widening: the wordmark's condensed letterforms read
-  // cramped at nav scale, so stretch 10% horizontally. Keep this subtle —
+  // cramped at nav scale, so stretch 10% horizontally. Keep this subtle:
   // beyond ~1.15 the distortion of the artwork becomes noticeable.
   const widen = 1.1
   const markHeight = Math.round(size * 1.2)
@@ -65,7 +65,7 @@ export default function Logo({
 
   if (href === null) return inner
   return (
-    <Link href={href} className="inline-block" aria-label="getCalmly — home">
+    <Link href={href} className="inline-block" aria-label="getCalmly home">
       {inner}
     </Link>
   )

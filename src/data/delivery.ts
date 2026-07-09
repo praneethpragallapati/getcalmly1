@@ -1,4 +1,4 @@
-// Mock delivery pricing — client-safe (no server imports). Replaced by the real
+// Mock delivery pricing, client-safe (no server imports). Replaced by the real
 // pharmacy partner's quote once Tata 1mg (etc.) is integrated.
 
 /** Estimated delivery price for a course: flat delivery fee + per-day charge. */

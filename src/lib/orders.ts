@@ -1,7 +1,7 @@
 /**
  * Medicine home-delivery orders. The patient enters delivery contact + address
  * and pays in-app (mock today). Fulfilment is handed to a pharmacy partner
- * (Tata 1mg etc.) later via the order's `provider` field — left null for now.
+ * (Tata 1mg etc.) later via the order's `provider` field, left null for now.
  */
 import { prisma } from '@/lib/prisma'
 import { estimateOrderAmount } from '@/data/delivery'

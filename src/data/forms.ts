@@ -49,7 +49,7 @@ export const FORM_TEMPLATES: FormTemplateSeed[] = [
         key: 'priorTherapy',
         label: 'Have you been in therapy before?',
         type: 'select',
-        options: ['No', 'Yes — currently', 'Yes — in the past'],
+        options: ['No', 'Yes, currently', 'Yes, in the past'],
       },
       { key: 'medications', label: 'Any current medications?', type: 'textarea' },
       { key: 'goals', label: 'What would you like to get out of therapy?', type: 'textarea' },

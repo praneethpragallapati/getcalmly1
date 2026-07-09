@@ -16,7 +16,7 @@ function isToday(d: Date) {
   return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear()
 }
 
-/** The doctor's real to-do list, derived from live data — no separate table. */
+/** The doctor's real to-do list, derived from live data, no separate table. */
 type DoctorTask = { key: string; label: string; sub: string; href: string; urgent: boolean }
 
 function buildTasks(
@@ -42,7 +42,7 @@ function buildTasks(
     tasks.push({
       key: `risk-${r.id}`,
       label: `Review ${r.kind === 'crisis' ? 'crisis alert' : 'mood decline'} · ${r.patientName}`,
-      sub: "Opens the patient's profile — resolve it there",
+      sub: "Opens the patient's profile, resolve it there",
       href: `/expert/patients/${r.patientId}`,
       urgent: true,
     }),
@@ -194,7 +194,7 @@ export default async function ExpertHomePage() {
           </div>
           {tasks.length === 0 && (
             <p className="muted" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 7 }}>
-              <CheckCircle2 size={15} style={{ color: '#3D9E72' }} /> All caught up — notes written, alerts reviewed.
+              <CheckCircle2 size={15} style={{ color: '#3D9E72' }} /> All caught up, notes written, alerts reviewed.
             </p>
           )}
           <div style={{ marginTop: 8 }}>
@@ -243,7 +243,7 @@ export default async function ExpertHomePage() {
           {risk.slice(0, 3).map((r) => (
             <Link key={r.id} href={`/expert/patients/${r.patientId}`} style={{ display: 'block', padding: '13px 15px', marginTop: 8, borderRadius: 12, background: 'rgba(192,80,75,.06)', border: '1px solid rgba(192,80,75,.18)', textDecoration: 'none' }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-charcoal)' }}>
-                {r.patientName} — {r.message}
+                {r.patientName}, {r.message}
               </div>
               <div className="muted" style={{ fontSize: 12, marginTop: 3 }}>{r.detail}</div>
             </Link>

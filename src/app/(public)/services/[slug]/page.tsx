@@ -256,7 +256,7 @@ export async function generateStaticParams() {
   return Object.keys(services).map((slug) => ({ slug }))
 }
 
-// Deep near-dark tone of a service accent, for hero/band backgrounds —
+// Deep near-dark tone of a service accent, for hero/band backgrounds, so
 // each service page gets its own atmosphere instead of a shared charcoal.
 function deepTone(hex: string): string {
   const n = parseInt(hex.slice(1), 16)
@@ -278,32 +278,32 @@ function deepToneA(hex: string, alpha: number): string {
   return `rgba(${mix(r, 13)}, ${mix(g, 17)}, ${mix(b, 22)}, ${alpha})`
 }
 
-// Prototype: atmospheric hero photos for select services — candid,
+// Prototype: atmospheric hero photos for select services, candid,
 // golden-hour silhouettes (no staged stock faces). The accent scrim
 // duotones them into the band; darkBand stays as the loading/error
 // fallback via BlogCover. Roll out to the rest once approved.
 const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
-  // A lone figure on a dock, wide frame — room to hear yourself think.
+  // A lone figure on a dock, wide frame, room to hear yourself think.
   therapy: {
     src: 'https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=70',
     position: 'center 60%',
   },
-  // Two people's hands over coffee — sitting down to actually talk.
+  // Two people's hands over coffee, sitting down to actually talk.
   couples: {
     src: 'https://images.unsplash.com/photo-1542338347-4fff3276af78?auto=format&fit=crop&w=1600&q=70',
     position: 'center 45%',
   },
-  // A kid's hands drawing with crayons — play/art, how child sessions work.
+  // A kid's hands drawing with crayons, play/art, how child sessions work.
   child: {
     src: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?auto=format&fit=crop&w=1600&q=70',
     position: 'center 55%',
   },
-  // A mother scooping up her son at the beach — candid, golden, unposed.
+  // A mother scooping up her son at the beach, candid, golden, unposed.
   maternal: {
     src: 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1600&q=70',
     position: 'center 40%',
   },
-  // A doctor, stethoscope and phone — real medical care, online.
+  // A doctor, stethoscope and phone, real medical care, online.
   psychiatry: {
     src: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=70',
     position: 'center 35%',
@@ -313,7 +313,7 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
     src: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1600&q=70',
     position: 'center 55%',
   },
-  // One person reaching to meet another's hand — being met wherever you
+  // One person reaching to meet another's hand, being met wherever you
   // are, whatever you're navigating. Identity-neutral on purpose.
   specialised: {
     src: 'https://images.unsplash.com/photo-1461532257246-777de18cd58b?auto=format&fit=crop&w=1600&q=70',

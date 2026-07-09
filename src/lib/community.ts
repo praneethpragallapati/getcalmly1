@@ -92,7 +92,7 @@ export async function getCommunityPost(id: string): Promise<CommunityPostView | 
 }
 
 /**
- * Discussions that share at least one tag with the given set — used to surface
+ * Discussions that share at least one tag with the given set, used to surface
  * "related community chatter" on a blog post. Ranked by overlap count.
  */
 export async function getRelatedDiscussions(

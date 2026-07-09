@@ -44,7 +44,7 @@ export function BookSession({ slots }: { slots: ExpertSlot[] }) {
         <CalendarPlus size={17} /> Book a session
       </div>
       <p className="muted" style={{ margin: '6px 0 14px' }}>
-        Open times on your expert’s calendar. Pick one to request — you’ll be notified once it’s
+        Open times on your expert’s calendar. Pick one to request, you’ll be notified once it’s
         confirmed.
       </p>
 

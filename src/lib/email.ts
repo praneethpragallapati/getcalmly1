@@ -64,7 +64,7 @@ export async function verifyEmailOtp(email: string, otp: string): Promise<{ ok: 
     return { ok: false, message: 'Code has expired. Please request a new one.' }
   }
 
-  // Consume the token — one-time use.
+  // Consume the token, one-time use.
   await prisma.verificationToken.delete({ where: { token } })
   return { ok: true, message: 'OTP verified' }
 }

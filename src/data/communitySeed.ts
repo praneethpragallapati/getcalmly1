@@ -1,6 +1,6 @@
 // Single source of truth for community discussions. Used by:
-//   • prisma/seed.ts          — to populate the database
-//   • src/lib/community.ts    — as a fallback when the DB is unreachable
+//   • prisma/seed.ts         , to populate the database
+//   • src/lib/community.ts   , as a fallback when the DB is unreachable
 
 export type CommunityRoleName =
   | 'Paid Member'
@@ -40,7 +40,7 @@ export const ENUM_TO_ROLE_NAME: Record<string, CommunityRoleName> = {
 
 export const communitySeed: CommunitySeed[] = [
   {
-    title: 'I keep catastrophising at night — anyone else find a way through it?',
+    title: 'I keep catastrophising at night, anyone else find a way through it?',
     body: "Every night around 10pm my brain just switches into worst-case-scenario mode. I've tried journaling but my thoughts just spiral more when I write them down. Has anyone found something that actually helps break the loop?",
     author: 'Priya M.',
     role: 'Paid Member',
@@ -51,8 +51,8 @@ export const communitySeed: CommunitySeed[] = [
     comments: 18,
   },
   {
-    title: 'Nobody told me postpartum could feel like this — sharing my story',
-    body: "Six weeks after my daughter was born I couldn't get out of bed some mornings. Not because I was tired — I was, but this was different. I felt completely empty. I want to share what helped me in case anyone else is going through this silently.",
+    title: 'Nobody told me postpartum could feel like this, sharing my story',
+    body: "Six weeks after my daughter was born I couldn't get out of bed some mornings. Not because I was tired, I was, but this was different. I felt completely empty. I want to share what helped me in case anyone else is going through this silently.",
     author: 'Dr. Shruti A.',
     role: 'Therapist',
     tenure: null,
@@ -63,7 +63,7 @@ export const communitySeed: CommunitySeed[] = [
   },
   {
     title: 'My husband finally agreed to therapy after 3 years of me asking',
-    body: "I don't know what finally clicked for him. Maybe it was the panic attack at work. I'm posting this because if you're a partner of someone who refuses to go — keep showing up with patience, not pressure. It took 3 years but we're here.",
+    body: "I don't know what finally clicked for him. Maybe it was the panic attack at work. I'm posting this because if you're a partner of someone who refuses to go, keep showing up with patience, not pressure. It took 3 years but we're here.",
     author: 'Kavitha R.',
     role: 'Member',
     tenure: null,
@@ -73,7 +73,7 @@ export const communitySeed: CommunitySeed[] = [
     comments: 31,
   },
   {
-    title: "CBT homework actually changed my thought patterns — here's what I did",
+    title: "CBT homework actually changed my thought patterns, here's what I did",
     body: "I was skeptical when my therapist gave me a thought record form. It felt like homework from school. But three weeks in, I genuinely started catching the cognitive distortions in real time. Happy to share the template if it helps.",
     author: 'Arjun K.',
     role: 'Paid Member',
@@ -84,7 +84,7 @@ export const communitySeed: CommunitySeed[] = [
     comments: 67,
   },
   {
-    title: "Grief two years on — it doesn't get smaller, you get bigger",
+    title: "Grief two years on, it doesn't get smaller, you get bigger",
     body: "Someone shared this quote with me and I've been thinking about it ever since. Two years after losing my father I'm not 'over it' and I don't think I ever will be. But I've built more space around the grief. Wanted to share this for anyone in the early days.",
     author: 'Farah Z.',
     role: 'Member',

@@ -8,7 +8,7 @@ import { buyPackage } from '@/app/(dashboard)/app/actions'
 
 /**
  * In-app package purchase. Buying ADDS sessions to the patient's existing balance
- * and extends validity (never resets) — handled server-side in lib/billing. Shows
+ * and extends validity (never resets), handled server-side in lib/billing. Shows
  * a confirmation with the new balance afterwards.
  */
 export function BuyPackagePanel({
@@ -50,7 +50,7 @@ export function BuyPackagePanel({
         <div className="section-title">Package added</div>
         <p className="muted" style={{ marginTop: 8 }}>
           {done.total} sessions added to your balance. You now have <strong>{done.remaining}</strong> sessions
-          remaining — your earlier sessions were kept, not reset.
+          remaining, your earlier sessions were kept, not reset.
         </p>
         <button className="btn btn-outline btn-sm" style={{ marginTop: 14 }} onClick={() => setDone(null)}>
           Buy another

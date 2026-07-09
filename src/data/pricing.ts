@@ -8,7 +8,7 @@ export type SessionPack = {
   total: number
 }
 
-// Therapy (psychology) — from ₹999 / session at the 6-pack.
+// Therapy (psychology), from ₹999 / session at the 6-pack.
 export const therapyPacks: SessionPack[] = [
   { sessions: 1, months: 1, total: 1398 },
   { sessions: 2, months: 2, total: 2399 },
@@ -16,7 +16,7 @@ export const therapyPacks: SessionPack[] = [
   { sessions: 6, months: 6, total: 5994 },
 ]
 
-// Psychiatry — from ₹1,099 / session at the 6-pack.
+// Psychiatry, from ₹1,099 / session at the 6-pack.
 export const psychiatryPacks: SessionPack[] = [
   { sessions: 1, months: 1, total: 1499 },
   { sessions: 2, months: 2, total: 2798 },
@@ -26,7 +26,7 @@ export const psychiatryPacks: SessionPack[] = [
 
 export type AppPack = { label: string; months: number; total: number }
 
-// Calm+ — app-only / AI plan, billed by validity.
+// Calm+, app-only / AI plan, billed by validity.
 export const calmPlusPacks: AppPack[] = [
   { label: '1 month', months: 1, total: 399 },
   { label: '4 months', months: 4, total: 799 },
@@ -38,7 +38,7 @@ export const perSession = (p: SessionPack) => Math.round(p.total / p.sessions)
 export const inr = (n: number) => '₹' + n.toLocaleString('en-IN')
 
 // Tracks a patient can buy packs for in-app. (Calm+ is a subscription, handled
-// separately.) Kept here — alongside the packs — so client components can read
+// separately.) Kept here, alongside the packs, so client components can read
 // them without importing server-only billing code.
 export type BuyableTrack = 'therapy' | 'psychiatry'
 export type BuyablePack = SessionPack & { trackSlug: BuyableTrack; index: number; perSession: number }

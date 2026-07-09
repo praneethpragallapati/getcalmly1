@@ -68,8 +68,8 @@ export default async function SupervisionPage() {
         {supervising.length === 0 && (
           <div className="card">
             <p className="muted">
-              You aren&apos;t supervising anyone yet. Supervision assignments are made by getCalmly admins —
-              contact the clinical team to be set up as a supervisor.
+              You aren&apos;t supervising anyone yet. Supervision assignments are made by getCalmly admins.
+              Contact the clinical team to be set up as a supervisor.
             </p>
           </div>
         )}

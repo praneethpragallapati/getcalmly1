@@ -44,7 +44,7 @@ export function CommunityComposer() {
         Start a discussion
       </div>
       <p style={{ fontSize: 13, color: '#b9c3cd', margin: '8px 0 16px', lineHeight: 1.5 }}>
-        Ask a question or share what’s helping you. This is a kind, moderated space — be gentle with
+        Ask a question or share what’s helping you. This is a kind, moderated space, be gentle with
         yourself and others.
       </p>
 

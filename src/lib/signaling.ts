@@ -6,7 +6,7 @@
 //
 // COMPLIANCE: nothing here is written to the database. Signals live in memory,
 // scoped to a single roomId, capped in length, and swept after a short TTL. The
-// call itself is peer-to-peer and is never recorded or proxied — there is no
+// call itself is peer-to-peer and is never recorded or proxied, there is no
 // session media for us (or an LLM) to retain. Whether a session *summary* is fed
 // to the AI pipeline is decided separately, behind PrivacySettings.collectSessions.
 

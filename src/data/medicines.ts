@@ -1,6 +1,6 @@
 // Curated formulary the psychiatrist picks from when prescribing. Grouped by
 // class so the dropdown is scannable; common starting strengths are offered as
-// dosage suggestions. Not exhaustive — the prescribe form keeps an "Other"
+// dosage suggestions. Not exhaustive, the prescribe form keeps an "Other"
 // escape hatch for anything off-list.
 
 export type Medicine = {

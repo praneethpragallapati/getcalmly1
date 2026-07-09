@@ -44,7 +44,7 @@ export function NewEntry() {
         Write something new ✍️
       </div>
       <p style={{ fontSize: 13, color: '#b9c3cd', margin: '8px 0 16px', lineHeight: 1.5 }}>
-        Your journal is private. No judgement, no audience — just you and your thoughts.
+        Your journal is private. No judgement, no audience, just you and your thoughts.
       </p>
 
       {!open ? (
