@@ -193,10 +193,10 @@ function PrivacyMock() {
 }
 
 const detailed = [
-  { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a licensed professional who genuinely fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
-  { eyebrow: 'Calm AI', title: 'A companion that actually remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday, so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
+  { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a licensed professional who fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
+  { eyebrow: 'Calm AI', title: 'A companion that remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday, so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
   { eyebrow: 'AI insights & recommendations', title: 'Intelligence that connects dots you can\'t see', body: 'Every mood check-in, journal line, sleep log and session note feeds one quiet engine. It cross-references all of it to surface the patterns underneath, then turns them into precise, gentle recommendations: a wind-down before your hardest night, a topic worth raising on Tuesday, a nudge before the dip instead of after it.', visual: <InsightMock /> },
-  { eyebrow: 'Mood & insights', title: 'Tracking that actually does something', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
+  { eyebrow: 'Mood & insights', title: 'Tracking that acts on what you log', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
   { eyebrow: 'Journaling', title: 'Write freely, see clearly', body: 'Journal however you like. Calm reflects the patterns back in your own words, the thoughts that keep circling and the moments that lift you, drawing on CBT principles. Always reflections, never a diagnosis.', visual: <JournalMock /> },
   { eyebrow: 'Clinician co-pilot', title: 'Your therapist walks in already caught up', body: 'Before each session your professional sees a brief of your week, mood trend, homework and journal themes. Less time spent recapping, more spent on you. Every AI summary is human-reviewed first.', visual: <BriefMock /> },
   { eyebrow: 'Privacy & control', title: 'You decide what the AI ever sees', body: 'Your journal, mood check-ins, session notes and chats are yours. Switch any of them off in settings and the AI simply never touches them, and one master switch turns everything off at once. Private by default, in your hands always.', visual: <PrivacyMock /> },
@@ -284,7 +284,7 @@ export default function FeaturesPage() {
               Your care, in your pocket.
             </h2>
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,.66)', lineHeight: 1.7, marginBottom: 22, fontWeight: 300 }}>
-              The app is where your care actually lives day to day. Check in, talk to Calm, journal, and join sessions, all in one place. And because it is with you, the gentle reminders and personalised nudges arrive exactly when they help most.
+              The app is where your care lives day to day. Check in, talk to Calm, journal, and join sessions, all in one place. And because it is with you, the gentle reminders and personalised nudges arrive exactly when they help most.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
               {['Daily check-ins that take seconds', 'Calm AI a tap away, whenever you need it', 'Timely nudges, personalised to your patterns', 'Join sessions and see your progress'].map((t) => (

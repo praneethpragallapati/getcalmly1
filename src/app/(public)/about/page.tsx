@@ -77,8 +77,8 @@ export default function AboutPage() {
             </h1>
           </div>
           <p style={{ fontSize: 19, color: 'rgba(255,255,255,.74)', lineHeight: 1.8, fontWeight: 300, marginBottom: 6 }}>
-            GetCalmly connects people across India with the right licensed professional, matched not just
-            by symptoms but by your needs, context, language and budget. Real care from real experts, made
+            GetCalmly connects people across India with the right licensed professional, matched by your needs,
+            context, language and budget rather than symptoms alone. Care from licensed experts, made
             easier to reach and easier to stay with.
           </p>
         </div>

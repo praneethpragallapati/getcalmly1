@@ -155,7 +155,7 @@ export default function EnterprisePage() {
               See the wellbeing of your people, never the person.
             </h2>
             <p style={{ fontSize: 17, color: '#5A6B7A', lineHeight: 1.82, fontWeight: 300, marginBottom: 28 }}>
-              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. The signal is drawn quietly from everyday use of the app, mood check-ins, journaling and Calm AI conversations, then aggregated and anonymised, so you see the trend, never an individual&apos;s records.
+              One simple dashboard tells you whether your investment is working: how many people are engaging, where stress is rising, and whether wellbeing is trending up. The signal is drawn from everyday use of the app, mood check-ins, journaling and Calm AI conversations, then aggregated and anonymised, so you see the trend, never an individual&apos;s records.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
@@ -254,7 +254,7 @@ export default function EnterprisePage() {
                 fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
                 fontSize: 'clamp(28px, 4vw, 42px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05,
               }}>
-                From first call to real impact.
+                From first call to measurable impact.
               </h2>
             </div>
             <a href="#interest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff', padding: '14px 26px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>

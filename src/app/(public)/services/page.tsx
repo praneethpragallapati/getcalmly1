@@ -85,7 +85,7 @@ const branches = [
     pale: 'rgba(192,75,138,.08)',
     title: 'Care Built Around You',
     tagline: "You shouldn't have to explain your whole world before someone gets it.",
-    desc: 'Some experiences need a professional who truly understands the context, not a generalist. Whether you\'re navigating chronic illness, gender identity, or supporting someone in crisis, we have the right person.',
+    desc: 'Some experiences need a professional who understands the context, not a generalist. Chronic illness, gender identity, supporting someone in crisis: we have the right person for each.',
     items: ['LGBTQIA+ Affirmative Care', 'Chronic / Terminal Illness', 'Grief & Bereavement', 'Geriatric Mental Health', 'Clinical Supervision for Professionals'],
     expert: 'A context-trained specialist, no need to explain yourself first',
     app: 'Calm+ tools tailored to your situation',
