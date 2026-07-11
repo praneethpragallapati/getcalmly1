@@ -11,7 +11,6 @@ import {
   Pill,
   Heart,
   MessageCircle,
-  AlertCircle,
   Truck,
 } from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard'
@@ -21,20 +20,6 @@ import { getMedicationOrders } from '@/lib/orders'
 import { CheckIn } from '@/components/dashboard/CheckIn'
 import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
-import type { Pattern } from '@/data/dashboardDemo'
-
-const TONE_CLASS: Record<Pattern['tone'], string> = {
-  coral: 't-coral',
-  green: 't-green',
-  gold: 't-gold',
-  purple: 't-purple',
-}
-const TONE_ICON: Record<Pattern['tone'], typeof AlertCircle> = {
-  coral: AlertCircle,
-  green: Sparkles,
-  gold: TrendingUp,
-  purple: Heart,
-}
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
@@ -84,10 +69,10 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Hero, daily Calm AI insight (#10) */}
+      {/* Hero: the day ahead (predictive) + the week's insight (reflective) */}
       <section className="hero">
         <div>
-          <span className="hero-badge">CALM AI · TODAY’S INSIGHT</span>
+          <span className="hero-badge">CALM AI · YOUR DAY AHEAD</span>
           <h2>{d.dailyInsight.title}</h2>
           <p>{d.dailyInsight.body}</p>
           <div className="hero-actions">
@@ -100,21 +85,13 @@ export default async function AppHomePage() {
           </div>
         </div>
         <div className="hero-side">
-          <div className="hero-side-label">DETECTED THIS WEEK</div>
-          {d.detectedThisWeek.map((p) => {
-            const Icon = TONE_ICON[p.tone]
-            return (
-              <div className="detected" key={p.title}>
-                <span className={`detected-ic ${TONE_CLASS[p.tone]}`}>
-                  <Icon size={15} />
-                </span>
-                <div>
-                  <div className="detected-title">{p.title}</div>
-                  <div className="detected-sub">{p.sub}</div>
-                </div>
-              </div>
-            )
-          })}
+          <div className="hero-side-label">WEEKLY INSIGHT</div>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
+            {d.weeklyInsight.title}
+          </div>
+          <p style={{ fontSize: 13, color: '#b9c3cd', lineHeight: 1.6, margin: 0 }}>
+            {d.weeklyInsight.body}
+          </p>
         </div>
       </section>
 

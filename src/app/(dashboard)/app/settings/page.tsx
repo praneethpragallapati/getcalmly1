@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { Crown, CreditCard, Mail } from 'lucide-react'
 import { getAccount } from '@/lib/account'
 import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
-import { CategorySwitcher } from '@/components/dashboard/CategorySwitcher'
 
 export default async function SettingsPage() {
   const { name, email, plan, privacy } = await getAccount()
@@ -12,7 +11,7 @@ export default async function SettingsPage() {
     <>
       <div className="page-head">
         <h1 className="page-title">Settings</h1>
-        <span className="page-meta">Plan, care category & privacy</span>
+        <span className="page-meta">Plan & privacy</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
@@ -73,7 +72,6 @@ export default async function SettingsPage() {
             </Link>
           </div>
 
-          <CategorySwitcher current={plan.category} />
 
           {/* Account */}
           <div className="card">

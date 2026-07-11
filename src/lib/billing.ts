@@ -5,13 +5,20 @@
  * or absent, so an expired plan is "renewed" by topping up the same record.
  */
 import { prisma } from '@/lib/prisma'
-import { packsFor, type BuyableTrack } from '@/data/pricing'
+import { packsFor, FIRST_SESSION, type BuyableTrack } from '@/data/pricing'
 
 export type { BuyableTrack } from '@/data/pricing'
 
 const PLAN_NAME: Record<BuyableTrack, string> = {
   therapy: 'Therapy',
   psychiatry: 'Psychiatry',
+  couples: 'Couples therapy',
+}
+
+const CATEGORY: Record<BuyableTrack, 'INDIVIDUAL' | 'COUPLE'> = {
+  therapy: 'INDIVIDUAL',
+  psychiatry: 'INDIVIDUAL',
+  couples: 'COUPLE',
 }
 
 function tierEnum(paidMonths: number): 'STARTER' | 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' {
@@ -59,6 +66,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
       where: { id: existing.id },
       data: {
         status: 'ACTIVE',
+        category: CATEGORY[track],
         trackSlug: track,
         planName: `${PLAN_NAME[track]} ${pack.sessions}-session pack`,
         paidMonths,
@@ -75,7 +83,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
   await prisma.subscription.create({
     data: {
       userId: patientId,
-      category: 'INDIVIDUAL',
+      category: CATEGORY[track],
       trackSlug: track,
       planName: `${PLAN_NAME[track]} ${pack.sessions}-session pack`,
       status: 'ACTIVE',
@@ -89,4 +97,82 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
     },
   })
   return { ok: true, sessionsTotal: pack.sessions, sessionsRemaining: pack.sessions }
+}
+
+/**
+ * The intro purchase: exactly one session at the fixed first-session price for
+ * the track (FIRST_SESSION in data/pricing). Only offered while the patient has
+ * no session history; packs stay hidden until the first session is done.
+ */
+export async function buyFirstSessionFor(patientId: string, track: BuyableTrack): Promise<BuyResult> {
+  const price = FIRST_SESSION[track]
+  if (!price) return { ok: false, error: 'Unknown track.' }
+
+  const existing = await prisma.subscription.findFirst({
+    where: { userId: patientId },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, sessionsUsed: true, sessionsTotal: true },
+  })
+  // Already has sessions (used or waiting): the intro offer no longer applies.
+  if (existing && (existing.sessionsUsed > 0 || existing.sessionsTotal > 0)) {
+    return { ok: false, error: 'The first-session offer applies only to your very first session.' }
+  }
+
+  const now = new Date()
+  const expiresAt = addMonths(now, 1)
+  const data = {
+    category: CATEGORY[track],
+    trackSlug: track,
+    planName: `${PLAN_NAME[track]} · first session`,
+    status: 'ACTIVE' as const,
+    tier: 'STARTER' as const,
+    paidMonths: 1,
+    sessionsTotal: 1,
+    sessionsUsed: 0,
+    startedAt: now,
+    expiresAt,
+    renewsAt: expiresAt,
+  }
+  if (existing) {
+    await prisma.subscription.update({ where: { id: existing.id }, data })
+  } else {
+    await prisma.subscription.create({ data: { userId: patientId, ...data } })
+  }
+  return { ok: true, sessionsTotal: 1, sessionsRemaining: 1 }
+}
+
+/** Whether the patient already has a partner on record (for couples purchases). */
+export async function hasPartnerOnRecord(patientId: string): Promise<boolean> {
+  const profile = await prisma.patientProfile.findUnique({
+    where: { userId: patientId },
+    select: { id: true },
+  })
+  if (!profile) return false
+  const partner = await prisma.relatedPerson.findFirst({
+    where: { profileId: profile.id, relation: 'PARTNER' },
+    select: { id: true },
+  })
+  return !!partner
+}
+
+/** Save the partner's contact details collected during a couples purchase. */
+export async function savePartnerFor(
+  patientId: string,
+  partner: { name: string; phone: string; email: string }
+): Promise<boolean> {
+  const profile = await prisma.patientProfile.findUnique({
+    where: { userId: patientId },
+    select: { id: true },
+  })
+  if (!profile) return false
+  await prisma.relatedPerson.create({
+    data: {
+      profileId: profile.id,
+      relation: 'PARTNER',
+      name: partner.name.trim(),
+      phone: partner.phone.trim() || null,
+      email: partner.email.trim() || null,
+    },
+  })
+  return true
 }

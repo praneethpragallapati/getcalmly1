@@ -77,8 +77,8 @@ function RegisterForm() {
         </h1>
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 28 }}>
           {isPaid
-            ? 'One quick step left. Review exactly what you’re getting and confirm your plan, your first session is still free.'
-            : 'Your account is ready. Next, we’ll match you with the right professional and book your free first session.'}
+            ? 'One quick step left. Review exactly what you’re getting and confirm your plan, your first session is a flat ₹999.'
+            : 'Your account is ready. Next, we’ll match you with the right professional and book your first session.'}
         </p>
         <Link href={nextHref} style={{
           display: 'inline-block', padding: '14px 28px', borderRadius: 50, background: '#C8553D',
@@ -113,7 +113,7 @@ function RegisterForm() {
             Let&apos;s begin with you.
           </h1>
           <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: careType ? 16 : 24 }}>
-            Free to join, and your first session is on us. Takes about two minutes.
+            Free to join, takes about two minutes.
           </p>
           {careType && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', background: '#FFF1EC', border: '1px solid rgba(200,85,61,.2)', borderRadius: 12, marginBottom: 24 }}>

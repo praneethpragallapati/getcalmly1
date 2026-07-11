@@ -21,41 +21,41 @@ const plans: Record<PlanKey, {
     name: 'Therapy',
     accent: coral,
     benefits: [
-      'Your first 50-minute session is completely free',
+      'Your first 50-minute session at a flat ₹999',
       'An RCI-verified psychologist matched to you',
       'A clear summary after every session',
       'Everything in Calm+: unlimited AI, insights, journaling',
       'A constant guide who stays with you the whole way',
     ],
-    payToday: '₹0',
+    payToday: '₹999',
     summary: [
       { label: 'Plan', value: 'Therapy' },
-      { label: 'First session', value: 'Free' },
-      { label: 'After that', value: 'From ₹999 / session' },
-      { label: 'Due today', value: '₹0' },
+      { label: 'First session', value: '₹999' },
+      { label: 'After that', value: 'Packs from ₹999 / session' },
+      { label: 'Due today', value: '₹999' },
     ],
-    fineprint: 'You will not be charged for your first session. You only pay when you choose a pack, and unused sessions are always refundable.',
-    cta: 'Confirm and book my free session',
+    fineprint: 'You pay a flat ₹999 for your first session. Session packs unlock after it, and unused sessions are always refundable.',
+    cta: 'Confirm and book my first session',
   },
   psychiatry: {
     name: 'Psychiatry',
     accent: '#1A7F7A',
     benefits: [
-      'Your first consultation is free',
+      'Your first consultation at a flat ₹1,199',
       'An NMC-registered psychiatrist for evaluation and care',
       'Medication support with a built-in tracker',
       'Medicines delivered to your door',
       'Everything in Calm+: unlimited AI, insights, journaling',
     ],
-    payToday: '₹0',
+    payToday: '₹1,199',
     summary: [
       { label: 'Plan', value: 'Psychiatry' },
-      { label: 'First consultation', value: 'Free' },
-      { label: 'After that', value: 'From ₹1,099 / session' },
-      { label: 'Due today', value: '₹0' },
+      { label: 'First consultation', value: '₹1,199' },
+      { label: 'After that', value: 'Packs from ₹1,199 / session' },
+      { label: 'Due today', value: '₹1,199' },
     ],
-    fineprint: 'You will not be charged for your first consultation. You only pay when you choose a pack, and unused sessions are always refundable.',
-    cta: 'Confirm and book my free consultation',
+    fineprint: 'You pay a flat ₹1,199 for your first consultation. Session packs unlock after it, and unused sessions are always refundable.',
+    cta: 'Confirm and book my consultation',
   },
   app: {
     name: 'Calm+',
@@ -97,7 +97,7 @@ function CheckoutContent() {
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 28 }}>
           {care === 'app'
             ? 'Calm+ is unlocked. Open the app to meet Calm, start your first check-in, and explore your insights.'
-            : 'Next, we will match you with the right professional and get your free first session on the calendar.'}
+            : 'Next, we will match you with the right professional and get your first session on the calendar.'}
         </p>
         <Link href={care === 'app' ? '/' : '/assess'} style={btnPrimary(plan.accent)}>
           {care === 'app' ? 'Explore your space' : 'Find my match'}

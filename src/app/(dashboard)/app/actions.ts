@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
-import { buyPackageFor, type BuyableTrack } from '@/lib/billing'
+import { buyPackageFor, buyFirstSessionFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
@@ -193,37 +193,6 @@ export async function updatePrivacy(input: PrivacyInput): Promise<ActionResult> 
 }
 
 /**
- * Switch the patient's care category, Individual / Couple / Kids (#19). Updates
- * the live active subscription. Clinical reassignment (CareMode, partner/child
- * linking) is handled by the care team; this records the product-side switch.
- */
-export async function switchCategory(
-  category: 'Individual' | 'Couple' | 'Kids'
-): Promise<ActionResult> {
-  const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
-
-  const enumValue = { Individual: 'INDIVIDUAL', Couple: 'COUPLE', Kids: 'KIDS' }[category] as
-    | 'INDIVIDUAL'
-    | 'COUPLE'
-    | 'KIDS'
-  try {
-    const sub = await prisma.subscription.findFirst({
-      where: { userId, status: 'ACTIVE' },
-      orderBy: { createdAt: 'desc' },
-      select: { id: true },
-    })
-    if (!sub) return { ok: true, persisted: false }
-    await prisma.subscription.update({ where: { id: sub.id }, data: { category: enumValue } })
-    revalidatePath('/app/settings')
-    revalidatePath('/app')
-    return { ok: true, persisted: true }
-  } catch {
-    return { ok: false, persisted: false, error: 'Could not switch your care category.' }
-  }
-}
-
-/**
  * Mark an expert-assigned task complete/incomplete (#16). Scoped to the signed-in
  * patient's own task rows. Completion is what feeds the weekly progress summary
  * both the patient and their expert see, so it must persist (not be local-only).
@@ -354,13 +323,60 @@ export async function createCommunityPost(input: {
  */
 export async function buyPackage(
   track: BuyableTrack,
-  packIndex: number
-): Promise<ActionResult> {
+  packIndex: number,
+  partner?: { name: string; phone: string; email: string }
+): Promise<ActionResult & { partnerRequired?: boolean }> {
   const userId = await getSessionUserId()
   if (!userId) return { ok: true, persisted: false }
 
   try {
+    // Couples packs need the partner on record. Patients who onboarded for
+    // individual therapy won't have one, so the buy flow collects it here.
+    if (track === 'couples') {
+      const onRecord = await hasPartnerOnRecord(userId)
+      if (!onRecord) {
+        if (!partner || !partner.name.trim()) {
+          return { ok: false, persisted: false, partnerRequired: true, error: 'Please add your partner’s details to continue.' }
+        }
+        await savePartnerFor(userId, partner)
+      }
+    }
+
     const result = await buyPackageFor(userId, track, packIndex)
+    if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    revalidatePath('/app/settings')
+    revalidatePath('/app/billing')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not complete purchase.' }
+  }
+}
+
+/**
+ * Buy the fixed-price first session (999 therapy / 1199 psychiatry / 1499
+ * couples). Only valid while the patient has no session history; couples
+ * first sessions also collect the partner if missing.
+ */
+export async function buyFirstSession(
+  track: BuyableTrack,
+  partner?: { name: string; phone: string; email: string }
+): Promise<ActionResult & { partnerRequired?: boolean }> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    if (track === 'couples') {
+      const onRecord = await hasPartnerOnRecord(userId)
+      if (!onRecord) {
+        if (!partner || !partner.name.trim()) {
+          return { ok: false, persisted: false, partnerRequired: true, error: 'Please add your partner’s details to continue.' }
+        }
+        await savePartnerFor(userId, partner)
+      }
+    }
+
+    const result = await buyFirstSessionFor(userId, track)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')

@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  therapyPacks, psychiatryPacks, calmPlusPacks, perSession, inr, discountVsBase,
-  THERAPY_FROM, PSYCHIATRY_FROM, THERAPY_BASE, PSYCHIATRY_BASE, CALMPLUS_BASE,
-  freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures,
+  therapyPacks, psychiatryPacks, couplesPacks, calmPlusPacks, perSession, inr, discountVsBase,
+  THERAPY_FROM, PSYCHIATRY_FROM, COUPLES_FROM, THERAPY_BASE, PSYCHIATRY_BASE, COUPLES_BASE,
+  CALMPLUS_BASE, FIRST_SESSION,
+  freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures, couplesFeatures,
   type SessionPack,
 } from '@/data/pricing'
 
@@ -44,10 +45,11 @@ function PackSelector<T>({ items, i, setI, label, badges, accent }: {
 }
 
 function CareCard({
-  name, subtitle, accent, packs, features, fromText, href, base, fill,
+  name, subtitle, accent, packs, features, fromText, href, base, firstSession, fill,
 }: {
   name: string; subtitle: string; accent: string; packs: SessionPack[]
-  features: string[]; fromText: string; href: string; base: number; fill?: boolean
+  features: string[]; fromText: string; href: string; base: number
+  firstSession: number; fill?: boolean
 }) {
   const [i, setI] = useState(packs.length - 1) // default to best-value 6-pack
   const pack = packs[i]
@@ -98,7 +100,7 @@ function CareCard({
       }}>
         Book session
       </Link>
-      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>{fromText} · first session free</p>
+      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>{fromText} · first session {inr(firstSession)}</p>
     </div>
   )
 }
@@ -194,13 +196,13 @@ export default function PricingPage() {
             Real care, at a price<br /><span style={{ color: coral }}>that makes sense.</span>
           </h1>
           <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.7, fontWeight: 300 }}>
-            The more you commit to your healing, the less each session costs. Your first session is free, and if you ever stop early, you only pay for the sessions you used.
+            The more you commit to your healing, the less each session costs. Your first session is a flat {inr(FIRST_SESSION.therapy)}, and if you ever stop early, you only pay for the sessions you used.
           </p>
         </div>
       </section>
 
       {/* Care with a professional */}
-      <section style={{ maxWidth: 980, margin: '0 auto', padding: '76px 24px 24px' }}>
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '76px 24px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 14 }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
             Care with a professional
@@ -216,11 +218,19 @@ export default function PricingPage() {
           <CareCard
             name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
             accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} fill
+            firstSession={FIRST_SESSION.therapy}
             fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy"
+          />
+          <CareCard
+            name="Couples" subtitle="Sessions for you and your partner, together."
+            accent="#7C5CBF" packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE}
+            firstSession={FIRST_SESSION.couples}
+            fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=therapy"
           />
           <CareCard
             name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
             accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE}
+            firstSession={FIRST_SESSION.psychiatry}
             fromText={`From ${inr(PSYCHIATRY_FROM)} per session`} href="/register?care=psychiatry"
           />
         </div>

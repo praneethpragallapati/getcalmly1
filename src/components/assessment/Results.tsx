@@ -173,7 +173,7 @@ export default function Results() {
         <div className="results-cta">
           <div className="rcta-inner">
             <div className="rcta-left">
-              <p className="rcta-eyebrow">Your first session is free</p>
+              <p className="rcta-eyebrow">Your first session, from ₹999</p>
               <h3 className="rcta-title">Not sure yet?</h3>
               <p className="rcta-sub">Start with a free first session with your matched professional. No card, no commitment, just a conversation.</p>
             </div>

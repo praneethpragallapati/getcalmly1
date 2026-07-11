@@ -547,7 +547,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             {[
               { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment, no login, no judgement. Just an honest starting point.' },
               { n: '02', t: 'Get matched, not assigned', d: 'We pair you with a professional who fits what you\'re going through, your language and your budget.' },
-              { n: '03', t: 'Your first session is free', d: 'No card, no commitment. Just one real conversation to see if it feels right.' },
+              { n: '03', t: 'One flat price for session one', d: 'From ₹999 depending on the service. No packs, no commitment, just one real conversation to see if it feels right.' },
             ].map((step, i) => (
               <div key={step.n} style={{
                 padding: '36px 32px',
@@ -584,7 +584,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: darkBand(s.accent), padding: '94px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
+          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session, from ₹999</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             You don&apos;t have to figure this out alone.
           </h3>

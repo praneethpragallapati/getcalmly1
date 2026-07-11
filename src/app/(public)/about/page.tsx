@@ -275,7 +275,7 @@ export default function AboutPage() {
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '104px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session is free</p>
+          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session, from ₹999</p>
           <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(32px, 5vw, 46px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             Take the first step today.
           </h2>

@@ -8,21 +8,36 @@ export type SessionPack = {
   total: number
 }
 
-// Therapy (psychology), from ₹999 / session at the 6-pack.
+// Therapy (psychology), from ₹999 / session at the 16-pack.
 export const therapyPacks: SessionPack[] = [
-  { sessions: 1, months: 1, total: 1398 },
-  { sessions: 2, months: 2, total: 2399 },
-  { sessions: 4, months: 4, total: 4396 },
-  { sessions: 6, months: 6, total: 5994 },
+  { sessions: 1, months: 1, total: 1499 },
+  { sessions: 2, months: 2, total: 2798 }, // ₹1,399 / session
+  { sessions: 4, months: 4, total: 5196 }, // ₹1,299 / session
+  { sessions: 8, months: 8, total: 8792 }, // ₹1,099 / session
+  { sessions: 16, months: 12, total: 15984 }, // ₹999 / session
 ]
 
-// Psychiatry, from ₹1,099 / session at the 6-pack.
-export const psychiatryPacks: SessionPack[] = [
-  { sessions: 1, months: 1, total: 1499 },
-  { sessions: 2, months: 2, total: 2798 },
-  { sessions: 4, months: 4, total: 5196 },
-  { sessions: 6, months: 6, total: 6594 },
+// Couples therapy, from ₹1,699 / session at the 4-pack.
+export const couplesPacks: SessionPack[] = [
+  { sessions: 1, months: 1, total: 2299 },
+  { sessions: 2, months: 2, total: 3998 }, // ₹1,999 / session
+  { sessions: 4, months: 4, total: 6796 }, // ₹1,699 / session
 ]
+
+// Psychiatry, from ₹1,199 / session at the 4-pack.
+export const psychiatryPacks: SessionPack[] = [
+  { sessions: 1, months: 1, total: 1599 },
+  { sessions: 2, months: 2, total: 2798 }, // ₹1,399 / session
+  { sessions: 4, months: 4, total: 4796 }, // ₹1,199 / session
+]
+
+// Fixed first-session price per track. Never discounted, never bundled: this is
+// the only thing a new patient sees until their first session is done.
+export const FIRST_SESSION: Record<'therapy' | 'psychiatry' | 'couples', number> = {
+  therapy: 999,
+  psychiatry: 1199,
+  couples: 1499,
+}
 
 export type AppPack = { label: string; months: number; total: number }
 
@@ -40,12 +55,13 @@ export const inr = (n: number) => '₹' + n.toLocaleString('en-IN')
 // Tracks a patient can buy packs for in-app. (Calm+ is a subscription, handled
 // separately.) Kept here, alongside the packs, so client components can read
 // them without importing server-only billing code.
-export type BuyableTrack = 'therapy' | 'psychiatry'
+export type BuyableTrack = 'therapy' | 'psychiatry' | 'couples'
 export type BuyablePack = SessionPack & { trackSlug: BuyableTrack; index: number; perSession: number }
 
 /** The packs offered for a track, with derived per-session price. */
 export function packsFor(track: BuyableTrack): BuyablePack[] {
-  const packs = track === 'psychiatry' ? psychiatryPacks : therapyPacks
+  const packs =
+    track === 'psychiatry' ? psychiatryPacks : track === 'couples' ? couplesPacks : therapyPacks
   return packs.map((p, index) => ({
     ...p,
     trackSlug: track,
@@ -58,6 +74,7 @@ export function packsFor(track: BuyableTrack): BuyablePack[] {
 // discount against these so the saving is always visible.
 export const THERAPY_BASE = 1899
 export const PSYCHIATRY_BASE = 1999
+export const COUPLES_BASE = 2799
 export const CALMPLUS_BASE = 499
 
 export const discountVsBase = (perSessionPrice: number, base: number) =>
@@ -65,7 +82,8 @@ export const discountVsBase = (perSessionPrice: number, base: number) =>
 
 // Lowest per-session figures used for "from ₹X" copy.
 export const THERAPY_FROM = perSession(therapyPacks[therapyPacks.length - 1]) // 999
-export const PSYCHIATRY_FROM = perSession(psychiatryPacks[psychiatryPacks.length - 1]) // 1099
+export const PSYCHIATRY_FROM = perSession(psychiatryPacks[psychiatryPacks.length - 1]) // 1199
+export const COUPLES_FROM = perSession(couplesPacks[couplesPacks.length - 1]) // 1699
 
 export const freeFeatures = {
   included: ['Daily mood tracker', 'Smart journaling', 'Moderated community access', 'A few Calm AI conversations to get started'],
@@ -90,6 +108,15 @@ export const therapyFeatures = [
   'A clear summary after every session',
   'Daily and weekly insights on your progress',
   'A constant guide who stays with you the whole way',
+  'Priority matching and easy rescheduling',
+]
+
+export const couplesFeatures = [
+  '50-minute sessions for you and your partner together',
+  'An EFT & Gottman-informed couples therapist',
+  'Everything in Calm+, for both of you',
+  'A clear summary after every session',
+  'Shared exercises and check-ins between sessions',
   'Priority matching and easy rescheduling',
 ]
 
