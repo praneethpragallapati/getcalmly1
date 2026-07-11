@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
 import {
-  packsFor, calmPlusPacks, inr, FIRST_SESSION, TRACK_BASE, CALMPLUS_BASE,
+  packsFor, calmPlusPacks, inr, FIRST_SESSION,
   type BuyableTrack, type BuyablePack,
 } from '@/data/pricing'
 import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
@@ -22,7 +22,43 @@ const TAB_SUB: Record<PanelTab, string> = {
   therapy: '50 min with an RCI-verified psychologist',
   psychiatry: 'Evaluation with an NMC-registered psychiatrist',
   couples: '50 min for you and your partner, together',
-  calmplus: 'Unlimited Calm AI, insights and journaling',
+  calmplus: 'The everyday app, no sessions',
+}
+
+// What each package actually includes, shown inside its card so patients
+// know what they're buying, not just how many sessions.
+const INCLUDED: Record<PanelTab, string[]> = {
+  therapy: [
+    '50-minute sessions with an RCI-verified psychologist',
+    'A clear summary after every session',
+    'Calm+ included: unlimited AI, insights & journaling',
+    'Priority matching and easy rescheduling',
+  ],
+  psychiatry: [
+    'Consultations with an NMC-registered psychiatrist',
+    'Medication support with a built-in tracker',
+    'Medicines delivered to your door',
+    'Coordinated with your therapist when needed',
+  ],
+  couples: [
+    '50-minute sessions for you and your partner together',
+    'An EFT & Gottman-informed couples therapist',
+    'Shared exercises and check-ins between sessions',
+    'Calm+ included, for both of you',
+  ],
+  calmplus: [
+    'Unlimited Calm AI chat, day and night',
+    'Daily and weekly insights on your patterns',
+    'Smart journaling with reflections',
+    'Mood tracking and guided exercises',
+  ],
+}
+
+const FOOTNOTE: Record<PanelTab, string> = {
+  therapy: 'Unused sessions are refundable · validity extends on every purchase',
+  psychiatry: 'Unused sessions are refundable · validity extends on every purchase',
+  couples: 'Unused sessions are refundable · validity extends on every purchase',
+  calmplus: 'Cancel anytime · included free with session plans',
 }
 
 type Partner = { name: string; phone: string; email: string }
@@ -40,39 +76,6 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
   fontFamily: 'inherit',
   background: 'var(--c-white)',
-}
-
-/** Segmented track switcher, matching the public pricing selector. */
-function TrackTabs({ tab, onChange }: { tab: PanelTab; onChange: (t: PanelTab) => void }) {
-  return (
-    <div style={{ display: 'flex', gap: 4, background: '#F4EEE9', padding: 4, borderRadius: 12, marginBottom: 16 }}>
-      {(['therapy', 'psychiatry', 'couples', 'calmplus'] as const).map((t) => {
-        const active = tab === t
-        return (
-          <button
-            key={t}
-            onClick={() => onChange(t)}
-            style={{
-              flex: 1,
-              padding: '9px 4px',
-              borderRadius: 9,
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 13.5,
-              fontWeight: 700,
-              fontFamily: 'inherit',
-              background: active ? 'var(--c-white)' : 'transparent',
-              color: active ? 'var(--c-coral)' : 'var(--c-gray)',
-              boxShadow: active ? '0 1px 4px rgba(28,43,58,.12)' : 'none',
-              transition: 'all .15s',
-            }}
-          >
-            {TAB_LABEL[t]}
-          </button>
-        )
-      })}
-    </div>
-  )
 }
 
 /** The round selection indicator that replaces the browser radio. */
@@ -117,8 +120,8 @@ function OptionTile({
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        padding: '14px 16px',
+        gap: 12,
+        padding: '12px 14px',
         borderRadius: 14,
         cursor: 'pointer',
         border: `1.5px solid ${selected ? 'var(--c-coral)' : 'var(--c-line)'}`,
@@ -140,14 +143,11 @@ function OptionTile({
   )
 }
 
-/** Small savings / best-value pills. */
-function Pill({ text, tone }: { text: string; tone: 'green' | 'gold' }) {
-  const c = tone === 'green'
-    ? { color: 'var(--c-green)', bg: 'var(--c-green-pale)' }
-    : { color: 'var(--c-gold)', bg: 'var(--c-gold-pale)' }
+/** Small gold "Best value" chip. */
+function BestValue() {
   return (
-    <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.3, color: c.color, background: c.bg, padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>
-      {text}
+    <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.3, color: 'var(--c-gold)', background: 'var(--c-gold-pale)', padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>
+      Best value
     </span>
   )
 }
@@ -176,34 +176,27 @@ function PartnerFields({
   )
 }
 
-/* ── Package purchase ────────────────────────────────────────────────── */
+/* ── Option rows ─────────────────────────────────────────────────────── */
 
-function PackRow({ pack, mrp }: { pack: BuyablePack; mrp: number }) {
-  const save = Math.round((1 - pack.perSession / mrp) * 100)
+function PackRow({ pack }: { pack: BuyablePack }) {
   return (
     <>
-      {/* Session count as the anchor of the row */}
-      <span style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
-        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, lineHeight: 1, color: 'var(--c-charcoal)' }}>
+      <span style={{ width: 42, textAlign: 'center', flexShrink: 0 }}>
+        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--c-charcoal)' }}>
           {pack.sessions}
         </span>
-        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
           {pack.sessions === 1 ? 'session' : 'sessions'}
         </span>
       </span>
 
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-          <span style={{ textDecoration: 'line-through', fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray)', marginRight: 6 }}>{inr(mrp)}</span>
-          {inr(pack.perSession)} <span style={{ fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray-d)' }}>/ session</span>
+        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: 'var(--c-charcoal)' }}>
+          {inr(pack.perSession)} <span style={{ fontWeight: 500, fontSize: 12, color: 'var(--c-gray-d)' }}>/ session</span>
         </span>
-        <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
+        <span style={{ display: 'block', fontSize: 11.5, color: 'var(--c-gray)', marginTop: 2 }}>
           {inr(pack.total)} total · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
         </span>
-      </span>
-
-      <span style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end', flexShrink: 0 }}>
-        {save > 0 && <Pill text={`Save ${save}%`} tone="green" />}
       </span>
     </>
   )
@@ -211,62 +204,53 @@ function PackRow({ pack, mrp }: { pack: BuyablePack; mrp: number }) {
 
 function CalmPlusRow({ pack }: { pack: (typeof calmPlusPacks)[number] }) {
   const perMonth = Math.floor(pack.total / pack.months)
-  const save = Math.round((1 - perMonth / CALMPLUS_BASE) * 100)
   return (
     <>
-      <span style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
-        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, lineHeight: 1, color: 'var(--c-charcoal)' }}>
+      <span style={{ width: 42, textAlign: 'center', flexShrink: 0 }}>
+        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--c-charcoal)' }}>
           {pack.months}
         </span>
-        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
           {pack.months === 1 ? 'month' : 'months'}
         </span>
       </span>
 
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-          <span style={{ textDecoration: 'line-through', fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray)', marginRight: 6 }}>{inr(CALMPLUS_BASE)}</span>
-          {inr(perMonth)} <span style={{ fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray-d)' }}>/ month</span>
+        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: 'var(--c-charcoal)' }}>
+          {inr(perMonth)} <span style={{ fontWeight: 500, fontSize: 12, color: 'var(--c-gray-d)' }}>/ month</span>
         </span>
-        <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
+        <span style={{ display: 'block', fontSize: 11.5, color: 'var(--c-gray)', marginTop: 2 }}>
           {inr(pack.total)} total · billed once
         </span>
-      </span>
-
-      <span style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end', flexShrink: 0 }}>
-        {save > 0 && <Pill text={`Save ${save}%`} tone="green" />}
       </span>
     </>
   )
 }
 
-/**
- * In-app package purchase. Buying ADDS sessions to the patient's existing balance
- * and extends validity (never resets), handled server-side in lib/billing. Couples
- * packs collect the partner's details when none is on record yet.
- */
-export function BuyPackagePanel({
-  defaultTrack = 'therapy',
+/* ── One package card per track ──────────────────────────────────────── */
+
+function TrackCard({
+  tab,
   sessionsRemaining,
-  hasPartner = false,
+  hasPartner,
 }: {
-  defaultTrack?: BuyableTrack
+  tab: PanelTab
   sessionsRemaining: number
-  hasPartner?: boolean
+  hasPartner: boolean
 }) {
   const router = useRouter()
-  const [tab, setTab] = useState<PanelTab>(defaultTrack)
-  const [selected, setSelected] = useState(0)
+  const isCalmPlus = tab === 'calmplus'
+  const packs = isCalmPlus ? [] : packsFor(tab)
+  const count = isCalmPlus ? calmPlusPacks.length : packs.length
+
+  const [selected, setSelected] = useState(count - 1)
   const [pending, startTransition] = useTransition()
-  const [done, setDone] = useState<{ kind: 'sessions'; total: number; remaining: number } | { kind: 'calmplus'; label: string } | null>(null)
+  const [done, setDone] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [partner, setPartner] = useState<Partner>(EMPTY_PARTNER)
 
-  const isCalmPlus = tab === 'calmplus'
-  const packs = isCalmPlus ? [] : packsFor(tab)
   const pack = packs[selected]
   const appPack = calmPlusPacks[selected]
-  const bestValueIndex = (isCalmPlus ? calmPlusPacks.length : packs.length) - 1
   const needsPartner = tab === 'couples' && !hasPartner
 
   function handleBuy() {
@@ -279,7 +263,7 @@ export function BuyPackagePanel({
       if (isCalmPlus) {
         const res = await buyCalmPlus(selected)
         if (res.ok && res.persisted) {
-          setDone({ kind: 'calmplus', label: appPack.label })
+          setDone(`Calm+ is active for ${appPack.label.toLowerCase()} more. If you hold a session plan, its validity was extended too.`)
           router.refresh()
         } else if (res.ok && !res.persisted) {
           setError('Sign in to buy a plan.')
@@ -290,7 +274,7 @@ export function BuyPackagePanel({
       }
       const res = await buyPackage(tab as BuyableTrack, selected, needsPartner ? partner : undefined)
       if (res.ok && res.persisted) {
-        setDone({ kind: 'sessions', total: pack.sessions, remaining: sessionsRemaining + pack.sessions })
+        setDone(`${pack.sessions} ${pack.sessions === 1 ? 'session' : 'sessions'} added. You now have ${sessionsRemaining + pack.sessions} sessions remaining, earlier sessions were kept, not reset.`)
         router.refresh()
       } else if (res.ok && !res.persisted) {
         setError('Sign in to buy a package.')
@@ -302,15 +286,11 @@ export function BuyPackagePanel({
 
   if (done) {
     return (
-      <div className="card" style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
-        <div className="section-title">{done.kind === 'calmplus' ? 'Calm+ added' : 'Package added'}</div>
-        <p className="muted" style={{ marginTop: 8 }}>
-          {done.kind === 'calmplus'
-            ? `Calm+ is active for ${done.label.toLowerCase()} more. If you hold a session plan, its validity was extended too.`
-            : <>{done.total} sessions added to your balance. You now have <strong>{done.remaining}</strong> sessions remaining, your earlier sessions were kept, not reset.</>}
-        </p>
-        <button className="btn btn-outline btn-sm" style={{ marginTop: 14 }} onClick={() => setDone(null)}>
+      <div className="card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ fontSize: 34, marginBottom: 8 }}>🎉</div>
+        <div className="section-title">{isCalmPlus ? 'Calm+ added' : `${TAB_LABEL[tab]} package added`}</div>
+        <p className="muted" style={{ marginTop: 8 }}>{done}</p>
+        <button className="btn btn-outline btn-sm" style={{ marginTop: 14, alignSelf: 'center' }} onClick={() => setDone(null)}>
           Buy another
         </button>
       </div>
@@ -318,26 +298,34 @@ export function BuyPackagePanel({
   }
 
   return (
-    <div className="card">
-      <div className="section-title" style={{ marginBottom: 4 }}>Buy a package</div>
-      <p className="muted" style={{ marginBottom: 16, fontSize: 13 }}>
-        {TAB_SUB[tab]}.{isCalmPlus ? ' Included free with every session plan.' : ' New sessions stack on your current balance, nothing resets.'}
-      </p>
+    <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div className="section-title" style={{ marginBottom: 2 }}>{TAB_LABEL[tab]}</div>
+      <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>{TAB_SUB[tab]}</p>
 
-      <TrackTabs tab={tab} onChange={(t) => { setTab(t); setSelected(t === 'calmplus' ? calmPlusPacks.length - 1 : 0) }} />
+      {/* What's included */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, paddingBottom: 14, marginBottom: 14, borderBottom: '1px solid var(--c-line)' }}>
+        {INCLUDED[tab].map((f) => (
+          <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <span style={{ color: 'var(--c-green)', flexShrink: 0, lineHeight: '17px' }}>
+              <Check size={13} strokeWidth={3} />
+            </span>
+            <span style={{ fontSize: 12.5, color: 'var(--c-gray-d)', lineHeight: 1.45 }}>{f}</span>
+          </div>
+        ))}
+      </div>
 
-      <div className="stack" style={{ gap: 8 }}>
+      {/* Options */}
+      <div className="stack" style={{ gap: 8, flex: 1 }}>
         {(isCalmPlus ? calmPlusPacks : packs).map((_, i) => (
           <div key={i} style={{ position: 'relative' }}>
-            {i === bestValueIndex && (
+            {i === count - 1 && (
               <span style={{ position: 'absolute', top: -8, right: 14, zIndex: 1 }}>
-                <Pill text="Best value" tone="gold" />
+                <BestValue />
               </span>
             )}
-            <OptionTile name="pack" selected={selected === i} onSelect={() => setSelected(i)}>
-              {isCalmPlus
-                ? <CalmPlusRow pack={calmPlusPacks[i]} />
-                : <PackRow pack={packs[i]} mrp={TRACK_BASE[tab as BuyableTrack]} />}
+            <OptionTile name={`pack-${tab}`} selected={selected === i} onSelect={() => setSelected(i)}>
+              {isCalmPlus ? <CalmPlusRow pack={calmPlusPacks[i]} /> : <PackRow pack={packs[i]} />}
             </OptionTile>
           </div>
         ))}
@@ -351,17 +339,46 @@ export function BuyPackagePanel({
         className="btn btn-primary"
         onClick={handleBuy}
         disabled={pending}
-        style={{ marginTop: 18, width: '100%', justifyContent: 'center', padding: '13px', fontSize: 14.5 }}
+        style={{ marginTop: 16, width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
       >
         {pending
           ? 'Processing…'
           : isCalmPlus
-            ? `Continue · Calm+ for ${appPack.label.toLowerCase()} · ${inr(appPack.total)}`
-            : `Continue · ${pack.sessions} ${pack.sessions === 1 ? 'session' : 'sessions'} for ${inr(pack.total)}`}
+            ? `Get Calm+ · ${appPack.label.toLowerCase()} · ${inr(appPack.total)}`
+            : `Buy ${pack.sessions} ${pack.sessions === 1 ? 'session' : 'sessions'} · ${inr(pack.total)}`}
       </button>
-      <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 10 }}>
-        {isCalmPlus ? 'Cancel anytime · included free with session plans' : 'Unused sessions are refundable · validity extends on every purchase'}
+      <p className="muted" style={{ fontSize: 11, textAlign: 'center', marginTop: 9 }}>
+        {FOOTNOTE[tab]}
       </p>
+    </div>
+  )
+}
+
+/**
+ * In-app package purchase: one card per package type (therapy, psychiatry,
+ * couples, Calm+), each with what it includes and its own options. Buying ADDS
+ * sessions to the patient's existing balance and extends validity (never
+ * resets); couples packs collect the partner's details when none is on record.
+ */
+export function BuyPackagePanel({
+  sessionsRemaining,
+  hasPartner = false,
+}: {
+  sessionsRemaining: number
+  hasPartner?: boolean
+}) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
+        gap: 18,
+        alignItems: 'stretch',
+      }}
+    >
+      {(['therapy', 'psychiatry', 'couples', 'calmplus'] as const).map((t) => (
+        <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
+      ))}
     </div>
   )
 }

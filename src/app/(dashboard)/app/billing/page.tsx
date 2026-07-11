@@ -34,7 +34,7 @@ export default async function BillingPage() {
         <span className="page-meta">{sessionsRemaining} sessions remaining</span>
       </div>
 
-      <div className="stack" style={{ maxWidth: 560 }}>
+      <div className="stack" style={{ maxWidth: firstSessionDone ? 1200 : 560 }}>
         {firstSessionDone ? (
           <>
             <div className="card">
