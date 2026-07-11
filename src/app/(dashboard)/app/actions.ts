@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
-import { buyPackageFor, buyFirstSessionFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
+import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
@@ -343,6 +343,23 @@ export async function buyPackage(
     }
 
     const result = await buyPackageFor(userId, track, packIndex)
+    if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    revalidatePath('/app/settings')
+    revalidatePath('/app/billing')
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not complete purchase.' }
+  }
+}
+
+/** Buy a Calm+ app plan (extends validity for session-plan holders). */
+export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const result = await buyCalmPlusFor(userId, packIndex)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')

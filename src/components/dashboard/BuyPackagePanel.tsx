@@ -3,19 +3,26 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
-import { packsFor, inr, FIRST_SESSION, type BuyableTrack, type BuyablePack } from '@/data/pricing'
-import { buyPackage, buyFirstSession } from '@/app/(dashboard)/app/actions'
+import {
+  packsFor, calmPlusPacks, inr, FIRST_SESSION, TRACK_BASE, CALMPLUS_BASE,
+  type BuyableTrack, type BuyablePack,
+} from '@/data/pricing'
+import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
 
-const TRACK_LABEL: Record<BuyableTrack, string> = {
+type PanelTab = BuyableTrack | 'calmplus'
+
+const TAB_LABEL: Record<PanelTab, string> = {
   therapy: 'Therapy',
   psychiatry: 'Psychiatry',
   couples: 'Couples',
+  calmplus: 'Calm+',
 }
 
-const TRACK_SUB: Record<BuyableTrack, string> = {
+const TAB_SUB: Record<PanelTab, string> = {
   therapy: '50 min with an RCI-verified psychologist',
   psychiatry: 'Evaluation with an NMC-registered psychiatrist',
   couples: '50 min for you and your partner, together',
+  calmplus: 'Unlimited Calm AI, insights and journaling',
 }
 
 type Partner = { name: string; phone: string; email: string }
@@ -36,11 +43,11 @@ const inputStyle: React.CSSProperties = {
 }
 
 /** Segmented track switcher, matching the public pricing selector. */
-function TrackTabs({ track, onChange }: { track: BuyableTrack; onChange: (t: BuyableTrack) => void }) {
+function TrackTabs({ tab, onChange }: { tab: PanelTab; onChange: (t: PanelTab) => void }) {
   return (
     <div style={{ display: 'flex', gap: 4, background: '#F4EEE9', padding: 4, borderRadius: 12, marginBottom: 16 }}>
-      {(['therapy', 'psychiatry', 'couples'] as const).map((t) => {
-        const active = track === t
+      {(['therapy', 'psychiatry', 'couples', 'calmplus'] as const).map((t) => {
+        const active = tab === t
         return (
           <button
             key={t}
@@ -60,7 +67,7 @@ function TrackTabs({ track, onChange }: { track: BuyableTrack; onChange: (t: Buy
               transition: 'all .15s',
             }}
           >
-            {TRACK_LABEL[t]}
+            {TAB_LABEL[t]}
           </button>
         )
       })}
@@ -171,8 +178,8 @@ function PartnerFields({
 
 /* ── Package purchase ────────────────────────────────────────────────── */
 
-function PackRow({ pack, base }: { pack: BuyablePack; base: number }) {
-  const save = Math.round((1 - pack.perSession / base) * 100)
+function PackRow({ pack, mrp }: { pack: BuyablePack; mrp: number }) {
+  const save = Math.round((1 - pack.perSession / mrp) * 100)
   return (
     <>
       {/* Session count as the anchor of the row */}
@@ -187,10 +194,42 @@ function PackRow({ pack, base }: { pack: BuyablePack; base: number }) {
 
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
+          <span style={{ textDecoration: 'line-through', fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray)', marginRight: 6 }}>{inr(mrp)}</span>
           {inr(pack.perSession)} <span style={{ fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray-d)' }}>/ session</span>
         </span>
         <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
           {inr(pack.total)} total · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
+        </span>
+      </span>
+
+      <span style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end', flexShrink: 0 }}>
+        {save > 0 && <Pill text={`Save ${save}%`} tone="green" />}
+      </span>
+    </>
+  )
+}
+
+function CalmPlusRow({ pack }: { pack: (typeof calmPlusPacks)[number] }) {
+  const perMonth = Math.floor(pack.total / pack.months)
+  const save = Math.round((1 - perMonth / CALMPLUS_BASE) * 100)
+  return (
+    <>
+      <span style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
+        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, lineHeight: 1, color: 'var(--c-charcoal)' }}>
+          {pack.months}
+        </span>
+        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
+          {pack.months === 1 ? 'month' : 'months'}
+        </span>
+      </span>
+
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
+          <span style={{ textDecoration: 'line-through', fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray)', marginRight: 6 }}>{inr(CALMPLUS_BASE)}</span>
+          {inr(perMonth)} <span style={{ fontWeight: 500, fontSize: 12.5, color: 'var(--c-gray-d)' }}>/ month</span>
+        </span>
+        <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
+          {inr(pack.total)} total · billed once
         </span>
       </span>
 
@@ -216,18 +255,19 @@ export function BuyPackagePanel({
   hasPartner?: boolean
 }) {
   const router = useRouter()
-  const [track, setTrack] = useState<BuyableTrack>(defaultTrack)
+  const [tab, setTab] = useState<PanelTab>(defaultTrack)
   const [selected, setSelected] = useState(0)
   const [pending, startTransition] = useTransition()
-  const [done, setDone] = useState<{ total: number; remaining: number } | null>(null)
+  const [done, setDone] = useState<{ kind: 'sessions'; total: number; remaining: number } | { kind: 'calmplus'; label: string } | null>(null)
   const [error, setError] = useState('')
   const [partner, setPartner] = useState<Partner>(EMPTY_PARTNER)
 
-  const packs = packsFor(track)
+  const isCalmPlus = tab === 'calmplus'
+  const packs = isCalmPlus ? [] : packsFor(tab)
   const pack = packs[selected]
-  const base = packs[0].perSession // single-session price anchors the savings
-  const bestValueIndex = packs.length - 1
-  const needsPartner = track === 'couples' && !hasPartner
+  const appPack = calmPlusPacks[selected]
+  const bestValueIndex = (isCalmPlus ? calmPlusPacks.length : packs.length) - 1
+  const needsPartner = tab === 'couples' && !hasPartner
 
   function handleBuy() {
     setError('')
@@ -236,9 +276,21 @@ export function BuyPackagePanel({
       return
     }
     startTransition(async () => {
-      const res = await buyPackage(track, selected, needsPartner ? partner : undefined)
+      if (isCalmPlus) {
+        const res = await buyCalmPlus(selected)
+        if (res.ok && res.persisted) {
+          setDone({ kind: 'calmplus', label: appPack.label })
+          router.refresh()
+        } else if (res.ok && !res.persisted) {
+          setError('Sign in to buy a plan.')
+        } else {
+          setError(res.error ?? 'Could not complete purchase.')
+        }
+        return
+      }
+      const res = await buyPackage(tab as BuyableTrack, selected, needsPartner ? partner : undefined)
       if (res.ok && res.persisted) {
-        setDone({ total: pack.sessions, remaining: sessionsRemaining + pack.sessions })
+        setDone({ kind: 'sessions', total: pack.sessions, remaining: sessionsRemaining + pack.sessions })
         router.refresh()
       } else if (res.ok && !res.persisted) {
         setError('Sign in to buy a package.')
@@ -252,10 +304,11 @@ export function BuyPackagePanel({
     return (
       <div className="card" style={{ textAlign: 'center' }}>
         <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
-        <div className="section-title">Package added</div>
+        <div className="section-title">{done.kind === 'calmplus' ? 'Calm+ added' : 'Package added'}</div>
         <p className="muted" style={{ marginTop: 8 }}>
-          {done.total} sessions added to your balance. You now have <strong>{done.remaining}</strong> sessions
-          remaining, your earlier sessions were kept, not reset.
+          {done.kind === 'calmplus'
+            ? `Calm+ is active for ${done.label.toLowerCase()} more. If you hold a session plan, its validity was extended too.`
+            : <>{done.total} sessions added to your balance. You now have <strong>{done.remaining}</strong> sessions remaining, your earlier sessions were kept, not reset.</>}
         </p>
         <button className="btn btn-outline btn-sm" style={{ marginTop: 14 }} onClick={() => setDone(null)}>
           Buy another
@@ -268,21 +321,23 @@ export function BuyPackagePanel({
     <div className="card">
       <div className="section-title" style={{ marginBottom: 4 }}>Buy a package</div>
       <p className="muted" style={{ marginBottom: 16, fontSize: 13 }}>
-        {TRACK_SUB[track]}. New sessions stack on your current balance, nothing resets.
+        {TAB_SUB[tab]}.{isCalmPlus ? ' Included free with every session plan.' : ' New sessions stack on your current balance, nothing resets.'}
       </p>
 
-      <TrackTabs track={track} onChange={(t) => { setTrack(t); setSelected(0) }} />
+      <TrackTabs tab={tab} onChange={(t) => { setTab(t); setSelected(t === 'calmplus' ? calmPlusPacks.length - 1 : 0) }} />
 
       <div className="stack" style={{ gap: 8 }}>
-        {packs.map((p, i) => (
+        {(isCalmPlus ? calmPlusPacks : packs).map((_, i) => (
           <div key={i} style={{ position: 'relative' }}>
-            {i === bestValueIndex && packs.length > 1 && (
+            {i === bestValueIndex && (
               <span style={{ position: 'absolute', top: -8, right: 14, zIndex: 1 }}>
                 <Pill text="Best value" tone="gold" />
               </span>
             )}
             <OptionTile name="pack" selected={selected === i} onSelect={() => setSelected(i)}>
-              <PackRow pack={p} base={base} />
+              {isCalmPlus
+                ? <CalmPlusRow pack={calmPlusPacks[i]} />
+                : <PackRow pack={packs[i]} mrp={TRACK_BASE[tab as BuyableTrack]} />}
             </OptionTile>
           </div>
         ))}
@@ -298,10 +353,14 @@ export function BuyPackagePanel({
         disabled={pending}
         style={{ marginTop: 18, width: '100%', justifyContent: 'center', padding: '13px', fontSize: 14.5 }}
       >
-        {pending ? 'Processing…' : `Continue · ${pack.sessions} ${pack.sessions === 1 ? 'session' : 'sessions'} for ${inr(pack.total)}`}
+        {pending
+          ? 'Processing…'
+          : isCalmPlus
+            ? `Continue · Calm+ for ${appPack.label.toLowerCase()} · ${inr(appPack.total)}`
+            : `Continue · ${pack.sessions} ${pack.sessions === 1 ? 'session' : 'sessions'} for ${inr(pack.total)}`}
       </button>
       <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 10 }}>
-        Unused sessions are refundable · validity extends on every purchase
+        {isCalmPlus ? 'Cancel anytime · included free with session plans' : 'Unused sessions are refundable · validity extends on every purchase'}
       </p>
     </div>
   )
@@ -350,7 +409,7 @@ export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean
         <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
         <div className="section-title">Your first session is ready</div>
         <p className="muted" style={{ marginTop: 8 }}>
-          Head to Sessions to pick a time with your {TRACK_LABEL[track].toLowerCase()} specialist.
+          Head to Sessions to pick a time with your {TAB_LABEL[track].toLowerCase()} specialist.
         </p>
       </div>
     )
@@ -368,10 +427,10 @@ export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean
           <OptionTile key={t} name="first-track" selected={track === t} onSelect={() => setTrack(t)}>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-                {TRACK_LABEL[t]}
+                {TAB_LABEL[t]}
               </span>
               <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
-                {TRACK_SUB[t]}
+                {TAB_SUB[t]}
               </span>
             </span>
             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--c-charcoal)', flexShrink: 0 }}>

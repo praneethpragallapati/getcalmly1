@@ -5,7 +5,7 @@
  * or absent, so an expired plan is "renewed" by topping up the same record.
  */
 import { prisma } from '@/lib/prisma'
-import { packsFor, FIRST_SESSION, type BuyableTrack } from '@/data/pricing'
+import { packsFor, calmPlusPacks, FIRST_SESSION, type BuyableTrack } from '@/data/pricing'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -139,6 +139,64 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
     await prisma.subscription.create({ data: { userId: patientId, ...data } })
   }
   return { ok: true, sessionsTotal: 1, sessionsRemaining: 1 }
+}
+
+/**
+ * Buy a Calm+ app plan. Session plans already include Calm+, so for a patient
+ * with an active session balance this simply extends their validity; otherwise
+ * it creates (or renews) a standalone Calm+ subscription with no sessions.
+ */
+export async function buyCalmPlusFor(patientId: string, packIndex: number): Promise<BuyResult> {
+  const pack = calmPlusPacks[packIndex]
+  if (!pack) return { ok: false, error: 'Unknown plan.' }
+
+  const existing = await prisma.subscription.findFirst({
+    where: { userId: patientId },
+    orderBy: { createdAt: 'desc' },
+  })
+  const now = new Date()
+
+  if (existing) {
+    const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
+    const expiresAt = addMonths(base, pack.months)
+    const paidMonths = existing.paidMonths + pack.months
+    const keepSessionPlan = existing.sessionsTotal > 0
+    await prisma.subscription.update({
+      where: { id: existing.id },
+      data: {
+        status: 'ACTIVE',
+        planName: keepSessionPlan ? existing.planName : `Calm+ · ${pack.label}`,
+        paidMonths,
+        tier: tierEnum(paidMonths),
+        expiresAt,
+        renewsAt: expiresAt,
+      },
+    })
+    return {
+      ok: true,
+      sessionsTotal: existing.sessionsTotal,
+      sessionsRemaining: Math.max(0, existing.sessionsTotal - existing.sessionsUsed),
+    }
+  }
+
+  const expiresAt = addMonths(now, pack.months)
+  await prisma.subscription.create({
+    data: {
+      userId: patientId,
+      category: 'INDIVIDUAL',
+      trackSlug: 'calmplus',
+      planName: `Calm+ · ${pack.label}`,
+      status: 'ACTIVE',
+      tier: tierEnum(pack.months),
+      paidMonths: pack.months,
+      sessionsTotal: 0,
+      sessionsUsed: 0,
+      startedAt: now,
+      expiresAt,
+      renewsAt: expiresAt,
+    },
+  })
+  return { ok: true, sessionsTotal: 0, sessionsRemaining: 0 }
 }
 
 /** Whether the patient already has a partner on record (for couples purchases). */

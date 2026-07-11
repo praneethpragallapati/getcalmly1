@@ -72,10 +72,17 @@ export function packsFor(track: BuyableTrack): BuyablePack[] {
 
 // Standalone "list" price per single session. Pack prices are shown as a
 // discount against these so the saving is always visible.
-export const THERAPY_BASE = 1899
+// MRP per session (the struck-through list price every pack discounts from).
+export const THERAPY_BASE = 1999
 export const PSYCHIATRY_BASE = 1999
-export const COUPLES_BASE = 2799
+export const COUPLES_BASE = 3999
 export const CALMPLUS_BASE = 499
+
+export const TRACK_BASE = {
+  therapy: THERAPY_BASE,
+  psychiatry: PSYCHIATRY_BASE,
+  couples: COUPLES_BASE,
+} as const
 
 export const discountVsBase = (perSessionPrice: number, base: number) =>
   Math.round((1 - perSessionPrice / base) * 100)
