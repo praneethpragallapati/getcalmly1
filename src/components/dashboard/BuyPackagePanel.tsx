@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
 import {
   packsFor, calmPlusPacks, inr, FIRST_SESSION,
-  type BuyableTrack, type BuyablePack,
+  type BuyableTrack,
 } from '@/data/pricing'
 import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
 
@@ -19,31 +19,30 @@ const TAB_LABEL: Record<PanelTab, string> = {
 }
 
 const TAB_SUB: Record<PanelTab, string> = {
-  therapy: '50 min with an RCI-verified psychologist',
-  psychiatry: 'Evaluation with an NMC-registered psychiatrist',
-  couples: '50 min for you and your partner, together',
+  therapy: '50-minute one-on-one sessions with your psychologist',
+  psychiatry: 'Evaluation and medication care with your psychiatrist',
+  couples: '50-minute sessions for you and your partner, together',
   calmplus: 'The everyday app, no sessions',
 }
 
-// What each package actually includes, shown inside its card so patients
-// know what they're buying, not just how many sessions.
+// What each package includes, shown under the price so the numbers lead.
 const INCLUDED: Record<PanelTab, string[]> = {
   therapy: [
-    '50-minute sessions with an RCI-verified psychologist',
+    'A psychologist matched to you',
     'A clear summary after every session',
     'Calm+ included: unlimited AI, insights & journaling',
     'Priority matching and easy rescheduling',
   ],
   psychiatry: [
-    'Consultations with an NMC-registered psychiatrist',
+    'One-on-one consultations with your psychiatrist',
     'Medication support with a built-in tracker',
     'Medicines delivered to your door',
     'Coordinated with your therapist when needed',
   ],
   couples: [
-    '50-minute sessions for you and your partner together',
-    'An EFT & Gottman-informed couples therapist',
+    'A couples specialist matched to you both',
     'Shared exercises and check-ins between sessions',
+    'A clear summary after every session',
     'Calm+ included, for both of you',
   ],
   calmplus: [
@@ -78,68 +77,45 @@ const inputStyle: React.CSSProperties = {
   background: 'var(--c-white)',
 }
 
-/** The round selection indicator that replaces the browser radio. */
-function SelectDot({ on }: { on: boolean }) {
-  return (
-    <span
-      aria-hidden
-      style={{
-        width: 20,
-        height: 20,
-        borderRadius: '50%',
-        flexShrink: 0,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: on ? 'none' : '2px solid var(--c-line)',
-        background: on ? 'var(--c-coral)' : 'var(--c-white)',
-        color: '#fff',
-        transition: 'all .15s',
-      }}
-    >
-      {on && <Check size={12} strokeWidth={3.5} />}
-    </span>
-  )
-}
-
-/** One selectable option row: shared frame for packs and first-session tracks. */
-function OptionTile({
+/** Side-by-side pack selector: one small tab per option. */
+function PackTabs({
+  labels,
   selected,
   onSelect,
-  name,
-  children,
 }: {
-  selected: boolean
-  onSelect: () => void
-  name: string
-  children: React.ReactNode
+  labels: string[]
+  selected: number
+  onSelect: (i: number) => void
 }) {
   return (
-    <label
-      style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '12px 14px',
-        borderRadius: 14,
-        cursor: 'pointer',
-        border: `1.5px solid ${selected ? 'var(--c-coral)' : 'var(--c-line)'}`,
-        background: selected ? '#FFF6F2' : 'var(--c-white)',
-        boxShadow: selected ? '0 4px 14px rgba(200,85,61,.10)' : 'none',
-        transition: 'all .15s',
-      }}
-    >
-      <input
-        type="radio"
-        name={name}
-        checked={selected}
-        onChange={onSelect}
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-      />
-      <SelectDot on={selected} />
-      {children}
-    </label>
+    <div style={{ display: 'flex', gap: 4, background: '#F4EEE9', padding: 4, borderRadius: 12 }}>
+      {labels.map((l, i) => {
+        const active = i === selected
+        return (
+          <button
+            key={i}
+            onClick={() => onSelect(i)}
+            style={{
+              flex: 1,
+              padding: '9px 2px',
+              borderRadius: 9,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 800,
+              fontFamily: 'inherit',
+              background: active ? 'var(--c-white)' : 'transparent',
+              color: active ? 'var(--c-coral)' : 'var(--c-gray)',
+              boxShadow: active ? '0 1px 4px rgba(28,43,58,.12)' : 'none',
+              transition: 'all .15s',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {l}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -176,54 +152,19 @@ function PartnerFields({
   )
 }
 
-/* ── Option rows ─────────────────────────────────────────────────────── */
-
-function PackRow({ pack }: { pack: BuyablePack }) {
+/** The ✓ checklist of what a package includes. */
+function IncludedList({ tab }: { tab: PanelTab }) {
   return (
-    <>
-      <span style={{ width: 42, textAlign: 'center', flexShrink: 0 }}>
-        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--c-charcoal)' }}>
-          {pack.sessions}
-        </span>
-        <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
-          {pack.sessions === 1 ? 'session' : 'sessions'}
-        </span>
-      </span>
-
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-          {inr(pack.perSession)} <span style={{ fontWeight: 500, fontSize: 12, color: 'var(--c-gray-d)' }}>/ session</span>
-        </span>
-        <span style={{ display: 'block', fontSize: 11.5, color: 'var(--c-gray)', marginTop: 2 }}>
-          {inr(pack.total)} total · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
-        </span>
-      </span>
-    </>
-  )
-}
-
-function CalmPlusRow({ pack }: { pack: (typeof calmPlusPacks)[number] }) {
-  const perMonth = Math.floor(pack.total / pack.months)
-  return (
-    <>
-      <span style={{ width: 42, textAlign: 'center', flexShrink: 0 }}>
-        <span style={{ display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, lineHeight: 1, color: 'var(--c-charcoal)' }}>
-          {pack.months}
-        </span>
-        <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: 0.4, color: 'var(--c-gray)', textTransform: 'uppercase' }}>
-          {pack.months === 1 ? 'month' : 'months'}
-        </span>
-      </span>
-
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-          {inr(perMonth)} <span style={{ fontWeight: 500, fontSize: 12, color: 'var(--c-gray-d)' }}>/ month</span>
-        </span>
-        <span style={{ display: 'block', fontSize: 11.5, color: 'var(--c-gray)', marginTop: 2 }}>
-          {inr(pack.total)} total · billed once
-        </span>
-      </span>
-    </>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+      {INCLUDED[tab].map((f) => (
+        <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ color: 'var(--c-green)', flexShrink: 0, lineHeight: '17px' }}>
+            <Check size={13} strokeWidth={3} />
+          </span>
+          <span style={{ fontSize: 12.5, color: 'var(--c-gray-d)', lineHeight: 1.45 }}>{f}</span>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -252,6 +193,19 @@ function TrackCard({
   const pack = packs[selected]
   const appPack = calmPlusPacks[selected]
   const needsPartner = tab === 'couples' && !hasPartner
+  const isBest = selected === count - 1
+
+  // Tab labels: session counts, or plan lengths for Calm+.
+  const tabLabels = isCalmPlus
+    ? calmPlusPacks.map((p) => (p.months === 12 ? '1 yr' : `${p.months} mo`))
+    : packs.map((p) => `${p.sessions}`)
+
+  // Selected option, summarised.
+  const priceMain = isCalmPlus ? inr(Math.floor(appPack.total / appPack.months)) : inr(pack.perSession)
+  const priceUnit = isCalmPlus ? '/ month' : '/ session'
+  const priceSub = isCalmPlus
+    ? `${inr(appPack.total)} total · billed once`
+    : `${inr(pack.total)} total · valid ${pack.months} ${pack.months === 1 ? 'month' : 'months'}`
 
   function handleBuy() {
     setError('')
@@ -301,34 +255,24 @@ function TrackCard({
     <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div className="section-title" style={{ marginBottom: 2 }}>{TAB_LABEL[tab]}</div>
-      <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>{TAB_SUB[tab]}</p>
+      <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>{TAB_SUB[tab]}</p>
 
-      {/* What's included */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, paddingBottom: 14, marginBottom: 14, borderBottom: '1px solid var(--c-line)' }}>
-        {INCLUDED[tab].map((f) => (
-          <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-            <span style={{ color: 'var(--c-green)', flexShrink: 0, lineHeight: '17px' }}>
-              <Check size={13} strokeWidth={3} />
-            </span>
-            <span style={{ fontSize: 12.5, color: 'var(--c-gray-d)', lineHeight: 1.45 }}>{f}</span>
-          </div>
-        ))}
-      </div>
+      {/* Pack selector: side-by-side tabs */}
+      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, color: 'var(--c-gray)', textTransform: 'uppercase', marginBottom: 6 }}>
+        {isCalmPlus ? 'Plan length' : 'Sessions'}
+      </p>
+      <PackTabs labels={tabLabels} selected={selected} onSelect={setSelected} />
 
-      {/* Options */}
-      <div className="stack" style={{ gap: 8, flex: 1 }}>
-        {(isCalmPlus ? calmPlusPacks : packs).map((_, i) => (
-          <div key={i} style={{ position: 'relative' }}>
-            {i === count - 1 && (
-              <span style={{ position: 'absolute', top: -8, right: 14, zIndex: 1 }}>
-                <BestValue />
-              </span>
-            )}
-            <OptionTile name={`pack-${tab}`} selected={selected === i} onSelect={() => setSelected(i)}>
-              {isCalmPlus ? <CalmPlusRow pack={calmPlusPacks[i]} /> : <PackRow pack={packs[i]} />}
-            </OptionTile>
-          </div>
-        ))}
+      {/* Selected option, summarised */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 14 }}>
+        <div>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 26, color: 'var(--c-charcoal)', lineHeight: 1 }}>
+            {priceMain}
+          </span>
+          <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--c-gray-d)', marginLeft: 5 }}>{priceUnit}</span>
+          <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 4 }}>{priceSub}</span>
+        </div>
+        {isBest && <BestValue />}
       </div>
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
@@ -339,7 +283,7 @@ function TrackCard({
         className="btn btn-primary"
         onClick={handleBuy}
         disabled={pending}
-        style={{ marginTop: 16, width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
+        style={{ marginTop: 14, width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
       >
         {pending
           ? 'Processing…'
@@ -347,7 +291,13 @@ function TrackCard({
             ? `Get Calm+ · ${appPack.label.toLowerCase()} · ${inr(appPack.total)}`
             : `Buy ${pack.sessions} ${pack.sessions === 1 ? 'session' : 'sessions'} · ${inr(pack.total)}`}
       </button>
-      <p className="muted" style={{ fontSize: 11, textAlign: 'center', marginTop: 9 }}>
+
+      {/* What's included, below the numbers */}
+      <div style={{ borderTop: '1px solid var(--c-line)', marginTop: 16, paddingTop: 14, flex: 1 }}>
+        <IncludedList tab={tab} />
+      </div>
+
+      <p className="muted" style={{ fontSize: 11, textAlign: 'center', marginTop: 12 }}>
         {FOOTNOTE[tab]}
       </p>
     </div>
@@ -355,10 +305,10 @@ function TrackCard({
 }
 
 /**
- * In-app package purchase: one card per package type (therapy, psychiatry,
- * couples, Calm+), each with what it includes and its own options. Buying ADDS
- * sessions to the patient's existing balance and extends validity (never
- * resets); couples packs collect the partner's details when none is on record.
+ * In-app package purchase: the three session tracks side by side, with Calm+
+ * on its own row below for people not ready for sessions. Buying ADDS sessions
+ * to the patient's existing balance and extends validity (never resets);
+ * couples packs collect the partner's details when none is on record.
  */
 export function BuyPackagePanel({
   sessionsRemaining,
@@ -368,18 +318,32 @@ export function BuyPackagePanel({
   hasPartner?: boolean
 }) {
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
-        gap: 18,
-        alignItems: 'stretch',
-      }}
-    >
-      {(['therapy', 'psychiatry', 'couples', 'calmplus'] as const).map((t) => (
-        <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
-      ))}
-    </div>
+    <>
+      {/* The three session package types, one line */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+          gap: 18,
+          alignItems: 'stretch',
+        }}
+      >
+        {(['therapy', 'psychiatry', 'couples'] as const).map((t) => (
+          <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
+        ))}
+      </div>
+
+      {/* Calm+, separately: for people not ready for sessions */}
+      <div style={{ marginTop: 10 }}>
+        <div className="section-title" style={{ marginBottom: 2 }}>Not ready for sessions yet?</div>
+        <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>
+          Calm+ keeps the everyday support going, your AI companion, insights and journaling, without booking a session.
+        </p>
+        <div style={{ maxWidth: 560 }}>
+          <TrackCard tab="calmplus" sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -440,21 +404,58 @@ export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean
       </p>
 
       <div className="stack" style={{ gap: 8 }}>
-        {(['therapy', 'psychiatry', 'couples'] as const).map((t) => (
-          <OptionTile key={t} name="first-track" selected={track === t} onSelect={() => setTrack(t)}>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-                {TAB_LABEL[t]}
+        {(['therapy', 'psychiatry', 'couples'] as const).map((t) => {
+          const selected = track === t
+          return (
+            <label
+              key={t}
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '12px 14px',
+                borderRadius: 14,
+                cursor: 'pointer',
+                border: `1.5px solid ${selected ? 'var(--c-coral)' : 'var(--c-line)'}`,
+                background: selected ? '#FFF6F2' : 'var(--c-white)',
+                boxShadow: selected ? '0 4px 14px rgba(200,85,61,.10)' : 'none',
+                transition: 'all .15s',
+              }}
+            >
+              <input
+                type="radio"
+                name="first-track"
+                checked={selected}
+                onChange={() => setTrack(t)}
+                style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+              />
+              <span
+                aria-hidden
+                style={{
+                  width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  border: selected ? 'none' : '2px solid var(--c-line)',
+                  background: selected ? 'var(--c-coral)' : 'var(--c-white)',
+                  color: '#fff', transition: 'all .15s',
+                }}
+              >
+                {selected && <Check size={12} strokeWidth={3.5} />}
               </span>
-              <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
-                {TAB_SUB[t]}
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
+                  {TAB_LABEL[t]}
+                </span>
+                <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
+                  {TAB_SUB[t]}
+                </span>
               </span>
-            </span>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--c-charcoal)', flexShrink: 0 }}>
-              {inr(FIRST_SESSION[t])}
-            </span>
-          </OptionTile>
-        ))}
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--c-charcoal)', flexShrink: 0 }}>
+                {inr(FIRST_SESSION[t])}
+              </span>
+            </label>
+          )
+        })}
       </div>
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
