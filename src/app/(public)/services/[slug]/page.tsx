@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import BlogCover from '@/components/blog/BlogCover'
 
-type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'assessments' | 'specialised'
+type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'addiction' | 'assessments' | 'specialised'
 
 const services: Record<ServiceSlug, {
   icon: string
@@ -186,6 +186,39 @@ const services: Record<ServiceSlug, {
     ],
     cta: 'Book a psychiatric evaluation',
   },
+  addiction: {
+    icon: '🛟',
+    accent: '#3E6E9C',
+    pale: 'rgba(62,110,156,.08)',
+    title: 'Recovery, Without the Shame',
+    tagline: "You don't have to hit rock bottom to deserve help.",
+    question: 'Told yourself you\'d stop tomorrow? Again?',
+    hero: 'Maybe it started as a way to unwind, or to get through a rough patch, and somewhere along the line it stopped feeling like a choice. You\'ve probably promised yourself you\'d cut back, and meant it every time. Recovery has less to do with willpower than most people believe. What changes things is having someone in your corner who has walked people through this before, quietly, with no lectures and no one else having to know.',
+    stat: { big: '5 in 6', label: 'people in India who struggle with alcohol or drugs never get any treatment for it. The hardest part is starting, and you are already here.' },
+    recognise: [
+      'I keep telling myself this is the last time.',
+      'I can stop whenever I want. I just haven\'t yet.',
+      'I\'ve started hiding how much, and from whom.',
+      'It\'s the only thing that switches my head off at night.',
+    ],
+    why: 'Our team includes psychologists and psychiatrists trained specifically in addiction, using approaches with real evidence behind them: motivational work, relapse prevention, and where it helps, medical support for cravings and withdrawal. Everything is online, private, and paced around your life. No 30-day program you have to disappear into.',
+    items: [
+      { name: 'Alcohol', desc: 'From "I drink a bit too much" to something that scares you. We meet you at whatever stage you are, without making you label it.' },
+      { name: 'Tobacco & Nicotine', desc: 'Cigarettes, vapes, gutka. The habit you\'ve quit a hundred times. A plan that accounts for the cravings, not just the willpower.' },
+      { name: 'Drugs & Substances', desc: 'Recreational or prescription, occasional or daily. Honest, non-judgmental support to understand it and step back from it.' },
+      { name: 'Screens & Gaming', desc: 'When hours vanish and you can\'t stop, even when it\'s costing you sleep, work, or the people around you.' },
+      { name: 'Pornography', desc: 'A private struggle that\'s hard to talk about anywhere. Here, it\'s treated as a habit to understand, not a character flaw.' },
+      { name: 'Gambling & Betting', desc: 'The apps that promised fun and quietly took over your money, your focus, and your peace of mind.' },
+      { name: 'Staying Well After', desc: 'Getting clean is one thing. Staying that way is another. Relapse-prevention support for the long stretch that follows.' },
+    ],
+    whoFor: ['Anyone questioning their drinking or use', 'People who have tried to quit before', 'Families worried about someone they love', 'Anyone in recovery who wants to stay well'],
+    faq: [
+      { q: 'Do I have to go to rehab?', a: 'No. Most people we work with never step away from their life, their job, or their family. Care is online and built around your week. If a higher level of care is ever the right call, we help you find it.' },
+      { q: 'Will anyone find out?', a: 'No. It is completely confidential. Nothing you share leaves the session, and there is nothing on a bill or a screen that says why you are here.' },
+      { q: 'I\'ve tried to quit before and slipped. Is it even worth it?', a: 'Absolutely. Slipping is part of how recovery usually works, not proof that it won\'t. Every attempt taught you something, and we build the next step on top of it.' },
+    ],
+    cta: 'Talk to someone in confidence',
+  },
   assessments: {
     icon: '📋',
     accent: '#C9973A',
@@ -231,18 +264,19 @@ const services: Record<ServiceSlug, {
     recognise: [
       'I\'m tired of explaining my identity before therapy even starts.',
       'My situation needs someone who actually gets the context.',
-      'I need a true specialist, not a generalist.',
+      'There are things I\'ve never felt able to bring up with a therapist.',
       'I want to be understood, not just managed.',
     ],
-    why: 'Our specialist roster includes professionals with advanced training in LGBTQIA+ affirmative care, perinatal mental health, palliative support, and clinical supervision. You\'ll never be asked to educate your therapist on who you are.',
+    why: 'Our specialist roster includes professionals with advanced training in LGBTQIA+ affirmative care, perinatal mental health, psychosexual therapy, palliative support, and clinical supervision. You\'ll never be asked to educate your therapist on who you are.',
     items: [
       { name: 'LGBTQIA+ Affirmative Care', desc: 'A space where you don\'t have to explain your identity before getting to what you came to talk about. Our therapists are trained in affirmative, non-pathologising care.' },
+      { name: 'Sexual Wellness & Intimacy', desc: 'Desire that\'s faded, performance anxiety, pain, or a disconnect you can\'t raise anywhere else. A psychosexual specialist treats it as health, not embarrassment.' },
       { name: 'Chronic & Terminal Illness', desc: 'Living with an ongoing or life-limiting illness changes everything. Psychological support helps you cope, adapt, and find meaning alongside medical care.' },
       { name: 'Grief & Bereavement', desc: 'There\'s no right way to grieve. Our specialists meet you wherever you are in the process, weeks, months, or years after a loss.' },
       { name: 'Geriatric Mental Health', desc: 'Older adults face distinct challenges: isolation, cognitive changes, end-of-life questions. Specialised care helps.' },
       { name: 'Clinical Supervision for Professionals', desc: 'Mental health professionals need support too. Individual and group supervision with experienced supervisors, including research guidance.' },
     ],
-    whoFor: ['LGBTQIA+ individuals', 'People living with chronic illness', 'Older adults & families', 'Mental health professionals seeking supervision'],
+    whoFor: ['LGBTQIA+ individuals', 'People with sexual health or intimacy concerns', 'People living with chronic illness', 'Mental health professionals seeking supervision'],
     faq: [
       { q: 'What does "affirmative care" mean in practice?', a: 'It means your therapist starts from a position of accepting and affirming your identity, not questioning it, not trying to change it. You come to work on your mental health, not to defend who you are.' },
       { q: 'Can I get support during pregnancy if I\'m already anxious?', a: 'Absolutely. Prenatal anxiety is common and very treatable. Early support often prevents more serious postnatal difficulties.' },
@@ -307,6 +341,11 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
   psychiatry: {
     src: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=70',
     position: 'center 35%',
+  },
+  // A footbridge across into green, a calm way through, no rehab cliches.
+  addiction: {
+    src: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1600&q=70',
+    position: 'center 55%',
   },
   // Filling out the questionnaire at a desk with coffee.
   assessments: {

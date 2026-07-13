@@ -28,6 +28,7 @@ const SERVICE_SLUGS = [
   'child',
   'maternal',
   'psychiatry',
+  'addiction',
   'assessments',
   'specialised',
 ]

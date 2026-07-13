@@ -6,6 +6,7 @@ import {
   Baby,
   ClipboardList,
   HandHeart,
+  LifeBuoy,
 } from 'lucide-react'
 
 type IconCmp = React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>
@@ -17,6 +18,7 @@ export const SERVICE_ICONS: Record<string, IconCmp> = {
   couples: HeartHandshake,
   child: Sprout,
   maternal: Baby,
+  addiction: LifeBuoy,
   assessments: ClipboardList,
   specialised: HandHeart,
 }

@@ -31,6 +31,18 @@ const branches = [
     app: 'In-app medication reminders & symptom tracking',
   },
   {
+    slug: 'addiction',
+    icon: '🛟',
+    accent: '#3E6E9C',
+    pale: 'rgba(62,110,156,.08)',
+    title: 'Recovery, Without the Shame',
+    tagline: "You don't have to hit rock bottom to deserve help.",
+    desc: 'Alcohol, smoking, substances, or a habit that has quietly taken over, from screens to betting. A specialist helps you understand it and step back from it, at your pace and in complete privacy. No rehab, no lectures, no one has to know.',
+    items: ['Alcohol', 'Tobacco & Nicotine', 'Drugs & Substances', 'Screens & Gaming', 'Pornography', 'Gambling & Betting', 'Staying Well After'],
+    expert: 'An addiction-trained psychologist, with psychiatric support when needed',
+    app: 'Calm+ app to track triggers, cravings and clean days',
+  },
+  {
     slug: 'couples',
     icon: '💑',
     accent: '#7C5CBF',
