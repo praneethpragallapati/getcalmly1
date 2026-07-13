@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Check } from 'lucide-react'
 import { saveCheckin } from '@/app/(dashboard)/app/actions'
 import type { CheckinScores } from '@/data/dashboardDemo'
@@ -20,15 +21,34 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
   const [scores, setScores] = useState<CheckinScores>(initial)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmZero, setConfirmZero] = useState(false)
   const [pending, startTransition] = useTransition()
+  const router = useRouter()
 
-  function onSave() {
+  const allZero = scores.mood === 0 && scores.energy === 0 && scores.calm === 0
+
+  function persist() {
     setError(null)
+    setConfirmZero(false)
     startTransition(async () => {
       const res = await saveCheckin(scores)
-      if (res.ok) setSaved(true)
-      else setError(res.error ?? 'Something went wrong.')
+      if (res.ok) {
+        setSaved(true)
+        router.refresh() // pull the updated week chart / average from the server
+      } else {
+        setError(res.error ?? 'Something went wrong.')
+      }
     })
+  }
+
+  function onSave() {
+    // Guard against an accidental all-zero save (e.g. tapping Save before moving
+    // any slider) — ask once before recording "a really tough day".
+    if (allZero && !confirmZero) {
+      setConfirmZero(true)
+      return
+    }
+    persist()
   }
 
   return (
@@ -65,6 +85,7 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
               onChange={(e) => {
                 setScores((s) => ({ ...s, [key]: Number(e.target.value) }))
                 setSaved(false)
+                setConfirmZero(false)
               }}
               style={{
                 background: `linear-gradient(to right, ${color} ${v * 10}%, #efe7e2 ${v * 10}%)`,
@@ -74,22 +95,50 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
         )
       })}
 
-      <div className="checkin-foot">
-        <button className="btn btn-primary" onClick={onSave} type="button" disabled={pending}>
-          {saved ? (
-            <>
-              <Check size={15} /> Saved
-            </>
-          ) : pending ? (
-            'Saving…'
-          ) : (
-            'Save check-in'
-          )}
-        </button>
-        <span className="checkin-note">
-          {error ?? 'Saved privately · used to personalise your insights'}
-        </span>
-      </div>
+      {confirmZero && allZero ? (
+        <div className="checkin-foot" style={{ flexWrap: 'wrap', gap: 10 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--c-coral, #C8553D)' }}>
+            Save mood, energy and calm all as 0? That marks today as a really tough day.
+          </span>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-primary" onClick={persist} type="button" disabled={pending}>
+              {pending ? 'Saving…' : 'Yes, save all 0s'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmZero(false)}
+              disabled={pending}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--c-gray-d, #6B7D8E)',
+                cursor: 'pointer',
+                fontSize: 13.5,
+                fontWeight: 600,
+              }}
+            >
+              Go back
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="checkin-foot">
+          <button className="btn btn-primary" onClick={onSave} type="button" disabled={pending}>
+            {saved ? (
+              <>
+                <Check size={15} /> Saved
+              </>
+            ) : pending ? (
+              'Saving…'
+            ) : (
+              'Save check-in'
+            )}
+          </button>
+          <span className="checkin-note">
+            {error ?? 'Saved privately · used to personalise your insights'}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

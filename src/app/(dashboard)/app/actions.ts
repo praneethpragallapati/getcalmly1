@@ -55,16 +55,27 @@ export async function saveCheckin(scores: {
   if (!userId) return { ok: true, persisted: false }
 
   const clamp = (n: number) => Math.max(0, Math.min(10, Math.round(n)))
+  const mood = clamp(scores.mood)
+  const energy = clamp(scores.energy)
+  const calm = clamp(scores.calm)
   try {
-    await prisma.moodEntry.create({
-      data: {
-        userId,
-        mood: clamp(scores.mood),
-        energy: clamp(scores.energy),
-        calm: clamp(scores.calm),
-        source: 'home-checkin',
-      },
+    // One check-in per day: re-saving today updates the same entry instead of
+    // adding a second one, so editing today's mood actually changes the bar
+    // (rather than averaging with an earlier value).
+    const startOfToday = new Date()
+    startOfToday.setHours(0, 0, 0, 0)
+    const todayEntry = await prisma.moodEntry.findFirst({
+      where: { userId, source: 'home-checkin', createdAt: { gte: startOfToday } },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true },
     })
+    if (todayEntry) {
+      await prisma.moodEntry.update({ where: { id: todayEntry.id }, data: { mood, energy, calm } })
+    } else {
+      await prisma.moodEntry.create({
+        data: { userId, mood, energy, calm, source: 'home-checkin' },
+      })
+    }
     await rebuildAiProfile(userId)
     revalidatePath('/app')
     revalidatePath('/app/progress')

@@ -172,10 +172,13 @@ export async function getDashboardData(): Promise<DashboardData> {
     // Mood widgets always reflect the patient's OWN check-ins, never the demo
     // sample. Days (and weeks) they didn't track stay empty instead of showing
     // invented values, so the chart is honest about what was actually logged.
-    const latest = moods[0]
-    data.checkin = latest
-      ? { mood: latest.mood, energy: latest.energy, calm: latest.calm ?? 5 }
-      : { mood: 5, energy: 5, calm: 5 } // neutral slider start, not recorded data
+    // The check-in sliders show today's entry if it exists (so it can be edited),
+    // otherwise they reset to 0 — a fresh start each new day.
+    const sodToday = startOfDay(new Date())
+    const todayEntry = moods.find((m) => startOfDay(m.createdAt) === sodToday)
+    data.checkin = todayEntry
+      ? { mood: todayEntry.mood, energy: todayEntry.energy, calm: todayEntry.calm ?? 0 }
+      : { mood: 0, energy: 0, calm: 0 }
     data.streakDays = computeStreak(moods.map((m) => m.createdAt))
 
     // Last 7 calendar days, oldest→newest. A day with no check-in stays at 0.
