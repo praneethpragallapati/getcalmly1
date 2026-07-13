@@ -292,9 +292,29 @@ function SidebarCard({ title, children }: { title: string; children: React.React
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function CommunityFeed({ posts }: { posts: CommunityPostView[] }) {
+export default function CommunityFeed({
+  posts,
+  stats,
+}: {
+  posts: CommunityPostView[]
+  stats: { members: number; discussions: number; replies: number }
+}) {
   const [search, setSearch] = useState('')
   const [activeTag, setActiveTag] = useState<string | null>(null)
+
+  // Avatar cluster built from the initials of real recent discussion authors.
+  const heroFaces = useMemo(() => {
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const p of posts) {
+      if (!seen.has(p.author)) {
+        seen.add(p.author)
+        out.push(p.author.charAt(0).toUpperCase())
+      }
+      if (out.length >= 5) break
+    }
+    return out
+  }, [posts])
 
   const allTags = useMemo(
     () => Array.from(new Set(posts.flatMap((p) => p.tags))).sort(),
@@ -421,9 +441,9 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
             }}
           >
             <div style={{ display: 'flex' }}>
-              {['A', 'P', 'K', 'S', 'F'].map((c, i) => (
+              {heroFaces.map((c, i) => (
                 <div
-                  key={c}
+                  key={i}
                   style={{
                     width: 38,
                     height: 38,
@@ -445,7 +465,7 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
               ))}
             </div>
             <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.7)', fontWeight: 500 }}>
-              <span style={{ color: '#3D9E72', fontWeight: 700 }}>●</span> 23 members online now
+              Real people, kind &amp; moderated conversations
             </span>
           </div>
 
@@ -467,9 +487,9 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
           >
             <span>
               <strong style={{ color: '#fff', fontWeight: 800, fontFamily: HEAD_FONT, fontSize: 18 }}>
-                2,400+
+                {stats.members.toLocaleString()}
               </strong>{' '}
-              members
+              {stats.members === 1 ? 'member' : 'members'}
             </span>
             <span
               style={{
@@ -479,9 +499,9 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
               }}
             >
               <strong style={{ color: '#fff', fontWeight: 800, fontFamily: HEAD_FONT, fontSize: 18 }}>
-                {posts.length * 60}+
+                {stats.discussions.toLocaleString()}
               </strong>{' '}
-              discussions
+              {stats.discussions === 1 ? 'discussion' : 'discussions'}
             </span>
             <span
               style={{
@@ -489,10 +509,10 @@ export default function CommunityFeed({ posts }: { posts: CommunityPostView[] })
                 paddingLeft: 22,
               }}
             >
-              <strong style={{ color: '#3D9E72', fontWeight: 800, fontFamily: HEAD_FONT, fontSize: 18 }}>
-                ●
+              <strong style={{ color: '#fff', fontWeight: 800, fontFamily: HEAD_FONT, fontSize: 18 }}>
+                {stats.replies.toLocaleString()}
               </strong>{' '}
-              Active daily
+              {stats.replies === 1 ? 'reply' : 'replies'}
             </span>
           </div>
         </div>

@@ -73,6 +73,32 @@ export async function getCommunityPosts(): Promise<CommunityPostView[]> {
   }
 }
 
+/**
+ * Real headline counts for the community page: registered members and the
+ * number of discussions. Falls back to the bundled sample content's own totals
+ * when the DB is unavailable, so the numbers always reflect what is on screen.
+ */
+export async function getCommunityStats(): Promise<{
+  members: number
+  discussions: number
+  replies: number
+}> {
+  try {
+    const [members, discussions, replies] = await Promise.all([
+      prisma.user.count(),
+      prisma.communityPost.count(),
+      prisma.communityComment.count(),
+    ])
+    return { members, discussions, replies }
+  } catch {
+    return {
+      members: new Set(seedView.map((p) => p.author)).size,
+      discussions: seedView.length,
+      replies: seedView.reduce((n, p) => n + p.comments, 0),
+    }
+  }
+}
+
 /** A single discussion by id, with DB fallback to bundled sample content. */
 export async function getCommunityPost(id: string): Promise<CommunityPostView | null> {
   try {
