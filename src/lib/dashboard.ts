@@ -70,6 +70,21 @@ function startOfDay(d: Date): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
 }
 
+/**
+ * The greeting name for a signed-in patient. Uses their real name when set,
+ * otherwise a friendly value derived from their email — never the demo "Priya".
+ */
+export function firstNameFrom(name: string | null | undefined, email: string | null | undefined): string {
+  const n = name?.trim()
+  if (n) return n.split(/\s+/)[0]
+  const local = email?.split('@')[0]
+  if (local) {
+    const word = local.split(/[._\-0-9]+/).filter(Boolean)[0] || local
+    return word.charAt(0).toUpperCase() + word.slice(1)
+  }
+  return 'there'
+}
+
 /** Consecutive days (ending today or yesterday) that have at least one check-in. */
 function computeStreak(dates: Date[]): number {
   const days = new Set(dates.map(startOfDay))
@@ -112,7 +127,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           take: 8,
         }),
         prisma.journalEntry.count({ where: { userId } }),
-        prisma.user.findUnique({ where: { id: userId }, select: { name: true, createdAt: true } }),
+        prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, createdAt: true } }),
         prisma.aiInsight.findFirst({
           where: { userId, kind: 'DAILY' },
           orderBy: { createdAt: 'desc' },
@@ -132,7 +147,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       ])
 
     const data: DashboardData = { ...base }
-    if (user?.name) data.name = user.name.split(' ')[0]
+    data.name = firstNameFrom(user?.name, user?.email)
 
     // A signed-in patient sees ONLY their own data. Reset every demo content
     // field to empty here, then fill it back in from the DB below; anything the

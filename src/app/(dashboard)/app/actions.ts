@@ -350,6 +350,28 @@ export async function createCommunityPost(input: {
 }
 
 /**
+ * Set the patient's display name. Used from Settings so accounts created by OTP
+ * (which capture only an email/phone, no name) can add their real name instead
+ * of being greeted by the demo fallback.
+ */
+export async function saveDisplayName(name: string): Promise<ActionResult> {
+  const clean = name.trim().replace(/\s+/g, ' ').slice(0, 80)
+  if (!clean) return { ok: false, persisted: false, error: 'Enter your name.' }
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Please sign in first.' }
+
+  try {
+    await prisma.user.update({ where: { id: userId }, data: { name: clean } })
+    revalidatePath('/app')
+    revalidatePath('/app/settings')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not save your name.' }
+  }
+}
+
+/**
  * Reply to a community discussion. Signed-in members only; the comment is posted
  * under the same "First L." identity and Paid Member badge as their discussions.
  */

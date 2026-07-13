@@ -7,7 +7,7 @@ import {
 } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId, getPrivacy } from '@/lib/patient'
-import { tierForMonths } from '@/lib/dashboard'
+import { tierForMonths, firstNameFrom } from '@/lib/dashboard'
 
 /**
  * Account-area data (plan/billing, care category, privacy, medications). Same
@@ -31,6 +31,7 @@ export type AccountPlan = {
 
 export type Account = {
   name: string
+  fullName: string // the raw stored name ('' when unset), for the editable field
   email: string | null
   plan: AccountPlan
   privacy: PrivacyFlags
@@ -49,6 +50,7 @@ function fmtDate(d: Date): string {
 export async function getAccount(): Promise<Account> {
   const base: Account = {
     name: demoDashboard.name,
+    fullName: '',
     email: null,
     plan: {
       category: demoDashboard.category,
@@ -80,7 +82,8 @@ export async function getAccount(): Promise<Account> {
     ])
 
     const account: Account = { ...base, privacy }
-    if (user?.name) account.name = user.name.split(' ')[0]
+    account.name = firstNameFrom(user?.name, user?.email)
+    account.fullName = user?.name ?? ''
     account.email = user?.email ?? null
 
     // Start from a real "no active plan" state — never the demo plan — using the

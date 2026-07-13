@@ -3,9 +3,10 @@ import { Crown, CreditCard, Mail } from 'lucide-react'
 import { getAccount } from '@/lib/account'
 import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
 import { LogoutButton } from '@/components/dashboard/LogoutButton'
+import { NameEditor } from '@/components/dashboard/NameEditor'
 
 export default async function SettingsPage() {
-  const { name, email, plan, privacy } = await getAccount()
+  const { name, fullName, email, plan, privacy } = await getAccount()
   const sessionsPct = plan.sessionsTotal ? Math.round((plan.sessionsUsed / plan.sessionsTotal) * 100) : 0
 
   return (
@@ -86,8 +87,8 @@ export default async function SettingsPage() {
                 {name.charAt(0).toUpperCase()}
               </span>
               <div>
-                <div className="doc-name" style={{ fontSize: 15 }}>{name}</div>
-                <div className="doc-sub" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <NameEditor fullName={fullName} displayName={name} />
+                <div className="doc-sub" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
                   <Mail size={12} /> {email ?? 'Not signed in (preview)'}
                 </div>
               </div>
