@@ -12,6 +12,34 @@ import { getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
+export type UpvoteResult = { ok: boolean; count: number; voted: boolean; error?: string }
+
+/**
+ * The display identity a signed-in patient posts under in the community: a
+ * shortened "First L." name plus a Paid Member badge/tenure derived from their
+ * active subscription. Shared by the post composer and the comment box so both
+ * appear under the same name.
+ */
+async function memberIdentity(
+  userId: string,
+): Promise<{ name: string; role: 'PAID_MEMBER' | 'MEMBER'; tenure: string | null }> {
+  const [user, sub] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+    prisma.subscription.findFirst({
+      where: { userId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+      select: { paidMonths: true },
+    }),
+  ])
+  const parts = (user?.name ?? 'Member').split(' ')
+  const name = parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1].charAt(0)}.` : parts[0]
+  return {
+    name,
+    role: sub ? 'PAID_MEMBER' : 'MEMBER',
+    tenure: sub ? `${sub.paidMonths} months` : null,
+  }
+}
+
 /**
  * Save today's mood check-in (#8). Persists the patient's own raw record at the
  * mood/energy/calm grain. Authorization: writes only to the signed-in user's
@@ -290,26 +318,15 @@ export async function createCommunityPost(input: {
   if (!userId) return { ok: true, persisted: false }
 
   try {
-    const [user, sub] = await Promise.all([
-      prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
-      prisma.subscription.findFirst({
-        where: { userId, status: 'ACTIVE' },
-        orderBy: { createdAt: 'desc' },
-        select: { paidMonths: true },
-      }),
-    ])
-    const parts = (user?.name ?? 'Member').split(' ')
-    const displayName =
-      parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1].charAt(0)}.` : parts[0]
-
+    const me = await memberIdentity(userId)
     await prisma.communityPost.create({
       data: {
         title,
         body,
         authorId: userId,
-        authorName: displayName,
-        authorRole: sub ? 'PAID_MEMBER' : 'MEMBER',
-        tenure: sub ? `${sub.paidMonths} months` : null,
+        authorName: me.name,
+        authorRole: me.role,
+        tenure: me.tenure,
         tags: input.tags ?? [],
       },
     })
@@ -318,6 +335,90 @@ export async function createCommunityPost(input: {
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not post your discussion.' }
+  }
+}
+
+/**
+ * Reply to a community discussion. Signed-in members only; the comment is posted
+ * under the same "First L." identity and Paid Member badge as their discussions.
+ */
+export async function addCommunityComment(input: {
+  postId: string
+  body: string
+}): Promise<ActionResult> {
+  const body = input.body?.trim()
+  if (!input.postId || !body) return { ok: false, persisted: false, error: 'Write a reply first.' }
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Sign in to reply.' }
+
+  try {
+    const me = await memberIdentity(userId)
+    await prisma.communityComment.create({
+      data: {
+        postId: input.postId,
+        body,
+        authorId: userId,
+        authorName: me.name,
+        authorRole: me.role,
+      },
+    })
+    revalidatePath(`/community/${input.postId}`)
+    revalidatePath('/community')
+    revalidatePath('/app/community')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not post your reply.' }
+  }
+}
+
+/**
+ * Toggle a member's upvote on a post or a comment. One vote per member per
+ * target: a second click removes it. The vote row and the denormalised counter
+ * on the target move together in a single transaction so they never drift.
+ */
+export async function toggleCommunityUpvote(input: {
+  postId?: string
+  commentId?: string
+}): Promise<UpvoteResult> {
+  const { postId, commentId } = input
+  if ((!postId && !commentId) || (postId && commentId)) {
+    return { ok: false, count: 0, voted: false, error: 'Nothing to vote on.' }
+  }
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, count: 0, voted: false, error: 'Sign in to vote.' }
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const existing = await tx.communityUpvote.findFirst({
+        where: { userId, postId: postId ?? null, commentId: commentId ?? null },
+        select: { id: true },
+      })
+
+      const step = existing ? -1 : 1
+      if (existing) {
+        await tx.communityUpvote.delete({ where: { id: existing.id } })
+      } else {
+        await tx.communityUpvote.create({ data: { userId, postId, commentId } })
+      }
+
+      const target = commentId
+        ? await tx.communityComment.update({
+            where: { id: commentId },
+            data: { upvotes: { increment: step } },
+            select: { upvotes: true },
+          })
+        : await tx.communityPost.update({
+            where: { id: postId! },
+            data: { upvotes: { increment: step } },
+            select: { upvotes: true },
+          })
+
+      return { ok: true, count: Math.max(0, target.upvotes), voted: !existing }
+    })
+  } catch {
+    return { ok: false, count: 0, voted: false, error: 'Could not register your vote.' }
   }
 }
 

@@ -18,6 +18,15 @@ export type CommunityPostView = {
   comments: number
 }
 
+export type CommunityCommentView = {
+  id: string
+  body: string
+  author: string
+  role: CommunityRoleName
+  date: string
+  upvotes: number
+}
+
 export type RelatedDiscussion = { id: string; title: string; tags: string[] }
 
 function relativeTime(d: Date): string {
@@ -89,6 +98,51 @@ export async function getCommunityPost(id: string): Promise<CommunityPostView | 
     // fall through to seed
   }
   return seedView.find((p) => p.id === id) ?? null
+}
+
+/** Comments on a discussion, oldest first. Empty when the DB is unavailable. */
+export async function getCommunityComments(postId: string): Promise<CommunityCommentView[]> {
+  try {
+    const rows = await prisma.communityComment.findMany({
+      where: { postId },
+      orderBy: { createdAt: 'asc' },
+    })
+    return rows.map((r) => ({
+      id: r.id,
+      body: r.body,
+      author: r.authorName,
+      role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
+      date: relativeTime(r.createdAt),
+      upvotes: r.upvotes,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Which targets a given member has already upvoted on a thread: the post itself
+ * and any of its comments. Used to render vote buttons in their active state.
+ */
+export async function getUserCommunityVotes(
+  userId: string,
+  postId: string,
+): Promise<{ post: boolean; comments: Set<string> }> {
+  try {
+    const rows = await prisma.communityUpvote.findMany({
+      where: {
+        userId,
+        OR: [{ postId }, { comment: { postId } }],
+      },
+      select: { postId: true, commentId: true },
+    })
+    return {
+      post: rows.some((r) => r.postId === postId),
+      comments: new Set(rows.filter((r) => r.commentId).map((r) => r.commentId as string)),
+    }
+  } catch {
+    return { post: false, comments: new Set() }
+  }
 }
 
 /**

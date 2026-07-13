@@ -1,10 +1,18 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCommunityPost, getRelatedDiscussions } from '@/lib/community'
+import {
+  getCommunityPost,
+  getRelatedDiscussions,
+  getCommunityComments,
+  getUserCommunityVotes,
+} from '@/lib/community'
 import { getRelatedBlogPosts } from '@/lib/blog'
+import { getSessionUserId } from '@/lib/patient'
 import BlogCover from '@/components/blog/BlogCover'
 import { blogImage } from '@/data/blogImages'
+import { UpvoteButton } from '@/components/community/UpvoteButton'
+import { ReplyForm } from '@/components/community/ReplyForm'
 
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
@@ -40,8 +48,16 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
   const post = await getCommunityPost(id)
   if (!post) notFound()
 
-  const relatedReads = await getRelatedBlogPosts(post.tags, undefined, 3)
-  const moreDiscussions = (await getRelatedDiscussions(post.tags, 4)).filter((d) => d.id !== post.id).slice(0, 3)
+  const userId = await getSessionUserId()
+  const signedIn = Boolean(userId)
+
+  const [relatedReads, moreDiscussionsRaw, comments, votes] = await Promise.all([
+    getRelatedBlogPosts(post.tags, undefined, 3),
+    getRelatedDiscussions(post.tags, 4),
+    getCommunityComments(id),
+    userId ? getUserCommunityVotes(userId, id) : Promise.resolve({ post: false, comments: new Set<string>() }),
+  ])
+  const moreDiscussions = moreDiscussionsRaw.filter((d) => d.id !== post.id).slice(0, 3)
   const role = ROLE_COLOR[post.role] ?? ROLE_COLOR.Member
   const paras = post.body.split(/\n{2,}/).filter(Boolean)
 
@@ -81,11 +97,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
               </div>
               <span style={{ fontSize: 12.5, color: '#9AABB8' }}>{post.date}{post.tenure ? ` · ${post.tenure}` : ''}</span>
             </div>
-            <div style={{ textAlign: 'center', background: 'rgba(200,85,61,.07)', borderRadius: 12, padding: '8px 12px', flexShrink: 0 }}>
-              <div style={{ color: coral, fontSize: 13, lineHeight: 1 }}>▲</div>
-              <div style={{ fontWeight: 800, fontSize: 16, color: charcoal, fontFamily: "'Big Shoulders Display', sans-serif" }}>{post.upvotes}</div>
-              <div style={{ fontSize: 9, color: '#9AABB8', fontWeight: 700, letterSpacing: '.5px' }}>VOTES</div>
-            </div>
+            <UpvoteButton variant="post" target={{ postId: post.id }} count={post.upvotes} voted={votes.post} signedIn={signedIn} />
           </div>
 
           {/* Body */}
@@ -102,11 +114,49 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
           </div>
         </article>
 
-        {/* Reply prompt (locked for guests) */}
-        <Link href="/register" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, background: '#fff', borderRadius: 16, padding: '16px 20px', marginTop: 18, border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
-          <span style={{ flex: 1, fontSize: 14.5, color: '#9AABB8', fontWeight: 500 }}>Want to reply or add your experience?</span>
-          <span style={{ padding: '8px 18px', borderRadius: 22, background: coral, color: '#fff', fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>🔒 Join to reply</span>
-        </Link>
+        {/* Replies */}
+        {comments.length > 0 && (
+          <div style={{ marginTop: 26 }}>
+            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 22, fontWeight: 300, color: charcoal, margin: '0 0 14px' }}>
+              {comments.length} {comments.length === 1 ? 'reply' : 'replies'}
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {comments.map((c) => {
+                const cRole = ROLE_COLOR[c.role] ?? ROLE_COLOR.Member
+                return (
+                  <div key={c.id} style={{ background: '#fff', borderRadius: 16, padding: '18px 20px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '50%', background: coral, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, fontFamily: "'Big Shoulders Display', sans-serif", flexShrink: 0 }}>
+                        {c.author.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 700, fontSize: 14, color: charcoal }}>{c.author}</span>
+                          <span style={{ padding: '1px 9px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: cRole.bg, color: cRole.color }}>{cRole.label}</span>
+                        </div>
+                        <span style={{ fontSize: 12, color: '#9AABB8' }}>{c.date}</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: 15, lineHeight: 1.7, color: '#2e3d4e', margin: 0, whiteSpace: 'pre-wrap' }}>{c.body}</p>
+                    <div style={{ marginTop: 12, display: 'flex' }}>
+                      <UpvoteButton target={{ commentId: c.id }} count={c.upvotes} voted={votes.comments.has(c.id)} signedIn={signedIn} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Reply box for members; Join lock for guests */}
+        {signedIn ? (
+          <ReplyForm postId={post.id} />
+        ) : (
+          <Link href="/register" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, background: '#fff', borderRadius: 16, padding: '16px 20px', marginTop: 18, border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
+            <span style={{ flex: 1, fontSize: 14.5, color: '#9AABB8', fontWeight: 500 }}>Want to reply or add your experience?</span>
+            <span style={{ padding: '8px 18px', borderRadius: 22, background: coral, color: '#fff', fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>🔒 Join to reply</span>
+          </Link>
+        )}
       </section>
 
       {/* Related reads (blogs sharing tags) */}

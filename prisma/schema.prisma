@@ -201,6 +201,7 @@ model User {
   blogPosts           BlogPost[]
   communityPosts      CommunityPost[]    @relation("UserCommunityPosts")
   communityComments   CommunityComment[] @relation("UserCommunityComments")
+  communityUpvotes    CommunityUpvote[]  @relation("UserCommunityUpvotes")
   subscriptions       Subscription[]
   tasks               Task[]
   medications         Medication[]
@@ -773,6 +774,7 @@ model CommunityPost {
   updatedAt  DateTime      @updatedAt
 
   comments CommunityComment[]
+  upvoteRecords CommunityUpvote[] @relation("PostUpvotes")
 
   @@index([createdAt])
 }
@@ -789,7 +791,29 @@ model CommunityComment {
   upvotes    Int           @default(0)
   createdAt  DateTime      @default(now())
 
+  upvoteRecords CommunityUpvote[] @relation("CommentUpvotes")
+
   @@index([postId])
+}
+
+// One row per member per upvoted target (post OR comment), so a vote can be
+// toggled and never double-counted. The `upvotes` Int on the post/comment is a
+// denormalised counter kept in sync inside the same transaction, so all read
+// paths (and the seed fallback) keep working without a join.
+model CommunityUpvote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("UserCommunityUpvotes", fields: [userId], references: [id], onDelete: Cascade)
+  postId    String?
+  post      CommunityPost? @relation("PostUpvotes", fields: [postId], references: [id], onDelete: Cascade)
+  commentId String?
+  comment   CommunityComment? @relation("CommentUpvotes", fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@index([postId])
+  @@index([commentId])
 }
 
 // A reusable form in the clinical library — consent, intake/information sheets,
