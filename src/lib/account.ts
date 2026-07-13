@@ -71,7 +71,7 @@ export async function getAccount(): Promise<Account> {
 
   try {
     const [user, sub, privacy] = await Promise.all([
-      prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, createdAt: true } }),
       prisma.subscription.findFirst({
         where: { userId, status: 'ACTIVE' },
         orderBy: { createdAt: 'desc' },
@@ -82,6 +82,24 @@ export async function getAccount(): Promise<Account> {
     const account: Account = { ...base, privacy }
     if (user?.name) account.name = user.name.split(' ')[0]
     account.email = user?.email ?? null
+
+    // Start from a real "no active plan" state — never the demo plan — using the
+    // patient's actual account age. A subscription overwrites it below.
+    account.plan = {
+      category: 'Individual', // placeholder; the UI hides the category line when sessionsTotal is 0
+      planName: 'No active plan',
+      tier: 'Starter',
+      paidMonths: 0,
+      sessionsTotal: 0,
+      sessionsUsed: 0,
+      minutesTotal: null,
+      minutesUsed: null,
+      renewsOn: null,
+      startedOn: user?.createdAt ? fmtDate(user.createdAt) : '—',
+      daysOnPlatform: user?.createdAt
+        ? Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
+        : 0,
+    }
 
     if (sub) {
       const startedAt = sub.startedAt

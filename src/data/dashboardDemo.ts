@@ -104,7 +104,7 @@ export type DashboardData = {
   moodOverTime: MoodOverTimePoint[]
   moodMonthChangePct: number | null
   // Home content
-  dailyInsight: DashInsight
+  dailyInsight: DashInsight | null
   detectedThisWeek: Pattern[]
   tasks: DashTask[]
   todaySession: TodaySession | null
@@ -115,7 +115,7 @@ export type DashboardData = {
   // Journal
   journals: DashJournal[]
   journalPatterns: Pattern[]
-  weeklyInsight: DashInsight
+  weeklyInsight: DashInsight | null
   // Progress
   milestones: Milestone[]
   sessionsDone: number

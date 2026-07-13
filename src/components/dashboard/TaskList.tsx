@@ -33,6 +33,14 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
     })
   }
 
+  if (tasks.length === 0) {
+    return (
+      <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, margin: '8px 0 0' }}>
+        No tasks yet. Your expert can assign exercises here after a session.
+      </p>
+    )
+  }
+
   return (
     <div>
       {tasks.map((t) => {

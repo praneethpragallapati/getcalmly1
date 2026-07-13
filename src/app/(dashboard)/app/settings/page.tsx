@@ -29,7 +29,11 @@ export default async function SettingsPage() {
 
             <div style={{ marginTop: 16 }}>
               <div className="doc-name" style={{ fontSize: 18 }}>{plan.planName}</div>
-              <div className="doc-sub">{plan.category} care · member for {plan.paidMonths} months</div>
+              <div className="doc-sub">
+                {plan.sessionsTotal > 0
+                  ? `${plan.category} care · member for ${plan.paidMonths} months`
+                  : 'Book your first session to start a plan'}
+              </div>
             </div>
 
             <div style={{ margin: '18px 0 6px', display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>

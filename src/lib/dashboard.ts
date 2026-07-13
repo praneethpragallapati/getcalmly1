@@ -112,7 +112,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           take: 8,
         }),
         prisma.journalEntry.count({ where: { userId } }),
-        prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+        prisma.user.findUnique({ where: { id: userId }, select: { name: true, createdAt: true } }),
         prisma.aiInsight.findFirst({
           where: { userId, kind: 'DAILY' },
           orderBy: { createdAt: 'desc' },
@@ -131,10 +131,43 @@ export async function getDashboardData(): Promise<DashboardData> {
         getCommunityPosts(),
       ])
 
-    if (moods.length === 0 && journalCount === 0 && tasks.length === 0 && !sub && appts.length === 0) return base
-
     const data: DashboardData = { ...base }
     if (user?.name) data.name = user.name.split(' ')[0]
+
+    // A signed-in patient sees ONLY their own data. Reset every demo content
+    // field to empty here, then fill it back in from the DB below; anything the
+    // patient hasn't done yet stays empty instead of showing the sample.
+    data.journals = []
+    data.journalPatterns = []
+    data.tasks = []
+    data.detectedThisWeek = []
+    data.dailyInsight = null
+    data.weeklyInsight = null
+    data.todaySession = null
+    data.community = []
+    data.medications = []
+    data.upcoming = []
+    data.past = []
+    data.milestones = []
+
+    // Account basics from the real user record.
+    data.patientId = `GC-P-${userId.slice(-6).toUpperCase()}`
+    if (user?.createdAt) {
+      data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
+    }
+
+    // No active plan until a real subscription (or completed sessions) says so.
+    data.planActive = false
+    data.planName = 'No active plan'
+    data.tier = 'Starter'
+    data.paidMonths = 0
+    data.sessionsTotal = 0
+    data.sessionsUsed = 0
+    data.sessionsDone = 0
+    data.minutesTotal = null
+    data.minutesUsed = null
+    data.renewsOn = null
 
     // Mood widgets always reflect the patient's OWN check-ins, never the demo
     // sample. Days (and weeks) they didn't track stay empty instead of showing
@@ -207,7 +240,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         topicTags: j.topicTags,
       }))
     }
-    data.journalCount = journalCount || base.journalCount
+    data.journalCount = journalCount
 
     if (tasks.length > 0) {
       const now = Date.now()
@@ -285,9 +318,9 @@ export async function getDashboardData(): Promise<DashboardData> {
       }
     }
 
-    // Real milestones from actual activity, falls back to demo wording only when
-    // nothing has happened yet for a given milestone.
-    if (moods.length > 0 || completedAppts.length > 0 || data.streakDays > 0) {
+    // Real milestones from actual activity. Always computed so a new patient
+    // sees genuine "not yet" states instead of the demo's pre-filled progress.
+    {
       const earliestMood = moods.length ? moods[moods.length - 1] : null
       const firstCompletedAppt = completedAppts[0] ?? null
       const sessionsForMilestone = sub ? sub.sessionsUsed : completedAppts.length
