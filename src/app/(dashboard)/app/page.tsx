@@ -105,7 +105,7 @@ export default async function AppHomePage() {
       <CheckIn initial={d.checkin} streakDays={d.streakDays} />
 
       {/* Mood trend (#15) + today's session (#3) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 20 }}>
+      <div className="home-split home-split-2" style={{ gap: 20 }}>
         <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} />
 
         {d.todaySession && (
@@ -212,7 +212,7 @@ export default async function AppHomePage() {
       </div>
 
       {/* Recent journal · tasks + meds · community */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 20 }}>
+      <div className="home-split home-split-3" style={{ gap: 20 }}>
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <div className="section-title">Recent journal</div>

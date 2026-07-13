@@ -1744,16 +1744,148 @@
 }
 
 @media (max-width: 1100px) {
+  /* Contain the off-canvas drawer so it can't add horizontal scroll. */
+  html {
+    overflow-x: hidden;
+  }
   .calmly-app {
     grid-template-columns: 1fr;
   }
+  /* Sidebar becomes an off-canvas drawer, toggled by the hamburger. */
   .app-sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    width: 274px;
+    max-width: 84vw;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.26s ease;
+    overflow-y: auto;
+  }
+  .app-sidebar.sb-open {
+    transform: translateX(0);
+    box-shadow: 0 0 48px rgba(8, 12, 18, 0.5);
+  }
+  .sb-burger {
+    display: inline-flex !important;
+  }
+  .sb-close {
+    display: inline-flex !important;
+  }
+  .app-topbar {
+    padding-left: 72px;
   }
   .hero {
     grid-template-columns: 1fr;
   }
   .grid-4 {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Mobile drawer chrome (hidden on desktop) */
+.sb-burger {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 30;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  color: var(--c-charcoal);
+  cursor: pointer;
+}
+.sb-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #c6d0da;
+  cursor: pointer;
+  padding: 2px;
+}
+.sb-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(10, 15, 22, 0.5);
+  border: none;
+  cursor: pointer;
+}
+
+/* Sidebar logout */
+.sb-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 12px;
+  border-radius: 11px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #c6d0da;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.sb-logout:hover {
+  background: rgba(200, 85, 61, 0.16);
+  color: #fff;
+}
+
+/* Account dropdown items */
+.acct-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-charcoal);
+  text-decoration: none;
+  cursor: pointer;
+}
+.acct-menu-item:hover {
+  background: var(--c-bg, #f6efea);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+/* Home content splits — collapse to a single column on narrow screens. */
+.home-split {
+  display: grid;
+}
+.home-split-2 {
+  grid-template-columns: 1.6fr 1fr;
+}
+.home-split-3 {
+  grid-template-columns: 1.2fr 1fr 1fr;
+}
+@media (max-width: 900px) {
+  .home-split-2,
+  .home-split-3 {
+    grid-template-columns: 1fr;
   }
 }

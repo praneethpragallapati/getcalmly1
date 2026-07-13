@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Crown, CreditCard, Mail } from 'lucide-react'
 import { getAccount } from '@/lib/account'
 import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
+import { LogoutButton } from '@/components/dashboard/LogoutButton'
 
 export default async function SettingsPage() {
   const { name, email, plan, privacy } = await getAccount()
@@ -90,6 +91,9 @@ export default async function SettingsPage() {
                   <Mail size={12} /> {email ?? 'Not signed in (preview)'}
                 </div>
               </div>
+            </div>
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
+              <LogoutButton />
             </div>
           </div>
         </div>

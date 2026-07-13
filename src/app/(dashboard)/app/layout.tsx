@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
-import { Search, Bell, HelpCircle } from 'lucide-react'
+import { Bell, HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { AccountMenu } from '@/components/dashboard/AccountMenu'
 import { getDashboardData } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount } from '@/lib/notifications'
@@ -42,6 +43,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <Sidebar
         name={d.name}
         planLine={`${d.planName} · ${d.streakDays}-day streak 🔥`}
+        planActive={d.planActive}
+        planName={d.planName}
         sessionsToday={d.todaySession ? 1 : 0}
       />
 
@@ -54,9 +57,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </div>
           </div>
           <div className="tb-actions">
-            <div className="tb-search">
-              <Search size={15} /> Search anything…
-            </div>
             <Link href="/app/notifications" className="tb-icon" aria-label="Notifications" style={{ position: 'relative' }}>
               <Bell size={17} />
               {unread > 0 && (
@@ -71,12 +71,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 </span>
               )}
             </Link>
-            <button className="tb-icon" aria-label="Help">
+            <Link href="/contact" className="tb-icon" aria-label="Help &amp; support">
               <HelpCircle size={17} />
-            </button>
-            <Link href="/app/settings" className="tb-icon avatar" aria-label="Account">
-              {d.name.charAt(0).toUpperCase()}
             </Link>
+            <AccountMenu name={d.name} />
           </div>
         </header>
 
