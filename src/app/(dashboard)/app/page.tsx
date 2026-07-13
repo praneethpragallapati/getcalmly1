@@ -182,8 +182,8 @@ export default async function AppHomePage() {
             </span>
           )}
           <div className="stat-n">
-            {d.avgMood.toFixed(1)}
-            <span> /10</span>
+            {d.avgMood > 0 ? d.avgMood.toFixed(1) : '—'}
+            {d.avgMood > 0 && <span> /10</span>}
           </div>
           <div className="stat-l">Avg mood score</div>
         </div>

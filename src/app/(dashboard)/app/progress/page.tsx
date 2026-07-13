@@ -83,8 +83,8 @@ export default async function ProgressPage() {
               </span>
             )}
             <div className="stat-n">
-              {d.avgMood.toFixed(1)}
-              <span> /10</span>
+              {d.avgMood > 0 ? d.avgMood.toFixed(1) : '—'}
+              {d.avgMood > 0 && <span> /10</span>}
             </div>
             <div className="stat-l">Avg mood score</div>
           </div>
@@ -111,21 +111,30 @@ export default async function ProgressPage() {
             <div className="section-title" style={{ marginBottom: 12 }}>
               Mood over time
             </div>
-            <LineChart points={d.moodOverTime} />
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginTop: 8,
-                fontSize: 12,
-                color: 'var(--c-gray)',
-              }}
-            >
-              <span>Started: {first.toFixed(1)} avg</span>
-              <span>
-                Now: <strong style={{ color: 'var(--c-charcoal)' }}>{last.toFixed(1)} avg {last >= first ? '↑' : '↓'}</strong>
-              </span>
-            </div>
+            {d.moodOverTime.length > 0 ? (
+              <LineChart points={d.moodOverTime} />
+            ) : (
+              <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, padding: '8px 0' }}>
+                No mood check-ins logged yet. Once you start checking in, your weekly average shows
+                up here.
+              </p>
+            )}
+            {d.moodOverTime.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: 8,
+                  fontSize: 12,
+                  color: 'var(--c-gray)',
+                }}
+              >
+                <span>Started: {first.toFixed(1)} avg</span>
+                <span>
+                  Now: <strong style={{ color: 'var(--c-charcoal)' }}>{last.toFixed(1)} avg {last >= first ? '↑' : '↓'}</strong>
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="card">

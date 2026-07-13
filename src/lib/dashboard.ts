@@ -136,57 +136,65 @@ export async function getDashboardData(): Promise<DashboardData> {
     const data: DashboardData = { ...base }
     if (user?.name) data.name = user.name.split(' ')[0]
 
-    if (moods.length > 0) {
-      const latest = moods[0]
-      data.checkin = { mood: latest.mood, energy: latest.energy, calm: latest.calm ?? 5 }
-      data.streakDays = computeStreak(moods.map((m) => m.createdAt))
+    // Mood widgets always reflect the patient's OWN check-ins, never the demo
+    // sample. Days (and weeks) they didn't track stay empty instead of showing
+    // invented values, so the chart is honest about what was actually logged.
+    const latest = moods[0]
+    data.checkin = latest
+      ? { mood: latest.mood, energy: latest.energy, calm: latest.calm ?? 5 }
+      : { mood: 5, energy: 5, calm: 5 } // neutral slider start, not recorded data
+    data.streakDays = computeStreak(moods.map((m) => m.createdAt))
 
-      // Last 7 calendar days, oldest→newest.
-      const week: MoodWeekPoint[] = []
-      for (let i = 6; i >= 0; i--) {
-        const day = new Date()
-        day.setDate(day.getDate() - i)
-        const sod = startOfDay(day)
-        const dayMoods = moods.filter((m) => startOfDay(m.createdAt) === sod)
-        const avg = (sel: (m: (typeof moods)[number]) => number) =>
-          dayMoods.length ? Math.round(dayMoods.reduce((a, m) => a + sel(m), 0) / dayMoods.length) : 0
-        week.push({
-          day: DAY[day.getDay()],
-          mood: avg((m) => m.mood),
-          energy: avg((m) => m.energy),
-          calm: avg((m) => m.calm ?? 5),
-        })
-      }
-      data.moodWeek = week
-      const scored = moods.slice(0, 14)
-      data.avgMood = scored.length
-        ? Math.round((scored.reduce((a, m) => a + m.mood, 0) / scored.length) * 10) / 10
-        : base.avgMood
+    // Last 7 calendar days, oldest→newest. A day with no check-in stays at 0.
+    const week: MoodWeekPoint[] = []
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date()
+      day.setDate(day.getDate() - i)
+      const sod = startOfDay(day)
+      const dayMoods = moods.filter((m) => startOfDay(m.createdAt) === sod)
+      const avg = (sel: (m: (typeof moods)[number]) => number) =>
+        dayMoods.length ? Math.round(dayMoods.reduce((a, m) => a + sel(m), 0) / dayMoods.length) : 0
+      week.push({
+        day: DAY[day.getDay()],
+        mood: avg((m) => m.mood),
+        energy: avg((m) => m.energy),
+        calm: avg((m) => m.calm ?? 5),
+      })
+    }
+    data.moodWeek = week
 
-      // Last 4 calendar weeks, oldest→newest, averaged from whatever check-ins land in each.
-      const weekBuckets: { mood: number }[][] = [[], [], [], []]
-      const now2 = Date.now()
-      for (const m of moods) {
-        const daysAgo = Math.floor((now2 - m.createdAt.getTime()) / (24 * 60 * 60 * 1000))
-        const weekIndex = 3 - Math.floor(daysAgo / 7) // 3 = this week, 0 = oldest of the 4
-        if (weekIndex >= 0 && weekIndex < 4) weekBuckets[weekIndex].push({ mood: m.mood })
+    const scored = moods.slice(0, 14)
+    data.avgMood = scored.length
+      ? Math.round((scored.reduce((a, m) => a + m.mood, 0) / scored.length) * 10) / 10
+      : 0 // 0 signals "no check-ins yet"; the UI renders it as "—"
+
+    // Last 4 calendar weeks, oldest→newest, averaged from whatever check-ins land
+    // in each. Empty when nothing has been logged in the window.
+    const weekBuckets: { mood: number }[][] = [[], [], [], []]
+    const now2 = Date.now()
+    for (const m of moods) {
+      const daysAgo = Math.floor((now2 - m.createdAt.getTime()) / (24 * 60 * 60 * 1000))
+      const weekIndex = 3 - Math.floor(daysAgo / 7) // 3 = this week, 0 = oldest of the 4
+      if (weekIndex >= 0 && weekIndex < 4) weekBuckets[weekIndex].push({ mood: m.mood })
+    }
+    const hasAnyBucket = weekBuckets.some((b) => b.length > 0)
+    if (hasAnyBucket) {
+      data.moodOverTime = weekBuckets.map<MoodOverTimePoint>((bucket, i) => ({
+        label: `Week ${i + 1}`,
+        value: bucket.length ? Math.round((bucket.reduce((a, m) => a + m.mood, 0) / bucket.length) * 10) / 10 : 0,
+      }))
+      const firstNonEmpty = weekBuckets.find((b) => b.length > 0)
+      const lastNonEmpty = [...weekBuckets].reverse().find((b) => b.length > 0)
+      if (firstNonEmpty && lastNonEmpty && firstNonEmpty !== lastNonEmpty) {
+        const startAvg = firstNonEmpty.reduce((a, m) => a + m.mood, 0) / firstNonEmpty.length
+        const endAvg = lastNonEmpty.reduce((a, m) => a + m.mood, 0) / lastNonEmpty.length
+        data.moodMonthChangePct = startAvg > 0 ? Math.round(((endAvg - startAvg) / startAvg) * 100) : null
+      } else {
+        data.moodMonthChangePct = null
       }
-      const hasAnyBucket = weekBuckets.some((b) => b.length > 0)
-      if (hasAnyBucket) {
-        data.moodOverTime = weekBuckets.map<MoodOverTimePoint>((bucket, i) => ({
-          label: `Week ${i + 1}`,
-          value: bucket.length ? Math.round((bucket.reduce((a, m) => a + m.mood, 0) / bucket.length) * 10) / 10 : 0,
-        }))
-        const firstNonEmpty = weekBuckets.find((b) => b.length > 0)
-        const lastNonEmpty = [...weekBuckets].reverse().find((b) => b.length > 0)
-        if (firstNonEmpty && lastNonEmpty && firstNonEmpty !== lastNonEmpty) {
-          const startAvg = firstNonEmpty.reduce((a, m) => a + m.mood, 0) / firstNonEmpty.length
-          const endAvg = lastNonEmpty.reduce((a, m) => a + m.mood, 0) / lastNonEmpty.length
-          data.moodMonthChangePct = startAvg > 0 ? Math.round(((endAvg - startAvg) / startAvg) * 100) : null
-        } else {
-          data.moodMonthChangePct = null
-        }
-      }
+    } else {
+      data.moodOverTime = []
+      data.moodMonthChangePct = null
     }
 
     if (journals.length > 0) {

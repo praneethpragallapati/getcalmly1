@@ -5,6 +5,7 @@ import type { MoodWeekPoint } from '@/data/dashboardDemo'
  * presentational, heights are % of a 0–10 scale.
  */
 export function MoodWeekChart({ data, avgMood }: { data: MoodWeekPoint[]; avgMood: number }) {
+  const hasData = data.some((p) => p.mood > 0 || p.energy > 0 || p.calm > 0)
   return (
     <div className="card">
       <div
@@ -17,10 +18,16 @@ export function MoodWeekChart({ data, avgMood }: { data: MoodWeekPoint[]; avgMoo
       >
         <div className="section-title">Mood this week</div>
         <div className="big-score">
-          <div className="n">{avgMood.toFixed(1)}</div>
+          <div className="n">{hasData && avgMood > 0 ? avgMood.toFixed(1) : '—'}</div>
           <div className="l">avg this week</div>
         </div>
       </div>
+      {!hasData && (
+        <p className="muted" style={{ margin: '10px 0 2px', fontSize: 13.5, lineHeight: 1.5 }}>
+          No check-ins logged this week yet. Save today&apos;s check-in above and your first bar
+          appears here — only the days you track are shown.
+        </p>
+      )}
       <div className="legend">
         <span>
           <i style={{ background: '#c8553d' }} /> Mood
