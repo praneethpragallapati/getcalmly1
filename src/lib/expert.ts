@@ -718,6 +718,29 @@ function startOfUtcDay(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
 }
 
+// Minimum lead time before a slot can be booked (patient side).
+export const MIN_BOOKING_LEAD_MS = 6 * 60 * 60 * 1000
+
+/**
+ * The therapist a patient is assigned to: the one on their appointments (most
+ * recent wins), or the first active therapist for a patient with none yet. Both
+ * the bookable calendar and the booking action use this, so what a patient sees
+ * and what they book are always the same clinician.
+ */
+export async function getAssignedTherapistId(patientUserId: string): Promise<string | null> {
+  const appt = await prisma.appointment.findFirst({
+    where: { patientId: patientUserId },
+    orderBy: { scheduledAt: 'desc' },
+    select: { therapistId: true },
+  })
+  if (appt) return appt.therapistId
+  const first = await prisma.therapistProfile.findFirst({
+    where: { isActive: true },
+    select: { id: true },
+  })
+  return first?.id ?? null
+}
+
 /** Upcoming date-specific exceptions, soonest first. */
 export async function getAvailabilityExceptions(therapistProfileId: string): Promise<AvailabilityExceptionView[]> {
   const rows = await prisma.availabilityException.findMany({
@@ -779,7 +802,9 @@ export async function getBookableSlots(therapistProfileId: string, daysAhead = 2
   const takenMs = new Set(booked.map((b) => b.scheduledAt.getTime()))
 
   const slots: BookableSlot[] = []
-  const now = Date.now()
+  // Patients must book at least 6 hours out, so a slot is never "already over"
+  // by the time an expert sees the request.
+  const earliest = Date.now() + MIN_BOOKING_LEAD_MS
   for (let d = 0; d < daysAhead; d++) {
     const day = new Date()
     day.setHours(0, 0, 0, 0)
@@ -793,7 +818,7 @@ export async function getBookableSlots(therapistProfileId: string, daysAhead = 2
       if (offHours.has(h)) continue
       const slot = new Date(day)
       slot.setHours(h, 0, 0, 0)
-      if (slot.getTime() <= now) continue
+      if (slot.getTime() < earliest) continue
       slots.push({
         iso: slot.toISOString(),
         dateLabel: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),

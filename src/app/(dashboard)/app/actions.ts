@@ -8,6 +8,7 @@ import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, 
 import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
+import { getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
@@ -121,13 +122,17 @@ export async function requestSession(slotIso: string): Promise<ActionResult> {
   if (!userId) return { ok: true, persisted: false }
 
   const scheduledAt = new Date(slotIso)
-  if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now()) {
-    return { ok: false, persisted: false, error: 'Please pick a valid upcoming slot.' }
+  if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() + MIN_BOOKING_LEAD_MS) {
+    return { ok: false, persisted: false, error: 'Please pick a slot at least 6 hours from now.' }
   }
 
   try {
-    const therapist = await prisma.therapistProfile.findFirst({
-      where: { isActive: true },
+    // Book with the patient's assigned clinician — the same one whose calendar
+    // they're viewing — so the request and the shown availability never diverge.
+    const therapistId = await getAssignedTherapistId(userId)
+    if (!therapistId) return { ok: true, persisted: false }
+    const therapist = await prisma.therapistProfile.findUnique({
+      where: { id: therapistId },
       select: { id: true, sessionFee: true },
     })
     if (!therapist) return { ok: true, persisted: false }

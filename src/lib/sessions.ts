@@ -1,7 +1,7 @@
 import { demoDashboard, type DashSession } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
-import { getBookableSlots } from '@/lib/expert'
+import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
@@ -191,18 +191,9 @@ export async function canAccessRoom(roomId: string, userId: string | null): Prom
   }
 }
 
-/**
- * The expert's calendar the patient can view & request from (#9). Generated as a
- * rolling set of weekday afternoon slots; real availability lands with the expert
- * scheduling tool. Slots already booked by this patient are marked taken.
- */
-export async function getExpertCalendar(): Promise<ExpertCalendar> {
-  const base: ExpertCalendar = {
-    expert: demoDashboard.todaySession?.expert ?? 'Dr. Ananya Sharma',
-    expertRole: 'Clinical Psychologist · RCI Verified',
-    slots: [],
-  }
-
+/** Bundled demo calendar, used only in signed-out preview. */
+function demoCalendar(): ExpertCalendar {
+  const earliest = Date.now() + MIN_BOOKING_LEAD_MS
   const slots: ExpertSlot[] = []
   const cursor = new Date()
   cursor.setHours(0, 0, 0, 0)
@@ -216,6 +207,7 @@ export async function getExpertCalendar(): Promise<ExpertCalendar> {
       if (added >= 12) break
       const slot = new Date(day)
       slot.setHours(hour, 0, 0, 0)
+      if (slot.getTime() < earliest) continue
       slots.push({
         iso: slot.toISOString(),
         label: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
@@ -225,35 +217,41 @@ export async function getExpertCalendar(): Promise<ExpertCalendar> {
       added++
     }
   }
-  base.slots = slots
-
-  const userId = await getSessionUserId()
-  if (!userId) return base
-  try {
-    // Prefer the patient's actual therapist's real availability, when set.
-    const lastAppt = await prisma.appointment.findFirst({
-      where: { patientId: userId },
-      orderBy: { scheduledAt: 'desc' },
-      include: { therapist: { include: { user: { select: { name: true } } } } },
-    })
-    if (lastAppt) {
-      const real = await getBookableSlots(lastAppt.therapistId)
-      base.expert = lastAppt.therapist.user.name ?? base.expert
-      if (real.length) {
-        base.slots = real.map((s) => ({ iso: s.iso, label: s.dateLabel, time: s.time, taken: s.taken }))
-        return base
-      }
-    }
-
-    // Fallback: mark generated demo slots the patient has already booked.
-    const booked = await prisma.appointment.findMany({
-      where: { patientId: userId, scheduledAt: { gte: new Date() } },
-      select: { scheduledAt: true },
-    })
-    const takenMs = new Set(booked.map((b) => b.scheduledAt.getTime()))
-    base.slots = base.slots.map((s) => ({ ...s, taken: takenMs.has(new Date(s.iso).getTime()) }))
-  } catch {
-    // keep demo slots
+  return {
+    expert: demoDashboard.todaySession?.expert ?? 'Dr. Ananya Sharma',
+    expertRole: 'Clinical Psychologist',
+    slots,
   }
-  return base
+}
+
+/**
+ * The calendar a patient books from (#9). Shows ONLY their assigned clinician's
+ * real availability, and it is the exact same clinician the booking action uses
+ * (getAssignedTherapistId), so what they see and what they book stay in sync.
+ * Slots respect the 6-hour minimum lead and are marked taken when already booked.
+ */
+export async function getExpertCalendar(): Promise<ExpertCalendar> {
+  const userId = await getSessionUserId()
+  if (!userId) return demoCalendar()
+
+  try {
+    const therapistId = await getAssignedTherapistId(userId)
+    if (!therapistId) return demoCalendar()
+
+    const [therapist, real] = await Promise.all([
+      prisma.therapistProfile.findUnique({
+        where: { id: therapistId },
+        include: { user: { select: { name: true } } },
+      }),
+      getBookableSlots(therapistId),
+    ])
+
+    return {
+      expert: therapist?.user.name ?? 'Your expert',
+      expertRole: 'Clinical Psychologist',
+      slots: real.map((s) => ({ iso: s.iso, label: s.dateLabel, time: s.time, taken: s.taken })),
+    }
+  } catch {
+    return demoCalendar()
+  }
 }

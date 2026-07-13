@@ -31,7 +31,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     heading: 'Care',
     items: [
       { href: '/app/therapist', label: 'My Therapist', icon: Stethoscope },
-      { href: '/app/sessions', label: 'Sessions', icon: CalendarDays, badge: '1 today' },
+      { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
       { href: '/app/forms', label: 'Forms', icon: FileText },
       { href: '/app/community', label: 'Community', icon: Users },
     ],
@@ -46,9 +46,20 @@ const GROUPS: { heading: string; items: Item[] }[] = [
   },
 ]
 
-export function Sidebar({ name, planLine }: { name: string; planLine: string }) {
+export function Sidebar({
+  name,
+  planLine,
+  sessionsToday = 0,
+}: {
+  name: string
+  planLine: string
+  sessionsToday?: number
+}) {
   const pathname = usePathname()
   const initial = name.charAt(0).toUpperCase()
+  // Only show the Sessions badge when there's genuinely a session today.
+  const badgeFor = (href: string): string | undefined =>
+    href === '/app/sessions' && sessionsToday > 0 ? `${sessionsToday} today` : undefined
 
   return (
     <aside className="app-sidebar">
@@ -72,11 +83,12 @@ export function Sidebar({ name, planLine }: { name: string; planLine: string }) 
           <nav className="sb-nav">
             {g.items.map(({ href, label, icon: Icon, badge }) => {
               const active = href === '/app' ? pathname === '/app' : pathname.startsWith(href)
+              const shownBadge = badge ?? badgeFor(href)
               return (
                 <Link key={href} href={href} className={`sb-link${active ? ' active' : ''}`}>
                   <Icon size={18} strokeWidth={active ? 2.4 : 2} />
                   <span>{label}</span>
-                  {badge && <span className="sb-badge">{badge}</span>}
+                  {shownBadge && <span className="sb-badge">{shownBadge}</span>}
                 </Link>
               )
             })}
