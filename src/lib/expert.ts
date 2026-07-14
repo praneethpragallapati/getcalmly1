@@ -301,6 +301,16 @@ export async function getExpertPatientProfile(
 }
 
 export async function getRiskNotifications(therapistProfileId: string): Promise<RiskNotification[]> {
+  try {
+    return await computeRiskNotifications(therapistProfileId)
+  } catch {
+    // This runs in the expert layout; a query failure must not take down the
+    // whole portal. Degrade to "no alerts" and let the page render.
+    return []
+  }
+}
+
+async function computeRiskNotifications(therapistProfileId: string): Promise<RiskNotification[]> {
   const patientIds = await patientIdsFor(therapistProfileId)
   if (!patientIds.length) return []
 
