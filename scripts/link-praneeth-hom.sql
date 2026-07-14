@@ -28,10 +28,13 @@ BEGIN
     RAISE EXCEPTION 'Patient praneethpragallapati@gmail.com not found. Sign in once with that email, then re-run.';
   END IF;
 
-  -- Give the patient a name if it has none (so it stops showing the demo name).
+  -- Give the patient a password (so you can actually sign in via the Password
+  -- tab — OTP sign-up leaves the account with no password), and a name if unset.
   UPDATE "User"
-     SET name = 'Praneeth Pragallapati', "updatedAt" = now()
-   WHERE id = patient_id AND (name IS NULL OR name = '');
+     SET "passwordHash" = pw,
+         name           = COALESCE(NULLIF(name, ''), 'Praneeth Pragallapati'),
+         "updatedAt"    = now()
+   WHERE id = patient_id;
 
   -- Clinical profile so the therapist has context on the caseload.
   INSERT INTO "PatientProfile"

@@ -35,9 +35,15 @@ async function main() {
       `No patient found for ${PATIENT_EMAIL}. Sign in once with that email to create the account, then re-run.`,
     )
   }
-  if (!patient.name) {
-    await prisma.user.update({ where: { id: patient.id }, data: { name: 'Praneeth Pragallapati' } })
-  }
+  // Ensure the patient can actually sign in via the Password tab (OTP sign-up
+  // leaves no password) and has a name.
+  await prisma.user.update({
+    where: { id: patient.id },
+    data: {
+      passwordHash: hashPassword(PASSWORD),
+      name: patient.name?.trim() ? patient.name : 'Praneeth Pragallapati',
+    },
+  })
   await prisma.patientProfile.upsert({
     where: { userId: patient.id },
     update: {
