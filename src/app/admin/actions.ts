@@ -52,3 +52,20 @@ export async function removeSupervisionAction(formData: FormData): Promise<void>
   revalidatePath('/admin/supervision')
   revalidatePath('/expert/supervision')
 }
+
+// ── Employment type (admin-only) ────────────────────────────────────────────
+// Full-time (salaried) vs part-time (per-session). Gates the earnings ledger.
+
+export async function setEmploymentTypeAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  if (!admin) return
+  const profileId = String(formData.get('profileId') ?? '')
+  const employmentType = String(formData.get('employmentType') ?? '')
+  if (employmentType !== 'FULL_TIME' && employmentType !== 'PART_TIME') return
+  const { adminSetEmploymentType } = await import('@/lib/expert')
+  await adminSetEmploymentType(profileId, employmentType)
+  revalidatePath('/admin/therapists')
+  revalidatePath('/expert/profile')
+  revalidatePath('/expert/earnings')
+  revalidatePath('/expert')
+}

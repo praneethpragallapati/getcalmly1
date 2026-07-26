@@ -5,7 +5,9 @@ import { saveEarningsConfig } from '../actions'
 import type { EarningsConfigValues } from '@/lib/earningsConfig'
 
 const FIELDS: { key: keyof EarningsConfigValues; label: string }[] = [
-  { key: 'baseFee', label: 'Base fee (per session)' },
+  { key: 'baseFeeIndividual', label: 'Base fee · individual therapy' },
+  { key: 'baseFeeCouples', label: 'Base fee · couples therapy' },
+  { key: 'baseFeePsychiatry', label: 'Base fee · psychiatry' },
   { key: 'secondSessionBonus', label: '2nd session bonus' },
   { key: 'thirdOnwardsBonus', label: '3rd session onwards bonus' },
   { key: 'miscBonus', label: 'Misc bonus' },

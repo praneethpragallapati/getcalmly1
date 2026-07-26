@@ -16,9 +16,41 @@ import {
   addSupervisionNote,
   prescribeMedication,
   setMedicationActive,
+  createExpertBlogPost,
+  expertAddCommunityComment,
+  type CreateBlogInput,
 } from '@/lib/expert'
 import { sendForm } from '@/lib/forms'
 import { normalizeFrequency } from '@/lib/taskRecurrence'
+
+export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
+
+/** Publish a blog post to the public /blog under this clinician's byline. */
+export async function publishBlog(input: CreateBlogInput): Promise<ExpertActionResult> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const res = await createExpertBlogPost(ctx, input)
+  if (res.ok) {
+    revalidatePath('/expert/blogs')
+    revalidatePath('/blog')
+  }
+  return res
+}
+
+/** Answer / comment on a community discussion as this clinician. */
+export async function answerDiscussion(input: { postId: string; body: string }): Promise<ExpertActionResult> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const res = await expertAddCommunityComment(ctx, input.postId, input.body)
+  if (res.ok) {
+    revalidatePath(`/expert/community/${input.postId}`)
+    revalidatePath('/expert/community')
+    revalidatePath(`/community/${input.postId}`)
+    revalidatePath('/community')
+    revalidatePath('/app/community')
+  }
+  return res
+}
 
 export async function resolveAlert(formData: FormData): Promise<void> {
   const alertId = String(formData.get('alertId') ?? '')

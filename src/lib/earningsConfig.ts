@@ -4,14 +4,27 @@
  * the fallback when the row is missing.
  *
  * A completed session pays:
- *   base + session-number bonus + (night bonus if a night-slot session) + misc
- * where the session-number bonus is 0 for the 1st session with a patient, the
- * 2nd-session bonus for the 2nd, and the 3rd-onwards bonus from the 3rd on.
+ *   base(service) + session-number bonus + (night bonus if a night-slot session) + misc
+ * where base(service) is the base fee for the session's service type (individual
+ * therapy, couples therapy, or psychiatry), and the session-number bonus is 0 for
+ * the 1st session with a patient, the 2nd-session bonus for the 2nd, and the
+ * 3rd-onwards bonus from the 3rd on.
  */
 import { prisma } from '@/lib/prisma'
 
+/** The three service types that carry their own base fee. */
+export type ServiceType = 'individual' | 'couples' | 'psychiatry'
+
+export const SERVICE_LABEL: Record<ServiceType, string> = {
+  individual: 'Individual therapy',
+  couples: 'Couples therapy',
+  psychiatry: 'Psychiatry',
+}
+
 export type EarningsConfigValues = {
-  baseFee: number
+  baseFeeIndividual: number
+  baseFeeCouples: number
+  baseFeePsychiatry: number
   secondSessionBonus: number
   thirdOnwardsBonus: number
   miscBonus: number
@@ -19,11 +32,22 @@ export type EarningsConfigValues = {
 }
 
 export const EARNINGS_DEFAULTS: EarningsConfigValues = {
-  baseFee: 600,
+  baseFeeIndividual: 600,
+  baseFeeCouples: 900,
+  baseFeePsychiatry: 800,
   secondSessionBonus: 50,
   thirdOnwardsBonus: 100,
   miscBonus: 0,
   nightSessionBonus: 200,
+}
+
+/** The base fee for a given service type. */
+export function baseFeeFor(config: EarningsConfigValues, service: ServiceType): number {
+  return service === 'couples'
+    ? config.baseFeeCouples
+    : service === 'psychiatry'
+      ? config.baseFeePsychiatry
+      : config.baseFeeIndividual
 }
 
 export async function getEarningsConfig(): Promise<EarningsConfigValues> {
@@ -31,7 +55,11 @@ export async function getEarningsConfig(): Promise<EarningsConfigValues> {
     const row = await prisma.earningsConfig.findUnique({ where: { id: 'default' } })
     if (!row) return EARNINGS_DEFAULTS
     return {
-      baseFee: row.baseFee,
+      // Fall back to the legacy single baseFee for individual when the new
+      // column is still at its default and the legacy value was customised.
+      baseFeeIndividual: row.baseFeeIndividual ?? row.baseFee ?? EARNINGS_DEFAULTS.baseFeeIndividual,
+      baseFeeCouples: row.baseFeeCouples ?? EARNINGS_DEFAULTS.baseFeeCouples,
+      baseFeePsychiatry: row.baseFeePsychiatry ?? EARNINGS_DEFAULTS.baseFeePsychiatry,
       secondSessionBonus: row.secondSessionBonus,
       thirdOnwardsBonus: row.thirdOnwardsBonus,
       miscBonus: row.miscBonus,
@@ -47,17 +75,21 @@ export async function updateEarningsConfig(
   values: EarningsConfigValues,
   updatedBy: string | null
 ): Promise<void> {
+  const nn = (n: number) => Math.max(0, Math.round(n))
   const clean = {
-    baseFee: Math.max(0, Math.round(values.baseFee)),
-    secondSessionBonus: Math.max(0, Math.round(values.secondSessionBonus)),
-    thirdOnwardsBonus: Math.max(0, Math.round(values.thirdOnwardsBonus)),
-    miscBonus: Math.max(0, Math.round(values.miscBonus)),
-    nightSessionBonus: Math.max(0, Math.round(values.nightSessionBonus)),
+    baseFeeIndividual: nn(values.baseFeeIndividual),
+    baseFeeCouples: nn(values.baseFeeCouples),
+    baseFeePsychiatry: nn(values.baseFeePsychiatry),
+    secondSessionBonus: nn(values.secondSessionBonus),
+    thirdOnwardsBonus: nn(values.thirdOnwardsBonus),
+    miscBonus: nn(values.miscBonus),
+    nightSessionBonus: nn(values.nightSessionBonus),
   }
   await prisma.earningsConfig.upsert({
     where: { id: 'default' },
-    update: { ...clean, updatedBy },
-    create: { id: 'default', ...clean, updatedBy },
+    // Keep the legacy baseFee mirrored to the individual fee so old readers stay sane.
+    update: { ...clean, baseFee: clean.baseFeeIndividual, updatedBy },
+    create: { id: 'default', ...clean, baseFee: clean.baseFeeIndividual, updatedBy },
   })
 }
 
@@ -67,13 +99,22 @@ export function isNightSession(scheduledAt: Date): boolean {
   return h >= 21 || h < 6
 }
 
-/** Pay for a single completed session given its per-patient ordinal (1-based). */
+/** The session-number bonus for a given per-patient ordinal (1-based). */
+export function numberBonusFor(config: EarningsConfigValues, sessionNumber: number): number {
+  return sessionNumber >= 3 ? config.thirdOnwardsBonus : sessionNumber === 2 ? config.secondSessionBonus : 0
+}
+
+/** Pay for a single completed session given its service type, per-patient ordinal, and slot. */
 export function sessionPay(
   config: EarningsConfigValues,
+  service: ServiceType,
   sessionNumber: number,
   night: boolean
 ): number {
-  const numberBonus =
-    sessionNumber >= 3 ? config.thirdOnwardsBonus : sessionNumber === 2 ? config.secondSessionBonus : 0
-  return config.baseFee + numberBonus + (night ? config.nightSessionBonus : 0) + config.miscBonus
+  return (
+    baseFeeFor(config, service) +
+    numberBonusFor(config, sessionNumber) +
+    (night ? config.nightSessionBonus : 0) +
+    config.miscBonus
+  )
 }

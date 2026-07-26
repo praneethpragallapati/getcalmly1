@@ -21,7 +21,11 @@ import {
   getEarningsConfig,
   isNightSession,
   sessionPay,
+  baseFeeFor,
+  numberBonusFor,
+  SERVICE_LABEL,
   type EarningsConfigValues,
+  type ServiceType,
 } from '@/lib/earningsConfig'
 import { STATUS_LABEL } from '@/lib/orders'
 
@@ -82,6 +86,8 @@ export type ExpertPatientProfile = {
   highStakeChatCount: number
 }
 
+export type EmploymentType = 'FULL_TIME' | 'PART_TIME'
+
 export type TherapistContext = {
   userId: string
   therapistProfileId: string
@@ -89,11 +95,20 @@ export type TherapistContext = {
   specializations: string[]
   /** Psychiatrists may prescribe/manage medication; derived from specializations. */
   isPsychiatrist: boolean
+  /** Salaried (full-time) clinicians don't see per-session earnings. */
+  employmentType: EmploymentType
+  /** Public-facing title, e.g. "Consultant Psychiatrist" / "Clinical Psychologist". */
+  designation: string
 }
 
 /** Whether a specialization set marks a prescribing psychiatrist. */
 function looksPsychiatric(specializations: string[]): boolean {
   return specializations.some((s) => /psychiat|medication|pharma/i.test(s))
+}
+
+/** A clinician's public designation, used on blog bylines and community answers. */
+export function designationOf(specializations: string[]): string {
+  return looksPsychiatric(specializations) ? 'Consultant Psychiatrist' : 'Clinical Psychologist'
 }
 
 /** The signed-in therapist's verified TherapistProfile id, or null. */
@@ -113,9 +128,57 @@ export async function getTherapistContext(): Promise<TherapistContext | null> {
       therapistName: profile.user?.name ?? null,
       specializations: profile.specializations,
       isPsychiatrist: looksPsychiatric(profile.specializations),
+      employmentType: (profile.employmentType as EmploymentType) ?? 'FULL_TIME',
+      designation: designationOf(profile.specializations),
     }
   } catch {
     return null
+  }
+}
+
+// ── Profile ─────────────────────────────────────────────────────────────────
+
+export type TherapistProfileView = {
+  name: string
+  designation: string
+  employmentType: EmploymentType
+  bio: string
+  qualifications: string[]
+  languages: string[]
+  specializations: string[]
+  yearsExp: number
+  rciNumber: string
+  sessionFee: number
+  rating: number
+  totalReviews: number
+  isVerified: boolean
+  isPsychiatrist: boolean
+  photoUrl: string | null
+}
+
+/** The signed-in clinician's own profile, for the portal Profile page. */
+export async function getTherapistProfile(therapistProfileId: string): Promise<TherapistProfileView | null> {
+  const p = await prisma.therapistProfile.findUnique({
+    where: { id: therapistProfileId },
+    include: { user: { select: { name: true } } },
+  })
+  if (!p) return null
+  return {
+    name: p.user?.name ?? 'Doctor',
+    designation: designationOf(p.specializations),
+    employmentType: (p.employmentType as EmploymentType) ?? 'FULL_TIME',
+    bio: p.bio,
+    qualifications: p.qualifications,
+    languages: p.languages,
+    specializations: p.specializations,
+    yearsExp: p.yearsExp,
+    rciNumber: p.rciNumber,
+    sessionFee: p.sessionFee,
+    rating: p.rating,
+    totalReviews: p.totalReviews,
+    isVerified: p.isVerified,
+    isPsychiatrist: looksPsychiatric(p.specializations),
+    photoUrl: p.photoUrl,
   }
 }
 
@@ -528,93 +591,110 @@ export async function setMedicationActive(
 }
 
 // ── Earnings ──────────────────────────────────────────────────────────────────
+// A practical, statement-style ledger. Every completed, note-written session is
+// one line, priced from the pay structure. No "pending payout" abstraction: a
+// session either counts (completed + note written) or it does not yet.
 
-export type EarningsMonth = { label: string; total: number; sessions: number }
-export type EarningsBreakdown = {
-  base: number // sum of base fees across completed sessions
-  sessionBonus: number // sum of 2nd / 3rd-onwards session-number bonuses
-  nightBonus: number // sum of night-session bonuses
-  miscBonus: number // sum of misc bonuses
-  nightSessions: number // count of completed night-slot sessions
+/** One paid session on the ledger. */
+export type EarningLine = {
+  id: string
+  dateIso: string // YYYY-MM-DD, for grouping
+  dayLabel: string // e.g. "Fri, 12 Jun 2026"
+  timeLabel: string // e.g. "7:00 PM"
+  monthKey: string // YYYY-MM
+  monthLabel: string // e.g. "June 2026"
+  year: number
+  patientName: string
+  service: ServiceType
+  serviceLabel: string
+  sessionNumber: number
+  night: boolean
+  base: number
+  numberBonus: number
+  nightBonus: number
+  misc: number
+  amount: number
 }
+
 export type Earnings = {
   totalEarned: number
   totalSessions: number
-  thisMonth: number
+  thisMonthTotal: number
   thisMonthSessions: number
-  pending: number // confirmed + upcoming, not yet completed/paid
-  byMonth: EarningsMonth[]
   config: EarningsConfigValues
-  breakdown: EarningsBreakdown
+  /** Every paid session, most recent first. The client groups these by day/month/year. */
+  lines: EarningLine[]
+}
+
+/** The service type for a session, from the clinician's role and the patient's care mode. */
+function serviceTypeOf(isPsychiatrist: boolean, careMode: string | null | undefined): ServiceType {
+  if (isPsychiatrist) return 'psychiatry'
+  if (careMode === 'COUPLE') return 'couples'
+  return 'individual'
 }
 
 export async function getTherapistEarnings(therapistProfileId: string): Promise<Earnings> {
-  const [rows, config] = await Promise.all([
+  const [profile, rows, config] = await Promise.all([
+    prisma.therapistProfile.findUnique({ where: { id: therapistProfileId }, select: { specializations: true } }),
     prisma.appointment.findMany({
-      where: { therapistId: therapistProfileId, status: { in: ['COMPLETED', 'CONFIRMED'] } },
-      select: { patientId: true, status: true, scheduledAt: true, summary: true },
+      where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: { not: null } },
+      orderBy: { scheduledAt: 'asc' },
+      include: { patient: { select: { name: true, patientProfile: { select: { careMode: true } } } } },
     }),
     getEarningsConfig(),
   ])
-
-  // Per-patient session ordinal is computed over that patient's completed
-  // sessions in chronological order, so the 2nd / 3rd-onwards bonuses reflect
-  // continuity with each patient.
-  // A session only counts (and pays) once its clinical note is written:
-  // completed-without-note stays in the pending bucket until the note lands.
-  const completed = rows
-    .filter((r) => r.status === 'COMPLETED' && r.summary)
-    .sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())
-  const pendingRows = rows.filter((r) => r.status === 'CONFIRMED' || (r.status === 'COMPLETED' && !r.summary))
+  const isPsych = looksPsychiatric(profile?.specializations ?? [])
 
   const now = new Date()
-  const monthKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}`
-  const thisKey = monthKey(now)
+  const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-  const byMonthMap = new Map<string, EarningsMonth>()
-  const breakdown: EarningsBreakdown = { base: 0, sessionBonus: 0, nightBonus: 0, miscBonus: 0, nightSessions: 0 }
   const seenPerPatient = new Map<string, number>()
-  let totalEarned = 0
+  const lines: EarningLine[] = []
 
-  for (const r of completed) {
+  // Chronological pass so the per-patient session ordinal (which drives the
+  // 2nd / 3rd-onwards bonus) reflects real continuity with each patient.
+  for (const r of rows) {
     const ordinal = (seenPerPatient.get(r.patientId) ?? 0) + 1
     seenPerPatient.set(r.patientId, ordinal)
+    const service = serviceTypeOf(isPsych, r.patient.patientProfile?.careMode)
     const night = isNightSession(r.scheduledAt)
-    const pay = sessionPay(config, ordinal, night)
+    const base = baseFeeFor(config, service)
+    const numberBonus = numberBonusFor(config, ordinal)
+    const nightBonus = night ? config.nightSessionBonus : 0
+    const misc = config.miscBonus
+    const d = r.scheduledAt
 
-    breakdown.base += config.baseFee
-    breakdown.sessionBonus += ordinal >= 3 ? config.thirdOnwardsBonus : ordinal === 2 ? config.secondSessionBonus : 0
-    breakdown.miscBonus += config.miscBonus
-    if (night) {
-      breakdown.nightBonus += config.nightSessionBonus
-      breakdown.nightSessions += 1
-    }
-    totalEarned += pay
-
-    const key = monthKey(r.scheduledAt)
-    const label = r.scheduledAt.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-    const entry = byMonthMap.get(key) ?? { label, total: 0, sessions: 0 }
-    entry.total += pay
-    entry.sessions += 1
-    byMonthMap.set(key, entry)
+    lines.push({
+      id: r.id,
+      dateIso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+      dayLabel: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+      timeLabel: d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+      monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      monthLabel: d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+      year: d.getFullYear(),
+      patientName: r.patient.name ?? 'Patient',
+      service,
+      serviceLabel: SERVICE_LABEL[service],
+      sessionNumber: ordinal,
+      night,
+      base,
+      numberBonus,
+      nightBonus,
+      misc,
+      amount: sessionPay(config, service, ordinal, night),
+    })
   }
-  const byMonth = [...byMonthMap.entries()]
-    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-    .map(([, v]) => v)
 
-  // Pending payout: estimate each confirmed session at base + misc (bonuses
-  // depend on completion ordering, so we keep the estimate conservative).
-  const pending = pendingRows.length * (config.baseFee + config.miscBonus)
+  const totalEarned = lines.reduce((s, l) => s + l.amount, 0)
+  const thisMonthLines = lines.filter((l) => l.monthKey === thisMonthKey)
 
   return {
     totalEarned,
-    totalSessions: completed.length,
-    thisMonth: byMonthMap.get(thisKey)?.total ?? 0,
-    thisMonthSessions: byMonthMap.get(thisKey)?.sessions ?? 0,
-    pending,
-    byMonth,
+    totalSessions: lines.length,
+    thisMonthTotal: thisMonthLines.reduce((s, l) => s + l.amount, 0),
+    thisMonthSessions: thisMonthLines.length,
     config,
-    breakdown,
+    lines: lines.reverse(), // most recent first for display
   }
 }
 
@@ -1038,4 +1118,148 @@ export async function getPatientWeeklyInsight(
     select: { title: true, body: true },
   })
   return row ? { title: row.title, body: row.body } : null
+}
+
+// ── Blogs (clinician-authored, published to the public /blog) ────────────────
+
+export type ExpertBlogView = {
+  slug: string
+  title: string
+  excerpt: string
+  tags: string[]
+  readTime: string
+  published: boolean
+  dateLabel: string
+  paragraphs: number
+}
+
+function slugify(title: string): string {
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 60)
+  return `${base || 'post'}-${Math.random().toString(36).slice(2, 7)}`
+}
+
+function estimateReadTime(paragraphs: string[]): string {
+  const words = paragraphs.join(' ').trim().split(/\s+/).filter(Boolean).length
+  return `${Math.max(1, Math.round(words / 200))} min read`
+}
+
+/** This clinician's own blog posts, newest first. */
+export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogView[]> {
+  const rows = await prisma.blogPost.findMany({
+    where: { authorId },
+    orderBy: { publishedAt: 'desc' },
+  })
+  return rows.map((r) => ({
+    slug: r.slug,
+    title: r.title,
+    excerpt: r.excerpt,
+    tags: r.tags,
+    readTime: r.readTime,
+    published: r.published,
+    dateLabel: r.publishedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+    paragraphs: r.content.length,
+  }))
+}
+
+export type CreateBlogInput = { title: string; excerpt: string; body: string; tags: string[] }
+
+/** Publish a blog post to the public /blog under this clinician's byline + designation. */
+export async function createExpertBlogPost(
+  ctx: TherapistContext,
+  input: CreateBlogInput,
+): Promise<{ ok: boolean; slug?: string; error?: string }> {
+  const title = input.title.trim()
+  const excerpt = input.excerpt.trim()
+  const paragraphs = input.body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+  if (!title) return { ok: false, error: 'Add a title.' }
+  if (!excerpt) return { ok: false, error: 'Add a short excerpt.' }
+  if (paragraphs.length === 0) return { ok: false, error: 'Write the post body.' }
+  try {
+    const post = await prisma.blogPost.create({
+      data: {
+        slug: slugify(title),
+        title,
+        excerpt,
+        content: paragraphs,
+        authorId: ctx.userId,
+        authorName: ctx.therapistName ?? 'GetCalmly Clinician',
+        authorRole: ctx.designation,
+        tags: input.tags.map((t) => t.trim()).filter(Boolean).slice(0, 6),
+        readTime: estimateReadTime(paragraphs),
+        published: true,
+      },
+    })
+    return { ok: true, slug: post.slug }
+  } catch {
+    return { ok: false, error: 'Could not publish the post.' }
+  }
+}
+
+// ── Community (clinician answers, posted with their designation) ─────────────
+
+/** Post an answer/comment on a community discussion as this clinician. */
+export async function expertAddCommunityComment(
+  ctx: TherapistContext,
+  postId: string,
+  body: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const text = body.trim()
+  if (!postId || !text) return { ok: false, error: 'Write an answer first.' }
+  try {
+    await prisma.communityComment.create({
+      data: {
+        postId,
+        body: text,
+        authorId: ctx.userId,
+        authorName: ctx.therapistName ?? 'GetCalmly Clinician',
+        authorRole: ctx.isPsychiatrist ? 'PSYCHIATRIST' : 'THERAPIST',
+      },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not post your answer.' }
+  }
+}
+
+// ── Admin: employment type ───────────────────────────────────────────────────
+
+export type AdminTherapistEmployment = {
+  profileId: string
+  name: string
+  email: string
+  designation: string
+  employmentType: EmploymentType
+}
+
+export async function adminListTherapistEmployment(): Promise<AdminTherapistEmployment[]> {
+  const rows = await prisma.therapistProfile.findMany({
+    include: { user: { select: { name: true, email: true } } },
+  })
+  return rows
+    .map((r) => ({
+      profileId: r.id,
+      name: r.user?.name ?? 'Therapist',
+      email: r.user?.email ?? '',
+      designation: designationOf(r.specializations),
+      employmentType: (r.employmentType as EmploymentType) ?? 'FULL_TIME',
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function adminSetEmploymentType(
+  profileId: string,
+  employmentType: EmploymentType,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!profileId) return { ok: false, error: 'Pick a clinician.' }
+  try {
+    await prisma.therapistProfile.update({ where: { id: profileId }, data: { employmentType } })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update employment type.' }
+  }
 }

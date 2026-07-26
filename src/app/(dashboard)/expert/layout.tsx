@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
@@ -51,10 +51,39 @@ export default async function ExpertLayout({ children }: { children: React.React
             <UsersRound size={18} />
             <span>Supervision</span>
           </Link>
-          <Link href="/expert/earnings" className="sb-link">
-            <Wallet size={18} />
-            <span>Earnings</span>
+        </nav>
+
+        <div className="sb-section">PRACTICE</div>
+        <nav className="sb-nav">
+          <Link href="/expert/community" className="sb-link">
+            <MessagesSquare size={18} />
+            <span>Community</span>
           </Link>
+          <Link href="/expert/blogs" className="sb-link">
+            <Newspaper size={18} />
+            <span>Blogs</span>
+          </Link>
+          <Link href="/expert/profile" className="sb-link">
+            <UserCircle size={18} />
+            <span>Profile</span>
+          </Link>
+          {ctx.employmentType === 'PART_TIME' ? (
+            <Link href="/expert/earnings" className="sb-link">
+              <Wallet size={18} />
+              <span>Earnings</span>
+            </Link>
+          ) : (
+            <span
+              className="sb-link"
+              aria-disabled="true"
+              title="Earnings apply to part-time (per-session) clinicians. You're salaried full-time."
+              style={{ opacity: 0.4, cursor: 'not-allowed' }}
+            >
+              <Wallet size={18} />
+              <span>Earnings</span>
+              <Lock size={13} style={{ marginLeft: 'auto' }} />
+            </span>
+          )}
         </nav>
       </aside>
 

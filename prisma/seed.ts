@@ -13,6 +13,9 @@ async function seedEarningsAndAdmin() {
     create: {
       id: 'default',
       baseFee: 600,
+      baseFeeIndividual: 600,
+      baseFeeCouples: 900,
+      baseFeePsychiatry: 800,
       secondSessionBonus: 50,
       thirdOnwardsBonus: 100,
       miscBonus: 0,
@@ -108,7 +111,7 @@ async function seedDemoPatient() {
   })
   const therapist = await prisma.therapistProfile.upsert({
     where: { userId: therapistUser.id },
-    update: { isActive: true, isVerified: true },
+    update: { isActive: true, isVerified: true, employmentType: 'FULL_TIME' },
     create: {
       userId: therapistUser.id,
       bio: 'Clinical psychologist specialising in anxiety, CBT and work-related stress.',
@@ -122,6 +125,7 @@ async function seedDemoPatient() {
       totalReviews: 128,
       isVerified: true,
       isActive: true,
+      employmentType: 'FULL_TIME',
     },
   })
 
@@ -638,7 +642,7 @@ async function seedDoctorTestAccount() {
   const docSpecializations = ['Psychiatry', 'Medication management', 'Anxiety', 'Depression']
   const doc = await prisma.therapistProfile.upsert({
     where: { userId: docUser.id },
-    update: { isActive: true, isVerified: true, specializations: docSpecializations },
+    update: { isActive: true, isVerified: true, specializations: docSpecializations, employmentType: 'PART_TIME' },
     create: {
       userId: docUser.id,
       bio: 'Consultant psychiatrist specialising in anxiety, depression and psychopharmacology.',
@@ -652,6 +656,7 @@ async function seedDoctorTestAccount() {
       totalReviews: 96,
       isVerified: true,
       isActive: true,
+      employmentType: 'PART_TIME',
     },
   })
   const docName = 'Dr. Hom Pragallapati'

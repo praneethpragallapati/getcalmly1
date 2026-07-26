@@ -64,6 +64,14 @@ enum CareCategory {
   KIDS
 }
 
+// A clinician's engagement with GetCalmly. Full-time clinicians are salaried, so
+// per-session earnings do not apply to them; part-time clinicians are paid per
+// completed session and see the earnings ledger. Set by an admin only.
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+}
+
 // Tenure-based membership tier. Derived from the number of paid months on an
 // active subscription (#18) and surfaced as a badge across the app.
 enum PlanTier {
@@ -332,6 +340,9 @@ model TherapistProfile {
   totalReviews    Int      @default(0)
   isVerified      Boolean  @default(false)
   isActive        Boolean  @default(true)
+  // Salaried (full-time) or paid-per-session (part-time). Admin-managed; gates
+  // the earnings ledger in the expert portal.
+  employmentType  EmploymentType @default(FULL_TIME)
   photoUrl        String?
   createdAt       DateTime @default(now())
 
@@ -559,7 +570,13 @@ model Notification {
 // (id = "default"). Admin-editable; the values are the commercial pay structure.
 model EarningsConfig {
   id                 String   @id @default("default")
+  // Legacy single base fee, kept for backward compatibility. New code uses the
+  // three per-service base fees below.
   baseFee            Int      @default(600)
+  // Per-service base fee, paid once per completed session of that type.
+  baseFeeIndividual  Int      @default(600)
+  baseFeeCouples     Int      @default(900)
+  baseFeePsychiatry  Int      @default(800)
   secondSessionBonus Int      @default(50)
   thirdOnwardsBonus  Int      @default(100)
   miscBonus          Int      @default(0)

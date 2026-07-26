@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -25,11 +26,17 @@ export default async function AdminEarningsPage() {
         Earnings configuration
       </h1>
       <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: 28 }}>
-        These values drive therapist earnings: each completed session pays the base fee plus the relevant
-        session-number bonus, a night-session bonus where applicable, and the misc bonus. This is an early
-        stub, the full admin area lands later.
+        These values drive therapist earnings: each completed session pays the base fee for its service
+        (individual therapy, couples therapy, or psychiatry) plus the relevant session-number bonus, a
+        night-session bonus where applicable, and the misc bonus. This is an early stub, the full admin
+        area lands later.
       </p>
       <EarningsConfigForm initial={config} />
+
+      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 28 }}>
+        Set which clinicians are part-time (per-session) vs full-time (salaried) on the{' '}
+        <Link href="/admin/therapists" style={{ color: '#C8553D', fontWeight: 600 }}>Clinicians</Link> page.
+      </p>
     </div>
   )
 }
