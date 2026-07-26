@@ -13,14 +13,14 @@ const cream = '#FFFCFA'
 
 const stats: [string, string][] = [
   ['60%+', 'treatment gap in India'],
-  ['0.75', 'psychiatrists per 100,000 people'],
-  ['100%', 'RCI & NMC verified clinicians'],
+  ['150M+', 'Indians who need mental health support'],
+  ['100%', 'RCI-verified clinicians'],
 ]
 
 const values: { title: string; desc: string }[] = [
   { title: 'Privacy first', desc: 'DPDP-compliant, encrypted, and confidential by design. What you share stays yours.' },
   { title: 'Culturally attuned', desc: 'Care that understands your context, matched to fit rather than one-size-fits-all.' },
-  { title: 'Clinically credible', desc: 'Only RCI-licensed psychologists and NMC-registered psychiatrists. No exceptions.' },
+  { title: 'Clinically credible', desc: 'Only RCI-licensed clinical psychologists and qualified counsellors. No exceptions.' },
   { title: 'Accessible & affordable', desc: 'Quality care within your budget, from your couch or in person.' },
 ]
 
@@ -136,8 +136,7 @@ export default function AboutPage() {
           </div>
           <div>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22, marginTop: 0 }}>
-              India faces a mental health treatment gap exceeding 60%. With roughly 0.75 psychiatrists per
-              100,000 people, and specialists concentrated in major cities, millions in Tier-2 and Tier-3
+              India faces a mental health treatment gap exceeding 60%. With specialists concentrated in major cities, millions in Tier-2 and Tier-3
               regions go underserved.
             </p>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>

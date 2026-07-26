@@ -57,7 +57,7 @@ export default function EnterprisePage() {
           <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 24, letterSpacing: 0.3 }}>Used by teams that take care seriously</p>
             {[
-              ['RCI & NMC verified', 'Every clinician credentialed'],
+              ['RCI-verified', 'Every clinician credentialed'],
               ['Aggregate-only insights', 'Individuals always anonymous'],
               ['DPDP aligned', 'Privacy from day one'],
               ['48-hr onboarding', 'Pilot-ready in days, not months'],
@@ -94,7 +94,7 @@ export default function EnterprisePage() {
                 label: 'Corporates',
                 headline: 'Mental health is the quietest cost on your balance sheet.',
                 body: 'Burnout, absenteeism and quiet quitting rarely show up until they are expensive. Give your people confidential access to real therapists and a daily support app, and give your leaders aggregate wellbeing signals, never individual data.',
-                points: ['Confidential therapy & psychiatry', 'Calm+ app from day one', 'Anonymised HR dashboards', '24×7 crisis support'],
+                points: ['Confidential therapy', 'Calm+ app from day one', 'Anonymised HR dashboards', '24×7 crisis support'],
               },
               {
                 accent: green,
@@ -331,7 +331,7 @@ export default function EnterprisePage() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
-                ['Verified clinicians only', 'RCI & NMC registered before going live'],
+                ['Verified clinicians only', 'RCI-registered before going live'],
                 ['Pilot first, scale later', 'No big bets before you see results'],
                 ['Privacy by design', 'Individuals always stay anonymous to your org'],
               ].map(([t, d]) => (

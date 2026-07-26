@@ -21,7 +21,7 @@ export async function GET() {
   const body = `# getCalmly
 
 > getCalmly is an online mental healthcare platform in India. It connects people
-> with RCI-verified therapists and NMC-registered psychiatrists, offers AI-powered
+> with RCI-verified therapists, offers AI-powered
 > insights from daily mood tracking and journaling, and includes a moderated
 > peer-support community. The first session is ₹799.
 
@@ -30,7 +30,7 @@ Company: GetCalmly Private Limited, Bengaluru, Karnataka, India.
 Contact: connect@getcalmly.com · +91 88845 18688.
 
 ## Key facts
-- Every therapist and psychiatrist is licensed and background-checked.
+- Every therapist is licensed and background-checked.
 - getCalmly builds the world's first context-aware mental health AI companion, which draws on your sessions, mood data and journal.
 - The first session is ₹799; ongoing session details live inside the member dashboard.
 - Sessions are online over secure video; data is private and DPDP-aligned.
@@ -38,7 +38,7 @@ Contact: connect@getcalmly.com · +91 88845 18688.
 
 ## Main pages
 - [Home](${SITE_URL}/): overview and how it works.
-- [Services](${SITE_URL}/services): therapy, couples, child, maternal, psychiatry, assessments, specialised care.
+- [Services](${SITE_URL}/services): therapy, couples, child, maternal, assessments, specialised care.
 - [How it works / assessment](${SITE_URL}/assess): the matching assessment.
 - [For therapists](${SITE_URL}/for-therapists): joining as a clinician.
 - [Enterprise](${SITE_URL}/enterprise): workplace mental health.

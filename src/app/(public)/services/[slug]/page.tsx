@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import BlogCover from '@/components/blog/BlogCover'
 
-type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'addiction' | 'assessments' | 'specialised'
+type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'addiction' | 'assessments' | 'specialised'
 
 const services: Record<ServiceSlug, {
   icon: string
@@ -154,38 +154,6 @@ const services: Record<ServiceSlug, {
     ],
     cta: 'Talk to a maternal specialist',
   },
-  psychiatry: {
-    icon: '💊',
-    accent: '#1A7F7A',
-    pale: 'rgba(26,127,122,.08)',
-    title: 'Psychiatry, Without the Stigma',
-    tagline: "You did the work and still feel stuck. That's chemistry, not failure.",
-    question: 'Have you done the work, but still feel stuck?',
-    hero: 'Therapy is powerful. But for some conditions (persistent depression, OCD, bipolar disorder, severe anxiety) medication alongside therapy makes a meaningful difference. Our psychiatrists are here to evaluate, diagnose, and support you with the right medical care.',
-    stat: { big: '60%', label: 'of people with depression respond significantly better to therapy and medication combined than to either alone.' },
-    recognise: [
-      'Therapy helps, but something still isn\'t shifting.',
-      'I\'m not sure my current medication is right for me.',
-      'I want a real diagnosis, not guesswork.',
-      'I think I\'ve been managing this undiagnosed for years.',
-    ],
-    why: 'All our psychiatrists are licensed medical doctors. They work with your therapist so your care stays joined-up.',
-    items: [
-      { name: 'Diagnosis & Evaluation', desc: 'A thorough assessment to understand what you\'re experiencing and whether a diagnosis applies, without rushing to labels.' },
-      { name: 'Medication Management', desc: 'If medication is right for you, we manage it carefully: starting low, monitoring closely, and adjusting as needed.' },
-      { name: 'Second Opinion', desc: 'Already on medication and not sure it\'s right? Our psychiatrists provide independent evaluations.' },
-      { name: 'Follow-up Care', desc: 'Regular check-ins to track your progress and adjust treatment as your life changes.' },
-      { name: 'OCD / Bipolar / Schizophrenia', desc: 'Serious mental health conditions need serious, sustained care. We\'re equipped for it.' },
-      { name: 'ADHD (Adult)', desc: 'Adult ADHD is frequently undiagnosed. Evaluation and treatment can change your relationship with work, focus, and yourself.' },
-    ],
-    whoFor: ['People who haven\'t responded to therapy alone', 'Those seeking a diagnosis', 'Anyone wanting a medication review or second opinion'],
-    faq: [
-      { q: 'Do I need a referral?', a: 'No. You can book a psychiatry session directly through GetCalmly.' },
-      { q: 'Will I definitely be put on medication?', a: 'Not at all. Evaluation comes first. Our psychiatrists only recommend medication when they believe the benefits clearly outweigh the risks.' },
-      { q: 'Can I see a psychiatrist and a therapist at the same time?', a: 'Yes, and it\'s often the most effective approach. We coordinate between them.' },
-    ],
-    cta: 'Book a psychiatric evaluation',
-  },
   addiction: {
     icon: '🛟',
     accent: '#3E6E9C',
@@ -201,7 +169,7 @@ const services: Record<ServiceSlug, {
       'I\'ve started hiding how much, and from whom.',
       'It\'s the only thing that switches my head off at night.',
     ],
-    why: 'Our team includes psychologists and psychiatrists trained specifically in addiction, using approaches with real evidence behind them: motivational work, relapse prevention, and where it helps, medical support for cravings and withdrawal. Everything is online, private, and paced around your life. No 30-day program you have to disappear into.',
+    why: 'Our team includes psychologists trained specifically in addiction, using approaches with real evidence behind them: motivational work, relapse prevention, and ongoing support. Everything is online, private, and paced around your life. No 30-day program you have to disappear into.',
     items: [
       { name: 'Alcohol', desc: 'From "I drink a bit too much" to something that scares you. We meet you at whatever stage you are, without making you label it.' },
       { name: 'Tobacco & Nicotine', desc: 'Cigarettes, vapes, gutka. The habit you\'ve quit a hundred times. A plan that accounts for the cravings, not just the willpower.' },
@@ -336,11 +304,6 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
   maternal: {
     src: 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=1600&q=70',
     position: 'center 40%',
-  },
-  // A doctor, stethoscope and phone, real medical care, online.
-  psychiatry: {
-    src: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=70',
-    position: 'center 35%',
   },
   // A footbridge across into green, a calm way through, no rehab cliches.
   addiction: {

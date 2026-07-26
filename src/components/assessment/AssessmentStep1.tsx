@@ -12,22 +12,6 @@ const options = [
     pale: '#FDEAE6',
   },
   {
-    key: 'medication',
-    icon: '💊',
-    title: 'Medication',
-    desc: 'Psychiatric evaluation and medication management with an NMC-registered psychiatrist',
-    color: '#1A7F7A',
-    pale: '#E5F4EE',
-  },
-  {
-    key: 'both',
-    icon: '🔄',
-    title: 'Both',
-    desc: 'Combined therapy and psychiatric support, we coordinate both for you',
-    color: '#6D5BD0',
-    pale: '#EEF0FB',
-  },
-  {
     key: 'not-sure',
     icon: '🤔',
     title: 'Not Sure',

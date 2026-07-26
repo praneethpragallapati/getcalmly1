@@ -3,10 +3,10 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  therapyPacks, psychiatryPacks, couplesPacks, calmPlusPacks, perSession, inr, discountVsBase,
-  THERAPY_FROM, PSYCHIATRY_FROM, COUPLES_FROM, THERAPY_BASE, PSYCHIATRY_BASE, COUPLES_BASE,
+  therapyPacks, couplesPacks, calmPlusPacks, perSession, inr, discountVsBase,
+  THERAPY_FROM, COUPLES_FROM, THERAPY_BASE, COUPLES_BASE,
   CALMPLUS_BASE, FIRST_SESSION,
-  freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures, couplesFeatures,
+  freeFeatures, calmPlusFeatures, therapyFeatures, couplesFeatures,
   type SessionPack,
 } from '@/data/pricing'
 
@@ -177,7 +177,7 @@ const STEPS: { n: string; t: string; d: string }[] = [
   { n: '03', t: 'Change your mind anytime', d: 'Pause or switch whenever you need. Stop part-way and you only pay for the sessions you used.' },
 ]
 
-const TRUST = ['RCI & NMC-verified clinicians', 'DPDP-secure & confidential', 'Fair, no-questions refunds']
+const TRUST = ['RCI-verified clinicians', 'DPDP-secure & confidential', 'Fair, no-questions refunds']
 
 export default function PricingPage() {
   return (
@@ -227,7 +227,7 @@ export default function PricingPage() {
           </p>
           <p className="pr-hint">💚 Bigger packs unlock a lower price per session</p>
         </div>
-        <div className="pr-grid">
+        <div className="pr-grid two">
           <CareCard
             name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
             accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
@@ -239,12 +239,6 @@ export default function PricingPage() {
             accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d2"
             firstSession={FIRST_SESSION.couples}
             fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=therapy"
-          />
-          <CareCard
-            name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
-            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d3"
-            firstSession={FIRST_SESSION.psychiatry}
-            fromText={`From ${inr(PSYCHIATRY_FROM)} per session`} href="/register?care=psychiatry"
           />
         </div>
       </section>

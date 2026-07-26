@@ -1,6 +1,5 @@
 import {
   Brain,
-  Pill,
   HeartHandshake,
   Sprout,
   Baby,
@@ -14,7 +13,6 @@ type IconCmp = React.ComponentType<{ size?: number; color?: string; strokeWidth?
 /** Shared line icons for each service, used in the nav menu and listing cards. */
 export const SERVICE_ICONS: Record<string, IconCmp> = {
   therapy: Brain,
-  psychiatry: Pill,
   couples: HeartHandshake,
   child: Sprout,
   maternal: Baby,

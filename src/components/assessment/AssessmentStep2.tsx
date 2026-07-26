@@ -28,12 +28,6 @@ export default function AssessmentStep2() {
 
   const select = (key: string) => {
     sessionStorage.setItem('assess_recipient', key)
-    const support =
-      typeof window !== 'undefined' ? sessionStorage.getItem('assess_support') : null
-    if (support === 'medication') {
-      router.push('/assess/form/psychiatry')
-      return
-    }
     router.push(`/assess/form/${key}`)
   }
 

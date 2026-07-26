@@ -9,7 +9,6 @@ import { SERVICE_ICONS } from './serviceIcons'
 // medical layer, then relationships, life-stage, tools, and specialised.
 const SERVICES = [
   { slug: 'therapy', accent: '#C8553D', pale: 'rgba(200,85,61,.10)', title: 'Individual Therapy', tag: 'Anxiety, depression, stress & burnout' },
-  { slug: 'psychiatry', accent: '#1A7F7A', pale: 'rgba(26,127,122,.10)', title: 'Psychiatry', tag: 'Evaluation, diagnosis & medication' },
   { slug: 'addiction', accent: '#3E6E9C', pale: 'rgba(62,110,156,.10)', title: 'Addiction & Recovery', tag: 'Alcohol, substances, screens & habits' },
   { slug: 'couples', accent: '#7C5CBF', pale: 'rgba(124,92,191,.10)', title: 'Couples & Relationships', tag: 'Communication, trust & repair' },
   { slug: 'child', accent: '#3D9E72', pale: 'rgba(61,158,114,.10)', title: 'Children & Teens', tag: 'Age-appropriate, judgment-free care' },
