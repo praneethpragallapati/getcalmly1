@@ -9,7 +9,7 @@ import { defaultCountry } from '@/data/countries'
 type CareFor = 'self' | 'couple' | 'child'
 
 const CARE_LABELS: Record<string, string> = {
-  therapy: 'Therapy with a psychologist',
+  therapy: 'Therapy with a clinical psychologist',
   psychiatry: 'Psychiatric care',
   couples: 'Couples therapy',
   app: 'Calm+ (the full app)',

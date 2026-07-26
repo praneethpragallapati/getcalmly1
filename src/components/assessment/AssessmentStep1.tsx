@@ -7,7 +7,7 @@ const options = [
     key: 'therapy',
     icon: '🧠',
     title: 'Therapy',
-    desc: 'Talk therapy with an RCI-verified psychologist or counsellor',
+    desc: 'Talk therapy with an RCI-verified clinical psychologist or counsellor',
     color: '#C8553D',
     pale: '#FDEAE6',
   },

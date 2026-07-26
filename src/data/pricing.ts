@@ -35,7 +35,7 @@ export const psychiatryPacks: SessionPack[] = [
 // the only thing a new patient sees until their first session is done.
 export const FIRST_SESSION: Record<'therapy' | 'psychiatry' | 'couples', number> = {
   therapy: 799,
-  psychiatry: 1199,
+  psychiatry: 999,
   couples: 1499,
 }
 
@@ -110,7 +110,7 @@ export const calmPlusFeatures = {
 }
 
 export const therapyFeatures = [
-  '50-minute sessions with an RCI-verified psychologist',
+  '50-minute sessions with an RCI-verified clinical psychologist',
   'Everything in Calm+, included',
   'A clear summary after every session',
   'Daily and weekly insights on your progress',

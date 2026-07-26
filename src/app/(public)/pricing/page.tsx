@@ -88,6 +88,12 @@ function CareCard({
       </p>
       <p className="pr-valid">Valid for {pack.months} {pack.months === 1 ? 'month' : 'months'}</p>
 
+      {/* Explicit first-session callout — the price a new patient actually pays first */}
+      <div className="pr-first" style={{ background: accent + '12', borderColor: accent + '33' }}>
+        <span className="pr-first-label">Your first session</span>
+        <span className="pr-first-val" style={{ color: accent }}>{inr(firstSession)}</span>
+      </div>
+
       <div className="pr-divider" />
       <div className="pr-feats">
         {features.map((f) => <Feature key={f} text={f} accent={accent} />)}
@@ -102,7 +108,7 @@ function CareCard({
       >
         Book session
       </Link>
-      <p className="pr-cta-note">{fromText} · first session {inr(firstSession)}</p>
+      <p className="pr-cta-note">{fromText}</p>
     </div>
   )
 }
@@ -217,21 +223,19 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* All plans, one row, cheapest to fullest care */}
+      {/* Care with a professional (increasing first-session price) */}
       <section className="pr-section" style={{ paddingTop: 64 }}>
         <div className="pr-head">
-          <p className="pr-eyebrow" style={{ color: coral }}>Plans</p>
-          <h2 className="pr-h2">One plan for wherever you are</h2>
+          <p className="pr-eyebrow" style={{ color: coral }}>With a professional</p>
+          <h2 className="pr-h2">Sessions that fit your life</h2>
           <p className="pr-head-sub">
-            From a free start to full care with an RCI &amp; NMC-verified professional — every paid plan
-            includes the app, and bigger session packs unlock a lower price per session.
+            Every plan includes the full app, and each starts with a flat first session — then bigger
+            packs unlock a lower price per session. Prefer to ease in? Two app-only plans below. ↓
           </p>
         </div>
-        <div className="pr-grid five">
-          <FreeCard delay="0s" />
-          <CalmPlusCard delay="0.05s" />
+        <div className="pr-grid">
           <CareCard
-            name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
+            name="Therapy" subtitle="Talk therapy with an RCI-verified clinical psychologist."
             accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
             firstSession={FIRST_SESSION.therapy}
             fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy"
@@ -248,6 +252,29 @@ export default function PricingPage() {
             firstSession={FIRST_SESSION.couples}
             fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=couples"
           />
+        </div>
+      </section>
+
+      {/* Transition so people don't assume the three above are all we have */}
+      <div className="pr-more">
+        <span className="pr-more-line" />
+        <span className="pr-more-text">Not ready for a professional yet? 2 more ways to start ↓</span>
+        <span className="pr-more-line" />
+      </div>
+
+      {/* App &amp; Free */}
+      <section className="pr-section" style={{ paddingTop: 8 }}>
+        <div className="pr-head">
+          <p className="pr-eyebrow" style={{ color: teal }}>No sessions needed</p>
+          <h2 className="pr-h2">Not ready for sessions yet?</h2>
+          <p className="pr-head-sub">
+            These two are the lighter, app-only plans. Start here, build the habit, and step up to a
+            professional plan above whenever you feel ready.
+          </p>
+        </div>
+        <div className="pr-grid two">
+          <CalmPlusCard delay="0.05s" />
+          <FreeCard delay="0.12s" />
         </div>
       </section>
 
@@ -304,13 +331,16 @@ const CSS = `
   /* Cards grid */
   .pr-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
   .pr-grid.two{ grid-template-columns: repeat(2, 1fr); max-width: 900px; margin: 0 auto; }
-  .pr-grid.five{ grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
-  .pr-grid.five .pr-card{ padding: 26px 18px; }
-  .pr-grid.five .pr-seg button{ font-size: 11px; padding: 7px 1px; }
-  .pr-grid.five .pr-price{ font-size: 38px; }
-  @media (max-width: 1180px){ .pr-grid.five{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 820px){ .pr-grid.five{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 540px){ .pr-grid.five{ grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; } }
+  /* Explicit first-session callout */
+  .pr-first{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    border: 1px solid; border-radius: 12px; padding: 11px 14px; margin-top: 14px; }
+  .pr-first-label{ font-size: 13px; font-weight: 700; color: var(--charcoal); }
+  .pr-first-val{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 24px; letter-spacing: -0.5px; }
+
+  /* Transition between the professional plans and the app-only plans */
+  .pr-more{ display: flex; align-items: center; gap: 16px; max-width: 720px; margin: 40px auto 8px; padding: 0 24px; }
+  .pr-more-line{ flex: 1; height: 1px; background: var(--line-card); }
+  .pr-more-text{ font-size: 13.5px; font-weight: 700; color: var(--coral); white-space: nowrap; }
 
   .pr-card{ position: relative; background: #fff; border-radius: 22px; padding: 32px 26px;
     border: 1px solid var(--line-card); box-shadow: var(--sh-card); display: flex; flex-direction: column;
@@ -375,5 +405,6 @@ const CSS = `
   @media (max-width: 940px){
     .pr-grid, .pr-grid.two, .pr-steps{ grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
     .pr-card-sub{ min-height: 0; }
+    .pr-more-text{ white-space: normal; text-align: center; }
   }
 `

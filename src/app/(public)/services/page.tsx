@@ -39,7 +39,7 @@ const branches = [
     tagline: "You don't have to hit rock bottom to deserve help.",
     desc: 'Alcohol, smoking, substances, or a habit that has quietly taken over, from screens to betting. A specialist helps you understand it and step back from it, at your pace and in complete privacy. No rehab, no lectures, no one has to know.',
     items: ['Alcohol', 'Tobacco & Nicotine', 'Drugs & Substances', 'Screens & Gaming', 'Pornography', 'Gambling & Betting', 'Staying Well After'],
-    expert: 'An addiction-trained psychologist, with psychiatric support when needed',
+    expert: 'An addiction-trained clinical psychologist, with psychiatric support when needed',
     app: 'Calm+ app to track triggers, cravings and clean days',
   },
   {

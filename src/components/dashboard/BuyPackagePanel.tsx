@@ -19,7 +19,7 @@ const TAB_LABEL: Record<PanelTab, string> = {
 }
 
 const TAB_SUB: Record<PanelTab, string> = {
-  therapy: '50-minute one-on-one sessions with your psychologist',
+  therapy: '50-minute one-on-one sessions with your clinical psychologist',
   psychiatry: 'Evaluation and medication care with your psychiatrist',
   couples: '50-minute sessions for you and your partner, together',
   calmplus: 'The everyday app, no sessions',
@@ -28,7 +28,7 @@ const TAB_SUB: Record<PanelTab, string> = {
 // What each package includes, shown under the price so the numbers lead.
 const INCLUDED: Record<PanelTab, string[]> = {
   therapy: [
-    'A psychologist matched to you',
+    'A clinical psychologist matched to you',
     'A clear summary after every session',
     'Calm+ included: unlimited AI, insights & journaling',
     'Priority matching and easy rescheduling',

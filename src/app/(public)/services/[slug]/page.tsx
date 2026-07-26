@@ -201,7 +201,7 @@ const services: Record<ServiceSlug, {
       'I\'ve started hiding how much, and from whom.',
       'It\'s the only thing that switches my head off at night.',
     ],
-    why: 'Our team includes psychologists and psychiatrists trained specifically in addiction, using approaches with real evidence behind them: motivational work, relapse prevention, and where it helps, medical support for cravings and withdrawal. Everything is online, private, and paced around your life. No 30-day program you have to disappear into.',
+    why: 'Our team includes clinical psychologists and psychiatrists trained specifically in addiction, using approaches with real evidence behind them: motivational work, relapse prevention, and where it helps, medical support for cravings and withdrawal. Everything is online, private, and paced around your life. No 30-day program you have to disappear into.',
     items: [
       { name: 'Alcohol', desc: 'From "I drink a bit too much" to something that scares you. We meet you at whatever stage you are, without making you label it.' },
       { name: 'Tobacco & Nicotine', desc: 'Cigarettes, vapes, gutka. The habit you\'ve quit a hundred times. A plan that accounts for the cravings, not just the willpower.' },
@@ -246,7 +246,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Students at career crossroads', 'Parents seeking clarity about their child', 'Adults wanting a deeper understanding of themselves', 'Couples before counselling'],
     faq: [
-      { q: 'How long does an assessment take?', a: 'Depends on the type, anywhere from 45 minutes to 3 hours. Your psychologist will explain before you book.' },
+      { q: 'How long does an assessment take?', a: 'Depends on the type, anywhere from 45 minutes to 3 hours. Your clinical psychologist will explain before you book.' },
       { q: 'What happens with the report?', a: 'You receive a written report and a session to go through it together. It\'s yours to keep and share with other professionals if you choose.' },
       { q: 'Is this covered by insurance?', a: 'Some policies cover psychological assessments. We can provide the documentation you need to claim.' },
     ],

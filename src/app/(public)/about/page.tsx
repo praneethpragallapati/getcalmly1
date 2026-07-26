@@ -20,7 +20,7 @@ const stats: [string, string][] = [
 const values: { title: string; desc: string }[] = [
   { title: 'Privacy first', desc: 'DPDP-compliant, encrypted, and confidential by design. What you share stays yours.' },
   { title: 'Culturally attuned', desc: 'Care that understands your context, matched to fit rather than one-size-fits-all.' },
-  { title: 'Clinically credible', desc: 'Only RCI-licensed psychologists and NMC-registered psychiatrists. No exceptions.' },
+  { title: 'Clinically credible', desc: 'Only RCI-licensed clinical psychologists and NMC-registered psychiatrists. No exceptions.' },
   { title: 'Accessible & affordable', desc: 'Quality care within your budget, from your couch or in person.' },
 ]
 
