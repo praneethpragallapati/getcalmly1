@@ -98,7 +98,7 @@ export const communitySeed: CommunitySeed[] = [
     title: "Resources for OCD that aren't just 'think positive'",
     body: "Most of what you find online for OCD is surface-level advice. As someone with OCD and a background in psychology, I want to share what ERP (Exposure and Response Prevention) actually involves and why it's different from generic anxiety advice.",
     author: 'Dr. Ramesh P.',
-    role: 'Therapist',
+    role: 'Psychiatrist',
     tenure: null,
     date: '1 week ago',
     tags: ['ocd', 'anxiety', 'cbt'],

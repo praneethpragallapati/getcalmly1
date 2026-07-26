@@ -282,7 +282,7 @@ export default function RealTalkHub({
                 You&apos;re not the only<br />one who&apos;s felt this way
               </h2>
               <p style={{ fontSize: 16.5, color: '#5A6A7A', lineHeight: 1.65, margin: '18px auto 0', maxWidth: 560 }}>
-                A safe, moderated space where members and therapists talk honestly. Read
+                A safe, moderated space where members, therapists and psychiatrists talk honestly. Read
                 anything you like. Join when you&apos;re ready to be heard.
               </p>
 

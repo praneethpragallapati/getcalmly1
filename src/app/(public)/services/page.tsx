@@ -19,6 +19,18 @@ const branches = [
     app: 'Calm+ app for mood tracking & journaling between sessions',
   },
   {
+    slug: 'psychiatry',
+    icon: '💊',
+    accent: '#1A7F7A',
+    pale: 'rgba(26,127,122,.08)',
+    title: 'Psychiatry, Without the Stigma',
+    tagline: "You did the work and still feel stuck. That's chemistry, not failure.",
+    desc: 'Our licensed psychiatrists evaluate, diagnose, and when needed, prescribe medication alongside therapy. Getting a second opinion? We do that too.',
+    items: ['Diagnosis & Evaluation', 'Medication Management', 'Second Opinion', 'Follow-up Care', 'OCD / Bipolar / Schizophrenia', 'ADHD (Adult)'],
+    expert: 'A licensed psychiatrist who coordinates with your therapist',
+    app: 'In-app medication reminders & symptom tracking',
+  },
+  {
     slug: 'addiction',
     icon: '🛟',
     accent: '#3E6E9C',
@@ -27,7 +39,7 @@ const branches = [
     tagline: "You don't have to hit rock bottom to deserve help.",
     desc: 'Alcohol, smoking, substances, or a habit that has quietly taken over, from screens to betting. A specialist helps you understand it and step back from it, at your pace and in complete privacy. No rehab, no lectures, no one has to know.',
     items: ['Alcohol', 'Tobacco & Nicotine', 'Drugs & Substances', 'Screens & Gaming', 'Pornography', 'Gambling & Betting', 'Staying Well After'],
-    expert: 'An addiction-trained psychologist',
+    expert: 'An addiction-trained psychologist, with psychiatric support when needed',
     app: 'Calm+ app to track triggers, cravings and clean days',
   },
   {

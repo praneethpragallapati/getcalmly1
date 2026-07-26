@@ -11,7 +11,7 @@ const SPECIALIZATIONS = [
   'LGBTQIA+ Affirmative', 'Perinatal / Postpartum', 'Eating Disorders', 'Sleep', 'Geriatric',
 ]
 const LANGUAGES = ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other']
-const COUNCILS = ['RCI', 'Other']
+const COUNCILS = ['RCI', 'NMC', 'RCI + NMC', 'Other']
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '13px 15px', border: '1.5px solid #E2E8F0', borderRadius: 12,
@@ -119,7 +119,7 @@ export default function TherapistApplyPage() {
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label style={labelStyle}>Primary role</label>
-              <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Clinical Psychologist</option><option>Counselling Psychologist</option><option>Psychotherapist</option><option>Counsellor</option></select>
+              <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Clinical Psychologist</option><option>Counselling Psychologist</option><option>Psychiatrist</option><option>Psychotherapist</option><option>Counsellor</option></select>
             </div>
             <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Years of experience</label><input type="number" min={0} style={inputStyle} placeholder="e.g. 8" /></div>
           </div>

@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
 
-type PlanKey = 'therapy' | 'app'
+type PlanKey = 'therapy' | 'psychiatry' | 'app'
 
 const plans: Record<PlanKey, {
   name: string; accent: string
@@ -37,6 +37,26 @@ const plans: Record<PlanKey, {
     fineprint: 'You pay a flat ₹799 for your first session. Session packs unlock after it, and unused sessions are always refundable.',
     cta: 'Confirm and book my first session',
   },
+  psychiatry: {
+    name: 'Psychiatry',
+    accent: '#1A7F7A',
+    benefits: [
+      'Your first consultation at a flat ₹1,199',
+      'An NMC-registered psychiatrist for evaluation and care',
+      'Medication support with a built-in tracker',
+      'Medicines delivered to your door',
+      'Everything in Calm+: unlimited AI, insights, journaling',
+    ],
+    payToday: '₹1,199',
+    summary: [
+      { label: 'Plan', value: 'Psychiatry' },
+      { label: 'First consultation', value: '₹1,199' },
+      { label: 'After that', value: 'Packs from ₹1,199 / session' },
+      { label: 'Due today', value: '₹1,199' },
+    ],
+    fineprint: 'You pay a flat ₹1,199 for your first consultation. Session packs unlock after it, and unused sessions are always refundable.',
+    cta: 'Confirm and book my consultation',
+  },
   app: {
     name: 'Calm+',
     accent: '#1A7F7A',
@@ -61,7 +81,7 @@ const plans: Record<PlanKey, {
 
 function CheckoutContent() {
   const c = useSearchParams().get('care')
-  const care: PlanKey = c === 'therapy' || c === 'app' ? c : 'therapy'
+  const care: PlanKey = c === 'therapy' || c === 'psychiatry' || c === 'app' ? c : 'therapy'
   const [method, setMethod] = useState<'upi' | 'card'>('upi')
   const [paid, setPaid] = useState(false)
 

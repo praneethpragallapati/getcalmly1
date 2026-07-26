@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             </Block>
 
             <Block title="How We Use Your Data">
-              To match you with an RCI-verified therapist, to power
+              To match you with an RCI-verified therapist or NMC-registered psychiatrist, to power
               your Calm AI insights and mood tracking, to prepare pre-session briefs for your
               clinician, and to operate and improve the service. We do not sell your data, and we do
               not use your private journal or session content for advertising.

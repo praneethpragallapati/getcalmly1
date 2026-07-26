@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { therapyPacks, perSession, inr } from '@/data/pricing'
+import { therapyPacks, psychiatryPacks, perSession, inr } from '@/data/pricing'
 
 export const metadata: Metadata = {
   title: 'Terms & Refund Policy | GetCalmly',
@@ -46,6 +46,7 @@ export default function TermsPage() {
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, color: '#3A4A5A', lineHeight: 1.8 }}>
               <li>You bought a <strong>6-session therapy pack</strong> and completed <strong>3</strong> sessions. The nearest smaller pack is the 2-session pack, so your 3 sessions are charged at {inr(perSession(therapyPacks[1]))}/session. The rest is refunded.</li>
               <li>You completed <strong>5</strong> sessions of that pack. The nearest smaller pack is the 4-session pack, so they are charged at {inr(perSession(therapyPacks[2]))}/session, and the rest is refunded.</li>
+              <li>The same rule applies to psychiatry packs (for example, used sessions re-priced at {inr(perSession(psychiatryPacks[1]))}–{inr(perSession(psychiatryPacks[2]))}/session depending on how many you took).</li>
             </ul>
           </div>
           <P>

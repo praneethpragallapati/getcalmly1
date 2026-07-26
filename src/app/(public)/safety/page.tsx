@@ -52,8 +52,10 @@ export default function SafetyPage() {
           <div className="space-y-8">
             <Block title="Ethical Standards for Mental Health Professionals">
               Every professional on GetCalmly is bound by the ethical codes of their regulating
-              body, the Rehabilitation Council of India (RCI) for clinical psychologists and counsellors. They practise within their scope:
-              counsellors do not diagnose or treat severe disorders reserved for clinical psychologists under the Mental Healthcare Act (MHCA) 2017.
+              body, the Rehabilitation Council of India (RCI) for clinical psychologists and the
+              National Medical Commission (NMC) for psychiatrists. They practise within their scope:
+              counsellors do not diagnose or treat severe disorders reserved for clinical
+              psychologists and psychiatrists under the Mental Healthcare Act (MHCA) 2017.
             </Block>
 
             <Block title="Confidentiality and Its Limits">
@@ -65,7 +67,7 @@ export default function SafetyPage() {
 
             <Block title="Online Therapy Disclaimer">
               Online therapy is effective for many concerns but is not suitable for medical
-              emergencies, acute mental health crises, or severe conditions requiring in-person or
+              emergencies, acute psychiatric crises, or severe conditions requiring in-person or
               inpatient care. Pre-assessments and self-help tools are screening aids, not clinical
               diagnoses. Our first session is conducted via video, in line with the Telemedicine
               Practice Guidelines (2020).

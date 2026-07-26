@@ -10,6 +10,7 @@ type CareFor = 'self' | 'couple' | 'child'
 
 const CARE_LABELS: Record<string, string> = {
   therapy: 'Therapy with a psychologist',
+  psychiatry: 'Psychiatric care',
   app: 'Calm+ (the full app)',
   free: 'the free plan',
 }
@@ -42,7 +43,7 @@ function RegisterForm() {
   const [llmConsent, setLlmConsent] = useState(true)
   const [consents, setConsents] = useState({ retention: false, ai: false, liability: false, terms: false })
   const [done, setDone] = useState(false)
-  // Care type chosen on the pricing page (therapy / app / free).
+  // Care type chosen on the pricing page (therapy / psychiatry / app / free).
   const c = useSearchParams().get('care')
   const careType = c && CARE_LABELS[c] ? c : null
 
@@ -66,7 +67,7 @@ function RegisterForm() {
   const canSubmit = consents.retention && consents.ai && consents.liability && consents.terms
 
   if (done) {
-    const isPaid = careType === 'therapy' || careType === 'app'
+    const isPaid = careType === 'therapy' || careType === 'psychiatry' || careType === 'app'
     const nextHref = isPaid ? `/checkout?care=${careType}` : '/assess'
     return (
       <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
@@ -217,6 +218,18 @@ function RegisterForm() {
                 ))}
               </div>
             </Field>
+
+            {/* Psychiatry-specific intake, shown only when that care was chosen. */}
+            {careType === 'psychiatry' && (
+              <>
+                <Field label="Are you currently taking any psychiatric medication?">
+                  <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>No, not currently</option><option>Yes, currently</option><option>I have in the past</option></select>
+                </Field>
+                <Field label="Have you been diagnosed by a professional before?">
+                  <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>No</option><option>Yes</option><option>I&apos;m not sure</option></select>
+                </Field>
+              </>
+            )}
 
             {careType === 'therapy' && (
               <Field label="Have you been to therapy before?">

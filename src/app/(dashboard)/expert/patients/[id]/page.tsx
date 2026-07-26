@@ -77,7 +77,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             <div>
               <div className="pattern-title">Supervisor view · read-only</div>
               <div className="pattern-sub">
-                You&apos;re viewing this patient as their therapist&apos;s supervisor. Notes, tasks and forms remain with the treating therapist.
+                You&apos;re viewing this patient as their therapist&apos;s supervisor. Notes, tasks, forms and
+                medication remain with the treating therapist.
               </div>
             </div>
           </div>
@@ -179,6 +180,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         <div className="card">
           <div className="section-title" style={{ marginBottom: 12 }}>Compliance</div>
           <div className="muted">Task completion: {p.taskCompletionPct}%</div>
+          <div className="muted">Medication compliance (active vs. prescribed): {p.medicationCompliancePct}%</div>
           {p.medications.length > 0 && (
             <ul style={{ marginTop: 10, paddingLeft: 18 }}>
               {p.medications.map((m, i) => (

@@ -14,12 +14,13 @@ export const metadata: Metadata = {
     template: '%s | getCalmly',
   },
   description:
-    'Book your first session for ₹799 with licensed therapists in India. AI-powered insights, daily mood tracking and a supportive community.',
+    'Book your first session for ₹799 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
   applicationName: 'getCalmly',
   keywords: [
     'online therapy India',
     'mental health',
     'licensed therapist',
+    'psychiatrist online',
     'counselling',
     'anxiety',
     'depression',
@@ -55,9 +56,9 @@ const orgJsonLd = {
   logo: `${SITE_URL}/opengraph-image`,
   image: `${SITE_URL}/opengraph-image`,
   description:
-    'Mental healthcare platform connecting people in India with RCI-verified therapists, powered by AI insights.',
+    'Mental healthcare platform connecting people in India with RCI-verified therapists and psychiatrists, powered by AI insights.',
   slogan: 'Mental Healthcare, Powered by Experts, Personalized by AI',
-  medicalSpecialty: ['PsychologicalTreatment'],
+  medicalSpecialty: ['Psychiatric', 'PsychologicalTreatment'],
   areaServed: { '@type': 'Country', name: 'India' },
   address: {
     '@type': 'PostalAddress',

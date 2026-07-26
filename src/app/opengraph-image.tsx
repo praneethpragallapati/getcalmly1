@@ -83,7 +83,7 @@ export default function Image() {
               maxWidth: 900,
             }}
           >
-            Licensed therapists, with the world&apos;s first
+            Licensed therapists &amp; psychiatrists, with the world&apos;s first
             context-aware mental health AI.
           </div>
         </div>

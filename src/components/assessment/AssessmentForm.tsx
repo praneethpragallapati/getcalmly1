@@ -291,10 +291,69 @@ const coupleQuestions: Question[] = [
   },
 ]
 
+const psychiatryQuestions: Question[] = [
+  {
+    id: 'focus',
+    text: 'What brings you to seek psychiatric support?',
+    hint: 'Pick up to 3.',
+    type: 'multi',
+    maxSelect: 3,
+    concern: 'Psychiatric Evaluation',
+    options: ['Persistent low mood', 'Severe anxiety or panic', 'Sleep problems', 'Intrusive thoughts', 'Mood swings', 'Existing diagnosis / refill', 'Focus & attention', 'Second opinion'],
+    tagMap: {
+      'Persistent low mood': ['low-mood', 'depression', 'medication'],
+      'Severe anxiety or panic': ['anxiety', 'panic', 'medication'],
+      'Sleep problems': ['sleep', 'medication'],
+      'Intrusive thoughts': ['ocd', 'medication'],
+      'Mood swings': ['bipolar', 'medication'],
+      'Existing diagnosis / refill': ['medication', 'psychiatry'],
+      'Focus & attention': ['adhd', 'medication'],
+      'Second opinion': ['psychiatry'],
+    },
+  },
+  {
+    id: 'medication',
+    text: 'Are you currently taking any psychiatric medication?',
+    type: 'single',
+    layout: 'grid',
+    options: ['No', 'Yes, currently', 'Previously, not now'],
+  },
+  {
+    id: 'severity',
+    text: 'How much are these symptoms affecting your daily life?',
+    type: 'scale',
+    concern: 'Functional Impairment',
+  },
+  {
+    id: 'coping',
+    text: 'Over the last two weeks, how often have things felt like too much to carry?',
+    type: 'single',
+    layout: 'grid',
+    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
+    risk: true,
+  },
+  {
+    id: 'gender',
+    text: 'Any preference for your professional?',
+    hint: 'Totally optional, we\'ll honour it where we can.',
+    type: 'single',
+    layout: 'grid',
+    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
+  },
+  {
+    id: 'language',
+    text: 'Preferred language for your consultation?',
+    type: 'single',
+    layout: 'chips',
+    options: LANGS,
+  },
+]
+
 function getQuestions(type: string): Question[] {
   switch (type) {
     case 'child': return childQuestions
     case 'couple': return coupleQuestions
+    case 'psychiatry': return psychiatryQuestions
     default: return adultQuestions
   }
 }
