@@ -29,6 +29,7 @@ export default function SiteFooter() {
           <h4>Product</h4>
           <Link href="/#how">How it works</Link>
           <Link href="/features">Features</Link>
+          <Link href="/pricing">Pricing</Link>
           <Link href="/assess">Book session</Link>
         </div>
         <div className="foot-col">

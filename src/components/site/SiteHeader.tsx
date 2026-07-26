@@ -21,6 +21,7 @@ const SERVICES = [
 const NAV = [
   { label: 'Home', href: '/' },
   { label: 'Features', href: '/features' },
+  { label: 'Pricing', href: '/pricing' },
   { label: 'Real Talk', href: '/real-talk' },
   { label: 'Enterprise', href: '/enterprise' },
 ]
