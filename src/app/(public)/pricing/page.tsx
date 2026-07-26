@@ -198,6 +198,8 @@ const STEPS: { n: string; t: string; d: string }[] = [
 const TRUST = ['RCI & NMC-verified clinicians', 'DPDP-secure & confidential', 'Fair, no-questions refunds']
 
 export default function PricingPage() {
+  const [tab, setTab] = useState<'pro' | 'app'>('pro')
+
   return (
     <div className="pr-page">
       <style>{CSS}</style>
@@ -235,59 +237,66 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Care with a professional (increasing first-session price) */}
+      {/* Plans — one screen, toggle between professional care and app-only */}
       <section className="pr-section" style={{ paddingTop: 64 }}>
         <div className="pr-head">
-          <p className="pr-eyebrow" style={{ color: coral }}>With a professional</p>
-          <h2 className="pr-h2">Sessions that fit your life</h2>
+          <p className="pr-eyebrow" style={{ color: coral }}>Plans &amp; pricing</p>
+          <h2 className="pr-h2">Care that fits where you are</h2>
           <p className="pr-head-sub">
-            Every plan includes the full app, and each starts with a flat first session — then bigger
-            packs unlock a lower price per session. Prefer to ease in? Two app-only plans below. ↓
+            Start with a professional, or ease in with the app on its own. Switch between the two anytime.
           </p>
         </div>
-        <div className="pr-grid">
-          <CareCard
-            name="Therapy" subtitle="Talk therapy with an RCI-verified clinical psychologist."
-            accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
-            firstSession={FIRST_SESSION.therapy}
-            href="/register?care=therapy"
-          />
-          <CareCard
-            name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
-            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d2"
-            firstSession={FIRST_SESSION.psychiatry}
-            href="/register?care=psychiatry"
-          />
-          <CareCard
-            name="Couples" subtitle="Sessions for you and your partner, together."
-            accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d3"
-            firstSession={FIRST_SESSION.couples}
-            href="/register?care=couples"
-          />
-        </div>
-      </section>
 
-      {/* Transition so people don't assume the three above are all we have */}
-      <div className="pr-more">
-        <span className="pr-more-line" />
-        <span className="pr-more-text">Not ready for a professional yet? 2 more ways to start ↓</span>
-        <span className="pr-more-line" />
-      </div>
+        {/* Segmented toggle */}
+        <div className="pr-toggle-wrap">
+          <div className="pr-toggle" role="tablist" aria-label="Plan type">
+            <button
+              type="button" role="tab" aria-selected={tab === 'pro'}
+              className={tab === 'pro' ? 'on' : ''} onClick={() => setTab('pro')}
+            >
+              With a professional
+            </button>
+            <button
+              type="button" role="tab" aria-selected={tab === 'app'}
+              className={tab === 'app' ? 'on' : ''} onClick={() => setTab('app')}
+            >
+              Just the app
+            </button>
+          </div>
+        </div>
+        <p className="pr-toggle-hint">
+          {tab === 'pro'
+            ? 'Every plan starts with a flat first session, then bigger packs lower your price per session — the full Calm+ app is included with all three.'
+            : 'No sessions, no commitment. Everyday support you can start with in under a minute, and step up to a professional whenever you feel ready.'}
+        </p>
 
-      {/* App &amp; Free */}
-      <section className="pr-section" style={{ paddingTop: 8 }}>
-        <div className="pr-head">
-          <p className="pr-eyebrow" style={{ color: teal }}>No sessions needed</p>
-          <h2 className="pr-h2">Not ready for sessions yet?</h2>
-          <p className="pr-head-sub">
-            These two are the lighter, app-only plans. Start here, build the habit, and step up to a
-            professional plan above whenever you feel ready.
-          </p>
-        </div>
-        <div className="pr-grid two">
-          <CalmPlusCard delay="0.05s" />
-          <FreeCard delay="0.12s" />
-        </div>
+        {tab === 'pro' ? (
+          <div className="pr-grid" key="pro">
+            <CareCard
+              name="Therapy" subtitle="Talk therapy with an RCI-verified clinical psychologist."
+              accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
+              firstSession={FIRST_SESSION.therapy}
+              href="/register?care=therapy"
+            />
+            <CareCard
+              name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
+              accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d2"
+              firstSession={FIRST_SESSION.psychiatry}
+              href="/register?care=psychiatry"
+            />
+            <CareCard
+              name="Couples" subtitle="Sessions for you and your partner, together."
+              accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d3"
+              firstSession={FIRST_SESSION.couples}
+              href="/register?care=couples"
+            />
+          </div>
+        ) : (
+          <div className="pr-grid two" key="app">
+            <FreeCard delay="0.05s" />
+            <CalmPlusCard delay="0.12s" />
+          </div>
+        )}
       </section>
 
       {/* Money-back reassurance */}
@@ -339,6 +348,18 @@ const CSS = `
   .pr-head{ text-align: center; max-width: 620px; margin: 0 auto 34px; }
   .pr-head-sub{ font-size: 15.5px; color: #6B7D8E; margin: 12px auto 0; line-height: 1.6; }
   .pr-hint{ font-size: 13px; color: var(--green); font-weight: 700; margin-top: 16px; }
+
+  /* Segmented plan toggle */
+  .pr-toggle-wrap{ text-align: center; margin-top: 28px; }
+  .pr-toggle{ display: inline-flex; gap: 5px; background: #fff; border: 1px solid var(--line-card);
+    padding: 5px; border-radius: 14px; box-shadow: var(--sh-card); }
+  .pr-toggle button{ border: none; cursor: pointer; background: transparent; font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px; font-weight: 700; color: #8E9EAE; padding: 11px 28px; border-radius: 10px;
+    transition: background .22s, color .22s, box-shadow .22s; }
+  .pr-toggle button.on{ background: var(--coral); color: #fff; box-shadow: 0 6px 16px rgba(200,85,61,.32); }
+  .pr-toggle button:not(.on):hover{ color: var(--charcoal); }
+  .pr-toggle-hint{ font-size: 14px; color: #6B7D8E; text-align: center; max-width: 620px;
+    margin: 16px auto 36px; line-height: 1.6; }
 
   /* Cards grid */
   .pr-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }

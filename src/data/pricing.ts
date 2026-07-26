@@ -110,7 +110,7 @@ export const calmPlusFeatures = {
 
 export const therapyFeatures = [
   '50-minute sessions with an RCI-verified clinical psychologist',
-  'Everything in Calm+, included',
+  'Full Calm+ app included — AI companion, journaling & mood tracker',
   'A clear summary after every session',
   'Daily and weekly insights on your progress',
   'A constant guide who stays with you the whole way',
@@ -120,7 +120,7 @@ export const therapyFeatures = [
 export const couplesFeatures = [
   '50-minute sessions for you and your partner together',
   'An EFT & Gottman-informed couples therapist',
-  'Everything in Calm+, for both of you',
+  'Full Calm+ app for both of you — AI, journaling & mood tracker',
   'A clear summary after every session',
   'Shared exercises and check-ins between sessions',
   'Priority matching and easy rescheduling',
@@ -128,7 +128,7 @@ export const couplesFeatures = [
 
 export const psychiatryFeatures = [
   'Consultations with an NMC-registered psychiatrist',
-  'Everything in Calm+, included',
+  'Full Calm+ app included — AI companion, journaling & mood tracker',
   'Medication support and a built-in tracker',
   'Digital prescriptions after your consultation',
   'Coordinated with your therapist when needed',
