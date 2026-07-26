@@ -60,7 +60,7 @@ export const blogSeed: BlogSeed[] = [
     excerpt:
       "My male clients rarely walk in by choice. Most come because someone who loves them asked them to. That first conversation is everything, here's what I've learnt.",
     author: 'Dr. Rahul Nair',
-    role: 'Counselling Psychologist',
+    role: 'Clinical Psychologist',
     date: '3 June 2026',
     readTime: '7 min read',
     tags: ['men-mental-health', 'stigma', 'relationships'],

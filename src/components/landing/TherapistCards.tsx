@@ -14,7 +14,7 @@ const therapists = [
   {
     name: 'Dr. Rahul Menon',
     initials: 'RM',
-    title: 'Counseling Psychologist',
+    title: 'Clinical Psychologist',
     years: 5,
     languages: ['Malayalam', 'English', 'Hindi'],
     fee: 1500,

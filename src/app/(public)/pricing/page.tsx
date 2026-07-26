@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import {
   therapyPacks, psychiatryPacks, couplesPacks, calmPlusPacks, perSession, inr, discountVsBase,
-  THERAPY_FROM, PSYCHIATRY_FROM, COUPLES_FROM, THERAPY_BASE, PSYCHIATRY_BASE, COUPLES_BASE,
+  THERAPY_BASE, PSYCHIATRY_BASE, COUPLES_BASE,
   CALMPLUS_BASE, FIRST_SESSION,
   freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures, couplesFeatures,
   type SessionPack,
@@ -52,10 +52,10 @@ function Feature({ text, accent, muted }: { text: string; accent: string; muted?
 }
 
 function CareCard({
-  name, subtitle, accent, packs, features, fromText, href, base, firstSession, feat, delay,
+  name, subtitle, accent, packs, features, href, base, firstSession, feat, delay,
 }: {
   name: string; subtitle: string; accent: string; packs: SessionPack[]
-  features: string[]; fromText: string; href: string; base: number
+  features: string[]; href: string; base: number
   firstSession: number; feat?: boolean; delay: string
 }) {
   const [i, setI] = useState(packs.length - 1) // default to best-value pack
@@ -73,32 +73,11 @@ function CareCard({
       </div>
       <p className="pr-card-sub">{subtitle}</p>
 
-      <PackSelector items={packs} i={i} setI={setI} accent={accent} badges={badges}
-        label={(p) => `${p.sessions} ${p.sessions === 1 ? 'session' : 'sessions'}`} />
-
-      <div className="pr-price-row">
-        <span className="pr-price">{inr(pack.total)}</span>
-        <span className="pr-price-note">for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'}</span>
-      </div>
-      <p className="pr-persession">
-        <span className="pr-strike">{inr(base)}</span>
-        <strong style={{ color: accent }}>{inr(ps)}</strong>
-        <span>per session</span>
-        <span className="pr-save">Save {disc}%</span>
-      </p>
-      <p className="pr-valid">Valid for {pack.months} {pack.months === 1 ? 'month' : 'months'}</p>
-
-      {/* Explicit first-session callout — the price a new patient actually pays first */}
+      {/* The only thing you buy here: your first session */}
       <div className="pr-first" style={{ background: accent + '12', borderColor: accent + '33' }}>
         <span className="pr-first-label">Your first session</span>
         <span className="pr-first-val" style={{ color: accent }}>{inr(firstSession)}</span>
       </div>
-
-      <div className="pr-divider" />
-      <div className="pr-feats">
-        {features.map((f) => <Feature key={f} text={f} accent={accent} />)}
-      </div>
-
       <Link
         href={href}
         className="pr-cta"
@@ -106,9 +85,30 @@ function CareCard({
           ? { background: accent, color: '#fff', border: 'none', boxShadow: `0 8px 22px ${accent}45` }
           : { background: '#fff', color: accent, border: `1.5px solid ${accent}` }}
       >
-        Book session
+        Book your first session
       </Link>
-      <p className="pr-cta-note">{fromText}</p>
+
+      <div className="pr-divider" />
+      <div className="pr-feats">
+        {features.map((f) => <Feature key={f} text={f} accent={accent} />)}
+      </div>
+
+      <div className="pr-divider" />
+
+      {/* Pack pricing shown for reference only. Packs are bought later from the
+          dashboard, after the first session — so there is no buy button here. */}
+      <p className="pr-packs-h">After that · session packs</p>
+      <PackSelector items={packs} i={i} setI={setI} accent={accent} badges={badges}
+        label={(p) => `${p.sessions} ${p.sessions === 1 ? 'session' : 'sessions'}`} />
+      <div className="pr-price-row">
+        <span className="pr-price" style={{ color: accent }}>{inr(ps)}</span>
+        <span className="pr-price-note">/ session</span>
+        <span className="pr-save">Save {disc}%</span>
+      </div>
+      <p className="pr-valid">
+        {inr(pack.total)} total for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'} · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
+      </p>
+      <p className="pr-cta-note">Buy packs from your dashboard after your first session.</p>
     </div>
   )
 }
@@ -238,19 +238,19 @@ export default function PricingPage() {
             name="Therapy" subtitle="Talk therapy with an RCI-verified clinical psychologist."
             accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
             firstSession={FIRST_SESSION.therapy}
-            fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy"
+            href="/register?care=therapy"
           />
           <CareCard
             name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
             accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d2"
             firstSession={FIRST_SESSION.psychiatry}
-            fromText={`From ${inr(PSYCHIATRY_FROM)} per session`} href="/register?care=psychiatry"
+            href="/register?care=psychiatry"
           />
           <CareCard
             name="Couples" subtitle="Sessions for you and your partner, together."
             accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d3"
             firstSession={FIRST_SESSION.couples}
-            fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=couples"
+            href="/register?care=couples"
           />
         </div>
       </section>
@@ -333,9 +333,11 @@ const CSS = `
   .pr-grid.two{ grid-template-columns: repeat(2, 1fr); max-width: 900px; margin: 0 auto; }
   /* Explicit first-session callout */
   .pr-first{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
-    border: 1px solid; border-radius: 12px; padding: 11px 14px; margin-top: 14px; }
+    border: 1px solid; border-radius: 12px; padding: 13px 16px; margin-top: 16px; }
   .pr-first-label{ font-size: 13px; font-weight: 700; color: var(--charcoal); }
-  .pr-first-val{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 24px; letter-spacing: -0.5px; }
+  .pr-first-val{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: -0.5px; }
+  .pr-first + .pr-cta{ margin-top: 12px; }
+  .pr-packs-h{ font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8E9EAE; margin-bottom: 10px; }
 
   /* Transition between the professional plans and the app-only plans */
   .pr-more{ display: flex; align-items: center; gap: 16px; max-width: 720px; margin: 40px auto 8px; padding: 0 24px; }

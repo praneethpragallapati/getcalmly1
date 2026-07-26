@@ -24,7 +24,7 @@ const plans = [
     badge: 'Most Popular',
     features: [
       'Everything in Free (unlimited)',
-      'Sessions with Counseling Psychologists',
+      'Sessions with Clinical Psychologists',
       'Session Notes Access',
       'Email Reminders',
     ],

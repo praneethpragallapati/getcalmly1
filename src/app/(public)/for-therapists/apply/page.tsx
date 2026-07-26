@@ -119,7 +119,7 @@ export default function TherapistApplyPage() {
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label style={labelStyle}>Primary role</label>
-              <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Clinical Psychologist</option><option>Counselling Psychologist</option><option>Psychiatrist</option><option>Psychotherapist</option><option>Counsellor</option></select>
+              <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Clinical Psychologist</option><option>Psychiatrist</option><option>Psychotherapist</option><option>Counsellor</option></select>
             </div>
             <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Years of experience</label><input type="number" min={0} style={inputStyle} placeholder="e.g. 8" /></div>
           </div>
