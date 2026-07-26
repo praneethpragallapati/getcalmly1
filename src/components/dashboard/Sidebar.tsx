@@ -13,7 +13,6 @@ import {
   CalendarDays,
   Users,
   LineChart,
-  Pill,
   FileText,
   Settings,
   LogOut,
@@ -45,7 +44,6 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     heading: 'Account',
     items: [
       { href: '/app/progress', label: 'My Progress', icon: LineChart },
-      { href: '/app/medications', label: 'Medications', icon: Pill },
       { href: '/app/settings', label: 'Settings', icon: Settings },
     ],
   },

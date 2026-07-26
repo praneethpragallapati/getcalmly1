@@ -32,11 +32,6 @@ export default async function TherapistPage() {
                     <ShieldCheck size={13} /> RCI Verified
                   </span>
                 )}
-                {t.nmcVerified && (
-                  <span className="ther-chip verified">
-                    <ShieldCheck size={13} /> NMC Verified
-                  </span>
-                )}
               </div>
             </div>
           </div>
