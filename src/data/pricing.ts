@@ -34,7 +34,7 @@ export const psychiatryPacks: SessionPack[] = [
 // Fixed first-session price per track. Never discounted, never bundled: this is
 // the only thing a new patient sees until their first session is done.
 export const FIRST_SESSION: Record<'therapy' | 'psychiatry' | 'couples', number> = {
-  therapy: 999,
+  therapy: 799,
   psychiatry: 1199,
   couples: 1499,
 }

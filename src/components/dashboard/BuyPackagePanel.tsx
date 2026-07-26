@@ -351,7 +351,7 @@ export function BuyPackagePanel({
 
 /**
  * The only purchase offered before a patient has completed their first session:
- * one session at the fixed intro price for their track (999 therapy, 1199
+ * one session at the fixed intro price for their track (799 therapy, 1199
  * psychiatry, 1499 couples). Packages appear once the first session is done.
  */
 export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean }) {

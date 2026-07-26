@@ -77,7 +77,7 @@ function RegisterForm() {
         </h1>
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 28 }}>
           {isPaid
-            ? 'One quick step left. Review exactly what you’re getting and confirm your plan, your first session is a flat ₹999.'
+            ? 'One quick step left. Review exactly what you’re getting and confirm your plan, your first session is a flat ₹799.'
             : 'Your account is ready. Next, we’ll match you with the right professional and book your first session.'}
         </p>
         <Link href={nextHref} style={{

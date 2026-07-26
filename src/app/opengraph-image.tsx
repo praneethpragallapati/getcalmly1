@@ -43,7 +43,7 @@ export default function Image() {
               fontWeight: 600,
             }}
           >
-            First session · just ₹999
+            First session · just ₹799
           </div>
         </div>
 

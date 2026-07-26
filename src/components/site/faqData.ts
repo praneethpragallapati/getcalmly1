@@ -16,7 +16,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: 'How much is the first session?',
-    a: 'Your first session is just ₹999. It is a real conversation with a matched clinician, so you can see whether the fit feels right before you decide to continue.',
+    a: 'Your first session is just ₹799. It is a real conversation with a matched clinician, so you can see whether the fit feels right before you decide to continue.',
   },
   {
     q: 'How does getCalmly match me with the right expert?',
@@ -28,7 +28,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: 'What do I get with getCalmly?',
-    a: 'Every plan includes daily mood tracking, smart journaling, AI insights and the moderated community. When you are ready for therapy or psychiatry, your first session is ₹999 and ongoing session details live inside your dashboard.',
+    a: 'Every plan includes daily mood tracking, smart journaling, AI insights and the moderated community. When you are ready for therapy or psychiatry, your first session is ₹799 and ongoing session details live inside your dashboard.',
   },
   {
     q: 'Can getCalmly help in a crisis?',
@@ -45,7 +45,7 @@ export const FAQ_MARKUP = `
   <div class="faq-head">
     <div class="sec-label reveal">Questions, answered</div>
     <h2 class="sec-h2 reveal">Everything you<br><span>might be wondering.</span></h2>
-    <p class="sec-p reveal">The things people ask us most, about therapy, credentials, privacy and cost. Still unsure? Your first session is just ₹999, so you can simply try.</p>
+    <p class="sec-p reveal">The things people ask us most, about therapy, credentials, privacy and cost. Still unsure? Your first session is just ₹799, so you can simply try.</p>
   </div>
   <div class="faq-list reveal d1">
     ${FAQ_ITEMS.map(

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: '%s | getCalmly',
   },
   description:
-    'Book your first session for ₹999 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
+    'Book your first session for ₹799 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
   applicationName: 'getCalmly',
   keywords: [
     'online therapy India',
@@ -35,14 +35,14 @@ export const metadata: Metadata = {
     siteName: 'getCalmly',
     title: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
     description:
-      'Book your first session for ₹999 with licensed therapists. AI-powered insights and a community that gets it.',
+      'Book your first session for ₹799 with licensed therapists. AI-powered insights and a community that gets it.',
     url: SITE_URL,
     locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
-    description: 'Book your first session for ₹999 with licensed therapists in India.',
+    description: 'Book your first session for ₹799 with licensed therapists in India.',
   },
   robots: { index: true, follow: true },
 }

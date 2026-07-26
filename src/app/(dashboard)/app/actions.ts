@@ -510,7 +510,7 @@ export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
 }
 
 /**
- * Buy the fixed-price first session (999 therapy / 1199 psychiatry / 1499
+ * Buy the fixed-price first session (799 therapy / 1199 psychiatry / 1499
  * couples). Only valid while the patient has no session history; couples
  * first sessions also collect the partner if missing.
  */
