@@ -1131,6 +1131,17 @@ export type ExpertBlogView = {
   published: boolean
   dateLabel: string
   paragraphs: number
+  coverImage: string | null
+}
+
+/** A single owned post, in the shape the composer edits. */
+export type ExpertBlogEdit = {
+  slug: string
+  title: string
+  excerpt: string
+  body: string // paragraphs joined by blank lines
+  tags: string[]
+  coverImage: string | null
 }
 
 function slugify(title: string): string {
@@ -1148,6 +1159,17 @@ function estimateReadTime(paragraphs: string[]): string {
   return `${Math.max(1, Math.round(words / 200))} min read`
 }
 
+// Guard against oversized inline images bloating the row (≈1.4MB base64 ≈ 1MB file).
+const MAX_COVER_CHARS = 1_500_000
+function cleanCover(cover?: string | null): string | null {
+  if (!cover) return null
+  const c = cover.trim()
+  if (!c) return null
+  if (c.length > MAX_COVER_CHARS) return null
+  if (!/^(https?:\/\/|data:image\/)/i.test(c)) return null
+  return c
+}
+
 /** This clinician's own blog posts, newest first. */
 export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogView[]> {
   const rows = await prisma.blogPost.findMany({
@@ -1163,34 +1185,63 @@ export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogVi
     published: r.published,
     dateLabel: r.publishedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
     paragraphs: r.content.length,
+    coverImage: r.coverImage ?? null,
   }))
 }
 
-export type CreateBlogInput = { title: string; excerpt: string; body: string; tags: string[] }
+/** One of this clinician's own posts by slug, for editing. Ownership-gated. */
+export async function getExpertBlogPostForEdit(authorId: string, slug: string): Promise<ExpertBlogEdit | null> {
+  const r = await prisma.blogPost.findUnique({ where: { slug } })
+  if (!r || r.authorId !== authorId) return null
+  return {
+    slug: r.slug,
+    title: r.title,
+    excerpt: r.excerpt,
+    body: r.content.join('\n\n'),
+    tags: r.tags,
+    coverImage: r.coverImage ?? null,
+  }
+}
 
-/** Publish a blog post to the public /blog under this clinician's byline + designation. */
-export async function createExpertBlogPost(
-  ctx: TherapistContext,
-  input: CreateBlogInput,
-): Promise<{ ok: boolean; slug?: string; error?: string }> {
+export type CreateBlogInput = { title: string; excerpt: string; body: string; tags: string[]; coverImage?: string | null }
+
+function validateBlog(input: CreateBlogInput): { ok: false; error: string } | { ok: true; title: string; excerpt: string; paragraphs: string[]; tags: string[]; coverImage: string | null } {
   const title = input.title.trim()
   const excerpt = input.excerpt.trim()
   const paragraphs = input.body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
   if (!title) return { ok: false, error: 'Add a title.' }
   if (!excerpt) return { ok: false, error: 'Add a short excerpt.' }
   if (paragraphs.length === 0) return { ok: false, error: 'Write the post body.' }
+  return {
+    ok: true,
+    title,
+    excerpt,
+    paragraphs,
+    tags: input.tags.map((t) => t.trim()).filter(Boolean).slice(0, 6),
+    coverImage: cleanCover(input.coverImage),
+  }
+}
+
+/** Publish a blog post to the public /blog under this clinician's byline + designation. */
+export async function createExpertBlogPost(
+  ctx: TherapistContext,
+  input: CreateBlogInput,
+): Promise<{ ok: boolean; slug?: string; error?: string }> {
+  const v = validateBlog(input)
+  if (!v.ok) return v
   try {
     const post = await prisma.blogPost.create({
       data: {
-        slug: slugify(title),
-        title,
-        excerpt,
-        content: paragraphs,
+        slug: slugify(v.title),
+        title: v.title,
+        excerpt: v.excerpt,
+        content: v.paragraphs,
         authorId: ctx.userId,
         authorName: ctx.therapistName ?? 'GetCalmly Clinician',
         authorRole: ctx.designation,
-        tags: input.tags.map((t) => t.trim()).filter(Boolean).slice(0, 6),
-        readTime: estimateReadTime(paragraphs),
+        tags: v.tags,
+        coverImage: v.coverImage,
+        readTime: estimateReadTime(v.paragraphs),
         published: true,
       },
     })
@@ -1200,29 +1251,31 @@ export async function createExpertBlogPost(
   }
 }
 
-// ── Community (clinician answers, posted with their designation) ─────────────
-
-/** Post an answer/comment on a community discussion as this clinician. */
-export async function expertAddCommunityComment(
+/** Edit one of this clinician's own posts. Slug is preserved so links keep working. */
+export async function updateExpertBlogPost(
   ctx: TherapistContext,
-  postId: string,
-  body: string,
-): Promise<{ ok: boolean; error?: string }> {
-  const text = body.trim()
-  if (!postId || !text) return { ok: false, error: 'Write an answer first.' }
+  slug: string,
+  input: CreateBlogInput,
+): Promise<{ ok: boolean; slug?: string; error?: string }> {
+  const existing = await prisma.blogPost.findUnique({ where: { slug }, select: { authorId: true } })
+  if (!existing || existing.authorId !== ctx.userId) return { ok: false, error: 'Post not found.' }
+  const v = validateBlog(input)
+  if (!v.ok) return v
   try {
-    await prisma.communityComment.create({
+    await prisma.blogPost.update({
+      where: { slug },
       data: {
-        postId,
-        body: text,
-        authorId: ctx.userId,
-        authorName: ctx.therapistName ?? 'GetCalmly Clinician',
-        authorRole: ctx.isPsychiatrist ? 'PSYCHIATRIST' : 'THERAPIST',
+        title: v.title,
+        excerpt: v.excerpt,
+        content: v.paragraphs,
+        tags: v.tags,
+        coverImage: v.coverImage,
+        readTime: estimateReadTime(v.paragraphs),
       },
     })
-    return { ok: true }
+    return { ok: true, slug }
   } catch {
-    return { ok: false, error: 'Could not post your answer.' }
+    return { ok: false, error: 'Could not save your changes.' }
   }
 }
 

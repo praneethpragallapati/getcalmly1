@@ -126,7 +126,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       >
         {/* cover photo behind the gradient/orbs (falls back to gradient) */}
         <BlogCover
-          src={blogImage(post.tags)}
+          src={post.coverImage ?? blogImage(post.tags)}
           alt={post.title}
           scrim={`linear-gradient(160deg, ${cover.from}cc 0%, ${cover.to}e6 100%)`}
         />

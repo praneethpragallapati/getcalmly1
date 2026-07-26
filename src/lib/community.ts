@@ -29,6 +29,54 @@ export type CommunityCommentView = {
 
 export type RelatedDiscussion = { id: string; title: string; tags: string[] }
 
+export type CommunityIdentity = {
+  name: string
+  role: 'PAID_MEMBER' | 'MEMBER' | 'THERAPIST' | 'PSYCHIATRIST' | 'ADMIN'
+  tenure: string | null
+}
+
+/**
+ * The identity a signed-in user posts/comments under. Clinicians post as
+ * Therapist / Psychiatrist with their full name; admins as Admin; everyone else
+ * as a Member (Paid Member with tenure while they hold an active subscription).
+ * Shared by the post and comment actions so a user's badge is consistent
+ * whether they write from the public site or a dashboard.
+ */
+export async function communityIdentity(userId: string): Promise<CommunityIdentity> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, role: true, therapistProfile: { select: { specializations: true } } },
+  })
+  if (user?.therapistProfile) {
+    const isPsych = user.therapistProfile.specializations.some((s) => /psychiat|medication|pharma/i.test(s))
+    return { name: user.name ?? 'Clinician', role: isPsych ? 'PSYCHIATRIST' : 'THERAPIST', tenure: null }
+  }
+  if (user?.role === 'ADMIN') return { name: user.name ?? 'GetCalmly', role: 'ADMIN', tenure: null }
+
+  const sub = await prisma.subscription.findFirst({
+    where: { userId, status: 'ACTIVE' },
+    orderBy: { createdAt: 'desc' },
+    select: { paidMonths: true },
+  })
+  const parts = (user?.name ?? 'Member').split(' ')
+  const name = parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1].charAt(0)}.` : parts[0]
+  return {
+    name,
+    role: sub ? 'PAID_MEMBER' : 'MEMBER',
+    tenure: sub ? `${sub.paidMonths} months` : null,
+  }
+}
+
+/** IDs of discussions authored by this user, so the feed can offer a "My posts" filter. */
+export async function getMyCommunityPostIds(userId: string): Promise<string[]> {
+  try {
+    const rows = await prisma.communityPost.findMany({ where: { authorId: userId }, select: { id: true } })
+    return rows.map((r) => r.id)
+  } catch {
+    return []
+  }
+}
+
 function relativeTime(d: Date): string {
   const secs = Math.floor((Date.now() - d.getTime()) / 1000)
   const mins = Math.floor(secs / 60)

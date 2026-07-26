@@ -9,36 +9,11 @@ import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
 import { getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
+import { communityIdentity } from '@/lib/community'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
 export type UpvoteResult = { ok: boolean; count: number; voted: boolean; error?: string }
-
-/**
- * The display identity a signed-in patient posts under in the community: a
- * shortened "First L." name plus a Paid Member badge/tenure derived from their
- * active subscription. Shared by the post composer and the comment box so both
- * appear under the same name.
- */
-async function memberIdentity(
-  userId: string,
-): Promise<{ name: string; role: 'PAID_MEMBER' | 'MEMBER'; tenure: string | null }> {
-  const [user, sub] = await Promise.all([
-    prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
-    prisma.subscription.findFirst({
-      where: { userId, status: 'ACTIVE' },
-      orderBy: { createdAt: 'desc' },
-      select: { paidMonths: true },
-    }),
-  ])
-  const parts = (user?.name ?? 'Member').split(' ')
-  const name = parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1].charAt(0)}.` : parts[0]
-  return {
-    name,
-    role: sub ? 'PAID_MEMBER' : 'MEMBER',
-    tenure: sub ? `${sub.paidMonths} months` : null,
-  }
-}
 
 /**
  * Save today's mood check-in (#8). Persists the patient's own raw record at the
@@ -329,7 +304,7 @@ export async function createCommunityPost(input: {
   if (!userId) return { ok: true, persisted: false }
 
   try {
-    const me = await memberIdentity(userId)
+    const me = await communityIdentity(userId)
     await prisma.communityPost.create({
       data: {
         title,
@@ -386,7 +361,7 @@ export async function addCommunityComment(input: {
   if (!userId) return { ok: false, persisted: false, error: 'Sign in to reply.' }
 
   try {
-    const me = await memberIdentity(userId)
+    const me = await communityIdentity(userId)
     await prisma.communityComment.create({
       data: {
         postId: input.postId,

@@ -13,6 +13,7 @@ export type BlogSeed = {
   readTime: string
   tags: string[]
   content: string[] // ordered paragraphs
+  coverImage?: string // author-supplied cover (URL or data URL); falls back to a tag image
 }
 
 export const blogSeed: BlogSeed[] = [

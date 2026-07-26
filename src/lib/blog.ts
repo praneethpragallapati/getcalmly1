@@ -31,6 +31,7 @@ export async function getBlogPosts(): Promise<BlogPostView[]> {
       readTime: r.readTime,
       tags: r.tags,
       content: r.content,
+      coverImage: r.coverImage ?? undefined,
     }))
   } catch {
     return blogSeed
@@ -51,6 +52,7 @@ export async function getBlogPost(slug: string): Promise<BlogPostView | null> {
         readTime: r.readTime,
         tags: r.tags,
         content: r.content,
+        coverImage: r.coverImage ?? undefined,
       }
     }
   } catch {

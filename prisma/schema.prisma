@@ -765,6 +765,9 @@ model BlogPost {
   author      User?    @relation(fields: [authorId], references: [id])
   tags        String[]
   readTime    String
+  // Optional author-supplied cover image. Stored as a URL or an inline data URL
+  // (small uploads). When null, a tag-based stock cover is used at render time.
+  coverImage  String?  @db.Text
   published   Boolean  @default(true)
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
