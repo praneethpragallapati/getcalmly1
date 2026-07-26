@@ -64,7 +64,7 @@ const plans: Record<PlanKey, {
       'Your first consultation at a flat ₹999',
       'An NMC-registered psychiatrist for evaluation and care',
       'Medication support with a built-in tracker',
-      'Medicines delivered to your door',
+      'Digital prescriptions after your consultation',
       'Everything in Calm+: unlimited AI, insights, journaling',
     ],
     payToday: '₹999',

@@ -36,7 +36,7 @@ const INCLUDED: Record<PanelTab, string[]> = {
   psychiatry: [
     'One-on-one consultations with your psychiatrist',
     'Medication support with a built-in tracker',
-    'Medicines delivered to your door',
+    'Digital prescriptions after your consultation',
     'Calm+ included: unlimited AI, insights & journaling',
   ],
   couples: [
@@ -49,7 +49,7 @@ const INCLUDED: Record<PanelTab, string[]> = {
     'Unlimited Calm AI chat, day and night',
     'Daily and weekly insights on your patterns',
     'Smart journaling with reflections',
-    'Mood tracking and guided exercises',
+    'Mood tracking and daily check-ins',
   ],
 }
 

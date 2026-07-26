@@ -31,10 +31,10 @@ const contacts: { label: string; value: string; href: string }[] = [
 ]
 
 const socials: [string, string][] = [
-  ['Instagram', 'https://instagram.com/getcalmly'],
-  ['LinkedIn', 'https://linkedin.com/company/getcalmly'],
-  ['X (Twitter)', 'https://x.com/getcalmly'],
+  ['Instagram', 'https://www.instagram.com/get.calmly'],
   ['YouTube', 'https://youtube.com/@getcalmly'],
+  ['X (Twitter)', 'https://x.com/getCalmly'],
+  ['Facebook', 'https://www.facebook.com/share/1H2D79NEb3/'],
 ]
 
 const eyebrow: React.CSSProperties = {

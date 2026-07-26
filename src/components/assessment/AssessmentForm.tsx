@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import EmergencyModal from './EmergencyModal'
 
 type Question = {
   id: string
@@ -363,7 +362,6 @@ export default function AssessmentForm({ type }: { type: string }) {
   const questions = getQuestions(type)
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
-  const [showEmergency, setShowEmergency] = useState(false)
 
   const q = questions[step]
   const progress = ((step + 1) / questions.length) * 100
@@ -374,13 +372,10 @@ export default function AssessmentForm({ type }: { type: string }) {
   }
 
   // Single-choice / scale: record + auto-advance after a short beat.
+  // Risk answers are still captured and factored into the result — we just
+  // don't interrupt the assessment with a helpline modal mid-flow.
   const pickSingle = (value: string) => {
     setAnswers((a) => ({ ...a, [q.id]: value }))
-    // Risk screen fires gently when answers lean toward "almost every day".
-    if (q.risk && (value === 'Almost every day' || value === 'More than half the days')) {
-      setShowEmergency(true)
-      return // wait, they continue from the modal
-    }
     setTimeout(advance, 220)
   }
 
@@ -417,7 +412,6 @@ export default function AssessmentForm({ type }: { type: string }) {
 
   return (
     <div className="assess-shell">
-      {showEmergency && <EmergencyModal onClose={() => { setShowEmergency(false); setTimeout(advance, 50) }} />}
       <div className="assess-inner assess-inner-sm">
         {/* Progress */}
         <div className="assess-progress">

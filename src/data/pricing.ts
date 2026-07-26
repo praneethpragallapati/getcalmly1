@@ -103,7 +103,6 @@ export const calmPlusFeatures = {
     'Daily mood tracker',
     'Smart journaling with reflections',
     'Daily and weekly insights',
-    'Guided exercises and what to expect next',
     'A constant guide for the everyday moments',
   ],
   missing: ['Sessions with a professional'],
@@ -131,7 +130,7 @@ export const psychiatryFeatures = [
   'Consultations with an NMC-registered psychiatrist',
   'Everything in Calm+, included',
   'Medication support and a built-in tracker',
-  'Prescriptions and medicines delivered to your door',
+  'Digital prescriptions after your consultation',
   'Coordinated with your therapist when needed',
   'Session summaries and a constant guide throughout',
 ]

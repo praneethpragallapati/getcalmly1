@@ -23,7 +23,7 @@ const NAV = [
   { label: 'Features', href: '/features' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Real Talk', href: '/real-talk' },
-  { label: 'Enterprise', href: '/enterprise' },
+  { label: 'Enterprise', href: '/enterprise', soon: true },
 ]
 
 export default function SiteHeader() {
@@ -64,7 +64,10 @@ export default function SiteHeader() {
 
         {NAV.slice(1).map((n) => (
           <li key={n.href}>
-            <Link href={n.href}>{n.label}</Link>
+            <Link href={n.href} className={n.soon ? 'nav-soon' : undefined}>
+              {n.label}
+              {n.soon && <span className="nav-soon-badge">Soon</span>}
+            </Link>
           </li>
         ))}
       </ul>
@@ -146,8 +149,9 @@ export default function SiteHeader() {
           })}
 
           {NAV.slice(1).map((n) => (
-            <Link key={n.href} href={n.href} onClick={() => setOpen(false)} style={mobLink}>
+            <Link key={n.href} href={n.href} onClick={() => setOpen(false)} style={{ ...mobLink, display: 'flex', alignItems: 'center', gap: 8 }}>
               {n.label}
+              {n.soon && <span className="nav-soon-badge">Soon</span>}
             </Link>
           ))}
           <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#3D9E72', textDecoration: 'none' }}>Join our experts</Link>
@@ -159,6 +163,12 @@ export default function SiteHeader() {
       <style>{`
         @media(max-width:1000px){
           .lp-page .nav-burger{display:inline-flex !important;}
+        }
+        .nav-soon{display:inline-flex;align-items:center;gap:7px;}
+        .nav-soon-badge{
+          font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+          color:#C8553D;background:rgba(200,85,61,.10);border:1px solid rgba(200,85,61,.22);
+          padding:1px 7px;border-radius:50px;line-height:1.5;white-space:nowrap;
         }
       `}</style>
     </nav>
