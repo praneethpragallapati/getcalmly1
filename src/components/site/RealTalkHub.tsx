@@ -471,8 +471,8 @@ function JoinCard({ convos }: { convos: number }) {
         <Link href="/register?care=free" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 50, background: '#fff', color: CORAL, fontSize: 14.5, fontWeight: 800, textDecoration: 'none' }}>
           Join free — 30 seconds
         </Link>
-        <Link href="/community" style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3 }}>
-          Just read for now →
+        <Link href="/community" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '12px 20px', borderRadius: 50, background: 'rgba(255,255,255,.14)', border: '1.5px solid rgba(255,255,255,.45)', color: '#fff', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+          Browse the conversations →
         </Link>
       </div>
       <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,.7)', marginTop: 12 }}>No feed to doomscroll. Moderated, always.</p>
