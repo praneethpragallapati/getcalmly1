@@ -59,6 +59,7 @@ function CareCard({
   firstSession: number; feat?: boolean; delay: string
 }) {
   const [i, setI] = useState(packs.length - 1) // default to best-value pack
+  const [open, setOpen] = useState(false)
   const pack = packs[i]
   const ps = perSession(pack)
   const disc = discountVsBase(ps, base)
@@ -73,7 +74,8 @@ function CareCard({
       </div>
       <p className="pr-card-sub">{subtitle}</p>
 
-      {/* The only thing you buy here: your first session */}
+      {/* Lead with the only thing you buy here: your first session */}
+      <p className="pr-tier-label" style={{ color: accent }}>Pay today</p>
       <div className="pr-first" style={{ background: accent + '12', borderColor: accent + '33' }}>
         <span className="pr-first-label">Your first session</span>
         <span className="pr-first-val" style={{ color: accent }}>{inr(firstSession)}</span>
@@ -93,22 +95,32 @@ function CareCard({
         {features.map((f) => <Feature key={f} text={f} accent={accent} />)}
       </div>
 
-      <div className="pr-divider" />
-
-      {/* Pack pricing shown for reference only. Packs are bought later from the
-          dashboard, after the first session — so there is no buy button here. */}
-      <p className="pr-packs-h">After that · session packs</p>
-      <PackSelector items={packs} i={i} setI={setI} accent={accent} badges={badges}
-        label={(p) => `${p.sessions} ${p.sessions === 1 ? 'session' : 'sessions'}`} />
-      <div className="pr-price-row">
-        <span className="pr-price" style={{ color: accent }}>{inr(ps)}</span>
-        <span className="pr-price-note">/ session</span>
-        <span className="pr-save">Save {disc}%</span>
-      </div>
-      <p className="pr-valid">
-        {inr(pack.total)} total for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'} · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
-      </p>
-      <p className="pr-cta-note">Buy packs from your dashboard after your first session.</p>
+      {/* Pack pricing lives behind a disclosure — it's for reference only, since
+          packs are bought later from the dashboard, after the first session. */}
+      <button
+        type="button"
+        className={`pr-disc ${open ? 'pr-disc-hd' : ''}`}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span>After that · session packs</span>
+        <span className="pr-disc-car">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="pr-disc-open">
+          <PackSelector items={packs} i={i} setI={setI} accent={accent} badges={badges}
+            label={(p) => `${p.sessions} ${p.sessions === 1 ? 'session' : 'sessions'}`} />
+          <div className="pr-price-row">
+            <span className="pr-price" style={{ color: accent }}>{inr(ps)}</span>
+            <span className="pr-price-note">/ session</span>
+            <span className="pr-save">Save {disc}%</span>
+          </div>
+          <p className="pr-valid">
+            {inr(pack.total)} total for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'} · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}
+          </p>
+          <p className="pr-cta-note" style={{ textAlign: 'left', marginTop: 12 }}>Buy packs from your dashboard after your first session.</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -338,6 +350,18 @@ const CSS = `
   .pr-first-val{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: -0.5px; }
   .pr-first + .pr-cta{ margin-top: 12px; }
   .pr-packs-h{ font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8E9EAE; margin-bottom: 10px; }
+  .pr-tier-label{ font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin: 16px 0 8px; }
+
+  /* Pack-pricing disclosure (kept out of the way until asked for) */
+  .pr-disc{ display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 20px;
+    padding: 13px 15px; border: 1px solid var(--line-card); border-radius: 12px; background: #fff; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--charcoal);
+    transition: background .18s, border-color .18s; }
+  .pr-disc:hover{ background: #FBFBFC; }
+  .pr-disc-car{ color: #A0ADB8; font-size: 11px; }
+  .pr-disc.pr-disc-hd{ border-bottom-left-radius: 0; border-bottom-right-radius: 0; background: #F6F7F9; }
+  .pr-disc-open{ border: 1px solid var(--line-card); border-top: none; border-radius: 0 0 12px 12px;
+    background: #FBFBFC; padding: 16px 15px 18px; margin-top: -1px; }
 
   /* Transition between the professional plans and the app-only plans */
   .pr-more{ display: flex; align-items: center; gap: 16px; max-width: 720px; margin: 40px auto 8px; padding: 0 24px; }
