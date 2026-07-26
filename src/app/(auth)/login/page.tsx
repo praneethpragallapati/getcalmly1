@@ -1,23 +1,26 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, getSession } from 'next-auth/react'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
-  const [tab, setTab] = useState<'phone' | 'email' | 'password'>('phone')
+  const params = useSearchParams()
+  const existsFlag = params.get('exists') === '1'
+  const [tab, setTab] = useState<'phone' | 'email' | 'password'>(existsFlag ? 'email' : 'phone')
   const [sent, setSent] = useState(false)
   const [country, setCountry] = useState(defaultCountry)
   const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(existsFlag ? (params.get('email') ?? '') : '')
   const [password, setPassword] = useState('')
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const notice = existsFlag ? 'Looks like you already have an account. Please sign in.' : ''
 
   async function redirectAfterLogin() {
     const session = await getSession()
@@ -146,6 +149,13 @@ export default function LoginPage() {
           Pick up right where you left off, your space is exactly as you left it.
         </p>
       </div>
+
+      {notice && (
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '12px 14px', background: '#FFF1EC', border: '1px solid rgba(200,85,61,.2)', borderRadius: 12, marginBottom: 20 }}>
+          <span style={{ fontSize: 15 }}>👋</span>
+          <span style={{ fontSize: 13.5, color: '#1C2B3A', lineHeight: 1.5 }}>{notice}</span>
+        </div>
+      )}
 
       {/* Social auth */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
@@ -336,5 +346,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }

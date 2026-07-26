@@ -16,12 +16,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </h1>
       <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with the world's first context-aware mental health AI, and stays with you from your very first session.</p>
       <div class="hero-actions">
-        <a href="/assess" class="btn-hero fill">✦ Book your first session</a>
+        <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
         <a href="#how" class="btn-hero outline">See how it works</a>
       </div>
       <div class="hero-trust">
-        <span class="ht">World's-first context-aware AI</span>
-        <span class="ht">Licensed, vetted clinicians</span>
+        <span class="ht">Free, confidential assessment</span>
+        <span class="ht">RCI &amp; NMC-verified clinicians</span>
         <span class="ht">100% confidential</span>
       </div>
     </div>
@@ -306,8 +306,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <div class="quiz-opt" onclick="selOpt(this)">More than half the days</div>
           <div class="quiz-opt" onclick="selOpt(this)">Nearly every day</div>
         </div>
-        <a class="assess-big-btn" href="/assess"><span>✦</span> Book your first session</a>
-        <div class="assess-note">Trusted by 40,000+ people · Completely confidential</div>
+        <a class="assess-big-btn" href="/assess"><span>✦</span> Take the free assessment</a>
+        <div class="assess-note">Free &amp; completely confidential · Book a session right after</div>
       </div>
     </div>
   </div>

@@ -217,17 +217,19 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Care with a professional */}
+      {/* All plans, one row, cheapest to fullest care */}
       <section className="pr-section" style={{ paddingTop: 64 }}>
         <div className="pr-head">
-          <p className="pr-eyebrow" style={{ color: coral }}>With a professional</p>
-          <h2 className="pr-h2">Sessions that fit your life</h2>
+          <p className="pr-eyebrow" style={{ color: coral }}>Plans</p>
+          <h2 className="pr-h2">One plan for wherever you are</h2>
           <p className="pr-head-sub">
-            Every plan includes the full app — unlimited Calm AI, daily tracking, insights, and a guide who stays with you between sessions.
+            From a free start to full care with an RCI &amp; NMC-verified professional — every paid plan
+            includes the app, and bigger session packs unlock a lower price per session.
           </p>
-          <p className="pr-hint">💚 Bigger packs unlock a lower price per session</p>
         </div>
-        <div className="pr-grid">
+        <div className="pr-grid five">
+          <FreeCard delay="0s" />
+          <CalmPlusCard delay="0.05s" />
           <CareCard
             name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
             accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
@@ -235,32 +237,17 @@ export default function PricingPage() {
             fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy"
           />
           <CareCard
-            name="Couples" subtitle="Sessions for you and your partner, together."
-            accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d2"
-            firstSession={FIRST_SESSION.couples}
-            fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=therapy"
-          />
-          <CareCard
             name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
-            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d3"
+            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d2"
             firstSession={FIRST_SESSION.psychiatry}
             fromText={`From ${inr(PSYCHIATRY_FROM)} per session`} href="/register?care=psychiatry"
           />
-        </div>
-      </section>
-
-      {/* App & Free */}
-      <section className="pr-section" style={{ paddingTop: 24 }}>
-        <div className="pr-head">
-          <p className="pr-eyebrow" style={{ color: teal }}>No sessions needed</p>
-          <h2 className="pr-h2">Not ready for sessions yet?</h2>
-          <p className="pr-head-sub">
-            Start with the app. Build the habit, understand your patterns, and step up to a professional whenever you feel ready.
-          </p>
-        </div>
-        <div className="pr-grid two">
-          <CalmPlusCard delay="0.05s" />
-          <FreeCard delay="0.12s" />
+          <CareCard
+            name="Couples" subtitle="Sessions for you and your partner, together."
+            accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d3"
+            firstSession={FIRST_SESSION.couples}
+            fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=couples"
+          />
         </div>
       </section>
 
@@ -317,6 +304,13 @@ const CSS = `
   /* Cards grid */
   .pr-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
   .pr-grid.two{ grid-template-columns: repeat(2, 1fr); max-width: 900px; margin: 0 auto; }
+  .pr-grid.five{ grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .pr-grid.five .pr-card{ padding: 26px 18px; }
+  .pr-grid.five .pr-seg button{ font-size: 11px; padding: 7px 1px; }
+  .pr-grid.five .pr-price{ font-size: 38px; }
+  @media (max-width: 1180px){ .pr-grid.five{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 820px){ .pr-grid.five{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 540px){ .pr-grid.five{ grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; } }
 
   .pr-card{ position: relative; background: #fff; border-radius: 22px; padding: 32px 26px;
     border: 1px solid var(--line-card); box-shadow: var(--sh-card); display: flex; flex-direction: column;

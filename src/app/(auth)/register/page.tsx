@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Suspense, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
@@ -11,6 +11,7 @@ type CareFor = 'self' | 'couple' | 'child'
 const CARE_LABELS: Record<string, string> = {
   therapy: 'Therapy with a psychologist',
   psychiatry: 'Psychiatric care',
+  couples: 'Couples therapy',
   app: 'Calm+ (the full app)',
   free: 'the free plan',
 }
@@ -36,16 +37,22 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function RegisterForm() {
   const [step, setStep] = useState(1)
-  const [careFor, setCareFor] = useState<CareFor>('self')
   const [contactMethod, setContactMethod] = useState<'phone' | 'email'>('phone')
+  const [email, setEmail] = useState('')
+  const [checking, setChecking] = useState(false)
+  const [emailErr, setEmailErr] = useState('')
   const [country, setCountry] = useState(defaultCountry)
   const [tracks, setTracks] = useState<string[]>([])
   const [llmConsent, setLlmConsent] = useState(true)
   const [consents, setConsents] = useState({ retention: false, ai: false, liability: false, terms: false })
   const [done, setDone] = useState(false)
-  // Care type chosen on the pricing page (therapy / psychiatry / app / free).
+  const router = useRouter()
+  // Care type chosen on the pricing page (therapy / psychiatry / couples / app / free).
   const c = useSearchParams().get('care')
   const careType = c && CARE_LABELS[c] ? c : null
+  // Who the care is for is derived from the plan, not asked here — the assessment
+  // captures the recipient. A couples plan collects the spouse's details.
+  const careFor: CareFor = careType === 'couples' ? 'couple' : 'self'
 
   // The partner/child step only exists for couple/child care.
   const hasExtraStep = careFor !== 'self'
@@ -66,8 +73,27 @@ function RegisterForm() {
 
   const canSubmit = consents.retention && consents.ai && consents.liability && consents.terms
 
+  // If the email already has an account, send them to sign in instead of signing up.
+  async function continueFromBasics() {
+    setEmailErr('')
+    const e = email.trim().toLowerCase()
+    if (contactMethod === 'email' && e) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { setEmailErr('Enter a valid email address.'); return }
+      setChecking(true)
+      try {
+        const res = await fetch('/api/auth/check-email', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: e }),
+        })
+        const data = await res.json().catch(() => ({ exists: false }))
+        if (data?.exists) { router.push(`/login?email=${encodeURIComponent(e)}&exists=1`); return }
+      } catch { /* network issue — let them proceed */ }
+      finally { setChecking(false) }
+    }
+    setStep(2)
+  }
+
   if (done) {
-    const isPaid = careType === 'therapy' || careType === 'psychiatry' || careType === 'app'
+    const isPaid = careType === 'therapy' || careType === 'psychiatry' || careType === 'couples' || careType === 'app'
     const nextHref = isPaid ? `/checkout?care=${careType}` : '/assess'
     return (
       <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
@@ -140,19 +166,6 @@ function RegisterForm() {
               <input type="text" placeholder="e.g. Priya Sharma" style={inputStyle} />
             </Field>
 
-            <Field label="Who is this care for?">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                {([['self', 'Myself'], ['couple', 'My partner & me'], ['child', 'My child']] as const).map(([val, lbl]) => (
-                  <button key={val} type="button" onClick={() => setCareFor(val)} style={{
-                    padding: '11px 6px', borderRadius: 10, fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
-                    border: careFor === val ? '1.5px solid #C8553D' : '1.5px solid #E2E8F0',
-                    background: careFor === val ? '#FFF1EC' : '#fff',
-                    color: careFor === val ? '#C8553D' : '#6B7D8E', fontFamily: "'DM Sans', sans-serif",
-                  }}>{lbl}</button>
-                ))}
-              </div>
-            </Field>
-
             <div>
               <div style={{ display: 'flex', background: '#F5F7FA', borderRadius: 10, padding: 3, marginBottom: 10 }}>
                 {(['phone', 'email'] as const).map((t) => (
@@ -169,12 +182,13 @@ function RegisterForm() {
                   <input type="tel" placeholder="98765 43210" style={{ ...inputStyle, border: 'none', borderRadius: '0 12px 12px 0' }} />
                 </div>
               ) : (
-                <input type="email" placeholder="you@example.com" style={inputStyle} />
+                <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
               )}
+              {emailErr && <p style={{ fontSize: 12.5, color: '#C0392B', marginTop: 8 }}>{emailErr}</p>}
             </div>
           </div>
 
-          <button onClick={() => setStep(2)} style={{ ...primaryBtn, marginTop: 24 }}>Continue →</button>
+          <button onClick={continueFromBasics} disabled={checking} style={{ ...primaryBtn, marginTop: 24, opacity: checking ? 0.6 : 1 }}>{checking ? 'Checking…' : 'Continue →'}</button>
 
           <p style={{ fontSize: 14, color: '#8E9EAE', textAlign: 'center', marginTop: 20 }}>
             Already have an account? <Link href="/login" style={linkStyle}>Sign in</Link>

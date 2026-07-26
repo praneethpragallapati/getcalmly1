@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
 
-type PlanKey = 'therapy' | 'psychiatry' | 'app'
+type PlanKey = 'therapy' | 'psychiatry' | 'couples' | 'app'
 
 const plans: Record<PlanKey, {
   name: string; accent: string
@@ -36,6 +36,26 @@ const plans: Record<PlanKey, {
     ],
     fineprint: 'You pay a flat ₹799 for your first session. Session packs unlock after it, and unused sessions are always refundable.',
     cta: 'Confirm and book my first session',
+  },
+  couples: {
+    name: 'Couples therapy',
+    accent: '#7C5CBF',
+    benefits: [
+      'Your first 50-minute session for both of you at a flat ₹1,499',
+      'An EFT & Gottman-informed couples therapist',
+      'A clear summary after every session',
+      'Shared exercises and check-ins between sessions',
+      'Everything in Calm+ for both of you',
+    ],
+    payToday: '₹1,499',
+    summary: [
+      { label: 'Plan', value: 'Couples therapy' },
+      { label: 'First session', value: '₹1,499' },
+      { label: 'After that', value: 'Packs from ₹1,699 / session' },
+      { label: 'Due today', value: '₹1,499' },
+    ],
+    fineprint: 'You pay a flat ₹1,499 for your first couples session. Session packs unlock after it, and unused sessions are always refundable.',
+    cta: 'Confirm and book our first session',
   },
   psychiatry: {
     name: 'Psychiatry',
@@ -81,7 +101,7 @@ const plans: Record<PlanKey, {
 
 function CheckoutContent() {
   const c = useSearchParams().get('care')
-  const care: PlanKey = c === 'therapy' || c === 'psychiatry' || c === 'app' ? c : 'therapy'
+  const care: PlanKey = c === 'therapy' || c === 'psychiatry' || c === 'couples' || c === 'app' ? c : 'therapy'
   const [method, setMethod] = useState<'upi' | 'card'>('upi')
   const [paid, setPaid] = useState(false)
 
