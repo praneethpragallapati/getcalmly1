@@ -253,7 +253,7 @@ export default function RealTalkHub({
 
       {/* ══ FEATURED READS (bento) ══ */}
       <section id="reads" style={{ maxWidth: 1160, margin: '0 auto', padding: '84px 24px 0', scrollMarginTop: 70 }}>
-        <SectionHead kicker="From our clinicians" title="Reads worth your evening" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
+        <SectionHead kicker="From our clinicians" title="Fresh reads" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
 
         <div className="rt-reveal" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.5fr) minmax(0,1fr)', gap: 20 }}>
           {lead && <FeaturedRead post={lead} />}
@@ -419,7 +419,7 @@ function SecondaryRead({ post }: { post: BlogPostView }) {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: CORAL, marginBottom: 6 }}>{post.tags[0]}</span>
-        <h4 style={{ fontFamily: HEAD, fontSize: 20, fontWeight: 300, color: CHARCOAL, lineHeight: 1.15, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.title}</h4>
+        <h4 style={{ fontFamily: HEAD, fontSize: 22, fontWeight: 700, color: CHARCOAL, lineHeight: 1.1, letterSpacing: '-0.3px', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.title}</h4>
         <p style={{ fontSize: 12, color: '#8a9aaa', margin: 'auto 0 0', paddingTop: 8 }}>{post.author} · {post.readTime}</p>
       </div>
     </Link>
@@ -440,7 +440,7 @@ function CircleCard({ post }: { post: CommunityPostView }) {
         </div>
         <span style={{ marginLeft: 'auto' }}><RoleBadge role={post.role} /></span>
       </div>
-      <h3 style={{ fontFamily: HEAD, fontSize: 21, fontWeight: 300, color: CHARCOAL, lineHeight: 1.2, margin: '0 0 8px' }}>{post.title}</h3>
+      <h3 style={{ fontFamily: HEAD, fontSize: 22, fontWeight: 700, color: CHARCOAL, lineHeight: 1.1, letterSpacing: '-0.3px', margin: '0 0 8px' }}>{post.title}</h3>
       <p style={{ fontSize: 13.5, color: '#4A5F70', lineHeight: 1.6, margin: 0, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.body}</p>
       {post.tags.length > 0 && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
