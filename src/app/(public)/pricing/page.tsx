@@ -10,226 +10,239 @@ import {
   type SessionPack,
 } from '@/data/pricing'
 
-const charcoal = '#1C2B3A'
 const coral = '#C8553D'
+const charcoal = '#1C2B3A'
 const green = '#3D9E72'
 const teal = '#1A7F7A'
-
-// Small pill shown on/under a pack option (e.g. "Most chosen", "Cheapest").
-function tabBadge(text: string, color: string) {
-  return (
-    <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.3, color, background: color + '1f', padding: '2px 6px', borderRadius: 50, textTransform: 'uppercase', marginTop: 4, display: 'inline-block' }}>{text}</span>
-  )
-}
+const purple = '#7C5CBF'
 
 function PackSelector<T>({ items, i, setI, label, badges, accent }: {
   items: T[]; i: number; setI: (n: number) => void
   label: (t: T) => string; badges: Record<number, string>; accent: string
 }) {
   return (
-    <div style={{ display: 'flex', gap: 6, background: '#F5F7FA', padding: 4, borderRadius: 12, marginBottom: 18 }}>
+    <div className="pr-seg">
       {items.map((t, idx) => (
-        <button key={idx} onClick={() => setI(idx)} style={{
-          flex: 1, padding: '8px 2px', borderRadius: 9, border: 'none', cursor: 'pointer',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
-          fontSize: 12.5, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
-          background: idx === i ? '#fff' : 'transparent', color: idx === i ? accent : '#8E9EAE',
-          boxShadow: idx === i ? '0 1px 4px rgba(0,0,0,.1)' : 'none',
-        }}>
+        <button
+          key={idx}
+          onClick={() => setI(idx)}
+          aria-pressed={idx === i}
+          className={idx === i ? 'on' : ''}
+          style={idx === i ? { color: accent } : undefined}
+        >
           {label(t)}
-          {badges[idx] && tabBadge(badges[idx], idx === i ? accent : '#8E9EAE')}
+          {badges[idx] && (
+            <span className="pr-tab-badge" style={{ color: idx === i ? accent : '#8E9EAE', background: (idx === i ? accent : '#8E9EAE') + '1f' }}>
+              {badges[idx]}
+            </span>
+          )}
         </button>
       ))}
     </div>
   )
 }
 
+function Feature({ text, accent, muted }: { text: string; accent: string; muted?: boolean }) {
+  return (
+    <div className="pr-feat" style={muted ? { opacity: 0.55 } : undefined}>
+      <span className="pr-feat-ic" style={{ color: muted ? '#9AA6B2' : accent }}>{muted ? '✕' : '✓'}</span>
+      <span>{text}</span>
+    </div>
+  )
+}
+
 function CareCard({
-  name, subtitle, accent, packs, features, fromText, href, base, firstSession, fill,
+  name, subtitle, accent, packs, features, fromText, href, base, firstSession, feat, delay,
 }: {
   name: string; subtitle: string; accent: string; packs: SessionPack[]
   features: string[]; fromText: string; href: string; base: number
-  firstSession: number; fill?: boolean
+  firstSession: number; feat?: boolean; delay: string
 }) {
-  const [i, setI] = useState(packs.length - 1) // default to best-value 6-pack
+  const [i, setI] = useState(packs.length - 1) // default to best-value pack
   const pack = packs[i]
   const ps = perSession(pack)
   const disc = discountVsBase(ps, base)
-  const badges = { [packs.length - 1]: 'Most chosen' }
+  const badges = { [packs.length - 1]: 'Best value' }
 
   return (
-    <div style={{
-      background: '#fff', borderRadius: 24, padding: '32px 28px',
-      border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
-      display: 'flex', flexDirection: 'column',
-    }}>
-      <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>{name}</p>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18, minHeight: 38 }}>{subtitle}</p>
+    <div className={`pr-card pr-anim ${delay} ${feat ? 'feat' : ''}`} style={feat ? ({ '--accent': accent } as React.CSSProperties) : undefined}>
+      {feat && <span className="pr-ribbon">Most popular</span>}
+      <div className="pr-card-head">
+        <span className="pr-dot" style={{ background: accent }} />
+        <p className="pr-card-name">{name}</p>
+      </div>
+      <p className="pr-card-sub">{subtitle}</p>
 
       <PackSelector items={packs} i={i} setI={setI} accent={accent} badges={badges}
         label={(p) => `${p.sessions} ${p.sessions === 1 ? 'session' : 'sessions'}`} />
 
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(pack.total)}</span>
-        <span style={{ fontSize: 13, color: '#A0ADB8' }}>for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'}</span>
+      <div className="pr-price-row">
+        <span className="pr-price">{inr(pack.total)}</span>
+        <span className="pr-price-note">for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'}</span>
       </div>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <span style={{ textDecoration: 'line-through', color: '#B6C0CA' }}>{inr(base)}</span>
-        <strong style={{ color: accent, fontSize: 15 }}>{inr(ps)}</strong>
+      <p className="pr-persession">
+        <span className="pr-strike">{inr(base)}</span>
+        <strong style={{ color: accent }}>{inr(ps)}</strong>
         <span>per session</span>
-        <span style={{ fontSize: 12, fontWeight: 700, color: green, background: 'rgba(61,158,114,.1)', padding: '2px 8px', borderRadius: 50 }}>Save {disc}%</span>
+        <span className="pr-save">Save {disc}%</span>
       </p>
-      <p style={{ fontSize: 12.5, color: '#A0ADB8', marginTop: 6 }}>Valid for {pack.months} {pack.months === 1 ? 'month' : 'months'}</p>
+      <p className="pr-valid">Valid for {pack.months} {pack.months === 1 ? 'month' : 'months'}</p>
 
-      <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>
-        {features.map((f) => (
-          <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ color: accent, fontWeight: 800, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✓</span>
-            <span style={{ fontSize: 13.8, color: '#3A4A5A', lineHeight: 1.5 }}>{f}</span>
-          </div>
-        ))}
+      <div className="pr-divider" />
+      <div className="pr-feats">
+        {features.map((f) => <Feature key={f} text={f} accent={accent} />)}
       </div>
 
-      <Link href={href} style={{
-        display: 'block', textAlign: 'center', marginTop: 24, padding: '14px', borderRadius: 12,
-        background: fill ? accent : '#fff', color: fill ? '#fff' : accent,
-        border: fill ? 'none' : `1.5px solid ${accent}`,
-        fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
-        boxShadow: fill ? `0 6px 18px ${accent}40` : 'none',
-      }}>
+      <Link
+        href={href}
+        className="pr-cta"
+        style={feat
+          ? { background: accent, color: '#fff', border: 'none', boxShadow: `0 8px 22px ${accent}45` }
+          : { background: '#fff', color: accent, border: `1.5px solid ${accent}` }}
+      >
         Book session
       </Link>
-      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>{fromText} · first session {inr(firstSession)}</p>
+      <p className="pr-cta-note">{fromText} · first session {inr(firstSession)}</p>
     </div>
   )
 }
 
-function CalmPlusCard() {
-  const [i, setI] = useState(3) // default to 1 year (the cheapest per month)
+function CalmPlusCard({ delay }: { delay: string }) {
+  const [i, setI] = useState(3)
   const pack = calmPlusPacks[i]
   const perMonth = Math.floor(pack.total / pack.months)
-  const badges = { 2: 'Most chosen', 3: 'Cheapest' }
+  const badges = { 2: 'Popular', 3: 'Best value' }
 
   return (
-    <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', border: `2px solid ${teal}`, boxShadow: `0 16px 40px ${teal}1a`, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 6, background: 'rgba(26,127,122,.1)', color: teal, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 50, marginBottom: 12 }}>
-        ✦ 7-day free trial
+    <div className="pr-card pr-anim feat" style={{ ['--accent' as string]: teal, animationDelay: delay } as React.CSSProperties}>
+      <span className="pr-chip-trial">✦ 7-day free trial</span>
+      <div className="pr-card-head">
+        <span className="pr-dot" style={{ background: teal }} />
+        <p className="pr-card-name">Calm+</p>
       </div>
-      <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>Calm+</p>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18 }}>All the everyday support, no sessions. Your AI companion, insights and journaling, unlimited.</p>
+      <p className="pr-card-sub">All the everyday support, no sessions. Your AI companion, insights and journaling, unlimited.</p>
 
       <PackSelector items={calmPlusPacks} i={i} setI={setI} accent={teal} badges={badges} label={(p) => p.label} />
 
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 13, color: '#A0ADB8', fontWeight: 500 }}>From</span>
-        <span style={{ fontSize: 15, color: '#A0ADB8', textDecoration: 'line-through', fontWeight: 600 }}>{inr(CALMPLUS_BASE)}</span>
-        <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>{inr(perMonth)}</span>
-        <span style={{ fontSize: 14, color: '#6B7D8E' }}>/ month</span>
+      <div className="pr-price-row">
+        <span className="pr-from">From</span>
+        <span className="pr-strike lg">{inr(CALMPLUS_BASE)}</span>
+        <span className="pr-price">{inr(perMonth)}</span>
+        <span className="pr-price-note">/ month</span>
       </div>
-      <p style={{ fontSize: 13, color: '#6B7D8E', marginTop: 6 }}>Billed {pack.label.toLowerCase()} · {inr(pack.total)} total</p>
+      <p className="pr-valid">Billed {pack.label.toLowerCase()} · {inr(pack.total)} total</p>
 
-      <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>
-        {calmPlusFeatures.included.map((f) => (
-          <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ color: teal, fontWeight: 800, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✓</span>
-            <span style={{ fontSize: 13.8, color: '#3A4A5A', lineHeight: 1.5 }}>{f}</span>
-          </div>
-        ))}
-        {calmPlusFeatures.missing.map((f) => (
-          <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', opacity: 0.5 }}>
-            <span style={{ fontWeight: 800, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✕</span>
-            <span style={{ fontSize: 13.8, color: '#6B7D8E', lineHeight: 1.5 }}>{f}</span>
-          </div>
-        ))}
+      <div className="pr-divider" />
+      <div className="pr-feats">
+        {calmPlusFeatures.included.map((f) => <Feature key={f} text={f} accent={teal} />)}
+        {calmPlusFeatures.missing.map((f) => <Feature key={f} text={f} accent={teal} muted />)}
       </div>
 
-      <Link href="/register?care=app" style={{ display: 'block', textAlign: 'center', marginTop: 24, padding: '14px', borderRadius: 12, background: teal, color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", boxShadow: `0 6px 18px ${teal}40` }}>
+      <Link href="/register?care=app" className="pr-cta" style={{ background: teal, color: '#fff', border: 'none', boxShadow: `0 8px 22px ${teal}45` }}>
         Start 7-day free trial
       </Link>
-      <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 10 }}>Cancel anytime during the trial</p>
+      <p className="pr-cta-note">Cancel anytime during the trial</p>
     </div>
   )
 }
 
-function FreeCard() {
+function FreeCard({ delay }: { delay: string }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 24, padding: '32px 28px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)', display: 'flex', flexDirection: 'column' }}>
-      <p style={{ fontSize: 20, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif" }}>Free</p>
-      <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 4, marginBottom: 18 }}>A genuine place to start. No card, no pressure.</p>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 44, color: charcoal, lineHeight: 1 }}>₹0</span>
-        <span style={{ fontSize: 14, color: '#6B7D8E' }}>forever</span>
+    <div className="pr-card pr-anim" style={{ animationDelay: delay }}>
+      <div className="pr-card-head">
+        <span className="pr-dot" style={{ background: '#9AA6B2' }} />
+        <p className="pr-card-name">Free</p>
       </div>
-      <div style={{ height: 1, background: '#EEF0F3', margin: '20px 0' }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1 }}>
-        {freeFeatures.included.map((f) => (
-          <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ color: green, fontWeight: 800, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✓</span>
-            <span style={{ fontSize: 13.8, color: '#3A4A5A', lineHeight: 1.5 }}>{f}</span>
-          </div>
-        ))}
-        {freeFeatures.missing.map((f) => (
-          <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', opacity: 0.5 }}>
-            <span style={{ fontWeight: 800, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✕</span>
-            <span style={{ fontSize: 13.8, color: '#6B7D8E', lineHeight: 1.5 }}>{f}</span>
-          </div>
-        ))}
+      <p className="pr-card-sub">A genuine place to start. No card, no pressure.</p>
+      <div className="pr-price-row" style={{ marginTop: 6 }}>
+        <span className="pr-price">₹0</span>
+        <span className="pr-price-note">forever</span>
       </div>
-      <Link href="/register?care=free" style={{ display: 'block', textAlign: 'center', marginTop: 24, padding: '14px', borderRadius: 12, background: '#fff', color: charcoal, border: '1.5px solid #D8DEE6', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="pr-divider" />
+      <div className="pr-feats">
+        {freeFeatures.included.map((f) => <Feature key={f} text={f} accent={green} />)}
+        {freeFeatures.missing.map((f) => <Feature key={f} text={f} accent={green} muted />)}
+      </div>
+      <Link href="/register?care=free" className="pr-cta" style={{ background: '#fff', color: charcoal, border: '1.5px solid #D8DEE6' }}>
         Get started free
       </Link>
+      <p className="pr-cta-note">No credit card required</p>
     </div>
   )
 }
+
+const STEPS: { n: string; t: string; d: string }[] = [
+  { n: '01', t: `First session, flat ${inr(FIRST_SESSION.therapy)}`, d: 'One real conversation with a matched clinician, at a fixed intro price. Charged once — never again.' },
+  { n: '02', t: 'Pick a pack, price drops', d: 'After your first session, choose a session pack. The more you commit, the lower the per-session price.' },
+  { n: '03', t: 'Change your mind anytime', d: 'Pause or switch whenever you need. Stop part-way and you only pay for the sessions you used.' },
+]
+
+const TRUST = ['RCI & NMC-verified clinicians', 'DPDP-secure & confidential', 'Fair, no-questions refunds']
 
 export default function PricingPage() {
   return (
-    <div style={{ background: '#FFFCFA' }}>
+    <div className="pr-page">
+      <style>{CSS}</style>
+
       {/* Hero */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 75% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 60% at 4% 80%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '124px 24px 56px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -100, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 680, margin: '0 auto', position: 'relative' }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 16 }}>Pricing</p>
-          <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(38px, 6vw, 60px)', color: '#fff', lineHeight: 1.02, letterSpacing: '-1.5px', marginBottom: 18 }}>
+      <section className="pr-hero">
+        <div className="pr-hero-glow" />
+        <div className="pr-hero-inner">
+          <p className="pr-eyebrow" style={{ color: 'rgba(255,255,255,.5)' }}>Pricing</p>
+          <h1 className="pr-h1">
             Real care, at a price<br /><span style={{ color: coral }}>that makes sense.</span>
           </h1>
-          <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.7, fontWeight: 300 }}>
-            The more you commit to your healing, the less each session costs. Your first session is a flat {inr(FIRST_SESSION.therapy)}, and if you ever stop early, you only pay for the sessions you used.
+          <p className="pr-hero-sub">
+            The more you commit to your healing, the less each session costs. Your first session is a flat {inr(FIRST_SESSION.therapy)},
+            and if you ever stop early, you only pay for the sessions you used.
           </p>
+          <div className="pr-trust">
+            {TRUST.map((t) => (
+              <span key={t} className="pr-trust-chip"><span className="pr-check">✓</span>{t}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How pricing works */}
+      <section className="pr-section" style={{ paddingTop: 64, paddingBottom: 8 }}>
+        <div className="pr-steps">
+          {STEPS.map((s, idx) => (
+            <div key={s.n} className={`pr-step pr-anim pr-d${idx + 1}`}>
+              <span className="pr-step-n">{s.n}</span>
+              <p className="pr-step-t">{s.t}</p>
+              <p className="pr-step-d">{s.d}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Care with a professional */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '76px 24px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 14 }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
-            Care with a professional
-          </h2>
-          <p style={{ fontSize: 15, color: '#6B7D8E', marginTop: 8, maxWidth: 520, margin: '8px auto 0' }}>
-            Every plan includes the full app: unlimited Calm AI, daily tracking, insights, and a guide who stays with you between sessions.
+      <section className="pr-section" style={{ paddingTop: 64 }}>
+        <div className="pr-head">
+          <p className="pr-eyebrow" style={{ color: coral }}>With a professional</p>
+          <h2 className="pr-h2">Sessions that fit your life</h2>
+          <p className="pr-head-sub">
+            Every plan includes the full app — unlimited Calm AI, daily tracking, insights, and a guide who stays with you between sessions.
           </p>
+          <p className="pr-hint">💚 Bigger packs unlock a lower price per session</p>
         </div>
-        <p style={{ textAlign: 'center', fontSize: 13, color: green, fontWeight: 700, marginBottom: 30 }}>
-          💚 Bigger packs unlock a lower price per session
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 22, alignItems: 'stretch' }}>
+        <div className="pr-grid">
           <CareCard
             name="Therapy" subtitle="Talk therapy with an RCI-verified psychologist."
-            accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} fill
+            accent={coral} packs={therapyPacks} features={therapyFeatures} base={THERAPY_BASE} feat delay="pr-d1"
             firstSession={FIRST_SESSION.therapy}
             fromText={`From ${inr(THERAPY_FROM)} per session`} href="/register?care=therapy"
           />
           <CareCard
             name="Couples" subtitle="Sessions for you and your partner, together."
-            accent="#7C5CBF" packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE}
+            accent={purple} packs={couplesPacks} features={couplesFeatures} base={COUPLES_BASE} delay="pr-d2"
             firstSession={FIRST_SESSION.couples}
             fromText={`From ${inr(COUPLES_FROM)} per session`} href="/register?care=therapy"
           />
           <CareCard
             name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
-            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE}
+            accent={teal} packs={psychiatryPacks} features={psychiatryFeatures} base={PSYCHIATRY_BASE} delay="pr-d3"
             firstSession={FIRST_SESSION.psychiatry}
             fromText={`From ${inr(PSYCHIATRY_FROM)} per session`} href="/register?care=psychiatry"
           />
@@ -237,34 +250,136 @@ export default function PricingPage() {
       </section>
 
       {/* App & Free */}
-      <section style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px 40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 30 }}>
-          <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 36px)', color: charcoal, letterSpacing: '-0.5px' }}>
-            Not ready for sessions yet?
-          </h2>
-          <p style={{ fontSize: 15, color: '#6B7D8E', marginTop: 8, maxWidth: 520, margin: '8px auto 0' }}>
+      <section className="pr-section" style={{ paddingTop: 24 }}>
+        <div className="pr-head">
+          <p className="pr-eyebrow" style={{ color: teal }}>No sessions needed</p>
+          <h2 className="pr-h2">Not ready for sessions yet?</h2>
+          <p className="pr-head-sub">
             Start with the app. Build the habit, understand your patterns, and step up to a professional whenever you feel ready.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 22, alignItems: 'stretch' }}>
-          <CalmPlusCard />
-          <FreeCard />
+        <div className="pr-grid two">
+          <CalmPlusCard delay="0.05s" />
+          <FreeCard delay="0.12s" />
         </div>
       </section>
 
-      {/* Refund / money-back reassurance */}
-      <section style={{ maxWidth: 760, margin: '0 auto', padding: '12px 24px 80px' }}>
-        <div style={{ background: '#fff', borderRadius: 20, padding: '30px 34px', border: '1.5px solid rgba(61,158,114,.25)', textAlign: 'center' }}>
-          <div style={{ fontSize: 30, marginBottom: 10 }}>🤍</div>
-          <h3 style={{ fontSize: 22, fontWeight: 800, color: charcoal, fontFamily: "'DM Sans', sans-serif", marginBottom: 10 }}>Changed your mind? That&apos;s okay.</h3>
-          <p style={{ fontSize: 15, color: '#3A4A5A', lineHeight: 1.7, maxWidth: 520, margin: '0 auto 18px' }}>
-            You can drop out or switch your plan whenever you need to. If you stop part-way, we work out a fair refund for the rest, no awkward questions and no fine print to fight.
+      {/* Money-back reassurance */}
+      <section className="pr-section" style={{ maxWidth: 780, paddingTop: 24, paddingBottom: 96 }}>
+        <div className="pr-refund pr-anim pr-d1">
+          <div className="pr-refund-badge">🤍</div>
+          <h3 className="pr-refund-t">Changed your mind? That&apos;s okay.</h3>
+          <p className="pr-refund-p">
+            You can drop out or switch your plan whenever you need to. If you stop part-way, we work out a fair
+            refund for the rest — no awkward questions and no fine print to fight.
           </p>
-          <Link href="/terms" style={{ fontSize: 14, color: coral, fontWeight: 700, textDecoration: 'none' }}>
-            See how refunds work →
-          </Link>
+          <Link href="/terms" className="pr-refund-link">See how refunds work →</Link>
         </div>
       </section>
     </div>
   )
 }
+
+const CSS = `
+  .pr-page{ background: var(--bg); }
+  .pr-section{ max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+  .pr-eyebrow{ font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+  .pr-h1{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: clamp(40px, 6.2vw, 66px); color: #fff; line-height: .98; letter-spacing: -1.5px; margin-bottom: 20px; text-wrap: balance; }
+  .pr-h2{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: clamp(30px, 4.4vw, 44px); color: var(--charcoal); letter-spacing: -1px; line-height: 1.02; text-wrap: balance; }
+
+  /* Hero */
+  .pr-hero{ position: relative; overflow: hidden; text-align: center; padding: 96px 24px 68px;
+    background: radial-gradient(ellipse 60% 70% at 86% 6%, rgba(200,85,61,.30), transparent 55%),
+                radial-gradient(ellipse 46% 60% at 4% 84%, rgba(200,85,61,.14), transparent 60%), #141E29; }
+  .pr-hero-glow{ position: absolute; top: -140px; right: -110px; width: 440px; height: 440px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,85,61,.20) 0%, transparent 70%); pointer-events: none; }
+  .pr-hero-inner{ max-width: 720px; margin: 0 auto; position: relative; }
+  .pr-hero-sub{ font-size: 17px; color: rgba(255,255,255,.7); line-height: 1.7; max-width: 600px; margin: 0 auto; }
+  .pr-trust{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
+  .pr-trust-chip{ display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,.82); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+    padding: 8px 15px; border-radius: 40px; }
+  .pr-check{ color: var(--green); font-weight: 800; }
+
+  /* Steps */
+  .pr-steps{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .pr-step{ background: #fff; border: 1px solid var(--line-card); border-radius: 18px; padding: 24px 24px 26px; box-shadow: var(--sh-card); }
+  .pr-step-n{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 30px; color: var(--coral-l); letter-spacing: -1px; }
+  .pr-step-t{ font-size: 16.5px; font-weight: 800; color: var(--charcoal); margin: 8px 0 6px; }
+  .pr-step-d{ font-size: 13.8px; color: #6B7D8E; line-height: 1.6; }
+
+  /* Section head */
+  .pr-head{ text-align: center; max-width: 620px; margin: 0 auto 34px; }
+  .pr-head-sub{ font-size: 15.5px; color: #6B7D8E; margin: 12px auto 0; line-height: 1.6; }
+  .pr-hint{ font-size: 13px; color: var(--green); font-weight: 700; margin-top: 16px; }
+
+  /* Cards grid */
+  .pr-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+  .pr-grid.two{ grid-template-columns: repeat(2, 1fr); max-width: 900px; margin: 0 auto; }
+
+  .pr-card{ position: relative; background: #fff; border-radius: 22px; padding: 32px 26px;
+    border: 1px solid var(--line-card); box-shadow: var(--sh-card); display: flex; flex-direction: column;
+    transition: transform .28s cubic-bezier(.2,.7,.2,1), box-shadow .28s; }
+  .pr-card:hover{ transform: translateY(-5px); box-shadow: var(--sh-card-h); }
+  .pr-card.feat{ border: 2px solid var(--accent, #C8553D); box-shadow: 0 20px 52px color-mix(in srgb, var(--accent, #C8553D) 18%, transparent); }
+  .pr-ribbon{ position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--accent, #C8553D);
+    color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 5px 16px;
+    border-radius: 50px; box-shadow: 0 6px 16px color-mix(in srgb, var(--accent, #C8553D) 40%, transparent); white-space: nowrap; }
+  .pr-chip-trial{ display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; background: rgba(26,127,122,.1);
+    color: ${teal}; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 50px; margin-bottom: 14px; }
+
+  .pr-card-head{ display: flex; align-items: center; gap: 9px; }
+  .pr-dot{ width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .pr-card-name{ font-size: 20px; font-weight: 800; color: var(--charcoal); }
+  .pr-card-sub{ font-size: 13.5px; color: #6B7D8E; margin: 6px 0 18px; min-height: 38px; line-height: 1.5; }
+
+  .pr-seg{ display: flex; gap: 6px; background: #F4F6F9; padding: 4px; border-radius: 12px; margin-bottom: 18px; }
+  .pr-seg button{ flex: 1; padding: 8px 2px; border-radius: 9px; border: none; cursor: pointer; background: transparent;
+    display: flex; flex-direction: column; align-items: center; font-size: 12.5px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif; color: #8E9EAE; transition: background .2s, color .2s, box-shadow .2s; }
+  .pr-seg button.on{ background: #fff; box-shadow: 0 1px 5px rgba(28,43,58,.12); }
+  .pr-tab-badge{ font-size: 9px; font-weight: 800; letter-spacing: .3px; padding: 2px 6px; border-radius: 50px;
+    text-transform: uppercase; margin-top: 4px; }
+
+  .pr-price-row{ display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .pr-price{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 46px; line-height: 1; color: var(--charcoal); letter-spacing: -1px; }
+  .pr-price-note{ font-size: 13px; color: #A0ADB8; }
+  .pr-from{ font-size: 13px; color: #A0ADB8; font-weight: 500; }
+  .pr-persession{ font-size: 13.5px; color: #6B7D8E; margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pr-persession strong{ font-size: 15px; }
+  .pr-strike{ text-decoration: line-through; color: #B6C0CA; }
+  .pr-strike.lg{ font-size: 15px; font-weight: 600; }
+  .pr-save{ font-size: 12px; font-weight: 700; color: var(--green); background: rgba(61,158,114,.1); padding: 2px 8px; border-radius: 50px; }
+  .pr-valid{ font-size: 12.5px; color: #A0ADB8; margin-top: 6px; }
+
+  .pr-divider{ height: 1px; background: #EEF0F3; margin: 20px 0; }
+  .pr-feats{ display: flex; flex-direction: column; gap: 11px; flex: 1; }
+  .pr-feat{ display: flex; gap: 10px; align-items: flex-start; font-size: 13.8px; color: #3A4A5A; line-height: 1.5; }
+  .pr-feat-ic{ font-weight: 800; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .pr-cta{ display: block; text-align: center; margin-top: 24px; padding: 14px; border-radius: 12px;
+    font-size: 15px; font-weight: 700; text-decoration: none; font-family: 'DM Sans', sans-serif; transition: transform .2s, filter .2s; }
+  .pr-cta:hover{ transform: translateY(-2px); filter: brightness(1.03); }
+  .pr-cta-note{ font-size: 12px; color: #A0ADB8; text-align: center; margin-top: 10px; }
+
+  /* Refund */
+  .pr-refund{ background: #fff; border-radius: 22px; padding: 34px; border: 1.5px solid rgba(61,158,114,.25);
+    text-align: center; box-shadow: var(--sh-card); }
+  .pr-refund-badge{ font-size: 30px; margin-bottom: 10px; }
+  .pr-refund-t{ font-size: 23px; font-weight: 800; color: var(--charcoal); margin-bottom: 10px; }
+  .pr-refund-p{ font-size: 15px; color: #3A4A5A; line-height: 1.7; max-width: 540px; margin: 0 auto 18px; }
+  .pr-refund-link{ font-size: 14px; color: var(--coral); font-weight: 700; text-decoration: none; }
+  .pr-refund-link:hover{ text-decoration: underline; }
+
+  /* Entrance animation (self-contained, no observer dependency) */
+  @keyframes prUp{ from{ opacity: 0; transform: translateY(22px); } to{ opacity: 1; transform: none; } }
+  .pr-anim{ animation: prUp .6s cubic-bezier(.2,.7,.2,1) both; }
+  .pr-d1{ animation-delay: .05s; } .pr-d2{ animation-delay: .13s; } .pr-d3{ animation-delay: .21s; }
+  @media (prefers-reduced-motion: reduce){ .pr-anim{ animation: none; } .pr-card:hover{ transform: none; } }
+
+  @media (max-width: 940px){
+    .pr-grid, .pr-grid.two, .pr-steps{ grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
+    .pr-card-sub{ min-height: 0; }
+  }
+`
