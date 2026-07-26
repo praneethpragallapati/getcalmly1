@@ -1,15 +1,11 @@
 import { redirect } from 'next/navigation'
-import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap, IndianRupee } from 'lucide-react'
+import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap } from 'lucide-react'
 import { getTherapistContext, getTherapistProfile } from '@/lib/expert'
 
 export const metadata = { title: 'Profile · Expert portal', robots: { index: false, follow: false } }
 
 const coral = '#C8553D'
 const charcoal = '#1C2B3A'
-
-function inr(n: number) {
-  return `₹${n.toLocaleString('en-IN')}`
-}
 
 export default async function ExpertProfilePage() {
   const ctx = await getTherapistContext()
@@ -79,8 +75,7 @@ export default async function ExpertProfilePage() {
           <div className="section-title" style={{ marginBottom: 12 }}>At a glance</div>
           <Row icon={<Briefcase size={15} />} label="Engagement" value={partTime ? 'Part-time (per session)' : 'Full-time (salaried)'} />
           <Row icon={<GraduationCap size={15} />} label="Qualifications" value={p.qualifications.join(', ') || '—'} />
-          <Row icon={<Globe size={15} />} label="Languages" value={p.languages.join(', ') || '—'} />
-          <Row icon={<IndianRupee size={15} />} label="Session fee" value={inr(p.sessionFee)} last />
+          <Row icon={<Globe size={15} />} label="Languages" value={p.languages.join(', ') || '—'} last />
         </div>
       </div>
 
