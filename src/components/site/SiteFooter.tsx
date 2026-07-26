@@ -36,7 +36,7 @@ export default function SiteFooter() {
           <h4>Care</h4>
           <Link href="/services">Services</Link>
           <Link href="/for-therapists">Join our experts</Link>
-          <Link href="/real-talk">Real Talk</Link>
+          <Link href="/real-talk">Calm Club</Link>
           <Link href="/safety">Crisis resources</Link>
         </div>
         <div className="foot-col">

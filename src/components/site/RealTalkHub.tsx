@@ -111,7 +111,7 @@ function CountUp({ end, suffix = '' }: { end: number; suffix?: string }) {
 }
 
 /**
- * "Real Talk" — getCalmly's content + community hub. An immersive, animated
+ * "Calm Club" — the articles + community hub. An immersive, animated
  * front door built to pull people into the community: a living hero with a
  * recent-activity ticker, a bento of featured reads, and a community showcase
  * with real social proof and a low-friction join.
@@ -195,9 +195,6 @@ export default function RealTalkHub({
         <div className="rt-blob" style={{ top: '30%', left: '46%', width: 220, height: 220, background: 'radial-gradient(circle, rgba(224,164,92,.28), transparent 70%)', animation: 'rtFloat3 24s ease-in-out infinite' }} />
 
         <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '3.5px', textTransform: 'uppercase', color: '#E8896F', marginBottom: 20 }}>
-            The getCalmly content hub
-          </p>
           <h1
             style={{
               fontFamily: HEAD,
@@ -209,7 +206,7 @@ export default function RealTalkHub({
               color: '#fff',
             }}
           >
-            Real <span className="rt-shimmer">Talk</span>
+            Calm <span className="rt-shimmer">Club</span>
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.74)', fontSize: 'clamp(16px,2.2vw,20px)', maxWidth: 620, margin: '22px auto 0', lineHeight: 1.6, fontWeight: 300 }}>
             Honest reads from our clinicians, and a community where you find out you were never the only
@@ -228,13 +225,16 @@ export default function RealTalkHub({
 
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginTop: 34 }}>
-            <Link href="/register?care=free" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 32px', borderRadius: 50, background: CORAL, color: '#fff', fontSize: 15.5, fontWeight: 700, textDecoration: 'none', boxShadow: '0 8px 26px rgba(200,85,61,.4)' }}>
-              ✦ Join the community — free
+            <Link href="/community" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 32px', borderRadius: 50, background: CORAL, color: '#fff', fontSize: 15.5, fontWeight: 700, textDecoration: 'none', boxShadow: '0 8px 26px rgba(200,85,61,.4)' }}>
+              Read the conversations
             </Link>
-            <a href="#reads" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 28px', borderRadius: 50, background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 15.5, fontWeight: 600, textDecoration: 'none', border: '1.5px solid rgba(255,255,255,.2)' }}>
-              Browse the reads
-            </a>
+            <Link href="/register?care=free" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 28px', borderRadius: 50, background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 15.5, fontWeight: 600, textDecoration: 'none', border: '1.5px solid rgba(255,255,255,.2)' }}>
+              ✦ Join free to take part
+            </Link>
           </div>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,.6)', marginTop: 16 }}>
+            Reading is open to everyone, no account needed. Sign in only to comment or post.
+          </p>
         </div>
 
         {/* recent-activity ticker */}
@@ -283,7 +283,7 @@ export default function RealTalkHub({
               </h2>
               <p style={{ fontSize: 16.5, color: '#5A6A7A', lineHeight: 1.65, margin: '18px auto 0', maxWidth: 560 }}>
                 A safe, moderated space where members, therapists and psychiatrists talk honestly. Read
-                anything you like. Join when you&apos;re ready to be heard.
+                every conversation without an account, sign in only when you want to comment or post.
               </p>
 
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, marginTop: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -467,9 +467,14 @@ function JoinCard({ convos }: { convos: number }) {
       <p style={{ fontSize: 14, color: 'rgba(255,255,255,.9)', lineHeight: 1.55, margin: '0 0 18px' }}>
         {convos > 0 ? `Join ${convos} open conversations. ` : ''}Post anonymously, get real replies from people and professionals who get it.
       </p>
-      <Link href="/register?care=free" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 50, background: '#fff', color: CORAL, fontSize: 14.5, fontWeight: 800, textDecoration: 'none' }}>
-        Join free — 30 seconds
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <Link href="/register?care=free" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 50, background: '#fff', color: CORAL, fontSize: 14.5, fontWeight: 800, textDecoration: 'none' }}>
+          Join free — 30 seconds
+        </Link>
+        <Link href="/community" style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 3 }}>
+          Just read for now →
+        </Link>
+      </div>
       <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,.7)', marginTop: 12 }}>No feed to doomscroll. Moderated, always.</p>
     </div>
   )

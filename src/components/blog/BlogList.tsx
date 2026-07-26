@@ -243,7 +243,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
   )
 }
 
-/** Large split featured-article card. Shared with the Real Talk hub. */
+/** Large split featured-article card. Shared with the Calm Club hub. */
 export function BlogLeadCard({ post }: { post: BlogPostView }) {
   return (
     <Link href={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
@@ -353,7 +353,7 @@ export function BlogLeadCard({ post }: { post: BlogPostView }) {
   )
 }
 
-/** Standard grid article card. Shared with the Real Talk hub. */
+/** Standard grid article card. Shared with the Calm Club hub. */
 export function BlogCard({ post }: { post: BlogPostView }) {
   return (
     <Link href={`/blog/${post.slug}`} style={{ textDecoration: 'none', display: 'flex' }}>

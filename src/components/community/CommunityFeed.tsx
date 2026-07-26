@@ -130,7 +130,7 @@ function TagChip({
   )
 }
 
-/** Community discussion card. Shared with the Real Talk hub. */
+/** Community discussion card. Shared with the Calm Club hub. */
 export function CommunityPostCard({ post, base = '/community' }: { post: CommunityPostView; base?: string }) {
   const [hover, setHover] = useState(false)
   return (
