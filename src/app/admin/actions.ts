@@ -9,11 +9,11 @@ import { getEarningsConfig } from '@/lib/earningsConfig'
 import { updatePricingConfig } from '@/lib/pricingConfig'
 import type { PricingValues } from '@/data/pricing'
 
-async function requireAdmin(): Promise<{ name: string | null } | null> {
+async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
-  const user = session?.user as { role?: string; name?: string | null } | undefined
+  const user = session?.user as { id?: string; role?: string; name?: string | null } | undefined
   if (user?.role !== 'ADMIN') return null
-  return { name: user.name ?? null }
+  return { id: user.id ?? null, name: user.name ?? null }
 }
 
 export type AdminResult = { ok: boolean; error?: string }
@@ -393,7 +393,82 @@ export async function setAppointmentStatusAdmin(input: { id: string; status: str
   } catch { return { ok: false, error: 'Could not update the session.' } }
 }
 
-// ── Content moderation ───────────────────────────────────────────────────────
+// ── Content moderation + admin authoring ─────────────────────────────────────
+
+// Byline used for admin-authored content, so it reads as the platform team.
+const ADMIN_BYLINE = 'GetCalmly Team'
+const ADMIN_ROLE_LABEL = 'GetCalmly Team'
+
+function adminSlugify(title: string): string {
+  const base = title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 60)
+  return `${base || 'post'}-${Math.random().toString(36).slice(2, 7)}`
+}
+function adminReadTime(paragraphs: string[]): string {
+  const words = paragraphs.join(' ').trim().split(/\s+/).filter(Boolean).length
+  return `${Math.max(1, Math.round(words / 200))} min read`
+}
+// Accept an https URL or a modestly-sized inline data image, same as blog covers.
+function adminCleanCover(cover?: string | null): string | null {
+  const c = (cover ?? '').trim()
+  if (!c || c.length > 1_500_000) return null
+  return /^(https?:\/\/|data:image\/)/i.test(c) ? c : null
+}
+
+/** Publish a blog post under the GetCalmly Team byline (admin authoring). */
+export async function createAdminBlogPost(input: {
+  title: string; excerpt?: string; body: string; tags?: string; coverImage?: string
+}): Promise<AdminResult & { slug?: string }> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  const title = input.title?.trim()
+  const body = input.body?.trim()
+  if (!title || !body) return { ok: false, error: 'Add a title and body.' }
+  const paragraphs = body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
+  if (paragraphs.length === 0) return { ok: false, error: 'Add some body text.' }
+  const excerpt = (input.excerpt?.trim() || paragraphs[0]).slice(0, 280)
+  const tags = arr(input.tags).slice(0, 6)
+  try {
+    const post = await prisma.blogPost.create({
+      data: {
+        slug: adminSlugify(title),
+        title, excerpt, content: paragraphs,
+        authorId: admin.id ?? undefined,
+        authorName: admin.name || ADMIN_BYLINE,
+        authorRole: ADMIN_ROLE_LABEL,
+        tags,
+        coverImage: adminCleanCover(input.coverImage),
+        readTime: adminReadTime(paragraphs),
+        published: true,
+      },
+    })
+    revalidatePath('/admin/content'); revalidatePath('/blog'); revalidatePath(`/blog/${post.slug}`)
+    return { ok: true, slug: post.slug }
+  } catch { return { ok: false, error: 'Could not publish the post.' } }
+}
+
+/** Start a community discussion carrying the ADMIN badge (admin authoring). */
+export async function createAdminCommunityPost(input: {
+  title: string; body: string; tags?: string
+}): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  const title = input.title?.trim()
+  const body = input.body?.trim()
+  if (!title || !body) return { ok: false, error: 'Add a title and a message.' }
+  try {
+    await prisma.communityPost.create({
+      data: {
+        title, body,
+        authorId: admin.id ?? undefined,
+        authorName: admin.name || ADMIN_BYLINE,
+        authorRole: 'ADMIN',
+        tags: arr(input.tags).slice(0, 6),
+      },
+    })
+    revalidatePath('/admin/content'); revalidatePath('/community'); revalidatePath('/app/community')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not post the discussion.' } }
+}
 
 export async function setBlogPublished(input: { slug: string; published: boolean }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
