@@ -140,7 +140,10 @@ export type ClinicianDetail = {
   rciNumber: string; yearsExp: number; sessionFee: number; employmentType: string
   isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
   baseFeeIndividual: number | null; baseFeeCouples: number | null; baseFeePsychiatry: number | null
+  secondSessionBonus: number | null; thirdOnwardsBonus: number | null; miscBonus: number | null; nightSessionBonus: number | null
   globalFees: { individual: number; couples: number; psychiatry: number }
+  globalBonuses: { second: number; thirdOnwards: number; misc: number; night: number }
+  documentUrls: string[]
   supervisors: { linkId: string; name: string }[]
   supervisees: { linkId: string; name: string }[]
   patients: { userId: string; name: string }[]
@@ -172,7 +175,11 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       employmentType: (p.employmentType as string) ?? 'FULL_TIME', isActive: p.isActive, isVerified: p.isVerified,
       rating: p.rating, totalReviews: p.totalReviews,
       baseFeeIndividual: p.baseFeeIndividual ?? null, baseFeeCouples: p.baseFeeCouples ?? null, baseFeePsychiatry: p.baseFeePsychiatry ?? null,
+      secondSessionBonus: p.secondSessionBonus ?? null, thirdOnwardsBonus: p.thirdOnwardsBonus ?? null,
+      miscBonus: p.miscBonus ?? null, nightSessionBonus: p.nightSessionBonus ?? null,
       globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
+      globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus },
+      documentUrls: p.documentUrls ?? [],
       supervisors: links.filter((l) => l.superviseeId === profileId).map((l) => ({ linkId: l.id, name: l.supervisor.user?.name ?? 'Clinician' })),
       supervisees: links.filter((l) => l.supervisorId === profileId).map((l) => ({ linkId: l.id, name: l.supervisee.user?.name ?? 'Clinician' })),
       patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),

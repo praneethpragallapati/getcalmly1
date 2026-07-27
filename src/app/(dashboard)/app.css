@@ -4,14 +4,17 @@
    Everything is scoped under .calmly-app so it never leaks into the site. */
 
 .calmly-app {
-  --c-coral: #c8553d;
-  --c-coral-d: #a8432d;
-  --c-coral-l: #e8896f;
-  --c-coral-pale: #fdeae6;
+  /* Patient dashboard accent: green. The whole shared component system is driven
+     by --c-coral, so these green values re-skin every patient surface at once.
+     (Expert & admin re-map --c-coral again in their own theme blocks below.) */
+  --c-coral: #2f9068;
+  --c-coral-d: #256f50;
+  --c-coral-l: #5bb491;
+  --c-coral-pale: #e5f4ee;
   --c-charcoal: #1c2b3a;
   --c-charcoal-2: #233140;
   --c-ink: #16212d;
-  --c-bg: #fffcfa;
+  --c-bg: #f7fcfa;
   --c-white: #ffffff;
   --c-gray: #8e9eae;
   --c-gray-d: #5a6a7a;
@@ -43,6 +46,16 @@
   --c-coral-l: #4ba8a2;
   --c-coral-pale: #e3f1f0;
   --c-bg: #f5fafa;
+}
+
+/* Admin console: same component classes, re-skinned purple so the admin area is
+   visually distinct from the patient (green) and expert (teal) surfaces. */
+.calmly-app.admin-theme {
+  --c-coral: #6d5bd0;
+  --c-coral-d: #574ab0;
+  --c-coral-l: #9184e0;
+  --c-coral-pale: #ece9fb;
+  --c-bg: #f8f7fe;
 }
 
 /* ===== Sidebar ===== */

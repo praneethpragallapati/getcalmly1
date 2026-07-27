@@ -8,7 +8,7 @@ import { updateTherapistSettings, assignSupervisor, removeSupervisionLink } from
 import type { ClinicianDetail } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 
 const field: React.CSSProperties = { width: '100%', border: '1.5px solid #E2E8F0', borderRadius: 9, padding: '9px 11px', fontSize: 14, fontFamily: 'inherit', color: charcoal, boxSizing: 'border-box' }
 const label: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 600, color: '#5A6B7A', marginBottom: 5 }
@@ -22,27 +22,35 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
   const [employmentType, setEmploymentType] = useState(c.employmentType)
   const [isActive, setIsActive] = useState(c.isActive)
   const [isVerified, setIsVerified] = useState(c.isVerified)
-  const [sessionFee, setSessionFee] = useState(String(c.sessionFee))
   const [rating, setRating] = useState(String(c.rating))
   const [totalReviews, setTotalReviews] = useState(String(c.totalReviews))
   const [feeInd, setFeeInd] = useState(numOrEmpty(c.baseFeeIndividual))
   const [feeCpl, setFeeCpl] = useState(numOrEmpty(c.baseFeeCouples))
   const [feePsy, setFeePsy] = useState(numOrEmpty(c.baseFeePsychiatry))
+  const [bonus2, setBonus2] = useState(numOrEmpty(c.secondSessionBonus))
+  const [bonus3, setBonus3] = useState(numOrEmpty(c.thirdOnwardsBonus))
+  const [bonusMisc, setBonusMisc] = useState(numOrEmpty(c.miscBonus))
+  const [bonusNight, setBonusNight] = useState(numOrEmpty(c.nightSessionBonus))
   const [supId, setSupId] = useState('')
+
+  const numOrBlank = (v: string): number | '' => (v === '' ? '' : Number(v))
 
   function save() {
     setMsg(null)
     startTransition(async () => {
       const res = await updateTherapistSettings({
         profileId: c.profileId,
-        sessionFee: Number(sessionFee) || 0,
         employmentType,
         isActive, isVerified,
         rating: Number(rating) || 0,
         totalReviews: Number(totalReviews) || 0,
-        baseFeeIndividual: feeInd === '' ? '' : Number(feeInd),
-        baseFeeCouples: feeCpl === '' ? '' : Number(feeCpl),
-        baseFeePsychiatry: feePsy === '' ? '' : Number(feePsy),
+        baseFeeIndividual: numOrBlank(feeInd),
+        baseFeeCouples: numOrBlank(feeCpl),
+        baseFeePsychiatry: numOrBlank(feePsy),
+        secondSessionBonus: numOrBlank(bonus2),
+        thirdOnwardsBonus: numOrBlank(bonus3),
+        miscBonus: numOrBlank(bonusMisc),
+        nightSessionBonus: numOrBlank(bonusNight),
       })
       setMsg(res.ok ? { ok: true, text: 'Saved.' } : { ok: false, text: res.error ?? 'Failed.' })
       if (res.ok) router.refresh()
@@ -63,7 +71,10 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
     <div className="stack">
       {/* Settings */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>Settings &amp; rates</div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Pay structure &amp; rates</div>
+        <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
+          Exactly what {c.name.split(' ')[0]} sees in their own earnings ledger. Every field is a per-therapist override — leave it blank to use the platform default.
+        </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Row>
             <Col><label style={label}>Engagement</label>
@@ -72,15 +83,24 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
                 <option value="PART_TIME">Part-time (per session)</option>
               </select>
             </Col>
-            <Col><label style={label}>Standard session fee (₹)</label><input type="number" min={0} style={field} value={sessionFee} onChange={(e) => setSessionFee(e.target.value)} /></Col>
           </Row>
 
           <div>
-            <div className="muted" style={{ fontSize: 12.5, marginBottom: 8 }}>Per-therapist base fees — blank uses the platform default.</div>
+            <div className="muted" style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>Base fee per session</div>
             <Row>
               <Col><label style={label}>Individual (₹)</label><input type="number" min={0} style={field} value={feeInd} onChange={(e) => setFeeInd(e.target.value)} placeholder={feeHint(feeInd, c.globalFees.individual) || undefined} /></Col>
               <Col><label style={label}>Couples (₹)</label><input type="number" min={0} style={field} value={feeCpl} onChange={(e) => setFeeCpl(e.target.value)} placeholder={feeHint(feeCpl, c.globalFees.couples) || undefined} /></Col>
               <Col><label style={label}>Psychiatry (₹)</label><input type="number" min={0} style={field} value={feePsy} onChange={(e) => setFeePsy(e.target.value)} placeholder={feeHint(feePsy, c.globalFees.psychiatry) || undefined} /></Col>
+            </Row>
+          </div>
+
+          <div>
+            <div className="muted" style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>Bonuses</div>
+            <Row>
+              <Col><label style={label}>2nd session (₹)</label><input type="number" min={0} style={field} value={bonus2} onChange={(e) => setBonus2(e.target.value)} placeholder={feeHint(bonus2, c.globalBonuses.second) || undefined} /></Col>
+              <Col><label style={label}>3rd onwards (₹)</label><input type="number" min={0} style={field} value={bonus3} onChange={(e) => setBonus3(e.target.value)} placeholder={feeHint(bonus3, c.globalBonuses.thirdOnwards) || undefined} /></Col>
+              <Col><label style={label}>Night session (₹)</label><input type="number" min={0} style={field} value={bonusNight} onChange={(e) => setBonusNight(e.target.value)} placeholder={feeHint(bonusNight, c.globalBonuses.night) || undefined} /></Col>
+              <Col><label style={label}>Misc (₹)</label><input type="number" min={0} style={field} value={bonusMisc} onChange={(e) => setBonusMisc(e.target.value)} placeholder={feeHint(bonusMisc, c.globalBonuses.misc) || undefined} /></Col>
             </Row>
           </div>
 
@@ -100,6 +120,21 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
           </div>
         </div>
       </div>
+
+      {/* Onboarding attachments */}
+      {c.documentUrls.length > 0 && (
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 4 }}>Attachments ({c.documentUrls.length})</div>
+          <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>Documents captured at onboarding — certificates, registration proof, ID.</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {c.documentUrls.map((u, i) => (
+              <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 13 }}>
+                Attachment {i + 1}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Supervision */}
       <div className="card">

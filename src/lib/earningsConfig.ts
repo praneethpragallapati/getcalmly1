@@ -41,6 +41,39 @@ export const EARNINGS_DEFAULTS: EarningsConfigValues = {
   nightSessionBonus: 200,
 }
 
+// Per-therapist overrides (any field null → fall back to the global config).
+export type TherapistEarningsOverrides = {
+  baseFeeIndividual?: number | null
+  baseFeeCouples?: number | null
+  baseFeePsychiatry?: number | null
+  secondSessionBonus?: number | null
+  thirdOnwardsBonus?: number | null
+  miscBonus?: number | null
+  nightSessionBonus?: number | null
+}
+
+/**
+ * The effective pay structure for one clinician: the global config with any
+ * per-therapist override applied. This is what both the admin editor and the
+ * clinician's own earnings ledger read, so the two never diverge.
+ */
+export function effectiveEarningsConfig(
+  global: EarningsConfigValues,
+  o: TherapistEarningsOverrides | null | undefined
+): EarningsConfigValues {
+  if (!o) return global
+  const pick = (v: number | null | undefined, fallback: number) => (v == null ? fallback : v)
+  return {
+    baseFeeIndividual: pick(o.baseFeeIndividual, global.baseFeeIndividual),
+    baseFeeCouples: pick(o.baseFeeCouples, global.baseFeeCouples),
+    baseFeePsychiatry: pick(o.baseFeePsychiatry, global.baseFeePsychiatry),
+    secondSessionBonus: pick(o.secondSessionBonus, global.secondSessionBonus),
+    thirdOnwardsBonus: pick(o.thirdOnwardsBonus, global.thirdOnwardsBonus),
+    miscBonus: pick(o.miscBonus, global.miscBonus),
+    nightSessionBonus: pick(o.nightSessionBonus, global.nightSessionBonus),
+  }
+}
+
 /** The base fee for a given service type. */
 export function baseFeeFor(config: EarningsConfigValues, service: ServiceType): number {
   return service === 'couples'

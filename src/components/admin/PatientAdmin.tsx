@@ -7,7 +7,7 @@ import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSession
 import type { PatientDetail } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 
 export function PatientAdmin({ p }: { p: PatientDetail }) {
   const router = useRouter()

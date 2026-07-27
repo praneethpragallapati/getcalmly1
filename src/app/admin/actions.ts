@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, generateTempPassword } from '@/lib/password'
-import { updateEarningsConfig, type EarningsConfigValues } from '@/lib/earningsConfig'
+import { getEarningsConfig } from '@/lib/earningsConfig'
 import { updatePricingConfig } from '@/lib/pricingConfig'
 import type { PricingValues } from '@/data/pricing'
 
@@ -32,25 +32,42 @@ export type CreateTherapistInput = {
   name: string; email: string; phone?: string
   council?: string; registrationNo: string; yearsExp?: number
   qualifications?: string; languages?: string; specializations?: string; bio?: string
-  sessionFee?: number; employmentType?: string
+  employmentType?: string
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
+  secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
+  documentUrls?: string[]
 }
 
 export async function createTherapist(input: CreateTherapistInput): Promise<CreateResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   const name = input.name?.trim()
   const email = input.email?.trim().toLowerCase()
+  const council = (input.council ?? '').trim()
   const registrationNo = input.registrationNo?.trim()
   if (!name || !email) return { ok: false, error: 'Name and email are required.' }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Enter a valid email.' }
-  if (!registrationNo) return { ok: false, error: 'Registration (RCI/NMC) number is required.' }
+  // Registration is required unless the clinician is on no council ("None").
+  const councilNone = council === '' || council.toLowerCase() === 'none'
+  if (!councilNone && !registrationNo) return { ok: false, error: 'Registration (RCI/NMC) number is required.' }
   const employmentType = input.employmentType === 'PART_TIME' ? 'PART_TIME' : 'FULL_TIME'
+  // rciNumber is unique + non-null; when there's no council, store a unique sentinel.
+  const regValue = registrationNo || `NONE-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 
   try {
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) return { ok: false, error: 'An account with that email already exists.' }
-    const regTaken = await prisma.therapistProfile.findUnique({ where: { rciNumber: registrationNo } }).catch(() => null)
-    if (regTaken) return { ok: false, error: 'That registration number is already in use.' }
+    if (registrationNo) {
+      const regTaken = await prisma.therapistProfile.findUnique({ where: { rciNumber: registrationNo } }).catch(() => null)
+      if (regTaken) return { ok: false, error: 'That registration number is already in use.' }
+    }
+
+    // Default the (internal) session fee to the clinician's individual base fee,
+    // falling back to the platform default — there is no separate "standard fee".
+    const cfg = await getEarningsConfig()
+    const feeInd = input.baseFeeIndividual === '' ? null : posInt(input.baseFeeIndividual)
+    const sessionFee = feeInd ?? cfg.baseFeeIndividual
+    const ov = (v: number | '' | undefined) => (v === '' || v === undefined ? null : posInt(v))
+    const docs = (input.documentUrls ?? []).map((u) => u.trim()).filter(Boolean).slice(0, 12)
 
     const tempPassword = generateTempPassword()
     await prisma.user.create({
@@ -63,12 +80,17 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
             yearsExp: posInt(input.yearsExp) ?? 0,
             languages: arr(input.languages),
             specializations: arr(input.specializations),
-            rciNumber: registrationNo,
-            sessionFee: posInt(input.sessionFee) ?? 0,
+            rciNumber: regValue,
+            sessionFee,
             employmentType,
-            baseFeeIndividual: input.baseFeeIndividual === '' ? null : posInt(input.baseFeeIndividual),
-            baseFeeCouples: input.baseFeeCouples === '' ? null : posInt(input.baseFeeCouples),
-            baseFeePsychiatry: input.baseFeePsychiatry === '' ? null : posInt(input.baseFeePsychiatry),
+            baseFeeIndividual: feeInd,
+            baseFeeCouples: ov(input.baseFeeCouples),
+            baseFeePsychiatry: ov(input.baseFeePsychiatry),
+            secondSessionBonus: ov(input.secondSessionBonus),
+            thirdOnwardsBonus: ov(input.thirdOnwardsBonus),
+            miscBonus: ov(input.miscBonus),
+            nightSessionBonus: ov(input.nightSessionBonus),
+            documentUrls: docs,
             isVerified: true,
             isActive: true,
           },
@@ -105,10 +127,11 @@ export async function createAdmin(input: { name: string; email: string }): Promi
 
 export type TherapistSettingsInput = {
   profileId: string
-  sessionFee?: number; employmentType?: string
+  employmentType?: string
   isActive?: boolean; isVerified?: boolean
   rating?: number; totalReviews?: number
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
+  secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
 }
 
 export async function updateTherapistSettings(input: TherapistSettingsInput): Promise<AdminResult> {
@@ -116,18 +139,28 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
   const override = (v: number | '' | undefined): number | null | undefined =>
     v === undefined ? undefined : v === '' ? null : posInt(v)
   try {
+    // The internal session fee tracks the individual base fee (no separate
+    // "standard fee" concept): when a base is set, mirror it; when cleared,
+    // fall back to the platform default so appointment.fee always has a value.
+    const feeInd = override(input.baseFeeIndividual)
+    const cfg = feeInd === null ? await getEarningsConfig() : null
+    const sessionFee = feeInd === undefined ? undefined : feeInd ?? cfg!.baseFeeIndividual
     await prisma.therapistProfile.update({
       where: { id: input.profileId },
       data: {
-        sessionFee: input.sessionFee !== undefined ? posInt(input.sessionFee) ?? 0 : undefined,
+        sessionFee,
         employmentType: input.employmentType === 'PART_TIME' ? 'PART_TIME' : input.employmentType === 'FULL_TIME' ? 'FULL_TIME' : undefined,
         isActive: input.isActive,
         isVerified: input.isVerified,
         rating: input.rating !== undefined ? Math.max(0, Math.min(5, input.rating)) : undefined,
         totalReviews: input.totalReviews !== undefined ? posInt(input.totalReviews) ?? 0 : undefined,
-        baseFeeIndividual: override(input.baseFeeIndividual),
+        baseFeeIndividual: feeInd,
         baseFeeCouples: override(input.baseFeeCouples),
         baseFeePsychiatry: override(input.baseFeePsychiatry),
+        secondSessionBonus: override(input.secondSessionBonus),
+        thirdOnwardsBonus: override(input.thirdOnwardsBonus),
+        miscBonus: override(input.miscBonus),
+        nightSessionBonus: override(input.nightSessionBonus),
       },
     })
     revalidatePath(`/admin/therapists/${input.profileId}`); revalidatePath('/admin/therapists'); revalidatePath('/expert/earnings')
@@ -263,20 +296,6 @@ export async function setLeadHandled(input: { id: string; handled: boolean }): P
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update the lead.' }
-  }
-}
-
-/** Save the editable earnings pay structure. ADMIN only. */
-export async function saveEarningsConfig(values: EarningsConfigValues): Promise<AdminResult> {
-  const admin = await requireAdmin()
-  if (!admin) return { ok: false, error: 'Admin access required.' }
-  try {
-    await updateEarningsConfig(values, admin.name)
-    revalidatePath('/admin/earnings')
-    revalidatePath('/expert/earnings')
-    return { ok: true }
-  } catch {
-    return { ok: false, error: 'Could not save the configuration.' }
   }
 }
 

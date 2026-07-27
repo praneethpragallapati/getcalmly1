@@ -8,7 +8,7 @@ import { setApplicationStatus, setContactHandled, setLeadHandled } from '@/app/a
 import type { ApplicationRow, ContactRow, LeadRow } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 
 const STATUS_LABEL: Record<string, string> = {
   APPLIED: 'Applied', INTERVIEW_SCHEDULED: 'Interview scheduled', UNDER_REVIEW: 'Under review', APPROVED: 'Approved', REJECTED: 'Rejected',

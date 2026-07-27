@@ -6,7 +6,7 @@ import { savePricingConfig } from '@/app/admin/actions'
 import { perSession, inr, type PricingValues, type SessionPack, type AppPack, type BuyableTrack } from '@/data/pricing'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 
 const cell: React.CSSProperties = {
   width: '100%', border: '1.5px solid #E2E8F0', borderRadius: 8, padding: '8px 10px',

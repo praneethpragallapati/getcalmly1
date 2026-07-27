@@ -8,7 +8,7 @@ import { broadcastAnnouncement, setFormActive } from '@/app/admin/actions'
 import type { FormRow } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 const field: React.CSSProperties = { width: '100%', border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: 'inherit', color: charcoal, boxSizing: 'border-box' }
 const label: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 600, color: '#5A6B7A', marginBottom: 5 }
 
@@ -87,7 +87,8 @@ export function ConfigPanel({ forms }: { forms: FormRow[] }) {
         <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.7 }}>
           <b>Customer pricing</b> — first-session fees, session packs and Calm+ plans — is on the{' '}
           <Link href="/admin/pricing" className="link-action">Pricing</Link> page.
-          The <b>earnings pay structure</b> is on the <Link href="/admin/earnings" className="link-action">Earnings config</Link> page.
+          Each clinician&apos;s <b>pay structure</b> (base fees and bonuses) lives on their own profile under{' '}
+          <Link href="/admin/therapists" className="link-action">Clinicians</Link>, so it matches exactly what they see in their earnings ledger.
           Feature flags (e.g. Enterprise availability) are still managed in code — tell the team if you need those made editable here.
         </p>
       </div>

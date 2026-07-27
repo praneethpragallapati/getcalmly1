@@ -52,7 +52,7 @@ export default async function AdminSupervisionPage() {
               <option key={t.profileId} value={t.profileId}>{t.name} ({t.email})</option>
             ))}
           </select>
-          <button type="submit" style={{ padding: '10px 20px', borderRadius: 10, background: '#C8553D', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+          <button type="submit" style={{ padding: '10px 20px', borderRadius: 10, background: '#6D5BD0', color: '#fff', border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
             Assign
           </button>
         </form>

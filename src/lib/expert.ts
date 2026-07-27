@@ -19,6 +19,7 @@ import { SYNTH_MODEL } from '@/lib/ai/models'
 import { hasLlm } from '@/lib/ai/config'
 import {
   getEarningsConfig,
+  effectiveEarningsConfig,
   isNightSession,
   sessionPay,
   baseFeeFor,
@@ -634,8 +635,15 @@ function serviceTypeOf(isPsychiatrist: boolean, careMode: string | null | undefi
 }
 
 export async function getTherapistEarnings(therapistProfileId: string): Promise<Earnings> {
-  const [profile, rows, config] = await Promise.all([
-    prisma.therapistProfile.findUnique({ where: { id: therapistProfileId }, select: { specializations: true } }),
+  const [profile, rows, globalConfig] = await Promise.all([
+    prisma.therapistProfile.findUnique({
+      where: { id: therapistProfileId },
+      select: {
+        specializations: true,
+        baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
+        secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
+      },
+    }),
     prisma.appointment.findMany({
       where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: { not: null } },
       orderBy: { scheduledAt: 'asc' },
@@ -644,6 +652,8 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
     getEarningsConfig(),
   ])
   const isPsych = looksPsychiatric(profile?.specializations ?? [])
+  // Apply this clinician's per-therapist overrides on top of the platform config.
+  const config = effectiveEarningsConfig(globalConfig, profile)
 
   const now = new Date()
   const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`

@@ -350,11 +350,20 @@ model TherapistProfile {
   // Salaried (full-time) or paid-per-session (part-time). Admin-managed; gates
   // the earnings ledger in the expert portal.
   employmentType  EmploymentType @default(FULL_TIME)
-  // Per-therapist base-fee overrides for earnings. Null → use the global
-  // EarningsConfig value for that service. Admin-editable on the profile.
-  baseFeeIndividual Int?
-  baseFeeCouples    Int?
-  baseFeePsychiatry Int?
+  // Per-therapist earnings overrides. Null on any field → use the global
+  // EarningsConfig value for that component. Admin-editable on the profile, so a
+  // clinician can be on a bespoke pay structure that still mirrors exactly what
+  // they see in their own earnings ledger.
+  baseFeeIndividual  Int?
+  baseFeeCouples     Int?
+  baseFeePsychiatry  Int?
+  secondSessionBonus Int?
+  thirdOnwardsBonus  Int?
+  miscBonus          Int?
+  nightSessionBonus  Int?
+  // Onboarding attachments (certificates, registration proof, ID). Stored as
+  // URLs or small inline data URLs, same convention as blog cover images.
+  documentUrls    String[]
   photoUrl        String?
   createdAt       DateTime @default(now())
 

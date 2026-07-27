@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Users, Stethoscope, CalendarClock, AlertTriangle, Inbox, Building2, FileCheck2, CreditCard } from 'lucide-react'
+import { Users, Stethoscope, CalendarClock, Inbox, Building2, FileCheck2, CreditCard } from 'lucide-react'
 import { getAdminSession, getAdminOverview } from '@/lib/admin'
 
 export default async function AdminOverviewPage() {
@@ -12,7 +12,6 @@ export default async function AdminOverviewPage() {
     { label: 'Active patients', value: k.patients, icon: <Users size={18} /> },
     { label: 'Active clinicians', value: k.clinicians, icon: <Stethoscope size={18} />, href: '/admin/therapists' },
     { label: 'Sessions today', value: k.sessionsToday, icon: <CalendarClock size={18} /> },
-    { label: 'Open crisis alerts', value: k.openCrises, icon: <AlertTriangle size={18} />, href: '/admin/safety', alert: k.openCrises > 0 },
     { label: 'Pending applications', value: k.pendingApplications, icon: <FileCheck2 size={18} />, href: '/admin/submissions' },
     { label: 'New contact messages', value: k.newContacts, icon: <Inbox size={18} />, href: '/admin/submissions' },
     { label: 'New enterprise leads', value: k.newLeads, icon: <Building2 size={18} />, href: '/admin/submissions' },
@@ -57,19 +56,10 @@ export default async function AdminOverviewPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <Link href="/admin/therapists" className="link-action">Manage clinicians &amp; rates →</Link>
             <Link href="/admin/supervision" className="link-action">Assign supervision →</Link>
-            <Link href="/admin/earnings" className="link-action">Edit earnings configuration →</Link>
+            <Link href="/admin/money" className="link-action">Money &amp; earnings statements →</Link>
           </div>
         </div>
       </div>
-
-      {k.openCrises > 0 && (
-        <div className="card" style={{ border: '1px solid rgba(192,80,75,.3)', background: 'rgba(192,80,75,.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#C0504B', fontWeight: 700 }}>
-            <AlertTriangle size={16} /> {k.openCrises} open crisis alert{k.openCrises === 1 ? '' : 's'} across the platform
-          </div>
-          <p className="muted" style={{ marginTop: 6 }}>Review and resolve them in the <Link href="/admin/safety" style={{ color: '#C8553D', fontWeight: 600 }}>Safety console</Link>.</p>
-        </div>
-      )}
     </div>
   )
 }

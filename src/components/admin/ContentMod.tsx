@@ -7,7 +7,7 @@ import { setBlogPublished, deleteBlogPost, deleteCommunityPost, deleteCommunityC
 import type { BlogModRow, CommunityModRow } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 
 export function ContentMod({ blogs, community }: { blogs: BlogModRow[]; community: CommunityModRow[] }) {
   const router = useRouter()

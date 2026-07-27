@@ -6,7 +6,7 @@ import { createTherapist, createAdmin, type CreateResult } from '@/app/admin/act
 import type { TherapistPrefill } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+const coral = '#6D5BD0'
 
 const field: React.CSSProperties = {
   width: '100%', border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '10px 12px',
@@ -33,15 +33,35 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   const [languages, setLanguages] = useState(prefill?.languages ?? '')
   const [specializations, setSpecializations] = useState(prefill?.specializations ?? '')
   const [bio, setBio] = useState(prefill?.bio ?? '')
-  const [sessionFee, setSessionFee] = useState('')
   const [employmentType, setEmploymentType] = useState<'FULL_TIME' | 'PART_TIME'>('FULL_TIME')
   const [feeInd, setFeeInd] = useState('')
   const [feeCpl, setFeeCpl] = useState('')
   const [feePsy, setFeePsy] = useState('')
+  const [bonus2, setBonus2] = useState('')
+  const [bonus3, setBonus3] = useState('')
+  const [bonusNight, setBonusNight] = useState('')
+  const [bonusMisc, setBonusMisc] = useState('')
+  const [docs, setDocs] = useState<{ name: string; url: string }[]>([])
+  const [docError, setDocError] = useState('')
 
   // Admin fields
   const [adminName, setAdminName] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
+
+  const numOrBlank = (v: string): number | '' => (v === '' ? '' : Number(v))
+
+  function addFiles(files: FileList | null) {
+    setDocError('')
+    if (!files) return
+    for (const file of Array.from(files)) {
+      // Inline small files as data URLs (same approach as blog covers). Larger
+      // files should be linked instead of embedded.
+      if (file.size > 2_500_000) { setDocError(`${file.name} is over 2.5 MB — add a link instead.`); continue }
+      const reader = new FileReader()
+      reader.onload = () => setDocs((d) => [...d, { name: file.name, url: String(reader.result) }].slice(0, 12))
+      reader.readAsDataURL(file)
+    }
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -52,11 +72,15 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
             name, email, phone, council, registrationNo,
             yearsExp: yearsExp ? Number(yearsExp) : undefined,
             qualifications, languages, specializations, bio,
-            sessionFee: sessionFee ? Number(sessionFee) : undefined,
             employmentType,
-            baseFeeIndividual: feeInd === '' ? '' : Number(feeInd),
-            baseFeeCouples: feeCpl === '' ? '' : Number(feeCpl),
-            baseFeePsychiatry: feePsy === '' ? '' : Number(feePsy),
+            baseFeeIndividual: numOrBlank(feeInd),
+            baseFeeCouples: numOrBlank(feeCpl),
+            baseFeePsychiatry: numOrBlank(feePsy),
+            secondSessionBonus: numOrBlank(bonus2),
+            thirdOnwardsBonus: numOrBlank(bonus3),
+            miscBonus: numOrBlank(bonusMisc),
+            nightSessionBonus: numOrBlank(bonusNight),
+            documentUrls: docs.map((d) => d.url),
           })
         : await createAdmin({ name: adminName, email: adminEmail })
       setResult(res)
@@ -119,12 +143,12 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
             <Col><label style={label}>Phone</label><input style={field} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" /></Col>
             <Col><label style={label}>Council</label>
               <select style={{ ...field, background: '#fff' }} value={council} onChange={(e) => setCouncil(e.target.value)}>
-                <option>RCI</option><option>NMC</option><option>RCI+NMC</option>
+                <option>RCI</option><option>NMC</option><option>RCI+NMC</option><option value="None">None</option>
               </select>
             </Col>
           </Row>
           <Row>
-            <Col><label style={label}>Registration number</label><input style={field} value={registrationNo} onChange={(e) => setRegistrationNo(e.target.value)} required placeholder="e.g. A012345" /></Col>
+            <Col><label style={label}>Registration number{council === 'None' && <span style={{ color: '#A0ADB8', fontWeight: 400 }}> (optional)</span>}</label><input style={field} value={registrationNo} onChange={(e) => setRegistrationNo(e.target.value)} required={council !== 'None'} placeholder={council === 'None' ? 'Not required' : 'e.g. A012345'} /></Col>
             <Col><label style={label}>Years of experience</label><input type="number" min={0} style={field} value={yearsExp} onChange={(e) => setYearsExp(e.target.value)} placeholder="e.g. 8" /></Col>
           </Row>
           <div><label style={label}>Specialisations <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, CBT, Trauma" /></div>
@@ -133,7 +157,8 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
           <div><label style={label}>Bio</label><textarea rows={3} style={{ ...field, resize: 'vertical' }} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="How they work and who they help best." /></div>
 
           <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', paddingTop: 14, marginTop: 2 }}>
-            <div className="section-title" style={{ fontSize: 15, marginBottom: 10 }}>Engagement &amp; rates</div>
+            <div className="section-title" style={{ fontSize: 15, marginBottom: 2 }}>Pay structure</div>
+            <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>Exactly what the clinician sees in their earnings ledger. Leave any field blank to use the platform default.</p>
             <Row>
               <Col><label style={label}>Engagement</label>
                 <select style={{ ...field, background: '#fff' }} value={employmentType} onChange={(e) => setEmploymentType(e.target.value as 'FULL_TIME' | 'PART_TIME')}>
@@ -141,14 +166,37 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
                   <option value="PART_TIME">Part-time (per session)</option>
                 </select>
               </Col>
-              <Col><label style={label}>Standard session fee (₹)</label><input type="number" min={0} style={field} value={sessionFee} onChange={(e) => setSessionFee(e.target.value)} placeholder="e.g. 1500" /></Col>
             </Row>
-            <p className="muted" style={{ fontSize: 12, margin: '10px 0 8px' }}>Per-therapist base fees (leave blank to use the platform defaults):</p>
+            <p className="muted" style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', margin: '12px 0 6px' }}>Base fee per session</p>
             <Row>
               <Col><label style={label}>Individual (₹)</label><input type="number" min={0} style={field} value={feeInd} onChange={(e) => setFeeInd(e.target.value)} placeholder="default" /></Col>
               <Col><label style={label}>Couples (₹)</label><input type="number" min={0} style={field} value={feeCpl} onChange={(e) => setFeeCpl(e.target.value)} placeholder="default" /></Col>
               <Col><label style={label}>Psychiatry (₹)</label><input type="number" min={0} style={field} value={feePsy} onChange={(e) => setFeePsy(e.target.value)} placeholder="default" /></Col>
             </Row>
+            <p className="muted" style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', margin: '12px 0 6px' }}>Bonuses</p>
+            <Row>
+              <Col><label style={label}>2nd session (₹)</label><input type="number" min={0} style={field} value={bonus2} onChange={(e) => setBonus2(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>3rd onwards (₹)</label><input type="number" min={0} style={field} value={bonus3} onChange={(e) => setBonus3(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>Night session (₹)</label><input type="number" min={0} style={field} value={bonusNight} onChange={(e) => setBonusNight(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>Misc (₹)</label><input type="number" min={0} style={field} value={bonusMisc} onChange={(e) => setBonusMisc(e.target.value)} placeholder="default" /></Col>
+            </Row>
+          </div>
+
+          <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', paddingTop: 14, marginTop: 2 }}>
+            <div className="section-title" style={{ fontSize: 15, marginBottom: 2 }}>Attachments</div>
+            <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>Certificates, registration proof, ID. Upload small files (≤ 2.5 MB each) or leave empty.</p>
+            <input type="file" multiple onChange={(e) => { addFiles(e.target.files); e.target.value = '' }} style={{ fontSize: 13 }} />
+            {docError && <p style={{ color: coral, fontSize: 12.5, marginTop: 6 }}>{docError}</p>}
+            {docs.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+                {docs.map((d, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(28,43,58,.04)', borderRadius: 8, padding: '7px 11px' }}>
+                    <span style={{ flex: 1, fontSize: 13, color: charcoal, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</span>
+                    <button type="button" onClick={() => setDocs((prev) => prev.filter((_, idx) => idx !== i))} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', color: coral, fontSize: 12.5 }}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ) : (

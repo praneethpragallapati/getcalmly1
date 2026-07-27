@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, Inbox, Users, UsersRound, IndianRupee, UserPlus, HeartPulse, AlertTriangle, CalendarClock, Banknote, Newspaper, Settings, Tags } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, Newspaper, Settings, Tags } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (await mustChangePassword(admin.id)) redirect('/change-password')
 
   return (
-    <div className="calmly-app expert-theme">
+    <div className="calmly-app admin-theme">
       <aside className="app-sidebar">
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/admin" />
@@ -33,10 +33,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/submissions">
             <Inbox size={18} />
             <span>Submissions</span>
-          </SidebarLink>
-          <SidebarLink href="/admin/safety">
-            <AlertTriangle size={18} />
-            <span>Safety</span>
           </SidebarLink>
         </nav>
 
@@ -73,10 +69,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/pricing">
             <Tags size={18} />
             <span>Pricing</span>
-          </SidebarLink>
-          <SidebarLink href="/admin/earnings">
-            <IndianRupee size={18} />
-            <span>Earnings config</span>
           </SidebarLink>
         </nav>
 

@@ -25,7 +25,7 @@ export function OpsBoard({ data }: { data: OpsData }) {
           <button key={k} onClick={() => setTab(k as 'upcoming' | 'notes')} style={{
             border: 'none', cursor: 'pointer', padding: '9px 16px', borderRadius: 7, fontSize: 13.5, fontWeight: 700,
             display: 'inline-flex', alignItems: 'center', gap: 7, fontFamily: 'inherit',
-            background: tab === k ? '#fff' : 'transparent', color: tab === k ? '#C8553D' : '#8E9EAE',
+            background: tab === k ? '#fff' : 'transparent', color: tab === k ? '#6D5BD0' : '#8E9EAE',
             boxShadow: tab === k ? '0 1px 5px rgba(28,43,58,.12)' : 'none',
           }}>{icon}{lbl}</button>
         ))}
