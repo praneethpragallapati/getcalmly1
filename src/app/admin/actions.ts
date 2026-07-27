@@ -99,6 +99,128 @@ export async function createAdmin(input: { name: string; email: string }): Promi
   }
 }
 
+// ── Clinician management ──────────────────────────────────────────────────────
+
+export type TherapistSettingsInput = {
+  profileId: string
+  sessionFee?: number; employmentType?: string
+  isActive?: boolean; isVerified?: boolean
+  rating?: number; totalReviews?: number
+  baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
+}
+
+export async function updateTherapistSettings(input: TherapistSettingsInput): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const override = (v: number | '' | undefined): number | null | undefined =>
+    v === undefined ? undefined : v === '' ? null : posInt(v)
+  try {
+    await prisma.therapistProfile.update({
+      where: { id: input.profileId },
+      data: {
+        sessionFee: input.sessionFee !== undefined ? posInt(input.sessionFee) ?? 0 : undefined,
+        employmentType: input.employmentType === 'PART_TIME' ? 'PART_TIME' : input.employmentType === 'FULL_TIME' ? 'FULL_TIME' : undefined,
+        isActive: input.isActive,
+        isVerified: input.isVerified,
+        rating: input.rating !== undefined ? Math.max(0, Math.min(5, input.rating)) : undefined,
+        totalReviews: input.totalReviews !== undefined ? posInt(input.totalReviews) ?? 0 : undefined,
+        baseFeeIndividual: override(input.baseFeeIndividual),
+        baseFeeCouples: override(input.baseFeeCouples),
+        baseFeePsychiatry: override(input.baseFeePsychiatry),
+      },
+    })
+    revalidatePath(`/admin/therapists/${input.profileId}`); revalidatePath('/admin/therapists'); revalidatePath('/expert/earnings')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the clinician.' }
+  }
+}
+
+export async function assignSupervisor(input: { superviseeId: string; supervisorId: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  if (input.superviseeId === input.supervisorId) return { ok: false, error: 'A clinician cannot supervise themselves.' }
+  try {
+    await prisma.supervisionLink.upsert({
+      where: { supervisorId_superviseeId: { supervisorId: input.supervisorId, superviseeId: input.superviseeId } },
+      update: {}, create: { supervisorId: input.supervisorId, superviseeId: input.superviseeId },
+    })
+    revalidatePath(`/admin/therapists/${input.superviseeId}`); revalidatePath('/admin/supervision')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not assign the supervisor.' }
+  }
+}
+
+export async function removeSupervisionLink(input: { linkId: string; profileId: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.supervisionLink.delete({ where: { id: input.linkId } })
+    revalidatePath(`/admin/therapists/${input.profileId}`); revalidatePath('/admin/supervision')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not remove the link.' }
+  }
+}
+
+// ── Patient assignment & subscriptions ─────────────────────────────────────────
+
+export async function reassignPatient(input: { userId: string; therapistProfileId: string | null }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.patientProfile.update({
+      where: { userId: input.userId },
+      data: { assignedTherapistId: input.therapistProfileId || null },
+    })
+    revalidatePath(`/admin/patients/${input.userId}`)
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not reassign. The patient may not have a profile yet.' }
+  }
+}
+
+export async function cancelSubscription(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.subscription.update({ where: { id: input.id }, data: { status: 'CANCELLED' } })
+    revalidatePath('/admin/patients')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not cancel the subscription.' }
+  }
+}
+
+/** Adjust a package's total sessions by delta (+ to add, − to remove). Won't go below sessionsUsed. */
+export async function adjustSessionsTotal(input: { id: string; delta: number }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { sessionsTotal: true, sessionsUsed: true } })
+    if (!sub) return { ok: false, error: 'Package not found.' }
+    const next = Math.max(sub.sessionsUsed, sub.sessionsTotal + Math.round(input.delta))
+    await prisma.subscription.update({ where: { id: input.id }, data: { sessionsTotal: next } })
+    revalidatePath('/admin/patients')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the package.' }
+  }
+}
+
+/**
+ * Adjust sessions *used* by delta. Used to credit back a session the patient
+ * says never happened (delta −1), or to correct an under-count (delta +1).
+ */
+export async function adjustSessionsUsed(input: { id: string; delta: number }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { sessionsTotal: true, sessionsUsed: true } })
+    if (!sub) return { ok: false, error: 'Package not found.' }
+    const next = Math.max(0, Math.min(sub.sessionsTotal, sub.sessionsUsed + Math.round(input.delta)))
+    await prisma.subscription.update({ where: { id: input.id }, data: { sessionsUsed: next } })
+    revalidatePath('/admin/patients')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the package.' }
+  }
+}
+
 // ── Submissions triage ──────────────────────────────────────────────────────
 
 const APP_STATUSES = ['APPLIED', 'INTERVIEW_SCHEDULED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'] as const

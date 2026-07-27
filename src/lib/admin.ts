@@ -6,6 +6,8 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { designationOf } from '@/lib/expert'
+import { getEarningsConfig } from '@/lib/earningsConfig'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -110,4 +112,120 @@ export async function getEnterpriseLeads(): Promise<LeadRow[]> {
     const rows = await prisma.enterpriseLead.findMany({ orderBy: { createdAt: 'desc' } })
     return rows.map((r) => ({ id: r.id, name: r.name, email: r.email, organisation: r.organisation, sector: r.sector, teamSize: r.teamSize, phone: r.phone, message: r.message, handled: r.handled, createdAt: fmt(r.createdAt) }))
   }, [])
+}
+
+// ── Clinicians ────────────────────────────────────────────────────────────────
+
+export type ClinicianRow = {
+  profileId: string; name: string; email: string; designation: string
+  employmentType: string; isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
+}
+
+export async function getClinicians(): Promise<ClinicianRow[]> {
+  return safe(async () => {
+    const rows = await prisma.therapistProfile.findMany({ include: { user: { select: { name: true, email: true } } } })
+    return rows
+      .map((r) => ({
+        profileId: r.id, name: r.user?.name ?? 'Clinician', email: r.user?.email ?? '',
+        designation: designationOf(r.specializations), employmentType: (r.employmentType as string) ?? 'FULL_TIME',
+        isActive: r.isActive, isVerified: r.isVerified, rating: r.rating, totalReviews: r.totalReviews,
+      }))
+      .sort((a, b) => Number(b.isActive) - Number(a.isActive) || a.name.localeCompare(b.name))
+  }, [])
+}
+
+export type ClinicianDetail = {
+  profileId: string; userId: string; name: string; email: string; designation: string
+  bio: string; qualifications: string[]; languages: string[]; specializations: string[]
+  rciNumber: string; yearsExp: number; sessionFee: number; employmentType: string
+  isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
+  baseFeeIndividual: number | null; baseFeeCouples: number | null; baseFeePsychiatry: number | null
+  globalFees: { individual: number; couples: number; psychiatry: number }
+  supervisors: { linkId: string; name: string }[]
+  supervisees: { linkId: string; name: string }[]
+  patients: { userId: string; name: string }[]
+  allTherapists: { profileId: string; name: string }[]
+}
+
+export async function getClinicianDetail(profileId: string): Promise<ClinicianDetail | null> {
+  return safe(async () => {
+    const p = await prisma.therapistProfile.findUnique({ where: { id: profileId }, include: { user: { select: { id: true, name: true, email: true } } } })
+    if (!p) return null
+    const config = await getEarningsConfig()
+    const [links, apptPatients, assigned, allT] = await Promise.all([
+      prisma.supervisionLink.findMany({
+        where: { OR: [{ supervisorId: profileId }, { superviseeId: profileId }] },
+        include: { supervisor: { include: { user: { select: { name: true } } } }, supervisee: { include: { user: { select: { name: true } } } } },
+      }),
+      prisma.appointment.findMany({ where: { therapistId: profileId }, select: { patientId: true, patient: { select: { name: true } } }, distinct: ['patientId'] }),
+      prisma.patientProfile.findMany({ where: { assignedTherapistId: profileId }, select: { userId: true, user: { select: { name: true } } } }),
+      prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
+    ])
+    const patientMap = new Map<string, string>()
+    for (const a of apptPatients) patientMap.set(a.patientId, a.patient?.name ?? 'Patient')
+    for (const a of assigned) patientMap.set(a.userId, a.user?.name ?? 'Patient')
+
+    return {
+      profileId: p.id, userId: p.user?.id ?? '', name: p.user?.name ?? 'Clinician', email: p.user?.email ?? '',
+      designation: designationOf(p.specializations), bio: p.bio, qualifications: p.qualifications, languages: p.languages,
+      specializations: p.specializations, rciNumber: p.rciNumber, yearsExp: p.yearsExp, sessionFee: p.sessionFee,
+      employmentType: (p.employmentType as string) ?? 'FULL_TIME', isActive: p.isActive, isVerified: p.isVerified,
+      rating: p.rating, totalReviews: p.totalReviews,
+      baseFeeIndividual: p.baseFeeIndividual ?? null, baseFeeCouples: p.baseFeeCouples ?? null, baseFeePsychiatry: p.baseFeePsychiatry ?? null,
+      globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
+      supervisors: links.filter((l) => l.superviseeId === profileId).map((l) => ({ linkId: l.id, name: l.supervisor.user?.name ?? 'Clinician' })),
+      supervisees: links.filter((l) => l.supervisorId === profileId).map((l) => ({ linkId: l.id, name: l.supervisee.user?.name ?? 'Clinician' })),
+      patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),
+      allTherapists: allT.filter((t) => t.id !== profileId).map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
+    }
+  }, null)
+}
+
+// ── Patients & subscriptions ───────────────────────────────────────────────────
+
+export type PatientRow = { userId: string; name: string; email: string; activePlans: number }
+
+export async function getPatients(): Promise<PatientRow[]> {
+  return safe(async () => {
+    const users = await prisma.user.findMany({ where: { role: 'PATIENT' }, select: { id: true, name: true, email: true }, orderBy: { createdAt: 'desc' }, take: 200 })
+    const subs = await prisma.subscription.groupBy({ by: ['userId'], where: { status: 'ACTIVE' }, _count: { _all: true } })
+    const countByUser = new Map(subs.map((s) => [s.userId, s._count._all]))
+    return users.map((u) => ({ userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '', activePlans: countByUser.get(u.id) ?? 0 }))
+  }, [])
+}
+
+export type SubscriptionRow = {
+  id: string; planName: string; trackSlug: string; status: string
+  sessionsTotal: number; sessionsUsed: number; sessionsLeft: number; createdAt: string
+}
+export type PatientDetail = {
+  userId: string; name: string; email: string
+  assignedTherapistId: string | null; assignedTherapistName: string | null
+  subscriptions: SubscriptionRow[]
+  therapists: { profileId: string; name: string }[]
+}
+
+export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
+  return safe(async () => {
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true } } } })
+    if (!user) return null
+    const [subs, therapists, latestAppt] = await Promise.all([
+      prisma.subscription.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.therapistProfile.findMany({ where: { isActive: true }, include: { user: { select: { name: true } } } }),
+      prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
+    ])
+    const assignedId = user.patientProfile?.assignedTherapistId ?? latestAppt?.therapistId ?? null
+    const assignedName = assignedId ? therapists.find((t) => t.id === assignedId)?.user?.name ?? null : null
+    return {
+      userId: user.id, name: user.name ?? 'Patient', email: user.email ?? '',
+      assignedTherapistId: user.patientProfile?.assignedTherapistId ?? null,
+      assignedTherapistName: assignedName,
+      subscriptions: subs.map((s) => ({
+        id: s.id, planName: s.planName, trackSlug: s.trackSlug, status: s.status,
+        sessionsTotal: s.sessionsTotal, sessionsUsed: s.sessionsUsed, sessionsLeft: Math.max(0, s.sessionsTotal - s.sessionsUsed),
+        createdAt: fmt(s.createdAt),
+      })),
+      therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
+    }
+  }, null)
 }

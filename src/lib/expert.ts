@@ -818,6 +818,12 @@ export const MIN_BOOKING_LEAD_MS = 6 * 60 * 60 * 1000
  * and what they book are always the same clinician.
  */
 export async function getAssignedTherapistId(patientUserId: string): Promise<string | null> {
+  // An admin-set assignment wins over the appointment-derived default.
+  const profile = await prisma.patientProfile.findUnique({
+    where: { userId: patientUserId },
+    select: { assignedTherapistId: true },
+  })
+  if (profile?.assignedTherapistId) return profile.assignedTherapistId
   const appt = await prisma.appointment.findFirst({
     where: { patientId: patientUserId },
     orderBy: { scheduledAt: 'desc' },
