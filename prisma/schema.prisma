@@ -195,6 +195,9 @@ model User {
   // accounts that only use OAuth / OTP. Never the raw password.
   passwordHash  String?
   role          Role      @default(PATIENT)
+  // Set when an admin creates the account with a temporary password; forces a
+  // password change on next sign-in.
+  mustChangePassword Boolean @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -238,6 +241,9 @@ model PatientProfile {
   // Both partners still keep their own patientId.
   coupleId  String?
   careMode  CareMode @default(INDIVIDUAL)
+  // Admin-set clinician assignment override. When null, the assigned clinician
+  // is derived from the patient's most recent appointment.
+  assignedTherapistId String?
 
   // What the patient is being treated for — concern "tracks" (e.g. ["anxiety",
   // "postpartum"]). Drives matching, the care journey, and clinician context.
@@ -343,6 +349,11 @@ model TherapistProfile {
   // Salaried (full-time) or paid-per-session (part-time). Admin-managed; gates
   // the earnings ledger in the expert portal.
   employmentType  EmploymentType @default(FULL_TIME)
+  // Per-therapist base-fee overrides for earnings. Null → use the global
+  // EarningsConfig value for that service. Admin-editable on the profile.
+  baseFeeIndividual Int?
+  baseFeeCouples    Int?
+  baseFeePsychiatry Int?
   photoUrl        String?
   createdAt       DateTime @default(now())
 
@@ -880,4 +891,33 @@ model FormAssignment {
   completedAt  DateTime?
 
   @@index([patientId, status])
+}
+
+// A "Contact us" form submission from the public site. Triaged by admins.
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String   @db.Text
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([handled, createdAt])
+}
+
+// An "Enterprise interest" lead from the public enterprise page.
+model EnterpriseLead {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  organisation String?
+  sector       String? // "Corporate", "Education", "Hospital", …
+  teamSize     String? // free-text bucket, e.g. "51–200"
+  phone        String?
+  message      String?  @db.Text
+  handled      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([handled, createdAt])
 }

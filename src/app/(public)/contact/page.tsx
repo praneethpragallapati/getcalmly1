@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { ContactForm } from '@/components/site/ContactForm'
 
 export const metadata: Metadata = {
   title: 'Contact | GetCalmly',
@@ -108,33 +109,7 @@ export default function ContactPage() {
             <p style={{ fontSize: 14.5, color: '#6B7D8E', marginBottom: 26, lineHeight: 1.6 }}>
               Tell us what you need. Everything you share here is confidential.
             </p>
-            <form style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div>
-                <label className="clabel">Name</label>
-                <input type="text" className="cfield" placeholder="Your name" />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div>
-                  <label className="clabel">Email</label>
-                  <input type="email" className="cfield" placeholder="you@example.com" />
-                </div>
-                <div>
-                  <label className="clabel">Phone <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(optional)</span></label>
-                  <input type="tel" className="cfield" placeholder="+91" />
-                </div>
-              </div>
-              <div>
-                <label className="clabel">Message</label>
-                <textarea rows={5} className="cfield" placeholder="How can we help?" style={{ resize: 'vertical' }} />
-              </div>
-              <button type="submit" style={{ background: coral, color: '#fff', padding: '15px', borderRadius: 12, fontSize: 15.5, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 22px ${coral}45` }}>
-                Send message →
-              </button>
-              <p style={{ fontSize: 12.5, color: '#A0ADB8', textAlign: 'center', lineHeight: 1.6 }}>
-                By sending, you agree to our{' '}
-                <Link href="/privacy" style={{ color: coral, fontWeight: 600 }}>Privacy Policy</Link>.
-              </p>
-            </form>
+            <ContactForm />
           </div>
         </div>
       </section>

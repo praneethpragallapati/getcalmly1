@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { submitEnterpriseLead } from '@/app/(public)/actions'
 
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
@@ -11,6 +12,20 @@ const green = '#3D9E72'
 
 export default function EnterprisePage() {
   const [sent, setSent] = useState(false)
+  const [pending, startTransition] = useTransition()
+
+  function submitLead(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    const get = (k: string) => String(fd.get(k) ?? '')
+    startTransition(async () => {
+      await submitEnterpriseLead({
+        name: get('name'), email: get('email'), organisation: get('organisation'),
+        sector: get('sector'), teamSize: get('teamSize'), phone: get('phone'), message: get('message'),
+      })
+      setSent(true)
+    })
+  }
 
   const eyebrow: React.CSSProperties = {
     fontSize: 11.5, fontWeight: 700, letterSpacing: 2.5, color: coral,
@@ -358,16 +373,16 @@ export default function EnterprisePage() {
                 <p style={{ fontSize: 17, color: '#5A6B7A', lineHeight: 1.8, fontWeight: 300, maxWidth: 480 }}>We have your details. Our partnerships team will be in touch as we open enterprise access, and sooner if there is a strong fit.</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <form onSubmit={submitLead} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Your name</label><input style={inputStyle} placeholder="Full name" /></div>
-                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Work email</label><input type="email" style={inputStyle} placeholder="you@organisation.com" /></div>
+                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Your name</label><input name="name" required style={inputStyle} placeholder="Full name" /></div>
+                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Work email</label><input name="email" type="email" required style={inputStyle} placeholder="you@organisation.com" /></div>
                 </div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Organisation</label><input style={inputStyle} placeholder="Organisation name" /></div>
+                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Organisation</label><input name="organisation" style={inputStyle} placeholder="Organisation name" /></div>
                   <div style={{ flex: '1 1 200px' }}>
                     <label style={labelStyle}>You are a</label>
-                    <select style={inputStyle} defaultValue="">
+                    <select name="sector" style={inputStyle} defaultValue="">
                       <option value="" disabled>Select</option>
                       <option>Corporate / Employer</option>
                       <option>Educational institution</option>
@@ -379,7 +394,7 @@ export default function EnterprisePage() {
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                   <div style={{ flex: '1 1 200px' }}>
                     <label style={labelStyle}>Approx. people to cover</label>
-                    <select style={inputStyle} defaultValue="">
+                    <select name="teamSize" style={inputStyle} defaultValue="">
                       <option value="" disabled>Select</option>
                       <option>Under 100</option>
                       <option>100–500</option>
@@ -387,24 +402,24 @@ export default function EnterprisePage() {
                       <option>2,000+</option>
                     </select>
                   </div>
-                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Phone (optional)</label><input type="tel" style={inputStyle} placeholder="+91 98765 43210" /></div>
+                  <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Phone (optional)</label><input name="phone" type="tel" style={inputStyle} placeholder="+91 98765 43210" /></div>
                 </div>
                 <div>
                   <label style={labelStyle}>What are you hoping to solve?</label>
-                  <textarea rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Tell us a little about your goals, what would success look like for your people?" />
+                  <textarea name="message" rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Tell us a little about your goals, what would success look like for your people?" />
                 </div>
-                <button onClick={() => setSent(true)} style={{
+                <button type="submit" disabled={pending} style={{
                   width: '100%', padding: '17px', borderRadius: 50, border: 'none',
                   background: coral, color: '#fff', fontSize: 16, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-                  boxShadow: '0 8px 24px rgba(200,85,61,.3)',
+                  cursor: pending ? 'wait' : 'pointer', fontFamily: "'DM Sans', sans-serif",
+                  boxShadow: '0 8px 24px rgba(200,85,61,.3)', opacity: pending ? 0.7 : 1,
                 }}>
-                  Submit interest →
+                  {pending ? 'Submitting…' : 'Submit interest →'}
                 </button>
                 <p style={{ fontSize: 12.5, color: '#A0ADB8', textAlign: 'center', lineHeight: 1.6 }}>
                   Enterprise plans are in development. By submitting, you agree to be contacted about GetCalmly for organisations. See our <Link href="/privacy" style={{ color: coral, fontWeight: 600 }}>Privacy Policy</Link>.
                 </p>
-              </div>
+              </form>
             )}
           </div>
         </div>

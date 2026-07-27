@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import CountrySelect from '@/components/ui/CountrySelect'
+import { submitTherapistApplication } from '@/app/(public)/actions'
 import { defaultCountry } from '@/data/countries'
 
 const SPECIALIZATIONS = [
@@ -53,9 +54,34 @@ export default function TherapistApplyPage() {
   const [files, setFiles] = useState<string[]>([])
   const [agree, setAgree] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [pending, startTransition] = useTransition()
 
   const toggle = (setter: React.Dispatch<React.SetStateAction<string[]>>) => (v: string) =>
     setter((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]))
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!agree) return
+    const fd = new FormData(e.currentTarget)
+    const g = (k: string) => String(fd.get(k) ?? '')
+    startTransition(async () => {
+      await submitTherapistApplication({
+        fullName: g('fullName'),
+        email: g('email'),
+        phone: `${country.dial} ${g('phone')}`.trim(),
+        council: g('council'),
+        registrationNo: g('registrationNo'),
+        yearsExp: Number(g('yearsExp')) || 0,
+        qualifications: g('qualifications').split(',').map((s) => s.trim()).filter(Boolean),
+        specializations: specs,
+        languages: langs,
+        bio: g('bio'),
+        documentUrls: files,
+        preferredInterviewAt: g('preferredDate') || null,
+      })
+      setSubmitted(true)
+    })
+  }
 
   if (submitted) {
     return (
@@ -92,45 +118,45 @@ export default function TherapistApplyPage() {
       </section>
 
       {/* Form */}
-      <section style={{ maxWidth: 720, margin: '0 auto', padding: '48px 24px 80px' }}>
+      <form onSubmit={handleSubmit} style={{ maxWidth: 720, margin: '0 auto', padding: '48px 24px 80px' }}>
         <Section n="1" title="About you">
-          <div><label style={labelStyle}>Full name (as on registration)</label><input style={inputStyle} placeholder="Dr. Ananya Sharma" /></div>
+          <div><label style={labelStyle}>Full name (as on registration)</label><input name="fullName" required style={inputStyle} placeholder="Dr. Ananya Sharma" /></div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 220px' }}><label style={labelStyle}>Email</label><input type="email" style={inputStyle} placeholder="you@example.com" /></div>
+            <div style={{ flex: '1 1 220px' }}><label style={labelStyle}>Email</label><input name="email" type="email" required style={inputStyle} placeholder="you@example.com" /></div>
             <div style={{ flex: '1 1 220px' }}>
               <label style={labelStyle}>Mobile</label>
               <div style={{ display: 'flex', border: '1.5px solid #E2E8F0', borderRadius: 12 }}>
                 <CountrySelect value={country} onChange={setCountry} />
-                <input type="tel" placeholder="98765 43210" style={{ ...inputStyle, border: 'none', borderRadius: '0 12px 12px 0' }} />
+                <input name="phone" type="tel" placeholder="98765 43210" style={{ ...inputStyle, border: 'none', borderRadius: '0 12px 12px 0' }} />
               </div>
             </div>
           </div>
-          <div><label style={labelStyle}>City</label><input style={inputStyle} placeholder="e.g. Bengaluru" /></div>
+          <div><label style={labelStyle}>City</label><input name="city" style={inputStyle} placeholder="e.g. Bengaluru" /></div>
         </Section>
 
         <Section n="2" title="Registration & credentials">
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label style={labelStyle}>Council</label>
-              <select style={inputStyle} defaultValue=""><option value="" disabled>Select council</option>{COUNCILS.map((c) => <option key={c}>{c}</option>)}</select>
+              <select name="council" style={inputStyle} defaultValue=""><option value="" disabled>Select council</option>{COUNCILS.map((c) => <option key={c}>{c}</option>)}</select>
             </div>
-            <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Registration number</label><input style={inputStyle} placeholder="e.g. A012345" /></div>
+            <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Registration number</label><input name="registrationNo" style={inputStyle} placeholder="e.g. A012345" /></div>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label style={labelStyle}>Primary role</label>
-              <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Clinical Psychologist</option><option>Psychiatrist</option><option>Psychotherapist</option><option>Counsellor</option></select>
+              <select name="role" style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Clinical Psychologist</option><option>Psychiatrist</option><option>Psychotherapist</option><option>Counsellor</option></select>
             </div>
-            <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Years of experience</label><input type="number" min={0} style={inputStyle} placeholder="e.g. 8" /></div>
+            <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Years of experience</label><input name="yearsExp" type="number" min={0} style={inputStyle} placeholder="e.g. 8" /></div>
           </div>
-          <div><label style={labelStyle}>Qualifications</label><input style={inputStyle} placeholder="e.g. M.Phil Clinical Psychology, M.Sc Psychology" /><p style={{ fontSize: 12, color: '#A0ADB8', marginTop: 6 }}>Comma-separated. List degrees and clinical training.</p></div>
+          <div><label style={labelStyle}>Qualifications</label><input name="qualifications" style={inputStyle} placeholder="e.g. M.Phil Clinical Psychology, M.Sc Psychology" /><p style={{ fontSize: 12, color: '#A0ADB8', marginTop: 6 }}>Comma-separated. List degrees and clinical training.</p></div>
         </Section>
 
         <Section n="3" title="Your practice">
           <div><label style={labelStyle}>Specialisations</label><Chips options={SPECIALIZATIONS} selected={specs} onToggle={toggle(setSpecs)} /></div>
           <div><label style={labelStyle}>Languages you practise in</label><Chips options={LANGUAGES} selected={langs} onToggle={toggle(setLangs)} /></div>
           <div><label style={labelStyle}>Therapeutic approaches (optional)</label><input style={inputStyle} placeholder="e.g. CBT, DBT, ACT" /></div>
-          <div><label style={labelStyle}>Short bio</label><textarea rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="A few lines on how you work and who you help best. This will seed your profile (you'll review before it goes live)." /></div>
+          <div><label style={labelStyle}>Short bio</label><textarea name="bio" rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="A few lines on how you work and who you help best. This will seed your profile (you'll review before it goes live)." /></div>
         </Section>
 
         <Section n="4" title="Documents">
@@ -169,7 +195,7 @@ export default function TherapistApplyPage() {
             Pick a preferred window for a short conversation with our clinical team. We&apos;ll confirm a final time by email.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Preferred date</label><input type="date" style={inputStyle} /></div>
+            <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Preferred date</label><input name="preferredDate" type="date" style={inputStyle} /></div>
             <div style={{ flex: '1 1 200px' }}>
               <label style={labelStyle}>Preferred time</label>
               <select style={inputStyle} defaultValue=""><option value="" disabled>Select</option><option>Morning (9am–12pm)</option><option>Afternoon (12pm–4pm)</option><option>Evening (4pm–8pm)</option></select>
@@ -187,20 +213,20 @@ export default function TherapistApplyPage() {
         </label>
 
         <button
-          onClick={() => agree && setSubmitted(true)}
-          disabled={!agree}
+          type="submit"
+          disabled={!agree || pending}
           style={{
             width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: '#3D9E72', color: '#fff',
-            fontSize: 16, fontWeight: 700, cursor: agree ? 'pointer' : 'not-allowed', opacity: agree ? 1 : 0.45,
+            fontSize: 16, fontWeight: 700, cursor: agree && !pending ? 'pointer' : 'not-allowed', opacity: agree && !pending ? 1 : 0.45,
             fontFamily: "'DM Sans', sans-serif", boxShadow: '0 6px 20px rgba(61,158,114,.3)',
           }}
         >
-          Submit application →
+          {pending ? 'Submitting…' : 'Submit application →'}
         </button>
         <p style={{ fontSize: 12.5, color: '#A0ADB8', textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
           Your application is routed directly to our admin team for review. We typically respond within 3–5 working days.
         </p>
-      </section>
+      </form>
     </div>
   )
 }

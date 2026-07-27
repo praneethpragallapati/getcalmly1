@@ -14,6 +14,52 @@ async function requireAdmin(): Promise<{ name: string | null } | null> {
 
 export type AdminResult = { ok: boolean; error?: string }
 
+// ── Submissions triage ──────────────────────────────────────────────────────
+
+const APP_STATUSES = ['APPLIED', 'INTERVIEW_SCHEDULED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'] as const
+type AppStatus = (typeof APP_STATUSES)[number]
+
+export async function setApplicationStatus(input: { id: string; status: string; notes?: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  if (!APP_STATUSES.includes(input.status as AppStatus)) return { ok: false, error: 'Invalid status.' }
+  const { prisma } = await import('@/lib/prisma')
+  try {
+    await prisma.therapistApplication.update({
+      where: { id: input.id },
+      data: { status: input.status as AppStatus, reviewerNotes: input.notes?.trim() || undefined },
+    })
+    revalidatePath('/admin/submissions')
+    revalidatePath('/admin')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the application.' }
+  }
+}
+
+export async function setContactHandled(input: { id: string; handled: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const { prisma } = await import('@/lib/prisma')
+  try {
+    await prisma.contactMessage.update({ where: { id: input.id }, data: { handled: input.handled } })
+    revalidatePath('/admin/submissions'); revalidatePath('/admin')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the message.' }
+  }
+}
+
+export async function setLeadHandled(input: { id: string; handled: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const { prisma } = await import('@/lib/prisma')
+  try {
+    await prisma.enterpriseLead.update({ where: { id: input.id }, data: { handled: input.handled } })
+    revalidatePath('/admin/submissions'); revalidatePath('/admin')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the lead.' }
+  }
+}
+
 /** Save the editable earnings pay structure. ADMIN only. */
 export async function saveEarningsConfig(values: EarningsConfigValues): Promise<AdminResult> {
   const admin = await requireAdmin()
