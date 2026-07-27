@@ -25,7 +25,7 @@ function LoginForm() {
   async function redirectAfterLogin() {
     const session = await getSession()
     const role = (session?.user as { role?: string } | undefined)?.role
-    router.push(role === 'THERAPIST' ? '/expert' : '/app')
+    router.push(role === 'THERAPIST' ? '/expert' : role === 'ADMIN' ? '/admin' : '/app')
   }
 
   async function handlePasswordLogin() {

@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FileCheck2, Inbox, Building2, ChevronDown, Check } from 'lucide-react'
+import { FileCheck2, Inbox, Building2, ChevronDown, Check, UserPlus } from 'lucide-react'
 import { setApplicationStatus, setContactHandled, setLeadHandled } from '@/app/admin/actions'
 import type { ApplicationRow, ContactRow, LeadRow } from '@/lib/admin'
 
@@ -93,7 +94,7 @@ function Applications({ rows }: { rows: ApplicationRow[] }) {
               {a.qualifications.length > 0 && <Field label="Qualifications" value={a.qualifications.join(', ')} />}
               {a.preferredInterviewAt && <Field label="Preferred interview" value={a.preferredInterviewAt} />}
               {a.bio && <Field label="Bio" value={a.bio} />}
-              <StatusEditor initialStatus={a.status} initialNotes={a.reviewerNotes ?? ''} pending={pending} onSave={(s, n) => update(a.id, s, n)} />
+              <StatusEditor appId={a.id} initialStatus={a.status} initialNotes={a.reviewerNotes ?? ''} pending={pending} onSave={(s, n) => update(a.id, s, n)} />
             </div>
           )}
         </div>
@@ -102,7 +103,7 @@ function Applications({ rows }: { rows: ApplicationRow[] }) {
   )
 }
 
-function StatusEditor({ initialStatus, initialNotes, pending, onSave }: { initialStatus: string; initialNotes: string; pending: boolean; onSave: (s: string, n: string) => void }) {
+function StatusEditor({ appId, initialStatus, initialNotes, pending, onSave }: { appId: string; initialStatus: string; initialNotes: string; pending: boolean; onSave: (s: string, n: string) => void }) {
   const [status, setStatus] = useState(initialStatus)
   const [notes, setNotes] = useState(initialNotes)
   const field: React.CSSProperties = { border: '1.5px solid #E2E8F0', borderRadius: 8, padding: '8px 10px', fontSize: 13.5, fontFamily: 'inherit', color: charcoal }
@@ -118,7 +119,9 @@ function StatusEditor({ initialStatus, initialNotes, pending, onSave }: { initia
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button onClick={() => onSave(status, notes)} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>Save</button>
         {status === 'APPROVED' && (
-          <span className="muted" style={{ fontSize: 12.5 }}>Approved — create their account from <b>Clinicians → New clinician</b>.</span>
+          <Link href={`/admin/create?fromApp=${appId}`} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: `1.5px solid ${coral}`, color: coral }}>
+            <UserPlus size={14} /> Create clinician account
+          </Link>
         )}
       </div>
     </div>

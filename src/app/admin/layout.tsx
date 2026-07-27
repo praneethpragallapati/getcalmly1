@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, Inbox, Users, UsersRound, IndianRupee } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UsersRound, IndianRupee, UserPlus } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { getAdminSession } from '@/lib/admin'
+import { mustChangePassword } from '@/lib/accountSecurity'
 
 export const metadata: Metadata = {
   title: 'Admin · GetCalmly',
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await getAdminSession()
   if (!admin) redirect('/login')
+  if (await mustChangePassword(admin.id)) redirect('/change-password')
 
   return (
     <div className="calmly-app expert-theme">
@@ -39,6 +41,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/therapists">
             <Users size={18} />
             <span>Clinicians</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/create">
+            <UserPlus size={18} />
+            <span>New account</span>
           </SidebarLink>
           <SidebarLink href="/admin/supervision">
             <UsersRound size={18} />

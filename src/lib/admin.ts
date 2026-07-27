@@ -87,6 +87,24 @@ export async function getContactMessages(): Promise<ContactRow[]> {
   }, [])
 }
 
+export type TherapistPrefill = {
+  name: string; email: string; phone: string; council: string; registrationNo: string
+  yearsExp: number; qualifications: string; languages: string; specializations: string; bio: string
+}
+
+/** Prefill values for the create-clinician form, from an approved application. */
+export async function getApplicationForPrefill(id: string): Promise<TherapistPrefill | null> {
+  return safe(async () => {
+    const r = await prisma.therapistApplication.findUnique({ where: { id } })
+    if (!r) return null
+    return {
+      name: r.fullName, email: r.email, phone: r.phone, council: r.council, registrationNo: r.registrationNo,
+      yearsExp: r.yearsExp, qualifications: r.qualifications.join(', '), languages: r.languages.join(', '),
+      specializations: r.specializations.join(', '), bio: r.bio ?? '',
+    }
+  }, null)
+}
+
 export async function getEnterpriseLeads(): Promise<LeadRow[]> {
   return safe(async () => {
     const rows = await prisma.enterpriseLead.findMany({ orderBy: { createdAt: 'desc' } })

@@ -5,6 +5,7 @@ import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
+import { mustChangePassword } from '@/lib/accountSecurity'
 
 export const metadata: Metadata = {
   title: 'Expert portal',
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default async function ExpertLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
+  if (await mustChangePassword(ctx.userId)) redirect('/change-password')
 
   const risk = await getRiskNotifications(ctx.therapistProfileId)
   const openCount = risk.length

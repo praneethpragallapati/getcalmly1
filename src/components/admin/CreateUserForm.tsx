@@ -1,0 +1,179 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import { Stethoscope, ShieldCheck, Copy, Check } from 'lucide-react'
+import { createTherapist, createAdmin, type CreateResult } from '@/app/admin/actions'
+import type { TherapistPrefill } from '@/lib/admin'
+
+const charcoal = '#1C2B3A'
+const coral = '#C8553D'
+
+const field: React.CSSProperties = {
+  width: '100%', border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '10px 12px',
+  fontSize: 14, fontFamily: 'inherit', color: charcoal, boxSizing: 'border-box',
+}
+const label: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 600, color: '#5A6B7A', marginBottom: 5 }
+
+type Kind = 'therapist' | 'admin'
+
+export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null }) {
+  const [kind, setKind] = useState<Kind>('therapist')
+  const [pending, startTransition] = useTransition()
+  const [result, setResult] = useState<CreateResult | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  // Therapist fields
+  const [name, setName] = useState(prefill?.name ?? '')
+  const [email, setEmail] = useState(prefill?.email ?? '')
+  const [phone, setPhone] = useState(prefill?.phone ?? '')
+  const [council, setCouncil] = useState(prefill?.council ?? 'RCI')
+  const [registrationNo, setRegistrationNo] = useState(prefill?.registrationNo ?? '')
+  const [yearsExp, setYearsExp] = useState(prefill?.yearsExp ? String(prefill.yearsExp) : '')
+  const [qualifications, setQualifications] = useState(prefill?.qualifications ?? '')
+  const [languages, setLanguages] = useState(prefill?.languages ?? '')
+  const [specializations, setSpecializations] = useState(prefill?.specializations ?? '')
+  const [bio, setBio] = useState(prefill?.bio ?? '')
+  const [sessionFee, setSessionFee] = useState('')
+  const [employmentType, setEmploymentType] = useState<'FULL_TIME' | 'PART_TIME'>('FULL_TIME')
+  const [feeInd, setFeeInd] = useState('')
+  const [feeCpl, setFeeCpl] = useState('')
+  const [feePsy, setFeePsy] = useState('')
+
+  // Admin fields
+  const [adminName, setAdminName] = useState('')
+  const [adminEmail, setAdminEmail] = useState('')
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setResult(null)
+    startTransition(async () => {
+      const res = kind === 'therapist'
+        ? await createTherapist({
+            name, email, phone, council, registrationNo,
+            yearsExp: yearsExp ? Number(yearsExp) : undefined,
+            qualifications, languages, specializations, bio,
+            sessionFee: sessionFee ? Number(sessionFee) : undefined,
+            employmentType,
+            baseFeeIndividual: feeInd === '' ? '' : Number(feeInd),
+            baseFeeCouples: feeCpl === '' ? '' : Number(feeCpl),
+            baseFeePsychiatry: feePsy === '' ? '' : Number(feePsy),
+          })
+        : await createAdmin({ name: adminName, email: adminEmail })
+      setResult(res)
+    })
+  }
+
+  function copyCreds() {
+    if (!result?.tempPassword) return
+    navigator.clipboard?.writeText(`Email: ${result.email}\nTemporary password: ${result.tempPassword}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1600)
+  }
+
+  if (result?.ok) {
+    return (
+      <div className="card" style={{ maxWidth: 560 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#2C7A57', fontWeight: 700, marginBottom: 6 }}>
+          <Check size={17} /> Account created
+        </div>
+        <p className="muted" style={{ marginBottom: 16, lineHeight: 1.6 }}>
+          Share these credentials with the {kind === 'therapist' ? 'clinician' : 'admin'} securely. They&apos;ll be asked to set a new password on first sign-in.
+        </p>
+        <div style={{ background: '#FBF3F0', border: '1px solid #EADFD9', borderRadius: 12, padding: '16px 18px', fontSize: 14.5 }}>
+          <div style={{ marginBottom: 8 }}><span className="muted">Email</span><div style={{ fontWeight: 700, color: charcoal }}>{result.email}</div></div>
+          <div><span className="muted">Temporary password</span><div style={{ fontWeight: 800, color: coral, fontFamily: 'monospace', fontSize: 16, letterSpacing: '.5px' }}>{result.tempPassword}</div></div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          <button onClick={copyCreds} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+            {copied ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy credentials</>}
+          </button>
+          <button onClick={() => { setResult(null); setName(''); setEmail(''); setRegistrationNo(''); setAdminName(''); setAdminEmail('') }} className="btn" style={{ border: '1.5px solid #E2E8F0' }}>
+            Create another
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={submit} className="card" style={{ maxWidth: 720 }}>
+      {/* Kind toggle */}
+      <div style={{ display: 'inline-flex', gap: 4, background: 'rgba(28,43,58,.05)', padding: 4, borderRadius: 10, marginBottom: 20 }}>
+        {([['therapist', 'Clinician', <Stethoscope key="t" size={15} />], ['admin', 'Admin', <ShieldCheck key="a" size={15} />]] as const).map(([k, lbl, icon]) => (
+          <button key={k} type="button" onClick={() => setKind(k as Kind)} style={{
+            border: 'none', cursor: 'pointer', padding: '9px 18px', borderRadius: 7, fontSize: 13.5, fontWeight: 700,
+            display: 'inline-flex', alignItems: 'center', gap: 7, fontFamily: 'inherit',
+            background: kind === k ? '#fff' : 'transparent', color: kind === k ? coral : '#8E9EAE',
+            boxShadow: kind === k ? '0 1px 5px rgba(28,43,58,.12)' : 'none',
+          }}>{icon}{lbl}</button>
+        ))}
+      </div>
+
+      {kind === 'therapist' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <Row>
+            <Col><label style={label}>Full name</label><input style={field} value={name} onChange={(e) => setName(e.target.value)} required placeholder="Dr. Ananya Sharma" /></Col>
+            <Col><label style={label}>Email</label><input type="email" style={field} value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="clinician@example.com" /></Col>
+          </Row>
+          <Row>
+            <Col><label style={label}>Phone</label><input style={field} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" /></Col>
+            <Col><label style={label}>Council</label>
+              <select style={{ ...field, background: '#fff' }} value={council} onChange={(e) => setCouncil(e.target.value)}>
+                <option>RCI</option><option>NMC</option><option>RCI+NMC</option>
+              </select>
+            </Col>
+          </Row>
+          <Row>
+            <Col><label style={label}>Registration number</label><input style={field} value={registrationNo} onChange={(e) => setRegistrationNo(e.target.value)} required placeholder="e.g. A012345" /></Col>
+            <Col><label style={label}>Years of experience</label><input type="number" min={0} style={field} value={yearsExp} onChange={(e) => setYearsExp(e.target.value)} placeholder="e.g. 8" /></Col>
+          </Row>
+          <div><label style={label}>Specialisations <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, CBT, Trauma" /></div>
+          <div><label style={label}>Languages <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Hindi" /></div>
+          <div><label style={label}>Qualifications <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={qualifications} onChange={(e) => setQualifications(e.target.value)} placeholder="M.Phil Clinical Psychology" /></div>
+          <div><label style={label}>Bio</label><textarea rows={3} style={{ ...field, resize: 'vertical' }} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="How they work and who they help best." /></div>
+
+          <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', paddingTop: 14, marginTop: 2 }}>
+            <div className="section-title" style={{ fontSize: 15, marginBottom: 10 }}>Engagement &amp; rates</div>
+            <Row>
+              <Col><label style={label}>Engagement</label>
+                <select style={{ ...field, background: '#fff' }} value={employmentType} onChange={(e) => setEmploymentType(e.target.value as 'FULL_TIME' | 'PART_TIME')}>
+                  <option value="FULL_TIME">Full-time (salaried)</option>
+                  <option value="PART_TIME">Part-time (per session)</option>
+                </select>
+              </Col>
+              <Col><label style={label}>Standard session fee (₹)</label><input type="number" min={0} style={field} value={sessionFee} onChange={(e) => setSessionFee(e.target.value)} placeholder="e.g. 1500" /></Col>
+            </Row>
+            <p className="muted" style={{ fontSize: 12, margin: '10px 0 8px' }}>Per-therapist base fees (leave blank to use the platform defaults):</p>
+            <Row>
+              <Col><label style={label}>Individual (₹)</label><input type="number" min={0} style={field} value={feeInd} onChange={(e) => setFeeInd(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>Couples (₹)</label><input type="number" min={0} style={field} value={feeCpl} onChange={(e) => setFeeCpl(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>Psychiatry (₹)</label><input type="number" min={0} style={field} value={feePsy} onChange={(e) => setFeePsy(e.target.value)} placeholder="default" /></Col>
+            </Row>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <p className="muted" style={{ lineHeight: 1.6 }}>Admins get full access to this console. Create sparingly.</p>
+          <Row>
+            <Col><label style={label}>Full name</label><input style={field} value={adminName} onChange={(e) => setAdminName(e.target.value)} required placeholder="Platform Admin" /></Col>
+            <Col><label style={label}>Email</label><input type="email" style={field} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} required placeholder="admin@getcalmly.com" /></Col>
+          </Row>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 20 }}>
+        <button type="submit" disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>
+          {pending ? 'Creating…' : `Create ${kind === 'therapist' ? 'clinician' : 'admin'}`}
+        </button>
+        {result && !result.ok && <span style={{ fontSize: 13.5, color: coral }}>{result.error}</span>}
+      </div>
+    </form>
+  )
+}
+
+function Row({ children }: { children: React.ReactNode }) {
+  return <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>{children}</div>
+}
+function Col({ children }: { children: React.ReactNode }) {
+  return <div style={{ flex: '1 1 200px', minWidth: 160 }}>{children}</div>
+}
