@@ -85,8 +85,10 @@ export function ConfigPanel({ forms }: { forms: FormRow[] }) {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 8 }}>Other settings</div>
         <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.7 }}>
-          <b>Earnings pay structure</b> is on the <Link href="/admin/earnings" className="link-action">Earnings config</Link> page.
-          Pricing and feature flags (e.g. Enterprise availability) are currently managed in code — tell the team if you need those made editable here.
+          <b>Customer pricing</b> — first-session fees, session packs and Calm+ plans — is on the{' '}
+          <Link href="/admin/pricing" className="link-action">Pricing</Link> page.
+          The <b>earnings pay structure</b> is on the <Link href="/admin/earnings" className="link-action">Earnings config</Link> page.
+          Feature flags (e.g. Enterprise availability) are still managed in code — tell the team if you need those made editable here.
         </p>
       </div>
     </div>

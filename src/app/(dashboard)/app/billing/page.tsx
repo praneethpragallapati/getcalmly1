@@ -3,10 +3,11 @@ import { ArrowLeft } from 'lucide-react'
 import { getAccount } from '@/lib/account'
 import { getSessionUserId } from '@/lib/patient'
 import { hasPartnerOnRecord } from '@/lib/billing'
+import { getPricingConfig } from '@/lib/pricingConfig'
 import { BuyPackagePanel, FirstSessionPanel } from '@/components/dashboard/BuyPackagePanel'
 
 export default async function BillingPage() {
-  const [{ plan }, userId] = await Promise.all([getAccount(), getSessionUserId()])
+  const [{ plan }, userId, pricing] = await Promise.all([getAccount(), getSessionUserId(), getPricingConfig()])
   const hasPartner = userId ? await hasPartnerOnRecord(userId) : false
   const sessionsRemaining = Math.max(0, plan.sessionsTotal - plan.sessionsUsed)
   const expired = plan.sessionsTotal > 0 && sessionsRemaining === 0
@@ -49,7 +50,7 @@ export default async function BillingPage() {
                 </p>
               )}
             </div>
-            <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
+            <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
           </>
         ) : firstSessionWaiting ? (
           <div className="card">
@@ -63,7 +64,7 @@ export default async function BillingPage() {
             </Link>
           </div>
         ) : (
-          <FirstSessionPanel hasPartner={hasPartner} />
+          <FirstSessionPanel hasPartner={hasPartner} pricing={pricing} />
         )}
       </div>
     </>

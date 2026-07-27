@@ -214,6 +214,7 @@ model User {
   communityComments   CommunityComment[] @relation("UserCommunityComments")
   communityUpvotes    CommunityUpvote[]  @relation("UserCommunityUpvotes")
   subscriptions       Subscription[]
+  payments            Payment[]
   tasks               Task[]
   medications         Medication[]
   privacySettings     PrivacySettings?
@@ -481,7 +482,54 @@ model Subscription {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 
+  payments      Payment[]
+
   @@index([userId])
+}
+
+// A single money-in event: what a patient actually paid for a purchase (a session
+// pack, a first session, or a Calm+ plan). The Subscription record is topped up in
+// place across renewals, so it can't carry a per-purchase amount — this ledger is
+// the durable source of truth for revenue (all-time and per-period). Gross INR.
+model Payment {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // The subscription this purchase topped up / created. Null-safe: a deleted
+  // subscription leaves the payment record intact for revenue history.
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  amount         Int // gross amount paid, in INR
+  kind           String // "package" | "first_session" | "calmplus"
+  trackSlug      String?
+  planName       String?
+  createdAt      DateTime      @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Singleton config for customer-facing pricing (id = "default"). Admin-editable;
+// the packs/first-session prices are stored as JSON so packs can be re-priced
+// without a schema change. Defaults (and the fallback when the row is missing)
+// live in src/data/pricing.ts.
+model PricingConfig {
+  id              String   @id @default("default")
+  // { therapy, psychiatry, couples } — flat first-session prices.
+  firstSession    Json
+  // SessionPack[] each: { sessions, months, total }.
+  therapyPacks    Json
+  psychiatryPacks Json
+  couplesPacks    Json
+  // AppPack[] each: { label, months, total }.
+  calmPlusPacks   Json
+  // MRP per single session (the struck-through list price packs discount from).
+  therapyBase     Int      @default(1999)
+  psychiatryBase  Int      @default(1999)
+  couplesBase     Int      @default(3999)
+  calmPlusBase    Int      @default(499)
+  updatedBy       String?
+  updatedAt       DateTime @updatedAt
 }
 
 // A daily task an expert assigns to a patient (exercise, video, reading…) shown

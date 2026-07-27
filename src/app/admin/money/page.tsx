@@ -24,7 +24,11 @@ export default async function AdminMoneyPage() {
     <div className="stack">
       <div className="page-head">
         <div className="page-title">Money</div>
-        <div className="page-meta">Revenue from completed sessions and per-clinician payouts owed to part-time clinicians</div>
+        <div className="page-meta">
+          {m.fromPackages
+            ? 'Revenue from packages patients bought, and per-clinician payouts owed to part-time clinicians'
+            : 'Revenue (estimated from completed sessions until package purchases are recorded) and per-clinician payouts'}
+        </div>
       </div>
 
       <div className="grid-4">

@@ -289,6 +289,9 @@ export async function getOpsBoard(): Promise<OpsBoard> {
 export type PayoutRow = { profileId: string; name: string; sessions: number; totalEarned: number; thisMonth: number }
 export type MoneyOverview = {
   revenueAllTime: number; revenueThisMonth: number; completedSessions: number; activeSubscriptions: number
+  // Whether revenue is measured from the package-purchase ledger (true) or the
+  // legacy completed-session fallback used until the first payment is recorded.
+  fromPackages: boolean
   payouts: PayoutRow[]
 }
 
@@ -296,19 +299,28 @@ export async function getMoneyOverview(): Promise<MoneyOverview> {
   return safe(async () => {
     const now = new Date()
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const [completed, activeSubscriptions, partTime] = await Promise.all([
+    const [payments, completed, activeSubscriptions, partTime] = await Promise.all([
+      prisma.payment.findMany({ select: { amount: true, createdAt: true } }),
       prisma.appointment.findMany({ where: { status: 'COMPLETED' }, select: { fee: true, scheduledAt: true } }),
       prisma.subscription.count({ where: { status: 'ACTIVE' } }),
       prisma.therapistProfile.findMany({ where: { employmentType: 'PART_TIME' }, include: { user: { select: { name: true } } } }),
     ])
-    const revenueAllTime = completed.reduce((s, a) => s + a.fee, 0)
-    const revenueThisMonth = completed.filter((a) => a.scheduledAt >= monthStart).reduce((s, a) => s + a.fee, 0)
+    // Revenue is what patients paid for packages. Until the first purchase is
+    // recorded, fall back to completed-session fees so the figures aren't blank
+    // for platforms that predate the payment ledger.
+    const fromPackages = payments.length > 0
+    const revenueAllTime = fromPackages
+      ? payments.reduce((s, p) => s + p.amount, 0)
+      : completed.reduce((s, a) => s + a.fee, 0)
+    const revenueThisMonth = fromPackages
+      ? payments.filter((p) => p.createdAt >= monthStart).reduce((s, p) => s + p.amount, 0)
+      : completed.filter((a) => a.scheduledAt >= monthStart).reduce((s, a) => s + a.fee, 0)
     const payouts = await Promise.all(partTime.map(async (t) => {
       const e = await getTherapistEarnings(t.id)
       return { profileId: t.id, name: t.user?.name ?? 'Clinician', sessions: e.totalSessions, totalEarned: e.totalEarned, thisMonth: e.thisMonthTotal }
     }))
-    return { revenueAllTime, revenueThisMonth, completedSessions: completed.length, activeSubscriptions, payouts: payouts.sort((a, b) => b.totalEarned - a.totalEarned) }
-  }, { revenueAllTime: 0, revenueThisMonth: 0, completedSessions: 0, activeSubscriptions: 0, payouts: [] })
+    return { revenueAllTime, revenueThisMonth, completedSessions: completed.length, activeSubscriptions, fromPackages, payouts: payouts.sort((a, b) => b.totalEarned - a.totalEarned) }
+  }, { revenueAllTime: 0, revenueThisMonth: 0, completedSessions: 0, activeSubscriptions: 0, fromPackages: false, payouts: [] })
 }
 
 // ── Content moderation ─────────────────────────────────────────────────────────

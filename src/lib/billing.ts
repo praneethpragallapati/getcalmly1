@@ -5,7 +5,8 @@
  * or absent, so an expired plan is "renewed" by topping up the same record.
  */
 import { prisma } from '@/lib/prisma'
-import { packsFor, calmPlusPacks, FIRST_SESSION, type BuyableTrack } from '@/data/pricing'
+import { packsForIn, type BuyableTrack } from '@/data/pricing'
+import { getPricingConfig } from '@/lib/pricingConfig'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -38,14 +39,37 @@ function addMonths(from: Date, months: number): Date {
 export type BuyResult = { ok: boolean; sessionsTotal?: number; sessionsRemaining?: number; error?: string }
 
 /**
+ * Record a money-in event for a purchase. Best-effort: the sale (the session
+ * balance) is what the patient is promised, so a failure to write the revenue
+ * ledger row must never fail the purchase itself.
+ */
+async function recordPayment(input: {
+  userId: string
+  subscriptionId: string
+  amount: number
+  kind: 'package' | 'first_session' | 'calmplus'
+  trackSlug: string
+  planName: string
+}): Promise<void> {
+  if (input.amount <= 0) return
+  try {
+    await prisma.payment.create({ data: input })
+  } catch {
+    // Ledger is a reporting aid; never block a completed purchase on it.
+  }
+}
+
+/**
  * Apply a pack purchase for a patient, additively. Tops up the patient's most
  * recent subscription (any status) in place, preserving sessionsUsed so the
  * remaining balance grows by the pack size, or creates the first one.
  */
 export async function buyPackageFor(patientId: string, track: BuyableTrack, packIndex: number): Promise<BuyResult> {
-  const packs = packsFor(track)
+  const pricing = await getPricingConfig()
+  const packs = packsForIn(pricing, track)
   const pack = packs[packIndex]
   if (!pack) return { ok: false, error: 'Unknown package.' }
+  const planName = `${PLAN_NAME[track]} ${pack.sessions}-session pack`
 
   const existing = await prisma.subscription.findFirst({
     where: { userId: patientId },
@@ -68,7 +92,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
         status: 'ACTIVE',
         category: CATEGORY[track],
         trackSlug: track,
-        planName: `${PLAN_NAME[track]} ${pack.sessions}-session pack`,
+        planName,
         paidMonths,
         tier: tierEnum(paidMonths),
         sessionsTotal,
@@ -76,16 +100,17 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
         renewsAt: expiresAt,
       },
     })
+    await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: pack.total, kind: 'package', trackSlug: track, planName })
     return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed) }
   }
 
   const expiresAt = addMonths(now, pack.months)
-  await prisma.subscription.create({
+  const created = await prisma.subscription.create({
     data: {
       userId: patientId,
       category: CATEGORY[track],
       trackSlug: track,
-      planName: `${PLAN_NAME[track]} ${pack.sessions}-session pack`,
+      planName,
       status: 'ACTIVE',
       tier: tierEnum(pack.months),
       paidMonths: pack.months,
@@ -96,6 +121,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
       renewsAt: expiresAt,
     },
   })
+  await recordPayment({ userId: patientId, subscriptionId: created.id, amount: pack.total, kind: 'package', trackSlug: track, planName })
   return { ok: true, sessionsTotal: pack.sessions, sessionsRemaining: pack.sessions }
 }
 
@@ -105,7 +131,8 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
  * no session history; packs stay hidden until the first session is done.
  */
 export async function buyFirstSessionFor(patientId: string, track: BuyableTrack): Promise<BuyResult> {
-  const price = FIRST_SESSION[track]
+  const pricing = await getPricingConfig()
+  const price = pricing.firstSession[track]
   if (!price) return { ok: false, error: 'Unknown track.' }
 
   const existing = await prisma.subscription.findFirst({
@@ -120,10 +147,11 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
 
   const now = new Date()
   const expiresAt = addMonths(now, 1)
+  const planName = `${PLAN_NAME[track]} · first session`
   const data = {
     category: CATEGORY[track],
     trackSlug: track,
-    planName: `${PLAN_NAME[track]} · first session`,
+    planName,
     status: 'ACTIVE' as const,
     tier: 'STARTER' as const,
     paidMonths: 1,
@@ -133,11 +161,10 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
     expiresAt,
     renewsAt: expiresAt,
   }
-  if (existing) {
-    await prisma.subscription.update({ where: { id: existing.id }, data })
-  } else {
-    await prisma.subscription.create({ data: { userId: patientId, ...data } })
-  }
+  const sub = existing
+    ? await prisma.subscription.update({ where: { id: existing.id }, data })
+    : await prisma.subscription.create({ data: { userId: patientId, ...data } })
+  await recordPayment({ userId: patientId, subscriptionId: sub.id, amount: price, kind: 'first_session', trackSlug: track, planName })
   return { ok: true, sessionsTotal: 1, sessionsRemaining: 1 }
 }
 
@@ -147,7 +174,8 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
  * it creates (or renews) a standalone Calm+ subscription with no sessions.
  */
 export async function buyCalmPlusFor(patientId: string, packIndex: number): Promise<BuyResult> {
-  const pack = calmPlusPacks[packIndex]
+  const pricing = await getPricingConfig()
+  const pack = pricing.calmPlusPacks[packIndex]
   if (!pack) return { ok: false, error: 'Unknown plan.' }
 
   const existing = await prisma.subscription.findFirst({
@@ -155,6 +183,7 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
     orderBy: { createdAt: 'desc' },
   })
   const now = new Date()
+  const planLabel = `Calm+ · ${pack.label}`
 
   if (existing) {
     const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
@@ -165,13 +194,14 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
       where: { id: existing.id },
       data: {
         status: 'ACTIVE',
-        planName: keepSessionPlan ? existing.planName : `Calm+ · ${pack.label}`,
+        planName: keepSessionPlan ? existing.planName : planLabel,
         paidMonths,
         tier: tierEnum(paidMonths),
         expiresAt,
         renewsAt: expiresAt,
       },
     })
+    await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: pack.total, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
     return {
       ok: true,
       sessionsTotal: existing.sessionsTotal,
@@ -180,12 +210,12 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
   }
 
   const expiresAt = addMonths(now, pack.months)
-  await prisma.subscription.create({
+  const created = await prisma.subscription.create({
     data: {
       userId: patientId,
       category: 'INDIVIDUAL',
       trackSlug: 'calmplus',
-      planName: `Calm+ · ${pack.label}`,
+      planName: planLabel,
       status: 'ACTIVE',
       tier: tierEnum(pack.months),
       paidMonths: pack.months,
@@ -196,6 +226,7 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
       renewsAt: expiresAt,
     },
   })
+  await recordPayment({ userId: patientId, subscriptionId: created.id, amount: pack.total, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
   return { ok: true, sessionsTotal: 0, sessionsRemaining: 0 }
 }
 

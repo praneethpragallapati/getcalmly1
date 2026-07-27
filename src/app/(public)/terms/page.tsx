@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { therapyPacks, psychiatryPacks, perSession, inr } from '@/data/pricing'
+import { perSession, inr } from '@/data/pricing'
+import { getPricingConfig } from '@/lib/pricingConfig'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Terms & Refund Policy | GetCalmly',
@@ -18,7 +21,8 @@ function P({ children }: { children: React.ReactNode }) {
   return <p style={{ fontSize: 15, color: '#3A4A5A', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
 }
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const { therapyPacks, psychiatryPacks } = await getPricingConfig()
   return (
     <div style={{ background: '#FFFCFA' }}>
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 24px 52px', textAlign: 'center' }}>

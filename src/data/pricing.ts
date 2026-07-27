@@ -58,7 +58,7 @@ export const inr = (n: number) => '₹' + n.toLocaleString('en-IN')
 export type BuyableTrack = 'therapy' | 'psychiatry' | 'couples'
 export type BuyablePack = SessionPack & { trackSlug: BuyableTrack; index: number; perSession: number }
 
-/** The packs offered for a track, with derived per-session price. */
+/** The packs offered for a track, with derived per-session price (default prices). */
 export function packsFor(track: BuyableTrack): BuyablePack[] {
   const packs =
     track === 'psychiatry' ? psychiatryPacks : track === 'couples' ? couplesPacks : therapyPacks
@@ -134,3 +134,62 @@ export const psychiatryFeatures = [
   'Coordinated with your therapist when needed',
   'Session summaries and a constant guide throughout',
 ]
+
+// ── Editable pricing model ──────────────────────────────────────────────────
+// Everything an admin can re-price. The constants above are its defaults; a DB
+// PricingConfig row (lib/pricingConfig) overrides them at runtime. Kept as a
+// plain shape so client components can receive it as a prop without importing
+// any server-only code.
+export type PricingValues = {
+  firstSession: Record<BuyableTrack, number>
+  therapyPacks: SessionPack[]
+  psychiatryPacks: SessionPack[]
+  couplesPacks: SessionPack[]
+  calmPlusPacks: AppPack[]
+  therapyBase: number
+  psychiatryBase: number
+  couplesBase: number
+  calmPlusBase: number
+}
+
+// The commercial defaults, gathered from the constants above. Doubles as the
+// fallback whenever the DB row is absent or unreadable.
+export const PRICING_DEFAULTS: PricingValues = {
+  firstSession: FIRST_SESSION,
+  therapyPacks,
+  psychiatryPacks,
+  couplesPacks,
+  calmPlusPacks,
+  therapyBase: THERAPY_BASE,
+  psychiatryBase: PSYCHIATRY_BASE,
+  couplesBase: COUPLES_BASE,
+  calmPlusBase: CALMPLUS_BASE,
+}
+
+/** The session packs for a track within a resolved pricing model. */
+export function packsForIn(pricing: PricingValues, track: BuyableTrack): SessionPack[] {
+  return track === 'psychiatry'
+    ? pricing.psychiatryPacks
+    : track === 'couples'
+      ? pricing.couplesPacks
+      : pricing.therapyPacks
+}
+
+/** The struck-through MRP for a track within a resolved pricing model. */
+export function baseForIn(pricing: PricingValues, track: BuyableTrack): number {
+  return track === 'psychiatry'
+    ? pricing.psychiatryBase
+    : track === 'couples'
+      ? pricing.couplesBase
+      : pricing.therapyBase
+}
+
+/** Packs for a track, with derived per-session price + index, from a pricing model. */
+export function buyablePacksIn(pricing: PricingValues, track: BuyableTrack): BuyablePack[] {
+  return packsForIn(pricing, track).map((p, index) => ({
+    ...p,
+    trackSlug: track,
+    index,
+    perSession: Math.round(p.total / p.sessions),
+  }))
+}

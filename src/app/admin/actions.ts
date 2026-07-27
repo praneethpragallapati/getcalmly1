@@ -6,6 +6,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, generateTempPassword } from '@/lib/password'
 import { updateEarningsConfig, type EarningsConfigValues } from '@/lib/earningsConfig'
+import { updatePricingConfig } from '@/lib/pricingConfig'
+import type { PricingValues } from '@/data/pricing'
 
 async function requireAdmin(): Promise<{ name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -272,6 +274,23 @@ export async function saveEarningsConfig(values: EarningsConfigValues): Promise<
     await updateEarningsConfig(values, admin.name)
     revalidatePath('/admin/earnings')
     revalidatePath('/expert/earnings')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save the configuration.' }
+  }
+}
+
+/** Save the editable customer-facing pricing. ADMIN only. */
+export async function savePricingConfig(values: PricingValues): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  try {
+    await updatePricingConfig(values, admin.name)
+    // Pricing shows on the public marketing pages and the in-app buy flow.
+    revalidatePath('/admin/pricing')
+    revalidatePath('/pricing')
+    revalidatePath('/terms')
+    revalidatePath('/app/billing')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not save the configuration.' }

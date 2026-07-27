@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
 import {
-  packsFor, calmPlusPacks, inr, FIRST_SESSION,
-  type BuyableTrack,
+  buyablePacksIn, inr,
+  type BuyableTrack, type PricingValues,
 } from '@/data/pricing'
 import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
 
@@ -174,14 +174,17 @@ function TrackCard({
   tab,
   sessionsRemaining,
   hasPartner,
+  pricing,
 }: {
   tab: PanelTab
   sessionsRemaining: number
   hasPartner: boolean
+  pricing: PricingValues
 }) {
   const router = useRouter()
   const isCalmPlus = tab === 'calmplus'
-  const packs = isCalmPlus ? [] : packsFor(tab)
+  const calmPlusPacks = pricing.calmPlusPacks
+  const packs = isCalmPlus ? [] : buyablePacksIn(pricing, tab)
   const count = isCalmPlus ? calmPlusPacks.length : packs.length
 
   const [selected, setSelected] = useState(count - 1)
@@ -313,9 +316,11 @@ function TrackCard({
 export function BuyPackagePanel({
   sessionsRemaining,
   hasPartner = false,
+  pricing,
 }: {
   sessionsRemaining: number
   hasPartner?: boolean
+  pricing: PricingValues
 }) {
   return (
     <>
@@ -329,7 +334,7 @@ export function BuyPackagePanel({
         }}
       >
         {(['therapy', 'psychiatry', 'couples'] as const).map((t) => (
-          <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
+          <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
         ))}
       </div>
 
@@ -340,7 +345,7 @@ export function BuyPackagePanel({
           Calm+ keeps the everyday support going, your AI companion, insights and journaling, without booking a session.
         </p>
         <div style={{ maxWidth: 560 }}>
-          <TrackCard tab="calmplus" sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} />
+          <TrackCard tab="calmplus" sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
         </div>
       </div>
     </>
@@ -354,7 +359,7 @@ export function BuyPackagePanel({
  * one session at the fixed intro price for their track (799 therapy, 1199
  * psychiatry, 1499 couples). Packages appear once the first session is done.
  */
-export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean }) {
+export function FirstSessionPanel({ hasPartner = false, pricing }: { hasPartner?: boolean; pricing: PricingValues }) {
   const router = useRouter()
   const [track, setTrack] = useState<BuyableTrack>('therapy')
   const [pending, startTransition] = useTransition()
@@ -363,7 +368,7 @@ export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean
   const [partner, setPartner] = useState<Partner>(EMPTY_PARTNER)
 
   const needsPartner = track === 'couples' && !hasPartner
-  const price = FIRST_SESSION[track]
+  const price = pricing.firstSession[track]
 
   function handleBuy() {
     setError('')
@@ -451,7 +456,7 @@ export function FirstSessionPanel({ hasPartner = false }: { hasPartner?: boolean
                 </span>
               </span>
               <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--c-charcoal)', flexShrink: 0 }}>
-                {inr(FIRST_SESSION[t])}
+                {inr(pricing.firstSession[t])}
               </span>
             </label>
           )
