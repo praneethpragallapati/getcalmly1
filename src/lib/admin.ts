@@ -6,7 +6,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { designationOf } from '@/lib/expert'
+import { designationOf, getTherapistEarnings } from '@/lib/expert'
 import { getEarningsConfig } from '@/lib/earningsConfig'
 
 export type AdminUser = { id: string; name: string | null; role: string }
@@ -228,4 +228,122 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
     }
   }, null)
+}
+
+// ── Safety: platform-wide crisis oversight ────────────────────────────────────
+
+export type CrisisRow = {
+  id: string; userId: string; patientName: string; therapistName: string | null
+  label: string; handoffNote: string; question: string; createdAt: string; ageHours: number; resolved: boolean
+}
+
+export async function getCrisisAlerts(): Promise<CrisisRow[]> {
+  return safe(async () => {
+    const rows = await prisma.crisisAlert.findMany({ orderBy: { createdAt: 'desc' }, take: 100 })
+    const now = Date.now()
+    return rows.map((r) => ({
+      id: r.id, userId: r.userId, patientName: r.patientName ?? 'Patient', therapistName: r.therapistName ?? null,
+      label: r.label, handoffNote: r.handoffNote, question: r.question,
+      createdAt: fmt(r.createdAt), ageHours: Math.floor((now - r.createdAt.getTime()) / 3_600_000), resolved: r.resolved,
+    }))
+  }, [])
+}
+
+// ── Operations: appointments board ─────────────────────────────────────────────
+
+export type ApptRow = {
+  id: string; patientId: string; patientName: string; therapistId: string; therapistName: string
+  scheduledAt: string; status: string; fee: number; isPast: boolean; hasSummary: boolean
+}
+export type OpsBoard = {
+  upcoming: ApptRow[]
+  needsNote: ApptRow[]
+  therapists: { profileId: string; name: string }[]
+}
+
+export async function getOpsBoard(): Promise<OpsBoard> {
+  return safe(async () => {
+    const now = new Date()
+    const [appts, therapists] = await Promise.all([
+      prisma.appointment.findMany({
+        orderBy: { scheduledAt: 'desc' }, take: 400,
+        include: { patient: { select: { name: true } } },
+      }),
+      prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
+    ])
+    const tName = new Map(therapists.map((t) => [t.id, t.user?.name ?? 'Clinician']))
+    const map = (r: (typeof appts)[number]): ApptRow => ({
+      id: r.id, patientId: r.patientId, patientName: r.patient?.name ?? 'Patient',
+      therapistId: r.therapistId, therapistName: tName.get(r.therapistId) ?? 'Clinician',
+      scheduledAt: r.scheduledAt.toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+      status: r.status, fee: r.fee, isPast: r.scheduledAt.getTime() < now.getTime(), hasSummary: Boolean(r.summary),
+    })
+    const upcoming = appts.filter((a) => a.scheduledAt.getTime() >= now.getTime() && a.status !== 'CANCELLED').sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime()).slice(0, 40).map(map)
+    const needsNote = appts.filter((a) => a.scheduledAt.getTime() < now.getTime() && a.status !== 'CANCELLED' && !a.summary).slice(0, 40).map(map)
+    return { upcoming, needsNote, therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)) }
+  }, { upcoming: [], needsNote: [], therapists: [] })
+}
+
+// ── Money: revenue + payouts ────────────────────────────────────────────────────
+
+export type PayoutRow = { profileId: string; name: string; sessions: number; totalEarned: number; thisMonth: number }
+export type MoneyOverview = {
+  revenueAllTime: number; revenueThisMonth: number; completedSessions: number; activeSubscriptions: number
+  payouts: PayoutRow[]
+}
+
+export async function getMoneyOverview(): Promise<MoneyOverview> {
+  return safe(async () => {
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const [completed, activeSubscriptions, partTime] = await Promise.all([
+      prisma.appointment.findMany({ where: { status: 'COMPLETED' }, select: { fee: true, scheduledAt: true } }),
+      prisma.subscription.count({ where: { status: 'ACTIVE' } }),
+      prisma.therapistProfile.findMany({ where: { employmentType: 'PART_TIME' }, include: { user: { select: { name: true } } } }),
+    ])
+    const revenueAllTime = completed.reduce((s, a) => s + a.fee, 0)
+    const revenueThisMonth = completed.filter((a) => a.scheduledAt >= monthStart).reduce((s, a) => s + a.fee, 0)
+    const payouts = await Promise.all(partTime.map(async (t) => {
+      const e = await getTherapistEarnings(t.id)
+      return { profileId: t.id, name: t.user?.name ?? 'Clinician', sessions: e.totalSessions, totalEarned: e.totalEarned, thisMonth: e.thisMonthTotal }
+    }))
+    return { revenueAllTime, revenueThisMonth, completedSessions: completed.length, activeSubscriptions, payouts: payouts.sort((a, b) => b.totalEarned - a.totalEarned) }
+  }, { revenueAllTime: 0, revenueThisMonth: 0, completedSessions: 0, activeSubscriptions: 0, payouts: [] })
+}
+
+// ── Content moderation ─────────────────────────────────────────────────────────
+
+export type BlogModRow = { slug: string; title: string; author: string; role: string; published: boolean; date: string }
+export type CommentModRow = { id: string; author: string; role: string; body: string; postId: string; date: string }
+export type CommunityModRow = { id: string; title: string; author: string; role: string; createdAt: string; comments: CommentModRow[] }
+
+export async function getBlogsForModeration(): Promise<BlogModRow[]> {
+  return safe(async () => {
+    const rows = await prisma.blogPost.findMany({ orderBy: { publishedAt: 'desc' }, take: 200 })
+    return rows.map((r) => ({ slug: r.slug, title: r.title, author: r.authorName, role: r.authorRole, published: r.published, date: r.publishedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))
+  }, [])
+}
+
+export async function getCommunityForModeration(): Promise<CommunityModRow[]> {
+  return safe(async () => {
+    const rows = await prisma.communityPost.findMany({ orderBy: { createdAt: 'desc' }, take: 60, include: { comments: { orderBy: { createdAt: 'asc' } } } })
+    return rows.map((p) => ({
+      id: p.id, title: p.title, author: p.authorName, role: String(p.authorRole), createdAt: fmt(p.createdAt),
+      comments: p.comments.map((c) => ({ id: c.id, author: c.authorName, role: String(c.authorRole), body: c.body, postId: c.postId, date: fmt(c.createdAt) })),
+    }))
+  }, [])
+}
+
+// ── Config: forms library ───────────────────────────────────────────────────────
+
+export type FormRow = { id: string; slug: string; title: string; kind: string; category: string | null; autoSend: boolean; active: boolean; fields: number }
+
+export async function getFormsLibrary(): Promise<FormRow[]> {
+  return safe(async () => {
+    const rows = await prisma.formTemplate.findMany({ orderBy: { title: 'asc' } })
+    return rows.map((r) => ({
+      id: r.id, slug: r.slug, title: r.title, kind: String(r.kind), category: r.category ? String(r.category) : null,
+      autoSend: r.autoSend, active: r.active, fields: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
+    }))
+  }, [])
 }

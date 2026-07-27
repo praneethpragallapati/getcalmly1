@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, Inbox, Users, UsersRound, IndianRupee, UserPlus, HeartPulse } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UsersRound, IndianRupee, UserPlus, HeartPulse, AlertTriangle, CalendarClock, Banknote, Newspaper, Settings } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -34,6 +34,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Inbox size={18} />
             <span>Submissions</span>
           </SidebarLink>
+          <SidebarLink href="/admin/safety">
+            <AlertTriangle size={18} />
+            <span>Safety</span>
+          </SidebarLink>
         </nav>
 
         <div className="sb-section">PEOPLE</div>
@@ -56,11 +60,31 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </SidebarLink>
         </nav>
 
-        <div className="sb-section">CONFIG</div>
+        <div className="sb-section">OPERATIONS</div>
         <nav className="sb-nav">
+          <SidebarLink href="/admin/operations">
+            <CalendarClock size={18} />
+            <span>Operations</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/money">
+            <Banknote size={18} />
+            <span>Money</span>
+          </SidebarLink>
           <SidebarLink href="/admin/earnings">
             <IndianRupee size={18} />
             <span>Earnings config</span>
+          </SidebarLink>
+        </nav>
+
+        <div className="sb-section">PLATFORM</div>
+        <nav className="sb-nav">
+          <SidebarLink href="/admin/content">
+            <Newspaper size={18} />
+            <span>Content</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/config">
+            <Settings size={18} />
+            <span>Configuration</span>
           </SidebarLink>
         </nav>
       </aside>

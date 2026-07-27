@@ -319,3 +319,102 @@ export async function setEmploymentTypeAction(formData: FormData): Promise<void>
   revalidatePath('/expert/earnings')
   revalidatePath('/expert')
 }
+
+// ── Safety: crisis oversight ─────────────────────────────────────────────────
+
+export async function resolveCrisis(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.crisisAlert.update({ where: { id: input.id }, data: { resolved: true } })
+    revalidatePath('/admin/safety'); revalidatePath('/admin')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not resolve the alert.' } }
+}
+
+// ── Operations: appointments ─────────────────────────────────────────────────
+
+const APPT_STATUSES = ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED'] as const
+type ApptStatus = (typeof APPT_STATUSES)[number]
+
+export async function reassignAppointment(input: { id: string; therapistProfileId: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.appointment.update({ where: { id: input.id }, data: { therapistId: input.therapistProfileId } })
+    revalidatePath('/admin/operations')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not reassign the session.' } }
+}
+
+export async function setAppointmentStatusAdmin(input: { id: string; status: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  if (!APPT_STATUSES.includes(input.status as ApptStatus)) return { ok: false, error: 'Invalid status.' }
+  try {
+    await prisma.appointment.update({ where: { id: input.id }, data: { status: input.status as ApptStatus } })
+    revalidatePath('/admin/operations')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not update the session.' } }
+}
+
+// ── Content moderation ───────────────────────────────────────────────────────
+
+export async function setBlogPublished(input: { slug: string; published: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.blogPost.update({ where: { slug: input.slug }, data: { published: input.published } })
+    revalidatePath('/admin/content'); revalidatePath('/blog'); revalidatePath(`/blog/${input.slug}`)
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not update the post.' } }
+}
+
+export async function deleteBlogPost(input: { slug: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.blogPost.delete({ where: { slug: input.slug } })
+    revalidatePath('/admin/content'); revalidatePath('/blog')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not delete the post.' } }
+}
+
+export async function deleteCommunityPost(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.communityPost.delete({ where: { id: input.id } })
+    revalidatePath('/admin/content'); revalidatePath('/community'); revalidatePath('/app/community')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not delete the discussion.' } }
+}
+
+export async function deleteCommunityComment(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.communityComment.delete({ where: { id: input.id } })
+    revalidatePath('/admin/content'); revalidatePath('/community')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not delete the reply.' } }
+}
+
+// ── Config: forms library + announcements ────────────────────────────────────
+
+export async function setFormActive(input: { id: string; active: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.formTemplate.update({ where: { id: input.id }, data: { active: input.active } })
+    revalidatePath('/admin/config')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not update the form.' } }
+}
+
+export async function broadcastAnnouncement(input: { audience: 'ALL' | 'PATIENT' | 'THERAPIST'; title: string; body?: string; href?: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const title = input.title?.trim()
+  if (!title) return { ok: false, error: 'Add a title.' }
+  try {
+    const where = input.audience === 'ALL' ? {} : { role: input.audience }
+    const users = await prisma.user.findMany({ where, select: { id: true }, take: 5000 })
+    if (users.length === 0) return { ok: false, error: 'No recipients found.' }
+    await prisma.notification.createMany({
+      data: users.map((u) => ({ userId: u.id, type: 'announcement', title, body: input.body?.trim() || null, href: input.href?.trim() || null })),
+    })
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not send the announcement.' } }
+}
