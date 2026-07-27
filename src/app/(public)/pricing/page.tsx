@@ -320,8 +320,8 @@ const CSS = `
   .pr-section{ max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
 
   .pr-eyebrow{ font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
-  .pr-h1{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: clamp(40px, 6.2vw, 66px); color: #fff; line-height: .98; letter-spacing: -1.5px; margin-bottom: 20px; text-wrap: balance; }
-  .pr-h2{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: clamp(30px, 4.4vw, 44px); color: var(--charcoal); letter-spacing: -1px; line-height: 1.02; text-wrap: balance; }
+  .pr-h1{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 300; font-size: clamp(42px, 6.4vw, 68px); color: #fff; line-height: 1.0; letter-spacing: -2px; margin-bottom: 20px; text-wrap: balance; }
+  .pr-h2{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 300; font-size: clamp(30px, 4.4vw, 44px); color: var(--charcoal); letter-spacing: -1px; line-height: 1.04; text-wrap: balance; }
 
   /* Hero */
   .pr-hero{ position: relative; overflow: hidden; text-align: center; padding: 96px 24px 68px;

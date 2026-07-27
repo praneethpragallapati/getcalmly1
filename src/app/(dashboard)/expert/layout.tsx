@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
+import { SidebarLink } from '@/components/expert/SidebarLink'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 
 export const metadata: Metadata = {
@@ -26,52 +26,52 @@ export default async function ExpertLayout({ children }: { children: React.React
         </div>
         <div className="sb-section">CASELOAD</div>
         <nav className="sb-nav">
-          <Link href="/expert" className="sb-link">
+          <SidebarLink href="/expert" exact>
             <Home size={18} />
             <span>Dashboard</span>
-          </Link>
-          <Link href="/expert/patients" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/patients">
             <Users size={18} />
             <span>My Patients</span>
-          </Link>
-          <Link href="/expert/schedule" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/schedule">
             <CalendarClock size={18} />
             <span>Schedule</span>
-          </Link>
-          <Link href="/expert/availability" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/availability">
             <CalendarCog size={18} />
             <span>Availability</span>
-          </Link>
-          <Link href="/expert/risk" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/risk">
             <AlertTriangle size={18} />
             <span>Risk notifications</span>
             {openCount > 0 && <span className="sb-badge">{openCount}</span>}
-          </Link>
-          <Link href="/expert/supervision" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/supervision">
             <UsersRound size={18} />
             <span>Supervision</span>
-          </Link>
+          </SidebarLink>
         </nav>
 
         <div className="sb-section">PRACTICE</div>
         <nav className="sb-nav">
-          <Link href="/expert/community" className="sb-link">
+          <SidebarLink href="/expert/community">
             <MessagesSquare size={18} />
             <span>Community</span>
-          </Link>
-          <Link href="/expert/blogs" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/blogs">
             <Newspaper size={18} />
             <span>Blogs</span>
-          </Link>
-          <Link href="/expert/profile" className="sb-link">
+          </SidebarLink>
+          <SidebarLink href="/expert/profile">
             <UserCircle size={18} />
             <span>Profile</span>
-          </Link>
+          </SidebarLink>
           {ctx.employmentType === 'PART_TIME' ? (
-            <Link href="/expert/earnings" className="sb-link">
+            <SidebarLink href="/expert/earnings">
               <Wallet size={18} />
               <span>Earnings</span>
-            </Link>
+            </SidebarLink>
           ) : (
             <span
               className="sb-link"

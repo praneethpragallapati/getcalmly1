@@ -1170,12 +1170,14 @@ function cleanCover(cover?: string | null): string | null {
   return c
 }
 
-/** This clinician's own blog posts, newest first. */
+/** This clinician's own blog posts, newest first. Never throws (degrades to []). */
 export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogView[]> {
-  const rows = await prisma.blogPost.findMany({
-    where: { authorId },
-    orderBy: { publishedAt: 'desc' },
-  })
+  let rows: Awaited<ReturnType<typeof prisma.blogPost.findMany>>
+  try {
+    rows = await prisma.blogPost.findMany({ where: { authorId }, orderBy: { publishedAt: 'desc' } })
+  } catch {
+    return []
+  }
   return rows.map((r) => ({
     slug: r.slug,
     title: r.title,
@@ -1189,9 +1191,14 @@ export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogVi
   }))
 }
 
-/** One of this clinician's own posts by slug, for editing. Ownership-gated. */
+/** One of this clinician's own posts by slug, for editing. Ownership-gated. Never throws. */
 export async function getExpertBlogPostForEdit(authorId: string, slug: string): Promise<ExpertBlogEdit | null> {
-  const r = await prisma.blogPost.findUnique({ where: { slug } })
+  let r: Awaited<ReturnType<typeof prisma.blogPost.findUnique>>
+  try {
+    r = await prisma.blogPost.findUnique({ where: { slug } })
+  } catch {
+    return null
+  }
   if (!r || r.authorId !== authorId) return null
   return {
     slug: r.slug,

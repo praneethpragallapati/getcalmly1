@@ -199,9 +199,9 @@ export default function RealTalkHub({
             style={{
               fontFamily: HEAD,
               fontSize: 'clamp(60px, 11vw, 132px)',
-              fontWeight: 900,
+              fontWeight: 300,
               lineHeight: 0.9,
-              letterSpacing: '-2px',
+              letterSpacing: '-3px',
               margin: 0,
               color: '#fff',
             }}
@@ -278,7 +278,7 @@ export default function RealTalkHub({
             {/* headline + social proof */}
             <div className="rt-reveal" style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 14px' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase', color: CORAL, marginBottom: 12 }}>The circles</p>
-              <h2 style={{ fontFamily: HEAD, fontSize: 'clamp(34px, 6vw, 58px)', fontWeight: 900, color: CHARCOAL, lineHeight: 1, letterSpacing: '-1px', margin: 0 }}>
+              <h2 style={{ fontFamily: HEAD, fontSize: 'clamp(34px, 6vw, 58px)', fontWeight: 300, color: CHARCOAL, lineHeight: 1.02, letterSpacing: '-1.5px', margin: 0 }}>
                 You&apos;re not the only<br />one who&apos;s felt this way
               </h2>
               <p style={{ fontSize: 16.5, color: '#5A6A7A', lineHeight: 1.65, margin: '18px auto 0', maxWidth: 560 }}>
@@ -374,7 +374,7 @@ function SectionHead({ kicker, title, href, linkLabel }: { kicker: string; title
     <div className="rt-reveal" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 26 }}>
       <div>
         <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase', color: CORAL, marginBottom: 8 }}>{kicker}</p>
-        <h2 style={{ fontFamily: HEAD, fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: 900, color: CHARCOAL, lineHeight: 1, letterSpacing: '-1px', margin: 0 }}>{title}</h2>
+        <h2 style={{ fontFamily: HEAD, fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: 300, color: CHARCOAL, lineHeight: 1.04, letterSpacing: '-1px', margin: 0 }}>{title}</h2>
       </div>
       <Link href={href} style={{ fontSize: 14, fontWeight: 700, color: CORAL, textDecoration: 'none', whiteSpace: 'nowrap', paddingBottom: 4 }}>{linkLabel}</Link>
     </div>
