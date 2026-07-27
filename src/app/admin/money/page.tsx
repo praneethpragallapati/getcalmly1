@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { IndianRupee, TrendingUp, CreditCard, Wallet } from 'lucide-react'
+import { TrendingUp, CreditCard, Wallet, HandCoins } from 'lucide-react'
 import { getAdminSession, getMoneyOverview } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
@@ -13,22 +13,28 @@ export default async function AdminMoneyPage() {
   if (!admin) redirect('/login')
   const m = await getMoneyOverview()
 
+  // Payouts owed = part-time clinicians' earnings (full-timers are salaried).
+  const partTime = m.payouts.filter((p) => p.employmentType === 'PART_TIME')
+  const payoutOwedMonth = partTime.reduce((s, p) => s + p.thisMonth, 0)
+  const payoutOwedTotal = partTime.reduce((s, p) => s + p.totalEarned, 0)
+
   const cards = [
-    { label: 'Revenue this month', value: inr(m.revenueThisMonth), icon: <TrendingUp size={18} /> },
-    { label: 'Revenue all time', value: inr(m.revenueAllTime), icon: <IndianRupee size={18} /> },
+    { label: 'Payouts owed this month', value: inr(payoutOwedMonth), icon: <HandCoins size={18} /> },
+    { label: 'Payouts owed all time', value: inr(payoutOwedTotal), icon: <Wallet size={18} /> },
     { label: 'Completed sessions', value: String(m.completedSessions), icon: <CreditCard size={18} /> },
-    { label: 'Active subscriptions', value: String(m.activeSubscriptions), icon: <Wallet size={18} /> },
+    { label: 'Revenue this month', value: inr(m.revenueThisMonth), icon: <TrendingUp size={18} /> },
   ]
 
   return (
     <div className="stack">
-      <div className="page-head">
-        <div className="page-title">Money</div>
-        <div className="page-meta">
-          {m.fromPackages
-            ? 'Revenue from packages patients bought, and per-clinician payouts owed to part-time clinicians'
-            : 'Revenue (estimated from completed sessions until package purchases are recorded) and per-clinician payouts'}
+      <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <div className="page-title">Money</div>
+          <div className="page-meta">Clinician earnings and payouts, at the day / week / month grain each clinician sees, with downloadable statements. Package sales live on the Revenue page.</div>
         </div>
+        <Link href="/admin/revenue" className="btn" style={{ border: '1.5px solid #E2E8F0', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <TrendingUp size={15} /> Revenue &amp; package sales
+        </Link>
       </div>
 
       <div className="grid-4">
@@ -42,34 +48,43 @@ export default async function AdminMoneyPage() {
       </div>
 
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 4 }}>Part-time payouts</div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Clinician earnings</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
-          Computed from the pay structure — a session counts once its clinical note is written. Salaried (full-time) clinicians aren&apos;t shown.
+          Every clinician&apos;s earnings, computed from their own pay structure — a session counts once its clinical note is written.
+          Open one for the day / week / month grain and downloadable statements. Full-time clinicians are salaried; the figures still show what their sessions would earn.
         </p>
-        {m.payouts.length === 0 && <p className="muted">No part-time clinicians with earnings yet.</p>}
+        {m.payouts.length === 0 && <p className="muted">No clinicians with earnings yet.</p>}
         {m.payouts.length > 0 && (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--c-line)' }}>
-                <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Clinician</th>
-                <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Sessions</th>
-                <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>This month</th>
-                <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Total earned</th>
-              </tr>
-            </thead>
-            <tbody>
-              {m.payouts.map((p) => (
-                <tr key={p.profileId} style={{ borderBottom: '1px solid var(--c-line)' }}>
-                  <td style={{ padding: '10px 4px' }}>
-                    <Link href={`/admin/therapists/${p.profileId}`} style={{ color: charcoal, fontWeight: 600, textDecoration: 'none' }}>{p.name}</Link>
-                  </td>
-                  <td style={{ padding: '10px 4px' }}>{p.sessions}</td>
-                  <td style={{ padding: '10px 4px' }}>{inr(p.thisMonth)}</td>
-                  <td style={{ padding: '10px 4px', fontWeight: 700 }}>{inr(p.totalEarned)}</td>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--c-line)' }}>
+                  <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Clinician</th>
+                  <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Engagement</th>
+                  <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Sessions</th>
+                  <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>This month</th>
+                  <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Total earned</th>
+                  <th style={{ padding: '8px 4px' }}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {m.payouts.map((p) => (
+                  <tr key={p.profileId} style={{ borderBottom: '1px solid var(--c-line)' }}>
+                    <td style={{ padding: '10px 4px' }}>
+                      <Link href={`/admin/money/${p.profileId}`} style={{ color: charcoal, fontWeight: 600, textDecoration: 'none' }}>{p.name}</Link>
+                    </td>
+                    <td style={{ padding: '10px 4px', fontSize: 12.5, color: 'var(--c-gray-d)' }}>{p.employmentType === 'PART_TIME' ? 'Part-time' : 'Full-time'}</td>
+                    <td style={{ padding: '10px 4px' }}>{p.sessions}</td>
+                    <td style={{ padding: '10px 4px' }}>{inr(p.thisMonth)}</td>
+                    <td style={{ padding: '10px 4px', fontWeight: 700 }}>{inr(p.totalEarned)}</td>
+                    <td style={{ padding: '10px 4px', textAlign: 'right' }}>
+                      <Link href={`/admin/money/${p.profileId}`} className="link-action">Open →</Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

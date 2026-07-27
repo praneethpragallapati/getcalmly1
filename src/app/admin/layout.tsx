@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, Newspaper, Settings, Tags } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, TrendingUp, Newspaper, Settings, Tags } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -65,6 +65,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/money">
             <Banknote size={18} />
             <span>Money</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/revenue">
+            <TrendingUp size={18} />
+            <span>Revenue</span>
           </SidebarLink>
           <SidebarLink href="/admin/pricing">
             <Tags size={18} />
