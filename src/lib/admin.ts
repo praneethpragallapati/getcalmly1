@@ -387,6 +387,88 @@ export async function getClinicianEarnings(profileId: string): Promise<Clinician
   }, null)
 }
 
+// ── Clinician roster: patients, sessions, calendar ──────────────────────────────
+
+export type AdminSessionRow = {
+  id: string
+  patientId: string
+  patientName: string
+  scheduledAtIso: string
+  dateIso: string // YYYY-MM-DD (local) for calendar grouping
+  dateLabel: string
+  timeLabel: string
+  status: string
+  isPast: boolean
+  hasSummary: boolean
+  voided: boolean
+  fee: number
+}
+export type RosterPatient = {
+  userId: string
+  name: string
+  email: string
+  upcoming: AdminSessionRow[]
+  past: AdminSessionRow[]
+  total: number
+}
+export type ClinicianRoster = {
+  profileId: string
+  name: string
+  patients: RosterPatient[]
+  sessions: AdminSessionRow[] // every session, for the calendar
+}
+
+/** A clinician's full roster: patients with their past/future sessions + a flat list for the calendar. */
+export async function getClinicianRoster(profileId: string): Promise<ClinicianRoster | null> {
+  return safe(async () => {
+    const profile = await prisma.therapistProfile.findUnique({ where: { id: profileId }, select: { id: true, user: { select: { name: true } } } })
+    if (!profile) return null
+    const appts = await prisma.appointment.findMany({
+      where: { therapistId: profileId },
+      orderBy: { scheduledAt: 'desc' },
+      include: { patient: { select: { id: true, name: true, email: true } } },
+    })
+    const now = Date.now()
+    const rows: AdminSessionRow[] = appts.map((a) => {
+      const d = a.scheduledAt
+      return {
+        id: a.id,
+        patientId: a.patientId,
+        patientName: a.patient?.name ?? 'Patient',
+        scheduledAtIso: d.toISOString(),
+        dateIso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+        dateLabel: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+        timeLabel: d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+        status: a.status,
+        isPast: d.getTime() < now,
+        hasSummary: !!a.summary,
+        voided: a.status === 'CANCELLED',
+        fee: a.fee,
+      }
+    })
+
+    const byPatient = new Map<string, RosterPatient>()
+    for (const a of appts) {
+      const id = a.patientId
+      if (!byPatient.has(id)) byPatient.set(id, { userId: id, name: a.patient?.name ?? 'Patient', email: a.patient?.email ?? '', upcoming: [], past: [], total: 0 })
+    }
+    for (const r of rows) {
+      const p = byPatient.get(r.patientId)!
+      ;(r.isPast ? p.past : p.upcoming).push(r)
+      p.total += 1
+    }
+    // Upcoming should read soonest-first; past newest-first (rows already desc).
+    for (const p of byPatient.values()) p.upcoming.reverse()
+
+    return {
+      profileId,
+      name: profile.user?.name ?? 'Clinician',
+      patients: [...byPatient.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      sessions: rows,
+    }
+  }, null)
+}
+
 // ── Revenue reporting (package sales, CA-audit depth) ───────────────────────────
 
 const KIND_LABEL: Record<string, string> = {

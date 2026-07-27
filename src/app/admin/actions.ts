@@ -393,6 +393,35 @@ export async function setAppointmentStatusAdmin(input: { id: string; status: str
   } catch { return { ok: false, error: 'Could not update the session.' } }
 }
 
+/**
+ * Void a session the clinician was credited for but shouldn't be paid for — e.g.
+ * the patient reports the clinician never joined. Cancels the appointment and
+ * clears its summary so it drops out of earnings, records the reason, and
+ * (optionally) credits the patient back a session on their latest plan.
+ */
+export async function voidSession(input: { appointmentId: string; reason?: string; creditPatient?: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    const appt = await prisma.appointment.findUnique({ where: { id: input.appointmentId }, select: { id: true, patientId: true, notes: true } })
+    if (!appt) return { ok: false, error: 'Session not found.' }
+    const reason = (input.reason ?? '').trim()
+    const stamp = `[Voided ${new Date().toISOString().slice(0, 10)}${reason ? `: ${reason}` : ''}]`
+    // CANCELLED + no summary → never counts toward clinician pay.
+    await prisma.appointment.update({
+      where: { id: appt.id },
+      data: { status: 'CANCELLED', summary: null, notes: appt.notes ? `${appt.notes}\n${stamp}` : stamp },
+    })
+    if (input.creditPatient) {
+      const sub = await prisma.subscription.findFirst({ where: { userId: appt.patientId }, orderBy: { createdAt: 'desc' }, select: { id: true, sessionsUsed: true } })
+      if (sub && sub.sessionsUsed > 0) {
+        await prisma.subscription.update({ where: { id: sub.id }, data: { sessionsUsed: sub.sessionsUsed - 1 } })
+      }
+    }
+    revalidatePath('/admin/therapists'); revalidatePath('/admin/operations'); revalidatePath('/admin/money')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not void the session.' } }
+}
+
 // ── Content moderation + admin authoring ─────────────────────────────────────
 
 // Byline used for admin-authored content, so it reads as the platform team.
