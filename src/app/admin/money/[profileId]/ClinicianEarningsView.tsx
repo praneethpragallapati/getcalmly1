@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, Wallet, CalendarDays, TrendingUp } from 'lucide-react'
+import { Download, Wallet, CalendarDays, TrendingUp, FileText } from 'lucide-react'
 import type { ClinicianEarnings, EarningsBucket } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
@@ -72,11 +72,14 @@ export function ClinicianEarningsView({ e }: { e: ClinicianEarnings }) {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <a href={`/admin/money/${e.profileId}/statement?grain=${grain}`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <Download size={13} /> Export by {grain}
+            <a href={`/admin/money/${e.profileId}/statement?grain=${grain}&format=pdf`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <FileText size={13} /> PDF by {grain}
             </a>
-            <a href={`/admin/money/${e.profileId}/statement?grain=lines`} className="btn btn-primary" style={{ fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <Download size={13} /> Full statement
+            <a href={`/admin/money/${e.profileId}/statement?grain=${grain}`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <Download size={13} /> CSV by {grain}
+            </a>
+            <a href={`/admin/money/${e.profileId}/statement?grain=lines&format=pdf`} className="btn btn-primary" style={{ fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <FileText size={13} /> Full PDF statement
             </a>
           </div>
         </div>

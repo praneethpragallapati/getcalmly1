@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { TrendingUp, IndianRupee, CalendarRange, Download, Package } from 'lucide-react'
+import { TrendingUp, IndianRupee, CalendarRange, Download, Package, FileText } from 'lucide-react'
 import type { RevenueReport, RevenueBucket } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
@@ -10,11 +10,16 @@ const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
 type Grain = 'day' | 'week' | 'month' | 'year' | 'package'
 
-function DownloadLink({ grain, label }: { grain: string; label: string }) {
+function DownloadLink({ grain }: { grain: string }) {
   return (
-    <a href={`/admin/revenue/export?grain=${grain}`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-      <Download size={13} /> {label}
-    </a>
+    <span style={{ display: 'inline-flex', gap: 8 }}>
+      <a href={`/admin/revenue/export?grain=${grain}&format=pdf`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+        <FileText size={13} /> PDF
+      </a>
+      <a href={`/admin/revenue/export?grain=${grain}`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+        <Download size={13} /> CSV
+      </a>
+    </span>
   )
 }
 
@@ -69,9 +74,14 @@ export function RevenueView({ report }: { report: RevenueReport }) {
           <div className="page-title">Revenue</div>
           <div className="page-meta">Package sales — who bought what, and totals by day, week, month and year. Exports open in Excel and carry full audit detail.</div>
         </div>
-        <a href="/admin/revenue/export?grain=ledger" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <Download size={15} /> Download full ledger
-        </a>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <a href="/admin/revenue/export?grain=ledger&format=pdf" className="btn" style={{ border: '1.5px solid #E2E8F0', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <FileText size={15} /> PDF ledger
+          </a>
+          <a href="/admin/revenue/export?grain=ledger" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Download size={15} /> CSV ledger
+          </a>
+        </div>
       </div>
 
       {!report.hasData && (
@@ -99,7 +109,7 @@ export function RevenueView({ report }: { report: RevenueReport }) {
               }}>{g}</button>
             ))}
           </div>
-          <DownloadLink grain={grain} label={`Export by ${grain}`} />
+          <DownloadLink grain={grain} />
         </div>
         <BucketTable buckets={buckets} keyLabel={keyLabel} />
       </div>
