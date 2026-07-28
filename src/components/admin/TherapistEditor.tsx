@@ -22,8 +22,6 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
   const [employmentType, setEmploymentType] = useState(c.employmentType)
   const [isActive, setIsActive] = useState(c.isActive)
   const [isVerified, setIsVerified] = useState(c.isVerified)
-  const [rating, setRating] = useState(String(c.rating))
-  const [totalReviews, setTotalReviews] = useState(String(c.totalReviews))
   const [feeInd, setFeeInd] = useState(numOrEmpty(c.baseFeeIndividual))
   const [feeCpl, setFeeCpl] = useState(numOrEmpty(c.baseFeeCouples))
   const [feePsy, setFeePsy] = useState(numOrEmpty(c.baseFeePsychiatry))
@@ -42,8 +40,6 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
         profileId: c.profileId,
         employmentType,
         isActive, isVerified,
-        rating: Number(rating) || 0,
-        totalReviews: Number(totalReviews) || 0,
         baseFeeIndividual: numOrBlank(feeInd),
         baseFeeCouples: numOrBlank(feeCpl),
         baseFeePsychiatry: numOrBlank(feePsy),
@@ -104,10 +100,14 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
             </Row>
           </div>
 
-          <Row>
-            <Col><label style={label}>Rating (0–5)</label><input type="number" min={0} max={5} step={0.1} style={field} value={rating} onChange={(e) => setRating(e.target.value)} /></Col>
-            <Col><label style={label}>Total reviews</label><input type="number" min={0} style={field} value={totalReviews} onChange={(e) => setTotalReviews(e.target.value)} /></Col>
-          </Row>
+          <div>
+            <label style={label}>Patient rating <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(from reviews — not editable)</span></label>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(28,43,58,.04)', borderRadius: 10, padding: '9px 14px' }}>
+              <Star size={16} style={{ color: '#C9973A', fill: c.totalReviews > 0 ? '#C9973A' : 'none' }} />
+              <span style={{ fontSize: 15, fontWeight: 800, color: charcoal }}>{c.totalReviews > 0 ? c.rating.toFixed(1) : '—'}</span>
+              <span className="muted" style={{ fontSize: 12.5 }}>{c.totalReviews} review{c.totalReviews === 1 ? '' : 's'}</span>
+            </div>
+          </div>
 
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             <Toggle label="Active" checked={isActive} onChange={setIsActive} />
@@ -118,6 +118,28 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
             <button onClick={save} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>Save changes</button>
             {msg && <span style={{ fontSize: 13.5, color: msg.ok ? '#2C7A57' : coral, display: 'inline-flex', alignItems: 'center', gap: 5 }}>{msg.ok && <Check size={14} />}{msg.text}</span>}
           </div>
+        </div>
+      </div>
+
+      {/* Patient reviews (read-only) */}
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Star size={15} style={{ color: '#C9973A', fill: c.totalReviews > 0 ? '#C9973A' : 'none' }} />
+          Patient reviews · {c.totalReviews > 0 ? `${c.rating.toFixed(1)} avg` : 'no ratings yet'} ({c.totalReviews})
+        </div>
+        <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>Real ratings from patients after their sessions. This drives the profile rating and can&apos;t be edited here.</p>
+        {c.reviews.length === 0 && <p className="muted" style={{ fontSize: 13.5 }}>No reviews yet.</p>}
+        <div className="stack" style={{ gap: 8 }}>
+          {c.reviews.map((r) => (
+            <div key={r.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '9px 0', borderTop: '1px solid rgba(28,43,58,.06)' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, minWidth: 46 }}>
+                <Star size={13} style={{ color: '#C9973A', fill: '#C9973A' }} />
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: charcoal }}>{r.rating}</span>
+              </span>
+              <span style={{ flex: 1, fontSize: 13, color: '#3A4A5A', lineHeight: 1.5 }}>{r.comment || <span className="muted">No comment</span>}</span>
+              <span className="muted" style={{ fontSize: 11.5, whiteSpace: 'nowrap' }}>{r.date}</span>
+            </div>
+          ))}
         </div>
       </div>
 

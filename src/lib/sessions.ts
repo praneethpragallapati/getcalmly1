@@ -25,6 +25,11 @@ export type SessionDetail = {
   isPast: boolean
   /** True a short while before the start time through the end of the session. */
   joinable: boolean
+  /** The patient's own rating (1–5), or null if not yet rated. */
+  myRating: number | null
+  myReviewComment: string | null
+  /** Whether the patient can rate this session (past, not cancelled). */
+  reviewable: boolean
 }
 
 export type SessionsView = {
@@ -70,7 +75,10 @@ export async function getSessionsView(): Promise<SessionsView> {
     const rows = await prisma.appointment.findMany({
       where: { patientId: userId },
       orderBy: { scheduledAt: 'asc' },
-      include: { therapist: { include: { user: { select: { name: true } } } } },
+      include: {
+        therapist: { include: { user: { select: { name: true } } } },
+        review: { select: { rating: true } },
+      },
     })
     if (rows.length === 0) return demo
 
@@ -80,6 +88,7 @@ export async function getSessionsView(): Promise<SessionsView> {
     let n = 0
     for (const r of rows) {
       n++
+      const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() < now
       const ds: DashSession = {
         id: r.id,
         expert: r.therapist.user.name ?? 'Your expert',
@@ -87,16 +96,14 @@ export async function getSessionsView(): Promise<SessionsView> {
         when: fmtWhen(r.scheduledAt),
         scheduledISO: r.scheduledAt.toISOString(),
         durationMins: r.durationMins,
-        status:
-          r.status === 'COMPLETED'
-            ? 'COMPLETED'
-            : r.scheduledAt.getTime() <= now
-              ? 'COMPLETED'
-              : 'UPCOMING',
+        status: isPast ? 'COMPLETED' : 'UPCOMING',
         sessionNo: n,
         hasSummary: Boolean(r.summary),
+        myRating: r.review?.rating ?? null,
+        // Rateable once it has happened and wasn't cancelled/voided.
+        reviewable: isPast && r.status !== 'CANCELLED',
       }
-      if (r.status === 'COMPLETED' || r.scheduledAt.getTime() < now) past.push(ds)
+      if (isPast) past.push(ds)
       else upcoming.push(ds)
     }
     past.reverse()
@@ -137,6 +144,9 @@ function demoDetail(id: string): SessionDetail | null {
         : null,
     isPast: s.status === 'COMPLETED',
     joinable: s.status !== 'COMPLETED',
+    myRating: null,
+    myReviewComment: null,
+    reviewable: false, // demo/preview sessions aren't real, so not rateable
   }
 }
 
@@ -148,7 +158,10 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
   try {
     const r = await prisma.appointment.findFirst({
       where: { id, patientId: userId }, // ownership enforced in the query
-      include: { therapist: { include: { user: { select: { name: true } } } } },
+      include: {
+        therapist: { include: { user: { select: { name: true } } } },
+        review: { select: { rating: true, comment: true } },
+      },
     })
     if (!r) return demoDetail(id)
     const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() < Date.now()
@@ -166,6 +179,9 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
       summary: r.summary,
       isPast,
       joinable: !isPast && joinableNow(r.scheduledAt, r.durationMins),
+      myRating: r.review?.rating ?? null,
+      myReviewComment: r.review?.comment ?? null,
+      reviewable: isPast && r.status !== 'CANCELLED',
     }
   } catch {
     return demoDetail(id)

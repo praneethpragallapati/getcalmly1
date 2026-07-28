@@ -33,6 +33,10 @@ export type DashSession = {
   sessionNo?: number
   tags?: string[]
   hasSummary?: boolean
+  // The patient's own rating for this session (1–5), or null when not yet rated.
+  // Only set for real, past appointments; drives the post-session rating prompt.
+  myRating?: number | null
+  reviewable?: boolean
 }
 
 export type TodaySession = DashSession & { startsIn: string; tags: string[]; sessionNo: number }

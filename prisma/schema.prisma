@@ -227,6 +227,7 @@ model User {
   formAssignments     FormAssignment[]
   medicationOrders    MedicationOrder[]
   notifications       Notification[]
+  sessionReviews      SessionReview[]    @relation("PatientReviews")
 }
 
 // Patient-side record holding identity, care context, contacts and consents.
@@ -372,6 +373,7 @@ model TherapistProfile {
   availabilityExceptions AvailabilityException[]
   supervisorLinks        SupervisionLink[]       @relation("Supervisor")
   superviseeLinks        SupervisionLink[]       @relation("Supervisee")
+  reviews                SessionReview[]
 }
 
 // Recurring weekly availability template. One row per weekday the therapist works;
@@ -461,7 +463,29 @@ model Appointment {
   summary        String?           @db.Text
   createdAt      DateTime          @default(now())
 
+  review         SessionReview?
+
   @@index([patientId])
+}
+
+// A patient's rating of a completed session with their clinician. One per
+// appointment. Submitting (or updating) one recomputes the clinician's
+// denormalised rating + totalReviews, so the profile rating is always the real
+// average of patient feedback — admins can read it but never hand-edit it.
+model SessionReview {
+  id            String           @id @default(cuid())
+  appointmentId String           @unique
+  appointment   Appointment      @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  patientId     String
+  patient       User             @relation("PatientReviews", fields: [patientId], references: [id], onDelete: Cascade)
+  therapistId   String
+  therapist     TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  rating        Int // 1–5
+  comment       String?          @db.Text
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([therapistId])
 }
 
 // A patient's purchased care package. Drives session balance, category and the

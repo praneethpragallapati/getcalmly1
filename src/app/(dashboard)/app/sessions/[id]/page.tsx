@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { Video, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react'
 import { getSessionDetail } from '@/lib/sessions'
 import { PreSessionNote } from '@/components/dashboard/PreSessionNote'
+import { RateSession } from '@/components/dashboard/RateSession'
 
 export default async function SessionDetailPage({ params }: PageProps<'/app/sessions/[id]'>) {
   const { id } = await params
@@ -35,20 +36,30 @@ export default async function SessionDetailPage({ params }: PageProps<'/app/sess
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 20, alignItems: 'start' }}>
         <div className="stack">
           {s.isPast ? (
-            <div className="card">
-              <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={17} /> Session summary
+            <>
+              <div className="card">
+                <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Sparkles size={17} /> Session summary
+                </div>
+                {s.summary ? (
+                  <p style={{ fontSize: 14, color: 'var(--c-gray-d)', lineHeight: 1.65, marginTop: 12 }}>
+                    {s.summary}
+                  </p>
+                ) : (
+                  <p className="muted" style={{ marginTop: 12 }}>
+                    Your expert hasn’t added a summary for this session yet.
+                  </p>
+                )}
               </div>
-              {s.summary ? (
-                <p style={{ fontSize: 14, color: 'var(--c-gray-d)', lineHeight: 1.65, marginTop: 12 }}>
-                  {s.summary}
-                </p>
-              ) : (
-                <p className="muted" style={{ marginTop: 12 }}>
-                  Your expert hasn’t added a summary for this session yet.
-                </p>
+              {s.reviewable && (
+                <RateSession
+                  appointmentId={s.id}
+                  expert={s.expert}
+                  initialRating={s.myRating}
+                  initialComment={s.myReviewComment}
+                />
               )}
-            </div>
+            </>
           ) : (
             <PreSessionNote appointmentId={s.id} initial={s.preSessionNote} />
           )}

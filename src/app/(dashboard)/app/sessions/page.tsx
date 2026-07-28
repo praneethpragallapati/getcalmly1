@@ -3,51 +3,59 @@ import { Video, FileText, Calendar, CheckCircle2, Clock } from 'lucide-react'
 import { getSessionsView, getExpertCalendar } from '@/lib/sessions'
 import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
 import { BookSession } from '@/components/dashboard/BookSession'
+import { RateSession } from '@/components/dashboard/RateSession'
 import type { DashSession } from '@/data/dashboardDemo'
 
 function SessionRow({ s }: { s: DashSession }) {
   const past = s.status === 'COMPLETED'
   return (
-    <div className="sess-row">
-      <span className="doc-avatar" style={{ width: 46, height: 46, fontSize: 22 }}>
-        👩‍⚕️
-      </span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="doc-name" style={{ fontSize: 15 }}>
-          {s.expert}
-        </div>
-        <div className="doc-sub">{s.when}</div>
-        {s.tags && s.tags.length > 0 && (
-          <div className="tag-row">
-            {s.tags.map((t) => (
-              <span className="tag" key={t}>
-                {t}
-              </span>
-            ))}
+    <div style={{ borderBottom: '1px solid var(--c-line)' }}>
+      <div className="sess-row" style={{ borderBottom: 'none' }}>
+        <span className="doc-avatar" style={{ width: 46, height: 46, fontSize: 22 }}>
+          👩‍⚕️
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="doc-name" style={{ fontSize: 15 }}>
+            {s.expert}
           </div>
-        )}
+          <div className="doc-sub">{s.when}</div>
+          {s.tags && s.tags.length > 0 && (
+            <div className="tag-row">
+              {s.tags.map((t) => (
+                <span className="tag" key={t}>
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="sess-actions">
+          {past ? (
+            <>
+              <span className="sess-status done">
+                <CheckCircle2 size={14} /> Completed
+              </span>
+              <Link href={`/app/sessions/${s.id}`} className="btn btn-outline btn-sm">
+                <FileText size={14} /> {s.hasSummary ? 'View summary' : 'View'}
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href={`/app/sessions/${s.id}/room`} className="btn btn-primary btn-sm">
+                <Video size={14} /> Join
+              </Link>
+              <Link href={`/app/sessions/${s.id}`} className="btn btn-outline btn-sm">
+                <FileText size={14} /> Notes
+              </Link>
+            </>
+          )}
+        </div>
       </div>
-      <div className="sess-actions">
-        {past ? (
-          <>
-            <span className="sess-status done">
-              <CheckCircle2 size={14} /> Completed
-            </span>
-            <Link href={`/app/sessions/${s.id}`} className="btn btn-outline btn-sm">
-              <FileText size={14} /> {s.hasSummary ? 'View summary' : 'View'}
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link href={`/app/sessions/${s.id}/room`} className="btn btn-primary btn-sm">
-              <Video size={14} /> Join
-            </Link>
-            <Link href={`/app/sessions/${s.id}`} className="btn btn-outline btn-sm">
-              <FileText size={14} /> Notes
-            </Link>
-          </>
-        )}
-      </div>
+      {past && s.reviewable && (
+        <div style={{ padding: '0 4px 14px 62px' }}>
+          <RateSession appointmentId={s.id} expert={s.expert} initialRating={s.myRating ?? null} compact />
+        </div>
+      )}
     </div>
   )
 }

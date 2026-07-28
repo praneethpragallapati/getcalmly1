@@ -129,7 +129,6 @@ export type TherapistSettingsInput = {
   profileId: string
   employmentType?: string
   isActive?: boolean; isVerified?: boolean
-  rating?: number; totalReviews?: number
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
   secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
 }
@@ -152,8 +151,7 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
         employmentType: input.employmentType === 'PART_TIME' ? 'PART_TIME' : input.employmentType === 'FULL_TIME' ? 'FULL_TIME' : undefined,
         isActive: input.isActive,
         isVerified: input.isVerified,
-        rating: input.rating !== undefined ? Math.max(0, Math.min(5, input.rating)) : undefined,
-        totalReviews: input.totalReviews !== undefined ? posInt(input.totalReviews) ?? 0 : undefined,
+        // rating + totalReviews are derived from patient reviews, never hand-set.
         baseFeeIndividual: feeInd,
         baseFeeCouples: override(input.baseFeeCouples),
         baseFeePsychiatry: override(input.baseFeePsychiatry),

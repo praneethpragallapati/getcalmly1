@@ -148,6 +148,7 @@ export type ClinicianDetail = {
   supervisees: { linkId: string; name: string }[]
   patients: { userId: string; name: string }[]
   allTherapists: { profileId: string; name: string }[]
+  reviews: { id: string; rating: number; comment: string | null; date: string }[]
 }
 
 export async function getClinicianDetail(profileId: string): Promise<ClinicianDetail | null> {
@@ -155,7 +156,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
     const p = await prisma.therapistProfile.findUnique({ where: { id: profileId }, include: { user: { select: { id: true, name: true, email: true } } } })
     if (!p) return null
     const config = await getEarningsConfig()
-    const [links, apptPatients, assigned, allT] = await Promise.all([
+    const [links, apptPatients, assigned, allT, reviews] = await Promise.all([
       prisma.supervisionLink.findMany({
         where: { OR: [{ supervisorId: profileId }, { superviseeId: profileId }] },
         include: { supervisor: { include: { user: { select: { name: true } } } }, supervisee: { include: { user: { select: { name: true } } } } },
@@ -163,6 +164,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       prisma.appointment.findMany({ where: { therapistId: profileId }, select: { patientId: true, patient: { select: { name: true } } }, distinct: ['patientId'] }),
       prisma.patientProfile.findMany({ where: { assignedTherapistId: profileId }, select: { userId: true, user: { select: { name: true } } } }),
       prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
+      prisma.sessionReview.findMany({ where: { therapistId: profileId }, orderBy: { createdAt: 'desc' }, take: 12, select: { id: true, rating: true, comment: true, createdAt: true } }),
     ])
     const patientMap = new Map<string, string>()
     for (const a of apptPatients) patientMap.set(a.patientId, a.patient?.name ?? 'Patient')
@@ -184,6 +186,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       supervisees: links.filter((l) => l.supervisorId === profileId).map((l) => ({ linkId: l.id, name: l.supervisee.user?.name ?? 'Clinician' })),
       patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),
       allTherapists: allT.filter((t) => t.id !== profileId).map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
+      reviews: reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, date: r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })),
     }
   }, null)
 }

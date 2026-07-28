@@ -8,6 +8,7 @@ import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, 
 import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
+import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 
@@ -515,6 +516,30 @@ export async function buyFirstSession(
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not complete purchase.' }
+  }
+}
+
+/**
+ * Rate a completed session (#ratings). Scoped to the patient's own appointment;
+ * recomputes the clinician's real rating average. Re-rating updates the score.
+ */
+export async function submitSessionReview(
+  appointmentId: string,
+  rating: number,
+  comment?: string,
+): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: true, persisted: false }
+
+  try {
+    const res = await submitReview(userId, appointmentId, rating, comment)
+    if (!res.ok) return { ok: false, persisted: false, error: res.error }
+    revalidatePath('/app/sessions')
+    revalidatePath(`/app/sessions/${appointmentId}`)
+    revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not save your rating.' }
   }
 }
 
