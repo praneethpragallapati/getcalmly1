@@ -20,13 +20,23 @@ export async function GET(req: Request) {
   const report = await getRevenueReport()
   const stamp = new Date().toISOString().slice(0, 10)
 
-  const buckets =
+  const periods =
     grain === 'day' ? report.byDay :
     grain === 'week' ? report.byWeek :
     grain === 'year' ? report.byYear :
-    grain === 'package' ? report.byPackage :
     report.byMonth
-  const keyHeader = grain === 'package' ? 'Package' : grain === 'week' ? 'ISO week' : grain.charAt(0).toUpperCase() + grain.slice(1)
+  const keyHeader = grain === 'week' ? 'ISO week' : grain.charAt(0).toUpperCase() + grain.slice(1)
+
+  // A period export lists every package within each period, then the period
+  // total — so day/week/month/year each carry their package breakup + total.
+  const periodRows = (asString: boolean): (string | number)[][] => {
+    const out: (string | number)[][] = []
+    for (const p of periods) {
+      for (const pkg of p.packages) out.push([p.label, pkg.name, asString ? String(pkg.count) : pkg.count, asString ? rs(pkg.amount) : pkg.amount])
+      out.push([p.label, 'TOTAL', asString ? String(p.count) : p.count, asString ? rs(p.amount) : p.amount])
+    }
+    return out
+  }
 
   if (format === 'pdf') {
     const summary = [
@@ -42,13 +52,13 @@ export async function GET(req: Request) {
           rows: report.lines.map((l) => [l.dayLabel, l.patientName, l.planName || '-', l.kindLabel, rs(l.amount)]),
         }
       : {
-          headers: [keyHeader, 'Orders', 'Revenue'],
-          align: ['left', 'left', 'right'] as ('left' | 'right')[],
-          rows: buckets.map((b) => [b.label, String(b.count), rs(b.amount)]),
+          headers: [keyHeader, 'Package', 'Orders', 'Revenue'],
+          align: ['left', 'left', 'left', 'right'] as ('left' | 'right')[],
+          rows: periodRows(true),
         }
     const bytes = await buildStatementPdf({
       title: 'Revenue statement',
-      subtitle: grain === 'ledger' ? 'Package sales ledger' : `Revenue by ${grain}`,
+      subtitle: grain === 'ledger' ? 'Package sales ledger' : `Revenue by ${grain}, broken down by package`,
       meta: [`Generated: ${stamp}`, 'All amounts in INR'],
       summary,
       table,
@@ -64,9 +74,6 @@ export async function GET(req: Request) {
     return csvResponse(`getcalmly-revenue-ledger-${stamp}.csv`, csv)
   }
 
-  const csv = toCsv(
-    [keyHeader, 'Orders', 'Revenue (INR)'],
-    buckets.map((b) => [b.label, b.count, b.amount]),
-  )
+  const csv = toCsv([keyHeader, 'Package', 'Orders', 'Revenue (INR)'], periodRows(false))
   return csvResponse(`getcalmly-revenue-by-${grain}-${stamp}.csv`, csv)
 }

@@ -511,6 +511,10 @@ export type RevenueLine = {
 }
 
 export type RevenueBucket = { key: string; label: string; amount: number; count: number }
+// A time period (day/week/month/year) with its total AND the per-package breakup
+// within that period.
+export type RevenuePackageLine = { name: string; amount: number; count: number }
+export type RevenuePeriod = { key: string; label: string; amount: number; count: number; packages: RevenuePackageLine[] }
 export type RevenueReport = {
   hasData: boolean
   totalAllTime: number
@@ -518,10 +522,10 @@ export type RevenueReport = {
   totalThisYear: number
   orders: number
   lines: RevenueLine[]
-  byDay: RevenueBucket[]
-  byWeek: RevenueBucket[]
-  byMonth: RevenueBucket[]
-  byYear: RevenueBucket[]
+  byDay: RevenuePeriod[]
+  byWeek: RevenuePeriod[]
+  byMonth: RevenuePeriod[]
+  byYear: RevenuePeriod[]
   byPackage: RevenueBucket[]
 }
 
@@ -568,12 +572,37 @@ function bucketBy(lines: RevenueLine[], keyOf: (l: RevenueLine) => { key: string
   return [...map.values()].sort((a, b) => (a.key < b.key ? 1 : -1))
 }
 
+const packageNameOf = (l: RevenueLine) => l.planName || l.kindLabel
+
+// Group into time periods, each carrying its total and a per-package breakup.
+function periodBy(lines: RevenueLine[], keyOf: (l: RevenueLine) => { key: string; label: string }): RevenuePeriod[] {
+  const map = new Map<string, { key: string; label: string; amount: number; count: number; pkg: Map<string, RevenuePackageLine> }>()
+  for (const l of lines) {
+    const { key, label } = keyOf(l)
+    let e = map.get(key)
+    if (!e) { e = { key, label, amount: 0, count: 0, pkg: new Map() }; map.set(key, e) }
+    e.amount += l.amount
+    e.count += 1
+    const name = packageNameOf(l)
+    const p = e.pkg.get(name) ?? { name, amount: 0, count: 0 }
+    p.amount += l.amount
+    p.count += 1
+    e.pkg.set(name, p)
+  }
+  return [...map.values()]
+    .sort((a, b) => (a.key < b.key ? 1 : -1)) // most recent period first
+    .map((e) => ({
+      key: e.key, label: e.label, amount: e.amount, count: e.count,
+      packages: [...e.pkg.values()].sort((a, b) => b.amount - a.amount),
+    }))
+}
+
 /** Revenue rolled up across every grain, for the Revenue page. */
 export async function getRevenueReport(): Promise<RevenueReport> {
   const lines = await getRevenueLines()
   const now = new Date()
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-  const byPackage = bucketBy(lines, (l) => ({ key: l.planName || l.kindLabel, label: l.planName || l.kindLabel }))
+  const byPackage = bucketBy(lines, (l) => ({ key: packageNameOf(l), label: packageNameOf(l) }))
     .sort((a, b) => b.amount - a.amount)
   return {
     hasData: lines.length > 0,
@@ -582,10 +611,10 @@ export async function getRevenueReport(): Promise<RevenueReport> {
     totalThisYear: lines.filter((l) => l.year === now.getFullYear()).reduce((s, l) => s + l.amount, 0),
     orders: lines.length,
     lines,
-    byDay: bucketBy(lines, (l) => ({ key: l.dateIso, label: l.dayLabel })),
-    byWeek: bucketBy(lines, (l) => ({ key: l.weekKey, label: l.weekKey })),
-    byMonth: bucketBy(lines, (l) => ({ key: l.monthKey, label: l.monthLabel })),
-    byYear: bucketBy(lines, (l) => ({ key: String(l.year), label: String(l.year) })),
+    byDay: periodBy(lines, (l) => ({ key: l.dateIso, label: l.dayLabel })),
+    byWeek: periodBy(lines, (l) => ({ key: l.weekKey, label: l.weekKey })),
+    byMonth: periodBy(lines, (l) => ({ key: l.monthKey, label: l.monthLabel })),
+    byYear: periodBy(lines, (l) => ({ key: String(l.year), label: String(l.year) })),
     byPackage,
   }
 }

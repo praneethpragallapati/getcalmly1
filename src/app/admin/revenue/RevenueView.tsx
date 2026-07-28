@@ -1,14 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { TrendingUp, IndianRupee, CalendarRange, Download, Package, FileText } from 'lucide-react'
-import type { RevenueReport, RevenueBucket } from '@/lib/admin'
+import { TrendingUp, IndianRupee, CalendarRange, Download, Package, FileText, ChevronRight } from 'lucide-react'
+import type { RevenueReport, RevenuePeriod } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
 const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
-type Grain = 'day' | 'week' | 'month' | 'year' | 'package'
+type Grain = 'day' | 'week' | 'month' | 'year'
 
 function DownloadLink({ grain }: { grain: string }) {
   return (
@@ -23,30 +23,54 @@ function DownloadLink({ grain }: { grain: string }) {
   )
 }
 
-function BucketTable({ buckets, keyLabel }: { buckets: RevenueBucket[]; keyLabel: string }) {
-  if (buckets.length === 0) return <p className="muted" style={{ padding: '8px 0' }}>No revenue yet.</p>
+/** One time period: total on the header, its package breakup nested beneath. */
+function PeriodRow({ period }: { period: RevenuePeriod }) {
+  const [open, setOpen] = useState(false)
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 360 }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--c-line)' }}>
-            <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>{keyLabel}</th>
-            <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600 }}>Orders</th>
-            <th style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600, textAlign: 'right' }}>Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          {buckets.map((b) => (
-            <tr key={b.key} style={{ borderBottom: '1px solid var(--c-line)' }}>
-              <td style={{ padding: '9px 4px', fontWeight: 600, color: charcoal }}>{b.label}</td>
-              <td style={{ padding: '9px 4px' }}>{b.count}</td>
-              <td style={{ padding: '9px 4px', textAlign: 'right', fontWeight: 700 }}>{inr(b.amount)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div style={{ borderBottom: '1px solid var(--c-line)' }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '11px 4px', fontFamily: 'inherit', textAlign: 'left' }}
+      >
+        <ChevronRight size={15} style={{ color: '#8E9EAE', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .15s', flexShrink: 0 }} />
+        <span style={{ fontWeight: 700, color: charcoal, flex: 1 }}>{period.label}</span>
+        <span className="muted" style={{ fontSize: 12.5 }}>{period.count} order{period.count === 1 ? '' : 's'} · {period.packages.length} package{period.packages.length === 1 ? '' : 's'}</span>
+        <span style={{ fontWeight: 800, color: charcoal, minWidth: 90, textAlign: 'right' }}>{inr(period.amount)}</span>
+      </button>
+      {open && (
+        <div style={{ padding: '2px 4px 12px 32px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ textAlign: 'left' }}>
+                <th style={{ padding: '4px 4px', fontSize: 11, color: 'var(--c-gray-d)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.3 }}>Package</th>
+                <th style={{ padding: '4px 4px', fontSize: 11, color: 'var(--c-gray-d)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.3 }}>Orders</th>
+                <th style={{ padding: '4px 4px', fontSize: 11, color: 'var(--c-gray-d)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'right' }}>Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {period.packages.map((p) => (
+                <tr key={p.name}>
+                  <td style={{ padding: '6px 4px', color: '#3A4A5A' }}>{p.name}</td>
+                  <td style={{ padding: '6px 4px', color: '#3A4A5A' }}>{p.count}</td>
+                  <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: charcoal }}>{inr(p.amount)}</td>
+                </tr>
+              ))}
+              <tr style={{ borderTop: '1px solid var(--c-line)' }}>
+                <td style={{ padding: '6px 4px', fontWeight: 700, color: charcoal }}>Total</td>
+                <td style={{ padding: '6px 4px', fontWeight: 700, color: charcoal }}>{period.count}</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 800, color: charcoal }}>{inr(period.amount)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
+}
+
+function PeriodList({ periods }: { periods: RevenuePeriod[] }) {
+  if (periods.length === 0) return <p className="muted" style={{ padding: '8px 0' }}>No revenue yet.</p>
+  return <div>{periods.map((p) => <PeriodRow key={p.key} period={p} />)}</div>
 }
 
 export function RevenueView({ report }: { report: RevenueReport }) {
@@ -59,20 +83,18 @@ export function RevenueView({ report }: { report: RevenueReport }) {
     { label: 'Orders', value: String(report.orders), icon: <Package size={18} /> },
   ]
 
-  const buckets =
+  const periods =
     grain === 'day' ? report.byDay :
     grain === 'week' ? report.byWeek :
     grain === 'year' ? report.byYear :
-    grain === 'package' ? report.byPackage :
     report.byMonth
-  const keyLabel = grain === 'package' ? 'Package' : grain === 'week' ? 'ISO week' : grain.charAt(0).toUpperCase() + grain.slice(1)
 
   return (
     <div className="stack">
       <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div className="page-title">Revenue</div>
-          <div className="page-meta">Package sales — who bought what, and totals by day, week, month and year. Exports open in Excel and carry full audit detail.</div>
+          <div className="page-meta">Package sales — totals by day, week, month and year, each broken down by package. Exports open in Excel and carry full audit detail.</div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <a href="/admin/revenue/export?grain=ledger&format=pdf" className="btn" style={{ border: '1.5px solid #E2E8F0', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -98,11 +120,11 @@ export function RevenueView({ report }: { report: RevenueReport }) {
         ))}
       </div>
 
-      {/* Aggregates by grain */}
+      {/* Totals by period, each expandable to its package breakup */}
       <div className="card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
           <div style={{ display: 'inline-flex', gap: 4, background: 'rgba(28,43,58,.05)', padding: 4, borderRadius: 10 }}>
-            {(['day', 'week', 'month', 'year', 'package'] as const).map((g) => (
+            {(['day', 'week', 'month', 'year'] as const).map((g) => (
               <button key={g} onClick={() => setGrain(g)} style={{
                 border: 'none', cursor: 'pointer', padding: '8px 14px', borderRadius: 7, fontSize: 13, fontWeight: 700, fontFamily: 'inherit', textTransform: 'capitalize',
                 background: grain === g ? '#fff' : 'transparent', color: grain === g ? coral : '#8E9EAE', boxShadow: grain === g ? '0 1px 5px rgba(28,43,58,.12)' : 'none',
@@ -111,7 +133,8 @@ export function RevenueView({ report }: { report: RevenueReport }) {
           </div>
           <DownloadLink grain={grain} />
         </div>
-        <BucketTable buckets={buckets} keyLabel={keyLabel} />
+        <p className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Each row is a {grain} total — click to see which packages made it up.</p>
+        <PeriodList periods={periods} />
       </div>
 
       {/* Recent purchases */}
