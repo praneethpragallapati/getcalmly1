@@ -89,7 +89,7 @@ export function Sidebar({
 
       <aside className={`app-sidebar${open ? ' sb-open' : ''}`}>
         <div className="sb-logo" style={{ justifyContent: 'space-between' }}>
-          <Logo size={26} onDark tagline={false} href="/app" />
+          <Logo size={26} onDark tagline={false} href="/app" tint="green" />
           <button
             type="button"
             className="sb-close"

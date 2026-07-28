@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="calmly-app admin-theme">
       <aside className="app-sidebar">
         <div className="sb-logo">
-          <Logo size={26} onDark tagline={false} href="/admin" />
+          <Logo size={26} onDark tagline={false} href="/admin" tint="purple" />
         </div>
 
         <div className="sb-section">OVERVIEW</div>

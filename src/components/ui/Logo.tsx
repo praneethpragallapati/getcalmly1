@@ -12,18 +12,36 @@ import Link from 'next/link'
  *   tagline , include the "Mental Healthcare…" strapline
  *   href    , wrap in a link (null = just the mark)
  */
+// Per-dashboard accent tints. The default coral is the brand mark; each
+// dashboard re-skins the "Calmly." wordmark to match its theme.
+const TINT_ACCENT: Record<Exclude<Tint, 'coral'>, string> = {
+  green: '#2f9068',
+  purple: '#6d5bd0',
+  teal: '#1a7f7a',
+}
+type Tint = 'coral' | 'green' | 'purple' | 'teal'
+
 export default function Logo({
   size = 34,
   onDark = false,
   href = '/',
   tagline = true,
+  tint = 'coral',
 }: {
   size?: number
   onDark?: boolean
   href?: string | null
   tagline?: boolean
+  /** Recolours the "Calmly." wordmark to a dashboard accent (default brand coral). */
+  tint?: Tint
 }) {
-  const markSrc = onDark ? '/brand/logo-mark-dark.png' : '/brand/logo-mark.png'
+  const variant = onDark ? 'dark' : 'light'
+  const markSrc =
+    tint === 'coral'
+      ? onDark
+        ? '/brand/logo-mark-dark.png'
+        : '/brand/logo-mark.png'
+      : `/brand/logo-mark-${variant}-${tint}.png`
   const markRatio = 1292 / 712
   // Slight optical widening: the wordmark's condensed letterforms read
   // cramped at nav scale, so stretch 10% horizontally. Keep this subtle:
@@ -57,7 +75,7 @@ export default function Logo({
             whiteSpace: 'nowrap',
           }}
         >
-          Mental Healthcare, Powered by Experts, <span style={{ color: '#C8553D' }}>Personalized by AI</span>
+          Mental Healthcare, Powered by Experts, <span style={{ color: tint === 'coral' ? '#C8553D' : TINT_ACCENT[tint] }}>Personalized by AI</span>
         </span>
       )}
     </span>
