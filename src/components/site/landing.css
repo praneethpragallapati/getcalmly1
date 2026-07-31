@@ -96,8 +96,8 @@
   animation:rise .7s .08s ease both;}
 /* Kinetic second line: its own row so the swapping phrase never reflows the
    left column, and the fixed phone track never shifts. Descenders have room. */
-.lp-page .hero-rot-line{display:block;white-space:nowrap;padding-bottom:.14em;min-height:1.04em;}
-.lp-page .hero-rot-word{display:inline-block;color:var(--coral);will-change:transform,opacity;}
+.lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.04em;max-width:100%;}
+.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:var(--coral);will-change:transform,opacity;}
 .lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
 @keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 /* Story beats under the sub-copy */
