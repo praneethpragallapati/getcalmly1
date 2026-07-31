@@ -10,6 +10,40 @@ const cream = '#FFFCFA'
 const teal = '#1A7F7A'
 const green = '#3D9E72'
 
+// Enterprise FAQ. Rendered as a collapsed accordion AND emitted as FAQPage
+// JSON-LD so answer/generative engines can lift the answers. Answer-first:
+// a tight, quotable opening line, then context.
+const ENT_FAQ: { q: string; a: string }[] = [
+  {
+    q: 'Will our leadership see individual employees’ mental health data?',
+    a: 'Never. HR and managers only ever see aggregated, anonymised trends at the team or department level, never a named person’s sessions, mood data or records. Privacy for the individual is the whole point.',
+  },
+  {
+    q: 'Is workplace teletherapy DPDP-compliant in India?',
+    a: 'Yes. GetCalmly is built privacy-first and aligned with India’s Digital Personal Data Protection (DPDP) Act, and our teletherapy follows NIMHANS teletherapy guidelines. Consent is explicit and data retention is clear from day one.',
+  },
+  {
+    q: 'What does a GetCalmly workplace programme include?',
+    a: 'Confidential therapy and psychiatry with RCI- and NMC-registered clinicians, the Calm+ self-care app (daily mood check-ins, journaling and Calm AI), and an anonymised wellbeing dashboard for people leaders, plus in-app crisis resources.',
+  },
+  {
+    q: 'How much does it cost?',
+    a: 'Enterprise pricing is tailored to your organisation’s size and scope, so you only pay for what your people need. Share a few details and our team will prepare a quote, there’s no rigid per-seat list price while we onboard our first organisations.',
+  },
+  {
+    q: 'How quickly can we get started?',
+    a: 'Onboarding can take as little as 48 hours. We usually begin with a focused pilot for one team or cohort, with success measures agreed up front, before a wider rollout.',
+  },
+  {
+    q: 'Which locations and languages do you cover?',
+    a: 'GetCalmly is delivered entirely online, so it’s available to your people anywhere in India. We match each person with a clinician who can work in their preferred language wherever possible.',
+  },
+  {
+    q: 'Are your clinicians actually qualified?',
+    a: 'Every therapist and psychiatrist is licensed, background-checked and registered with the RCI or NMC before they go live. These are verified professionals, not gig-economy listings.',
+  },
+]
+
 export default function EnterprisePage() {
   const [sent, setSent] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -110,7 +144,7 @@ export default function EnterprisePage() {
                 label: 'Corporates',
                 headline: 'Mental health is the quietest cost on your balance sheet.',
                 body: 'Burnout, absenteeism and quiet quitting rarely show up until they are expensive. Give your people confidential access to real therapists and a daily support app, and give your leaders aggregate wellbeing signals, never individual data.',
-                points: ['Confidential therapy & psychiatry', 'Calm+ app from day one', 'Anonymised HR dashboards', '24×7 crisis support'],
+                points: ['Confidential therapy & psychiatry', 'Calm+ app from day one', 'Anonymised HR dashboards', 'In-app crisis resources & escalation'],
               },
               {
                 accent: green,
@@ -326,6 +360,45 @@ export default function EnterprisePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ: collapsed accordion + FAQPage schema ─── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: ENT_FAQ.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
+          }),
+        }}
+      />
+      <section style={{ background: cream, padding: '88px 48px' }}>
+        <div style={{ maxWidth: 820, margin: '0 auto' }}>
+          <p style={{ ...eyebrow, marginBottom: 14, textAlign: 'center' }}>Questions from people leaders</p>
+          <h2 style={{
+            fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
+            fontSize: 'clamp(28px, 4vw, 42px)', color: charcoal, letterSpacing: '-1px', lineHeight: 1.05,
+            textAlign: 'center', marginBottom: 36,
+          }}>
+            What organisations ask us.
+          </h2>
+          <div>
+            {ENT_FAQ.map((f) => (
+              <details key={f.q} className="svc-faq-item">
+                <summary style={{ color: charcoal }}>
+                  <span>{f.q}</span>
+                  <span className="svc-faq-ic" aria-hidden="true" style={{ color: coral }} />
+                </summary>
+                <p className="svc-faq-a">{f.a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>

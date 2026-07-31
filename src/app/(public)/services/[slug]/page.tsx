@@ -49,9 +49,12 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Adults 18+', 'Working professionals', 'Students', 'People navigating major life changes'],
     faq: [
+      { q: 'How much does a therapy session cost?', a: 'Your first session is ₹799 — a full 50-minute conversation with a matched therapist, so you can see whether the fit feels right before you commit. Ongoing session pricing is shown clearly in your dashboard before you book.' },
+      { q: 'Are sessions online or in person?', a: 'All therapy at getCalmly is online, over secure video, so you can attend from home, anywhere in India, at a time that suits you. Each session is 50 minutes.' },
+      { q: 'How do I get started?', a: 'Take the free 5-minute assessment and we\'ll match you with a suitable therapist, or book directly if you already know what you need. No referral is required.' },
       { q: 'How many sessions will I need?', a: 'Most people start to notice a difference in 4–8 sessions. Longer-term support depends on your goals, your therapist will discuss this with you.' },
       { q: 'What if I don\'t click with my therapist?', a: 'That happens. Let us know and we\'ll re-match you, with no awkwardness and no extra charge.' },
-      { q: 'Is this confidential?', a: 'Completely. Nothing you share leaves the session, except in rare cases where there is a serious safety concern, which your therapist will explain at the start.' },
+      { q: 'Is this confidential?', a: 'Completely. Nothing you share leaves the session, except in rare cases where there is a serious safety concern, which your therapist will explain at the start. Your data is encrypted and handled in line with India\'s DPDP Act.' },
     ],
     cta: 'Book your first session',
   },
@@ -81,6 +84,8 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Couples (married or otherwise)', 'People going through breakups', 'Pre-marital couples'],
     faq: [
+      { q: 'How much does a couples session cost?', a: 'Your first session is ₹799. Ongoing pricing is shown in your dashboard before you book, so there are no surprises.' },
+      { q: 'Are sessions online?', a: 'Yes, sessions happen over secure video. You and your partner can join together from the same room or from two different places, whatever works for you.' },
       { q: 'Does my partner have to come?', a: 'For couples sessions, yes, but we also offer individual therapy to help you navigate a relationship from your own side.' },
       { q: 'What if one of us is reluctant?', a: 'Very common. Starting with your own individual sessions first is often a good path.' },
       { q: 'Can therapy save our relationship?', a: 'It depends on what you both want. Therapy creates clarity. Sometimes that means coming back together; sometimes it means separating with more understanding.' },
@@ -115,6 +120,9 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Children ages 4–17', 'Parents who notice a change', 'Teenagers navigating identity and pressure'],
     faq: [
+      { q: 'How much does it cost?', a: 'We offer a free intro call to break the ice, and your first full session is ₹799. Ongoing pricing is shown in your dashboard before you book.' },
+      { q: 'What ages do you work with?', a: 'Our child specialists work with children and teenagers roughly ages 4–17, using age-appropriate approaches like play therapy, art therapy and CBT adapted for younger minds.' },
+      { q: 'Are sessions online?', a: 'Yes, sessions are online over secure video. For younger children, your therapist will guide you on how to set things up so your child feels comfortable.' },
       { q: 'Will my child have to talk about difficult things?', a: 'Not necessarily right away. Child therapists are trained to meet children where they are, through play, drawing, or just talking about day-to-day life.' },
       { q: 'Will I know what happens in sessions?', a: 'Your therapist will keep you informed about themes and progress, while maintaining the child\'s trust. The balance depends on the child\'s age.' },
       { q: 'What if my child doesn\'t want to go?', a: 'That\'s very common. Many children warm up once they\'ve met the therapist. A free intro call can help break the ice.' },
@@ -148,6 +156,9 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Expectant mothers', 'New mothers (and partners)', 'Anyone navigating pregnancy loss', 'People going through fertility treatment'],
     faq: [
+      { q: 'How much does a session cost?', a: 'Your first session is ₹799, with a specialist trained specifically in perinatal mental health. Ongoing pricing is shown in your dashboard before you book.' },
+      { q: 'Can I start during pregnancy, not just after birth?', a: 'Yes. Support is available through pregnancy, after birth, and during fertility treatment or loss — whenever this season starts to feel heavy.' },
+      { q: 'Are sessions online?', a: 'Yes, all sessions are online over secure video, so you can attend from home around feeds, naps and your own recovery.' },
       { q: 'Is it normal to feel this way after having a baby?', a: 'More normal than anyone tells you. Up to 1 in 7 mothers experience postpartum depression, and many more feel anxious or overwhelmed. Feeling this way is not a reflection of your love for your child.' },
       { q: 'Can my partner join sessions?', a: 'Yes. Partners are often deeply affected too, and including them can help. We also offer support specifically for partners.' },
       { q: 'I had a loss a while ago. Is it too late to seek help?', a: 'Never. Grief doesn\'t follow a timeline. Whether it was weeks or years ago, support is available whenever you\'re ready.' },
@@ -213,6 +224,9 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Anyone questioning their drinking or use', 'People who have tried to quit before', 'Families worried about someone they love', 'Anyone in recovery who wants to stay well'],
     faq: [
+      { q: 'How much does it cost?', a: 'Your first session is ₹799, in complete confidence. Ongoing pricing is shown in your dashboard before you book.' },
+      { q: 'Are sessions online?', a: 'Yes, everything is online and private. There\'s no clinic to walk into and nothing on a bill that says why you\'re here.' },
+      { q: 'How do I start?', a: 'Book a first session directly, or take the free assessment. You don\'t need to label anything, or hit "rock bottom", to begin.' },
       { q: 'Do I have to go to rehab?', a: 'No. Most people we work with never step away from their life, their job, or their family. Care is online and built around your week. If a higher level of care is ever the right call, we help you find it.' },
       { q: 'Will anyone find out?', a: 'No. It is completely confidential. Nothing you share leaves the session, and there is nothing on a bill or a screen that says why you are here.' },
       { q: 'I\'ve tried to quit before and slipped. Is it even worth it?', a: 'Absolutely. Slipping is part of how recovery usually works, not proof that it won\'t. Every attempt taught you something, and we build the next step on top of it.' },
@@ -246,6 +260,9 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Students at career crossroads', 'Parents seeking clarity about their child', 'Adults wanting a deeper understanding of themselves', 'Couples before counselling'],
     faq: [
+      { q: 'How much does an assessment cost?', a: 'Assessment pricing depends on the type and length, and is shown clearly before you book. Your clinical psychologist will confirm exactly what\'s involved first.' },
+      { q: 'Are assessments done online?', a: 'Yes. Assessments are administered online by a qualified clinical psychologist using validated, standardised tools.' },
+      { q: 'Can an assessment give me an official diagnosis?', a: 'Some assessments support a clinical diagnosis; others are for self-understanding. Your psychologist will tell you upfront what a given assessment can and can\'t confirm.' },
       { q: 'How long does an assessment take?', a: 'Depends on the type, anywhere from 45 minutes to 3 hours. Your clinical psychologist will explain before you book.' },
       { q: 'What happens with the report?', a: 'You receive a written report and a session to go through it together. It\'s yours to keep and share with other professionals if you choose.' },
       { q: 'Is this covered by insurance?', a: 'Some policies cover psychological assessments. We can provide the documentation you need to claim.' },
@@ -278,6 +295,9 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['LGBTQIA+ individuals', 'People with sexual health or intimacy concerns', 'People living with chronic illness', 'Mental health professionals seeking supervision'],
     faq: [
+      { q: 'How much does a session cost?', a: 'Your first session is ₹799, with a professional trained specifically for your situation. Ongoing pricing is shown in your dashboard before you book.' },
+      { q: 'Are sessions online?', a: 'Yes, all sessions are online over secure video, so you can find the right specialist regardless of where you live in India.' },
+      { q: 'How do I find the right specialist?', a: 'Tell us what you\'re navigating in the free assessment, or book directly, and we\'ll match you with someone trained for exactly that, so you\'re never explaining your whole world from scratch.' },
       { q: 'What does "affirmative care" mean in practice?', a: 'It means your therapist starts from a position of accepting and affirming your identity, not questioning it, not trying to change it. You come to work on your mental health, not to defend who you are.' },
       { q: 'Can I get support during pregnancy if I\'m already anxious?', a: 'Absolutely. Prenatal anxiety is common and very treatable. Early support often prevents more serious postnatal difficulties.' },
       { q: 'I\'m a therapist, is supervision confidential?', a: 'Yes. Clinical supervision follows the same confidentiality standards as therapy.' },
@@ -610,11 +630,14 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             Common questions
           </h2>
           <div>
-            {s.faq.map((f, idx) => (
-              <div key={f.q} style={{ padding: '26px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.08)' }}>
-                <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 19, fontWeight: 700, color: charcoal, marginBottom: 10, letterSpacing: 0 }}>{f.q}</p>
-                <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.75, fontWeight: 300 }}>{f.a}</p>
-              </div>
+            {s.faq.map((f) => (
+              <details key={f.q} className="svc-faq-item">
+                <summary style={{ color: charcoal }}>
+                  <span>{f.q}</span>
+                  <span className="svc-faq-ic" aria-hidden="true" style={{ color: s.accent }} />
+                </summary>
+                <p className="svc-faq-a">{f.a}</p>
+              </details>
             ))}
           </div>
         </div>

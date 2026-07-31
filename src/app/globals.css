@@ -36,6 +36,59 @@ body {
   overflow-x: clip;
 }
 
+/* Collapsible FAQ accordion (native <details>, no JS) used on service pages.
+   Collapsed by default so a long list stays compact; content is in the DOM
+   for SEO / answer engines. */
+.svc-faq-item {
+  border-top: 1px solid rgba(0, 0, 0, .08);
+}
+.svc-faq-item:first-child {
+  border-top: none;
+}
+.svc-faq-item > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 0;
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: #1C2B3A;
+  letter-spacing: 0;
+}
+.svc-faq-item > summary::-webkit-details-marker { display: none; }
+.svc-faq-item > summary::marker { content: ''; }
+.svc-faq-ic {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  position: relative;
+  margin-top: 3px;
+  transition: transform .25s ease;
+}
+.svc-faq-ic::before,
+.svc-faq-ic::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+  border-radius: 2px;
+  opacity: .55;
+}
+.svc-faq-ic::before { top: 10px; left: 3px; right: 3px; height: 2px; }
+.svc-faq-ic::after { left: 10px; top: 3px; bottom: 3px; width: 2px; }
+.svc-faq-item[open] .svc-faq-ic { transform: rotate(135deg); }
+.svc-faq-a {
+  font-size: 15.5px;
+  color: #5A6B7A;
+  line-height: 1.75;
+  font-weight: 300;
+  padding: 0 0 24px;
+  max-width: 700px;
+}
+
 .font-display {
   font-family: var(--font-display);
 }
