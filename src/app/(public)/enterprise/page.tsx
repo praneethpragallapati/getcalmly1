@@ -11,36 +11,36 @@ const teal = '#1A7F7A'
 const green = '#3D9E72'
 
 // Enterprise FAQ. Rendered as a collapsed accordion AND emitted as FAQPage
-// JSON-LD so answer/generative engines can lift the answers. Answer-first:
-// a tight, quotable opening line, then context.
+// JSON-LD so answer/generative engines can lift the answers. Written plain,
+// the way a person would actually answer, not marketing boilerplate.
 const ENT_FAQ: { q: string; a: string }[] = [
   {
     q: 'Will our leadership see individual employees’ mental health data?',
-    a: 'Never. HR and managers only ever see aggregated, anonymised trends at the team or department level, never a named person’s sessions, mood data or records. Privacy for the individual is the whole point.',
+    a: 'No, and this matters to us. HR and managers only ever see anonymous, team-level trends. Nobody at your company can see a named person’s sessions, their mood data, or their notes.',
   },
   {
     q: 'Is workplace teletherapy DPDP-compliant in India?',
-    a: 'Yes. GetCalmly is built privacy-first and aligned with India’s Digital Personal Data Protection (DPDP) Act, and our teletherapy follows NIMHANS teletherapy guidelines. Consent is explicit and data retention is clear from day one.',
+    a: 'Yes. We built GetCalmly privacy-first and in line with India’s DPDP Act, and our online therapy follows NIMHANS teletherapy guidelines. People know what they’re consenting to, and how long their data is kept.',
   },
   {
     q: 'What does a GetCalmly workplace programme include?',
-    a: 'Confidential therapy and psychiatry with RCI- and NMC-registered clinicians, the Calm+ self-care app (daily mood check-ins, journaling and Calm AI), and an anonymised wellbeing dashboard for people leaders, plus in-app crisis resources.',
+    a: 'Confidential therapy and psychiatry with RCI- and NMC-registered clinicians, the Calm+ app for your team (mood check-ins, journaling, Calm AI), an anonymised dashboard for people leaders, and crisis resources built into the app.',
   },
   {
     q: 'How much does it cost?',
-    a: 'Enterprise pricing is tailored to your organisation’s size and scope, so you only pay for what your people need. Share a few details and our team will prepare a quote, there’s no rigid per-seat list price while we onboard our first organisations.',
+    a: 'It depends on the size of your organisation and what you want to cover, so we’ll put together a quote rather than quote a flat per-head price. Tell us a bit about your team and we’ll come back with numbers.',
   },
   {
     q: 'How quickly can we get started?',
-    a: 'Onboarding can take as little as 48 hours. We usually begin with a focused pilot for one team or cohort, with success measures agreed up front, before a wider rollout.',
+    a: 'We can usually have you up and running in about 48 hours. Most companies start with a small pilot, one team or group, agree what success looks like, then widen it out from there.',
   },
   {
     q: 'Which locations and languages do you cover?',
-    a: 'GetCalmly is delivered entirely online, so it’s available to your people anywhere in India. We match each person with a clinician who can work in their preferred language wherever possible.',
+    a: 'It’s all online, so your people can use it from anywhere in India. We try to match each person with a clinician who speaks their preferred language.',
   },
   {
     q: 'Are your clinicians actually qualified?',
-    a: 'Every therapist and psychiatrist is licensed, background-checked and registered with the RCI or NMC before they go live. These are verified professionals, not gig-economy listings.',
+    a: 'Yes. Every therapist and psychiatrist is licensed, background-checked, and registered with the RCI or NMC before they see anyone. These are real, vetted professionals, not a directory of freelancers.',
   },
 ]
 
