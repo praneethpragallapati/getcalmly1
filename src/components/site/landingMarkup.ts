@@ -11,7 +11,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="hero-pill"><span class="pill-dot"></span>Your first session, just ₹799</div>
       <h1 class="hero-h1">
         <span class="rl"><span class="light">You don't have to carry</span></span>
-        <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the quiet exhaustion.</span></span>
+        <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
       </h1>
       <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with a context-aware mental health AI, and stays with you from your very first session.</p>
       <div class="hero-beats">

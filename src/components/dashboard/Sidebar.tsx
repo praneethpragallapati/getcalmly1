@@ -12,6 +12,7 @@ import {
   Stethoscope,
   CalendarDays,
   Users,
+  Newspaper,
   LineChart,
   Pill,
   FileText,
@@ -38,6 +39,12 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       { href: '/app/therapist', label: 'My Therapist', icon: Stethoscope },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
       { href: '/app/forms', label: 'Forms', icon: FileText },
+    ],
+  },
+  {
+    heading: 'Calm Club',
+    items: [
+      { href: '/app/blogs', label: 'Blogs', icon: Newspaper },
       { href: '/app/community', label: 'Community', icon: Users },
     ],
   },

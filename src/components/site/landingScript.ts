@@ -59,7 +59,6 @@ export const LANDING_SCRIPT = `
   var heroRot=document.getElementById('heroRot');
   if(heroRot && !reduce){
     var heroPhrases=[
-      'the quiet exhaustion.',
       'the mask you wear at work.',
       'the \\u201cI\\u2019m fine\\u201d you keep saying.',
       'the panic before the meeting.',
