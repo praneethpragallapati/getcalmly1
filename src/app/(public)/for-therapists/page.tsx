@@ -16,7 +16,7 @@ const benefits = [
   { icon: '👥', t: 'Built-in supervision', d: 'Supervise associates or get supervised. Track cases under supervision, share notes, and keep growing clinically, all in one place.' },
   { icon: '🗓️', t: 'Calendar that runs itself', d: 'Two-way Google Calendar sync, recurring availability, and one-tap Google Meet. Set your hours and let it handle the rest.' },
   { icon: '💳', t: 'Transparent, on-time payouts', d: 'Razorpay-backed payments, clear fees, and reliable settlements with a live earnings summary. You focus on care; we handle billing.' },
-  { icon: '🔒', t: 'Compliance from day one', d: 'DPDP-aligned data handling, encrypted records, consent management, and NIMHANS telepsychotherapy standards, built in from the start.' },
+  { icon: '🔒', t: 'Compliance from day one', d: 'DPDP-aligned data handling, encrypted records, consent management, and alignment with NIMHANS teletherapy guidelines, built in from the start.' },
 ]
 
 export default function ForTherapistsPage() {

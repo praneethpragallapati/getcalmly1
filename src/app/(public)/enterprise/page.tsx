@@ -54,11 +54,11 @@ export default function EnterprisePage() {
               fontSize: 'clamp(40px, 5.6vw, 66px)', color: '#fff', lineHeight: 1.04,
               letterSpacing: '-2px', marginBottom: 28,
             }}>
-              Look after your people{' '}
+              Workplace mental health,{' '}
               <span style={{ color: coral }}>before it shows up in your numbers.</span>
             </h1>
             <p style={{ fontSize: 18.5, color: 'rgba(255,255,255,.7)', lineHeight: 1.82, fontWeight: 300, maxWidth: 580, marginBottom: 38 }}>
-              Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential, clinically real mental health care, and gives you the signal long before it becomes a statistic.
+              Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential therapy and psychiatry with RCI- and NMC-registered clinicians, and gives you the signal long before it becomes a statistic.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <a href="#interest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff', padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)' }}>
@@ -71,7 +71,7 @@ export default function EnterprisePage() {
           </div>
           {/* Right column, compact trust signals */}
           <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 24, letterSpacing: 0.3 }}>Used by teams that take care seriously</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 24, letterSpacing: 0.3 }}>Built for teams that take care seriously</p>
             {[
               ['RCI & NMC verified', 'Every clinician credentialed'],
               ['Aggregate-only insights', 'Individuals always anonymous'],
@@ -126,7 +126,7 @@ export default function EnterprisePage() {
                 label: 'Hospitals',
                 headline: 'A complete mental health layer for your patients, delivered as SaaS.',
                 body: 'Offer structured, AI-assisted mental health care under your own brand. Our platform handles matching, scheduling, clinical notes and the patient app, so your clinicians focus on care while you extend your services.',
-                points: ['White-label portals', 'Clinical notes & referral flows', 'Google Meet + calendar sync', 'DPDP & NIMHANS compliant'],
+                points: ['White-label portals', 'Clinical notes & referral flows', 'Google Meet + calendar sync', 'DPDP-ready, NIMHANS-aligned care'],
               },
             ].map((s, i) => (
               <div key={s.label} style={{
@@ -312,7 +312,7 @@ export default function EnterprisePage() {
                 ['DPDP Act 2023', 'Consent-first, clear retention'],
                 ['Encrypted by default', 'In transit & at rest'],
                 ['Anonymised reporting', 'No individual data to orgs'],
-                ['NIMHANS standard', 'Telepsychotherapy compliant'],
+                ['NIMHANS-aligned care', 'Follows NIMHANS teletherapy guidelines'],
               ].map(([t, d]) => (
                 <div key={t} style={{
                   background: '#fff', borderRadius: 14, padding: '14px 18px',
