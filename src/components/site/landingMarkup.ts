@@ -10,11 +10,15 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="hero-left">
       <div class="hero-pill"><span class="pill-dot"></span>Your first session, just ₹799</div>
       <h1 class="hero-h1">
-        <span class="rl"><span class="light">You don't have to</span></span>
-        <span class="rl"><span>figure this out</span></span>
-        <span class="rl"><span class="accent">alone.</span></span>
+        <span class="rl"><span class="light">You don't have to carry</span></span>
+        <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the quiet exhaustion.</span></span>
       </h1>
-      <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with the world's first context-aware mental health AI, and stays with you from your very first session.</p>
+      <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with a context-aware mental health AI, and stays with you from your very first session.</p>
+      <div class="hero-beats">
+        <div class="hero-beat"><span class="hb-ic" style="background:#C8553D">◑</span><span class="hb-tx"><b>Matched to you</b>The right expert, not just anyone.</span></div>
+        <div class="hero-beat"><span class="hb-ic" style="background:#C9973A">✦</span><span class="hb-tx"><b>AI that learns you</b>Private, context-aware insight.</span></div>
+        <div class="hero-beat"><span class="hb-ic" style="background:#3D9E72">♡</span><span class="hb-tx"><b>Never alone</b>A community that gets it.</span></div>
+      </div>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
         <a href="#how" class="btn-hero outline">See how it works</a>
@@ -22,7 +26,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="hero-trust">
         <span class="ht">Free, confidential assessment</span>
         <span class="ht">RCI &amp; NMC-verified clinicians</span>
-        <span class="ht">100% confidential</span>
+        <span class="ht">Care from home, in-app</span>
       </div>
     </div>
 

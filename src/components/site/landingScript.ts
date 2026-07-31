@@ -53,6 +53,30 @@ export const LANDING_SCRIPT = `
   var h1=document.querySelector('.hero-h1');
   if(h1){ requestAnimationFrame(function(){ h1.classList.add('reveal-in'); }); }
 
+  // Hero kinetic line: swap the second line's phrase in place. The line has a
+  // fixed row + the grid track is minmax(0,1fr), so nothing around it (or the
+  // phone) reflows when the phrase changes.
+  var heroRot=document.getElementById('heroRot');
+  if(heroRot && !reduce){
+    var heroPhrases=[
+      'the quiet exhaustion.',
+      'the mask you wear at work.',
+      'the \\u201cI\\u2019m fine\\u201d you keep saying.',
+      'the panic before the meeting.',
+      'the worry that won\\u2019t switch off.',
+      'the guilt that follows you home.',
+      'the heaviness of every morning.'
+    ];
+    var hpi=0;
+    setInterval(function(){
+      hpi=(hpi+1)%heroPhrases.length;
+      heroRot.classList.remove('swap');
+      void heroRot.offsetWidth;
+      heroRot.textContent=heroPhrases[hpi];
+      heroRot.classList.add('swap');
+    },2600);
+  }
+
   // Magnetic buttons
   if(!reduce){
     document.querySelectorAll('.btn-hero, .assess-big-btn').forEach(function(b){
