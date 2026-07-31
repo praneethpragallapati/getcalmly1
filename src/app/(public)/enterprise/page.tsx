@@ -43,18 +43,19 @@ export default function EnterprisePage() {
     <div style={{ background: cream }}>
 
       {/* ─── HERO ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(31,182,168,.26), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #0E2E33', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '118px 48px 88px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -160, right: -120, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,182,168,.16) 0%, transparent 68%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -100, left: -80, width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,182,168,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(90,130,195,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.16), transparent 60%), #14233B', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '118px 48px 88px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -160, right: -120, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,150,210,.16) 0%, transparent 68%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -100, left: -80, width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 420px', gap: 80, alignItems: 'center', position: 'relative' }}>
           <div>
-            <p style={{ ...eyebrow, color: '#1FB6A8', marginBottom: 24 }}>GetCalmly for organisations · Coming soon</p>
+            <p style={{ ...eyebrow, color: '#F1A088', marginBottom: 24 }}>GetCalmly for organisations · Coming soon</p>
             <h1 style={{
               fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
-              fontSize: 'clamp(40px, 5.6vw, 66px)', color: '#fff', lineHeight: 1.02,
+              fontSize: 'clamp(40px, 5.6vw, 66px)', color: '#fff', lineHeight: 1.04,
               letterSpacing: '-2px', marginBottom: 28,
             }}>
-              The most stretched person on your team is probably the one who never says so.
+              Look after your people{' '}
+              <span style={{ color: '#F1A088', fontWeight: 500 }}>before it shows up in your numbers.</span>
             </h1>
             <p style={{ fontSize: 18.5, color: 'rgba(255,255,255,.7)', lineHeight: 1.82, fontWeight: 300, maxWidth: 580, marginBottom: 38 }}>
               Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential, clinically real mental health care, and gives you the signal long before it becomes a statistic.
@@ -78,7 +79,7 @@ export default function EnterprisePage() {
               ['48-hr onboarding', 'Pilot-ready in days, not months'],
             ].map(([t, d]) => (
               <div key={t} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
-                <span style={{ color: '#1FB6A8', fontSize: 16, marginTop: 1, flexShrink: 0 }}>✓</span>
+                <span style={{ color: '#F1A088', fontSize: 16, marginTop: 1, flexShrink: 0 }}>✓</span>
                 <div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{t}</p>
                   <p style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', fontWeight: 300 }}>{d}</p>
@@ -260,11 +261,11 @@ export default function EnterprisePage() {
       </section>
 
       {/* ─── PARTNERSHIP STEPS: 4-column, charcoal band ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(31,182,168,.26), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #0E2E33', padding: '94px 48px' }}>
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(90,130,195,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.16), transparent 60%), #14233B', padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 56, flexWrap: 'wrap', gap: 20 }}>
             <div>
-              <p style={{ ...eyebrow, color: '#1FB6A8', marginBottom: 16 }}>How a partnership works</p>
+              <p style={{ ...eyebrow, color: '#F1A088', marginBottom: 16 }}>How a partnership works</p>
               <h2 style={{
                 fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
                 fontSize: 'clamp(28px, 4vw, 42px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05,
