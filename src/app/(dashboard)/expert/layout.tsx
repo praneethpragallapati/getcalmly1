@@ -24,7 +24,7 @@ export default async function ExpertLayout({ children }: { children: React.React
     <div className="calmly-app expert-theme">
       <aside className="app-sidebar">
         <div className="sb-logo">
-          <Logo size={26} onDark tagline={false} href="/expert" tint="teal" />
+          <Logo size={26} onDark tagline={false} href="/expert" tint="green" />
         </div>
         <div className="sb-section">CASELOAD</div>
         <nav className="sb-nav">

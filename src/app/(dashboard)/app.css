@@ -4,17 +4,17 @@
    Everything is scoped under .calmly-app so it never leaks into the site. */
 
 .calmly-app {
-  /* Patient dashboard accent: green. The whole shared component system is driven
-     by --c-coral, so these green values re-skin every patient surface at once.
-     (Expert & admin re-map --c-coral again in their own theme blocks below.) */
-  --c-coral: #2f9068;
-  --c-coral-d: #256f50;
-  --c-coral-l: #5bb491;
-  --c-coral-pale: #e5f4ee;
+  /* Patient dashboard accent: the brand burnt coral. The whole shared component
+     system is driven by --c-coral. (Expert & admin re-map it in their own theme
+     blocks below — green and purple respectively.) */
+  --c-coral: #c8553d;
+  --c-coral-d: #a8432d;
+  --c-coral-l: #e8896f;
+  --c-coral-pale: #fdeae6;
   --c-charcoal: #1c2b3a;
   --c-charcoal-2: #233140;
   --c-ink: #16212d;
-  --c-bg: #f7fcfa;
+  --c-bg: #fffcfa;
   --c-white: #ffffff;
   --c-gray: #8e9eae;
   --c-gray-d: #5a6a7a;
@@ -36,20 +36,19 @@
   grid-template-columns: 256px 1fr;
 }
 
-/* Expert (clinician) portal: same component classes, re-themed green per
-   docs/FEATURES.md (#1A7F7A) instead of the patient coral. Every rule below
-   targets --c-coral, so overriding it here re-skins the whole shared system
-   without duplicating CSS. */
+/* Expert (clinician) portal: same component classes, re-themed green. Every rule
+   below targets --c-coral, so overriding it here re-skins the whole shared
+   system without duplicating CSS. */
 .calmly-app.expert-theme {
-  --c-coral: #1a7f7a;
-  --c-coral-d: #115f5b;
-  --c-coral-l: #4ba8a2;
-  --c-coral-pale: #e3f1f0;
-  --c-bg: #f5fafa;
+  --c-coral: #2f9068;
+  --c-coral-d: #256f50;
+  --c-coral-l: #5bb491;
+  --c-coral-pale: #e5f4ee;
+  --c-bg: #f7fcfa;
 }
 
 /* Admin console: same component classes, re-skinned purple so the admin area is
-   visually distinct from the patient (green) and expert (teal) surfaces. */
+   visually distinct from the patient (coral) and expert (green) surfaces. */
 .calmly-app.admin-theme {
   --c-coral: #6d5bd0;
   --c-coral-d: #574ab0;
