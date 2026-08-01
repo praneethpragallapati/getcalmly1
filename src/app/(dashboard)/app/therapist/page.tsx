@@ -59,7 +59,7 @@ function CareSlotCard({ slot }: { slot: CareSlot }) {
             <div className="doc-sub" style={{ fontSize: 13.5 }}>{slot.blurb} You don&apos;t have a {slot.label.toLowerCase()} package yet.</div>
           </div>
           <Link href={slot.buyHref} className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-            Explore {slot.label.toLowerCase()}
+            Buy a package
           </Link>
         </div>
       </div>

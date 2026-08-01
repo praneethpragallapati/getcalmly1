@@ -137,9 +137,9 @@ export type CareTeam = {
 }
 
 const CARE_KINDS: { key: CareSlot['key']; label: string; blurb: string; buyHref: string; trackSlugs: string[] }[] = [
-  { key: 'individual', label: 'Individual therapy', blurb: 'One-to-one therapy for you.', buyHref: '/services/therapy', trackSlugs: ['therapy'] },
-  { key: 'couples', label: 'Couples therapy', blurb: 'Work on your relationship, together.', buyHref: '/services/couples', trackSlugs: ['couples'] },
-  { key: 'psychiatry', label: 'Psychiatry', blurb: 'Diagnosis and medication, when therapy alone isn’t enough.', buyHref: '/services/psychiatry', trackSlugs: ['psychiatry'] },
+  { key: 'individual', label: 'Individual therapy', blurb: 'One-to-one therapy for you.', buyHref: '/app/billing?track=therapy', trackSlugs: ['therapy'] },
+  { key: 'couples', label: 'Couples therapy', blurb: 'Work on your relationship, together.', buyHref: '/app/billing?track=couples', trackSlugs: ['couples'] },
+  { key: 'psychiatry', label: 'Psychiatry', blurb: 'Diagnosis and medication, when therapy alone isn’t enough.', buyHref: '/app/billing?track=psychiatry', trackSlugs: ['psychiatry'] },
 ]
 
 type ProfileRow = {

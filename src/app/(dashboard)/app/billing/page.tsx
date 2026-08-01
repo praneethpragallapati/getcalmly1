@@ -6,7 +6,12 @@ import { hasPartnerOnRecord } from '@/lib/billing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { BuyPackagePanel, FirstSessionPanel } from '@/components/dashboard/BuyPackagePanel'
 
-export default async function BillingPage() {
+const BUYABLE = ['therapy', 'psychiatry', 'couples'] as const
+type BuyableTrack = (typeof BUYABLE)[number]
+
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ track?: string }> }) {
+  const sp = await searchParams
+  const initialTrack: BuyableTrack | undefined = (BUYABLE as readonly string[]).includes(sp.track ?? '') ? (sp.track as BuyableTrack) : undefined
   const [{ plan }, userId, pricing] = await Promise.all([getAccount(), getSessionUserId(), getPricingConfig()])
   const hasPartner = userId ? await hasPartnerOnRecord(userId) : false
   const sessionsRemaining = Math.max(0, plan.sessionsTotal - plan.sessionsUsed)
@@ -64,7 +69,7 @@ export default async function BillingPage() {
             </Link>
           </div>
         ) : (
-          <FirstSessionPanel hasPartner={hasPartner} pricing={pricing} />
+          <FirstSessionPanel hasPartner={hasPartner} pricing={pricing} initialTrack={initialTrack} />
         )}
       </div>
     </>

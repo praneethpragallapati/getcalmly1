@@ -359,9 +359,9 @@ export function BuyPackagePanel({
  * one session at the fixed intro price for their track (799 therapy, 1199
  * psychiatry, 1499 couples). Packages appear once the first session is done.
  */
-export function FirstSessionPanel({ hasPartner = false, pricing }: { hasPartner?: boolean; pricing: PricingValues }) {
+export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }: { hasPartner?: boolean; pricing: PricingValues; initialTrack?: BuyableTrack }) {
   const router = useRouter()
-  const [track, setTrack] = useState<BuyableTrack>('therapy')
+  const [track, setTrack] = useState<BuyableTrack>(initialTrack ?? 'therapy')
   const [pending, startTransition] = useTransition()
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
