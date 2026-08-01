@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Users, Stethoscope, CalendarClock, Inbox, Building2, FileCheck2, CreditCard } from 'lucide-react'
 import { getAdminSession, getAdminOverview } from '@/lib/admin'
+import { BroadcastComposer } from '@/components/admin/BroadcastComposer'
 
 export default async function AdminOverviewPage() {
   const admin = await getAdminSession()
@@ -60,6 +61,8 @@ export default async function AdminOverviewPage() {
           </div>
         </div>
       </div>
+
+      <BroadcastComposer />
     </div>
   )
 }
