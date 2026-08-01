@@ -233,15 +233,14 @@ export async function getMyCareTeam(): Promise<CareTeam> {
 
     const slots: CareSlot[] = CARE_KINDS.map((k) => {
       const sub = subs.find((s) => k.trackSlugs.includes(s.trackSlug))
-      if (!sub) {
-        return { key: k.key, label: k.label, blurb: k.blurb, buyHref: k.buyHref, hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, expert: null }
-      }
-      // Resolve the expert: the clinician assigned for this care type wins, then
-      // the pack's own attached therapist; for the individual slot, fall back to
-      // the patient's default assigned / most-recent expert.
+      // Resolve the expert independently of any package: the clinician assigned
+      // for this care type wins, then the pack's own attached therapist; for the
+      // individual slot, fall back to the patient's default assigned / most-recent
+      // expert. This way a patient who already has sessions with a therapist sees
+      // them here even before (or without) buying a package.
       const catId = categoryAssignment[k.key]
       let profRow = catId ? byId.get(catId) : undefined
-      if (!profRow && sub.therapistId) profRow = byId.get(sub.therapistId)
+      if (!profRow && sub?.therapistId) profRow = byId.get(sub.therapistId)
       if (!profRow && k.key === 'individual') {
         const fallbackId = profile?.assignedTherapistId ?? latestAppt?.therapistId ?? null
         if (fallbackId) profRow = byId.get(fallbackId)
@@ -251,10 +250,10 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         label: k.label,
         blurb: k.blurb,
         buyHref: k.buyHref,
-        hasPack: true,
-        planName: sub.planName,
-        sessionsTotal: sub.sessionsTotal,
-        sessionsLeft: Math.max(0, sub.sessionsTotal - sub.sessionsUsed),
+        hasPack: Boolean(sub),
+        planName: sub?.planName ?? null,
+        sessionsTotal: sub?.sessionsTotal ?? null,
+        sessionsLeft: sub ? Math.max(0, sub.sessionsTotal - sub.sessionsUsed) : null,
         expert: profRow ? expertFromProfile(profRow) : null,
       }
     })

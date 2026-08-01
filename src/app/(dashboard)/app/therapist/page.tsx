@@ -43,8 +43,8 @@ export default async function TherapistPage() {
 }
 
 function CareSlotCard({ slot }: { slot: CareSlot }) {
-  // No package for this kind → nudge to buy.
-  if (!slot.hasPack) {
+  // No expert and no package for this kind → nudge to buy.
+  if (!slot.expert && !slot.hasPack) {
     return (
       <div className="card" style={{ border: '1.5px dashed var(--c-line)', background: 'transparent' }}>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -99,8 +99,10 @@ function CareSlotCard({ slot }: { slot: CareSlot }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
         <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--c-green, #3D9E72)' }}>{slot.label}</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {slot.sessionsLeft !== null && <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} of {slot.sessionsTotal} left</span>}
-          <Link href="/app/sessions" className="btn btn-primary btn-sm"><CalendarDays size={14} /> Book</Link>
+          {slot.hasPack
+            ? <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} of {slot.sessionsTotal} left</span>
+            : <Link href={slot.buyHref} className="ther-chip" style={{ textDecoration: 'none' }}>No active package · get one</Link>}
+          <Link href={`/app/sessions?with=${t.profileId}`} className="btn btn-primary btn-sm"><CalendarDays size={14} /> Book</Link>
         </div>
       </div>
 
