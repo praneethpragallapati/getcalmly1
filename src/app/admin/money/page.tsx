@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { TrendingUp, CreditCard, Wallet, HandCoins } from 'lucide-react'
-import { getAdminSession, getMoneyOverview } from '@/lib/admin'
+import { getAdminSession, getMoneyOverview, getMasterPayout } from '@/lib/admin'
 import { expertCode } from '@/lib/ids'
+import { MasterPayoutView } from '@/components/admin/MasterPayoutView'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +13,7 @@ const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
 export default async function AdminMoneyPage() {
   const admin = await getAdminSession()
   if (!admin) redirect('/login')
-  const m = await getMoneyOverview()
+  const [m, masterPayout] = await Promise.all([getMoneyOverview(), getMasterPayout()])
 
   // Payouts owed = part-time clinicians' earnings (full-timers are salaried).
   const partTime = m.payouts.filter((p) => p.employmentType === 'PART_TIME')
@@ -47,6 +48,8 @@ export default async function AdminMoneyPage() {
           </div>
         ))}
       </div>
+
+      <MasterPayoutView data={masterPayout} />
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Clinician earnings</div>

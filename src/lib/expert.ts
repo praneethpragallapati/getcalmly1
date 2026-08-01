@@ -943,11 +943,20 @@ export async function getAssignedTherapistId(patientUserId: string): Promise<str
 export async function canPatientBookWith(patientUserId: string, therapistProfileId: string): Promise<boolean> {
   if (!therapistProfileId) return false
   const [profile, sub, appt] = await Promise.all([
-    prisma.patientProfile.findUnique({ where: { userId: patientUserId }, select: { assignedTherapistId: true } }),
+    prisma.patientProfile.findUnique({
+      where: { userId: patientUserId },
+      select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true },
+    }),
     prisma.subscription.findFirst({ where: { userId: patientUserId, status: 'ACTIVE', therapistId: therapistProfileId }, select: { id: true } }),
     prisma.appointment.findFirst({ where: { patientId: patientUserId, therapistId: therapistProfileId }, select: { id: true } }),
   ])
-  return profile?.assignedTherapistId === therapistProfileId || Boolean(sub) || Boolean(appt)
+  const assigned = [
+    profile?.assignedTherapistId,
+    profile?.assignedTherapistIndividualId,
+    profile?.assignedTherapistCouplesId,
+    profile?.assignedTherapistPsychiatryId,
+  ]
+  return assigned.includes(therapistProfileId) || Boolean(sub) || Boolean(appt)
 }
 
 /** Upcoming date-specific exceptions, soonest first. */

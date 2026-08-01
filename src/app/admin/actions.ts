@@ -211,6 +211,30 @@ export async function reassignPatient(input: { userId: string; therapistProfileI
   }
 }
 
+const CATEGORY_COLUMN = {
+  individual: 'assignedTherapistIndividualId',
+  couples: 'assignedTherapistCouplesId',
+  psychiatry: 'assignedTherapistPsychiatryId',
+} as const
+
+/** Assign the clinician a patient sees for a specific care type. */
+export async function assignCategoryClinician(input: { userId: string; category: keyof typeof CATEGORY_COLUMN; therapistProfileId: string | null }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const column = CATEGORY_COLUMN[input.category]
+  if (!column) return { ok: false, error: 'Unknown care type.' }
+  try {
+    await prisma.patientProfile.update({
+      where: { userId: input.userId },
+      data: { [column]: input.therapistProfileId || null },
+    })
+    revalidatePath(`/admin/patients/${input.userId}`)
+    revalidatePath('/app/therapist')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update. The patient may not have a profile yet.' }
+  }
+}
+
 export async function cancelSubscription(input: { id: string }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {

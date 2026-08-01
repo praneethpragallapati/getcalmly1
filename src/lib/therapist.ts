@@ -199,13 +199,24 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         orderBy: { createdAt: 'desc' },
         select: { trackSlug: true, planName: true, sessionsTotal: true, sessionsUsed: true, therapistId: true },
       }),
-      prisma.patientProfile.findUnique({ where: { userId }, select: { assignedTherapistId: true } }),
+      prisma.patientProfile.findUnique({
+        where: { userId },
+        select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true },
+      }),
       prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
     ])
+
+    // The expert explicitly assigned for each care type takes precedence.
+    const categoryAssignment: Record<CareSlot['key'], string | null> = {
+      individual: profile?.assignedTherapistIndividualId ?? null,
+      couples: profile?.assignedTherapistCouplesId ?? null,
+      psychiatry: profile?.assignedTherapistPsychiatryId ?? null,
+    }
 
     // Resolve every therapist id we might need in one query.
     const ids = new Set<string>()
     subs.forEach((s) => s.therapistId && ids.add(s.therapistId))
+    Object.values(categoryAssignment).forEach((id) => id && ids.add(id))
     if (profile?.assignedTherapistId) ids.add(profile.assignedTherapistId)
     if (latestAppt?.therapistId) ids.add(latestAppt.therapistId)
 
@@ -225,9 +236,12 @@ export async function getMyCareTeam(): Promise<CareTeam> {
       if (!sub) {
         return { key: k.key, label: k.label, blurb: k.blurb, buyHref: k.buyHref, hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, expert: null }
       }
-      // Resolve the attached expert: the pack's own therapist first; for the
-      // individual slot, fall back to the patient's assigned/most-recent expert.
-      let profRow = sub.therapistId ? byId.get(sub.therapistId) : undefined
+      // Resolve the expert: the clinician assigned for this care type wins, then
+      // the pack's own attached therapist; for the individual slot, fall back to
+      // the patient's default assigned / most-recent expert.
+      const catId = categoryAssignment[k.key]
+      let profRow = catId ? byId.get(catId) : undefined
+      if (!profRow && sub.therapistId) profRow = byId.get(sub.therapistId)
       if (!profRow && k.key === 'individual') {
         const fallbackId = profile?.assignedTherapistId ?? latestAppt?.therapistId ?? null
         if (fallbackId) profRow = byId.get(fallbackId)

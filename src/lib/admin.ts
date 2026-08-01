@@ -243,28 +243,39 @@ export type SubscriptionRow = {
   sessionsTotal: number; sessionsUsed: number; sessionsLeft: number; createdAt: string
   therapistId: string | null; therapistName: string | null
 }
+export type CareCategoryKey = 'individual' | 'couples' | 'psychiatry'
+export type CategoryAssignment = { id: string | null; name: string | null }
+
 export type PatientDetail = {
   userId: string; name: string; email: string
   assignedTherapistId: string | null; assignedTherapistName: string | null
+  assignments: Record<CareCategoryKey, CategoryAssignment>
   subscriptions: SubscriptionRow[]
   therapists: { profileId: string; name: string }[]
 }
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
   return safe(async () => {
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true } } } })
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true } } } })
     if (!user) return null
     const [subs, therapists, latestAppt] = await Promise.all([
       prisma.subscription.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
       prisma.therapistProfile.findMany({ where: { isActive: true }, include: { user: { select: { name: true } } } }),
       prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
     ])
-    const assignedId = user.patientProfile?.assignedTherapistId ?? latestAppt?.therapistId ?? null
-    const assignedName = assignedId ? therapists.find((t) => t.id === assignedId)?.user?.name ?? null : null
+    const nameOf = (id: string | null | undefined) => (id ? therapists.find((t) => t.id === id)?.user?.name ?? null : null)
+    const pp = user.patientProfile
+    const assignedId = pp?.assignedTherapistId ?? latestAppt?.therapistId ?? null
+    const cat = (id: string | null | undefined): CategoryAssignment => ({ id: id ?? null, name: nameOf(id) })
     return {
       userId: user.id, name: user.name ?? 'Patient', email: user.email ?? '',
-      assignedTherapistId: user.patientProfile?.assignedTherapistId ?? null,
-      assignedTherapistName: assignedName,
+      assignedTherapistId: pp?.assignedTherapistId ?? null,
+      assignedTherapistName: nameOf(assignedId),
+      assignments: {
+        individual: cat(pp?.assignedTherapistIndividualId),
+        couples: cat(pp?.assignedTherapistCouplesId),
+        psychiatry: cat(pp?.assignedTherapistPsychiatryId),
+      },
       subscriptions: subs.map((s) => ({
         id: s.id, planName: s.planName, trackSlug: s.trackSlug, status: s.status,
         sessionsTotal: s.sessionsTotal, sessionsUsed: s.sessionsUsed, sessionsLeft: Math.max(0, s.sessionsTotal - s.sessionsUsed),
@@ -368,6 +379,84 @@ export async function getMoneyOverview(): Promise<MoneyOverview> {
     }))
     return { revenueAllTime, revenueThisMonth, completedSessions: completed.length, activeSubscriptions, fromPackages, payouts: payouts.sort((a, b) => b.totalEarned - a.totalEarned) }
   }, { revenueAllTime: 0, revenueThisMonth: 0, completedSessions: 0, activeSubscriptions: 0, fromPackages: false, payouts: [] })
+}
+
+// ── Master payout: every clinician, broken down by grain ─────────────────────
+// One row per (period, clinician) with the pay breakup — base session count,
+// 2nd-session bonuses, 3rd-onwards bonuses, night and misc — so an admin sees
+// exactly who is owed what, and why, at the day / month / year grain.
+
+export type PayoutBreakdownRow = {
+  periodKey: string
+  periodLabel: string
+  profileId: string
+  name: string
+  employmentType: string
+  sessions: number
+  baseTotal: number
+  secondCount: number
+  secondTotal: number
+  thirdPlusCount: number
+  thirdPlusTotal: number
+  nightCount: number
+  nightTotal: number
+  miscTotal: number
+  total: number
+}
+
+export type MasterPayout = {
+  byDay: PayoutBreakdownRow[]
+  byMonth: PayoutBreakdownRow[]
+  byYear: PayoutBreakdownRow[]
+}
+
+export async function getMasterPayout(): Promise<MasterPayout> {
+  return safe(async () => {
+    const clinicians = await prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } })
+
+    const day = new Map<string, PayoutBreakdownRow>()
+    const month = new Map<string, PayoutBreakdownRow>()
+    const year = new Map<string, PayoutBreakdownRow>()
+
+    const blank = (periodKey: string, periodLabel: string, t: { id: string; name: string; employmentType: string }): PayoutBreakdownRow => ({
+      periodKey, periodLabel, profileId: t.id, name: t.name, employmentType: t.employmentType,
+      sessions: 0, baseTotal: 0, secondCount: 0, secondTotal: 0, thirdPlusCount: 0, thirdPlusTotal: 0,
+      nightCount: 0, nightTotal: 0, miscTotal: 0, total: 0,
+    })
+
+    await Promise.all(clinicians.map(async (c) => {
+      const meta = { id: c.id, name: c.user?.name ?? 'Clinician', employmentType: (c.employmentType as string) ?? 'FULL_TIME' }
+      const e = await getTherapistEarnings(c.id)
+      for (const l of e.lines) {
+        const targets: [Map<string, PayoutBreakdownRow>, string, string][] = [
+          [day, `${l.dateIso}|${c.id}`, l.dayLabel],
+          [month, `${l.monthKey}|${c.id}`, l.monthLabel],
+          [year, `${l.year}|${c.id}`, String(l.year)],
+        ]
+        for (const [map, key, label] of targets) {
+          const row = map.get(key) ?? blank(key, label, meta)
+          row.sessions += 1
+          row.baseTotal += l.base
+          if (l.sessionNumber === 2) { row.secondCount += 1; row.secondTotal += l.numberBonus }
+          else if (l.sessionNumber >= 3) { row.thirdPlusCount += 1; row.thirdPlusTotal += l.numberBonus }
+          if (l.night) { row.nightCount += 1; row.nightTotal += l.nightBonus }
+          row.miscTotal += l.misc
+          row.total += l.amount
+          map.set(key, row)
+        }
+      }
+    }))
+
+    // Sort: most recent period first, then biggest payout.
+    const sortRows = (rows: PayoutBreakdownRow[]) =>
+      rows.sort((a, b) => (a.periodKey.split('|')[0] < b.periodKey.split('|')[0] ? 1 : a.periodKey.split('|')[0] > b.periodKey.split('|')[0] ? -1 : b.total - a.total))
+
+    return {
+      byDay: sortRows([...day.values()]),
+      byMonth: sortRows([...month.values()]),
+      byYear: sortRows([...year.values()]),
+    }
+  }, { byDay: [], byMonth: [], byYear: [] })
 }
 
 // ── Clinician earnings detail + statements ──────────────────────────────────────

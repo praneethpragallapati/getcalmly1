@@ -244,8 +244,14 @@ model PatientProfile {
   coupleId  String?
   careMode  CareMode @default(INDIVIDUAL)
   // Admin-set clinician assignment override. When null, the assigned clinician
-  // is derived from the patient's most recent appointment.
+  // is derived from the patient's most recent appointment. Kept as the default
+  // (category-agnostic) assignment.
   assignedTherapistId String?
+  // Per-care-type clinician assignments (TherapistProfile ids). A patient can be
+  // seen by a different expert for individual therapy, couples and psychiatry.
+  assignedTherapistIndividualId String?
+  assignedTherapistCouplesId    String?
+  assignedTherapistPsychiatryId String?
 
   // What the patient is being treated for — concern "tracks" (e.g. ["anxiety",
   // "postpartum"]). Drives matching, the care journey, and clinician context.

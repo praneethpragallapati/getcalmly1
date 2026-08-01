@@ -3,8 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert } from '@/app/admin/actions'
-import type { PatientDetail, SubscriptionRow } from '@/lib/admin'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert, assignCategoryClinician } from '@/app/admin/actions'
+import type { PatientDetail, SubscriptionRow, CareCategoryKey } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -31,16 +31,28 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
     <div className="stack">
       {/* Assignment */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 4 }}>Assigned clinician</div>
-        <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>
-          Currently: <b>{p.assignedTherapistName ?? 'derived from latest appointment'}</b>. Overriding this changes who the patient books with and whose caseload they appear in.
+        <div className="section-title" style={{ marginBottom: 4 }}>Assigned clinicians</div>
+        <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
+          Assign an expert per care type. This is who the patient books with and whose caseload they appear in for that type. Leave a type unset to fall back to the default assignment.
         </p>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <select value={assignId} onChange={(e) => setAssignId(e.target.value)} style={{ ...field, minWidth: 240 }}>
-            <option value="">— No override (use latest appointment) —</option>
-            {p.therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
-          </select>
-          <button onClick={() => run(() => reassignPatient({ userId: p.userId, therapistProfileId: assignId || null }), 'Assignment updated.')} disabled={pending} className="btn btn-primary">Update assignment</button>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 18 }}>
+          {(['individual', 'couples', 'psychiatry'] as CareCategoryKey[]).map((cat) => (
+            <AssignCategory key={cat} category={cat} current={p.assignments[cat]} therapists={p.therapists} userId={p.userId} field={field} pending={pending} run={run} />
+          ))}
+        </div>
+
+        <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', paddingTop: 14 }}>
+          <div className="muted" style={{ fontSize: 12.5, marginBottom: 8 }}>
+            Default assignment (used when a care type above is unset): <b>{p.assignedTherapistName ?? 'derived from latest appointment'}</b>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <select value={assignId} onChange={(e) => setAssignId(e.target.value)} style={{ ...field, minWidth: 240 }}>
+              <option value="">— No override (use latest appointment) —</option>
+              {p.therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
+            </select>
+            <button onClick={() => run(() => reassignPatient({ userId: p.userId, therapistProfileId: assignId || null }), 'Default assignment updated.')} disabled={pending} className="btn btn-primary">Update default</button>
+          </div>
         </div>
       </div>
 
@@ -95,6 +107,42 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
         </div>
         {msg && <p style={{ fontSize: 13.5, color: msg.includes('Failed') || msg.includes('not') ? coral : '#2C7A57', marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 5 }}><Check size={14} />{msg}</p>}
       </div>
+    </div>
+  )
+}
+
+const CATEGORY_LABEL: Record<CareCategoryKey, string> = {
+  individual: 'Individual therapy',
+  couples: 'Couples',
+  psychiatry: 'Psychiatry',
+}
+
+/** Assign the clinician a patient sees for one care type (individual / couples / psychiatry). */
+function AssignCategory({ category, current, therapists, userId, field, pending, run }: {
+  category: CareCategoryKey
+  current: { id: string | null; name: string | null }
+  therapists: { profileId: string; name: string }[]
+  userId: string
+  field: React.CSSProperties
+  pending: boolean
+  run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
+}) {
+  const [id, setId] = useState(current.id ?? '')
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: charcoal, minWidth: 140 }}>{CATEGORY_LABEL[category]}</span>
+      <select value={id} onChange={(e) => setId(e.target.value)} style={{ ...field, minWidth: 220 }}>
+        <option value="">— Not assigned —</option>
+        {therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
+      </select>
+      <button
+        onClick={() => run(() => assignCategoryClinician({ userId, category, therapistProfileId: id || null }), `${CATEGORY_LABEL[category]} clinician updated.`)}
+        disabled={pending}
+        className="btn"
+        style={{ border: '1.5px solid #E2E8F0' }}
+      >
+        Save
+      </button>
     </div>
   )
 }
