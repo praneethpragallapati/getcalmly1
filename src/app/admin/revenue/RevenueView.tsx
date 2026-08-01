@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TrendingUp, IndianRupee, CalendarRange, Download, Package, FileText, ChevronRight } from 'lucide-react'
 import type { RevenueReport, RevenuePeriod } from '@/lib/admin'
+import { patientCode } from '@/lib/ids'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -157,7 +158,10 @@ export function RevenueView({ report }: { report: RevenueReport }) {
                   <tr key={l.id} style={{ borderBottom: '1px solid var(--c-line)' }}>
                     <td style={{ padding: '9px 4px', whiteSpace: 'nowrap' }}>{l.dayLabel}</td>
                     <td style={{ padding: '9px 4px' }}>
-                      <div style={{ fontWeight: 600, color: charcoal }}>{l.patientName}</div>
+                      <div style={{ fontWeight: 600, color: charcoal, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                        {l.patientName}
+                        <span style={{ fontSize: 10.5, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#6D5BD0' }}>{patientCode(l.userId)}</span>
+                      </div>
                       <div className="muted" style={{ fontSize: 11.5 }}>{l.patientEmail}</div>
                     </td>
                     <td style={{ padding: '9px 4px' }}>{l.planName || '—'}</td>

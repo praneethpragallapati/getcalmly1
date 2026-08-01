@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ChevronRight, Star, UserPlus } from 'lucide-react'
 import { getAdminSession, getClinicians } from '@/lib/admin'
+import { expertCode } from '@/lib/ids'
 
 export const dynamic = 'force-dynamic'
 
 const charcoal = '#1C2B3A'
+const idChip: React.CSSProperties = { fontSize: 11, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#6D5BD0', background: 'rgba(109,91,208,.1)', padding: '2px 7px', borderRadius: 6, whiteSpace: 'nowrap' }
 
 export default async function AdminCliniciansPage() {
   const admin = await getAdminSession()
@@ -32,6 +34,7 @@ export default async function AdminCliniciansPage() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 14.5, fontWeight: 700, color: charcoal }}>{c.name}</span>
+                <span style={idChip}>{expertCode(c.profileId)}</span>
                 {!c.isActive && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#C0504B', background: 'rgba(192,80,75,.1)', padding: '2px 8px', borderRadius: 20 }}>Inactive</span>}
                 {!c.isVerified && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#C9973A', background: 'rgba(201,151,58,.12)', padding: '2px 8px', borderRadius: 20 }}>Unverified</span>}
               </div>

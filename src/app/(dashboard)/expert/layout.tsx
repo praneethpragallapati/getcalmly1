@@ -6,6 +6,7 @@ import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { ExpertAccountMenu } from '@/components/expert/ExpertAccountMenu'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
+import { expertCode } from '@/lib/ids'
 import { mustChangePassword } from '@/lib/accountSecurity'
 
 export const metadata: Metadata = {
@@ -96,7 +97,7 @@ export default async function ExpertLayout({ children }: { children: React.React
             <div className="tb-date">
               {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
-            <div className="tb-greeting">
+            <div className="tb-greeting" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               {(() => {
                 const h = new Date().getHours()
                 const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
@@ -106,6 +107,7 @@ export default async function ExpertLayout({ children }: { children: React.React
                   </>
                 )
               })()}
+              <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.12)', padding: '2px 8px', borderRadius: 6 }}>{expertCode(ctx.therapistProfileId)}</span>
             </div>
           </div>
           <ExpertAccountMenu name={ctx.therapistName ?? 'Doctor'} />

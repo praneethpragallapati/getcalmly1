@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getAdminSession, getClinicianEarnings } from '@/lib/admin'
 import { ClinicianEarningsView } from './ClinicianEarningsView'
 
-export const metadata = { title: 'Admin · Clinician earnings', robots: { index: false, follow: false } }
+export const metadata = { title: 'Admin · Therapist payout', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
 
 export default async function AdminClinicianMoneyPage({ params }: { params: Promise<{ profileId: string }> }) {

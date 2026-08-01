@@ -64,7 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </SidebarLink>
           <SidebarLink href="/admin/money">
             <Banknote size={18} />
-            <span>Money</span>
+            <span>Therapist payout</span>
           </SidebarLink>
           <SidebarLink href="/admin/revenue">
             <TrendingUp size={18} />

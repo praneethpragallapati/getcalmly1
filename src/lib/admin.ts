@@ -537,6 +537,7 @@ export type RevenueLine = {
   monthKey: string // YYYY-MM
   monthLabel: string
   year: number
+  userId: string
   patientName: string
   patientEmail: string
   kind: string // package | first_session | calmplus
@@ -584,6 +585,7 @@ export async function getRevenueLines(): Promise<RevenueLine[]> {
         monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
         monthLabel: d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
         year: d.getFullYear(),
+        userId: p.userId,
         patientName: p.user?.name ?? 'Patient',
         patientEmail: p.user?.email ?? '',
         kind: p.kind,

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { AlertTriangle, TrendingDown, TrendingUp, Minus } from 'lucide-react'
 import { getTherapistContext, getCaseload, type MoodTrend } from '@/lib/expert'
+import { patientCode } from '@/lib/ids'
 
 const TREND_ICON: Record<MoodTrend, typeof TrendingUp> = {
   improving: TrendingUp,
@@ -39,7 +40,10 @@ export default async function ExpertCaseloadPage() {
                 <Icon size={16} />
               </span>
               <div style={{ flex: 1 }}>
-                <div className="pattern-title">{p.name}</div>
+                <div className="pattern-title" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {p.name}
+                  <span style={{ fontSize: 10.5, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '1px 6px', borderRadius: 5 }}>{patientCode(p.patientId)}</span>
+                </div>
                 <div className="pattern-sub">
                   {p.trackLabel} · Mood {p.moodTrend} · Sessions {p.sessionsDone}/{p.sessionsTotal}
                 </div>

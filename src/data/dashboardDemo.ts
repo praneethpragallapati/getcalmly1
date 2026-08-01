@@ -132,7 +132,7 @@ export type DashboardData = {
 
 export const demoDashboard: DashboardData = {
   name: 'Priya',
-  patientId: 'GC-P-000482',
+  patientId: 'P-000482',
   category: 'Individual',
   trackSlug: 'therapy',
   trackTitle: 'Individual Therapy',

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getAdminSession, getPatientDetail } from '@/lib/admin'
 import { PatientAdmin } from '@/components/admin/PatientAdmin'
 import { DeleteAccount } from '@/components/admin/DeleteAccount'
+import { patientCode } from '@/lib/ids'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,10 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
         <ArrowLeft size={15} /> All patients
       </Link>
       <div className="page-head">
-        <div className="page-title">{p.name}</div>
+        <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          {p.name}
+          <span style={{ fontSize: 13, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#6D5BD0', background: 'rgba(109,91,208,.1)', padding: '3px 9px', borderRadius: 7 }}>{patientCode(p.userId)}</span>
+        </div>
         <div className="page-meta">{p.email}</div>
       </div>
       <PatientAdmin p={p} />

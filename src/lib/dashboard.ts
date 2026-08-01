@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { getSessionUserId } from '@/lib/patient'
 import { getCommunityPosts } from '@/lib/community'
+import { patientCode } from '@/lib/ids'
 
 /**
  * Tenure-based membership tier from cumulative paid months (#18). Kept here so
@@ -166,7 +167,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     data.milestones = []
 
     // Account basics from the real user record.
-    data.patientId = `GC-P-${userId.slice(-6).toUpperCase()}`
+    data.patientId = patientCode(userId)
     if (user?.createdAt) {
       data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
       data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))

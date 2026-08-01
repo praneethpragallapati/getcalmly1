@@ -56,7 +56,7 @@ export default async function AdminOverviewPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <Link href="/admin/therapists" className="link-action">Manage clinicians &amp; rates →</Link>
             <Link href="/admin/supervision" className="link-action">Assign supervision →</Link>
-            <Link href="/admin/money" className="link-action">Money &amp; earnings statements →</Link>
+            <Link href="/admin/money" className="link-action">Therapist payout &amp; statements →</Link>
           </div>
         </div>
       </div>

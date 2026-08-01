@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { TrendingUp, CreditCard, Wallet, HandCoins } from 'lucide-react'
 import { getAdminSession, getMoneyOverview } from '@/lib/admin'
+import { expertCode } from '@/lib/ids'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,8 +30,8 @@ export default async function AdminMoneyPage() {
     <div className="stack">
       <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div className="page-title">Money</div>
-          <div className="page-meta">Clinician earnings and payouts, at the day / week / month grain each clinician sees, with downloadable statements. Package sales live on the Revenue page.</div>
+          <div className="page-title">Therapist payout</div>
+          <div className="page-meta">What every clinician is owed, at the day / month / year grain, broken down by session type and bonuses. Open one for their full statement, or download the master payout. Package sales live on the Revenue page.</div>
         </div>
         <Link href="/admin/revenue" className="btn" style={{ border: '1.5px solid #E2E8F0', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <TrendingUp size={15} /> Revenue &amp; package sales
@@ -72,6 +73,7 @@ export default async function AdminMoneyPage() {
                   <tr key={p.profileId} style={{ borderBottom: '1px solid var(--c-line)' }}>
                     <td style={{ padding: '10px 4px' }}>
                       <Link href={`/admin/money/${p.profileId}`} style={{ color: charcoal, fontWeight: 600, textDecoration: 'none' }}>{p.name}</Link>
+                      <span style={{ marginLeft: 8, fontSize: 11, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#6D5BD0' }}>{expertCode(p.profileId)}</span>
                     </td>
                     <td style={{ padding: '10px 4px', fontSize: 12.5, color: 'var(--c-gray-d)' }}>{p.employmentType === 'PART_TIME' ? 'Part-time' : 'Full-time'}</td>
                     <td style={{ padding: '10px 4px' }}>{p.sessions}</td>
