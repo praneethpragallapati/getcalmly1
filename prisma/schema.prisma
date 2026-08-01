@@ -374,6 +374,7 @@ model TherapistProfile {
   supervisorLinks        SupervisionLink[]       @relation("Supervisor")
   superviseeLinks        SupervisionLink[]       @relation("Supervisee")
   reviews                SessionReview[]
+  packages               Subscription[]          @relation("SubscriptionExpert")
 }
 
 // Recurring weekly availability template. One row per weekday the therapist works;
@@ -499,6 +500,10 @@ model Subscription {
   // Which of the 7 service tracks this package is for (slug: therapy,
   // psychiatry, couples, child, maternal, assessments, specialised).
   trackSlug     String
+  // The expert attached to this package. A patient can hold several packages
+  // (e.g. individual + couples + psychiatry), each with its own clinician.
+  therapistId   String?
+  therapist     TherapistProfile?  @relation("SubscriptionExpert", fields: [therapistId], references: [id])
   planName      String // e.g. "Calm+ Quarterly"
   tier          PlanTier           @default(STARTER)
   status        SubscriptionStatus @default(ACTIVE)

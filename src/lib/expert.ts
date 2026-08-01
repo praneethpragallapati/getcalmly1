@@ -64,8 +64,9 @@ export type ExpertPatientProfile = {
   moodTrend: MoodTrend
   moodWeek: { date: string; mood: number }[]
   sessionNotes: { date: string; raw: string; synthesized?: string }[]
-  /** The patient's sessions with this therapist, for writing/editing notes. */
-  sessions: { id: string; dateLabel: string; status: string; isPast: boolean; summary: string | null }[]
+  /** The patient's sessions across all experts involved. `isOwn` sessions are
+   *  editable by the viewer; others render read-only, labelled by author. */
+  sessions: { id: string; dateLabel: string; status: string; isPast: boolean; summary: string | null; author: string; isOwn: boolean }[]
   sessionsDone: number
   sessionsTotal: number
   sessionsRemaining: number
@@ -352,10 +353,18 @@ export async function getExpertPatientProfile(
     }),
     prisma.task.findMany({ where: { userId: patientId } }),
     prisma.medication.findMany({ where: { userId: patientId } }),
+    // All of the patient's sessions across every expert involved — so a
+    // clinician sees the full history, not only their own (#notes). Ownership of
+    // the patient is already gated above; notes from other experts render
+    // read-only, the viewer only edits their own.
     prisma.appointment.findMany({
-      where: { patientId, therapistId: therapistProfileId },
+      where: { patientId },
       orderBy: { scheduledAt: 'desc' },
-      take: 20,
+      take: 40,
+      select: {
+        id: true, scheduledAt: true, status: true, summary: true, therapistId: true,
+        therapist: { select: { user: { select: { name: true } } } },
+      },
     }),
     prisma.subscription.findFirst({ where: { userId: patientId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' }, select: { sessionsUsed: true, sessionsTotal: true } }),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }),
@@ -403,6 +412,8 @@ export async function getExpertPatientProfile(
       status: a.status,
       isPast: a.scheduledAt.getTime() < now,
       summary: a.summary ?? null,
+      author: a.therapist?.user?.name ?? 'Clinician',
+      isOwn: a.therapistId === therapistProfileId,
     })),
     sessionsDone: sub?.sessionsUsed ?? 0,
     sessionsTotal: sub?.sessionsTotal ?? 0,

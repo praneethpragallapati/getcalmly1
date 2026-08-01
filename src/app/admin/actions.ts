@@ -222,6 +222,22 @@ export async function cancelSubscription(input: { id: string }): Promise<AdminRe
   }
 }
 
+/** Attach (or detach) the expert who delivers a specific package. */
+export async function attachSubscriptionExpert(input: { id: string; therapistProfileId: string | null }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.subscription.update({
+      where: { id: input.id },
+      data: { therapistId: input.therapistProfileId || null },
+    })
+    revalidatePath('/admin/patients')
+    revalidatePath('/app/therapist')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not attach the expert to this package.' }
+  }
+}
+
 /** Adjust a package's total sessions by delta (+ to add, − to remove). Won't go below sessionsUsed. */
 export async function adjustSessionsTotal(input: { id: string; delta: number }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }

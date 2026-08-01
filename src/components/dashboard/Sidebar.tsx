@@ -36,7 +36,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
   {
     heading: 'Care',
     items: [
-      { href: '/app/therapist', label: 'My Therapist', icon: Stethoscope },
+      { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
       { href: '/app/forms', label: 'Forms', icon: FileText },
     ],

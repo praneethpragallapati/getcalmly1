@@ -4,6 +4,7 @@ import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRo
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
+import { ExpertAccountMenu } from '@/components/expert/ExpertAccountMenu'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 import { mustChangePassword } from '@/lib/accountSecurity'
 
@@ -90,7 +91,7 @@ export default async function ExpertLayout({ children }: { children: React.React
       </aside>
 
       <div className="app-main">
-        <header className="app-topbar">
+        <header className="app-topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div className="tb-date">
               {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -107,6 +108,7 @@ export default async function ExpertLayout({ children }: { children: React.React
               })()}
             </div>
           </div>
+          <ExpertAccountMenu name={ctx.therapistName ?? 'Doctor'} />
         </header>
         <main className="app-content">{children}</main>
       </div>

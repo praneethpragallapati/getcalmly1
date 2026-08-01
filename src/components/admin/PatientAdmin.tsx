@@ -3,8 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed } from '@/app/admin/actions'
-import type { PatientDetail } from '@/lib/admin'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert } from '@/app/admin/actions'
+import type { PatientDetail, SubscriptionRow } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -68,29 +68,63 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                   )}
                 </div>
                 {!cancelled && (
-                  <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginTop: 12 }}>
-                    <Stepper
-                      label="Total sessions" value={s.sessionsTotal} pending={pending} iconBtn={iconBtn}
-                      onMinus={() => run(() => adjustSessionsTotal({ id: s.id, delta: -1 }))}
-                      onPlus={() => run(() => adjustSessionsTotal({ id: s.id, delta: 1 }))}
-                    />
-                    <Stepper
-                      label="Sessions used" value={s.sessionsUsed} pending={pending} iconBtn={iconBtn}
-                      minusTitle="Credit back a session (didn't happen)"
-                      onMinus={() => run(() => adjustSessionsUsed({ id: s.id, delta: -1 }), 'Session credited back.')}
-                      onPlus={() => run(() => adjustSessionsUsed({ id: s.id, delta: 1 }))}
-                    />
-                    <div>
-                      <div className="muted" style={{ fontSize: 12 }}>Remaining</div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: charcoal }}>{s.sessionsLeft}</div>
+                  <>
+                    <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginTop: 12 }}>
+                      <Stepper
+                        label="Total sessions" value={s.sessionsTotal} pending={pending} iconBtn={iconBtn}
+                        onMinus={() => run(() => adjustSessionsTotal({ id: s.id, delta: -1 }))}
+                        onPlus={() => run(() => adjustSessionsTotal({ id: s.id, delta: 1 }))}
+                      />
+                      <Stepper
+                        label="Sessions used" value={s.sessionsUsed} pending={pending} iconBtn={iconBtn}
+                        minusTitle="Credit back a session (didn't happen)"
+                        onMinus={() => run(() => adjustSessionsUsed({ id: s.id, delta: -1 }), 'Session credited back.')}
+                        onPlus={() => run(() => adjustSessionsUsed({ id: s.id, delta: 1 }))}
+                      />
+                      <div>
+                        <div className="muted" style={{ fontSize: 12 }}>Remaining</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: charcoal }}>{s.sessionsLeft}</div>
+                      </div>
                     </div>
-                  </div>
+                    <AttachExpert sub={s} therapists={p.therapists} field={field} pending={pending} run={run} />
+                  </>
                 )}
               </div>
             )
           })}
         </div>
         {msg && <p style={{ fontSize: 13.5, color: msg.includes('Failed') || msg.includes('not') ? coral : '#2C7A57', marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 5 }}><Check size={14} />{msg}</p>}
+      </div>
+    </div>
+  )
+}
+
+/** Per-package expert attach: this clinician becomes the one the patient sees for this pack. */
+function AttachExpert({ sub, therapists, field, pending, run }: {
+  sub: SubscriptionRow
+  therapists: { profileId: string; name: string }[]
+  field: React.CSSProperties
+  pending: boolean
+  run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
+}) {
+  const [id, setId] = useState(sub.therapistId ?? '')
+  return (
+    <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(28,43,58,.08)' }}>
+      <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>
+        Attached expert {sub.therapistName ? <>· currently <b>{sub.therapistName}</b></> : '· none yet'}
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <select value={id} onChange={(e) => setId(e.target.value)} style={{ ...field, minWidth: 220 }}>
+          <option value="">— No expert attached —</option>
+          {therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
+        </select>
+        <button
+          onClick={() => run(() => attachSubscriptionExpert({ id: sub.id, therapistProfileId: id || null }), 'Expert updated.')}
+          disabled={pending}
+          className="btn btn-primary"
+        >
+          Attach expert
+        </button>
       </div>
     </div>
   )

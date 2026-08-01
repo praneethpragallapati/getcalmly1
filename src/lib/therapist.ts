@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { getSessionsView } from '@/lib/sessions'
+import { designationOf } from '@/lib/expert'
 
 /**
  * The patient's assigned expert (#2). Real data comes from the patient's most
@@ -92,5 +93,158 @@ export async function getMyTherapist(): Promise<MyTherapist> {
     }
   } catch {
     return base
+  }
+}
+
+// ── Care team: up to three experts, one per package kind ─────────────────────
+// A patient can hold several packages — individual therapy, couples, and
+// psychiatry — each with its own attached clinician. This assembles the "My
+// care team" view: one slot per kind, showing the attached expert when a pack
+// is active, or a nudge to buy when it isn't.
+
+export type CareExpert = {
+  name: string
+  initials: string
+  designation: string
+  qualifications: string
+  yearsExp: number
+  languages: string[]
+  specializations: string[]
+  rating: number
+  reviews: number
+  rciVerified: boolean
+  nmcVerified: boolean
+  bio: string
+}
+
+export type CareSlot = {
+  key: 'individual' | 'couples' | 'psychiatry'
+  label: string
+  blurb: string
+  buyHref: string
+  hasPack: boolean
+  planName: string | null
+  sessionsLeft: number | null
+  sessionsTotal: number | null
+  expert: CareExpert | null // null with hasPack=true → being matched
+}
+
+export type CareTeam = {
+  slots: CareSlot[]
+  nextSessionWhen: string | null
+  nextSessionId: string | null
+}
+
+const CARE_KINDS: { key: CareSlot['key']; label: string; blurb: string; buyHref: string; trackSlugs: string[] }[] = [
+  { key: 'individual', label: 'Individual therapy', blurb: 'One-to-one therapy for you.', buyHref: '/services/therapy', trackSlugs: ['therapy'] },
+  { key: 'couples', label: 'Couples therapy', blurb: 'Work on your relationship, together.', buyHref: '/services/couples', trackSlugs: ['couples'] },
+  { key: 'psychiatry', label: 'Psychiatry', blurb: 'Diagnosis and medication, when therapy alone isn’t enough.', buyHref: '/services/psychiatry', trackSlugs: ['psychiatry'] },
+]
+
+type ProfileRow = {
+  id: string
+  yearsExp: number
+  qualifications: string[]
+  languages: string[]
+  specializations: string[]
+  rating: number
+  totalReviews: number
+  rciNumber: string
+  bio: string
+  user: { name: string | null } | null
+}
+
+function expertFromProfile(p: ProfileRow): CareExpert {
+  const name = p.user?.name ?? 'Your expert'
+  return {
+    name,
+    initials: initialsOf(name),
+    designation: designationOf(p.specializations),
+    qualifications: p.qualifications.join(', ') || 'Registered clinician',
+    yearsExp: p.yearsExp,
+    languages: p.languages.length ? p.languages : ['English'],
+    specializations: p.specializations,
+    rating: p.rating || 0,
+    reviews: p.totalReviews,
+    rciVerified: Boolean(p.rciNumber),
+    nmcVerified: false,
+    bio: p.bio || '',
+  }
+}
+
+const emptyTeam = (): CareTeam => ({
+  slots: CARE_KINDS.map((k) => ({
+    key: k.key, label: k.label, blurb: k.blurb, buyHref: k.buyHref,
+    hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, expert: null,
+  })),
+  nextSessionWhen: null,
+  nextSessionId: null,
+})
+
+export async function getMyCareTeam(): Promise<CareTeam> {
+  const view = await getSessionsView()
+  const next = view.upcoming[0] ?? view.today ?? null
+  const nextSessionWhen = next?.when ?? null
+  const nextSessionId = next?.id ?? null
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ...emptyTeam(), nextSessionWhen, nextSessionId }
+
+  try {
+    const [subs, profile, latestAppt] = await Promise.all([
+      prisma.subscription.findMany({
+        where: { userId, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' },
+        select: { trackSlug: true, planName: true, sessionsTotal: true, sessionsUsed: true, therapistId: true },
+      }),
+      prisma.patientProfile.findUnique({ where: { userId }, select: { assignedTherapistId: true } }),
+      prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
+    ])
+
+    // Resolve every therapist id we might need in one query.
+    const ids = new Set<string>()
+    subs.forEach((s) => s.therapistId && ids.add(s.therapistId))
+    if (profile?.assignedTherapistId) ids.add(profile.assignedTherapistId)
+    if (latestAppt?.therapistId) ids.add(latestAppt.therapistId)
+
+    const profiles = ids.size
+      ? await prisma.therapistProfile.findMany({
+          where: { id: { in: [...ids] } },
+          select: {
+            id: true, yearsExp: true, qualifications: true, languages: true, specializations: true,
+            rating: true, totalReviews: true, rciNumber: true, bio: true, user: { select: { name: true } },
+          },
+        })
+      : []
+    const byId = new Map(profiles.map((p) => [p.id, p]))
+
+    const slots: CareSlot[] = CARE_KINDS.map((k) => {
+      const sub = subs.find((s) => k.trackSlugs.includes(s.trackSlug))
+      if (!sub) {
+        return { key: k.key, label: k.label, blurb: k.blurb, buyHref: k.buyHref, hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, expert: null }
+      }
+      // Resolve the attached expert: the pack's own therapist first; for the
+      // individual slot, fall back to the patient's assigned/most-recent expert.
+      let profRow = sub.therapistId ? byId.get(sub.therapistId) : undefined
+      if (!profRow && k.key === 'individual') {
+        const fallbackId = profile?.assignedTherapistId ?? latestAppt?.therapistId ?? null
+        if (fallbackId) profRow = byId.get(fallbackId)
+      }
+      return {
+        key: k.key,
+        label: k.label,
+        blurb: k.blurb,
+        buyHref: k.buyHref,
+        hasPack: true,
+        planName: sub.planName,
+        sessionsTotal: sub.sessionsTotal,
+        sessionsLeft: Math.max(0, sub.sessionsTotal - sub.sessionsUsed),
+        expert: profRow ? expertFromProfile(profRow) : null,
+      }
+    })
+
+    return { slots, nextSessionWhen, nextSessionId }
+  } catch {
+    return { ...emptyTeam(), nextSessionWhen, nextSessionId }
   }
 }

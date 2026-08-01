@@ -241,6 +241,7 @@ export async function getPatients(): Promise<PatientRow[]> {
 export type SubscriptionRow = {
   id: string; planName: string; trackSlug: string; status: string
   sessionsTotal: number; sessionsUsed: number; sessionsLeft: number; createdAt: string
+  therapistId: string | null; therapistName: string | null
 }
 export type PatientDetail = {
   userId: string; name: string; email: string
@@ -268,6 +269,8 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         id: s.id, planName: s.planName, trackSlug: s.trackSlug, status: s.status,
         sessionsTotal: s.sessionsTotal, sessionsUsed: s.sessionsUsed, sessionsLeft: Math.max(0, s.sessionsTotal - s.sessionsUsed),
         createdAt: fmt(s.createdAt),
+        therapistId: s.therapistId ?? null,
+        therapistName: s.therapistId ? therapists.find((t) => t.id === s.therapistId)?.user?.name ?? null : null,
       })),
       therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
     }

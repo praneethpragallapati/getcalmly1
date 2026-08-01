@@ -57,7 +57,9 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   const patientAlerts = allRisk.filter((r) => r.patientId === id)
 
   // Sessions a note can be written/edited for: past ones (plus any already noted).
-  const pastSessions = p.sessions.filter((s) => s.isPast || s.summary)
+  // Own past sessions (to write notes on) + any session from any expert that
+  // already has a note, so the clinician sees the whole picture.
+  const pastSessions = p.sessions.filter((s) => s.summary || (s.isOwn && s.isPast))
 
   return (
     <div className="stack">
@@ -340,32 +342,45 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Session notes</div>
         <p className="muted" style={{ marginBottom: 14 }}>
-          Write a note for any past session, or update an existing one. Notes are saved to the patient&apos;s record.
+          Notes from every expert involved in this patient&apos;s care. You can write or update notes on your own
+          sessions; other clinicians&apos; notes are read-only.
         </p>
         {pastSessions.length === 0 && <p className="muted">No past sessions to note yet.</p>}
-        {pastSessions.map((s) => (
-          <div key={s.id} className="pattern" style={{ alignItems: 'flex-start' }}>
-            <span className={`pattern-ic ${s.summary ? 't-green' : 't-gold'}`}>
-              {s.summary ? <Check size={16} /> : <FileText size={16} />}
-            </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="pattern-title">
-                {s.dateLabel} <span className="muted" style={{ fontWeight: 400 }}>· {s.status}</span>
+        {pastSessions.map((s) => {
+          const editable = s.isOwn && !supervisorView
+          return (
+            <div key={s.id} className="pattern" style={{ alignItems: 'flex-start' }}>
+              <span className={`pattern-ic ${s.summary ? 't-green' : 't-gold'}`}>
+                {s.summary ? <Check size={16} /> : <FileText size={16} />}
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="pattern-title" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {s.dateLabel} <span className="muted" style={{ fontWeight: 400 }}>· {s.status}</span>
+                  <span style={{
+                    fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                    background: s.isOwn ? 'rgba(26,127,122,.12)' : 'rgba(28,43,58,.06)',
+                    color: s.isOwn ? '#1A7F7A' : '#5A6B7A',
+                  }}>
+                    {s.isOwn ? 'You' : s.author}
+                  </span>
+                </div>
+                {s.summary && <div className="pattern-sub" style={{ marginBottom: 8 }}>{s.summary}</div>}
+                {editable ? (
+                  <div style={{ maxWidth: 520, marginTop: 6 }}>
+                    <SessionNoteForm
+                      appointmentId={s.id}
+                      patientId={p.patientId}
+                      initialSummary={s.summary ?? ''}
+                      submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
+                    />
+                  </div>
+                ) : (
+                  !s.summary && <div className="pattern-sub" style={{ fontStyle: 'italic', opacity: 0.7 }}>No note written yet.</div>
+                )}
               </div>
-              {s.summary && <div className="pattern-sub" style={{ marginBottom: 8 }}>{s.summary}</div>}
-              {!supervisorView && (
-              <div style={{ maxWidth: 520, marginTop: 6 }}>
-                <SessionNoteForm
-                  appointmentId={s.id}
-                  patientId={p.patientId}
-                  initialSummary={s.summary ?? ''}
-                  submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
-                />
-              </div>
-              )}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
