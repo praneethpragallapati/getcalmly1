@@ -17,10 +17,11 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const sessionsRemaining = Math.max(0, plan.sessionsTotal - plan.sessionsUsed)
   const expired = plan.sessionsTotal > 0 && sessionsRemaining === 0
 
-  // Packages stay hidden until the first session is behind them; before that a
-  // new patient only ever sees the flat first-session offer.
+  // A brand-new patient (nothing purchased yet) sees the flat first-session
+  // offer. Once they've purchased anything — even before that first session is
+  // completed — real package prices are available to buy.
   const firstSessionDone = plan.sessionsUsed >= 1
-  const firstSessionWaiting = !firstSessionDone && plan.sessionsTotal > 0
+  const hasPurchased = plan.sessionsTotal > 0
 
   return (
     <>
@@ -34,14 +35,14 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             <ArrowLeft size={14} /> Back to settings
           </Link>
           <h1 className="page-title" style={{ marginTop: 6 }}>
-            {firstSessionDone ? 'Buy a package' : 'Book your first session'}
+            {hasPurchased ? 'Buy a package' : 'Book your first session'}
           </h1>
         </div>
         <span className="page-meta">{sessionsRemaining} sessions remaining</span>
       </div>
 
-      <div className="stack" style={{ maxWidth: firstSessionDone ? 1200 : 560 }}>
-        {firstSessionDone ? (
+      <div className="stack" style={{ maxWidth: hasPurchased ? 1200 : 560 }}>
+        {hasPurchased ? (
           <>
             <div className="card">
               <div className="section-title">Your current balance</div>
@@ -49,6 +50,12 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                 {plan.planName} · {plan.sessionsUsed}/{plan.sessionsTotal} sessions used
                 {expired ? ' · expired' : ''}
               </p>
+              {!firstSessionDone && (
+                <p className="muted" style={{ marginTop: 6 }}>
+                  Your first session is booked — schedule it in{' '}
+                  <Link href="/app/sessions" className="link-action">Sessions</Link>. You can add a package below whenever you&apos;re ready.
+                </p>
+              )}
               {expired && (
                 <p className="muted" style={{ marginTop: 6 }}>
                   Your package has run out. Buying a new one renews your plan, any sessions you add stack on top.
@@ -57,17 +64,6 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             </div>
             <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
           </>
-        ) : firstSessionWaiting ? (
-          <div className="card">
-            <div className="section-title">Your first session is booked in</div>
-            <p className="muted" style={{ marginTop: 8 }}>
-              {plan.planName} · head to Sessions to schedule it. Session packages unlock here once
-              your first session is done.
-            </p>
-            <Link href="/app/sessions" className="btn btn-primary" style={{ marginTop: 14 }}>
-              Go to Sessions
-            </Link>
-          </div>
         ) : (
           <FirstSessionPanel hasPartner={hasPartner} pricing={pricing} initialTrack={initialTrack} />
         )}
