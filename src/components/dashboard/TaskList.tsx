@@ -59,6 +59,7 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className={`task-title${isDone ? ' done' : ''}`}>{t.title}</div>
               {t.detail && <div className="task-detail">{t.detail}</div>}
+              {t.timesLabel && <div className="task-detail">{t.timesLabel}</div>}
               {(t.dueLabel || t.frequencyLabel) && (
                 <div className="task-detail" style={{ color: t.expired && !isDone ? 'var(--c-coral)' : undefined }}>
                   {t.frequencyLabel ? `${t.frequencyLabel}${t.dueLabel ? ' · ' : ''}` : ''}

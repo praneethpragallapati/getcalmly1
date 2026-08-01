@@ -5,8 +5,9 @@ import {
 } from 'lucide-react'
 import {
   getTherapistContext, getCaseload, getRiskNotifications, getTherapistSchedule,
-  getExpertPatientProfile, type ScheduleAppointment,
+  getExpertPatientProfile, getMyAssignedTasks, type ScheduleAppointment,
 } from '@/lib/expert'
+import { MyTaskList } from '@/components/expert/MyTaskList'
 
 function timeLabel(d: Date) {
   return d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
@@ -67,10 +68,11 @@ export default async function ExpertHomePage() {
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
 
-  const [schedule, caseload, risk] = await Promise.all([
+  const [schedule, caseload, risk, myTasks] = await Promise.all([
     getTherapistSchedule(ctx.therapistProfileId),
     getCaseload(ctx.therapistProfileId),
     getRiskNotifications(ctx.therapistProfileId),
+    getMyAssignedTasks(ctx.userId),
   ])
 
   const upcoming = schedule.filter((a) => !a.isPast && a.status !== 'CANCELLED')
@@ -231,6 +233,19 @@ export default async function ExpertHomePage() {
           </div>
         </div>
       </div>
+
+      {/* ── Tasks assigned by admin ── */}
+      {myTasks.length > 0 && (
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div className="section-title">Tasks from admin</div>
+            <span className="muted" style={{ fontSize: 12 }}>{myTasks.filter((t) => !t.done).length} open</span>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <MyTaskList tasks={myTasks} />
+          </div>
+        </div>
+      )}
 
       {/* ── Patient alerts ── */}
       <div className="card">

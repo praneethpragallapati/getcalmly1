@@ -18,6 +18,24 @@ export function normalizeFrequency(raw: string | null | undefined): TaskFrequenc
   return (TASK_FREQUENCIES as readonly string[]).includes(raw ?? '') ? (raw as TaskFrequency) : 'ONE_TIME'
 }
 
+// When in the day the task should be done. Any subset can be picked; empty
+// means no particular time. Shared by therapist→patient and admin→therapist
+// assignment so both use the exact same vocabulary.
+export const TASK_TIMES_OF_DAY = ['Morning', 'Afternoon', 'Evening'] as const
+export type TaskTimeOfDay = (typeof TASK_TIMES_OF_DAY)[number]
+
+/** Keep only valid, de-duplicated times, in canonical Morning→Evening order. */
+export function normalizeTimesOfDay(raw: (string | null | undefined)[]): TaskTimeOfDay[] {
+  const picked = new Set(raw.filter(Boolean).map(String))
+  return TASK_TIMES_OF_DAY.filter((t) => picked.has(t))
+}
+
+/** Short label for the task lists ("Morning · Evening"); empty for none. */
+export function timesOfDayChip(times: string[] | null | undefined): string | undefined {
+  const t = normalizeTimesOfDay(times ?? [])
+  return t.length ? t.join(' · ') : undefined
+}
+
 /** Human chip for the patient/expert task lists ("Daily", "Weekly", …); empty for one-time. */
 export function frequencyChip(raw: string | null | undefined): string | undefined {
   const f = normalizeFrequency(raw)

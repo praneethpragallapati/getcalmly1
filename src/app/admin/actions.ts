@@ -8,6 +8,7 @@ import { hashPassword, generateTempPassword } from '@/lib/password'
 import { getEarningsConfig } from '@/lib/earningsConfig'
 import { updatePricingConfig } from '@/lib/pricingConfig'
 import type { PricingValues } from '@/data/pricing'
+import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -557,4 +558,61 @@ export async function broadcastAnnouncement(input: { audience: 'ALL' | 'PATIENT'
     })
     return { ok: true }
   } catch { return { ok: false, error: 'Could not send the announcement.' } }
+}
+
+// ── Admin → therapist tasks ──────────────────────────────────────────────────
+// Admins assign work tasks to a clinician in the same shape therapists use for
+// patients: frequency, time(s) of day, and an expiry. The task is stored on the
+// Task table against the therapist's own User id, and surfaces in their portal.
+
+/** Assign a task to a therapist. `profileId` is only used to revalidate the page. */
+export async function assignTherapistTask(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  if (!admin) return
+
+  const therapistUserId = String(formData.get('therapistUserId') ?? '')
+  const profileId = String(formData.get('profileId') ?? '')
+  const title = String(formData.get('title') ?? '').trim()
+  if (!therapistUserId || !title) return
+
+  // Only ever target an actual clinician account.
+  const target = await prisma.user.findUnique({ where: { id: therapistUserId }, select: { role: true } })
+  if (!target || target.role !== 'THERAPIST') return
+
+  const description = String(formData.get('description') ?? '').trim()
+  const dueRaw = String(formData.get('dueDate') ?? '').trim()
+  const dueDate = dueRaw ? new Date(dueRaw) : null
+  const frequency = normalizeFrequency(String(formData.get('frequency') ?? ''))
+  const timesOfDay = normalizeTimesOfDay(formData.getAll('timesOfDay').map(String))
+
+  await prisma.task.create({
+    data: {
+      userId: therapistUserId,
+      type: 'REFLECTION',
+      title,
+      description: description || null,
+      frequency: frequency === 'ONE_TIME' ? null : frequency,
+      timesOfDay,
+      dueDate: dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate : null,
+      assignedBy: admin.name ?? 'Admin',
+      assignedById: admin.id,
+    },
+  })
+
+  if (profileId) revalidatePath(`/admin/therapists/${profileId}`)
+  revalidatePath('/expert')
+}
+
+/** Remove a task an admin assigned to a therapist. */
+export async function deleteTherapistTask(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  if (!admin) return
+  const taskId = String(formData.get('taskId') ?? '')
+  const profileId = String(formData.get('profileId') ?? '')
+  if (!taskId || !admin.id) return
+  // Only delete admin-assigned tasks (assignedById set to a real admin), never a
+  // therapist's patient-facing ones.
+  await prisma.task.deleteMany({ where: { id: taskId, assignedById: admin.id } })
+  if (profileId) revalidatePath(`/admin/therapists/${profileId}`)
+  revalidatePath('/expert')
 }

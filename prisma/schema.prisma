@@ -576,11 +576,18 @@ model Task {
   description String?   @db.Text
   // Optional link for VIDEO/READING tasks.
   resourceUrl String?
-  assignedBy  String? // therapist display name, denormalised
+  assignedBy  String? // assigner's display name, denormalised (therapist or admin)
+  // When set, the id of the User who assigned this task (therapist or admin),
+  // for audit. `userId` is always the person the task is FOR — a patient for
+  // therapist-assigned tasks, a therapist for admin-assigned tasks.
+  assignedById String?
   // Recurrence: ONE_TIME (default) or DAILY / WEEKLY / FORTNIGHTLY / MONTHLY.
   // Recurring tasks re-open each period until dueDate; completedAt marks the
   // latest completion and "done" is derived per period.
   frequency   String?
+  // Times of day to do the task, any of "Morning" / "Afternoon" / "Evening".
+  // Empty means no specific time.
+  timesOfDay  String[]  @default([])
   dueDate     DateTime?
   completedAt DateTime?
   createdAt   DateTime  @default(now())

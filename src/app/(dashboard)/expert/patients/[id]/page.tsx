@@ -321,6 +321,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                 <div className="pattern-sub">
                   {t.type}
                   {t.frequencyLabel ? ` · ${t.frequencyLabel}` : ''}
+                  {t.timesLabel ? ` · ${t.timesLabel}` : ''}
                   {t.dueLabel ? ` · ${t.done ? 'done' : t.expired ? `expired ${t.dueLabel}` : `until ${t.dueLabel}`}` : ''}
                 </div>
               </div>

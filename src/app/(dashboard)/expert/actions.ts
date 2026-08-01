@@ -18,10 +18,11 @@ import {
   setMedicationActive,
   createExpertBlogPost,
   updateExpertBlogPost,
+  toggleMyTask,
   type CreateBlogInput,
 } from '@/lib/expert'
 import { sendForm } from '@/lib/forms'
-import { normalizeFrequency } from '@/lib/taskRecurrence'
+import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 
@@ -63,6 +64,15 @@ export async function resolveAlert(formData: FormData): Promise<void> {
   if (patientId) revalidatePath(`/expert/patients/${patientId}`)
 }
 
+/** Mark an admin-assigned task complete/incomplete from the clinician's portal. */
+export async function toggleMyAssignedTask(id: string, done: boolean): Promise<{ ok: boolean }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false }
+  const ok = await toggleMyTask(ctx.userId, id, done)
+  if (ok) revalidatePath('/expert')
+  return { ok }
+}
+
 const TASK_TYPES = ['EXERCISE', 'VIDEO', 'READING', 'REFLECTION', 'BREATHING'] as const
 type TaskTypeValue = (typeof TASK_TYPES)[number]
 
@@ -89,6 +99,7 @@ export async function assignTask(formData: FormData): Promise<void> {
   const dueRaw = String(formData.get('dueDate') ?? '').trim()
   const dueDate = dueRaw ? new Date(dueRaw) : null
   const frequency = normalizeFrequency(String(formData.get('frequency') ?? ''))
+  const timesOfDay = normalizeTimesOfDay(formData.getAll('timesOfDay').map(String))
 
   await prisma.task.create({
     data: {
@@ -97,8 +108,10 @@ export async function assignTask(formData: FormData): Promise<void> {
       title,
       description: description || null,
       frequency: frequency === 'ONE_TIME' ? null : frequency,
+      timesOfDay,
       dueDate: dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate : null,
       assignedBy: ctx.therapistName ?? null,
+      assignedById: ctx.userId,
     },
   })
 

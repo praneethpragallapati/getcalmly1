@@ -8,6 +8,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { designationOf, getTherapistEarnings, type EarningLine } from '@/lib/expert'
 import { getEarningsConfig } from '@/lib/earningsConfig'
+import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurrence'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -189,6 +190,39 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       reviews: reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, date: r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })),
     }
   }, null)
+}
+
+// ── Admin → therapist tasks ────────────────────────────────────────────────────
+
+export type TherapistTaskRow = {
+  id: string; title: string; description: string | null
+  frequencyLabel?: string; timesLabel?: string; dueLabel?: string
+  assignedBy: string | null; done: boolean; expired: boolean
+}
+
+/** Tasks assigned TO a therapist (their own User id is the target). */
+export async function getTherapistTasks(therapistUserId: string): Promise<TherapistTaskRow[]> {
+  return safe(async () => {
+    if (!therapistUserId) return []
+    const rows = await prisma.task.findMany({
+      where: { userId: therapistUserId },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: { id: true, title: true, description: true, frequency: true, timesOfDay: true, dueDate: true, completedAt: true, assignedBy: true },
+    })
+    const now = Date.now()
+    return rows.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      frequencyLabel: frequencyChip(t.frequency),
+      timesLabel: timesOfDayChip(t.timesOfDay),
+      dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
+      assignedBy: t.assignedBy,
+      done: isDoneForPeriod(t.completedAt, t.frequency),
+      expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
+    }))
+  }, [] as TherapistTaskRow[])
 }
 
 // ── Patients & subscriptions ───────────────────────────────────────────────────

@@ -89,6 +89,29 @@ body {
   max-width: 700px;
 }
 
+/* Small pill checkbox used for multi-select choices like a task's time of day.
+   Works on any dashboard theme via currentColor. */
+.chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--c-line, #e6e0db);
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--c-white, #fff);
+  transition: border-color .15s, background .15s;
+}
+.chip-check:hover { border-color: var(--c-gray, #9AABB8); }
+.chip-check input { accent-color: currentColor; margin: 0; cursor: pointer; }
+.chip-check:has(input:checked) {
+  border-color: currentColor;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  font-weight: 600;
+}
+
 .font-display {
   font-family: var(--font-display);
 }

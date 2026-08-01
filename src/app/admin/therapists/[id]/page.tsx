@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { getAdminSession, getClinicianDetail, getClinicianRoster } from '@/lib/admin'
+import { getAdminSession, getClinicianDetail, getClinicianRoster, getTherapistTasks } from '@/lib/admin'
 import { TherapistEditor } from '@/components/admin/TherapistEditor'
 import { ClinicianRoster } from '@/components/admin/ClinicianRoster'
+import { TherapistTasks } from '@/components/admin/TherapistTasks'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,7 @@ export default async function AdminClinicianDetailPage({ params }: { params: Pro
   if (!admin) redirect('/login')
   const [c, roster] = await Promise.all([getClinicianDetail(id), getClinicianRoster(id)])
   if (!c) notFound()
+  const tasks = await getTherapistTasks(c.userId)
 
   return (
     <div className="stack">
@@ -27,6 +29,7 @@ export default async function AdminClinicianDetailPage({ params }: { params: Pro
         <Link href={`/admin/money/${c.profileId}`} className="btn" style={{ border: '1.5px solid #E2E8F0' }}>Earnings &amp; statements →</Link>
       </div>
       <TherapistEditor c={c} />
+      <TherapistTasks therapistUserId={c.userId} profileId={c.profileId} tasks={tasks} />
       {roster && <ClinicianRoster roster={roster} />}
     </div>
   )

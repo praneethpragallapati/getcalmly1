@@ -11,7 +11,7 @@ import {
   type TodaySession,
 } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
-import { frequencyChip, isDoneForPeriod } from '@/lib/taskRecurrence'
+import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { getSessionUserId } from '@/lib/patient'
 import { getCommunityPosts } from '@/lib/community'
 
@@ -269,6 +269,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         detail: t.description ?? undefined,
         done: isDoneForPeriod(t.completedAt, t.frequency),
         frequencyLabel: frequencyChip(t.frequency),
+        timesLabel: timesOfDayChip(t.timesOfDay),
         assignedBy: t.assignedBy ?? undefined,
         dueLabel: t.dueDate
           ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })

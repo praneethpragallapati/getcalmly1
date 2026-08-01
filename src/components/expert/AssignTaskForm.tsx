@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { assignTask } from '@/app/(dashboard)/expert/actions'
 import { TASK_PRESETS, type TaskTypeKey } from '@/data/taskPresets'
-import { TASK_FREQUENCIES, FREQUENCY_LABEL } from '@/lib/taskRecurrence'
+import { TASK_FREQUENCIES, FREQUENCY_LABEL, TASK_TIMES_OF_DAY } from '@/lib/taskRecurrence'
 
 const TYPE_LABEL: Record<TaskTypeKey, string> = {
   EXERCISE: 'Exercise',
@@ -85,6 +85,17 @@ export function AssignTaskForm({ patientId }: { patientId: string }) {
           Expiry
           <input className="entry-input" type="date" name="dueDate" style={{ marginTop: 4 }} />
         </label>
+      </div>
+      <div className="muted" style={{ fontSize: 12 }}>
+        Time of day
+        <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
+          {TASK_TIMES_OF_DAY.map((t) => (
+            <label key={t} className="chip-check">
+              <input type="checkbox" name="timesOfDay" value={t} />
+              <span>{t}</span>
+            </label>
+          ))}
+        </div>
       </div>
       <button type="submit" className="btn btn-primary btn-sm" disabled={!title.trim()} style={{ alignSelf: 'flex-start' }}>
         Assign task

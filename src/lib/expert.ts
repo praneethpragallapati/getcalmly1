@@ -12,7 +12,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { frequencyChip, isDoneForPeriod } from '@/lib/taskRecurrence'
+import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
 import { callModel } from '@/lib/ai/clients'
 import { SYNTH_MODEL } from '@/lib/ai/models'
@@ -70,7 +70,7 @@ export type ExpertPatientProfile = {
   sessionsTotal: number
   sessionsRemaining: number
   taskCompletionPct: number
-  tasks: { id: string; title: string; type: string; frequencyLabel?: string; dueLabel?: string; done: boolean; expired: boolean }[]
+  tasks: { id: string; title: string; type: string; frequencyLabel?: string; timesLabel?: string; dueLabel?: string; done: boolean; expired: boolean }[]
   medicationCompliancePct: number
   medications: {
     id: string
@@ -219,11 +219,30 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
   const patientIds = await patientIdsFor(therapistProfileId)
   if (!patientIds.length) return []
 
+  // Narrow, explicit selects: never `SELECT *` a whole row here. It keeps the
+  // caseload query resilient to schema columns that may not yet exist in a
+  // given deployment's database (otherwise Prisma throws P2022 and the whole
+  // portal page 500s).
   const [users, moods, crisis, subs] = await Promise.all([
-    prisma.user.findMany({ where: { id: { in: patientIds } }, select: { id: true, name: true, patientProfile: true } }),
-    prisma.moodEntry.findMany({ where: { userId: { in: patientIds } }, orderBy: { createdAt: 'desc' }, take: 30 * patientIds.length }),
-    prisma.crisisAlert.findMany({ where: { userId: { in: patientIds }, resolved: false } }),
-    prisma.subscription.findMany({ where: { userId: { in: patientIds }, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
+    prisma.user.findMany({
+      where: { id: { in: patientIds } },
+      select: { id: true, name: true, patientProfile: { select: { track: true, trackLabel: true } } },
+    }),
+    prisma.moodEntry.findMany({
+      where: { userId: { in: patientIds } },
+      orderBy: { createdAt: 'desc' },
+      take: 30 * patientIds.length,
+      select: { userId: true, mood: true, createdAt: true },
+    }),
+    prisma.crisisAlert.findMany({
+      where: { userId: { in: patientIds }, resolved: false },
+      select: { userId: true },
+    }),
+    prisma.subscription.findMany({
+      where: { userId: { in: patientIds }, status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+      select: { userId: true, sessionsUsed: true, sessionsTotal: true },
+    }),
   ])
 
   return users.map((u) => {
@@ -240,6 +259,59 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
       sessionsTotal: sub?.sessionsTotal ?? 0,
     }
   })
+}
+
+// ── Tasks assigned to this therapist (by an admin) ───────────────────────────
+
+export type MyTask = {
+  id: string
+  title: string
+  detail?: string
+  frequencyLabel?: string
+  timesLabel?: string
+  dueLabel?: string
+  assignedBy?: string
+  done: boolean
+  expired: boolean
+}
+
+/** Tasks an admin assigned to the signed-in clinician, newest first. */
+export async function getMyAssignedTasks(therapistUserId: string): Promise<MyTask[]> {
+  try {
+    const rows = await prisma.task.findMany({
+      where: { userId: therapistUserId },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      select: { id: true, title: true, description: true, frequency: true, timesOfDay: true, dueDate: true, completedAt: true, assignedBy: true },
+    })
+    const now = Date.now()
+    return rows.map((t) => ({
+      id: t.id,
+      title: t.title,
+      detail: t.description ?? undefined,
+      frequencyLabel: frequencyChip(t.frequency),
+      timesLabel: timesOfDayChip(t.timesOfDay),
+      dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
+      assignedBy: t.assignedBy ?? undefined,
+      done: isDoneForPeriod(t.completedAt, t.frequency),
+      expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Mark one of the therapist's own (admin-assigned) tasks done/undone. */
+export async function toggleMyTask(therapistUserId: string, taskId: string, done: boolean): Promise<boolean> {
+  try {
+    const res = await prisma.task.updateMany({
+      where: { id: taskId, userId: therapistUserId }, // ownership gate
+      data: { completedAt: done ? new Date() : null },
+    })
+    return res.count > 0
+  } catch {
+    return false
+  }
 }
 
 function startOfDay(d: Date): number {
@@ -268,8 +340,11 @@ export async function getExpertPatientProfile(
 
   const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount] = await Promise.all([
     prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }),
-    prisma.patientProfile.findUnique({ where: { userId: patientId } }),
-    prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30 }),
+    prisma.patientProfile.findUnique({
+      where: { userId: patientId },
+      select: { track: true, trackLabel: true, diagnosis: true, therapyStatus: true },
+    }),
+    prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30, select: { userId: true, mood: true, createdAt: true } }),
     prisma.appointment.findMany({
       where: { patientId, therapistId: therapistProfileId, OR: [{ summary: { not: null } }, { preSessionNote: { not: null } }] },
       orderBy: { scheduledAt: 'desc' },
@@ -282,7 +357,7 @@ export async function getExpertPatientProfile(
       orderBy: { scheduledAt: 'desc' },
       take: 20,
     }),
-    prisma.subscription.findFirst({ where: { userId: patientId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
+    prisma.subscription.findFirst({ where: { userId: patientId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' }, select: { sessionsUsed: true, sessionsTotal: true } }),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }),
     prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }),
   ])
@@ -340,6 +415,7 @@ export async function getExpertPatientProfile(
         title: t.title,
         type: t.type,
         frequencyLabel: frequencyChip(t.frequency),
+        timesLabel: timesOfDayChip(t.timesOfDay),
         dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
         done: isDoneForPeriod(t.completedAt, t.frequency),
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
