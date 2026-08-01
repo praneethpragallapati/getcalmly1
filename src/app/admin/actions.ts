@@ -222,6 +222,63 @@ export async function cancelSubscription(input: { id: string }): Promise<AdminRe
   }
 }
 
+// ── Delete accounts (hard delete) ────────────────────────────────────────────
+// Some child rows don't cascade on a User delete (MoodEntry, JournalEntry, and
+// Appointment), so they're removed explicitly first, inside a transaction, so
+// the whole thing is atomic — a failure rolls everything back rather than
+// leaving a half-deleted account.
+
+async function eraseUserData(userId: string, therapistProfileId: string | null): Promise<void> {
+  await prisma.$transaction([
+    prisma.moodEntry.deleteMany({ where: { userId } }),
+    prisma.journalEntry.deleteMany({ where: { userId } }),
+    prisma.appointment.deleteMany({ where: { patientId: userId } }),
+    // Deleting the profile cascades availability, exceptions, supervision links
+    // and reviews, and nulls it out on any package it was attached to.
+    ...(therapistProfileId ? [prisma.therapistProfile.delete({ where: { id: therapistProfileId } })] : []),
+    // The user delete cascades everything else that IS wired to cascade.
+    prisma.user.delete({ where: { id: userId } }),
+  ])
+}
+
+/** Permanently delete a patient and all their data. */
+export async function deletePatient(input: { userId: string }): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  if (admin.id === input.userId) return { ok: false, error: 'You can’t delete your own account.' }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: input.userId }, select: { role: true } })
+    if (!user) return { ok: false, error: 'Account not found.' }
+    if (user.role !== 'PATIENT') return { ok: false, error: 'This account isn’t a patient.' }
+    await eraseUserData(input.userId, null)
+    revalidatePath('/admin/patients')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not delete this patient. Please try again.' }
+  }
+}
+
+/** Permanently delete a clinician. Blocked while they have session history so
+ *  patient records aren't destroyed — deactivate the clinician instead. */
+export async function deleteClinician(input: { userId: string }): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  if (admin.id === input.userId) return { ok: false, error: 'You can’t delete your own account.' }
+  try {
+    const profile = await prisma.therapistProfile.findUnique({ where: { userId: input.userId }, select: { id: true } })
+    if (!profile) return { ok: false, error: 'No clinician profile found for this account.' }
+    const apptCount = await prisma.appointment.count({ where: { therapistId: profile.id } })
+    if (apptCount > 0) {
+      return { ok: false, error: `This clinician has ${apptCount} session${apptCount === 1 ? '' : 's'} on record. Deactivate them instead so patient history is preserved.` }
+    }
+    await eraseUserData(input.userId, profile.id)
+    revalidatePath('/admin/therapists')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not delete this clinician. Please try again.' }
+  }
+}
+
 /** Attach (or detach) the expert who delivers a specific package. */
 export async function attachSubscriptionExpert(input: { id: string; therapistProfileId: string | null }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }

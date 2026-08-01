@@ -5,6 +5,7 @@ import { getAdminSession, getClinicianDetail, getClinicianRoster, getTherapistTa
 import { TherapistEditor } from '@/components/admin/TherapistEditor'
 import { ClinicianRoster } from '@/components/admin/ClinicianRoster'
 import { TherapistTasks } from '@/components/admin/TherapistTasks'
+import { DeleteAccount } from '@/components/admin/DeleteAccount'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +32,7 @@ export default async function AdminClinicianDetailPage({ params }: { params: Pro
       <TherapistEditor c={c} />
       <TherapistTasks therapistUserId={c.userId} profileId={c.profileId} tasks={tasks} />
       {roster && <ClinicianRoster roster={roster} />}
+      <DeleteAccount kind="clinician" userId={c.userId} name={c.name} />
     </div>
   )
 }
