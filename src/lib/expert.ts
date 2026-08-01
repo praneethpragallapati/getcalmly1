@@ -934,6 +934,22 @@ export async function getAssignedTherapistId(patientUserId: string): Promise<str
   return first?.id ?? null
 }
 
+/**
+ * Whether a patient is allowed to book with a specific clinician: their
+ * admin-assigned expert, an expert attached to one of their active packages, or
+ * someone they already have an appointment with. Guards the `?with=` booking
+ * param so a patient can't book against an arbitrary clinician.
+ */
+export async function canPatientBookWith(patientUserId: string, therapistProfileId: string): Promise<boolean> {
+  if (!therapistProfileId) return false
+  const [profile, sub, appt] = await Promise.all([
+    prisma.patientProfile.findUnique({ where: { userId: patientUserId }, select: { assignedTherapistId: true } }),
+    prisma.subscription.findFirst({ where: { userId: patientUserId, status: 'ACTIVE', therapistId: therapistProfileId }, select: { id: true } }),
+    prisma.appointment.findFirst({ where: { patientId: patientUserId, therapistId: therapistProfileId }, select: { id: true } }),
+  ])
+  return profile?.assignedTherapistId === therapistProfileId || Boolean(sub) || Boolean(appt)
+}
+
 /** Upcoming date-specific exceptions, soonest first. */
 export async function getAvailabilityExceptions(therapistProfileId: string): Promise<AvailabilityExceptionView[]> {
   const rows = await prisma.availabilityException.findMany({

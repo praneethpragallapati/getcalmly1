@@ -1,7 +1,7 @@
 import { demoDashboard, type DashSession } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
-import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
+import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS, designationOf } from '@/lib/expert'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
@@ -241,17 +241,18 @@ function demoCalendar(): ExpertCalendar {
 }
 
 /**
- * The calendar a patient books from (#9). Shows ONLY their assigned clinician's
- * real availability, and it is the exact same clinician the booking action uses
- * (getAssignedTherapistId), so what they see and what they book stay in sync.
+ * The calendar a patient books from (#9). Shows a clinician's real availability.
+ * By default it's the patient's assigned clinician; pass `therapistIdOverride`
+ * (validated by the caller via canPatientBookWith) to book with a specific
+ * expert on the care team. What's shown and the booking action stay in sync.
  * Slots respect the 6-hour minimum lead and are marked taken when already booked.
  */
-export async function getExpertCalendar(): Promise<ExpertCalendar> {
+export async function getExpertCalendar(therapistIdOverride?: string): Promise<ExpertCalendar> {
   const userId = await getSessionUserId()
   if (!userId) return demoCalendar()
 
   try {
-    const therapistId = await getAssignedTherapistId(userId)
+    const therapistId = therapistIdOverride ?? (await getAssignedTherapistId(userId))
     if (!therapistId) return demoCalendar()
 
     const [therapist, real] = await Promise.all([
@@ -264,7 +265,7 @@ export async function getExpertCalendar(): Promise<ExpertCalendar> {
 
     return {
       expert: therapist?.user.name ?? 'Your expert',
-      expertRole: 'Clinical Psychologist',
+      expertRole: therapist ? designationOf(therapist.specializations) : 'Clinical Psychologist',
       slots: real.map((s) => ({ iso: s.iso, label: s.dateLabel, time: s.time, taken: s.taken })),
     }
   } catch {

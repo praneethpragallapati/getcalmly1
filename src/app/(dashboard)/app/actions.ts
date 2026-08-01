@@ -9,7 +9,7 @@ import { autoSendIntakeForm, submitForm } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
 import { submitReview } from '@/lib/reviews'
-import { getAssignedTherapistId, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
+import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
@@ -132,7 +132,7 @@ export async function savePreSessionNote(
  * and only when an active expert exists; otherwise it succeeds without persisting
  * so the preview stays usable (same posture as the other actions).
  */
-export async function requestSession(slotIso: string): Promise<ActionResult> {
+export async function requestSession(slotIso: string, therapistIdOverride?: string): Promise<ActionResult> {
   const userId = await getSessionUserId()
   if (!userId) return { ok: true, persisted: false }
 
@@ -142,9 +142,13 @@ export async function requestSession(slotIso: string): Promise<ActionResult> {
   }
 
   try {
-    // Book with the patient's assigned clinician — the same one whose calendar
-    // they're viewing — so the request and the shown availability never diverge.
-    const therapistId = await getAssignedTherapistId(userId)
+    // Book with a specific care-team expert when one is passed and the patient
+    // is allowed to book with them; otherwise fall back to their assigned
+    // clinician. Either way the request matches the calendar they're viewing.
+    const therapistId =
+      therapistIdOverride && (await canPatientBookWith(userId, therapistIdOverride))
+        ? therapistIdOverride
+        : await getAssignedTherapistId(userId)
     if (!therapistId) return { ok: true, persisted: false }
     const therapist = await prisma.therapistProfile.findUnique({
       where: { id: therapistId },

@@ -4,6 +4,8 @@ import { getSessionsView, getExpertCalendar } from '@/lib/sessions'
 import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
 import { BookSession } from '@/components/dashboard/BookSession'
 import { RateSession } from '@/components/dashboard/RateSession'
+import { getSessionUserId } from '@/lib/patient'
+import { canPatientBookWith } from '@/lib/expert'
 import type { DashSession } from '@/data/dashboardDemo'
 
 function SessionRow({ s }: { s: DashSession }) {
@@ -60,8 +62,13 @@ function SessionRow({ s }: { s: DashSession }) {
   )
 }
 
-export default async function SessionsPage() {
-  const [view, calendar] = await Promise.all([getSessionsView(), getExpertCalendar()])
+export default async function SessionsPage({ searchParams }: { searchParams: Promise<{ with?: string }> }) {
+  const sp = await searchParams
+  const withId = typeof sp.with === 'string' ? sp.with : undefined
+  // Only honour ?with= when the patient may actually book with that clinician.
+  const userId = withId ? await getSessionUserId() : null
+  const scopedId = withId && userId && (await canPatientBookWith(userId, withId)) ? withId : undefined
+  const [view, calendar] = await Promise.all([getSessionsView(), getExpertCalendar(scopedId)])
 
   // Days in the current month that have a session, for the patient calendar.
   const now = new Date()
@@ -125,7 +132,7 @@ export default async function SessionsPage() {
 
         <div className="stack">
           <PatientCalendar markedDays={markedDays} />
-          <BookSession slots={calendar.slots} />
+          <BookSession slots={calendar.slots} therapistId={scopedId} expertName={scopedId ? calendar.expert : undefined} />
         </div>
       </div>
     </>

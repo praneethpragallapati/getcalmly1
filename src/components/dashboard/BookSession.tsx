@@ -10,7 +10,7 @@ import type { ExpertSlot } from '@/lib/sessions'
  * requestSession action, which creates a PENDING appointment for the expert to
  * confirm. Booked slots are disabled.
  */
-export function BookSession({ slots }: { slots: ExpertSlot[] }) {
+export function BookSession({ slots, therapistId, expertName }: { slots: ExpertSlot[]; therapistId?: string; expertName?: string }) {
   const [selected, setSelected] = useState<string | null>(null)
   const [requested, setRequested] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +20,7 @@ export function BookSession({ slots }: { slots: ExpertSlot[] }) {
     if (!selected) return
     setError(null)
     startTransition(async () => {
-      const res = await requestSession(selected)
+      const res = await requestSession(selected, therapistId)
       if (res.ok) {
         setRequested(selected)
         setSelected(null)
@@ -44,8 +44,9 @@ export function BookSession({ slots }: { slots: ExpertSlot[] }) {
         <CalendarPlus size={17} /> Book a session
       </div>
       <p className="muted" style={{ margin: '6px 0 14px' }}>
-        Open times on your expert’s calendar. Pick one to request, you’ll be notified once it’s
-        confirmed.
+        {expertName
+          ? <>Open times on <b>{expertName}</b>’s calendar. Pick one to request, you’ll be notified once it’s confirmed.</>
+          : <>Open times on your expert’s calendar. Pick one to request, you’ll be notified once it’s confirmed.</>}
       </p>
 
       <div className="slot-cal">

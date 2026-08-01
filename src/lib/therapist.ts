@@ -103,6 +103,7 @@ export async function getMyTherapist(): Promise<MyTherapist> {
 // is active, or a nudge to buy when it isn't.
 
 export type CareExpert = {
+  profileId: string
   name: string
   initials: string
   designation: string
@@ -157,6 +158,7 @@ type ProfileRow = {
 function expertFromProfile(p: ProfileRow): CareExpert {
   const name = p.user?.name ?? 'Your expert'
   return {
+    profileId: p.id,
     name,
     initials: initialsOf(name),
     designation: designationOf(p.specializations),

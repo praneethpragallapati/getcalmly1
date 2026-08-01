@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {
   Star, ShieldCheck, Languages, CalendarDays, Video, MessageCircle,
-  Sparkles, UserPlus, Clock,
+  Sparkles, UserPlus, Clock, FileText,
 } from 'lucide-react'
 import { getMyCareTeam, type CareSlot } from '@/lib/therapist'
 
@@ -18,37 +18,22 @@ export default async function TherapistPage() {
         </span>
       </div>
 
-      {/* Next session + quick actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-        <div className="card">
+      {/* Next session (global) */}
+      {team.nextSessionWhen && (
+        <div className="card" style={{ marginBottom: 20 }}>
           <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <CalendarDays size={17} /> Next session
           </div>
-          {team.nextSessionWhen ? (
-            <>
-              <div className="doc-name" style={{ fontSize: 15 }}>{team.nextSessionWhen}</div>
-              {team.nextSessionId && (
-                <Link href={`/app/sessions/${team.nextSessionId}/room`} className="btn btn-primary" style={{ marginTop: 12, justifyContent: 'center' }}>
-                  <Video size={16} /> Join session
-                </Link>
-              )}
-            </>
-          ) : (
-            <p className="muted">No upcoming session booked.</p>
-          )}
-        </div>
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Quick actions</div>
-          <div className="stack" style={{ gap: 10 }}>
-            <Link href="/app/sessions" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
-              <CalendarDays size={16} /> Book or manage sessions
-            </Link>
-            <Link href="/app/calm-ai" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
-              <MessageCircle size={16} /> Prepare with Calm AI
-            </Link>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+            <div className="doc-name" style={{ fontSize: 15 }}>{team.nextSessionWhen}</div>
+            {team.nextSessionId && (
+              <Link href={`/app/sessions/${team.nextSessionId}/room`} className="btn btn-primary">
+                <Video size={16} /> Join session
+              </Link>
+            )}
           </div>
         </div>
-      </div>
+      )}
 
       <div className="stack" style={{ gap: 16 }}>
         {team.slots.map((slot) => <CareSlotCard key={slot.key} slot={slot} />)}
@@ -108,6 +93,7 @@ function CareSlotCard({ slot }: { slot: CareSlot }) {
 
   // Package held with an attached expert.
   const t = slot.expert
+  const firstName = t.name.replace(/^(dr\.?|mr\.?|mrs\.?|ms\.?)\s+/i, '').split(' ')[0] || t.name
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
@@ -153,6 +139,24 @@ function CareSlotCard({ slot }: { slot: CareSlot }) {
           {t.specializations.map((s) => <span className="tag" key={s}>{s}</span>)}
         </div>
       )}
+
+      {/* Quick actions, scoped to this expert */}
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
+        <div className="muted" style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+          Quick actions
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+          <Link href={`/app/sessions?with=${t.profileId}`} className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
+            <CalendarDays size={16} /> Book with {firstName}
+          </Link>
+          <Link href="/app/sessions" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
+            <FileText size={16} /> Manage sessions
+          </Link>
+          <Link href="/app/calm-ai" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
+            <MessageCircle size={16} /> Prepare with Calm AI
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }
