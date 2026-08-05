@@ -137,7 +137,8 @@ export async function saveCheckin(scores: {
         data: { userId, mood, energy, calm, source: 'home-checkin' },
       })
     }
-    await rebuildAiProfile(userId)
+    // AI profile refresh is a nice-to-have; never let it fail a saved check-in.
+    await rebuildAiProfile(userId).catch(() => {})
     revalidatePath('/app')
     revalidatePath('/app/progress')
     return { ok: true, persisted: true }

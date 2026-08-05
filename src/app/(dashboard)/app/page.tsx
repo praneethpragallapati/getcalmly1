@@ -108,7 +108,7 @@ export default async function AppHomePage() {
       <div className="home-split home-split-2" style={{ gap: 20 }}>
         <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} />
 
-        {d.todaySession && (
+        {d.todaySession ? (
           <div className="card">
             <div
               style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}
@@ -159,6 +159,37 @@ export default async function AppHomePage() {
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14 }}
             >
               <FileText size={14} /> Add pre-session note
+            </Link>
+          </div>
+        ) : d.nextSession ? (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div className="section-title">Next session</div>
+              <Link href="/app/sessions" className="link-action">All →</Link>
+            </div>
+            <div className="session-card-row">
+              <span className="doc-avatar">👩‍⚕️</span>
+              <div>
+                <div className="doc-name">{d.nextSession.expert}</div>
+                <div className="doc-sub">{d.nextSession.when}</div>
+              </div>
+            </div>
+            <div className="session-info-grid">
+              <div>
+                <div className="lbl">DURATION</div>
+                <div className="val">{d.nextSession.durationMins} min</div>
+              </div>
+            </div>
+            <Link href="/app/sessions" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
+              <FileText size={16} /> Manage session
+            </Link>
+          </div>
+        ) : (
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', gap: 10 }}>
+            <div className="section-title">Next session</div>
+            <p className="muted" style={{ fontSize: 14 }}>No session booked yet. Book one with your care team whenever you’re ready.</p>
+            <Link href="/app/therapist" className="btn btn-primary">
+              <Video size={16} /> Book a session
             </Link>
           </div>
         )}

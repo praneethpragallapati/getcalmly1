@@ -136,6 +136,10 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   try {
+    // Each query is independently resilient: if one fails (e.g. a not-yet-applied
+    // migration column), only that widget goes empty — the rest of the dashboard
+    // (plan, streak, check-ins) still renders. A single throw must never blank
+    // everything back to the "no data" state.
     const [moods, journals, journalCount, dailyInsight, weeklyInsight, tasks, sub, appts, communityPosts] =
       await Promise.all([
         prisma.moodEntry.findMany({
@@ -143,31 +147,31 @@ export async function getDashboardData(): Promise<DashboardData> {
           orderBy: { createdAt: 'desc' },
           take: 90, // enough history for the 4-week mood-over-time chart
           select: { mood: true, energy: true, calm: true, createdAt: true },
-        }),
+        }).catch(() => []),
         prisma.journalEntry.findMany({
           where: { userId },
           orderBy: { createdAt: 'desc' },
           take: 8,
           select: { id: true, title: true, content: true, moodTag: true, topicTags: true, createdAt: true },
-        }),
-        prisma.journalEntry.count({ where: { userId } }),
+        }).catch(() => []),
+        prisma.journalEntry.count({ where: { userId } }).catch(() => 0),
         prisma.aiInsight.findFirst({
           where: { userId, kind: 'DAILY' },
           orderBy: { createdAt: 'desc' },
           select: { title: true, body: true, meta: true },
-        }),
+        }).catch(() => null),
         prisma.aiInsight.findFirst({
           where: { userId, kind: 'WEEKLY' },
           orderBy: { createdAt: 'desc' },
           select: { title: true, body: true, meta: true },
-        }),
-        prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }),
+        }).catch(() => null),
+        prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }).catch(() => []),
         prisma.subscription.findFirst({
           where: { userId, status: 'ACTIVE' },
           orderBy: { createdAt: 'desc' },
           // Narrow select: avoid pulling columns a not-yet-applied migration adds.
           select: { sessionsTotal: true, sessionsUsed: true, minutesTotal: true, minutesUsed: true, paidMonths: true, planName: true },
-        }),
+        }).catch(() => null),
         prisma.appointment.findMany({
           where: { patientId: userId },
           orderBy: { scheduledAt: 'asc' },
@@ -178,8 +182,8 @@ export async function getDashboardData(): Promise<DashboardData> {
             status: true,
             therapist: { select: { user: { select: { name: true } } } },
           },
-        }),
-        getCommunityPosts(),
+        }).catch(() => []),
+        getCommunityPosts().catch(() => []),
       ])
 
     // Mood widgets always reflect the patient's OWN check-ins, never the demo
@@ -332,6 +336,23 @@ export async function getDashboardData(): Promise<DashboardData> {
         } as TodaySession
       } else {
         data.todaySession = null
+      }
+
+      // The soonest upcoming session (independent of the join window), so the
+      // Home always shows "your next session" or a clear "nothing booked" state.
+      const nowMs = Date.now()
+      const nx = appts
+        .filter((a) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED' && a.scheduledAt.getTime() + a.durationMins * 60000 >= nowMs)
+        .sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())[0]
+      if (nx) {
+        data.nextSession = {
+          id: nx.id,
+          expert: nx.therapist.user.name ?? 'Your expert',
+          when: nx.scheduledAt.toLocaleString('en-IN', {
+            weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
+          }),
+          durationMins: nx.durationMins,
+        }
       }
     }
 

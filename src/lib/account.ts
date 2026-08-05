@@ -106,6 +106,8 @@ export async function getAccount(): Promise<Account> {
   }
 
   try {
+    // Independently resilient: a failing privacy read must not wipe the plan
+    // (and vice-versa), so the sidebar never wrongly shows "No active plan".
     const [sub, privacy] = await Promise.all([
       prisma.subscription.findFirst({
         where: { userId, status: 'ACTIVE' },
@@ -115,8 +117,8 @@ export async function getAccount(): Promise<Account> {
           category: true, planName: true, paidMonths: true, sessionsTotal: true,
           sessionsUsed: true, minutesTotal: true, minutesUsed: true, renewsAt: true, startedAt: true,
         },
-      }),
-      getPrivacy(userId),
+      }).catch(() => null),
+      getPrivacy(userId).catch(() => account.privacy),
     ])
     account.privacy = privacy
 

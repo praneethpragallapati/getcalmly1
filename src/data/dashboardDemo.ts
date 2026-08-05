@@ -113,6 +113,9 @@ export type DashboardData = {
   detectedThisWeek: Pattern[]
   tasks: DashTask[]
   todaySession: TodaySession | null
+  // The soonest upcoming session (may be the same one shown as todaySession when
+  // it's within the join window); null when nothing is booked.
+  nextSession: { id: string; expert: string; when: string; durationMins: number } | null
   community: CommunityPreview[]
   // Sessions
   upcoming: DashSession[]
@@ -161,6 +164,7 @@ export function blankDashboard(): DashboardData {
     detectedThisWeek: [],
     tasks: [],
     todaySession: null,
+    nextSession: null,
     community: [],
     upcoming: [],
     past: [],
@@ -255,6 +259,7 @@ export const demoDashboard: DashboardData = {
     sessionNo: 4,
     tags: ['CBT', 'Work anxiety'],
   },
+  nextSession: null,
   community: [
     {
       author: 'meera_k',
