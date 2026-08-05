@@ -42,7 +42,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="calmly-app">
       <Sidebar
         name={d.name}
-        planLine={`${d.planName} · ${d.streakDays}-day streak 🔥`}
+        planLine={`${d.planActive ? 'Paid member' : 'Free member'} · ${d.streakDays}-day streak 🔥`}
         planActive={d.planActive}
         planName={d.planName}
         sessionsToday={d.todaySession ? 1 : 0}
