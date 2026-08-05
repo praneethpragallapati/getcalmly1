@@ -69,12 +69,23 @@ export async function saveAssessmentResult(payload: {
       },
     })
 
-    // Match a clinician for every package type the patient already holds.
+    // Assign the care team from the assessment. Everyone gets a primary
+    // individual therapist; we also assign the psychiatrist / couples expert
+    // when the assessment points that way, plus any package they already hold.
+    // (Assignment is who the patient's expert IS; packages gate booking.)
     const subs = await prisma.subscription.findMany({
       where: { userId, status: 'ACTIVE' },
       select: { trackSlug: true },
     })
-    const tracks = new Set(subs.map((s) => s.trackSlug).filter((t): t is CareTrack => t === 'therapy' || t === 'couples' || t === 'psychiatry'))
+    const ASSESS_TYPE_TRACK: Record<string, CareTrack> = { adult: 'therapy', child: 'therapy', couple: 'couples', psychiatry: 'psychiatry' }
+    const tracks = new Set<CareTrack>(['therapy'])
+    const typeTrack = ASSESS_TYPE_TRACK[payload.type]
+    if (typeTrack) tracks.add(typeTrack)
+    // Psychiatry/medication concerns → also assign a psychiatrist.
+    if (tags.some((t) => t === 'medication' || t === 'psychiatry' || t === 'bipolar')) tracks.add('psychiatry')
+    for (const s of subs) {
+      if (s.trackSlug === 'therapy' || s.trackSlug === 'couples' || s.trackSlug === 'psychiatry') tracks.add(s.trackSlug)
+    }
     for (const t of tracks) await matchAndAssignForTrack(userId, t)
 
     revalidatePath('/app')
