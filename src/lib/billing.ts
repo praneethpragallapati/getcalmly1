@@ -49,6 +49,54 @@ function addMonths(from: Date, months: number): Date {
 
 export type BuyResult = { ok: boolean; sessionsTotal?: number; sessionsRemaining?: number; error?: string }
 
+export type PackageBalance = {
+  track: string
+  label: string
+  planName: string
+  sessionsTotal: number
+  sessionsUsed: number
+  remaining: number
+  expired: boolean
+  validUntil: string | null
+}
+
+const TRACK_LABEL: Record<string, string> = {
+  therapy: 'Individual therapy',
+  psychiatry: 'Psychiatry',
+  couples: 'Couples therapy',
+  calmplus: 'Calm+',
+}
+
+/**
+ * Every active session package the patient holds, one row per type, with the
+ * live remaining balance. Drives the "all three balances" view on billing.
+ */
+export async function getActivePackages(patientId: string): Promise<PackageBalance[]> {
+  try {
+    const subs = await prisma.subscription.findMany({
+      where: { userId: patientId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+      select: { trackSlug: true, planName: true, sessionsTotal: true, sessionsUsed: true, expiresAt: true },
+    })
+    return subs
+      .filter((s) => s.sessionsTotal > 0) // hide standalone Calm+ (no sessions)
+      .map((s) => ({
+        track: s.trackSlug,
+        label: TRACK_LABEL[s.trackSlug] ?? s.planName,
+        planName: s.planName,
+        sessionsTotal: s.sessionsTotal,
+        sessionsUsed: s.sessionsUsed,
+        remaining: Math.max(0, s.sessionsTotal - s.sessionsUsed),
+        expired: Boolean(s.expiresAt && s.expiresAt.getTime() < Date.now()),
+        validUntil: s.expiresAt
+          ? s.expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          : null,
+      }))
+  } catch {
+    return []
+  }
+}
+
 /**
  * Record a money-in event for a purchase. Best-effort: the sale (the session
  * balance) is what the patient is promised, so a failure to write the revenue

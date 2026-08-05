@@ -3,6 +3,7 @@ import { getSessionUserId } from '@/lib/patient'
 import { getSessionsView } from '@/lib/sessions'
 import { designationOf } from '@/lib/expert'
 import { clinicianMatchesTrack, type CareTrack } from '@/lib/matching'
+import { isPsychiatrist } from '@/lib/clinicianScope'
 
 /**
  * The patient's assigned expert (#2). Real data comes from the patient's most
@@ -167,6 +168,10 @@ const SLOT_TRACK: Record<CareSlot['key'], CareTrack> = {
 
 function expertFromProfile(p: ProfileRow): CareExpert {
   const name = p.user?.name ?? 'Your expert'
+  // Psychiatrists are registered with the NMC (medical council); psychologists
+  // and counsellors with the RCI. Show the badge that matches the clinician.
+  const psych = isPsychiatrist(p.clinicianType, p.specializations)
+  const hasReg = Boolean(p.rciNumber)
   return {
     profileId: p.id,
     name,
@@ -178,8 +183,8 @@ function expertFromProfile(p: ProfileRow): CareExpert {
     specializations: p.specializations,
     rating: p.rating || 0,
     reviews: p.totalReviews,
-    rciVerified: Boolean(p.rciNumber),
-    nmcVerified: false,
+    rciVerified: hasReg && !psych,
+    nmcVerified: hasReg && psych,
     bio: p.bio || '',
   }
 }

@@ -260,7 +260,16 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true } } } })
     if (!user) return null
     const [subs, therapists, latestAppt] = await Promise.all([
-      prisma.subscription.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      // Narrow select so a not-yet-applied migration column can't make this throw
+      // (which would silently drop the whole packages list).
+      prisma.subscription.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, planName: true, trackSlug: true, status: true,
+          sessionsTotal: true, sessionsUsed: true, createdAt: true, expiresAt: true, therapistId: true,
+        },
+      }),
       prisma.therapistProfile.findMany({ where: { isActive: true }, include: { user: { select: { name: true } } } }),
       prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
     ])
