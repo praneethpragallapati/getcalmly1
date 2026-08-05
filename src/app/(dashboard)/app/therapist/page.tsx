@@ -36,13 +36,13 @@ export default async function TherapistPage() {
       )}
 
       <div className="stack" style={{ gap: 16 }}>
-        {team.slots.map((slot) => <CareSlotCard key={slot.key} slot={slot} />)}
+        {team.slots.map((slot) => <CareSlotCard key={slot.key} slot={slot} assessmentDone={team.assessmentDone} />)}
       </div>
     </>
   )
 }
 
-function CareSlotCard({ slot }: { slot: CareSlot }) {
+function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone: boolean }) {
   // No expert and no package for this kind → nudge to buy.
   if (!slot.expert && !slot.hasPack) {
     return (
@@ -80,11 +80,18 @@ function CareSlotCard({ slot }: { slot: CareSlot }) {
           <div style={{ flex: 1, minWidth: 200 }}>
             <div className="doc-name" style={{ fontSize: 17 }}>{slot.label}</div>
             <div className="doc-sub" style={{ fontSize: 13.5 }}>
-              We&apos;re matching you with the right expert. You&apos;ll be notified as soon as your clinician is assigned.
+              {assessmentDone
+                ? 'We’re matching you with the right expert. You’ll be notified as soon as your clinician is assigned.'
+                : 'Complete your quick assessment and we’ll match you with the right expert.'}
             </div>
           </div>
           {slot.sessionsLeft !== null && (
             <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} left</span>
+          )}
+          {!assessmentDone && (
+            <Link href="/app/assessment" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
+              Take assessment
+            </Link>
           )}
         </div>
       </div>

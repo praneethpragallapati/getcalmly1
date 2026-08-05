@@ -11,6 +11,77 @@ import { markAllRead } from '@/lib/notifications'
 import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
+import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
+
+// Concern slug → human label for the assessment (mirrors the register options).
+const CONCERN_LABEL: Record<string, string> = {
+  anxiety: 'Anxiety',
+  depression: 'Low mood / depression',
+  stress: 'Stress & burnout',
+  relationships: 'Relationships',
+  trauma: 'Trauma & grief',
+  sleep: 'Sleep',
+  'self-worth': 'Self-worth',
+  anger: 'Anger',
+  postpartum: 'Motherhood / postpartum',
+  other: 'Something else',
+}
+
+/**
+ * Save the patient's assessment (concerns + preferred language) and immediately
+ * match a clinician for any package they already hold. This is the source of
+ * truth for auto-matching; booking requires it to be completed first.
+ */
+export async function saveAssessment(input: {
+  concerns: string[]
+  primary?: string | null
+  language?: string | null
+}): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
+
+  const concerns = [...new Set(input.concerns.map((c) => c.trim().toLowerCase()).filter(Boolean))]
+  if (concerns.length === 0) return { ok: false, persisted: false, error: 'Pick at least one thing you’d like support with.' }
+  const primary = input.primary?.trim().toLowerCase() || concerns[0]
+  const language = input.language?.trim() || null
+
+  try {
+    await prisma.patientProfile.upsert({
+      where: { userId },
+      update: {
+        track: concerns,
+        subTrack: primary,
+        trackLabel: CONCERN_LABEL[primary] ?? null,
+        ...(language ? { preferredLanguage: language } : {}),
+      },
+      create: {
+        userId,
+        patientId: `P-${Date.now().toString(36).toUpperCase()}`,
+        careMode: 'INDIVIDUAL',
+        track: concerns,
+        subTrack: primary,
+        trackLabel: CONCERN_LABEL[primary] ?? null,
+        preferredLanguage: language,
+        country: 'IN',
+      },
+    })
+
+    // Match a clinician for every package type the patient already holds.
+    const subs = await prisma.subscription.findMany({
+      where: { userId, status: 'ACTIVE' },
+      select: { trackSlug: true },
+    })
+    const tracks = new Set(subs.map((s) => s.trackSlug).filter((t): t is CareTrack => t === 'therapy' || t === 'couples' || t === 'psychiatry'))
+    for (const t of tracks) await matchAndAssignForTrack(userId, t)
+
+    revalidatePath('/app')
+    revalidatePath('/app/therapist')
+    revalidatePath('/app/sessions')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not save your assessment. Please try again.' }
+  }
+}
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
@@ -145,11 +216,36 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     // Book with a specific care-team expert when one is passed and the patient
     // is allowed to book with them; otherwise fall back to their assigned
     // clinician. Either way the request matches the calendar they're viewing.
-    const therapistId =
+    let therapistId =
       therapistIdOverride && (await canPatientBookWith(userId, therapistIdOverride))
         ? therapistIdOverride
         : await getAssignedTherapistId(userId)
-    if (!therapistId) return { ok: true, persisted: false }
+
+    // No expert yet: the patient must complete the assessment so we can match
+    // them (chosen answer: require assessment first). If it's done, match now.
+    if (!therapistId) {
+      if (!(await hasAssessment(userId))) {
+        return {
+          ok: false,
+          persisted: false,
+          error: 'Complete your assessment so we can match you with the right expert, then book.',
+        }
+      }
+      const subs = await prisma.subscription.findMany({
+        where: { userId, status: 'ACTIVE' },
+        select: { trackSlug: true },
+      })
+      const order: CareTrack[] = ['therapy', 'couples', 'psychiatry']
+      for (const t of order) {
+        if (subs.some((s) => s.trackSlug === t)) {
+          const matched = await matchAndAssignForTrack(userId, t)
+          if (matched) { therapistId = matched; break }
+        }
+      }
+      if (!therapistId) {
+        return { ok: false, persisted: false, error: 'We couldn’t match an expert yet. Buy a package or contact support.' }
+      }
+    }
     const therapist = await prisma.therapistProfile.findUnique({
       where: { id: therapistId },
       select: { id: true, sessionFee: true, clinicianType: true, specializations: true },
@@ -601,9 +697,12 @@ export async function buyPackage(
 
     const result = await buyPackageFor(userId, track, packIndex)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    // Auto-match a clinician for this package now, if the assessment is done.
+    if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track as CareTrack)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')
     revalidatePath('/app')
+    revalidatePath('/app/therapist')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not complete purchase.' }
@@ -652,9 +751,11 @@ export async function buyFirstSession(
 
     const result = await buyFirstSessionFor(userId, track)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track as CareTrack)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')
     revalidatePath('/app')
+    revalidatePath('/app/therapist')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not complete purchase.' }

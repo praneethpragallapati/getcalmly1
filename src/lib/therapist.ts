@@ -134,6 +134,7 @@ export type CareTeam = {
   slots: CareSlot[]
   nextSessionWhen: string | null
   nextSessionId: string | null
+  assessmentDone: boolean // concerns on file → auto-matching can run
 }
 
 const CARE_KINDS: { key: CareSlot['key']; label: string; blurb: string; buyHref: string; trackSlugs: string[] }[] = [
@@ -181,6 +182,7 @@ const emptyTeam = (): CareTeam => ({
   })),
   nextSessionWhen: null,
   nextSessionId: null,
+  assessmentDone: false,
 })
 
 export async function getMyCareTeam(): Promise<CareTeam> {
@@ -201,10 +203,11 @@ export async function getMyCareTeam(): Promise<CareTeam> {
       }),
       prisma.patientProfile.findUnique({
         where: { userId },
-        select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true },
+        select: { track: true, assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true },
       }),
       prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
     ])
+    const assessmentDone = (profile?.track?.length ?? 0) > 0
 
     // The expert explicitly assigned for each care type takes precedence.
     const categoryAssignment: Record<CareSlot['key'], string | null> = {
@@ -258,7 +261,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
       }
     })
 
-    return { slots, nextSessionWhen, nextSessionId }
+    return { slots, nextSessionWhen, nextSessionId, assessmentDone }
   } catch {
     return { ...emptyTeam(), nextSessionWhen, nextSessionId }
   }
