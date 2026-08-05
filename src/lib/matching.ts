@@ -17,18 +17,48 @@ const ASSIGN_COLUMN: Record<CareTrack, 'assignedTherapistIndividualId' | 'assign
   psychiatry: 'assignedTherapistPsychiatryId',
 }
 
-// Broaden each concern slug to the words that tend to appear in a clinician's
+// Broaden each concern tag to the words that tend to appear in a clinician's
 // specialization list, so "anxiety" matches "Anxiety", "CBT", "panic", etc.
+// Keys cover BOTH the register slugs and the detailed /assess tag vocabulary.
 const CONCERN_KEYWORDS: Record<string, string[]> = {
-  anxiety: ['anxiety', 'anxious', 'cbt', 'panic', 'worry', 'ocd'],
+  anxiety: ['anxiety', 'anxious', 'cbt', 'panic', 'worry'],
+  panic: ['panic', 'anxiety'],
   depression: ['depression', 'depressive', 'low mood', 'mood'],
+  'low-mood': ['depression', 'low mood', 'mood'],
   stress: ['stress', 'burnout', 'work'],
+  'work-stress': ['stress', 'work', 'burnout', 'career'],
+  burnout: ['burnout', 'stress'],
+  career: ['career', 'work', 'stress'],
   relationships: ['relationship', 'couple', 'marital', 'communication', 'eft'],
-  trauma: ['trauma', 'grief', 'ptsd', 'loss', 'bereavement'],
-  sleep: ['sleep', 'insomnia'],
+  couples: ['couple', 'marital', 'communication', 'eft'],
+  communication: ['communication', 'couple'],
+  trust: ['couple', 'relationship'],
+  separation: ['couple', 'relationship'],
+  'pre-marital': ['couple', 'marital'],
+  family: ['family', 'relationship'],
+  conflict: ['conflict', 'anger', 'couple'],
+  loneliness: ['loneliness', 'depression'],
   'self-worth': ['self-worth', 'self-esteem', 'confidence', 'self worth'],
+  'self-esteem': ['self-esteem', 'self-worth', 'confidence'],
+  confidence: ['confidence', 'self-esteem'],
+  sleep: ['sleep', 'insomnia'],
+  grief: ['grief', 'loss', 'bereavement'],
+  loss: ['grief', 'loss'],
+  trauma: ['trauma', 'grief', 'ptsd', 'loss', 'bereavement'],
+  'life-transitions': ['life', 'transition', 'adjustment'],
   anger: ['anger', 'emotion regulation', 'emotion'],
   postpartum: ['postpartum', 'perinatal', 'maternal', 'motherhood'],
+  medication: ['medication', 'psychiatr'],
+  psychiatry: ['psychiatr', 'medication'],
+  ocd: ['ocd', 'anxiety'],
+  bipolar: ['bipolar', 'mood', 'psychiatr'],
+  adhd: ['adhd', 'attention', 'focus'],
+  child: ['child', 'paediatric', 'adolescent'],
+  adolescent: ['adolescent', 'teen', 'child'],
+  'exam-stress': ['academic', 'exam', 'school', 'stress'],
+  academic: ['academic', 'school'],
+  school: ['school', 'academic'],
+  behaviour: ['behaviour', 'child'],
 }
 
 /** Whether the patient has completed the assessment (concerns are on file). */

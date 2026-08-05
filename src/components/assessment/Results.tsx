@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { therapists } from '@/data/therapists'
+import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
 
 type Result = {
   type: string
@@ -51,6 +52,26 @@ export default function Results() {
     () => null,
   )
   const result = useMemo<Result | null>(() => (raw ? JSON.parse(raw) : null), [raw])
+
+  // If the visitor is signed in (e.g. they just registered and are completing
+  // onboarding), persist this assessment to their profile and match a clinician.
+  // Best-effort: the server action no-ops for logged-out marketing visitors, so
+  // a signed-in patient is never asked to take the assessment again.
+  const savedRef = useRef(false)
+  useEffect(() => {
+    if (!result || savedRef.current) return
+    savedRef.current = true
+    const language = typeof result.answers.language === 'string' ? result.answers.language : null
+    const genderPref = typeof result.answers.gender === 'string' ? result.answers.gender : null
+    void saveAssessmentResult({
+      type: result.type,
+      tags: result.tags ?? [],
+      language,
+      genderPref,
+      severity: result.severity,
+      riskFlag: result.riskFlag,
+    })
+  }, [result])
 
   if (!result) {
     return (

@@ -357,11 +357,32 @@ function getQuestions(type: string): Question[] {
   }
 }
 
-export default function AssessmentForm({ type }: { type: string }) {
+// In-app mode: a signed-in patient takes the SAME questionnaire, but instead of
+// stashing the result in sessionStorage and showing the public results page, we
+// persist it to their profile and match a clinician. The parent passes the
+// server action as `onComplete`.
+type AssessmentResultPayload = {
+  type: string
+  tags: string[]
+  language: string | null
+  genderPref: string | null
+  severity: string
+  riskFlag: boolean
+}
+
+export default function AssessmentForm({
+  type,
+  onComplete,
+}: {
+  type: string
+  onComplete?: (payload: AssessmentResultPayload) => Promise<{ ok: boolean; error?: string }>
+}) {
   const router = useRouter()
   const questions = getQuestions(type)
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
+  const [saving, setSaving] = useState(false)
+  const [saveErr, setSaveErr] = useState<string | null>(null)
 
   const q = questions[step]
   const progress = ((step + 1) / questions.length) * 100
@@ -403,6 +424,20 @@ export default function AssessmentForm({ type }: { type: string }) {
 
   const finish = () => {
     const { severity, concerns, riskFlag, tags } = score(questions, answers)
+
+    // In-app: persist to the patient's profile and match, then go to Care Team.
+    if (onComplete) {
+      const language = typeof answers.language === 'string' ? answers.language : null
+      const genderPref = typeof answers.gender === 'string' ? answers.gender : null
+      setSaving(true)
+      setSaveErr(null)
+      void onComplete({ type, tags, language, genderPref, severity, riskFlag }).then((res) => {
+        if (res.ok) router.push('/app/therapist')
+        else { setSaving(false); setSaveErr(res.error ?? 'Could not save your assessment.') }
+      })
+      return
+    }
+
     sessionStorage.setItem('assess_result', JSON.stringify({ type, severity, concerns, riskFlag, tags, answers }))
     router.push('/assess/results')
   }
@@ -497,19 +532,25 @@ export default function AssessmentForm({ type }: { type: string }) {
 
           <div className="aq-nav">
             <button
-              onClick={() => step === 0 ? router.push('/assess/step2') : setStep((s) => s - 1)}
+              onClick={() =>
+                step === 0
+                  ? router.push(onComplete ? '/app/therapist' : '/assess/step2')
+                  : setStep((s) => s - 1)
+              }
               className="aq-back"
             >
               ← Back
             </button>
             {isMulti && (
-              <button onClick={advance} disabled={!isAnswered()} className="aq-next">
-                {step === questions.length - 1 ? '✦ See matches' : 'Continue →'}
+              <button onClick={advance} disabled={!isAnswered() || saving} className="aq-next">
+                {step === questions.length - 1 ? (onComplete ? (saving ? 'Matching…' : '✦ Match my expert') : '✦ See matches') : 'Continue →'}
               </button>
             )}
           </div>
         </div>
 
+        {saveErr && <p className="assess-footnote" style={{ color: '#C8553D' }}>{saveErr}</p>}
+        {saving && <p className="assess-footnote">Saving your answers and finding your best-fit expert…</p>}
         <p className="assess-footnote">A screening tool, not a diagnosis. A qualified professional reviews everything before your session.</p>
       </div>
     </div>

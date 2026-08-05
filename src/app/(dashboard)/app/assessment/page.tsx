@@ -1,37 +1,18 @@
-import { getSessionUserId } from '@/lib/patient'
-import { prisma } from '@/lib/prisma'
-import { AssessmentForm } from '@/components/dashboard/AssessmentForm'
+import '@/components/assessment/assess.css'
+import AssessmentForm from '@/components/assessment/AssessmentForm'
+import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
 
-/**
- * The patient assessment. Concerns + preferred language feed clinician
- * auto-matching; completing this is required before a patient can book.
- */
-export default async function AssessmentPage() {
-  const userId = await getSessionUserId()
-  let concerns: string[] = []
-  let primary: string | null = null
-  let language: string | null = null
-  if (userId) {
-    try {
-      const p = await prisma.patientProfile.findUnique({
-        where: { userId },
-        select: { track: true, subTrack: true, preferredLanguage: true },
-      })
-      concerns = p?.track ?? []
-      primary = p?.subTrack ?? null
-      language = p?.preferredLanguage ?? null
-    } catch {
-      /* fresh profile — start blank */
-    }
-  }
+// The in-app assessment uses the SAME detailed questionnaire as the marketing
+// site; on finish we persist it to the patient's profile and match a clinician
+// (instead of the public sessionStorage → results-page flow).
+const VALID = ['adult', 'couple', 'child', 'psychiatry']
 
-  return (
-    <>
-      <div className="page-head">
-        <h1 className="page-title">Your assessment</h1>
-        <span className="page-meta">Takes a minute</span>
-      </div>
-      <AssessmentForm initialConcerns={concerns} initialPrimary={primary} initialLanguage={language} />
-    </>
-  )
+export default async function AssessmentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>
+}) {
+  const sp = await searchParams
+  const type = VALID.includes(sp.type ?? '') ? (sp.type as string) : 'adult'
+  return <AssessmentForm type={type} onComplete={saveAssessmentResult} />
 }

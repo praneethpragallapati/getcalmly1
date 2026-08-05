@@ -13,54 +13,57 @@ import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from 
 import { communityIdentity } from '@/lib/community'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 
-// Concern slug → human label for the assessment (mirrors the register options).
-const CONCERN_LABEL: Record<string, string> = {
-  anxiety: 'Anxiety',
-  depression: 'Low mood / depression',
-  stress: 'Stress & burnout',
-  relationships: 'Relationships',
-  trauma: 'Trauma & grief',
-  sleep: 'Sleep',
-  'self-worth': 'Self-worth',
-  anger: 'Anger',
-  postpartum: 'Motherhood / postpartum',
-  other: 'Something else',
+// Assessment concern tag → a short human label for the primary concern.
+const TAG_LABEL: Record<string, string> = {
+  anxiety: 'Anxiety', panic: 'Panic & anxiety', 'low-mood': 'Low mood', depression: 'Depression',
+  'work-stress': 'Work stress', burnout: 'Burnout', career: 'Career stress',
+  relationships: 'Relationships', couples: 'Relationship', communication: 'Communication',
+  family: 'Family', conflict: 'Conflict', loneliness: 'Loneliness',
+  'self-esteem': 'Self-worth', confidence: 'Confidence', sleep: 'Sleep',
+  grief: 'Grief & loss', loss: 'Grief & loss', trauma: 'Trauma',
+  'life-transitions': 'Life change', anger: 'Anger', medication: 'Medication review',
+  psychiatry: 'Psychiatric care', ocd: 'OCD', bipolar: 'Mood', adhd: 'Focus & attention',
+  child: 'Child wellbeing', adolescent: 'Teen wellbeing', 'exam-stress': 'Exam stress',
 }
 
 /**
- * Save the patient's assessment (concerns + preferred language) and immediately
- * match a clinician for any package they already hold. This is the source of
- * truth for auto-matching; booking requires it to be completed first.
+ * Persist the result of the detailed assessment (the same questionnaire shown
+ * on the marketing site) to the patient's profile, then match a clinician for
+ * every package they already hold. This is the source of truth for
+ * auto-matching; booking requires it to be completed first.
  */
-export async function saveAssessment(input: {
-  concerns: string[]
-  primary?: string | null
+export async function saveAssessmentResult(payload: {
+  type: string
+  tags: string[]
   language?: string | null
+  genderPref?: string | null
+  severity?: string
+  riskFlag?: boolean
 }): Promise<ActionResult> {
   const userId = await getSessionUserId()
   if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
 
-  const concerns = [...new Set(input.concerns.map((c) => c.trim().toLowerCase()).filter(Boolean))]
-  if (concerns.length === 0) return { ok: false, persisted: false, error: 'Pick at least one thing you’d like support with.' }
-  const primary = input.primary?.trim().toLowerCase() || concerns[0]
-  const language = input.language?.trim() || null
+  const tags = [...new Set((payload.tags || []).map((t) => t.trim().toLowerCase()).filter(Boolean))]
+  if (tags.length === 0) return { ok: false, persisted: false, error: 'Please answer the assessment so we can match you.' }
+  const primary = tags[0]
+  const language = payload.language && payload.language !== 'Other' ? payload.language.trim() : null
 
   try {
     await prisma.patientProfile.upsert({
       where: { userId },
       update: {
-        track: concerns,
+        track: tags,
         subTrack: primary,
-        trackLabel: CONCERN_LABEL[primary] ?? null,
+        trackLabel: TAG_LABEL[primary] ?? null,
         ...(language ? { preferredLanguage: language } : {}),
       },
       create: {
         userId,
         patientId: `P-${Date.now().toString(36).toUpperCase()}`,
         careMode: 'INDIVIDUAL',
-        track: concerns,
+        track: tags,
         subTrack: primary,
-        trackLabel: CONCERN_LABEL[primary] ?? null,
+        trackLabel: TAG_LABEL[primary] ?? null,
         preferredLanguage: language,
         country: 'IN',
       },

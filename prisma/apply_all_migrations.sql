@@ -41,3 +41,13 @@ ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "endedAt" TIMESTAMP(3);
 ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "consumedSubscriptionId" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "gender" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "clinicianType" TEXT;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- OPTIONAL one-time cleanup: clear packages that were merged across types by the
+-- old buy flow (e.g. a therapy pack that got rewritten to "5 psychiatry").
+-- Uncomment and run ONLY if you want to wipe existing packages and start the
+-- session balances fresh. Safe to skip; new purchases are already per-type.
+--
+-- DELETE FROM "Payment";
+-- UPDATE "Appointment" SET "consumedSubscriptionId" = NULL;
+-- DELETE FROM "Subscription";
