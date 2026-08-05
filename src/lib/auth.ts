@@ -85,8 +85,22 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.uid = user.id
-        const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
+        // Always resolve to a REAL DB user id. Credentials providers already
+        // return one. OAuth (Google) returns the provider's account id, which is
+        // NOT a user row — so we link by email to the existing account (or create
+        // one). Without this, anything a Google-signed-in user buys or logs is
+        // stored under a phantom id the admin (which lists real users) never sees.
+        let dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true } })
+        if (!dbUser && user.email) {
+          const email = user.email.toLowerCase().trim()
+          dbUser = await prisma.user.upsert({
+            where: { email },
+            update: {},
+            create: { email, name: user.name ?? undefined, role: 'PATIENT' },
+            select: { id: true, role: true },
+          })
+        }
+        token.uid = dbUser?.id ?? user.id
         token.role = dbUser?.role ?? 'PATIENT'
       }
       return token
