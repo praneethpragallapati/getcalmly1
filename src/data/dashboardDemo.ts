@@ -130,6 +130,50 @@ export type DashboardData = {
   privacy: PrivacyFlags
 }
 
+/**
+ * A fully-empty dashboard for a signed-in patient. Used as the starting point
+ * (and the error fallback) so a real user NEVER sees the "Priya" demo — only
+ * their own data, or honest empty states. Content is filled in from the DB.
+ */
+export function blankDashboard(): DashboardData {
+  return {
+    ...demoDashboard,
+    name: '',
+    patientId: '',
+    planName: 'No active plan',
+    tier: 'Starter',
+    paidMonths: 0,
+    sessionsTotal: 0,
+    sessionsUsed: 0,
+    minutesTotal: null,
+    minutesUsed: null,
+    renewsOn: null,
+    startedOn: '—',
+    daysOnPlatform: 0,
+    planActive: false,
+    streakDays: 0,
+    checkin: { mood: 0, energy: 0, calm: 0 },
+    moodWeek: [],
+    avgMood: 0,
+    moodOverTime: [],
+    moodMonthChangePct: null,
+    dailyInsight: null,
+    detectedThisWeek: [],
+    tasks: [],
+    todaySession: null,
+    community: [],
+    upcoming: [],
+    past: [],
+    journals: [],
+    journalPatterns: [],
+    weeklyInsight: null,
+    milestones: [],
+    sessionsDone: 0,
+    journalCount: 0,
+    medications: [],
+  }
+}
+
 export const demoDashboard: DashboardData = {
   name: 'Priya',
   patientId: 'P-000482',

@@ -71,38 +71,54 @@ export async function getAccount(): Promise<Account> {
   const userId = await getSessionUserId()
   if (!userId) return base
 
+  // Identity first, in its own guard: a signed-in patient must never fall back
+  // to the demo account, even if the queries below fail (e.g. schema drift).
+  let user: { name: string | null; email: string | null; createdAt: Date } | null = null
   try {
-    const [user, sub, privacy] = await Promise.all([
-      prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, createdAt: true } }),
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true, createdAt: true },
+    })
+  } catch {
+    /* fall through with a blank, unnamed account */
+  }
+
+  const account: Account = { ...base }
+  account.name = firstNameFrom(user?.name, user?.email)
+  account.fullName = user?.name ?? ''
+  account.email = user?.email ?? null
+  // A real "no active plan" state — never the demo plan — using the patient's
+  // actual account age. A subscription overwrites it below.
+  account.plan = {
+    category: 'Individual', // placeholder; the UI hides the category line when sessionsTotal is 0
+    planName: 'No active plan',
+    tier: 'Starter',
+    paidMonths: 0,
+    sessionsTotal: 0,
+    sessionsUsed: 0,
+    minutesTotal: null,
+    minutesUsed: null,
+    renewsOn: null,
+    startedOn: user?.createdAt ? fmtDate(user.createdAt) : '—',
+    daysOnPlatform: user?.createdAt
+      ? Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
+      : 0,
+  }
+
+  try {
+    const [sub, privacy] = await Promise.all([
       prisma.subscription.findFirst({
         where: { userId, status: 'ACTIVE' },
         orderBy: { createdAt: 'desc' },
+        // Narrow select: don't pull columns a not-yet-applied migration adds.
+        select: {
+          category: true, planName: true, paidMonths: true, sessionsTotal: true,
+          sessionsUsed: true, minutesTotal: true, minutesUsed: true, renewsAt: true, startedAt: true,
+        },
       }),
       getPrivacy(userId),
     ])
-
-    const account: Account = { ...base, privacy }
-    account.name = firstNameFrom(user?.name, user?.email)
-    account.fullName = user?.name ?? ''
-    account.email = user?.email ?? null
-
-    // Start from a real "no active plan" state — never the demo plan — using the
-    // patient's actual account age. A subscription overwrites it below.
-    account.plan = {
-      category: 'Individual', // placeholder; the UI hides the category line when sessionsTotal is 0
-      planName: 'No active plan',
-      tier: 'Starter',
-      paidMonths: 0,
-      sessionsTotal: 0,
-      sessionsUsed: 0,
-      minutesTotal: null,
-      minutesUsed: null,
-      renewsOn: null,
-      startedOn: user?.createdAt ? fmtDate(user.createdAt) : '—',
-      daysOnPlatform: user?.createdAt
-        ? Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
-        : 0,
-    }
+    account.privacy = privacy
 
     if (sub) {
       const startedAt = sub.startedAt
@@ -125,20 +141,22 @@ export async function getAccount(): Promise<Account> {
     }
     return account
   } catch {
-    return base
+    // Subscription/privacy failed: return the personalized empty account, not demo.
+    return account
   }
 }
 
 export async function getMedications(): Promise<DashMedication[]> {
   const userId = await getSessionUserId()
-  if (!userId) return demoDashboard.medications
+  if (!userId) return demoDashboard.medications // logged-out: bundled demo
 
+  // A signed-in patient sees ONLY their own prescriptions — no meds means an
+  // empty list, never the demo Sertraline row.
   try {
     const rows = await prisma.medication.findMany({
       where: { userId },
       orderBy: [{ active: 'desc' }, { createdAt: 'desc' }],
     })
-    if (rows.length === 0) return demoDashboard.medications
     return rows.map<DashMedication>((m) => ({
       id: m.id,
       name: m.name,
@@ -150,6 +168,6 @@ export async function getMedications(): Promise<DashMedication[]> {
       active: m.active,
     }))
   } catch {
-    return demoDashboard.medications
+    return []
   }
 }

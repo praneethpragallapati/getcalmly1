@@ -1,4 +1,5 @@
 import {
+  blankDashboard,
   demoDashboard,
   type DashboardData,
   type DashJournal,
@@ -110,80 +111,76 @@ function computeStreak(dates: Date[]): number {
  * by blog/community.
  */
 export async function getDashboardData(): Promise<DashboardData> {
-  const base = demoDashboard
   const userId = await getSessionUserId()
-  if (!userId) return base
+  if (!userId) return demoDashboard // logged-out: bundled demo, same as blog/community
+
+  // Identity first, in its own guard: even if the analytics queries below fail
+  // (e.g. a schema migration not yet applied on this DB), a signed-in patient
+  // still sees a personalized EMPTY dashboard — never the "Priya" demo.
+  let user: { name: string | null; email: string | null; createdAt: Date } | null = null
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true, createdAt: true },
+    })
+  } catch {
+    /* fall through with a blank, unnamed dashboard */
+  }
+
+  const data = blankDashboard()
+  data.name = firstNameFrom(user?.name, user?.email)
+  data.patientId = patientCode(userId)
+  if (user?.createdAt) {
+    data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
+  }
 
   try {
-    const [moods, journals, journalCount, user, dailyInsight, weeklyInsight, tasks, sub, appts, communityPosts] =
+    const [moods, journals, journalCount, dailyInsight, weeklyInsight, tasks, sub, appts, communityPosts] =
       await Promise.all([
         prisma.moodEntry.findMany({
           where: { userId },
           orderBy: { createdAt: 'desc' },
           take: 90, // enough history for the 4-week mood-over-time chart
+          select: { mood: true, energy: true, calm: true, createdAt: true },
         }),
         prisma.journalEntry.findMany({
           where: { userId },
           orderBy: { createdAt: 'desc' },
           take: 8,
+          select: { id: true, title: true, content: true, moodTag: true, topicTags: true, createdAt: true },
         }),
         prisma.journalEntry.count({ where: { userId } }),
-        prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, createdAt: true } }),
         prisma.aiInsight.findFirst({
           where: { userId, kind: 'DAILY' },
           orderBy: { createdAt: 'desc' },
+          select: { title: true, body: true, meta: true },
         }),
         prisma.aiInsight.findFirst({
           where: { userId, kind: 'WEEKLY' },
           orderBy: { createdAt: 'desc' },
+          select: { title: true, body: true, meta: true },
         }),
         prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }),
-        prisma.subscription.findFirst({ where: { userId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' } }),
+        prisma.subscription.findFirst({
+          where: { userId, status: 'ACTIVE' },
+          orderBy: { createdAt: 'desc' },
+          // Narrow select: avoid pulling columns a not-yet-applied migration adds.
+          select: { sessionsTotal: true, sessionsUsed: true, minutesTotal: true, minutesUsed: true, paidMonths: true, planName: true },
+        }),
         prisma.appointment.findMany({
           where: { patientId: userId },
           orderBy: { scheduledAt: 'asc' },
-          include: { therapist: { include: { user: { select: { name: true } } } } },
+          select: {
+            id: true,
+            scheduledAt: true,
+            durationMins: true,
+            status: true,
+            therapist: { select: { user: { select: { name: true } } } },
+          },
         }),
         getCommunityPosts(),
       ])
-
-    const data: DashboardData = { ...base }
-    data.name = firstNameFrom(user?.name, user?.email)
-
-    // A signed-in patient sees ONLY their own data. Reset every demo content
-    // field to empty here, then fill it back in from the DB below; anything the
-    // patient hasn't done yet stays empty instead of showing the sample.
-    data.journals = []
-    data.journalPatterns = []
-    data.tasks = []
-    data.detectedThisWeek = []
-    data.dailyInsight = null
-    data.weeklyInsight = null
-    data.todaySession = null
-    data.community = []
-    data.medications = []
-    data.upcoming = []
-    data.past = []
-    data.milestones = []
-
-    // Account basics from the real user record.
-    data.patientId = patientCode(userId)
-    if (user?.createdAt) {
-      data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-      data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
-    }
-
-    // No active plan until a real subscription (or completed sessions) says so.
-    data.planActive = false
-    data.planName = 'No active plan'
-    data.tier = 'Starter'
-    data.paidMonths = 0
-    data.sessionsTotal = 0
-    data.sessionsUsed = 0
-    data.sessionsDone = 0
-    data.minutesTotal = null
-    data.minutesUsed = null
-    data.renewsOn = null
 
     // Mood widgets always reflect the patient's OWN check-ins, never the demo
     // sample. Days (and weeks) they didn't track stay empty instead of showing
@@ -405,6 +402,8 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     return data
   } catch {
-    return base
+    // Analytics failed (e.g. schema drift): return the personalized EMPTY
+    // dashboard we built above — a signed-in patient never sees the demo.
+    return data
   }
 }

@@ -22,6 +22,17 @@ const CATEGORY: Record<BuyableTrack, 'INDIVIDUAL' | 'COUPLE'> = {
   couples: 'COUPLE',
 }
 
+// A patient can hold one package PER TYPE (therapy / psychiatry / couples) at
+// once. therapy and psychiatry are both category INDIVIDUAL, so category alone
+// can't tell them apart — the trackSlug does. Find the existing package for a
+// track by matching trackSlug so buying psychiatry never tops up a therapy pack.
+function findExistingForTrack(userId: string, track: BuyableTrack) {
+  return prisma.subscription.findFirst({
+    where: { userId, trackSlug: track },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
 function tierEnum(paidMonths: number): 'STARTER' | 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' {
   if (paidMonths >= 24) return 'PLATINUM'
   if (paidMonths >= 12) return 'GOLD'
@@ -71,10 +82,8 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
   if (!pack) return { ok: false, error: 'Unknown package.' }
   const planName = `${PLAN_NAME[track]} ${pack.sessions}-session pack`
 
-  const existing = await prisma.subscription.findFirst({
-    where: { userId: patientId },
-    orderBy: { createdAt: 'desc' },
-  })
+  // Scope to THIS package type — never merge a psychiatry buy into a therapy pack.
+  const existing = await findExistingForTrack(patientId, track)
 
   const now = new Date()
 
@@ -135,12 +144,14 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
   const price = pricing.firstSession[track]
   if (!price) return { ok: false, error: 'Unknown track.' }
 
+  // Scope to THIS package type: the intro offer is per care type, and buying a
+  // therapy first session must not touch a psychiatry package (or vice versa).
   const existing = await prisma.subscription.findFirst({
-    where: { userId: patientId },
+    where: { userId: patientId, trackSlug: track },
     orderBy: { createdAt: 'desc' },
     select: { id: true, sessionsUsed: true, sessionsTotal: true },
   })
-  // Already has sessions (used or waiting): the intro offer no longer applies.
+  // Already has sessions of this type (used or waiting): the intro offer no longer applies.
   if (existing && (existing.sessionsUsed > 0 || existing.sessionsTotal > 0)) {
     return { ok: false, error: 'The first-session offer applies only to your very first session.' }
   }
