@@ -583,6 +583,9 @@ export async function rescheduleAppointment(
   return true
 }
 
+/** Minimum minutes both sides must have been in the room to count as completed. */
+export const MIN_SESSION_MINUTES = 30
+
 export async function writeSessionSummary(
   therapistProfileId: string,
   appointmentId: string,
@@ -590,9 +593,23 @@ export async function writeSessionSummary(
 ): Promise<boolean> {
   const appt = await ownsAppointment(therapistProfileId, appointmentId)
   if (!appt) return false
+
+  // A session is COMPLETED only when the note is written AND both sides joined
+  // AND they were together for at least 30 minutes. Otherwise the note is saved
+  // but the session stays un-completed (so it isn't paid for or counted).
+  const bothJoined = Boolean(appt.patientJoinedAt && appt.therapistJoinedAt)
+  const laterJoin = bothJoined
+    ? Math.max(appt.patientJoinedAt!.getTime(), appt.therapistJoinedAt!.getTime())
+    : null
+  const endRef = appt.endedAt ? appt.endedAt.getTime() : Date.now()
+  const enoughTime = laterJoin != null && endRef - laterJoin >= MIN_SESSION_MINUTES * 60 * 1000
+
   await prisma.appointment.update({
     where: { id: appointmentId },
-    data: { summary, status: 'COMPLETED' },
+    data: {
+      summary,
+      status: bothJoined && enoughTime ? 'COMPLETED' : appt.status,
+    },
   })
   return true
 }

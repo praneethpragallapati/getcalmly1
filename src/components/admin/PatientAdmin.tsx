@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert, assignCategoryClinician } from '@/app/admin/actions'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
 import type { PatientDetail, SubscriptionRow, CareCategoryKey } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
@@ -60,9 +60,12 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Packages &amp; subscriptions</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
-          Add or remove sessions, credit back a session the clinician didn&apos;t join, or cancel a package.
+          Add or remove sessions by package type and set validity; credit back a session the clinician didn&apos;t join, or cancel a package.
         </p>
-        {p.subscriptions.length === 0 && <p className="muted" style={{ fontSize: 13.5 }}>No packages on file.</p>}
+
+        <GrantByType userId={p.userId} field={field} pending={pending} run={run} />
+
+        {p.subscriptions.length === 0 && <p className="muted" style={{ fontSize: 13.5, marginTop: 12 }}>No packages on file.</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {p.subscriptions.map((s) => {
             const cancelled = s.status === 'CANCELLED'
@@ -71,7 +74,10 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: 14.5, fontWeight: 700, color: charcoal }}>{s.planName} <span className="muted" style={{ fontWeight: 400 }}>· {s.trackSlug}</span></div>
-                    <div className="muted" style={{ fontSize: 12.5 }}>Started {s.createdAt} · {s.status.toLowerCase()}</div>
+                    <div className="muted" style={{ fontSize: 12.5 }}>
+                      Started {s.createdAt} · {s.status.toLowerCase()}
+                      {s.validUntil ? <> · <span style={{ color: s.expired ? coral : undefined, fontWeight: s.expired ? 700 : 400 }}>{s.expired ? 'expired' : 'valid until'} {s.validUntil}</span></> : ' · no expiry'}
+                    </div>
                   </div>
                   {!cancelled && (
                     <button onClick={() => run(() => cancelSubscription({ id: s.id }), 'Package cancelled.')} disabled={pending} className="link-action" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: coral }}>
@@ -96,6 +102,15 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                       <div>
                         <div className="muted" style={{ fontSize: 12 }}>Remaining</div>
                         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: charcoal }}>{s.sessionsLeft}</div>
+                      </div>
+                      <div>
+                        <div className="muted" style={{ fontSize: 12, marginBottom: 4 }}>Validity</div>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <button className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '6px 10px' }} disabled={pending}
+                            onClick={() => run(() => extendValidity({ id: s.id, months: 1 }), 'Validity extended.')}>+1 month</button>
+                          <button className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '6px 10px' }} disabled={pending}
+                            onClick={() => run(() => extendValidity({ id: s.id, months: 3 }), 'Validity extended.')}>+3 months</button>
+                        </div>
                       </div>
                     </div>
                     <AttachExpert sub={s} therapists={p.therapists} field={field} pending={pending} run={run} />
@@ -143,6 +158,38 @@ function AssignCategory({ category, current, therapists, userId, field, pending,
       >
         Save
       </button>
+    </div>
+  )
+}
+
+/** Add/remove sessions of a specific package type, with validity. Creates the package if none exists. */
+function GrantByType({ userId, field, pending, run }: {
+  userId: string
+  field: React.CSSProperties
+  pending: boolean
+  run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
+}) {
+  const [track, setTrack] = useState('therapy')
+  const [sessions, setSessions] = useState('4')
+  const [months, setMonths] = useState('6')
+  return (
+    <div style={{ border: '1px dashed #D8DEE6', borderRadius: 12, padding: '12px 14px', marginBottom: 14, background: 'rgba(28,43,58,.02)' }}>
+      <div style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 8 }}>Add / remove sessions by package type</div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Type</div>
+          <select value={track} onChange={(e) => setTrack(e.target.value)} style={{ ...field, minWidth: 150 }}>
+            <option value="therapy">Individual therapy</option><option value="couples">Couples</option><option value="psychiatry">Psychiatry</option>
+          </select></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Sessions (±)</div>
+          <input type="number" value={sessions} onChange={(e) => setSessions(e.target.value)} style={{ ...field, width: 90 }} /></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Validity (months)</div>
+          <input type="number" min={0} value={months} onChange={(e) => setMonths(e.target.value)} style={{ ...field, width: 90 }} /></div>
+        <button className="btn btn-primary" disabled={pending}
+          onClick={() => run(() => grantSessionsByType({ userId, trackSlug: track, sessions: Number(sessions), validityMonths: Number(months) }), 'Package updated.')}>
+          Apply
+        </button>
+      </div>
+      <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>Positive adds sessions (and extends validity by the months given); negative removes. Creates the package if the patient has none of that type.</p>
     </div>
   )
 }

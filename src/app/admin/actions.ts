@@ -306,6 +306,79 @@ export async function deleteClinician(input: { userId: string }): Promise<AdminR
   }
 }
 
+const TRACK_TO_CATEGORY: Record<string, 'INDIVIDUAL' | 'COUPLE' | 'KIDS'> = { couples: 'COUPLE', child: 'KIDS' }
+const TRACK_PLAN_NAME: Record<string, string> = { therapy: 'Individual therapy', couples: 'Couples therapy', psychiatry: 'Psychiatry' }
+function addMonths(from: Date, months: number): Date { const d = new Date(from); d.setMonth(d.getMonth() + months); return d }
+
+/**
+ * Grant or top up a package of a specific type for a patient, with validity.
+ * If an active package of that type exists it adds sessions and extends validity;
+ * otherwise it creates one. `sessions` may be negative to remove sessions
+ * (never below the number already used).
+ */
+export async function grantSessionsByType(input: { userId: string; trackSlug: string; sessions: number; validityMonths?: number }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const track = String(input.trackSlug || '').trim()
+  const delta = Math.round(Number(input.sessions) || 0)
+  const months = Math.max(0, Math.round(Number(input.validityMonths) || 0))
+  if (!track) return { ok: false, error: 'Pick a package type.' }
+  try {
+    const existing = await prisma.subscription.findFirst({
+      where: { userId: input.userId, status: 'ACTIVE', trackSlug: track },
+      orderBy: { createdAt: 'desc' },
+    })
+    const now = new Date()
+    if (existing) {
+      const nextTotal = Math.max(existing.sessionsUsed, existing.sessionsTotal + delta)
+      const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
+      await prisma.subscription.update({
+        where: { id: existing.id },
+        data: { sessionsTotal: nextTotal, ...(months > 0 ? { expiresAt: addMonths(base, months), renewsAt: addMonths(base, months) } : {}) },
+      })
+    } else {
+      if (delta <= 0) return { ok: false, error: 'No package of that type to remove sessions from.' }
+      const expiresAt = months > 0 ? addMonths(now, months) : null
+      await prisma.subscription.create({
+        data: {
+          userId: input.userId,
+          category: TRACK_TO_CATEGORY[track] ?? 'INDIVIDUAL',
+          trackSlug: track,
+          planName: `${TRACK_PLAN_NAME[track] ?? track} (admin)`,
+          sessionsTotal: delta,
+          sessionsUsed: 0,
+          status: 'ACTIVE',
+          expiresAt,
+          renewsAt: expiresAt,
+        },
+      })
+    }
+    revalidatePath(`/admin/patients/${input.userId}`)
+    revalidatePath('/app/therapist'); revalidatePath('/app/billing')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the package.' }
+  }
+}
+
+/** Extend (or set) a package's validity by a number of months from today or its current expiry. */
+export async function extendValidity(input: { id: string; months: number }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const months = Math.round(Number(input.months) || 0)
+  if (!months) return { ok: false, error: 'Enter a number of months.' }
+  try {
+    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { expiresAt: true } })
+    if (!sub) return { ok: false, error: 'Package not found.' }
+    const now = new Date()
+    const base = sub.expiresAt && sub.expiresAt > now ? sub.expiresAt : now
+    const expiresAt = addMonths(base, months)
+    await prisma.subscription.update({ where: { id: input.id }, data: { expiresAt, renewsAt: expiresAt } })
+    revalidatePath('/admin/patients'); revalidatePath('/app/therapist'); revalidatePath('/app/billing')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update validity.' }
+  }
+}
+
 /** Attach (or detach) the expert who delivers a specific package. */
 export async function attachSubscriptionExpert(input: { id: string; therapistProfileId: string | null }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }

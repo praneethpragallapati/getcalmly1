@@ -241,6 +241,7 @@ export async function getPatients(): Promise<PatientRow[]> {
 export type SubscriptionRow = {
   id: string; planName: string; trackSlug: string; status: string
   sessionsTotal: number; sessionsUsed: number; sessionsLeft: number; createdAt: string
+  validUntil: string | null; expired: boolean
   therapistId: string | null; therapistName: string | null
 }
 export type CareCategoryKey = 'individual' | 'couples' | 'psychiatry'
@@ -280,6 +281,8 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         id: s.id, planName: s.planName, trackSlug: s.trackSlug, status: s.status,
         sessionsTotal: s.sessionsTotal, sessionsUsed: s.sessionsUsed, sessionsLeft: Math.max(0, s.sessionsTotal - s.sessionsUsed),
         createdAt: fmt(s.createdAt),
+        validUntil: s.expiresAt ? fmt(s.expiresAt) : null,
+        expired: Boolean(s.expiresAt && s.expiresAt.getTime() < Date.now()),
         therapistId: s.therapistId ?? null,
         therapistName: s.therapistId ? therapists.find((t) => t.id === s.therapistId)?.user?.name ?? null : null,
       })),

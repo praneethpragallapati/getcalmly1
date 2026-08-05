@@ -213,6 +213,33 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
   }
 }
 
+/**
+ * Record that the caller (patient or clinician) has joined the session room.
+ * Sets the first-join timestamp for their side; the strict completion rule
+ * (both joined + >= 30 min + a note) reads these. Safe to call repeatedly.
+ */
+export async function markSessionJoined(roomOrId: string): Promise<{ ok: boolean }> {
+  const userId = await getSessionUserId()
+  if (!userId || !roomOrId) return { ok: false }
+  try {
+    const appt = await prisma.appointment.findFirst({
+      where: { OR: [{ id: roomOrId }, { roomId: roomOrId }] },
+      select: { id: true, patientId: true, patientJoinedAt: true, therapistJoinedAt: true, therapist: { select: { userId: true } } },
+    })
+    if (!appt) return { ok: false }
+    if (appt.patientId === userId) {
+      if (!appt.patientJoinedAt) await prisma.appointment.update({ where: { id: appt.id }, data: { patientJoinedAt: new Date() } })
+    } else if (appt.therapist.userId === userId) {
+      if (!appt.therapistJoinedAt) await prisma.appointment.update({ where: { id: appt.id }, data: { therapistJoinedAt: new Date() } })
+    } else {
+      return { ok: false }
+    }
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
 const TRACK_LABEL: Record<string, string> = { therapy: 'individual therapy', couples: 'couples', psychiatry: 'psychiatry' }
 
 /** Map a clinician to the package track a session with them draws from. */

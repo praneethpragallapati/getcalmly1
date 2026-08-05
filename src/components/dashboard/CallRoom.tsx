@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Mic, MicOff, Video, VideoOff, PhoneOff, Loader2 } from 'lucide-react'
+import { markSessionJoined } from '@/app/(dashboard)/app/actions'
 
 // Proprietary in-app video room (#4). Direct peer-to-peer WebRTC; the Next.js
 // route at /api/webrtc/[roomId] is used only to exchange connection details
@@ -186,6 +187,8 @@ export function CallRoom({
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       localStreamRef.current = stream
       if (localVideoRef.current) localVideoRef.current.srcObject = stream
+      // Record this side's join for the strict completion rule (best-effort).
+      void markSessionJoined(roomId)
     } catch {
       setErrorMsg('We couldn’t access your camera or microphone. Check browser permissions.')
       setPhase('error')
