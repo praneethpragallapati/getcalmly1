@@ -33,6 +33,7 @@ export type CreateTherapistInput = {
   name: string; email: string; phone?: string
   council?: string; registrationNo: string; yearsExp?: number
   qualifications?: string; languages?: string; specializations?: string; bio?: string
+  gender?: string; clinicianType?: string
   employmentType?: string
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
   secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
@@ -81,6 +82,8 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
             yearsExp: posInt(input.yearsExp) ?? 0,
             languages: arr(input.languages),
             specializations: arr(input.specializations),
+            gender: input.gender?.trim() || null,
+            clinicianType: input.clinicianType?.trim() || 'Therapist',
             rciNumber: regValue,
             sessionFee,
             employmentType,

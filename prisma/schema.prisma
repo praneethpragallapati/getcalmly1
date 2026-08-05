@@ -350,6 +350,11 @@ model TherapistProfile {
   specializations String[]
   rciNumber       String   @unique
   sessionFee      Int
+  // Clinician's gender (for patient preference/matching) and the kind of
+  // clinician they are, captured at onboarding: "Therapist" | "Psychiatrist" |
+  // "Child specialist" | "Couples therapist" | ...
+  gender          String?
+  clinicianType   String?
   rating          Float    @default(0)
   totalReviews    Int      @default(0)
   isVerified      Boolean  @default(false)
@@ -468,6 +473,16 @@ model Appointment {
   preSessionNote String?           @db.Text
   // Clinician's post-session summary the patient can read back later (#3).
   summary        String?           @db.Text
+  // Presence tracking for the strict completion rule: a session counts as
+  // COMPLETED only when BOTH sides joined, they were together for >= 30 min, and
+  // a clinical note is written. Timestamps are set the first time each side
+  // connects to the room; endedAt when the room closes.
+  patientJoinedAt   DateTime?
+  therapistJoinedAt DateTime?
+  endedAt           DateTime?
+  // The package a booking reserved a session against (wallet is decremented at
+  // booking). On cancel > 24h / void it is restored and this is cleared.
+  consumedSubscriptionId String?
   createdAt      DateTime          @default(now())
 
   review         SessionReview?

@@ -1,0 +1,74 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { CalendarClock, X, Check } from 'lucide-react'
+import { cancelMyAppointment, rescheduleMyAppointment } from '@/app/(dashboard)/app/actions'
+
+/**
+ * Cancel / reschedule controls for an upcoming session. Both are only allowed
+ * at least 24 hours before the session — the button is disabled inside that
+ * window and the server enforces it too. Cancelling restores the session to the
+ * package it was booked from.
+ */
+export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?: string }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [mode, setMode] = useState<null | 'cancel' | 'reschedule'>(null)
+  const [when, setWhen] = useState('')
+  const [msg, setMsg] = useState<string | null>(null)
+
+  const hoursOut = scheduledISO ? (new Date(scheduledISO).getTime() - Date.now()) / 3_600_000 : 0
+  const locked = hoursOut < 24
+
+  const run = (fn: () => Promise<{ ok: boolean; error?: string }>) => {
+    setMsg(null)
+    startTransition(async () => {
+      const res = await fn()
+      if (res.ok) { setMode(null); router.refresh() }
+      else setMsg(res.error ?? 'Something went wrong.')
+    })
+  }
+
+  if (locked) {
+    return <span className="doc-sub" style={{ fontSize: 11.5 }} title="Changes are only allowed 24h+ before the session">Locked (within 24h)</span>
+  }
+
+  if (mode === 'reschedule') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+        <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)}
+          style={{ fontFamily: 'inherit', fontSize: 12.5, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-white)', color: 'var(--c-charcoal)' }} />
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn btn-primary btn-sm" disabled={pending || !when}
+            onClick={() => run(() => rescheduleMyAppointment(id, new Date(when).toISOString()))}>
+            <Check size={13} /> Confirm
+          </button>
+          <button className="btn btn-outline btn-sm" onClick={() => { setMode(null); setMsg(null) }}>Back</button>
+        </div>
+        {msg && <span style={{ fontSize: 11, color: 'var(--c-coral)' }}>{msg}</span>}
+      </div>
+    )
+  }
+
+  if (mode === 'cancel') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+        <span style={{ fontSize: 12, fontWeight: 600 }}>Cancel this session?</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn btn-sm" disabled={pending} style={{ background: 'var(--c-coral)', color: '#fff' }}
+            onClick={() => run(() => cancelMyAppointment(id))}>Yes, cancel</button>
+          <button className="btn btn-outline btn-sm" onClick={() => { setMode(null); setMsg(null) }}>Keep</button>
+        </div>
+        {msg && <span style={{ fontSize: 11, color: 'var(--c-coral)' }}>{msg}</span>}
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: 6 }}>
+      <button className="btn btn-outline btn-sm" onClick={() => setMode('reschedule')}><CalendarClock size={13} /> Reschedule</button>
+      <button className="btn btn-outline btn-sm" onClick={() => setMode('cancel')} style={{ color: 'var(--c-coral)' }}><X size={13} /> Cancel</button>
+    </div>
+  )
+}

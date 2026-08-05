@@ -152,24 +152,52 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     if (!therapistId) return { ok: true, persisted: false }
     const therapist = await prisma.therapistProfile.findUnique({
       where: { id: therapistId },
-      select: { id: true, sessionFee: true },
+      select: { id: true, sessionFee: true, clinicianType: true, specializations: true },
     })
     if (!therapist) return { ok: true, persisted: false }
+
+    // Which package type this booking draws from, from the clinician's kind.
+    const track = trackForClinician(therapist.clinicianType, therapist.specializations)
+
+    // Wallet check: reserve a session from an active package of that type that
+    // still has sessions left and whose validity covers the chosen date. The
+    // session is deducted now (booking) and restored on a cancel > 24h out.
+    const subs = await prisma.subscription.findMany({
+      where: { userId, status: 'ACTIVE', trackSlug: track },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, sessionsTotal: true, sessionsUsed: true, expiresAt: true },
+    })
+    const reservable = subs.find(
+      (s) => s.sessionsUsed < s.sessionsTotal && (!s.expiresAt || s.expiresAt.getTime() >= scheduledAt.getTime()),
+    )
+    if (!reservable) {
+      const anyForTrack = subs.length > 0
+      return {
+        ok: false, persisted: false,
+        error: anyForTrack
+          ? 'This booking is outside your package validity or you have no sessions left. Add sessions or extend validity, then try again.'
+          : `You don't have a ${TRACK_LABEL[track]} package. Buy one to book a session.`,
+      }
+    }
 
     // Count appointments BEFORE this booking so we can auto-send the intake form
     // only on the patient's very first session (#default forms by session number).
     const priorAppointments = await prisma.appointment.count({ where: { patientId: userId } })
 
-    await prisma.appointment.create({
-      data: {
-        patientId: userId,
-        therapistId: therapist.id,
-        scheduledAt,
-        status: 'PENDING',
-        fee: therapist.sessionFee,
-        roomId: crypto.randomUUID(),
-      },
-    })
+    await prisma.$transaction([
+      prisma.appointment.create({
+        data: {
+          patientId: userId,
+          therapistId: therapist.id,
+          scheduledAt,
+          status: 'PENDING',
+          fee: therapist.sessionFee,
+          roomId: crypto.randomUUID(),
+          consumedSubscriptionId: reservable.id,
+        },
+      }),
+      prisma.subscription.update({ where: { id: reservable.id }, data: { sessionsUsed: reservable.sessionsUsed + 1 } }),
+    ])
 
     // First-ever booking → queue the category-matched intake/information form.
     await autoSendIntakeForm(userId, priorAppointments)
@@ -177,9 +205,92 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     revalidatePath('/app/sessions')
     revalidatePath('/app/forms')
     revalidatePath('/app')
+    revalidatePath('/app/therapist')
+    revalidatePath('/app/billing')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not request this slot.' }
+  }
+}
+
+const TRACK_LABEL: Record<string, string> = { therapy: 'individual therapy', couples: 'couples', psychiatry: 'psychiatry' }
+
+/** Map a clinician to the package track a session with them draws from. */
+function trackForClinician(clinicianType: string | null, specializations: string[]): 'therapy' | 'couples' | 'psychiatry' {
+  const ct = (clinicianType ?? '').toLowerCase()
+  const spec = specializations.join(' ').toLowerCase()
+  if (ct.includes('psych') || spec.includes('psychiatr') || spec.includes('medication')) return 'psychiatry'
+  if (ct.includes('couple') || spec.includes('couple')) return 'couples'
+  return 'therapy'
+}
+
+const CANCEL_LEAD_MS = 24 * 60 * 60 * 1000
+
+/** Patient cancels their own upcoming session. Allowed only ≥ 24h before the
+ *  session; restores the reserved session to the package it was booked from. */
+export async function cancelMyAppointment(appointmentId: string): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
+  try {
+    const appt = await prisma.appointment.findFirst({
+      where: { id: appointmentId, patientId: userId },
+      select: { id: true, scheduledAt: true, status: true, consumedSubscriptionId: true },
+    })
+    if (!appt) return { ok: false, persisted: false, error: 'Session not found.' }
+    if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') {
+      return { ok: false, persisted: false, error: 'This session can no longer be cancelled.' }
+    }
+    if (appt.scheduledAt.getTime() - Date.now() < CANCEL_LEAD_MS) {
+      return { ok: false, persisted: false, error: 'Sessions can only be cancelled at least 24 hours in advance.' }
+    }
+    // Restore the reserved session to its package, if it consumed one.
+    const restoreSub = appt.consumedSubscriptionId
+      ? await prisma.subscription.findUnique({ where: { id: appt.consumedSubscriptionId }, select: { id: true, sessionsUsed: true } })
+      : null
+    await prisma.$transaction([
+      prisma.appointment.update({ where: { id: appt.id }, data: { status: 'CANCELLED', consumedSubscriptionId: null } }),
+      ...(restoreSub ? [prisma.subscription.update({ where: { id: restoreSub.id }, data: { sessionsUsed: Math.max(0, restoreSub.sessionsUsed - 1) } })] : []),
+    ])
+    revalidatePath('/app/sessions'); revalidatePath('/app'); revalidatePath('/app/therapist'); revalidatePath('/app/billing')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not cancel this session.' }
+  }
+}
+
+/** Patient reschedules their own session to a new slot. Allowed only ≥ 24h
+ *  before the current time; keeps the reserved session. */
+export async function rescheduleMyAppointment(appointmentId: string, newSlotIso: string): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
+  const newAt = new Date(newSlotIso)
+  if (Number.isNaN(newAt.getTime()) || newAt.getTime() < Date.now() + MIN_BOOKING_LEAD_MS) {
+    return { ok: false, persisted: false, error: 'Pick a new slot at least 6 hours from now.' }
+  }
+  try {
+    const appt = await prisma.appointment.findFirst({
+      where: { id: appointmentId, patientId: userId },
+      select: { id: true, scheduledAt: true, status: true, consumedSubscriptionId: true },
+    })
+    if (!appt) return { ok: false, persisted: false, error: 'Session not found.' }
+    if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') {
+      return { ok: false, persisted: false, error: 'This session can no longer be changed.' }
+    }
+    if (appt.scheduledAt.getTime() - Date.now() < CANCEL_LEAD_MS) {
+      return { ok: false, persisted: false, error: 'Sessions can only be rescheduled at least 24 hours in advance.' }
+    }
+    // Keep it inside the reserved package's validity.
+    if (appt.consumedSubscriptionId) {
+      const sub = await prisma.subscription.findUnique({ where: { id: appt.consumedSubscriptionId }, select: { expiresAt: true } })
+      if (sub?.expiresAt && sub.expiresAt.getTime() < newAt.getTime()) {
+        return { ok: false, persisted: false, error: 'That date is past your package validity. Pick an earlier slot or extend the package.' }
+      }
+    }
+    await prisma.appointment.update({ where: { id: appt.id }, data: { scheduledAt: newAt, status: 'PENDING' } })
+    revalidatePath('/app/sessions'); revalidatePath('/app')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not reschedule this session.' }
   }
 }
 

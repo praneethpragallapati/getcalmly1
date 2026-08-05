@@ -64,11 +64,14 @@ function joinableNow(scheduledAt: Date, durationMins: number): boolean {
 /** Upcoming + past sessions for the dashboard list. Demo when no session/DB. */
 export async function getSessionsView(): Promise<SessionsView> {
   const userId = await getSessionUserId()
+  // Demo data is only ever shown to logged-out visitors (marketing preview). A
+  // signed-in patient always sees their real sessions — empty if they have none.
   const demo: SessionsView = {
     today: demoDashboard.todaySession,
     upcoming: demoDashboard.upcoming,
     past: demoDashboard.past,
   }
+  const empty: SessionsView = { today: null, upcoming: [], past: [] }
   if (!userId) return demo
 
   try {
@@ -80,13 +83,14 @@ export async function getSessionsView(): Promise<SessionsView> {
         review: { select: { rating: true } },
       },
     })
-    if (rows.length === 0) return demo
+    if (rows.length === 0) return empty
 
     const now = Date.now()
     const upcoming: DashSession[] = []
     const past: DashSession[] = []
     let n = 0
     for (const r of rows) {
+      if (r.status === 'CANCELLED') continue
       n++
       const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() < now
       const ds: DashSession = {
@@ -100,8 +104,8 @@ export async function getSessionsView(): Promise<SessionsView> {
         sessionNo: n,
         hasSummary: Boolean(r.summary),
         myRating: r.review?.rating ?? null,
-        // Rateable once it has happened and wasn't cancelled/voided.
-        reviewable: isPast && r.status !== 'CANCELLED',
+        // Rateable once it has happened (cancelled sessions are skipped above).
+        reviewable: isPast,
       }
       if (isPast) past.push(ds)
       else upcoming.push(ds)
@@ -114,7 +118,7 @@ export async function getSessionsView(): Promise<SessionsView> {
       }) ?? null
     return { today, upcoming, past }
   } catch {
-    return demo
+    return empty
   }
 }
 
@@ -249,11 +253,14 @@ function demoCalendar(): ExpertCalendar {
  */
 export async function getExpertCalendar(therapistIdOverride?: string): Promise<ExpertCalendar> {
   const userId = await getSessionUserId()
+  // Empty (real) calendar for a signed-in patient with no expert yet; demo only
+  // for the logged-out marketing preview.
+  const emptyCal: ExpertCalendar = { expert: '', expertRole: '', slots: [] }
   if (!userId) return demoCalendar()
 
   try {
     const therapistId = therapistIdOverride ?? (await getAssignedTherapistId(userId))
-    if (!therapistId) return demoCalendar()
+    if (!therapistId) return emptyCal
 
     const [therapist, real] = await Promise.all([
       prisma.therapistProfile.findUnique({

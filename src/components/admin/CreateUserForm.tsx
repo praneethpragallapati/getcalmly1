@@ -33,6 +33,8 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   const [languages, setLanguages] = useState(prefill?.languages ?? '')
   const [specializations, setSpecializations] = useState(prefill?.specializations ?? '')
   const [bio, setBio] = useState(prefill?.bio ?? '')
+  const [gender, setGender] = useState('')
+  const [clinicianType, setClinicianType] = useState('Therapist')
   const [employmentType, setEmploymentType] = useState<'FULL_TIME' | 'PART_TIME'>('FULL_TIME')
   const [feeInd, setFeeInd] = useState('')
   const [feeCpl, setFeeCpl] = useState('')
@@ -72,6 +74,7 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
             name, email, phone, council, registrationNo,
             yearsExp: yearsExp ? Number(yearsExp) : undefined,
             qualifications, languages, specializations, bio,
+            gender, clinicianType,
             employmentType,
             baseFeeIndividual: numOrBlank(feeInd),
             baseFeeCouples: numOrBlank(feeCpl),
@@ -150,6 +153,18 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
           <Row>
             <Col><label style={label}>Registration number{council === 'None' && <span style={{ color: '#A0ADB8', fontWeight: 400 }}> (optional)</span>}</label><input style={field} value={registrationNo} onChange={(e) => setRegistrationNo(e.target.value)} required={council !== 'None'} placeholder={council === 'None' ? 'Not required' : 'e.g. A012345'} /></Col>
             <Col><label style={label}>Years of experience</label><input type="number" min={0} style={field} value={yearsExp} onChange={(e) => setYearsExp(e.target.value)} placeholder="e.g. 8" /></Col>
+          </Row>
+          <Row>
+            <Col><label style={label}>Clinician type</label>
+              <select style={{ ...field, background: '#fff' }} value={clinicianType} onChange={(e) => setClinicianType(e.target.value)}>
+                <option>Therapist</option><option>Psychiatrist</option><option>Couples therapist</option><option>Child specialist</option>
+              </select>
+            </Col>
+            <Col><label style={label}>Gender</label>
+              <select style={{ ...field, background: '#fff' }} value={gender} onChange={(e) => setGender(e.target.value)}>
+                <option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Non-binary</option>
+              </select>
+            </Col>
           </Row>
           <div><label style={label}>Specialisations <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, CBT, Trauma" /></div>
           <div><label style={label}>Languages <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Hindi" /></div>

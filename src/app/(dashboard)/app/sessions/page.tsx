@@ -4,6 +4,7 @@ import { getSessionsView, getExpertCalendar } from '@/lib/sessions'
 import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
 import { BookSession } from '@/components/dashboard/BookSession'
 import { RateSession } from '@/components/dashboard/RateSession'
+import { SessionActions } from '@/components/dashboard/SessionActions'
 import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
 import type { DashSession } from '@/data/dashboardDemo'
@@ -53,6 +54,11 @@ function SessionRow({ s }: { s: DashSession }) {
           )}
         </div>
       </div>
+      {!past && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 4px 12px' }}>
+          <SessionActions id={s.id} scheduledISO={s.scheduledISO} />
+        </div>
+      )}
       {past && s.reviewable && (
         <div style={{ padding: '0 4px 14px 62px' }}>
           <RateSession appointmentId={s.id} expert={s.expert} initialRating={s.myRating ?? null} compact />
