@@ -87,7 +87,7 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // Priya journey: hover/click sync. The section stays still; pointing at
+  // How-it-works journey: hover/click sync. The section stays still; pointing at
   // (or tapping) a step cross-fades the right-hand card to match.
   var chSteps=[].slice.call(document.querySelectorAll('.how-step'));
   var chCards=[].slice.call(document.querySelectorAll('.chap-card'));
