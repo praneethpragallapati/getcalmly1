@@ -8,8 +8,9 @@
  * is why the buy flow requires the assessment first.
  */
 import { prisma } from '@/lib/prisma'
+import { clinicianMatchesTrack, type CareTrack } from '@/lib/clinicianScope'
 
-export type CareTrack = 'therapy' | 'couples' | 'psychiatry'
+export { clinicianMatchesTrack, type CareTrack } from '@/lib/clinicianScope'
 
 const ASSIGN_COLUMN: Record<CareTrack, 'assignedTherapistIndividualId' | 'assignedTherapistCouplesId' | 'assignedTherapistPsychiatryId'> = {
   therapy: 'assignedTherapistIndividualId',
@@ -69,25 +70,6 @@ export async function hasAssessment(userId: string): Promise<boolean> {
   } catch {
     return false
   }
-}
-
-function isPsychiatrist(clinicianType: string | null, spec: string): boolean {
-  const ct = (clinicianType ?? '').toLowerCase()
-  return ct.includes('psychiatr') || spec.includes('psychiatr') || spec.includes('medication')
-}
-function isCouplesClinician(clinicianType: string | null, spec: string): boolean {
-  const ct = (clinicianType ?? '').toLowerCase()
-  return ct.includes('couple') || spec.includes('couple') || spec.includes('marital') || spec.includes('eft')
-}
-
-/** Does this clinician fit the requested care track? */
-function clinicianMatchesTrack(clinicianType: string | null, specializations: string[], track: CareTrack): boolean {
-  const spec = specializations.join(' ').toLowerCase()
-  const psych = isPsychiatrist(clinicianType, spec)
-  if (track === 'psychiatry') return psych
-  if (track === 'couples') return isCouplesClinician(clinicianType, spec) && !psych
-  // therapy: any non-psychiatrist clinician (psychologist / counsellor / therapist).
-  return !psych
 }
 
 type Candidate = {
@@ -166,19 +148,15 @@ export async function matchAndAssignForTrack(userId: string, track: CareTrack): 
     /* subscription.therapistId not present yet — assignment still lands below */
   }
 
-  // Per-care-type assignment + default fallback (needs migration 0016).
+  // Per-care-type assignment only (needs migration 0016). We deliberately do NOT
+  // touch the global default `assignedTherapistId` here: a psychiatry match must
+  // never leak into the Individual slot via the default fallback. The global
+  // default stays an admin-managed field.
   try {
     const col = ASSIGN_COLUMN[track]
-    const existing = await prisma.patientProfile.findUnique({
-      where: { userId },
-      select: { assignedTherapistId: true },
-    })
     await prisma.patientProfile.update({
       where: { userId },
-      data: {
-        [col]: therapistId,
-        ...(existing?.assignedTherapistId ? {} : { assignedTherapistId: therapistId }),
-      },
+      data: { [col]: therapistId },
     })
   } catch {
     /* assignment columns not present yet */

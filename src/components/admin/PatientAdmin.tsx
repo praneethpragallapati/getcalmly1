@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
 import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
 import type { PatientDetail, SubscriptionRow, CareCategoryKey } from '@/lib/admin'
+import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
+
+type TherapistOpt = { profileId: string; name: string; clinicianType: string | null; specializations: string[] }
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -136,19 +139,27 @@ const CATEGORY_LABEL: Record<CareCategoryKey, string> = {
 function AssignCategory({ category, current, therapists, userId, field, pending, run }: {
   category: CareCategoryKey
   current: { id: string | null; name: string | null }
-  therapists: { profileId: string; name: string }[]
+  therapists: TherapistOpt[]
   userId: string
   field: React.CSSProperties
   pending: boolean
   run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
 }) {
   const [id, setId] = useState(current.id ?? '')
+  // Only offer clinicians who fit THIS care type (Psychiatrists under Psychiatry,
+  // couples specialists under Couples, therapists under Individual).
+  const track = CATEGORY_TO_TRACK[category]
+  const options = therapists.filter((t) => clinicianMatchesTrack(t.clinicianType, t.specializations, track))
+  // Keep the current assignment visible even if it wouldn't pass the filter.
+  if (current.id && !options.some((t) => t.profileId === current.id)) {
+    options.unshift({ profileId: current.id, name: current.name ?? 'Assigned clinician', clinicianType: null, specializations: [] })
+  }
   return (
     <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
       <span style={{ fontSize: 13, fontWeight: 700, color: charcoal, minWidth: 140 }}>{CATEGORY_LABEL[category]}</span>
       <select value={id} onChange={(e) => setId(e.target.value)} style={{ ...field, minWidth: 220 }}>
         <option value="">— Not assigned —</option>
-        {therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
+        {options.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
       </select>
       <button
         onClick={() => run(() => assignCategoryClinician({ userId, category, therapistProfileId: id || null }), `${CATEGORY_LABEL[category]} clinician updated.`)}

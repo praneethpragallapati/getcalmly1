@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { getSessionsView } from '@/lib/sessions'
 import { designationOf } from '@/lib/expert'
+import { clinicianMatchesTrack, type CareTrack } from '@/lib/matching'
 
 /**
  * The patient's assigned expert (#2). Real data comes from the patient's most
@@ -149,11 +150,19 @@ type ProfileRow = {
   qualifications: string[]
   languages: string[]
   specializations: string[]
+  clinicianType: string | null
   rating: number
   totalReviews: number
   rciNumber: string
   bio: string
   user: { name: string | null } | null
+}
+
+// Care-team slot key → the package track its clinician must fit.
+const SLOT_TRACK: Record<CareSlot['key'], CareTrack> = {
+  individual: 'therapy',
+  couples: 'couples',
+  psychiatry: 'psychiatry',
 }
 
 function expertFromProfile(p: ProfileRow): CareExpert {
@@ -228,7 +237,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
           where: { id: { in: [...ids] } },
           select: {
             id: true, yearsExp: true, qualifications: true, languages: true, specializations: true,
-            rating: true, totalReviews: true, rciNumber: true, bio: true, user: { select: { name: true } },
+            clinicianType: true, rating: true, totalReviews: true, rciNumber: true, bio: true, user: { select: { name: true } },
           },
         })
       : []
@@ -241,12 +250,18 @@ export async function getMyCareTeam(): Promise<CareTeam> {
       // individual slot, fall back to the patient's default assigned / most-recent
       // expert. This way a patient who already has sessions with a therapist sees
       // them here even before (or without) buying a package.
+      const slotTrack = SLOT_TRACK[k.key]
+      // Only surface a clinician who actually fits this care type — a psychiatrist
+      // must never appear under Individual/Couples, even via a fallback.
+      const fits = (p: ProfileRow | undefined): ProfileRow | undefined =>
+        p && clinicianMatchesTrack(p.clinicianType, p.specializations, slotTrack) ? p : undefined
+
       const catId = categoryAssignment[k.key]
-      let profRow = catId ? byId.get(catId) : undefined
-      if (!profRow && sub?.therapistId) profRow = byId.get(sub.therapistId)
+      let profRow = fits(catId ? byId.get(catId) : undefined)
+      if (!profRow && sub?.therapistId) profRow = fits(byId.get(sub.therapistId))
       if (!profRow && k.key === 'individual') {
         const fallbackId = profile?.assignedTherapistId ?? latestAppt?.therapistId ?? null
-        if (fallbackId) profRow = byId.get(fallbackId)
+        if (fallbackId) profRow = fits(byId.get(fallbackId))
       }
       return {
         key: k.key,

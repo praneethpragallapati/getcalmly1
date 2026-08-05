@@ -252,7 +252,7 @@ export type PatientDetail = {
   assignedTherapistId: string | null; assignedTherapistName: string | null
   assignments: Record<CareCategoryKey, CategoryAssignment>
   subscriptions: SubscriptionRow[]
-  therapists: { profileId: string; name: string }[]
+  therapists: { profileId: string; name: string; clinicianType: string | null; specializations: string[] }[]
 }
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
@@ -286,7 +286,9 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         therapistId: s.therapistId ?? null,
         therapistName: s.therapistId ? therapists.find((t) => t.id === s.therapistId)?.user?.name ?? null : null,
       })),
-      therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
+      therapists: therapists
+        .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', clinicianType: t.clinicianType ?? null, specializations: t.specializations }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
     }
   }, null)
 }
