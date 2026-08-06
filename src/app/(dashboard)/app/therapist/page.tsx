@@ -5,6 +5,10 @@ import {
 } from 'lucide-react'
 import { getMyCareTeam, type CareSlot } from '@/lib/therapist'
 
+// Always read the assignment/packages fresh, so an admin reassignment shows on
+// the patient's next load (never a stale server-cached copy).
+export const dynamic = 'force-dynamic'
+
 export default async function TherapistPage() {
   const team = await getMyCareTeam()
   const activeCount = team.slots.filter((s) => s.hasPack).length

@@ -225,13 +225,22 @@ export async function assignCategoryClinician(input: { userId: string; category:
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   const column = CATEGORY_COLUMN[input.category]
   if (!column) return { ok: false, error: 'Unknown care type.' }
+  const TRACKS: Record<keyof typeof CATEGORY_COLUMN, string> = { individual: 'therapy', couples: 'couples', psychiatry: 'psychiatry' }
   try {
     await prisma.patientProfile.update({
       where: { userId: input.userId },
       data: { [column]: input.therapistProfileId || null },
     })
+    // Keep the package's attached expert in sync with the per-type assignment so
+    // both the admin package view and the patient's Care Team show the same
+    // clinician (they read different fields).
+    await prisma.subscription.updateMany({
+      where: { userId: input.userId, trackSlug: TRACKS[input.category], status: 'ACTIVE' },
+      data: { therapistId: input.therapistProfileId || null },
+    })
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist')
+    revalidatePath('/app')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update. The patient may not have a profile yet.' }
