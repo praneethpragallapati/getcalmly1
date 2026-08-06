@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, TrendingUp, Newspaper, Settings, Tags } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
-import { getAdminSession } from '@/lib/admin'
+import { authOptions } from '@/lib/auth'
+import { roleHome } from '@/lib/roleHome'
 import { mustChangePassword } from '@/lib/accountSecurity'
 
 export const metadata: Metadata = {
@@ -13,8 +15,12 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const admin = await getAdminSession()
-  if (!admin) redirect('/login')
+  // Role read fresh from the DB (the session callback authoritatively refreshes
+  // it), so this pins the area correctly the moment a role changes — no re-login.
+  const session = await getServerSession(authOptions)
+  const admin = session?.user as { id?: string; role?: string; name?: string | null } | undefined
+  if (!admin?.id) redirect('/login')
+  if (admin.role !== 'ADMIN') redirect(roleHome(admin.role))
   if (await mustChangePassword(admin.id)) redirect('/change-password')
 
   return (

@@ -6,6 +6,7 @@
  *  - Patient sees assigned forms on their dashboard and submits responses.
  */
 import { prisma } from '@/lib/prisma'
+import { ownsPatient } from '@/lib/expert'
 import { FORM_TEMPLATES, intakeSlugForCategory, type FormField } from '@/data/forms'
 
 export type { FormField } from '@/data/forms'
@@ -168,11 +169,10 @@ export async function sendForm(
   patientId: string,
   templateId: string
 ): Promise<boolean> {
-  const owns = await prisma.appointment.findFirst({
-    where: { therapistId: therapistProfileId, patientId },
-    select: { id: true },
-  })
-  if (!owns) return false
+  // Consistent with tasks and prescriptions: a therapist responsible for the
+  // patient (by appointment OR admin assignment OR an attached package) can send
+  // a form, not only one who already has an appointment with them.
+  if (!(await ownsPatient(therapistProfileId, patientId))) return false
   const template = await prisma.formTemplate.findUnique({ where: { id: templateId }, select: { id: true } })
   if (!template) return false
   await prisma.formAssignment.create({
