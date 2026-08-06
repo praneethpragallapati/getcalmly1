@@ -193,6 +193,7 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
  * caseload roster), so what a therapist can see and can act on always match.
  */
 export async function ownsPatient(therapistProfileId: string, patientId: string): Promise<boolean> {
+  try {
   const [appt, assigned, sub] = await Promise.all([
     prisma.appointment.findFirst({ where: { therapistId: therapistProfileId, patientId }, select: { id: true } }),
     prisma.patientProfile.findFirst({
@@ -210,6 +211,10 @@ export async function ownsPatient(therapistProfileId: string, patientId: string)
     prisma.subscription.findFirst({ where: { userId: patientId, therapistId: therapistProfileId, status: 'ACTIVE' }, select: { id: true } }),
   ])
   return Boolean(appt || assigned || sub)
+  } catch (e) {
+    console.error('[ownsPatient] check failed (migrations applied?)', e)
+    return false
+  }
 }
 
 /** Trend over the most recent check-ins: average of the older half vs the newer half. */
@@ -982,34 +987,41 @@ export async function getAssignedTherapistId(patientUserId: string): Promise<str
   //   4. someone the patient already has an appointment with
   // …and null when there is truly no assignment, so callers can require the
   // assessment / a purchase instead of silently picking a stranger.
-  const profile = await prisma.patientProfile.findUnique({
-    where: { userId: patientUserId },
-    select: {
-      assignedTherapistId: true,
-      assignedTherapistIndividualId: true,
-      assignedTherapistCouplesId: true,
-      assignedTherapistPsychiatryId: true,
-    },
-  })
-  const fromProfile =
-    profile?.assignedTherapistId ??
-    profile?.assignedTherapistIndividualId ??
-    profile?.assignedTherapistCouplesId ??
-    profile?.assignedTherapistPsychiatryId ??
-    null
-  if (fromProfile) return fromProfile
-  const sub = await prisma.subscription.findFirst({
-    where: { userId: patientUserId, status: 'ACTIVE', therapistId: { not: null } },
-    orderBy: { createdAt: 'desc' },
-    select: { therapistId: true },
-  })
-  if (sub?.therapistId) return sub.therapistId
-  const appt = await prisma.appointment.findFirst({
-    where: { patientId: patientUserId },
-    orderBy: { scheduledAt: 'desc' },
-    select: { therapistId: true },
-  })
-  return appt?.therapistId ?? null
+  try {
+    const profile = await prisma.patientProfile.findUnique({
+      where: { userId: patientUserId },
+      select: {
+        assignedTherapistId: true,
+        assignedTherapistIndividualId: true,
+        assignedTherapistCouplesId: true,
+        assignedTherapistPsychiatryId: true,
+      },
+    })
+    const fromProfile =
+      profile?.assignedTherapistId ??
+      profile?.assignedTherapistIndividualId ??
+      profile?.assignedTherapistCouplesId ??
+      profile?.assignedTherapistPsychiatryId ??
+      null
+    if (fromProfile) return fromProfile
+    const sub = await prisma.subscription.findFirst({
+      where: { userId: patientUserId, status: 'ACTIVE', therapistId: { not: null } },
+      orderBy: { createdAt: 'desc' },
+      select: { therapistId: true },
+    })
+    if (sub?.therapistId) return sub.therapistId
+    const appt = await prisma.appointment.findFirst({
+      where: { patientId: patientUserId },
+      orderBy: { scheduledAt: 'desc' },
+      select: { therapistId: true },
+    })
+    return appt?.therapistId ?? null
+  } catch (e) {
+    // Never 500 a page over a resolution query — e.g. an un-migrated DB missing
+    // the per-care-type assignment columns. Degrade to "no assignment".
+    console.error('[getAssignedTherapistId] resolution failed (migrations applied?)', e)
+    return null
+  }
 }
 
 /**
