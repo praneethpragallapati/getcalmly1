@@ -69,8 +69,6 @@ export async function saveAssessmentResult(payload: {
       },
     })
 
-    // Assign the care team from the assessment. Everyone gets a primary
-    // individual therapist; we also assign the psychiatrist / couples expert
     // Assign a clinician ONLY for the care types the patient actually holds a
     // package for. We never attach an expert to a care type the patient hasn't
     // bought (e.g. don't put a therapist on Individual when they only bought
