@@ -26,7 +26,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div style={{ position: 'absolute', bottom: 80, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         <Link href="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: 'auto' }}>
-          <Logo size={32} onDark />
+          {/* href={null} so Logo renders just the mark — this outer Link is the
+              anchor. Nesting Logo's own <a> inside this one is invalid HTML and
+              the browser repairs it on parse, breaking hydration (React #418). */}
+          <Logo size={32} onDark href={null} />
         </Link>
 
         <div style={{ paddingTop: 64, paddingBottom: 48 }}>
@@ -76,7 +79,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       }} className="auth-right-panel">
         {/* Mobile logo */}
         <div className="auth-mobile-logo" style={{ marginBottom: 32 }}>
-          <Link href="/" style={{ textDecoration: 'none' }}><Logo size={28} /></Link>
+          <Link href="/" style={{ textDecoration: 'none' }}><Logo size={28} href={null} /></Link>
         </div>
         {children}
       </div>
