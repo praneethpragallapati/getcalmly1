@@ -6,15 +6,24 @@ import { verifyOtp } from '@/lib/msg91'
 import { verifyEmailOtp } from '@/lib/email'
 import { verifyPassword } from '@/lib/password'
 
+// Google is only offered when its OAuth credentials are configured, so we never
+// register a broken provider (the sign-in buttons are hidden to match — see
+// getProviders() on the login/register pages).
+export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+
 export const authOptions: NextAuthOptions = {
   // Credentials providers require JWT sessions (DB sessions are not supported
   // for them), so the whole app uses JWT.
   session: { strategy: 'jwt' },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    }),
+    ...(googleEnabled
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       id: 'phone-otp',
       name: 'Phone OTP',
