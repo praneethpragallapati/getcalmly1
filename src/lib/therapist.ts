@@ -129,6 +129,8 @@ export type CareSlot = {
   planName: string | null
   sessionsLeft: number | null
   sessionsTotal: number | null
+  validUntil: string | null // package expiry for this care type
+  expired: boolean
   expert: CareExpert | null // null with hasPack=true → being matched
 }
 
@@ -192,7 +194,7 @@ function expertFromProfile(p: ProfileRow): CareExpert {
 const emptyTeam = (): CareTeam => ({
   slots: CARE_KINDS.map((k) => ({
     key: k.key, label: k.label, blurb: k.blurb, buyHref: k.buyHref,
-    hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, expert: null,
+    hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, validUntil: null, expired: false, expert: null,
   })),
   nextSessionWhen: null,
   nextSessionId: null,
@@ -213,7 +215,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
       prisma.subscription.findMany({
         where: { userId, status: 'ACTIVE' },
         orderBy: { createdAt: 'desc' },
-        select: { trackSlug: true, planName: true, sessionsTotal: true, sessionsUsed: true, therapistId: true },
+        select: { trackSlug: true, planName: true, sessionsTotal: true, sessionsUsed: true, therapistId: true, expiresAt: true },
       }),
       prisma.patientProfile.findUnique({
         where: { userId },
@@ -277,6 +279,10 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         planName: sub?.planName ?? null,
         sessionsTotal: sub?.sessionsTotal ?? null,
         sessionsLeft: sub ? Math.max(0, sub.sessionsTotal - sub.sessionsUsed) : null,
+        validUntil: sub?.expiresAt
+          ? sub.expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          : null,
+        expired: Boolean(sub?.expiresAt && sub.expiresAt.getTime() < Date.now()),
         expert: profRow ? expertFromProfile(profRow) : null,
       }
     })

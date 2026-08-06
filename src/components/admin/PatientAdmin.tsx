@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, attachSubscriptionExpert, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
 import type { PatientDetail, SubscriptionRow, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
 
@@ -116,7 +116,14 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                         </div>
                       </div>
                     </div>
-                    <AttachExpert sub={s} therapists={p.therapists} field={field} pending={pending} run={run} />
+                    <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(28,43,58,.08)' }}>
+                      <div className="muted" style={{ fontSize: 12 }}>
+                        Expert:{' '}
+                        {s.therapistName
+                          ? <b style={{ color: charcoal }}>{s.therapistName}</b>
+                          : <span>none yet — set it in “Assigned clinicians” above</span>}
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -206,35 +213,6 @@ function GrantByType({ userId, field, pending, run }: {
 }
 
 /** Per-package expert attach: this clinician becomes the one the patient sees for this pack. */
-function AttachExpert({ sub, therapists, field, pending, run }: {
-  sub: SubscriptionRow
-  therapists: { profileId: string; name: string }[]
-  field: React.CSSProperties
-  pending: boolean
-  run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
-}) {
-  const [id, setId] = useState(sub.therapistId ?? '')
-  return (
-    <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(28,43,58,.08)' }}>
-      <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>
-        Attached expert {sub.therapistName ? <>· currently <b>{sub.therapistName}</b></> : '· none yet'}
-      </div>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <select value={id} onChange={(e) => setId(e.target.value)} style={{ ...field, minWidth: 220 }}>
-          <option value="">— No expert attached —</option>
-          {therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
-        </select>
-        <button
-          onClick={() => run(() => attachSubscriptionExpert({ id: sub.id, therapistProfileId: id || null }), 'Expert updated.')}
-          disabled={pending}
-          className="btn btn-primary"
-        >
-          Attach expert
-        </button>
-      </div>
-    </div>
-  )
-}
 
 function Stepper({ label, value, onMinus, onPlus, pending, iconBtn, minusTitle }: {
   label: string; value: number; onMinus: () => void; onPlus: () => void; pending: boolean; iconBtn: React.CSSProperties; minusTitle?: string

@@ -90,7 +90,7 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
             </div>
           </div>
           {slot.sessionsLeft !== null && (
-            <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} left</span>
+            <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} left{slot.validUntil ? ` · ${slot.expired ? 'expired' : 'valid until'} ${slot.validUntil}` : ''}</span>
           )}
           {!assessmentDone && (
             <Link href="/app/assessment" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
@@ -111,7 +111,7 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
         <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--c-green, #3D9E72)' }}>{slot.label}</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {slot.hasPack
-            ? <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} of {slot.sessionsTotal} left</span>
+            ? <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} of {slot.sessionsTotal} left{slot.validUntil ? ` · ${slot.expired ? 'expired' : 'valid until'} ${slot.validUntil}` : ''}</span>
             : <Link href={slot.buyHref} className="ther-chip" style={{ textDecoration: 'none' }}>No active package · get one</Link>}
           <Link href={`/app/sessions?with=${t.profileId}`} className="btn btn-primary btn-sm"><CalendarDays size={14} /> Book</Link>
         </div>
