@@ -1,4 +1,14 @@
--- getCalmly · fresh user seed. Removes ALL users and their data, then
+-- ⚠️  DESTRUCTIVE — RUN ONCE, NEVER AGAIN AFTER YOU START TESTING  ⚠️
+-- getCalmly · fresh user seed. `TRUNCATE ... CASCADE` DELETES ALL USERS AND
+-- everything linked to them — packages/subscriptions, appointments, check-ins,
+-- journals, assignments. Re-running this after you've bought packages or booked
+-- sessions will WIPE them (the account is recreated empty with the same id), which
+-- looks exactly like "my packages disappeared / admin shows nothing".
+--
+-- For a one-time clean slate: run this ONCE, then log out and back in, and DO NOT
+-- run it again. To only add the missing schema columns without touching data, run
+-- prisma/apply_all_migrations.sql instead (that one is safe and idempotent).
+--
 -- creates 3 named logins + 4 clinicians + 8 patients. No mappings/appointments/packages.
 -- Login password for every account: getCalmly@2026
 -- Blogs & community render from seed data, so they are unaffected.
