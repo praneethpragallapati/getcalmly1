@@ -366,7 +366,9 @@ export async function getExpertPatientProfile(
         therapist: { select: { user: { select: { name: true } } } },
       },
     }),
-    prisma.subscription.findFirst({ where: { userId: patientId, status: 'ACTIVE' }, orderBy: { createdAt: 'desc' }, select: { sessionsUsed: true, sessionsTotal: true } }),
+    // ALL active packages — session totals must aggregate across care types
+    // (a patient may hold therapy + psychiatry), not just the most recent one.
+    prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { sessionsUsed: true, sessionsTotal: true } }),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }),
     prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }),
   ])
@@ -415,9 +417,9 @@ export async function getExpertPatientProfile(
       author: a.therapist?.user?.name ?? 'Clinician',
       isOwn: a.therapistId === therapistProfileId,
     })),
-    sessionsDone: sub?.sessionsUsed ?? 0,
-    sessionsTotal: sub?.sessionsTotal ?? 0,
-    sessionsRemaining: sub ? Math.max(0, sub.sessionsTotal - sub.sessionsUsed) : 0,
+    sessionsDone: sub.reduce((n, s) => n + s.sessionsUsed, 0),
+    sessionsTotal: sub.reduce((n, s) => n + s.sessionsTotal, 0),
+    sessionsRemaining: sub.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
     taskCompletionPct,
     tasks: tasks
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
