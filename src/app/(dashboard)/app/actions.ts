@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
-import { getSessionUserId } from '@/lib/patient'
+import { getSessionUserId, getSessionPatientId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
 import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm } from '@/lib/forms'
@@ -41,7 +41,7 @@ export async function saveAssessmentResult(payload: {
   severity?: string
   riskFlag?: boolean
 }): Promise<ActionResult> {
-  const userId = await getSessionUserId()
+  const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
 
   const tags = [...new Set((payload.tags || []).map((t) => t.trim().toLowerCase()).filter(Boolean))]
@@ -215,7 +215,7 @@ export async function savePreSessionNote(
  * so the preview stays usable (same posture as the other actions).
  */
 export async function requestSession(slotIso: string, therapistIdOverride?: string): Promise<ActionResult> {
-  const userId = await getSessionUserId()
+  const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   const scheduledAt = new Date(slotIso)
@@ -709,7 +709,7 @@ export async function buyPackage(
   packIndex: number,
   partner?: { name: string; phone: string; email: string }
 ): Promise<ActionResult & { partnerRequired?: boolean }> {
-  const userId = await getSessionUserId()
+  const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   // Idempotency guard against double-submit (#2): checkout is instant and
@@ -750,7 +750,7 @@ export async function buyPackage(
 
 /** Buy a Calm+ app plan (extends validity for session-plan holders). */
 export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
-  const userId = await getSessionUserId()
+  const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
   if (!rateLimit(`buycalm:${userId}:${packIndex}`, 1, 4000).ok) {
     return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
@@ -777,7 +777,7 @@ export async function buyFirstSession(
   track: BuyableTrack,
   partner?: { name: string; phone: string; email: string }
 ): Promise<ActionResult & { partnerRequired?: boolean }> {
-  const userId = await getSessionUserId()
+  const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
   if (!rateLimit(`buyfirst:${userId}:${track}`, 1, 4000).ok) {
     return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }

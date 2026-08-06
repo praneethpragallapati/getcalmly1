@@ -17,6 +17,26 @@ export async function getSessionUserId(): Promise<string | null> {
   }
 }
 
+/**
+ * The signed-in user's id ONLY when they are a PATIENT — otherwise null. Patient
+ * data-mutating actions (buy a package, take the assessment, book, check in) use
+ * this so an ADMIN or THERAPIST account can never accumulate patient data on
+ * itself. This is the data-layer half of "one account = one dashboard"; the
+ * routing half lives in proxy.ts. Older sessions minted before roles were added
+ * to the token have no role — treat those as PATIENT for backward compatibility.
+ */
+export async function getSessionPatientId(): Promise<string | null> {
+  try {
+    const session = await getServerSession(authOptions)
+    const u = session?.user as { id?: string; role?: string } | undefined
+    if (!u?.id) return null
+    if (u.role && u.role !== 'PATIENT') return null
+    return u.id
+  } catch {
+    return null
+  }
+}
+
 export type Privacy = {
   collectSessions: boolean
   collectChats: boolean
