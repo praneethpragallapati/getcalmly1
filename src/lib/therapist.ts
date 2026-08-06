@@ -264,7 +264,13 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         p && clinicianMatchesTrack(p.clinicianType, p.specializations, slotTrack) ? p : undefined
 
       const catId = categoryAssignment[k.key]
-      let profRow = fits(catId ? byId.get(catId) : undefined)
+      // An EXPLICIT admin assignment for this care type is honored as-is: the
+      // admin deliberately chose this clinician, so it must show even if they
+      // don't match the auto-match heuristic (otherwise the assignment lands in
+      // admin but silently vanishes from the patient's care team). fits() still
+      // guards the HEURISTIC fallbacks below, so a psychiatrist can't leak into
+      // Individual via a package/default it was never explicitly assigned to.
+      let profRow: ProfileRow | undefined = catId ? byId.get(catId) : undefined
       if (!profRow && sub?.therapistId) profRow = fits(byId.get(sub.therapistId))
       if (!profRow && k.key === 'individual') {
         const fallbackId = profile?.assignedTherapistId ?? latestAppt?.therapistId ?? null

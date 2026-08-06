@@ -184,13 +184,32 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
   }
 }
 
-/** Whether this therapist has any appointment with the given patient (ownership gate). */
+/**
+ * Whether this therapist is responsible for the given patient (ownership gate).
+ * True when they have an appointment with them OR the admin has assigned them
+ * (any care-type column) OR they're the expert attached to one of the patient's
+ * active packages — so an admin assignment grants access immediately, without
+ * waiting for the first appointment. Kept consistent with patientIdsFor (the
+ * caseload roster), so what a therapist can see and can act on always match.
+ */
 export async function ownsPatient(therapistProfileId: string, patientId: string): Promise<boolean> {
-  const owns = await prisma.appointment.findFirst({
-    where: { therapistId: therapistProfileId, patientId },
-    select: { id: true },
-  })
-  return Boolean(owns)
+  const [appt, assigned, sub] = await Promise.all([
+    prisma.appointment.findFirst({ where: { therapistId: therapistProfileId, patientId }, select: { id: true } }),
+    prisma.patientProfile.findFirst({
+      where: {
+        userId: patientId,
+        OR: [
+          { assignedTherapistId: therapistProfileId },
+          { assignedTherapistIndividualId: therapistProfileId },
+          { assignedTherapistCouplesId: therapistProfileId },
+          { assignedTherapistPsychiatryId: therapistProfileId },
+        ],
+      },
+      select: { id: true },
+    }),
+    prisma.subscription.findFirst({ where: { userId: patientId, therapistId: therapistProfileId, status: 'ACTIVE' }, select: { id: true } }),
+  ])
+  return Boolean(appt || assigned || sub)
 }
 
 /** Trend over the most recent check-ins: average of the older half vs the newer half. */
@@ -208,12 +227,30 @@ export function moodTrendOf(moods: { mood: number; createdAt: Date }[]): MoodTre
 }
 
 async function patientIdsFor(therapistProfileId: string): Promise<string[]> {
-  const rows = await prisma.appointment.findMany({
-    where: { therapistId: therapistProfileId },
-    select: { patientId: true },
-    distinct: ['patientId'],
-  })
-  return rows.map((r) => r.patientId)
+  // A therapist's caseload = everyone they have an appointment with, PLUS anyone
+  // the admin has assigned to them (any care-type column) or attached to via an
+  // active package. So an admin assignment surfaces the patient on the
+  // therapist's dashboard right away, not only after the first session is booked.
+  const [appts, assigned, subs] = await Promise.all([
+    prisma.appointment.findMany({ where: { therapistId: therapistProfileId }, select: { patientId: true }, distinct: ['patientId'] }),
+    prisma.patientProfile.findMany({
+      where: {
+        OR: [
+          { assignedTherapistId: therapistProfileId },
+          { assignedTherapistIndividualId: therapistProfileId },
+          { assignedTherapistCouplesId: therapistProfileId },
+          { assignedTherapistPsychiatryId: therapistProfileId },
+        ],
+      },
+      select: { userId: true },
+    }),
+    prisma.subscription.findMany({ where: { therapistId: therapistProfileId, status: 'ACTIVE' }, select: { userId: true } }),
+  ])
+  const ids = new Set<string>()
+  appts.forEach((r) => ids.add(r.patientId))
+  assigned.forEach((r) => ids.add(r.userId))
+  subs.forEach((r) => ids.add(r.userId))
+  return [...ids]
 }
 
 export async function getCaseload(therapistProfileId: string): Promise<CaseloadPatient[]> {

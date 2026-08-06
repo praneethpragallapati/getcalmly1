@@ -208,6 +208,8 @@ export async function reassignPatient(input: { userId: string; therapistProfileI
       data: { assignedTherapistId: input.therapistProfileId || null },
     })
     revalidatePath(`/admin/patients/${input.userId}`)
+    revalidatePath('/app/therapist'); revalidatePath('/app')
+    revalidatePath('/expert'); revalidatePath('/expert/patients')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not reassign. The patient may not have a profile yet.' }
@@ -241,6 +243,9 @@ export async function assignCategoryClinician(input: { userId: string; category:
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist')
     revalidatePath('/app')
+    // The (un)assigned clinician's own caseload changed too.
+    revalidatePath('/expert')
+    revalidatePath('/expert/patients')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update. The patient may not have a profile yet.' }
@@ -397,7 +402,8 @@ export async function attachSubscriptionExpert(input: { id: string; therapistPro
       data: { therapistId: input.therapistProfileId || null },
     })
     revalidatePath('/admin/patients')
-    revalidatePath('/app/therapist')
+    revalidatePath('/app/therapist'); revalidatePath('/app')
+    revalidatePath('/expert'); revalidatePath('/expert/patients')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not attach the expert to this package.' }

@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
+import { prisma } from '@/lib/prisma'
 
-// Central auth gate for the three signed-in areas (#4). Previously there was no
-// middleware/proxy at all — every layout guarded itself, so a new page could
-// ship unguarded and a logged-out visitor could reach /app and see the blank
-// preview. This runs (nodejs runtime in Next 16) before any protected route
-// renders and bounces unauthenticated requests to /login, carrying the intended
-// path as callbackUrl. Role-specific routing (patient vs expert vs admin) still
-// lives in each area's own layout — this only enforces "must be signed in".
+// Central auth + role gate for the three signed-in areas (#4). Runs (nodejs
+// runtime in Next 16) before any protected route renders: unauthenticated
+// requests go to /login, and each role is pinned to its own dashboard on EVERY
+// request (initial load and the RSC fetches behind soft navigation), so one
+// account can never straddle two dashboards.
+//
+// Role is read FRESH FROM THE DB by the stable user id — not from the JWT. JWT
+// sessions bake the role in at login, so trusting token.role meant a role change
+// only took effect after a manual re-login, and a stale token kept misrouting an
+// account to its old dashboard. Keying off the DB makes a role change take effect
+// on the very next request and lets stale sessions self-heal. (One indexed
+// primary-key lookup per protected request; fine at this scale, and it can be
+// given a short in-memory TTL later if it ever shows up in profiling.)
 export async function proxy(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   const path = req.nextUrl.pathname
@@ -18,13 +25,18 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // One account = one dashboard, enforced on EVERY request (initial load and the
-  // RSC fetches behind soft client navigation) — not just on segment entry, which
-  // a layout guard misses. Each role is pinned to its own area; a mismatched role
-  // is sent home rather than allowed to wander and accumulate the wrong kind of
-  // data. Sessions minted before roles were added to the token have no role and
-  // are treated as PATIENT for backward compatibility.
-  const role = (token as { role?: string }).role
+  const uid = (token as { uid?: string }).uid
+  let role = (token as { role?: string }).role
+  if (uid) {
+    try {
+      const u = await prisma.user.findUnique({ where: { id: uid }, select: { role: true } })
+      if (u?.role) role = u.role
+    } catch {
+      // DB hiccup: fall back to the token's role rather than lock everyone out.
+    }
+  }
+
+  // A role with no match (or undefined, e.g. a legacy token) is treated as PATIENT.
   const home = role === 'ADMIN' ? '/admin' : role === 'THERAPIST' ? '/expert' : '/app'
   const areaOk =
     path.startsWith('/change-password') ||
