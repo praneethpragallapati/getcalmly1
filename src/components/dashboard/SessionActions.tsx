@@ -17,8 +17,11 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
   const [mode, setMode] = useState<null | 'cancel' | 'reschedule'>(null)
   const [when, setWhen] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
+  // Evaluate "now" once at mount (state initializer) rather than during every
+  // render — keeps the render pure and the 24h lock stable for this view.
+  const [now] = useState(() => Date.now())
 
-  const hoursOut = scheduledISO ? (new Date(scheduledISO).getTime() - Date.now()) / 3_600_000 : 0
+  const hoursOut = scheduledISO ? (new Date(scheduledISO).getTime() - now) / 3_600_000 : 0
   const locked = hoursOut < 24
 
   const run = (fn: () => Promise<{ ok: boolean; error?: string }>) => {

@@ -267,45 +267,55 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     // Which package type this booking draws from, from the clinician's kind.
     const track = trackForClinician(therapist.clinicianType, therapist.specializations)
 
-    // Wallet check: reserve a session from an active package of that type that
-    // still has sessions left and whose validity covers the chosen date. The
-    // session is deducted now (booking) and restored on a cancel > 24h out.
-    const subs = await prisma.subscription.findMany({
-      where: { userId, status: 'ACTIVE', trackSlug: track },
-      orderBy: { createdAt: 'desc' },
-      select: { id: true, sessionsTotal: true, sessionsUsed: true, expiresAt: true },
-    })
-    const reservable = subs.find(
-      (s) => s.sessionsUsed < s.sessionsTotal && (!s.expiresAt || s.expiresAt.getTime() >= scheduledAt.getTime()),
-    )
-    if (!reservable) {
-      const anyForTrack = subs.length > 0
-      return {
-        ok: false, persisted: false,
-        error: anyForTrack
-          ? 'This booking is outside your package validity or you have no sessions left. Add sessions or extend validity, then try again.'
-          : `You don't have a ${TRACK_LABEL[track]} package. Buy one to book a session.`,
-      }
-    }
-
     // Count appointments BEFORE this booking so we can auto-send the intake form
     // only on the patient's very first session (#default forms by session number).
     const priorAppointments = await prisma.appointment.count({ where: { patientId: userId } })
 
-    await prisma.$transaction([
-      prisma.appointment.create({
-        data: {
-          patientId: userId,
-          therapistId: therapist.id,
-          scheduledAt,
-          status: 'PENDING',
-          fee: therapist.sessionFee,
-          roomId: crypto.randomUUID(),
-          consumedSubscriptionId: reservable.id,
-        },
-      }),
-      prisma.subscription.update({ where: { id: reservable.id }, data: { sessionsUsed: reservable.sessionsUsed + 1 } }),
-    ])
+    // Candidate packages of this type (most recent first). The actual reserve is
+    // an atomic guarded UPDATE per candidate, so concurrent bookings can never
+    // oversell the last session: the `sessionsUsed < sessionsTotal` guard lives
+    // in the UPDATE's WHERE and is re-checked under the row lock (any losing
+    // concurrent write simply affects 0 rows and moves to the next candidate).
+    const candidates = await prisma.subscription.findMany({
+      where: { userId, status: 'ACTIVE', trackSlug: track },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true },
+    })
+
+    let claimedId: string | null = null
+    for (const c of candidates) {
+      const claimed = await prisma.$transaction(async (tx) => {
+        const rows = await tx.$queryRaw<{ id: string }[]>`
+          UPDATE "Subscription" SET "sessionsUsed" = "sessionsUsed" + 1
+          WHERE id = ${c.id} AND status = 'ACTIVE'
+            AND "sessionsUsed" < "sessionsTotal"
+            AND ("expiresAt" IS NULL OR "expiresAt" >= ${scheduledAt})
+          RETURNING id`
+        if (rows.length === 0) return null
+        await tx.appointment.create({
+          data: {
+            patientId: userId,
+            therapistId: therapist.id,
+            scheduledAt,
+            status: 'PENDING',
+            fee: therapist.sessionFee,
+            roomId: crypto.randomUUID(),
+            consumedSubscriptionId: c.id,
+          },
+        })
+        return c.id
+      })
+      if (claimed) { claimedId = claimed; break }
+    }
+
+    if (!claimedId) {
+      return {
+        ok: false, persisted: false,
+        error: candidates.length > 0
+          ? 'This booking is outside your package validity or you have no sessions left. Add sessions or extend validity, then try again.'
+          : `You don't have a ${TRACK_LABEL[track]} package. Buy one to book a session.`,
+      }
+    }
 
     // First-ever booking → queue the category-matched intake/information form.
     await autoSendIntakeForm(userId, priorAppointments)

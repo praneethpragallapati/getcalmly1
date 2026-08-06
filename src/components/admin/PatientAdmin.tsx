@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
 import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
-import type { PatientDetail, SubscriptionRow, CareCategoryKey } from '@/lib/admin'
+import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
 
 type TherapistOpt = { profileId: string; name: string; clinicianType: string | null; specializations: string[] }

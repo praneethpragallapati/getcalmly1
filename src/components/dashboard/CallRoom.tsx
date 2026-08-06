@@ -200,7 +200,7 @@ export function CallRoom({
     await send('hello', null)
     await poll()
     pollRef.current = setInterval(poll, POLL_MS)
-  }, [buildPeerConnection, poll, send])
+  }, [buildPeerConnection, poll, send, roomId])
 
   const leave = useCallback(() => {
     stoppedRef.current = true
