@@ -583,19 +583,29 @@ export async function setAppointmentStatusAdmin(input: { id: string; status: str
 export async function voidSession(input: { appointmentId: string; reason?: string; creditPatient?: boolean }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
-    const appt = await prisma.appointment.findUnique({ where: { id: input.appointmentId }, select: { id: true, patientId: true, notes: true } })
+    const appt = await prisma.appointment.findUnique({ where: { id: input.appointmentId }, select: { id: true, patientId: true, notes: true, consumedSubscriptionId: true } })
     if (!appt) return { ok: false, error: 'Session not found.' }
     const reason = (input.reason ?? '').trim()
     const stamp = `[Voided ${new Date().toISOString().slice(0, 10)}${reason ? `: ${reason}` : ''}]`
-    // CANCELLED + no summary → never counts toward clinician pay.
+    // CANCELLED + no summary → never counts toward clinician pay. Null out the
+    // consumed link so a second void can't double-credit the same session.
     await prisma.appointment.update({
       where: { id: appt.id },
-      data: { status: 'CANCELLED', summary: null, notes: appt.notes ? `${appt.notes}\n${stamp}` : stamp },
+      data: { status: 'CANCELLED', summary: null, notes: appt.notes ? `${appt.notes}\n${stamp}` : stamp, consumedSubscriptionId: null },
     })
     if (input.creditPatient) {
-      const sub = await prisma.subscription.findFirst({ where: { userId: appt.patientId }, orderBy: { createdAt: 'desc' }, select: { id: true, sessionsUsed: true } })
-      if (sub && sub.sessionsUsed > 0) {
-        await prisma.subscription.update({ where: { id: sub.id }, data: { sessionsUsed: sub.sessionsUsed - 1 } })
+      // Credit back the EXACT package the session drew from (not "most recent",
+      // which could refund a therapy pack for a voided psychiatry session), with
+      // an atomic guarded decrement. Legacy appointments without a consumed link
+      // fall back to the patient's most recent active package, best-effort.
+      if (appt.consumedSubscriptionId) {
+        await prisma.subscription.updateMany({
+          where: { id: appt.consumedSubscriptionId, sessionsUsed: { gt: 0 } },
+          data: { sessionsUsed: { decrement: 1 } },
+        })
+      } else {
+        const sub = await prisma.subscription.findFirst({ where: { userId: appt.patientId, status: 'ACTIVE', sessionsUsed: { gt: 0 } }, orderBy: { createdAt: 'desc' }, select: { id: true } })
+        if (sub) await prisma.subscription.updateMany({ where: { id: sub.id, sessionsUsed: { gt: 0 } }, data: { sessionsUsed: { decrement: 1 } } })
       }
     }
     revalidatePath('/admin/therapists'); revalidatePath('/admin/operations'); revalidatePath('/admin/money')

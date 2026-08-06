@@ -144,8 +144,11 @@ export async function matchAndAssignForTrack(userId: string, track: CareTrack): 
       where: { userId, trackSlug: track, status: 'ACTIVE' },
       data: { therapistId },
     })
-  } catch {
-    /* subscription.therapistId not present yet — assignment still lands below */
+  } catch (e) {
+    // Don't fail the purchase that called us, but DON'T swallow silently either:
+    // a missing 0015 column would otherwise make auto-assignment vanish with no
+    // trace. Surface it so a migration-drift deploy is diagnosable from logs.
+    console.error(`[matchAndAssignForTrack] could not attach expert to ${track} package (migration 0015 applied?)`, e)
   }
 
   // Per-care-type assignment only (needs migration 0016). We deliberately do NOT
@@ -158,8 +161,8 @@ export async function matchAndAssignForTrack(userId: string, track: CareTrack): 
       where: { userId },
       data: { [col]: therapistId },
     })
-  } catch {
-    /* assignment columns not present yet */
+  } catch (e) {
+    console.error(`[matchAndAssignForTrack] could not write ${track} assignment column (migration 0016 applied?)`, e)
   }
 
   return therapistId

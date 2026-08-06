@@ -12,6 +12,7 @@ import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
+import { rateLimit } from '@/lib/rateLimit'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -99,8 +100,8 @@ export type UpvoteResult = { ok: boolean; count: number; voted: boolean; error?:
 /**
  * Save today's mood check-in (#8). Persists the patient's own raw record at the
  * mood/energy/calm grain. Authorization: writes only to the signed-in user's
- * rows; with no session (public preview) it succeeds without persisting so the
- * UI stays usable. The AI pipeline is refreshed separately, behind privacy.
+ * rows; with no session it fails with a clear "sign in again" error rather than
+ * reporting a phantom success. The AI pipeline is refreshed separately, behind privacy.
  */
 export async function saveCheckin(scores: {
   mood: number
@@ -108,7 +109,7 @@ export async function saveCheckin(scores: {
   calm: number
 }): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   const clamp = (n: number) => Math.max(0, Math.min(10, Math.round(n)))
   const mood = clamp(scores.mood)
@@ -157,7 +158,7 @@ export async function createJournalEntry(input: {
   if (!content) return { ok: false, persisted: false, error: 'Write something first.' }
 
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     await prisma.journalEntry.create({
@@ -190,7 +191,7 @@ export async function savePreSessionNote(
   note: string
 ): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const result = await prisma.appointment.updateMany({
@@ -215,7 +216,7 @@ export async function savePreSessionNote(
  */
 export async function requestSession(slotIso: string, therapistIdOverride?: string): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   const scheduledAt = new Date(slotIso)
   if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() + MIN_BOOKING_LEAD_MS) {
@@ -386,13 +387,18 @@ export async function cancelMyAppointment(appointmentId: string): Promise<Action
     if (appt.scheduledAt.getTime() - Date.now() < CANCEL_LEAD_MS) {
       return { ok: false, persisted: false, error: 'Sessions can only be cancelled at least 24 hours in advance.' }
     }
-    // Restore the reserved session to its package, if it consumed one.
-    const restoreSub = appt.consumedSubscriptionId
-      ? await prisma.subscription.findUnique({ where: { id: appt.consumedSubscriptionId }, select: { id: true, sessionsUsed: true } })
-      : null
+    // Restore the reserved session to its package, if it consumed one. Use an
+    // atomic guarded decrement (not a read-then-absolute-set): a concurrent
+    // booking incrementing sessionsUsed must never be clobbered, and the
+    // `sessionsUsed > 0` guard keeps it from going negative.
     await prisma.$transaction([
       prisma.appointment.update({ where: { id: appt.id }, data: { status: 'CANCELLED', consumedSubscriptionId: null } }),
-      ...(restoreSub ? [prisma.subscription.update({ where: { id: restoreSub.id }, data: { sessionsUsed: Math.max(0, restoreSub.sessionsUsed - 1) } })] : []),
+      ...(appt.consumedSubscriptionId
+        ? [prisma.subscription.updateMany({
+            where: { id: appt.consumedSubscriptionId, sessionsUsed: { gt: 0 } },
+            data: { sessionsUsed: { decrement: 1 } },
+          })]
+        : []),
     ])
     revalidatePath('/app/sessions'); revalidatePath('/app'); revalidatePath('/app/therapist'); revalidatePath('/app/billing')
     return { ok: true, persisted: true }
@@ -429,7 +435,11 @@ export async function rescheduleMyAppointment(appointmentId: string, newSlotIso:
         return { ok: false, persisted: false, error: 'That date is past your package validity. Pick an earlier slot or extend the package.' }
       }
     }
-    await prisma.appointment.update({ where: { id: appt.id }, data: { scheduledAt: newAt, status: 'PENDING' } })
+    // Moving the time invalidates any prior confirmation, so mark it RESCHEDULED
+    // (the same state the expert-side reschedule uses) rather than silently
+    // dropping a CONFIRMED booking to a fresh-looking PENDING. It stays visible
+    // as upcoming and signals both sides that the new slot needs re-confirmation.
+    await prisma.appointment.update({ where: { id: appt.id }, data: { scheduledAt: newAt, status: 'RESCHEDULED' } })
     revalidatePath('/app/sessions'); revalidatePath('/app')
     return { ok: true, persisted: true }
   } catch {
@@ -454,7 +464,7 @@ export type PrivacyInput = {
 
 export async function updatePrivacy(input: PrivacyInput): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     await prisma.privacySettings.upsert({
@@ -477,7 +487,7 @@ export async function updatePrivacy(input: PrivacyInput): Promise<ActionResult> 
  */
 export async function toggleTask(id: string, done: boolean): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const result = await prisma.task.updateMany({
@@ -505,7 +515,7 @@ export async function addMedication(input: {
   if (!name) return { ok: false, persisted: false, error: 'Enter a medication name.' }
 
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     await prisma.medication.create({
@@ -530,7 +540,7 @@ export async function addMedication(input: {
 /** Mark a medication active/stopped. Scoped to the signed-in patient's rows. */
 export async function setMedicationActive(id: string, active: boolean): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const result = await prisma.medication.updateMany({
@@ -560,7 +570,7 @@ export async function createCommunityPost(input: {
   if (!title || !body) return { ok: false, persisted: false, error: 'Add a title and a message.' }
 
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const me = await communityIdentity(userId)
@@ -700,7 +710,16 @@ export async function buyPackage(
   partner?: { name: string; phone: string; email: string }
 ): Promise<ActionResult & { partnerRequired?: boolean }> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
+
+  // Idempotency guard against double-submit (#2): checkout is instant and
+  // purchases are additive, so without this a double-click would top up — and
+  // "charge" — twice. One purchase of the same pack per few seconds; the button
+  // is also disabled while pending. The partial-unique index is the hard backstop
+  // against duplicate ACTIVE rows.
+  if (!rateLimit(`buy:${userId}:${track}:${packIndex}`, 1, 4000).ok) {
+    return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
+  }
 
   try {
     // Couples packs need the partner on record. Patients who onboarded for
@@ -732,7 +751,10 @@ export async function buyPackage(
 /** Buy a Calm+ app plan (extends validity for session-plan holders). */
 export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
+  if (!rateLimit(`buycalm:${userId}:${packIndex}`, 1, 4000).ok) {
+    return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
+  }
 
   try {
     const result = await buyCalmPlusFor(userId, packIndex)
@@ -756,7 +778,10 @@ export async function buyFirstSession(
   partner?: { name: string; phone: string; email: string }
 ): Promise<ActionResult & { partnerRequired?: boolean }> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
+  if (!rateLimit(`buyfirst:${userId}:${track}`, 1, 4000).ok) {
+    return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
+  }
 
   try {
     if (track === 'couples') {
@@ -792,7 +817,7 @@ export async function submitSessionReview(
   comment?: string,
 ): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const res = await submitReview(userId, appointmentId, rating, comment)
@@ -812,7 +837,7 @@ export async function submitAssignedForm(
   responses: Record<string, string | boolean>
 ): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const ok = await submitForm(userId, assignmentId, responses)
@@ -835,7 +860,7 @@ export async function orderMedicationDelivery(
   details: DeliveryDetails
 ): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
     const res = await placeMedicationOrder(userId, medicationId, details)
@@ -851,7 +876,7 @@ export async function orderMedicationDelivery(
 /** Mark all the patient's notifications read (clears the bell). */
 export async function markNotificationsRead(): Promise<ActionResult> {
   const userId = await getSessionUserId()
-  if (!userId) return { ok: true, persisted: false }
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
   try {
     await markAllRead(userId)
     revalidatePath('/app/notifications')

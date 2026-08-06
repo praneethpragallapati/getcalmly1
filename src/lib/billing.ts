@@ -162,24 +162,36 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
   }
 
   const expiresAt = addMonths(now, pack.months)
-  const created = await prisma.subscription.create({
-    data: {
-      userId: patientId,
-      category: CATEGORY[track],
-      trackSlug: track,
-      planName,
-      status: 'ACTIVE',
-      tier: tierEnum(pack.months),
-      paidMonths: pack.months,
-      sessionsTotal: pack.sessions,
-      sessionsUsed: 0,
-      startedAt: now,
-      expiresAt,
-      renewsAt: expiresAt,
-    },
-  })
-  await recordPayment({ userId: patientId, subscriptionId: created.id, amount: pack.total, kind: 'package', trackSlug: track, planName })
-  return { ok: true, sessionsTotal: pack.sessions, sessionsRemaining: pack.sessions }
+  try {
+    const created = await prisma.subscription.create({
+      data: {
+        userId: patientId,
+        category: CATEGORY[track],
+        trackSlug: track,
+        planName,
+        status: 'ACTIVE',
+        tier: tierEnum(pack.months),
+        paidMonths: pack.months,
+        sessionsTotal: pack.sessions,
+        sessionsUsed: 0,
+        startedAt: now,
+        expiresAt,
+        renewsAt: expiresAt,
+      },
+    })
+    await recordPayment({ userId: patientId, subscriptionId: created.id, amount: pack.total, kind: 'package', trackSlug: track, planName })
+    return { ok: true, sessionsTotal: pack.sessions, sessionsRemaining: pack.sessions }
+  } catch (e) {
+    // Lost a concurrent create race (double-submit): the partial-unique index on
+    // ACTIVE (userId, trackSlug) rejected this one. Treat it as idempotent — the
+    // sibling request already created the package — so we neither surface an
+    // error nor double-charge / double-add sessions.
+    if ((e as { code?: string }).code === 'P2002') {
+      const winner = await findExistingForTrack(patientId, track)
+      if (winner) return { ok: true, sessionsTotal: winner.sessionsTotal, sessionsRemaining: Math.max(0, winner.sessionsTotal - winner.sessionsUsed) }
+    }
+    throw e
+  }
 }
 
 /**
@@ -220,9 +232,22 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
     expiresAt,
     renewsAt: expiresAt,
   }
-  const sub = existing
-    ? await prisma.subscription.update({ where: { id: existing.id }, data })
-    : await prisma.subscription.create({ data: { userId: patientId, ...data } })
+  let sub
+  if (existing) {
+    sub = await prisma.subscription.update({ where: { id: existing.id }, data })
+  } else {
+    try {
+      sub = await prisma.subscription.create({ data: { userId: patientId, ...data } })
+    } catch (e) {
+      // Concurrent double-submit lost the create race (partial-unique on ACTIVE).
+      // A first session is a single session, so just reject the loser rather than
+      // charging twice.
+      if ((e as { code?: string }).code === 'P2002') {
+        return { ok: false, error: 'The first-session offer applies only to your very first session.' }
+      }
+      throw e
+    }
+  }
   await recordPayment({ userId: patientId, subscriptionId: sub.id, amount: price, kind: 'first_session', trackSlug: track, planName })
   return { ok: true, sessionsTotal: 1, sessionsRemaining: 1 }
 }

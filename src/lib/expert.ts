@@ -934,23 +934,45 @@ export const MIN_BOOKING_LEAD_MS = 6 * 60 * 60 * 1000
  * and what they book are always the same clinician.
  */
 export async function getAssignedTherapistId(patientUserId: string): Promise<string | null> {
-  // An admin-set assignment wins over the appointment-derived default.
+  // A GENUINE assignment only. We deliberately do NOT fall back to "the first
+  // active therapist on the platform": that made the booking flow's
+  // require-assessment gate unreachable (a patient with no assessment still
+  // resolved to some arbitrary clinician) and attached a clinician who need not
+  // match the patient's care type. Resolution order:
+  //   1. admin-set global default
+  //   2. any per-care-type assignment (what auto-match writes)
+  //   3. a clinician attached to an active package
+  //   4. someone the patient already has an appointment with
+  // …and null when there is truly no assignment, so callers can require the
+  // assessment / a purchase instead of silently picking a stranger.
   const profile = await prisma.patientProfile.findUnique({
     where: { userId: patientUserId },
-    select: { assignedTherapistId: true },
+    select: {
+      assignedTherapistId: true,
+      assignedTherapistIndividualId: true,
+      assignedTherapistCouplesId: true,
+      assignedTherapistPsychiatryId: true,
+    },
   })
-  if (profile?.assignedTherapistId) return profile.assignedTherapistId
+  const fromProfile =
+    profile?.assignedTherapistId ??
+    profile?.assignedTherapistIndividualId ??
+    profile?.assignedTherapistCouplesId ??
+    profile?.assignedTherapistPsychiatryId ??
+    null
+  if (fromProfile) return fromProfile
+  const sub = await prisma.subscription.findFirst({
+    where: { userId: patientUserId, status: 'ACTIVE', therapistId: { not: null } },
+    orderBy: { createdAt: 'desc' },
+    select: { therapistId: true },
+  })
+  if (sub?.therapistId) return sub.therapistId
   const appt = await prisma.appointment.findFirst({
     where: { patientId: patientUserId },
     orderBy: { scheduledAt: 'desc' },
     select: { therapistId: true },
   })
-  if (appt) return appt.therapistId
-  const first = await prisma.therapistProfile.findFirst({
-    where: { isActive: true },
-    select: { id: true },
-  })
-  return first?.id ?? null
+  return appt?.therapistId ?? null
 }
 
 /**

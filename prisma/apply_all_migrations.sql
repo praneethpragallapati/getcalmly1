@@ -42,6 +42,34 @@ ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "consumedSubscriptionId" TEXT
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "gender" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "clinicianType" TEXT;
 
+-- 0018 · One ACTIVE package per (userId, trackSlug). Merge any existing
+-- duplicate ACTIVE rows first (fold sessions into the newest, cancel the rest),
+-- then add a PARTIAL unique index that only constrains ACTIVE rows.
+WITH grp AS (
+  SELECT "userId", "trackSlug", SUM("sessionsTotal") AS total_sum, SUM("sessionsUsed") AS used_sum
+  FROM "Subscription" WHERE status = 'ACTIVE'
+  GROUP BY "userId", "trackSlug" HAVING COUNT(*) > 1
+),
+keep AS (
+  SELECT DISTINCT ON (s."userId", s."trackSlug") s.id, s."userId", s."trackSlug"
+  FROM "Subscription" s JOIN grp g ON g."userId" = s."userId" AND g."trackSlug" = s."trackSlug"
+  WHERE s.status = 'ACTIVE'
+  ORDER BY s."userId", s."trackSlug", s."createdAt" DESC
+)
+UPDATE "Subscription" s SET "sessionsTotal" = g.total_sum, "sessionsUsed" = g.used_sum
+FROM keep k JOIN grp g ON g."userId" = k."userId" AND g."trackSlug" = k."trackSlug"
+WHERE s.id = k.id;
+
+WITH ranked AS (
+  SELECT id, ROW_NUMBER() OVER (PARTITION BY "userId", "trackSlug" ORDER BY "createdAt" DESC) AS rn
+  FROM "Subscription" WHERE status = 'ACTIVE'
+)
+UPDATE "Subscription" s SET status = 'CANCELLED'
+FROM ranked r WHERE s.id = r.id AND r.rn > 1;
+
+CREATE UNIQUE INDEX IF NOT EXISTS "Subscription_userId_trackSlug_active_key"
+  ON "Subscription" ("userId", "trackSlug") WHERE status = 'ACTIVE';
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- OPTIONAL one-time cleanup: clear packages that were merged across types by the
 -- old buy flow (e.g. a therapy pack that got rewritten to "5 psychiatry").

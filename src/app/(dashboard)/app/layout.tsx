@@ -25,7 +25,12 @@ function greetingFor(date: Date): string {
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions)
-  if ((session?.user as { role?: string } | undefined)?.role === 'THERAPIST') redirect('/expert')
+  const sessionUser = session?.user as { id?: string; role?: string } | undefined
+  // Defense in depth behind the proxy gate: never render the patient area for a
+  // signed-out visitor, and keep each role in its own area.
+  if (!sessionUser?.id) redirect('/login')
+  if (sessionUser.role === 'THERAPIST') redirect('/expert')
+  if (sessionUser.role === 'ADMIN') redirect('/admin')
 
   const d = await getDashboardData()
   const userId = await getSessionUserId()
