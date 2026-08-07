@@ -236,9 +236,20 @@ async function patientIdsFor(therapistProfileId: string): Promise<string[]> {
   // the admin has assigned to them (any care-type column) or attached to via an
   // active package. So an admin assignment surfaces the patient on the
   // therapist's dashboard right away, not only after the first session is booked.
-  const [appts, assigned, subs] = await Promise.all([
-    prisma.appointment.findMany({ where: { therapistId: therapistProfileId }, select: { patientId: true }, distinct: ['patientId'] }),
-    prisma.patientProfile.findMany({
+  // Each source is queried independently and defensively: one failing must never
+  // 500 the whole therapist portal. In particular the per-care-type assignment
+  // columns need migration 0016 — on a DB that hasn't applied it, that query
+  // throws P2022; we swallow it and still return the appointment/package-based
+  // caseload rather than crashing the page.
+  const ids = new Set<string>()
+  try {
+    const appts = await prisma.appointment.findMany({ where: { therapistId: therapistProfileId }, select: { patientId: true }, distinct: ['patientId'] })
+    appts.forEach((r) => ids.add(r.patientId))
+  } catch (e) {
+    console.error('[patientIdsFor] appointments query failed', e)
+  }
+  try {
+    const assigned = await prisma.patientProfile.findMany({
       where: {
         OR: [
           { assignedTherapistId: therapistProfileId },
@@ -248,13 +259,17 @@ async function patientIdsFor(therapistProfileId: string): Promise<string[]> {
         ],
       },
       select: { userId: true },
-    }),
-    prisma.subscription.findMany({ where: { therapistId: therapistProfileId, status: 'ACTIVE' }, select: { userId: true } }),
-  ])
-  const ids = new Set<string>()
-  appts.forEach((r) => ids.add(r.patientId))
-  assigned.forEach((r) => ids.add(r.userId))
-  subs.forEach((r) => ids.add(r.userId))
+    })
+    assigned.forEach((r) => ids.add(r.userId))
+  } catch (e) {
+    console.error('[patientIdsFor] assignment-column query failed (migration 0016 applied?)', e)
+  }
+  try {
+    const subs = await prisma.subscription.findMany({ where: { therapistId: therapistProfileId, status: 'ACTIVE' }, select: { userId: true } })
+    subs.forEach((r) => ids.add(r.userId))
+  } catch (e) {
+    console.error('[patientIdsFor] subscription query failed', e)
+  }
   return [...ids]
 }
 
@@ -1032,21 +1047,36 @@ export async function getAssignedTherapistId(patientUserId: string): Promise<str
  */
 export async function canPatientBookWith(patientUserId: string, therapistProfileId: string): Promise<boolean> {
   if (!therapistProfileId) return false
-  const [profile, sub, appt] = await Promise.all([
-    prisma.patientProfile.findUnique({
-      where: { userId: patientUserId },
-      select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true },
-    }),
-    prisma.subscription.findFirst({ where: { userId: patientUserId, status: 'ACTIVE', therapistId: therapistProfileId }, select: { id: true } }),
-    prisma.appointment.findFirst({ where: { patientId: patientUserId, therapistId: therapistProfileId }, select: { id: true } }),
-  ])
-  const assigned = [
-    profile?.assignedTherapistId,
-    profile?.assignedTherapistIndividualId,
-    profile?.assignedTherapistCouplesId,
-    profile?.assignedTherapistPsychiatryId,
-  ]
-  return assigned.includes(therapistProfileId) || Boolean(sub) || Boolean(appt)
+  try {
+    const [profile, sub, appt] = await Promise.all([
+      prisma.patientProfile.findUnique({
+        where: { userId: patientUserId },
+        select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true },
+      }),
+      prisma.subscription.findFirst({ where: { userId: patientUserId, status: 'ACTIVE', therapistId: therapistProfileId }, select: { id: true } }),
+      prisma.appointment.findFirst({ where: { patientId: patientUserId, therapistId: therapistProfileId }, select: { id: true } }),
+    ])
+    const assigned = [
+      profile?.assignedTherapistId,
+      profile?.assignedTherapistIndividualId,
+      profile?.assignedTherapistCouplesId,
+      profile?.assignedTherapistPsychiatryId,
+    ]
+    return assigned.includes(therapistProfileId) || Boolean(sub) || Boolean(appt)
+  } catch (e) {
+    // Never 500 the booking page over this (e.g. per-care-type columns missing on
+    // an un-migrated DB). Fall back to package/appointment ownership only.
+    console.error('[canPatientBookWith] failed (migration 0016 applied?)', e)
+    try {
+      const [sub, appt] = await Promise.all([
+        prisma.subscription.findFirst({ where: { userId: patientUserId, status: 'ACTIVE', therapistId: therapistProfileId }, select: { id: true } }),
+        prisma.appointment.findFirst({ where: { patientId: patientUserId, therapistId: therapistProfileId }, select: { id: true } }),
+      ])
+      return Boolean(sub) || Boolean(appt)
+    } catch {
+      return false
+    }
+  }
 }
 
 /** Upcoming date-specific exceptions, soonest first. */
