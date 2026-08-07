@@ -9,6 +9,7 @@ import { getEarningsConfig } from '@/lib/earningsConfig'
 import { updatePricingConfig } from '@/lib/pricingConfig'
 import type { PricingValues } from '@/data/pricing'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
+import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/reassign'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -165,6 +166,16 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
         nightSessionBonus: override(input.nightSessionBonus),
       },
     })
+    // Deactivating a clinician: move their patients onto a new fit clinician and
+    // cancel every upcoming session (restoring the sessions to patients' wallets),
+    // so no one is left booked with someone who's no longer practising. Runs after
+    // the isActive=false write above so the re-matcher can't re-pick them.
+    if (input.isActive === false) {
+      await reassignAwayFromTherapist(input.profileId)
+      revalidatePath('/app'); revalidatePath('/app/therapist'); revalidatePath('/app/sessions')
+      revalidatePath('/expert'); revalidatePath('/expert/patients'); revalidatePath('/expert/schedule')
+      revalidatePath('/admin/patients'); revalidatePath('/admin/operations')
+    }
     revalidatePath(`/admin/therapists/${input.profileId}`); revalidatePath('/admin/therapists'); revalidatePath('/expert/earnings')
     return { ok: true }
   } catch {
@@ -203,13 +214,19 @@ export async function removeSupervisionLink(input: { linkId: string; profileId: 
 export async function reassignPatient(input: { userId: string; therapistProfileId: string | null }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
+    const before = await prisma.patientProfile.findUnique({ where: { userId: input.userId }, select: { assignedTherapistId: true } })
     await prisma.patientProfile.update({
       where: { userId: input.userId },
       data: { assignedTherapistId: input.therapistProfileId || null },
     })
+    // Reassigning away from a clinician cancels this patient's upcoming sessions
+    // with the previous one (restoring the sessions to their wallet), so they
+    // re-book with the new clinician rather than keeping a stale booking.
+    const oldId = before?.assignedTherapistId
+    if (oldId && oldId !== input.therapistProfileId) await cancelUpcomingWithTherapist(oldId, input.userId)
     revalidatePath(`/admin/patients/${input.userId}`)
-    revalidatePath('/app/therapist'); revalidatePath('/app')
-    revalidatePath('/expert'); revalidatePath('/expert/patients')
+    revalidatePath('/app/therapist'); revalidatePath('/app'); revalidatePath('/app/sessions')
+    revalidatePath('/expert'); revalidatePath('/expert/patients'); revalidatePath('/expert/schedule')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not reassign. The patient may not have a profile yet.' }
@@ -229,6 +246,8 @@ export async function assignCategoryClinician(input: { userId: string; category:
   if (!column) return { ok: false, error: 'Unknown care type.' }
   const TRACKS: Record<keyof typeof CATEGORY_COLUMN, string> = { individual: 'therapy', couples: 'couples', psychiatry: 'psychiatry' }
   try {
+    const before = await prisma.patientProfile.findUnique({ where: { userId: input.userId }, select: { [column]: true } as never })
+    const oldId = (before as Record<string, string | null> | null)?.[column] ?? null
     await prisma.patientProfile.update({
       where: { userId: input.userId },
       data: { [column]: input.therapistProfileId || null },
@@ -240,12 +259,16 @@ export async function assignCategoryClinician(input: { userId: string; category:
       where: { userId: input.userId, trackSlug: TRACKS[input.category], status: 'ACTIVE' },
       data: { therapistId: input.therapistProfileId || null },
     })
+    // Reassigning this care type cancels the patient's upcoming sessions with the
+    // previous clinician (sessions restored to the wallet), so they re-book with
+    // the new one instead of holding a stale booking.
+    if (oldId && oldId !== input.therapistProfileId) await cancelUpcomingWithTherapist(oldId, input.userId)
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist')
-    revalidatePath('/app')
+    revalidatePath('/app'); revalidatePath('/app/sessions')
     // The (un)assigned clinician's own caseload changed too.
     revalidatePath('/expert')
-    revalidatePath('/expert/patients')
+    revalidatePath('/expert/patients'); revalidatePath('/expert/schedule')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update. The patient may not have a profile yet.' }
@@ -312,8 +335,15 @@ export async function deleteClinician(input: { userId: string }): Promise<AdminR
     if (apptCount > 0) {
       return { ok: false, error: `This clinician has ${apptCount} session${apptCount === 1 ? '' : 's'} on record. Deactivate them instead so patient history is preserved.` }
     }
+    // Move any patients assigned to this clinician onto a new fit clinician before
+    // removing them (deactivate first so the re-matcher can't re-pick this one).
+    // There are no sessions to cancel here — deletion is blocked once any exist.
+    await prisma.therapistProfile.update({ where: { id: profile.id }, data: { isActive: false } }).catch(() => {})
+    await reassignAwayFromTherapist(profile.id)
     await eraseUserData(input.userId, profile.id)
-    revalidatePath('/admin/therapists')
+    revalidatePath('/admin/therapists'); revalidatePath('/admin/patients')
+    revalidatePath('/app'); revalidatePath('/app/therapist'); revalidatePath('/app/sessions')
+    revalidatePath('/expert'); revalidatePath('/expert/patients')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not delete this clinician. Please try again.' }
@@ -397,13 +427,19 @@ export async function extendValidity(input: { id: string; months: number }): Pro
 export async function attachSubscriptionExpert(input: { id: string; therapistProfileId: string | null }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
+    const before = await prisma.subscription.findUnique({ where: { id: input.id }, select: { userId: true, therapistId: true } })
     await prisma.subscription.update({
       where: { id: input.id },
       data: { therapistId: input.therapistProfileId || null },
     })
+    // Changing a package's clinician cancels that patient's upcoming sessions with
+    // the previous one (sessions restored to the wallet).
+    if (before?.therapistId && before.therapistId !== input.therapistProfileId) {
+      await cancelUpcomingWithTherapist(before.therapistId, before.userId)
+    }
     revalidatePath('/admin/patients')
-    revalidatePath('/app/therapist'); revalidatePath('/app')
-    revalidatePath('/expert'); revalidatePath('/expert/patients')
+    revalidatePath('/app/therapist'); revalidatePath('/app'); revalidatePath('/app/sessions')
+    revalidatePath('/expert'); revalidatePath('/expert/patients'); revalidatePath('/expert/schedule')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not attach the expert to this package.' }
