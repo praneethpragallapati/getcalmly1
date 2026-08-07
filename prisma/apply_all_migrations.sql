@@ -70,6 +70,11 @@ FROM ranked r WHERE s.id = r.id AND r.rn > 1;
 CREATE UNIQUE INDEX IF NOT EXISTS "Subscription_userId_trackSlug_active_key"
   ON "Subscription" ("userId", "trackSlug") WHERE status = 'ACTIVE';
 
+-- 0019 · Session default duration 50 → 45 min. New bookings set duration
+-- explicitly per care type (45 therapy/couples, 30 psychiatry); this only
+-- changes the column default for any row created without one.
+ALTER TABLE "Appointment" ALTER COLUMN "durationMins" SET DEFAULT 45;
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- OPTIONAL one-time cleanup: clear packages that were merged across types by the
 -- old buy flow (e.g. a therapy pack that got rewritten to "5 psychiatry").

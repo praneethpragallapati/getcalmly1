@@ -13,6 +13,8 @@ import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from 
 import { communityIdentity } from '@/lib/community'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 import { rateLimit } from '@/lib/rateLimit'
+import { isPsychiatrist } from '@/lib/clinicianScope'
+import { sessionDurationMins } from '@/lib/sessionLifecycle'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -296,6 +298,7 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
             patientId: userId,
             therapistId: therapist.id,
             scheduledAt,
+            durationMins: sessionDurationMins(isPsychiatrist(therapist.clinicianType, therapist.specializations)),
             status: 'PENDING',
             fee: therapist.sessionFee,
             roomId: crypto.randomUUID(),

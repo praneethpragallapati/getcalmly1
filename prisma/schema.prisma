@@ -461,7 +461,7 @@ model Appointment {
   therapistId    String
   therapist      TherapistProfile  @relation("TherapistAppointments", fields: [therapistId], references: [id])
   scheduledAt    DateTime
-  durationMins   Int               @default(50)
+  durationMins   Int               @default(45)
   status         AppointmentStatus @default(PENDING)
   // Proprietary in-app WebRTC room. The patient & expert join the same roomId;
   // no external meeting provider is used (#4). meetLink kept for legacy/back-compat.

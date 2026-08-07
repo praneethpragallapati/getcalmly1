@@ -2,6 +2,7 @@ import { demoDashboard, type DashSession } from '@/data/dashboardDemo'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS, designationOf } from '@/lib/expert'
+import { resolveDueAppointments } from '@/lib/sessionLifecycle'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
@@ -75,6 +76,10 @@ export async function getSessionsView(): Promise<SessionsView> {
   if (!userId) return demo
 
   try {
+    // Settle any sessions whose window has fully elapsed (no-shows, auto-complete)
+    // before reading, so a passed session drops out of "upcoming" and its wallet /
+    // pay outcome is applied.
+    await resolveDueAppointments({ patientId: userId })
     const rows = await prisma.appointment.findMany({
       where: { patientId: userId },
       orderBy: { scheduledAt: 'asc' },
@@ -92,7 +97,9 @@ export async function getSessionsView(): Promise<SessionsView> {
     for (const r of rows) {
       if (r.status === 'CANCELLED') continue
       n++
-      const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() < now
+      // Past only once the whole session window has elapsed — it stays joinable
+      // during the session, then drops off after it ends.
+      const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() + r.durationMins * 60_000 < now
       const ds: DashSession = {
         id: r.id,
         expert: r.therapist.user.name ?? 'Your expert',
@@ -168,7 +175,7 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
       },
     })
     if (!r) return demoDetail(id)
-    const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() < Date.now()
+    const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() + r.durationMins * 60_000 < Date.now()
     return {
       id: r.id,
       expert: r.therapist.user.name ?? 'Your expert',

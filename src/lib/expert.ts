@@ -12,6 +12,8 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { isPsychiatrist } from '@/lib/clinicianScope'
+import { sessionMinMinutes, resolveDueAppointments } from '@/lib/sessionLifecycle'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
 import { callModel } from '@/lib/ai/clients'
@@ -591,6 +593,9 @@ export type ScheduleAppointment = {
 
 /** Every appointment on this therapist's calendar, most recent first. */
 export async function getTherapistSchedule(therapistProfileId: string): Promise<ScheduleAppointment[]> {
+  // Settle any elapsed sessions (no-shows / auto-complete) before reading, so the
+  // clinician's schedule and pay reflect the true outcome.
+  await resolveDueAppointments({ therapistId: therapistProfileId })
   const rows = await prisma.appointment.findMany({
     where: { therapistId: therapistProfileId },
     orderBy: { scheduledAt: 'asc' },
@@ -642,7 +647,8 @@ export async function rescheduleAppointment(
   return true
 }
 
-/** Minimum minutes both sides must have been in the room to count as completed. */
+/** Minimum minutes both sides must have been in the room to count as completed
+ *  (per care type — 30 for therapy/couples, 10 for psychiatry). */
 export const MIN_SESSION_MINUTES = 30
 
 export async function writeSessionSummary(
@@ -653,15 +659,19 @@ export async function writeSessionSummary(
   const appt = await ownsAppointment(therapistProfileId, appointmentId)
   if (!appt) return false
 
+  const prof = await prisma.therapistProfile.findUnique({ where: { id: therapistProfileId }, select: { clinicianType: true, specializations: true } })
+  const psych = isPsychiatrist(prof?.clinicianType ?? null, prof?.specializations ?? [])
+  const thresholdMs = sessionMinMinutes(psych) * 60 * 1000
+
   // A session is COMPLETED only when the note is written AND both sides joined
-  // AND they were together for at least 30 minutes. Otherwise the note is saved
-  // but the session stays un-completed (so it isn't paid for or counted).
+  // AND they were together for at least the minimum billable time. Otherwise the
+  // note is saved but the session stays un-completed (so it isn't paid or counted).
   const bothJoined = Boolean(appt.patientJoinedAt && appt.therapistJoinedAt)
   const laterJoin = bothJoined
     ? Math.max(appt.patientJoinedAt!.getTime(), appt.therapistJoinedAt!.getTime())
     : null
   const endRef = appt.endedAt ? appt.endedAt.getTime() : Date.now()
-  const enoughTime = laterJoin != null && endRef - laterJoin >= MIN_SESSION_MINUTES * 60 * 1000
+  const enoughTime = laterJoin != null && endRef - laterJoin >= thresholdMs
 
   await prisma.appointment.update({
     where: { id: appointmentId },
@@ -1125,7 +1135,7 @@ export type BookableSlot = { iso: string; dateLabel: string; time: string; taken
  * This is what the patient's booking calendar reads.
  */
 export async function getBookableSlots(therapistProfileId: string, daysAhead = 21): Promise<BookableSlot[]> {
-  const [template, exceptions, booked] = await Promise.all([
+  const [template, exceptions, booked, prof] = await Promise.all([
     getAvailability(therapistProfileId),
     prisma.availabilityException.findMany({
       where: { therapistId: therapistProfileId, date: { gte: startOfUtcDay(new Date()) } },
@@ -1134,7 +1144,12 @@ export async function getBookableSlots(therapistProfileId: string, daysAhead = 2
       where: { therapistId: therapistProfileId, scheduledAt: { gte: new Date() }, status: { not: 'CANCELLED' } },
       select: { scheduledAt: true },
     }),
+    prisma.therapistProfile.findUnique({ where: { id: therapistProfileId }, select: { clinicianType: true, specializations: true } }),
   ])
+  // Psychiatrists run shorter sessions, so they offer two slots per available
+  // hour (:00 and :30); therapists offer one per hour.
+  const psych = isPsychiatrist(prof?.clinicianType ?? null, prof?.specializations ?? [])
+  const minutesInHour = psych ? [0, 30] : [0]
   const hoursByDay = new Map(template.map((t) => [t.dayOfWeek, t.hours]))
   const exByDay = new Map(exceptions.map((e) => [startOfUtcDay(e.date).getTime(), e]))
   const takenMs = new Set(booked.map((b) => b.scheduledAt.getTime()))
@@ -1154,15 +1169,17 @@ export async function getBookableSlots(therapistProfileId: string, daysAhead = 2
     const offHours = new Set(ex?.hoursOff ?? [])
     for (const h of hours) {
       if (offHours.has(h)) continue
-      const slot = new Date(day)
-      slot.setHours(h, 0, 0, 0)
-      if (slot.getTime() < earliest) continue
-      slots.push({
-        iso: slot.toISOString(),
-        dateLabel: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
-        time: slot.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
-        taken: takenMs.has(slot.getTime()),
-      })
+      for (const m of minutesInHour) {
+        const slot = new Date(day)
+        slot.setHours(h, m, 0, 0)
+        if (slot.getTime() < earliest) continue
+        slots.push({
+          iso: slot.toISOString(),
+          dateLabel: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
+          time: slot.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+          taken: takenMs.has(slot.getTime()),
+        })
+      }
     }
   }
   return slots
