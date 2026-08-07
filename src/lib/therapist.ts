@@ -129,7 +129,8 @@ export type CareSlot = {
   planName: string | null
   sessionsLeft: number | null
   sessionsTotal: number | null
-  validUntil: string | null // package expiry for this care type
+  validUntil: string | null // package expiry for this care type (formatted)
+  validUntilIso: string | null // same expiry, raw ISO — used to gate booking dates
   expired: boolean
   expert: CareExpert | null // null with hasPack=true → being matched
 }
@@ -194,7 +195,7 @@ function expertFromProfile(p: ProfileRow): CareExpert {
 const emptyTeam = (): CareTeam => ({
   slots: CARE_KINDS.map((k) => ({
     key: k.key, label: k.label, blurb: k.blurb, buyHref: k.buyHref,
-    hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, validUntil: null, expired: false, expert: null,
+    hasPack: false, planName: null, sessionsLeft: null, sessionsTotal: null, validUntil: null, validUntilIso: null, expired: false, expert: null,
   })),
   nextSessionWhen: null,
   nextSessionId: null,
@@ -288,6 +289,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         validUntil: sub?.expiresAt
           ? sub.expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
           : null,
+        validUntilIso: sub?.expiresAt ? sub.expiresAt.toISOString() : null,
         expired: Boolean(sub?.expiresAt && sub.expiresAt.getTime() < Date.now()),
         expert: profRow ? expertFromProfile(profRow) : null,
       }

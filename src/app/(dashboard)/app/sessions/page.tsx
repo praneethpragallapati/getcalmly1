@@ -92,6 +92,13 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
   const selectedId = scopedId ?? clinicians[0]?.profileId
   const [view, calendar] = await Promise.all([getSessionsView(), getExpertCalendar(selectedId)])
   const selectedName = clinicians.find((c) => c.profileId === selectedId)?.name ?? (selectedId ? calendar.expert : undefined)
+  // Gate booking by the selected clinician's package validity: you can't book a
+  // slot dated after the package expiry, and you can't book at all once it's
+  // expired. The server enforces this too; this drives the UI so the patient
+  // sees it up front instead of only on submit.
+  const selectedSlot = team.slots.find((s) => s.expert?.profileId === selectedId)
+  const bookUntilIso = selectedSlot?.validUntilIso ?? null
+  const packExpired = Boolean(selectedSlot?.expired)
 
   // Days in the current month that have a session, for the patient calendar.
   const now = new Date()
@@ -161,6 +168,8 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
             expertName={selectedName}
             clinicians={clinicians}
             selectedId={selectedId}
+            bookUntilIso={bookUntilIso}
+            packExpired={packExpired}
           />
         </div>
       </div>

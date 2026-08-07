@@ -20,20 +20,32 @@ export function BookSession({
   expertName,
   clinicians = [],
   selectedId,
+  bookUntilIso,
+  packExpired = false,
 }: {
   slots: ExpertSlot[]
   therapistId?: string
   expertName?: string
   clinicians?: Clinician[]
   selectedId?: string
+  bookUntilIso?: string | null
+  packExpired?: boolean
 }) {
+  // A slot is bookable only up to the package expiry (null = no expiry). This
+  // mirrors the server's guard exactly (expiresAt >= scheduledAt), so the UI and
+  // the action agree on which slots are allowed.
+  const bookUntil = bookUntilIso ? new Date(bookUntilIso).getTime() : null
+  const afterExpiry = (iso: string) => bookUntil != null && new Date(iso).getTime() > bookUntil
+  const validUntilLabel = bookUntilIso
+    ? new Date(bookUntilIso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    : null
   const [selected, setSelected] = useState<string | null>(null)
   const [requested, setRequested] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
   function request() {
-    if (!selected) return
+    if (!selected || packExpired || afterExpiry(selected)) return
     setError(null)
     startTransition(async () => {
       const res = await requestSession(selected, therapistId)
@@ -114,51 +126,75 @@ export function BookSession({
           : <>Open times on your expert’s calendar. Pick one to request, you’ll be notified once it’s confirmed.</>}
       </p>
 
-      <div className="slot-cal">
-        {[...byDay.entries()].map(([day, daySlots]) => (
-          <div className="slot-day" key={day}>
-            <div className="slot-day-label">{day}</div>
-            <div className="slot-times">
-              {daySlots.map((s) => {
-                const isRequested = requested === s.iso
-                return (
-                  <button
-                    key={s.iso}
-                    type="button"
-                    disabled={s.taken || isRequested}
-                    onClick={() => setSelected(s.iso)}
-                    className={`slot-chip${selected === s.iso ? ' selected' : ''}${
-                      s.taken || isRequested ? ' taken' : ''
-                    }`}
-                  >
-                    {isRequested ? '✓ Requested' : s.taken ? 'Booked' : s.time}
-                  </button>
-                )
-              })}
-            </div>
+      {packExpired ? (
+        // Expired package → no bookable calendar; send them to renew.
+        <div style={{ padding: '14px 16px', background: '#FFF1EC', border: '1px solid rgba(200,85,61,.25)', borderRadius: 12 }}>
+          <div style={{ fontWeight: 700, color: 'var(--c-charcoal, #1C2B3A)', fontSize: 14 }}>
+            This {selectedType ?? 'package'} has expired{validUntilLabel ? ` (valid until ${validUntilLabel})` : ''}.
           </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
-        <button
-          className="btn btn-primary"
-          type="button"
-          onClick={request}
-          disabled={!selected || pending}
-        >
-          {pending ? (
-            'Requesting…'
-          ) : requested ? (
-            <>
-              <Check size={15} /> Requested
-            </>
-          ) : (
-            expertName ? `Request slot with ${expertName}` : 'Request selected slot'
+          <p className="muted" style={{ margin: '6px 0 10px', fontSize: 13 }}>
+            Renew or extend it to book a session.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link href="/app/billing" className="btn btn-primary btn-sm">Renew package</Link>
+            <a className="btn btn-outline btn-sm" href="mailto:connect@getcalmly.com?subject=Renew%20my%20package" style={{ textDecoration: 'none' }}>Contact support</a>
+          </div>
+        </div>
+      ) : (
+        <>
+          {validUntilLabel && (
+            <p className="muted" style={{ margin: '-6px 0 12px', fontSize: 12.5 }}>
+              Your package is valid until <b>{validUntilLabel}</b> — slots after that date can’t be booked.
+            </p>
           )}
-        </button>
-        {error && <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>}
-      </div>
+          <div className="slot-cal">
+            {[...byDay.entries()].map(([day, daySlots]) => (
+              <div className="slot-day" key={day}>
+                <div className="slot-day-label">{day}</div>
+                <div className="slot-times">
+                  {daySlots.map((s) => {
+                    const isRequested = requested === s.iso
+                    const past = afterExpiry(s.iso)
+                    const disabled = s.taken || isRequested || past
+                    return (
+                      <button
+                        key={s.iso}
+                        type="button"
+                        disabled={disabled}
+                        title={past ? 'After your package validity' : undefined}
+                        onClick={() => setSelected(s.iso)}
+                        className={`slot-chip${selected === s.iso ? ' selected' : ''}${disabled ? ' taken' : ''}`}
+                      >
+                        {isRequested ? '✓ Requested' : s.taken ? 'Booked' : past ? 'Past validity' : s.time}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={request}
+              disabled={!selected || pending}
+            >
+              {pending ? (
+                'Requesting…'
+              ) : requested ? (
+                <>
+                  <Check size={15} /> Requested
+                </>
+              ) : (
+                expertName ? `Request slot with ${expertName}` : 'Request selected slot'
+              )}
+            </button>
+            {error && <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>}
+          </div>
+        </>
+      )}
     </div>
   )
 }

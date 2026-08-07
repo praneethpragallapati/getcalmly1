@@ -2,8 +2,20 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarClock, X, Check } from 'lucide-react'
+import { CalendarClock, X, Check, LifeBuoy } from 'lucide-react'
 import { cancelMyAppointment, rescheduleMyAppointment } from '@/app/(dashboard)/app/actions'
+
+const SUPPORT_EMAIL = 'connect@getcalmly.com'
+
+/** A "Contact support" link that opens the user's mail client to connect@getcalmly.com. */
+function ContactSupport({ subject }: { subject?: string }) {
+  const href = `mailto:${SUPPORT_EMAIL}${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`
+  return (
+    <a className="btn btn-outline btn-sm" href={href} style={{ textDecoration: 'none' }}>
+      <LifeBuoy size={13} /> Contact support
+    </a>
+  )
+}
 
 /**
  * Cancel / reschedule controls for an upcoming session. Both are only allowed
@@ -34,7 +46,14 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
   }
 
   if (locked) {
-    return <span className="doc-sub" style={{ fontSize: 11.5 }} title="Changes are only allowed 24h+ before the session">Locked (within 24h)</span>
+    // Within 24h the patient can't self-serve cancel/reschedule, so give them a
+    // way to reach a human instead of a dead end.
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <span className="doc-sub" style={{ fontSize: 11.5 }} title="Changes are only allowed 24h+ before the session">Locked (within 24h)</span>
+        <ContactSupport subject="Help with my upcoming session (within 24 hours)" />
+      </div>
+    )
   }
 
   if (mode === 'reschedule') {
@@ -69,9 +88,10 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
   }
 
   return (
-    <div style={{ display: 'flex', gap: 6 }}>
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
       <button className="btn btn-outline btn-sm" onClick={() => setMode('reschedule')}><CalendarClock size={13} /> Reschedule</button>
       <button className="btn btn-outline btn-sm" onClick={() => setMode('cancel')} style={{ color: 'var(--c-coral)' }}><X size={13} /> Cancel</button>
+      <ContactSupport subject="Help with my upcoming session" />
     </div>
   )
 }
