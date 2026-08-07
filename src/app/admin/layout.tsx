@@ -5,6 +5,8 @@ import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, Calend
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
+import { AdminAccountMenu } from '@/components/admin/AdminAccountMenu'
+import { ToastProvider } from '@/components/ui/Toast'
 import { authOptions } from '@/lib/auth'
 import { roleHome } from '@/lib/roleHome'
 import { mustChangePassword } from '@/lib/accountSecurity'
@@ -24,6 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (await mustChangePassword(admin.id)) redirect('/change-password')
 
   return (
+    <ToastProvider>
     <div className="calmly-app admin-theme">
       <aside className="app-sidebar">
         <div className="sb-logo">
@@ -96,18 +99,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       <div className="app-main">
-        <header className="app-topbar">
+        <header className="app-topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div className="tb-date">
-              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' })}
             </div>
             <div className="tb-greeting">
               Admin console<span> · {admin.name ?? 'GetCalmly'}</span>
             </div>
           </div>
+          <AdminAccountMenu name={admin.name ?? 'Admin'} />
         </header>
         <main className="app-content">{children}</main>
       </div>
     </div>
+    </ToastProvider>
   )
 }

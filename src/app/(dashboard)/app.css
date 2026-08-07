@@ -413,6 +413,22 @@
   cursor: pointer;
   border: none;
   text-decoration: none;
+  /* Tactile feedback: a quick lift on hover and a pressed dip on click. */
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease,
+    color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.985);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+/* Keyboard focus ring for accessibility (mouse clicks don't show it). */
+.btn:focus-visible {
+  outline: 2px solid var(--c-coral);
+  outline-offset: 2px;
 }
 .btn-primary {
   background: var(--c-coral);
@@ -1898,6 +1914,183 @@
 @media (max-width: 900px) {
   .home-split-2,
   .home-split-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Toast notifications ===== */
+.toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+  max-width: min(92vw, 420px);
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: var(--c-white);
+  color: var(--c-charcoal);
+  box-shadow: 0 14px 40px rgba(28, 43, 58, 0.22);
+  border: 1px solid var(--c-line);
+  border-left: 4px solid var(--c-gray, #8e9eae);
+  font-size: 14px;
+  font-weight: 600;
+  animation: toast-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-success {
+  border-left-color: #3d9e72;
+}
+.toast-success .toast-ico {
+  color: #3d9e72;
+}
+.toast-error {
+  border-left-color: var(--c-coral, #c8553d);
+}
+.toast-error .toast-ico {
+  color: var(--c-coral, #c8553d);
+}
+.toast-info .toast-ico {
+  color: #3e6e9c;
+}
+.toast-ico {
+  flex-shrink: 0;
+}
+.toast-msg {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
+}
+.toast-x {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--c-gray, #8e9eae);
+  cursor: pointer;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 6px;
+}
+.toast-x:hover {
+  color: var(--c-charcoal);
+  background: rgba(28, 43, 58, 0.06);
+}
+.toast-leaving {
+  opacity: 0;
+  transform: translateY(6px);
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (max-width: 560px) {
+  .toast-stack {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    align-items: stretch;
+  }
+  .toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* ===== Responsive helpers for inline two-column page grids ===== */
+/* Pages use inline `gridTemplateColumns` for their split layouts; adding the
+   `page-grid` class lets those columns stack on smaller screens. */
+.page-grid {
+  display: grid;
+}
+@media (max-width: 900px) {
+  .page-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===== Profile / photo editor ===== */
+.avatar-edit {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.avatar-edit-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.avatar-edit-btn {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c-coral, #c8553d);
+  color: #fff;
+  border: 2px solid var(--c-white, #fff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-gray-d, #5b6b7b);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+.field-input,
+.field-textarea,
+.field-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--c-line);
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-family: inherit;
+  color: var(--c-charcoal);
+  background: var(--c-white);
+  outline: none;
+}
+.field-input:focus,
+.field-textarea:focus,
+.field-select:focus {
+  border-color: var(--c-coral, #c8553d);
+}
+.field-textarea {
+  resize: vertical;
+  min-height: 92px;
+  line-height: 1.6;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 560px) {
+  .field-grid {
     grid-template-columns: 1fr;
   }
 }

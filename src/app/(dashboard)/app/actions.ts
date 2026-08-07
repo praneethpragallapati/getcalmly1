@@ -618,6 +618,103 @@ export async function saveDisplayName(name: string): Promise<ActionResult> {
   }
 }
 
+/** An uploaded photo, stored inline as a data URL (same convention as blog covers). */
+const MAX_PHOTO_BYTES = 2_000_000 // ~2 MB after base64; keeps the row small
+function validPhoto(dataUrl: string | null | undefined): string | null | undefined {
+  if (dataUrl === undefined) return undefined // caller isn't changing the photo
+  if (dataUrl === null || dataUrl === '') return null // explicit removal
+  if (!/^data:image\/(png|jpe?g|webp|gif);base64,/.test(dataUrl)) return undefined
+  if (dataUrl.length > MAX_PHOTO_BYTES) return undefined
+  return dataUrl
+}
+
+export type PatientProfileInput = {
+  name?: string
+  phone?: string | null
+  gender?: string | null
+  dateOfBirth?: string | null // ISO date (yyyy-mm-dd) or null
+  preferredLanguage?: string | null
+  emergencyName?: string | null
+  emergencyPhone?: string | null
+  emergencyRelation?: string | null
+  photo?: string | null // data URL, '' / null to remove, omit to leave unchanged
+}
+
+/**
+ * Update the signed-in patient's own profile — everything except their email,
+ * which is the login identity and stays fixed. Name/phone/photo live on the User
+ * row; the personal & emergency-contact fields live on PatientProfile.
+ */
+export async function updatePatientProfile(input: PatientProfileInput): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Please sign in first.' }
+
+  const clean = (v: string | null | undefined, max: number): string | null | undefined => {
+    if (v === undefined) return undefined
+    const t = (v ?? '').trim()
+    return t ? t.replace(/\s+/g, ' ').slice(0, max) : null
+  }
+
+  const name = input.name !== undefined ? input.name.trim().replace(/\s+/g, ' ').slice(0, 80) : undefined
+  if (input.name !== undefined && !name) return { ok: false, persisted: false, error: 'Enter your name.' }
+
+  const photo = validPhoto(input.photo)
+  if (input.photo !== undefined && input.photo && photo === undefined) {
+    return { ok: false, persisted: false, error: 'Use a JPG/PNG/WebP image under 2 MB.' }
+  }
+
+  let dob: Date | null | undefined = undefined
+  if (input.dateOfBirth !== undefined) {
+    if (!input.dateOfBirth) dob = null
+    else {
+      const d = new Date(input.dateOfBirth)
+      if (Number.isNaN(d.getTime()) || d.getTime() > Date.now()) {
+        return { ok: false, persisted: false, error: 'Enter a valid date of birth.' }
+      }
+      dob = d
+    }
+  }
+
+  try {
+    const userData: Record<string, unknown> = {}
+    if (name !== undefined) userData.name = name
+    const phone = clean(input.phone, 20)
+    if (phone !== undefined) userData.phone = phone
+    if (photo !== undefined) userData.image = photo
+    if (Object.keys(userData).length) await prisma.user.update({ where: { id: userId }, data: userData })
+
+    const profileData: Record<string, unknown> = {}
+    const gender = clean(input.gender, 30)
+    if (gender !== undefined) profileData.gender = gender
+    if (dob !== undefined) profileData.dateOfBirth = dob
+    const lang = clean(input.preferredLanguage, 40)
+    if (lang !== undefined) profileData.preferredLanguage = lang
+    const emN = clean(input.emergencyName, 80)
+    if (emN !== undefined) profileData.emergencyName = emN
+    const emP = clean(input.emergencyPhone, 20)
+    if (emP !== undefined) profileData.emergencyPhone = emP
+    const emR = clean(input.emergencyRelation, 40)
+    if (emR !== undefined) profileData.emergencyRelation = emR
+    if (Object.keys(profileData).length) {
+      // The patient may not have a profile row yet — upsert so the first save works.
+      await prisma.patientProfile.upsert({
+        where: { userId },
+        update: profileData,
+        create: { userId, patientId: `GC-P-${userId.slice(-8)}`, ...profileData },
+      })
+    }
+
+    revalidatePath('/app')
+    revalidatePath('/app/settings')
+    return { ok: true, persisted: true }
+  } catch (e) {
+    const msg = e instanceof Error && /Unique constraint/i.test(e.message)
+      ? 'That phone number is already in use.'
+      : 'Could not save your profile.'
+    return { ok: false, persisted: false, error: msg }
+  }
+}
+
 /**
  * Reply to a community discussion. Signed-in members only; the comment is posted
  * under the same "First L." identity and Paid Member badge as their discussions.

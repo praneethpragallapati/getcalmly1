@@ -278,3 +278,68 @@ export async function toggleMedication(formData: FormData): Promise<void> {
   if (patientId) revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app/medications')
 }
+
+const MAX_PHOTO_BYTES = 2_000_000
+function validPhoto(dataUrl: string | null | undefined): string | null | undefined {
+  if (dataUrl === undefined) return undefined
+  if (dataUrl === null || dataUrl === '') return null
+  if (!/^data:image\/(png|jpe?g|webp|gif);base64,/.test(dataUrl)) return undefined
+  if (dataUrl.length > MAX_PHOTO_BYTES) return undefined
+  return dataUrl
+}
+// Split a comma / newline separated list into clean, de-duplicated items.
+function toList(raw: string, max = 24): string[] {
+  return [...new Set(raw.split(/[,\n]/).map((s) => s.trim()).filter(Boolean))].slice(0, max)
+}
+
+export type TherapistProfileInput = {
+  name?: string
+  bio?: string
+  gender?: string | null
+  qualifications?: string // comma-separated
+  languages?: string // comma-separated
+  specializations?: string // comma-separated
+  photo?: string | null // data URL, '' / null to remove, omit to leave unchanged
+}
+
+/**
+ * A clinician editing their own public-facing profile: name, photo, bio,
+ * qualifications, languages and specializations. Admin-managed fields
+ * (verification, employment, RCI number, fees) are intentionally NOT editable
+ * here, and the email/login identity never changes.
+ */
+export async function updateTherapistProfile(input: TherapistProfileInput): Promise<ExpertActionResult> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+
+  const name = input.name !== undefined ? input.name.trim().replace(/\s+/g, ' ').slice(0, 80) : undefined
+  if (input.name !== undefined && !name) return { ok: false, error: 'Enter your name.' }
+
+  const photo = validPhoto(input.photo)
+  if (input.photo !== undefined && input.photo && photo === undefined) {
+    return { ok: false, error: 'Use a JPG/PNG/WebP image under 2 MB.' }
+  }
+
+  try {
+    if (name !== undefined) {
+      await prisma.user.update({ where: { id: ctx.userId }, data: { name } })
+    }
+
+    const data: Record<string, unknown> = {}
+    if (input.bio !== undefined) data.bio = input.bio.trim().slice(0, 2000)
+    if (input.gender !== undefined) data.gender = input.gender?.trim() ? input.gender.trim().slice(0, 30) : null
+    if (input.qualifications !== undefined) data.qualifications = toList(input.qualifications)
+    if (input.languages !== undefined) data.languages = toList(input.languages)
+    if (input.specializations !== undefined) data.specializations = toList(input.specializations)
+    if (photo !== undefined) data.photoUrl = photo
+    if (Object.keys(data).length) {
+      await prisma.therapistProfile.update({ where: { id: ctx.therapistProfileId }, data })
+    }
+
+    revalidatePath('/expert/profile')
+    revalidatePath('/expert')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save your profile.' }
+  }
+}

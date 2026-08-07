@@ -14,7 +14,8 @@ export default async function JournalPage() {
       </div>
 
       <div
-        style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 20, alignItems: 'start' }}
+        className="page-grid"
+        style={{ gridTemplateColumns: '1.5fr 1fr', gap: 20, alignItems: 'start' }}
       >
         <div className="card">
           {d.journals.map((j) => (

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { Check, CalendarPlus } from 'lucide-react'
 import { requestSession } from '@/app/(dashboard)/app/actions'
+import { useToast } from '@/components/ui/Toast'
 import type { ExpertSlot } from '@/lib/sessions'
 
 type Clinician = { profileId: string; name: string; typeLabel: string }
@@ -39,6 +40,7 @@ export function BookSession({
   const validUntilLabel = bookUntilIso
     ? new Date(bookUntilIso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     : null
+  const toast = useToast()
   const [selected, setSelected] = useState<string | null>(null)
   const [requested, setRequested] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -52,8 +54,10 @@ export function BookSession({
       if (res.ok) {
         setRequested(selected)
         setSelected(null)
+        toast.success('Session requested — you’ll be notified once it’s confirmed')
       } else {
         setError(res.error ?? 'Could not request this slot.')
+        toast.error(res.error ?? 'Could not request this slot.')
       }
     })
   }

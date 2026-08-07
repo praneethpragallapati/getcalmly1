@@ -6,6 +6,7 @@ import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { ExpertAccountMenu } from '@/components/expert/ExpertAccountMenu'
+import { ToastProvider } from '@/components/ui/Toast'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 import { authOptions } from '@/lib/auth'
 import { roleHome } from '@/lib/roleHome'
@@ -33,6 +34,7 @@ export default async function ExpertLayout({ children }: { children: React.React
   const openCount = risk.length
 
   return (
+    <ToastProvider>
     <div className="calmly-app expert-theme">
       <aside className="app-sidebar">
         <div className="sb-logo">
@@ -125,5 +127,6 @@ export default async function ExpertLayout({ children }: { children: React.React
         <main className="app-content">{children}</main>
       </div>
     </div>
+    </ToastProvider>
   )
 }

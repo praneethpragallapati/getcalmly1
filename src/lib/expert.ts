@@ -159,6 +159,7 @@ export type TherapistProfileView = {
   isVerified: boolean
   isPsychiatrist: boolean
   photoUrl: string | null
+  gender: string | null
 }
 
 /** The signed-in clinician's own profile, for the portal Profile page. */
@@ -184,6 +185,7 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
     isVerified: p.isVerified,
     isPsychiatrist: looksPsychiatric(p.specializations),
     photoUrl: p.photoUrl,
+    gender: p.gender,
   }
 }
 

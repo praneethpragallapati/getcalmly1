@@ -1,22 +1,23 @@
 import Link from 'next/link'
-import { Crown, CreditCard, Mail } from 'lucide-react'
-import { getAccount } from '@/lib/account'
+import { Crown, CreditCard } from 'lucide-react'
+import { getAccount, getPatientProfileForEdit } from '@/lib/account'
 import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
 import { LogoutButton } from '@/components/dashboard/LogoutButton'
-import { NameEditor } from '@/components/dashboard/NameEditor'
+import { ProfileEditor } from '@/components/dashboard/ProfileEditor'
 
 export default async function SettingsPage() {
-  const { name, fullName, email, plan, privacy } = await getAccount()
+  const { plan, privacy } = await getAccount()
+  const profile = await getPatientProfileForEdit()
   const sessionsPct = plan.sessionsTotal ? Math.round((plan.sessionsUsed / plan.sessionsTotal) * 100) : 0
 
   return (
     <>
       <div className="page-head">
         <h1 className="page-title">Settings</h1>
-        <span className="page-meta">Plan & privacy</span>
+        <span className="page-meta">Profile, plan & privacy</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
+      <div className="page-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
         <div className="stack">
           {/* Plan & billing */}
           <div className="card">
@@ -79,23 +80,16 @@ export default async function SettingsPage() {
           </div>
 
 
-          {/* Account */}
+          {/* Profile */}
+          {profile && <ProfileEditor profile={profile} />}
+
+          {/* Session */}
           <div className="card">
-            <div className="section-title">Your account</div>
-            <div className="med-row" style={{ borderBottom: 'none' }}>
-              <span className="sb-avatar" style={{ background: 'var(--c-coral)' }}>
-                {name.charAt(0).toUpperCase()}
-              </span>
-              <div>
-                <NameEditor fullName={fullName} displayName={name} />
-                <div className="doc-sub" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
-                  <Mail size={12} /> {email ?? 'Not signed in (preview)'}
-                </div>
-              </div>
-            </div>
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
-              <LogoutButton />
-            </div>
+            <div className="section-title">Session</div>
+            <p className="muted" style={{ fontSize: 13, margin: '6px 0 14px' }}>
+              Signed in as {profile?.email ?? 'this account'}.
+            </p>
+            <LogoutButton />
           </div>
         </div>
 

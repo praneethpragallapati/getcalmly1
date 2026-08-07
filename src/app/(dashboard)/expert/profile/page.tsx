@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap } from 'lucide-react'
 import { getTherapistContext, getTherapistProfile } from '@/lib/expert'
+import { ProfileEditToggle } from '@/components/expert/ProfileEditToggle'
 
 export const metadata = { title: 'Profile · Expert portal', robots: { index: false, follow: false } }
 
@@ -23,11 +24,25 @@ export default async function ExpertProfilePage() {
         <div className="page-meta">How you appear to the team, and on your blog &amp; community answers</div>
       </div>
 
+      <ProfileEditToggle
+        name={p.name}
+        bio={p.bio}
+        gender={p.gender}
+        qualifications={p.qualifications}
+        languages={p.languages}
+        specializations={p.specializations}
+        photoUrl={p.photoUrl}
+      >
       {/* Identity card */}
       <div className="card" style={{ display: 'flex', gap: 22, alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: 76, height: 76, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #E8896F, #C8553D)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28, flexShrink: 0 }}>
-          {initials}
-        </div>
+        {p.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.photoUrl} alt="" style={{ width: 76, height: 76, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: 76, height: 76, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #E8896F, #C8553D)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28, flexShrink: 0 }}>
+            {initials}
+          </div>
+        )}
         <div style={{ flex: 1, minWidth: 220 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 26, color: charcoal }}>{p.name}</h2>
@@ -91,6 +106,7 @@ export default async function ExpertProfilePage() {
           {p.specializations.length === 0 && <span className="muted">None listed.</span>}
         </div>
       </div>
+      </ProfileEditToggle>
     </div>
   )
 }

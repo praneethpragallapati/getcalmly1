@@ -148,6 +148,53 @@ export async function getAccount(): Promise<Account> {
   }
 }
 
+export type PatientProfileEdit = {
+  name: string
+  email: string | null
+  phone: string | null
+  photoUrl: string | null
+  gender: string | null
+  dateOfBirth: string | null // yyyy-mm-dd for the date input
+  preferredLanguage: string | null
+  emergencyName: string | null
+  emergencyPhone: string | null
+  emergencyRelation: string | null
+}
+
+/** The signed-in patient's editable profile fields (everything except email). */
+export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | null> {
+  const userId = await getSessionUserId()
+  if (!userId) return null
+  try {
+    const [user, profile] = await Promise.all([
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, phone: true, image: true } }),
+      prisma.patientProfile
+        .findUnique({
+          where: { userId },
+          select: {
+            gender: true, dateOfBirth: true, preferredLanguage: true,
+            emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+          },
+        })
+        .catch(() => null),
+    ])
+    return {
+      name: user?.name ?? '',
+      email: user?.email ?? null,
+      phone: user?.phone ?? null,
+      photoUrl: user?.image ?? null,
+      gender: profile?.gender ?? null,
+      dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,
+      preferredLanguage: profile?.preferredLanguage ?? null,
+      emergencyName: profile?.emergencyName ?? null,
+      emergencyPhone: profile?.emergencyPhone ?? null,
+      emergencyRelation: profile?.emergencyRelation ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
 export async function getMedications(): Promise<DashMedication[]> {
   const userId = await getSessionUserId()
   if (!userId) return demoDashboard.medications // logged-out: bundled demo

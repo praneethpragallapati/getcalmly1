@@ -33,7 +33,7 @@ export default async function SessionDetailPage({ params }: PageProps<'/app/sess
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 20, alignItems: 'start' }}>
+      <div className="page-grid" style={{ gridTemplateColumns: '1.4fr 1fr', gap: 20, alignItems: 'start' }}>
         <div className="stack">
           {s.isPast ? (
             <>

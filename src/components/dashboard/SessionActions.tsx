@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { CalendarClock, X, Check, LifeBuoy } from 'lucide-react'
 import { cancelMyAppointment, rescheduleMyAppointment } from '@/app/(dashboard)/app/actions'
+import { useToast } from '@/components/ui/Toast'
 
 const SUPPORT_EMAIL = 'connect@getcalmly.com'
 
@@ -25,6 +26,7 @@ function ContactSupport({ subject }: { subject?: string }) {
  */
 export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?: string }) {
   const router = useRouter()
+  const toast = useToast()
   const [pending, startTransition] = useTransition()
   const [mode, setMode] = useState<null | 'cancel' | 'reschedule'>(null)
   const [when, setWhen] = useState('')
@@ -36,12 +38,12 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
   const hoursOut = scheduledISO ? (new Date(scheduledISO).getTime() - now) / 3_600_000 : 0
   const locked = hoursOut < 24
 
-  const run = (fn: () => Promise<{ ok: boolean; error?: string }>) => {
+  const run = (fn: () => Promise<{ ok: boolean; error?: string }>, successMsg: string) => {
     setMsg(null)
     startTransition(async () => {
       const res = await fn()
-      if (res.ok) { setMode(null); router.refresh() }
-      else setMsg(res.error ?? 'Something went wrong.')
+      if (res.ok) { setMode(null); toast.success(successMsg); router.refresh() }
+      else { setMsg(res.error ?? 'Something went wrong.'); toast.error(res.error ?? 'Something went wrong.') }
     })
   }
 
@@ -52,7 +54,7 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
           style={{ fontFamily: 'inherit', fontSize: 12.5, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--c-line)', background: 'var(--c-white)', color: 'var(--c-charcoal)' }} />
         <div style={{ display: 'flex', gap: 6 }}>
           <button className="btn btn-primary btn-sm" disabled={pending || !when}
-            onClick={() => run(() => rescheduleMyAppointment(id, new Date(when).toISOString()))}>
+            onClick={() => run(() => rescheduleMyAppointment(id, new Date(when).toISOString()), 'Rescheduled')}>
             <Check size={13} /> Confirm
           </button>
           <button className="btn btn-outline btn-sm" onClick={() => { setMode(null); setMsg(null) }}>Back</button>
@@ -68,7 +70,7 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
         <span style={{ fontSize: 12, fontWeight: 600 }}>Cancel this session?</span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button className="btn btn-sm" disabled={pending} style={{ background: 'var(--c-coral)', color: '#fff' }}
-            onClick={() => run(() => cancelMyAppointment(id))}>Yes, cancel</button>
+            onClick={() => run(() => cancelMyAppointment(id), 'Session cancelled')}>Yes, cancel</button>
           <button className="btn btn-outline btn-sm" onClick={() => { setMode(null); setMsg(null) }}>Keep</button>
         </div>
         {msg && <span style={{ fontSize: 11, color: 'var(--c-coral)' }}>{msg}</span>}

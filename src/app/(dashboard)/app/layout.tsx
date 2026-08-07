@@ -6,6 +6,7 @@ import { Bell, HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { AccountMenu } from '@/components/dashboard/AccountMenu'
+import { ToastProvider } from '@/components/ui/Toast'
 import { getDashboardData } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount } from '@/lib/notifications'
@@ -44,6 +45,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   })
 
   return (
+    <ToastProvider>
     <div className="calmly-app">
       <Sidebar
         name={d.name}
@@ -86,5 +88,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <main className="app-content">{children}</main>
       </div>
     </div>
+    </ToastProvider>
   )
 }

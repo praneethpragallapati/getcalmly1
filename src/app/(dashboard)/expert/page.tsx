@@ -110,7 +110,7 @@ export default async function ExpertHomePage() {
       {/* ── Up-next hero ── */}
       {next && nextProfile ? (
         <div className="card" style={{ background: 'radial-gradient(ellipse 70% 80% at 92% 0%, rgba(26,127,122,.35), transparent 60%), #141E29', border: 'none', color: '#fff', padding: 28 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 28, alignItems: 'start' }}>
+          <div className="page-grid" style={{ gridTemplateColumns: '1.5fr 1fr', gap: 28, alignItems: 'start' }}>
             <div>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#4ba8a2', background: 'rgba(75,168,162,.14)', padding: '5px 12px', borderRadius: 20 }}>
                 ● Up next · {isToday(next.scheduledAt) ? `${timeLabel(next.scheduledAt)} today` : next.scheduledAt.toLocaleString('en-IN', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}

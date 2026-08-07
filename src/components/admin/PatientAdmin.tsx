@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
 import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
+import { useToast } from '@/components/ui/Toast'
 import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
 
@@ -14,6 +15,7 @@ const coral = '#6D5BD0'
 
 export function PatientAdmin({ p }: { p: PatientDetail }) {
   const router = useRouter()
+  const toast = useToast()
   const [pending, startTransition] = useTransition()
   const [assignId, setAssignId] = useState(p.assignedTherapistId ?? '')
   const [msg, setMsg] = useState<string | null>(null)
@@ -22,8 +24,10 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
     setMsg(null)
     startTransition(async () => {
       const res = await fn()
-      setMsg(res.ok ? okMsg ?? 'Done.' : res.error ?? 'Failed.')
-      if (res.ok) router.refresh()
+      const text = res.ok ? okMsg ?? 'Done.' : res.error ?? 'Failed.'
+      setMsg(text)
+      if (res.ok) { toast.success(text); router.refresh() }
+      else toast.error(text)
     })
   }
 

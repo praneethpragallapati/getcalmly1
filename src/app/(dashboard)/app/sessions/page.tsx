@@ -137,7 +137,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 20, alignItems: 'start' }}>
+      <div className="page-grid" style={{ gridTemplateColumns: '1.6fr 1fr', gap: 20, alignItems: 'start' }}>
         <div className="stack">
           <div className="card">
             <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
