@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Video, FileText, Calendar, CheckCircle2, Clock } from 'lucide-react'
 import { getSessionsView, getExpertCalendar } from '@/lib/sessions'
+import { getMyCareTeam } from '@/lib/therapist'
 import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
 import { BookSession } from '@/components/dashboard/BookSession'
 import { RateSession } from '@/components/dashboard/RateSession'
@@ -74,7 +75,23 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
   // Only honour ?with= when the patient may actually book with that clinician.
   const userId = withId ? await getSessionUserId() : null
   const scopedId = withId && userId && (await canPatientBookWith(userId, withId)) ? withId : undefined
-  const [view, calendar] = await Promise.all([getSessionsView(), getExpertCalendar(scopedId)])
+
+  // A patient can have up to three clinicians (individual / couples / psychiatry).
+  // Build the list from their care team so the booking panel can say WHOSE
+  // calendar it is and let them pick which one to book with — instead of silently
+  // booking a single "default" clinician.
+  const team = await getMyCareTeam()
+  const seen = new Set<string>()
+  const clinicians = team.slots
+    .filter((s) => s.expert)
+    .map((s) => ({ profileId: s.expert!.profileId, name: s.expert!.name, typeLabel: s.label }))
+    .filter((c) => (seen.has(c.profileId) ? false : (seen.add(c.profileId), true)))
+
+  // Whose calendar to show: the ?with= clinician if valid, otherwise the first
+  // care-team clinician. The slots shown and the booking always match this pick.
+  const selectedId = scopedId ?? clinicians[0]?.profileId
+  const [view, calendar] = await Promise.all([getSessionsView(), getExpertCalendar(selectedId)])
+  const selectedName = clinicians.find((c) => c.profileId === selectedId)?.name ?? (selectedId ? calendar.expert : undefined)
 
   // Days in the current month that have a session, for the patient calendar.
   const now = new Date()
@@ -138,7 +155,13 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
 
         <div className="stack">
           <PatientCalendar markedDays={markedDays} />
-          <BookSession slots={calendar.slots} therapistId={scopedId} expertName={scopedId ? calendar.expert : undefined} />
+          <BookSession
+            slots={calendar.slots}
+            therapistId={selectedId}
+            expertName={selectedName}
+            clinicians={clinicians}
+            selectedId={selectedId}
+          />
         </div>
       </div>
     </>
