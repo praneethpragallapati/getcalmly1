@@ -14,6 +14,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { getSessionUserId } from '@/lib/patient'
+import { resolveDueAppointments } from '@/lib/sessionLifecycle'
 import { getCommunityPosts } from '@/lib/community'
 import { patientCode } from '@/lib/ids'
 
@@ -113,6 +114,10 @@ function computeStreak(dates: Date[]): number {
 export async function getDashboardData(): Promise<DashboardData> {
   const userId = await getSessionUserId()
   if (!userId) return demoDashboard // logged-out: bundled demo, same as blog/community
+
+  // Settle any elapsed sessions (no-shows / auto-complete) so the home dashboard's
+  // "today / next session" reflects the true state, same as the sessions page.
+  await resolveDueAppointments({ patientId: userId })
 
   // Identity first, in its own guard: even if the analytics queries below fail
   // (e.g. a schema migration not yet applied on this DB), a signed-in patient

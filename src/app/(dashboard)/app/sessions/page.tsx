@@ -10,6 +10,10 @@ import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
 import type { DashSession } from '@/data/dashboardDemo'
 
+// Always render fresh: this page settles elapsed sessions (no-shows / auto-
+// complete) on load, so it must not be served from the router/full-route cache.
+export const dynamic = 'force-dynamic'
+
 function SessionRow({ s }: { s: DashSession }) {
   const past = s.status === 'COMPLETED'
   return (
