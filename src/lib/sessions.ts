@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS, designationOf } from '@/lib/expert'
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
+import { fmtIST } from '@/lib/tz'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
@@ -46,7 +47,7 @@ export type ExpertCalendar = { expert: string; expertRole: string; slots: Expert
 const JOIN_WINDOW_MS = 10 * 60 * 1000 // can join 10 min early
 
 function fmtWhen(d: Date): string {
-  return d.toLocaleString('en-IN', {
+  return fmtIST(d, {
     weekday: 'long',
     day: 'numeric',
     month: 'short',

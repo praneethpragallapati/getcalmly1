@@ -14,6 +14,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionMinMinutes, resolveDueAppointments } from '@/lib/sessionLifecycle'
+import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
 import { callModel } from '@/lib/ai/clients'
@@ -463,7 +464,7 @@ export async function getExpertPatientProfile(
     })),
     sessions: allAppts.map((a) => ({
       id: a.id,
-      dateLabel: a.scheduledAt.toLocaleString('en-IN', {
+      dateLabel: fmtIST(a.scheduledAt, {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
@@ -850,8 +851,8 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
     lines.push({
       id: r.id,
       dateIso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
-      dayLabel: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
-      timeLabel: d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+      dayLabel: fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+      timeLabel: fmtIST(d, { hour: 'numeric', minute: '2-digit' }),
       monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
       monthLabel: d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
       year: d.getFullYear(),
@@ -1158,25 +1159,31 @@ export async function getBookableSlots(therapistProfileId: string, daysAhead = 2
   // Patients must book at least 6 hours out, so a slot is never "already over"
   // by the time an expert sees the request.
   const earliest = Date.now() + MIN_BOOKING_LEAD_MS
+  // Build slots against the IST calendar so an hour of availability means that
+  // hour in India (not the UTC server clock). Start from today's IST date.
+  const today = istParts(new Date())
   for (let d = 0; d < daysAhead; d++) {
-    const day = new Date()
-    day.setHours(0, 0, 0, 0)
-    day.setDate(day.getDate() + d)
-    const hours = hoursByDay.get(day.getDay()) ?? []
+    // The IST calendar day, d days from today (UTC arithmetic keeps the date
+    // rolling correctly across month boundaries).
+    const dayUtc = new Date(Date.UTC(today.year, today.month, today.day + d))
+    const dow = dayUtc.getUTCDay()
+    const y = dayUtc.getUTCFullYear()
+    const mo = dayUtc.getUTCMonth()
+    const dd = dayUtc.getUTCDate()
+    const hours = hoursByDay.get(dow) ?? []
     if (!hours.length) continue
-    const ex = exByDay.get(startOfUtcDay(day).getTime())
+    const ex = exByDay.get(dayUtc.getTime())
     if (ex?.fullDayOff) continue
     const offHours = new Set(ex?.hoursOff ?? [])
     for (const h of hours) {
       if (offHours.has(h)) continue
       for (const m of minutesInHour) {
-        const slot = new Date(day)
-        slot.setHours(h, m, 0, 0)
+        const slot = istWallClock(y, mo, dd, h, m)
         if (slot.getTime() < earliest) continue
         slots.push({
           iso: slot.toISOString(),
-          dateLabel: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
-          time: slot.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+          dateLabel: fmtIST(slot, { weekday: 'short', day: 'numeric', month: 'short' }),
+          time: fmtIST(slot, { hour: 'numeric', minute: '2-digit' }),
           taken: takenMs.has(slot.getTime()),
         })
       }

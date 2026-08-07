@@ -8,6 +8,7 @@ import { RateSession } from '@/components/dashboard/RateSession'
 import { SessionActions } from '@/components/dashboard/SessionActions'
 import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
+import { istParts } from '@/lib/tz'
 import type { DashSession } from '@/data/dashboardDemo'
 
 // Always render fresh: this page settles elapsed sessions (no-shows / auto-
@@ -105,11 +106,12 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
   const packExpired = Boolean(selectedSlot?.expired)
 
   // Days in the current month that have a session, for the patient calendar.
-  const now = new Date()
+  // Read the date in IST so an evening-IST session lands on the right day.
+  const nowIst = istParts(new Date())
   const markedDays = [...view.upcoming, ...view.past]
-    .map((s) => (s.scheduledISO ? new Date(s.scheduledISO) : null))
-    .filter((d): d is Date => !!d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear())
-    .map((d) => d.getDate())
+    .map((s) => (s.scheduledISO ? istParts(new Date(s.scheduledISO)) : null))
+    .filter((p): p is ReturnType<typeof istParts> => !!p && p.month === nowIst.month && p.year === nowIst.year)
+    .map((p) => p.day)
 
   return (
     <>
