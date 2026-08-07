@@ -9,8 +9,8 @@
  * expert-authored text the AI pipeline synthesizes, see lib/ai/synthesizer.ts).
  * Nothing here adds a new freeform field that feeds the AI directly.
  */
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { cache } from 'react'
+import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionMinMinutes, resolveDueAppointments } from '@/lib/sessionLifecycle'
@@ -116,10 +116,14 @@ export function designationOf(specializations: string[]): string {
   return looksPsychiatric(specializations) ? 'Consultant Psychiatrist' : 'Clinical Psychologist'
 }
 
-/** The signed-in therapist's verified TherapistProfile id, or null. */
-export async function getTherapistContext(): Promise<TherapistContext | null> {
+/**
+ * The signed-in therapist's verified TherapistProfile context, or null.
+ * Request-memoised: the expert layout and every page/action call this, so
+ * without caching it re-queries the profile several times per render.
+ */
+export const getTherapistContext = cache(async (): Promise<TherapistContext | null> => {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
     const userId = (session?.user as { id?: string } | undefined)?.id
     if (!userId) return null
     const profile = await prisma.therapistProfile.findUnique({
@@ -139,7 +143,7 @@ export async function getTherapistContext(): Promise<TherapistContext | null> {
   } catch {
     return null
   }
-}
+})
 
 // ── Profile ─────────────────────────────────────────────────────────────────
 

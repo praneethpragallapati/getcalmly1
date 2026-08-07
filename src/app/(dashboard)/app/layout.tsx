@@ -1,16 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
 import { Bell, HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { AccountMenu } from '@/components/dashboard/AccountMenu'
 import { ToastProvider } from '@/components/ui/Toast'
-import { getDashboardData } from '@/lib/dashboard'
+import { getSidebarSummary } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount } from '@/lib/notifications'
-import { authOptions } from '@/lib/auth'
+import { getSessionUser } from '@/lib/session'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -25,17 +24,19 @@ function greetingFor(date: Date): string {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions)
-  const sessionUser = session?.user as { id?: string; role?: string } | undefined
+  const sessionUser = await getSessionUser()
   // Defense in depth behind the proxy gate: never render the patient area for a
   // signed-out visitor, and keep each role in its own area.
   if (!sessionUser?.id) redirect('/login')
   if (sessionUser.role === 'THERAPIST') redirect('/expert')
   if (sessionUser.role === 'ADMIN') redirect('/admin')
 
-  const d = await getDashboardData()
   const userId = await getSessionUserId()
-  const unread = userId ? await getUnreadCount(userId) : 0
+  // Chrome-only summary (cheap) + unread badge, fetched together.
+  const [d, unread] = await Promise.all([
+    getSidebarSummary(),
+    userId ? getUnreadCount(userId) : Promise.resolve(0),
+  ])
   const now = new Date()
   const dateLine = now.toLocaleDateString('en-IN', {
     weekday: 'long',
@@ -52,7 +53,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         planLine={`${d.planActive ? 'Paid member' : 'Free member'} · ${d.streakDays}-day streak 🔥`}
         planActive={d.planActive}
         planName={d.planName}
-        sessionsToday={d.todaySession ? 1 : 0}
+        sessionsToday={d.sessionsToday}
       />
 
       <div className="app-main">

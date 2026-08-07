@@ -1,6 +1,5 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getAuthSession } from '@/lib/session'
 
 /**
  * The signed-in patient's user id, or null when there is no session (e.g. the
@@ -10,7 +9,7 @@ import { prisma } from '@/lib/prisma'
  */
 export async function getSessionUserId(): Promise<string | null> {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
     return (session?.user as { id?: string } | undefined)?.id ?? null
   } catch {
     return null
@@ -27,7 +26,7 @@ export async function getSessionUserId(): Promise<string | null> {
  */
 export async function getSessionPatientId(): Promise<string | null> {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
     const u = session?.user as { id?: string; role?: string } | undefined
     if (!u?.id) return null
     if (u.role && u.role !== 'PATIENT') return null

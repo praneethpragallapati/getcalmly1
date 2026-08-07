@@ -11,6 +11,7 @@ import {
   type PlanTierName,
   type TodaySession,
 } from '@/data/dashboardDemo'
+import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { getSessionUserId } from '@/lib/patient'
@@ -111,6 +112,69 @@ function computeStreak(dates: Date[]): number {
  * no session or no DB it returns bundled demo data, same fallback approach used
  * by blog/community.
  */
+export type SidebarSummary = {
+  name: string
+  planActive: boolean
+  planName: string
+  streakDays: number
+  sessionsToday: number
+}
+
+/**
+ * The slim data the dashboard chrome (sidebar + greeting) needs on EVERY page.
+ * The layout renders on every navigation, so this must stay cheap — a handful of
+ * tiny, indexed, parallel reads — instead of the full getDashboardData payload
+ * (which does ~11 queries + session settlement and belongs only on the pages
+ * that show that data). Request-memoised so the page can reuse it for free.
+ */
+export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
+  const fallback: SidebarSummary = { name: demoDashboard.name, planActive: false, planName: '', streakDays: 0, sessionsToday: 0 }
+  const userId = await getSessionUserId()
+  if (!userId) return fallback
+  try {
+    const [user, sub, moods, appt] = await Promise.all([
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } }).catch(() => null),
+      prisma.subscription.findFirst({
+        where: { userId, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' },
+        select: { planName: true },
+      }).catch(() => null),
+      prisma.moodEntry.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 40, // enough to compute the streak; index-backed
+        select: { createdAt: true },
+      }).catch(() => []),
+      prisma.appointment.findFirst({
+        where: {
+          patientId: userId,
+          status: { notIn: ['COMPLETED', 'CANCELLED'] },
+          scheduledAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
+        },
+        orderBy: { scheduledAt: 'asc' },
+        select: { scheduledAt: true, durationMins: true },
+      }).catch(() => null),
+    ])
+
+    let sessionsToday = 0
+    if (appt) {
+      const start = appt.scheduledAt.getTime()
+      const end = start + appt.durationMins * 60_000
+      const now = Date.now()
+      if (now >= start - 10 * 60_000 && now <= end) sessionsToday = 1
+    }
+    return {
+      name: firstNameFrom(user?.name, user?.email),
+      planActive: Boolean(sub),
+      planName: sub?.planName ?? '',
+      streakDays: computeStreak(moods.map((m) => m.createdAt)),
+      sessionsToday,
+    }
+  } catch {
+    return fallback
+  }
+})
+
 export async function getDashboardData(): Promise<DashboardData> {
   const userId = await getSessionUserId()
   if (!userId) return demoDashboard // logged-out: bundled demo, same as blog/community

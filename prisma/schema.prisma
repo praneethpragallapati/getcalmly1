@@ -488,6 +488,11 @@ model Appointment {
   review         SessionReview?
 
   @@index([patientId])
+  // Hot paths filter a patient's / clinician's appointments by status and time
+  // (session settlement, "next session", schedule) — composite indexes keep
+  // those lookups from scanning all of a person's rows.
+  @@index([patientId, status, scheduledAt])
+  @@index([therapistId, status, scheduledAt])
 }
 
 // A patient's rating of a completed session with their clinician. One per
@@ -544,6 +549,8 @@ model Subscription {
   payments      Payment[]
 
   @@index([userId])
+  // The active-package lookup (dashboard, sidebar, billing) filters userId+status.
+  @@index([userId, status])
 }
 
 // A single money-in event: what a patient actually paid for a purchase (a session

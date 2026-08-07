@@ -11,6 +11,32 @@ import { verifyPassword } from '@/lib/password'
 // getProviders() on the login/register pages).
 export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
+/**
+ * Short-lived cache of a user's role, so the session callback doesn't hit the DB
+ * on every single request. Role changes (admin-side) still apply within
+ * ROLE_TTL_MS. This lives on the server instance and is naturally per-instance on
+ * serverless — a brief, bounded staleness in exchange for cutting one DB
+ * round-trip off the hot path of every authenticated request.
+ */
+const ROLE_TTL_MS = 30_000
+const roleCache = new Map<string, { role: string; exp: number }>()
+
+async function freshRole(userId: string, fallback: string | undefined): Promise<string | undefined> {
+  const now = Date.now()
+  const hit = roleCache.get(userId)
+  if (hit && hit.exp > now) return hit.role
+  try {
+    const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    if (u?.role) {
+      roleCache.set(userId, { role: u.role, exp: now + ROLE_TTL_MS })
+      return u.role
+    }
+  } catch {
+    /* keep fallback on a DB hiccup */
+  }
+  return fallback
+}
+
 export const authOptions: NextAuthOptions = {
   // Credentials providers require JWT sessions (DB sessions are not supported
   // for them), so the whole app uses JWT.
@@ -118,18 +144,11 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.uid) {
         const id = token.uid as string
         ;(session.user as { id?: string; role?: string }).id = id
-        // Read the role FRESH from the DB (not the JWT), so an admin-side role
-        // change applies on the next request without a re-login and a stale token
-        // can't keep an account on the wrong dashboard. Falls back to the token's
-        // role on a DB hiccup so a blip never logs everyone out.
-        let role = token.role as string | undefined
-        try {
-          const u = await prisma.user.findUnique({ where: { id }, select: { role: true } })
-          if (u?.role) role = u.role
-        } catch {
-          /* keep token role */
-        }
-        ;(session.user as { id?: string; role?: string }).role = role
+        // Role resolved fresh from the DB (not the stale JWT) so an admin-side
+        // role change applies without a re-login — but cached for ROLE_TTL_MS so
+        // we don't pay a DB round-trip on every request. Falls back to the
+        // token's role on a DB hiccup so a blip never logs everyone out.
+        ;(session.user as { id?: string; role?: string }).role = await freshRole(id, token.role as string | undefined)
       }
       return session
     },
