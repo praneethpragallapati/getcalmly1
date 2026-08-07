@@ -1,0 +1,31 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- OPTIONAL one-time correction · shift pre-IST-fix appointment times back 5:30h
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Before the IST timezone fix, the app ran on a UTC server and stored a booked
+-- slot's *shown* hour as a UTC wall-clock time. So a slot a patient booked as
+-- "10:00 am" was actually saved as 10:00 UTC = 3:30 PM IST — 5 hours 30 minutes
+-- later than intended. New bookings are correct; only rows created before the
+-- fix are affected.
+--
+-- This corrects still-live appointments by shifting them back 5:30h so their
+-- stored time matches the IST hour the patient picked.
+--
+--   psql "$DATABASE_URL" -f prisma/fix_pre_ist_appointment_times.sql
+--
+-- IMPORTANT — read before running:
+--   • This is NOT idempotent. Run it exactly ONCE. Running it twice double-shifts.
+--   • It targets PENDING / CONFIRMED only. RESCHEDULED rows are left alone because
+--     a reschedule set the time from the patient's own browser (already IST), so
+--     they are already correct.
+--   • If you have already-correct bookings mixed in, prefer just cancelling the
+--     stray session from the dashboard instead of running this.
+--
+-- Inspect first (see what would change):
+--   SELECT id, status, "scheduledAt",
+--          "scheduledAt" - INTERVAL '5 hours 30 minutes' AS corrected
+--   FROM "Appointment"
+--   WHERE status IN ('PENDING','CONFIRMED') AND "scheduledAt" >= NOW();
+
+-- UPDATE "Appointment"
+-- SET "scheduledAt" = "scheduledAt" - INTERVAL '5 hours 30 minutes'
+-- WHERE status IN ('PENDING','CONFIRMED');
