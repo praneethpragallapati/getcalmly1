@@ -3,7 +3,9 @@ import type { Metadata } from 'next'
 import { perSession, inr } from '@/data/pricing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 
-export const dynamic = 'force-dynamic'
+// ISR: serve a cached render and revalidate at most every 600s. Admin edits
+// call revalidatePath() so changes still appear immediately; this is the cap.
+export const revalidate = 600
 
 export const metadata: Metadata = {
   title: 'Terms & Refund Policy | GetCalmly',

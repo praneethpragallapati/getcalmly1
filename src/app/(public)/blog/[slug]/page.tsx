@@ -1,8 +1,18 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getBlogPost, getRelatedBlogPosts } from '@/lib/blog'
+import { getBlogPost, getRelatedBlogPosts, getBlogSlugs } from '@/lib/blog'
 import { getRelatedDiscussions } from '@/lib/community'
+
+// Prerender published posts at build and ISR-cache the rest on-demand, so each
+// article serves from cache (revalidated on publish/edit via revalidatePath).
+export async function generateStaticParams() {
+  try {
+    return (await getBlogSlugs()).slice(0, 100).map((slug) => ({ slug }))
+  } catch {
+    return []
+  }
+}
 import BlogCover from '@/components/blog/BlogCover'
 import { blogImage } from '@/data/blogImages'
 
@@ -60,7 +70,9 @@ function initials(name: string) {
 }
 
 // Read fresh from the database each request (falls back to bundled content).
-export const dynamic = 'force-dynamic'
+// ISR: serve a cached render and revalidate at most every 300s. Admin edits
+// call revalidatePath() so changes still appear immediately; this is the cap.
+export const revalidate = 300
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params

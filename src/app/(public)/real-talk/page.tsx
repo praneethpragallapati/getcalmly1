@@ -11,7 +11,9 @@ export const metadata: Metadata = {
 }
 
 // Read fresh each request (both feeds fall back to bundled content).
-export const dynamic = 'force-dynamic'
+// ISR: serve a cached render and revalidate at most every 180s. Admin edits
+// call revalidatePath() so changes still appear immediately; this is the cap.
+export const revalidate = 180
 
 export default async function RealTalkPage() {
   const [blogPosts, communityPosts] = await Promise.all([

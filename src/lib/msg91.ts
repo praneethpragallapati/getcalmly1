@@ -7,7 +7,12 @@
 //
 // `mobile` must be the full number WITH country code and no "+", e.g. 919876543210.
 
+import { guardedFetch } from '@/lib/resilience'
+
 const BASE = 'https://control.msg91.com/api/v5'
+
+// OTP is on the login path — keep it snappy and fail fast if MSG91 is down.
+const SMS_GUARD = { timeoutMs: 10_000, failureThreshold: 5, cooldownMs: 20_000, maxConcurrent: 12 }
 
 function authKey(): string {
   const key = process.env.MSG91_AUTH_KEY
@@ -26,13 +31,13 @@ export async function sendOtp(mobile: string): Promise<Msg91Result> {
   params.set('otp_length', '6')
   params.set('otp_expiry', '10')
 
-  const res = await fetch(`${BASE}/otp?${params.toString()}`, {
+  const res = await guardedFetch('msg91', `${BASE}/otp?${params.toString()}`, {
     method: 'POST',
     headers: { authkey: authKey(), 'Content-Type': 'application/json' },
     // Body lets MSG91 fill template variables if your template needs them.
     body: JSON.stringify({}),
     cache: 'no-store',
-  })
+  }, SMS_GUARD)
   const data = await res.json().catch(() => ({}))
   const ok = res.ok && data?.type !== 'error'
   return { ok, message: data?.message ?? (ok ? 'OTP sent' : 'Failed to send OTP'), raw: data }
@@ -41,11 +46,11 @@ export async function sendOtp(mobile: string): Promise<Msg91Result> {
 /** Verify a user-entered OTP against MSG91. */
 export async function verifyOtp(mobile: string, otp: string): Promise<Msg91Result> {
   const params = new URLSearchParams({ mobile, otp })
-  const res = await fetch(`${BASE}/otp/verify?${params.toString()}`, {
+  const res = await guardedFetch('msg91', `${BASE}/otp/verify?${params.toString()}`, {
     method: 'GET',
     headers: { authkey: authKey() },
     cache: 'no-store',
-  })
+  }, SMS_GUARD)
   const data = await res.json().catch(() => ({}))
   // MSG91 returns { type: 'success', message: 'OTP verified success' } on success.
   const ok = res.ok && data?.type === 'success'
@@ -55,11 +60,11 @@ export async function verifyOtp(mobile: string, otp: string): Promise<Msg91Resul
 /** Resend an OTP (text or voice). */
 export async function resendOtp(mobile: string, retrytype: 'text' | 'voice' = 'text'): Promise<Msg91Result> {
   const params = new URLSearchParams({ mobile, retrytype })
-  const res = await fetch(`${BASE}/otp/retry?${params.toString()}`, {
+  const res = await guardedFetch('msg91', `${BASE}/otp/retry?${params.toString()}`, {
     method: 'GET',
     headers: { authkey: authKey() },
     cache: 'no-store',
-  })
+  }, SMS_GUARD)
   const data = await res.json().catch(() => ({}))
   const ok = res.ok && data?.type !== 'error'
   return { ok, message: data?.message ?? (ok ? 'OTP resent' : 'Failed to resend OTP'), raw: data }

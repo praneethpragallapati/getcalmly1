@@ -30,12 +30,15 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
   function persist() {
     setError(null)
     setConfirmZero(false)
+    // Optimistic: flip to "Saved" immediately; the write + chart refresh happen in
+    // the background and only roll back if the server actually rejects it.
+    setSaved(true)
     startTransition(async () => {
       const res = await saveCheckin(scores)
       if (res.ok) {
-        setSaved(true)
         router.refresh() // pull the updated week chart / average from the server
       } else {
+        setSaved(false)
         setError(res.error ?? 'Something went wrong.')
       }
     })

@@ -53,20 +53,25 @@ export function RateSession({
   const [rating, setRating] = useState(initialRating ?? 0)
   const [comment, setComment] = useState(initialComment ?? '')
   const [editing, setEditing] = useState(initialRating == null)
+  const [submittedNow, setSubmittedNow] = useState(false)
   const [error, setError] = useState('')
 
   function submit() {
     if (rating < 1) { setError('Tap a star to rate.'); return }
     setError('')
+    // Optimistic: show the "You rated this session" confirmation immediately, then
+    // reconcile — roll back to the form only if the server rejects it.
+    setEditing(false)
+    setSubmittedNow(true)
     startTransition(async () => {
       const res = await submitSessionReview(appointmentId, rating, comment)
-      if (res.ok) { setEditing(false); router.refresh() }
-      else setError(res.error ?? 'Could not save your rating.')
+      if (res.ok) { router.refresh() }
+      else { setEditing(true); setSubmittedNow(false); setError(res.error ?? 'Could not save your rating.') }
     })
   }
 
   // Submitted view (not editing): compact confirmation with an edit affordance.
-  if (!editing && initialRating != null) {
+  if (!editing && (initialRating != null || submittedNow)) {
     return (
       <div className={compact ? undefined : 'card'} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, color: 'var(--c-green)', fontWeight: 700 }}>

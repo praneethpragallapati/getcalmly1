@@ -11,7 +11,9 @@ export const metadata: Metadata = {
 
 // Read fresh from the database on each request (falls back to bundled sample
 // content when the DB is unavailable).
-export const dynamic = 'force-dynamic'
+// ISR: serve a cached render and revalidate at most every 300s. Admin edits
+// call revalidatePath() so changes still appear immediately; this is the cap.
+export const revalidate = 300
 
 export default async function BlogPage() {
   const posts = await getBlogPosts()

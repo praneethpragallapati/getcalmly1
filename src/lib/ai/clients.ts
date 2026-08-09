@@ -6,6 +6,11 @@
  */
 import { aiConfig } from './config'
 import { MODELS, PROVIDERS, type ModelKey } from './models'
+import { guardedFetch } from '@/lib/resilience'
+
+// LLM calls can legitimately take a while, but not forever — cap it, and let the
+// breaker fast-fail once a provider is clearly down.
+const AI_GUARD = { timeoutMs: 30_000, failureThreshold: 4, cooldownMs: 30_000, maxConcurrent: 6 }
 
 export type ChatTurn = { role: 'user' | 'assistant'; content: string }
 export type LlmResult = { answer: string | null; inp: number; out: number; error: string | null }
@@ -28,14 +33,14 @@ async function callOpenAi(
     messages: [{ role: 'system', content: system }, ...messages],
   }
   if (jsonMode) body.response_format = { type: 'json_object' }
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+  const res = await guardedFetch('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${aiConfig.openAiKey}`,
     },
     body: JSON.stringify(body),
-  })
+  }, AI_GUARD)
   if (!res.ok) return { answer: null, inp: 0, out: 0, error: `openai_${res.status}` }
   const json = await res.json()
   return {
@@ -54,7 +59,7 @@ async function callAnthropic(
   maxTokens: number
 ): Promise<LlmResult> {
   if (!aiConfig.anthropicKey) return { answer: null, inp: 0, out: 0, error: 'no_anthropic_key' }
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await guardedFetch('anthropic', 'https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -69,7 +74,7 @@ async function callAnthropic(
       system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
       messages,
     }),
-  })
+  }, AI_GUARD)
   if (!res.ok) return { answer: null, inp: 0, out: 0, error: `anthropic_${res.status}` }
   const json = await res.json()
   const text = Array.isArray(json.content)
