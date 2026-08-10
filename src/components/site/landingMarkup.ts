@@ -373,7 +373,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div style="display:flex;justify-content:center;">
       <div style="width:270px;background:#0F1C28;border-radius:44px;padding:10px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
         <div style="width:250px;height:541px;border-radius:36px;overflow:hidden;background:#FFF8F5;">
-          <iframe src="/mockups/app-mock.html?screen=home" title="The GetCalmly app home screen" loading="lazy" scrolling="no" style="display:block;width:375px;height:812px;border:none;transform:scale(0.6667);transform-origin:top left;"></iframe>
+          <img src="/mockups/patient-home-1.png" alt="The GetCalmly app home screen" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover;object-position:top center;" />
         </div>
       </div>
     </div>

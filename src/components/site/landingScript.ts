@@ -8,6 +8,14 @@ export const LANDING_SCRIPT = `
 
   var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1});
   document.querySelectorAll('.reveal, .reveal-l, .reveal-r').forEach(function(el){obs.observe(el);});
+  // Safety net: if the observer misses an element that's already at/above the
+  // fold on load (fast paint, tab restore), reveal it so nothing stays stuck at
+  // opacity:0. Below-fold elements are left to animate on scroll as normal.
+  setTimeout(function(){
+    document.querySelectorAll('.reveal:not(.in), .reveal-l:not(.in), .reveal-r:not(.in)').forEach(function(el){
+      if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+    });
+  },1400);
 
   window.switchTab=function(id, el){
     document.querySelectorAll('.preview-pane').forEach(function(p){p.classList.remove('active');});
