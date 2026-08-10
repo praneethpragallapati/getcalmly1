@@ -58,8 +58,11 @@ export type CaseloadPatient = {
   sessionsTotal: number
   // Facets for filtering the caseload.
   sessionsCompleted: number // COMPLETED appointments with this clinician
+  sessionsLeft: number // remaining sessions across active packages
   packageTypes: string[] // active subscription trackSlugs
   language: string | null
+  state: string | null
+  monthsHere: number // whole months since they joined
 }
 
 export type ExpertPatientProfile = {
@@ -298,7 +301,7 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
   const [users, moods, crisis, subs, completed] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: patientIds } },
-      select: { id: true, name: true, email: true, patientProfile: { select: { track: true, trackLabel: true, preferredLanguage: true } } },
+      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { track: true, trackLabel: true, preferredLanguage: true, state: true } } },
     }),
     prisma.moodEntry.findMany({
       where: { userId: { in: patientIds } },
@@ -345,8 +348,11 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
       sessionsDone: sub?.sessionsUsed ?? 0,
       sessionsTotal: sub?.sessionsTotal ?? 0,
       sessionsCompleted: doneByPatient.get(u.id) ?? 0,
+      sessionsLeft: subs.filter((s) => s.userId === u.id).reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
       packageTypes: tracks ? [...tracks] : [],
       language: u.patientProfile?.preferredLanguage ?? null,
+      state: u.patientProfile?.state ?? null,
+      monthsHere: Math.max(0, Math.floor((Date.now() - u.createdAt.getTime()) / (30.44 * 86400000))),
     }
   })
 }

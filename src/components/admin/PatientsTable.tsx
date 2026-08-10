@@ -12,23 +12,29 @@ const purple = '#6D5BD0'
 const idChip: React.CSSProperties = { fontSize: 11, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: purple, background: 'rgba(109,91,208,.1)', padding: '2px 7px', borderRadius: 6, whiteSpace: 'nowrap' }
 const field: React.CSSProperties = { border: '1.5px solid #E2E8F0', borderRadius: 9, padding: '9px 11px', fontSize: 13.5, fontFamily: 'inherit', color: charcoal, background: '#fff' }
 
-type Sort = 'name' | 'sessions' | 'recent'
+type Sort = 'name' | 'sessions' | 'recent' | 'left' | 'tenure'
 
 export function PatientsTable({ rows }: { rows: PatientRow[] }) {
   const [q, setQ] = useState('')
   const [pkg, setPkg] = useState('')
   const [lang, setLang] = useState('')
   const [gender, setGender] = useState('')
+  const [stateF, setStateF] = useState('')
   const [minSessions, setMinSessions] = useState('')
+  const [minMonths, setMinMonths] = useState('')
+  const [minLeft, setMinLeft] = useState('')
   const [sort, setSort] = useState<Sort>('recent')
 
   const packages = useMemo(() => Array.from(new Set(rows.flatMap((r) => r.packageTypes))).sort(), [rows])
   const languages = useMemo(() => Array.from(new Set(rows.map((r) => r.language).filter((l): l is string => !!l))).sort(), [rows])
   const genders = useMemo(() => Array.from(new Set(rows.map((r) => r.gender).filter((g): g is string => !!g))).sort(), [rows])
+  const states = useMemo(() => Array.from(new Set(rows.map((r) => r.state).filter((s): s is string => !!s))).sort(), [rows])
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
     const min = Number(minSessions) || 0
+    const months = Number(minMonths) || 0
+    const left = Number(minLeft) || 0
     let list = rows.filter((r) => {
       if (needle) {
         const hay = `${r.name} ${r.email} ${patientCode(r.userId)}`.toLowerCase()
@@ -37,18 +43,23 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
       if (pkg && !r.packageTypes.includes(pkg)) return false
       if (lang && r.language !== lang) return false
       if (gender && r.gender !== gender) return false
+      if (stateF && r.state !== stateF) return false
       if (min && r.sessionsCompleted < min) return false
+      if (months && r.monthsHere < months) return false
+      if (left && r.sessionsLeft < left) return false
       return true
     })
     list = [...list].sort((a, b) => {
       if (sort === 'name') return a.name.localeCompare(b.name)
       if (sort === 'sessions') return b.sessionsCompleted - a.sessionsCompleted
+      if (sort === 'left') return b.sessionsLeft - a.sessionsLeft
+      if (sort === 'tenure') return b.monthsHere - a.monthsHere
       return b.joinedIso.localeCompare(a.joinedIso)
     })
     return list
-  }, [rows, q, pkg, lang, gender, minSessions, sort])
+  }, [rows, q, pkg, lang, gender, stateF, minSessions, minMonths, minLeft, sort])
 
-  const activeFilters = [pkg, lang, gender, minSessions].filter(Boolean).length + (q.trim() ? 1 : 0)
+  const activeFilters = [pkg, lang, gender, stateF, minSessions, minMonths, minLeft].filter(Boolean).length + (q.trim() ? 1 : 0)
 
   return (
     <div className="stack">
@@ -79,17 +90,30 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
               {genders.map((g) => <option key={g} value={g}>{g}</option>)}
             </select></div>
         )}
+        {states.length > 0 && (
+          <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>State</div>
+            <select value={stateF} onChange={(e) => setStateF(e.target.value)} style={{ ...field, minWidth: 140 }}>
+              <option value="">All states</option>
+              {states.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select></div>
+        )}
         <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Min. sessions done</div>
           <input type="number" min={0} value={minSessions} onChange={(e) => setMinSessions(e.target.value)} placeholder="0" style={{ ...field, width: 100 }} /></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Min. sessions left</div>
+          <input type="number" min={0} value={minLeft} onChange={(e) => setMinLeft(e.target.value)} placeholder="0" style={{ ...field, width: 100 }} /></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Min. months here</div>
+          <input type="number" min={0} value={minMonths} onChange={(e) => setMinMonths(e.target.value)} placeholder="0" style={{ ...field, width: 100 }} /></div>
         <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Sort</div>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} style={{ ...field, minWidth: 150 }}>
             <option value="recent">Newest first</option>
+            <option value="tenure">Longest here</option>
             <option value="sessions">Most sessions</option>
+            <option value="left">Most sessions left</option>
             <option value="name">Name (A–Z)</option>
           </select></div>
         {activeFilters > 0 && (
           <button className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '9px 12px' }}
-            onClick={() => { setQ(''); setPkg(''); setLang(''); setGender(''); setMinSessions(''); setSort('recent') }}>
+            onClick={() => { setQ(''); setPkg(''); setLang(''); setGender(''); setStateF(''); setMinSessions(''); setMinMonths(''); setMinLeft(''); setSort('recent') }}>
             Clear filters
           </button>
         )}
@@ -114,11 +138,11 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
                   ))}
                 </div>
                 <div className="muted" style={{ fontSize: 12.5 }}>
-                  {p.email}{p.language ? ` · ${p.language}` : ''}
+                  {p.email}{p.language ? ` · ${p.language}` : ''}{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo here
                 </div>
               </div>
               <span className="muted" style={{ fontSize: 12.5, whiteSpace: 'nowrap', textAlign: 'right' }}>
-                {p.sessionsCompleted} done<br />
+                {p.sessionsCompleted} done · {p.sessionsLeft} left<br />
                 <span style={{ fontSize: 11 }}>{p.activePlans} active plan{p.activePlans === 1 ? '' : 's'}</span>
               </span>
               <ChevronRight size={16} style={{ color: '#8E9EAE', flexShrink: 0 }} />

@@ -276,6 +276,9 @@ model PatientProfile {
   dateOfBirth       DateTime?
   gender            String?
   country           String    @default("IN") // ISO 3166-1 alpha-2, India default
+  // Indian state / UT the patient lives in (free text, e.g. "Karnataka"). Used
+  // for admin/clinician filtering and regional reporting.
+  state             String?
   preferredLanguage String?
 
   // Emergency contact

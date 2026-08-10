@@ -247,27 +247,35 @@ export type PatientRow = {
   userId: string; name: string; email: string; activePlans: number
   // Filterable facets: completed sessions, active package types, language, gender.
   sessionsCompleted: number
+  sessionsLeft: number // remaining sessions across active packages
   packageTypes: string[] // active subscription trackSlugs (e.g. ['therapy','calmplus'])
   language: string | null
   gender: string | null
+  state: string | null
+  monthsHere: number // whole months since they joined
   joinedIso: string
 }
+
+/** Whole months between an instant and now (approx, 30.44-day months). */
+export const monthsSince = (d: Date): number => Math.max(0, Math.floor((Date.now() - d.getTime()) / (30.44 * 86400000)))
 
 export async function getPatients(): Promise<PatientRow[]> {
   return safe(async () => {
     const users = await prisma.user.findMany({
       where: { role: 'PATIENT' },
-      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
+      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { preferredLanguage: true, gender: true, state: true } } },
       orderBy: { createdAt: 'desc' }, take: 300,
     })
     const [subs, completed] = await Promise.all([
-      prisma.subscription.findMany({ where: { status: 'ACTIVE' }, select: { userId: true, trackSlug: true } }),
+      prisma.subscription.findMany({ where: { status: 'ACTIVE' }, select: { userId: true, trackSlug: true, sessionsTotal: true, sessionsUsed: true } }),
       prisma.appointment.groupBy({ by: ['patientId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
     ])
     const tracksByUser = new Map<string, Set<string>>()
+    const leftByUser = new Map<string, number>()
     for (const s of subs) {
       const set = tracksByUser.get(s.userId) ?? new Set<string>()
       set.add(s.trackSlug); tracksByUser.set(s.userId, set)
+      leftByUser.set(s.userId, (leftByUser.get(s.userId) ?? 0) + Math.max(0, s.sessionsTotal - s.sessionsUsed))
     }
     const doneByUser = new Map(completed.map((c) => [c.patientId, c._count._all]))
     return users.map((u) => {
@@ -276,9 +284,12 @@ export async function getPatients(): Promise<PatientRow[]> {
         userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '',
         activePlans: tracks ? tracks.size : 0,
         sessionsCompleted: doneByUser.get(u.id) ?? 0,
+        sessionsLeft: leftByUser.get(u.id) ?? 0,
         packageTypes: tracks ? [...tracks] : [],
         language: u.patientProfile?.preferredLanguage ?? null,
         gender: u.patientProfile?.gender ?? null,
+        state: u.patientProfile?.state ?? null,
+        monthsHere: monthsSince(u.createdAt),
         joinedIso: u.createdAt.toISOString(),
       }
     })

@@ -6,6 +6,7 @@ import { Camera, Check, Mail, Trash2 } from 'lucide-react'
 import { updatePatientProfile } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PatientProfileEdit } from '@/lib/account'
+import { IN_STATES } from '@/lib/inStates'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -23,6 +24,7 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
   const [phone, setPhone] = useState(profile.phone ?? '')
   const [gender, setGender] = useState(profile.gender ?? '')
   const [dob, setDob] = useState(profile.dateOfBirth ?? '')
+  const [state, setState] = useState(profile.state ?? '')
   const [language, setLanguage] = useState(profile.preferredLanguage ?? '')
   const [emName, setEmName] = useState(profile.emergencyName ?? '')
   const [emPhone, setEmPhone] = useState(profile.emergencyPhone ?? '')
@@ -51,6 +53,7 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         phone,
         gender,
         dateOfBirth: dob || null,
+        state,
         preferredLanguage: language,
         emergencyName: emName,
         emergencyPhone: emPhone,
@@ -128,6 +131,13 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         <div>
           <label className="field-label">Preferred language</label>
           <input className="field-input" value={language} maxLength={40} onChange={(e) => setLanguage(e.target.value)} placeholder="e.g. Hindi, English" />
+        </div>
+        <div>
+          <label className="field-label">State</label>
+          <input className="field-input" value={state} maxLength={60} onChange={(e) => setState(e.target.value)} placeholder="e.g. Karnataka" list="in-states" />
+          <datalist id="in-states">
+            {IN_STATES.map((s) => <option key={s} value={s} />)}
+          </datalist>
         </div>
       </div>
 

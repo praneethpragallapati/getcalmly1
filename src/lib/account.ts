@@ -155,6 +155,7 @@ export type PatientProfileEdit = {
   photoUrl: string | null
   gender: string | null
   dateOfBirth: string | null // yyyy-mm-dd for the date input
+  state: string | null
   preferredLanguage: string | null
   emergencyName: string | null
   emergencyPhone: string | null
@@ -172,7 +173,7 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
         .findUnique({
           where: { userId },
           select: {
-            gender: true, dateOfBirth: true, preferredLanguage: true,
+            gender: true, dateOfBirth: true, state: true, preferredLanguage: true,
             emergencyName: true, emergencyPhone: true, emergencyRelation: true,
           },
         })
@@ -185,6 +186,7 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
       photoUrl: user?.image ?? null,
       gender: profile?.gender ?? null,
       dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,
+      state: profile?.state ?? null,
       preferredLanguage: profile?.preferredLanguage ?? null,
       emergencyName: profile?.emergencyName ?? null,
       emergencyPhone: profile?.emergencyPhone ?? null,

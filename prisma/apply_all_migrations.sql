@@ -90,3 +90,6 @@ ALTER TABLE "Appointment" ALTER COLUMN "durationMins" SET DEFAULT 45;
 -- own "My posts" filter and moderation. Idempotent.
 ALTER TABLE "CommunityPost"    ADD COLUMN IF NOT EXISTS "anonymous" BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE "CommunityComment" ADD COLUMN IF NOT EXISTS "anonymous" BOOLEAN NOT NULL DEFAULT false;
+
+-- 0020 · Patient state / UT (regional filtering + reporting). Idempotent.
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "state" TEXT;

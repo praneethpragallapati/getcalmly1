@@ -639,6 +639,7 @@ export type PatientProfileInput = {
   phone?: string | null
   gender?: string | null
   dateOfBirth?: string | null // ISO date (yyyy-mm-dd) or null
+  state?: string | null
   preferredLanguage?: string | null
   emergencyName?: string | null
   emergencyPhone?: string | null
@@ -693,6 +694,8 @@ export async function updatePatientProfile(input: PatientProfileInput): Promise<
     const gender = clean(input.gender, 30)
     if (gender !== undefined) profileData.gender = gender
     if (dob !== undefined) profileData.dateOfBirth = dob
+    const state = clean(input.state, 60)
+    if (state !== undefined) profileData.state = state
     const lang = clean(input.preferredLanguage, 40)
     if (lang !== undefined) profileData.preferredLanguage = lang
     const emN = clean(input.emergencyName, 80)
