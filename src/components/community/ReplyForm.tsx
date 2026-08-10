@@ -13,6 +13,7 @@ const coral = '#C8553D'
  */
 export function ReplyForm({ postId }: { postId: string }) {
   const [body, setBody] = useState('')
+  const [anon, setAnon] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
   const [pending, start] = useTransition()
@@ -26,9 +27,9 @@ export function ReplyForm({ postId }: { postId: string }) {
     }
     setError(null)
     start(async () => {
-      const res = await addCommunityComment({ postId, body: text })
+      const res = await addCommunityComment({ postId, body: text, anonymous: anon })
       if (res.ok) {
-        setBody('')
+        setBody(''); setAnon(false)
         setDone(true)
         setTimeout(() => setDone(false), 1600)
         router.refresh()
@@ -71,7 +72,7 @@ export function ReplyForm({ postId }: { postId: string }) {
           boxSizing: 'border-box',
         }}
       />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 12, flexWrap: 'wrap' }}>
         <button
           type="button"
           onClick={submit}
@@ -89,8 +90,12 @@ export function ReplyForm({ postId }: { postId: string }) {
             whiteSpace: 'nowrap',
           }}
         >
-          {done ? 'Posted ✓' : pending ? 'Posting…' : 'Post reply'}
+          {done ? 'Posted ✓' : pending ? 'Posting…' : anon ? 'Reply anonymously' : 'Post reply'}
         </button>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#4A5F70', userSelect: 'none' }}>
+          <input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} style={{ width: 16, height: 16, accentColor: coral, cursor: 'pointer' }} />
+          Reply anonymously
+        </label>
         {error && <span style={{ fontSize: 12.5, color: '#C8553D', fontWeight: 600 }}>{error}</span>}
         {done && !error && <span style={{ fontSize: 12.5, color: '#2C7A57', fontWeight: 600 }}>Thanks for sharing.</span>}
       </div>

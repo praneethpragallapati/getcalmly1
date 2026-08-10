@@ -84,3 +84,9 @@ ALTER TABLE "Appointment" ALTER COLUMN "durationMins" SET DEFAULT 45;
 -- DELETE FROM "Payment";
 -- UPDATE "Appointment" SET "consumedSubscriptionId" = NULL;
 -- DELETE FROM "Subscription";
+
+-- 0019b · Community anonymous posting. Members can publish a discussion or reply
+-- without their name/role showing to peers; authorId is still stored for their
+-- own "My posts" filter and moderation. Idempotent.
+ALTER TABLE "CommunityPost"    ADD COLUMN IF NOT EXISTS "anonymous" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "CommunityComment" ADD COLUMN IF NOT EXISTS "anonymous" BOOLEAN NOT NULL DEFAULT false;

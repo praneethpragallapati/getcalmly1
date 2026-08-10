@@ -299,6 +299,7 @@ function AuthedComposer() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [tags, setTags] = useState('')
+  const [anon, setAnon] = useState(false)
   const [pending, startTransition] = useTransition()
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
@@ -309,9 +310,10 @@ function AuthedComposer() {
         title,
         body,
         tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+        anonymous: anon,
       })
       if (res.ok && res.persisted) {
-        setTitle(''); setBody(''); setTags(''); setOpen(false)
+        setTitle(''); setBody(''); setTags(''); setAnon(false); setOpen(false)
         router.refresh()
       } else {
         setMsg({ ok: false, text: res.error ?? 'Could not post your discussion.' })
@@ -347,9 +349,13 @@ function AuthedComposer() {
       <input style={field} placeholder="A short, clear title" value={title} onChange={(e) => setTitle(e.target.value)} />
       <textarea style={{ ...field, resize: 'vertical' }} rows={4} placeholder="Share what's helping, or ask the community…" value={body} onChange={(e) => setBody(e.target.value)} />
       <input style={field} placeholder="Tags, comma-separated (e.g. anxiety, sleep)" value={tags} onChange={(e) => setTags(e.target.value)} />
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontSize: 13.5, color: '#4A5F70', fontFamily: BODY_FONT, userSelect: 'none' }}>
+        <input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#C8553D', cursor: 'pointer' }} />
+        <span>Post anonymously — your name and badge stay hidden, shown only as <strong style={{ color: '#1C2B3A' }}>Anonymous</strong></span>
+      </label>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <button onClick={post} disabled={pending || !title.trim() || !body.trim()} style={{ padding: '10px 22px', borderRadius: 22, background: '#C8553D', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', opacity: pending || !title.trim() || !body.trim() ? 0.6 : 1, fontFamily: BODY_FONT }}>
-          {pending ? 'Posting…' : 'Post discussion'}
+          {pending ? 'Posting…' : anon ? 'Post anonymously' : 'Post discussion'}
         </button>
         <button onClick={() => { setOpen(false); setMsg(null) }} style={{ padding: '10px 16px', borderRadius: 22, background: 'transparent', color: '#6B7D8E', fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: BODY_FONT }}>
           Cancel

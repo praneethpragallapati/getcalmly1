@@ -918,6 +918,10 @@ model CommunityPost {
   authorName String
   authorRole CommunityRole @default(MEMBER)
   tenure     String? // e.g. "8 months" — drives the Paid Member star tier
+  // Posted anonymously: authorName is stored as "Anonymous" and the role badge
+  // is neutralised so peers can't identify the writer. authorId is still kept so
+  // the author's own "My posts" filter and platform moderation keep working.
+  anonymous  Boolean       @default(false)
   authorId   String?
   author     User?         @relation("UserCommunityPosts", fields: [authorId], references: [id])
   tags       String[]
@@ -937,6 +941,8 @@ model CommunityComment {
   post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorName String
   authorRole CommunityRole @default(MEMBER)
+  // Posted anonymously (see CommunityPost.anonymous).
+  anonymous  Boolean       @default(false)
   authorId   String?
   author     User?         @relation("UserCommunityComments", fields: [authorId], references: [id])
   body       String        @db.Text

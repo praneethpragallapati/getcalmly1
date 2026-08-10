@@ -567,6 +567,7 @@ export async function createCommunityPost(input: {
   title: string
   body: string
   tags?: string[]
+  anonymous?: boolean
 }): Promise<ActionResult> {
   const title = input.title?.trim()
   const body = input.body?.trim()
@@ -577,14 +578,19 @@ export async function createCommunityPost(input: {
 
   try {
     const me = await communityIdentity(userId)
+    // Anonymous posts show as a neutral "Anonymous · Member" to peers; the real
+    // name/role/tenure are never stored on the row. authorId is still linked so
+    // the author's own "My posts" filter and moderation keep working.
+    const anon = Boolean(input.anonymous)
     await prisma.communityPost.create({
       data: {
         title,
         body,
         authorId: userId,
-        authorName: me.name,
-        authorRole: me.role,
-        tenure: me.tenure,
+        authorName: anon ? 'Anonymous' : me.name,
+        authorRole: anon ? 'MEMBER' : me.role,
+        tenure: anon ? null : me.tenure,
+        anonymous: anon,
         tags: input.tags ?? [],
       },
     })
@@ -722,6 +728,7 @@ export async function updatePatientProfile(input: PatientProfileInput): Promise<
 export async function addCommunityComment(input: {
   postId: string
   body: string
+  anonymous?: boolean
 }): Promise<ActionResult> {
   const body = input.body?.trim()
   if (!input.postId || !body) return { ok: false, persisted: false, error: 'Write a reply first.' }
@@ -731,13 +738,15 @@ export async function addCommunityComment(input: {
 
   try {
     const me = await communityIdentity(userId)
+    const anon = Boolean(input.anonymous)
     await prisma.communityComment.create({
       data: {
         postId: input.postId,
         body,
         authorId: userId,
-        authorName: me.name,
-        authorRole: me.role,
+        authorName: anon ? 'Anonymous' : me.name,
+        authorRole: anon ? 'MEMBER' : me.role,
+        anonymous: anon,
       },
     })
     revalidatePath(`/community/${input.postId}`)
