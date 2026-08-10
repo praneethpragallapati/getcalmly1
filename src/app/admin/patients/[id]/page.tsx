@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { getAdminSession, getPatientDetail } from '@/lib/admin'
+import { getAdminSession, getPatientDetail, getPatientActivity } from '@/lib/admin'
 import { PatientAdmin } from '@/components/admin/PatientAdmin'
+import { PatientActivitySections } from '@/components/admin/PatientActivity'
 import { DeleteAccount } from '@/components/admin/DeleteAccount'
 import { patientCode } from '@/lib/ids'
 
@@ -12,7 +13,7 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
   const { id } = await params
   const admin = await getAdminSession()
   if (!admin) redirect('/login')
-  const p = await getPatientDetail(id)
+  const [p, activity] = await Promise.all([getPatientDetail(id), getPatientActivity(id)])
   if (!p) notFound()
 
   return (
@@ -28,6 +29,7 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
         <div className="page-meta">{p.email}</div>
       </div>
       <PatientAdmin p={p} />
+      <PatientActivitySections activity={activity} />
       <DeleteAccount kind="patient" userId={p.userId} name={p.name} />
     </div>
   )

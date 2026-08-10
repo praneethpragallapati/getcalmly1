@@ -404,6 +404,58 @@ export async function grantSessionsByType(input: { userId: string; trackSlug: st
   }
 }
 
+/**
+ * Gift a free Calm+ app subscription from scratch (no charge, no Payment record).
+ * Session plans already bundle Calm+, so if the patient has any active plan this
+ * simply extends its validity; otherwise it creates a standalone Calm+ package
+ * with no sessions. Mirrors the paid buy flow minus the money-in ledger.
+ */
+export async function grantCalmPlus(input: { userId: string; months: number }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const months = Math.max(1, Math.round(Number(input.months) || 0))
+  if (!months) return { ok: false, error: 'Pick how many months of Calm+ to gift.' }
+  try {
+    const existing = await prisma.subscription.findFirst({
+      where: { userId: input.userId, status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+    })
+    const now = new Date()
+    const planLabel = `Calm+ · ${months} month${months === 1 ? '' : 's'} (gifted)`
+    if (existing) {
+      // Extend the live plan's validity; keep a session plan's own name, otherwise
+      // relabel a standalone Calm+ package.
+      const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
+      const expiresAt = addMonths(base, months)
+      const keepSessionPlan = existing.sessionsTotal > 0
+      await prisma.subscription.update({
+        where: { id: existing.id },
+        data: { status: 'ACTIVE', planName: keepSessionPlan ? existing.planName : planLabel, expiresAt, renewsAt: expiresAt },
+      })
+    } else {
+      const expiresAt = addMonths(now, months)
+      await prisma.subscription.create({
+        data: {
+          userId: input.userId,
+          category: 'INDIVIDUAL',
+          trackSlug: 'calmplus',
+          planName: planLabel,
+          sessionsTotal: 0,
+          sessionsUsed: 0,
+          status: 'ACTIVE',
+          startedAt: now,
+          expiresAt,
+          renewsAt: expiresAt,
+        },
+      })
+    }
+    revalidatePath(`/admin/patients/${input.userId}`)
+    revalidatePath('/app'); revalidatePath('/app/billing'); revalidatePath('/app/therapist')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not gift Calm+.' }
+  }
+}
+
 /** Extend (or set) a package's validity by a number of months from today or its current expiry. */
 export async function extendValidity(input: { id: string; months: number }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }

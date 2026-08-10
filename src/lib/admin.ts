@@ -9,6 +9,7 @@ import { prisma } from '@/lib/prisma'
 import { designationOf, getTherapistEarnings, type EarningLine } from '@/lib/expert'
 import { getEarningsConfig } from '@/lib/earningsConfig'
 import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurrence'
+import { fmtIST } from '@/lib/tz'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -300,6 +301,133 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         .sort((a, b) => a.name.localeCompare(b.name)),
     }
   }, null)
+}
+
+// ── Patient: per-session status + progress (admin oversight) ──────────────────
+// The admin's "control of every minute thing" view for one patient: every
+// session with each party's join time, together-duration and call rating, plus
+// a progress snapshot from mood check-ins, journaling, tasks and sessions.
+
+export type PatientSessionRow = {
+  id: string
+  clinicianName: string
+  clinicianRating: number // the clinician's overall (denormalised) rating
+  scheduledLabel: string
+  status: string
+  isPast: boolean
+  patientJoinedLabel: string | null
+  therapistJoinedLabel: string | null
+  endedLabel: string | null
+  // Minutes both parties were together in the room (max(join) → endedAt), or
+  // null when the session never had both sides present with an end time.
+  durationMins: number | null
+  scheduledMins: number
+  bothJoined: boolean
+  rating: number | null // the patient's 1–5 rating of this call
+  hasSummary: boolean
+}
+
+export type PatientProgress = {
+  checkIns: number
+  lastCheckInLabel: string | null
+  avgMood: number | null // 1–5 average of recent mood check-ins
+  moodTrend: { label: string; mood: number }[] // oldest → newest, up to 14
+  journalCount: number
+  lastJournalLabel: string | null
+  openTasks: number
+  doneTasks: number
+  sessionsCompleted: number
+  sessionsUpcoming: number
+  avgRatingGiven: number | null // average of the ratings this patient left
+  memberSinceLabel: string | null
+}
+
+export type PatientActivity = {
+  sessions: PatientSessionRow[]
+  progress: PatientProgress
+}
+
+const timeLabel = (d: Date | null | undefined): string | null =>
+  d ? fmtIST(d, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : null
+
+/** Everything the admin needs to audit a patient's sessions and track progress. */
+export async function getPatientActivity(userId: string): Promise<PatientActivity> {
+  const empty: PatientActivity = {
+    sessions: [],
+    progress: {
+      checkIns: 0, lastCheckInLabel: null, avgMood: null, moodTrend: [],
+      journalCount: 0, lastJournalLabel: null, openTasks: 0, doneTasks: 0,
+      sessionsCompleted: 0, sessionsUpcoming: 0, avgRatingGiven: null, memberSinceLabel: null,
+    },
+  }
+  return safe(async () => {
+    const now = Date.now()
+    const [appts, moods, moodCount, journalCount, lastJournal, tasks, user] = await Promise.all([
+      prisma.appointment.findMany({
+        where: { patientId: userId },
+        orderBy: { scheduledAt: 'desc' },
+        take: 200,
+        include: {
+          therapist: { select: { rating: true, user: { select: { name: true } } } },
+          review: { select: { rating: true } },
+        },
+      }),
+      prisma.moodEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 14, select: { mood: true, createdAt: true } }),
+      prisma.moodEntry.count({ where: { userId } }),
+      prisma.journalEntry.count({ where: { userId } }),
+      prisma.journalEntry.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
+      prisma.task.findMany({ where: { userId }, select: { completedAt: true, frequency: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }),
+    ])
+
+    const sessions: PatientSessionRow[] = appts.map((a) => {
+      const bothJoined = Boolean(a.patientJoinedAt && a.therapistJoinedAt)
+      let durationMins: number | null = null
+      if (a.patientJoinedAt && a.therapistJoinedAt && a.endedAt) {
+        const start = Math.max(a.patientJoinedAt.getTime(), a.therapistJoinedAt.getTime())
+        durationMins = Math.max(0, Math.round((a.endedAt.getTime() - start) / 60000))
+      }
+      return {
+        id: a.id,
+        clinicianName: a.therapist?.user?.name ?? 'Clinician',
+        clinicianRating: a.therapist?.rating ?? 0,
+        scheduledLabel: fmtIST(a.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }),
+        status: a.status,
+        isPast: a.scheduledAt.getTime() < now,
+        patientJoinedLabel: timeLabel(a.patientJoinedAt),
+        therapistJoinedLabel: timeLabel(a.therapistJoinedAt),
+        endedLabel: timeLabel(a.endedAt),
+        durationMins,
+        scheduledMins: a.durationMins,
+        bothJoined,
+        rating: a.review?.rating ?? null,
+        hasSummary: Boolean(a.summary),
+      }
+    })
+
+    const moodAsc = [...moods].reverse()
+    const avgMood = moods.length ? Math.round((moods.reduce((s, m) => s + m.mood, 0) / moods.length) * 10) / 10 : null
+    const ratings = appts.map((a) => a.review?.rating).filter((r): r is number => typeof r === 'number')
+    const avgRatingGiven = ratings.length ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10 : null
+
+    return {
+      sessions,
+      progress: {
+        checkIns: moodCount,
+        lastCheckInLabel: moods[0] ? timeLabel(moods[0].createdAt) : null,
+        avgMood,
+        moodTrend: moodAsc.map((m) => ({ label: fmtIST(m.createdAt, { day: 'numeric', month: 'short' }), mood: m.mood })),
+        journalCount,
+        lastJournalLabel: lastJournal ? timeLabel(lastJournal.createdAt) : null,
+        openTasks: tasks.filter((t) => !isDoneForPeriod(t.completedAt, t.frequency)).length,
+        doneTasks: tasks.filter((t) => isDoneForPeriod(t.completedAt, t.frequency)).length,
+        sessionsCompleted: appts.filter((a) => a.status === 'COMPLETED').length,
+        sessionsUpcoming: appts.filter((a) => a.scheduledAt.getTime() >= now && a.status !== 'CANCELLED').length,
+        avgRatingGiven,
+        memberSinceLabel: user?.createdAt ? fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null,
+      },
+    }
+  }, empty)
 }
 
 // ── Safety: platform-wide crisis oversight ────────────────────────────────────

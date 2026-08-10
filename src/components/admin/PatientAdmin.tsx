@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, extendValidity } from '@/app/admin/actions'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, grantCalmPlus, extendValidity } from '@/app/admin/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
@@ -67,10 +67,11 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Packages &amp; subscriptions</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
-          Add or remove sessions by package type and set validity; credit back a session the clinician didn&apos;t join, or cancel a package.
+          Grant or gift any service from scratch — a session pack of any type, or a free Calm+ subscription — even if the patient never bought one. Set validity, credit back a session the clinician didn&apos;t join, or cancel a package.
         </p>
 
         <GrantByType userId={p.userId} field={field} pending={pending} run={run} />
+        <GiftCalmPlus userId={p.userId} field={field} pending={pending} run={run} />
 
         {p.subscriptions.length === 0 && <p className="muted" style={{ fontSize: 13.5, marginTop: 12 }}>No packages on file.</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -212,6 +213,32 @@ function GrantByType({ userId, field, pending, run }: {
         </button>
       </div>
       <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>Positive adds sessions (and extends validity by the months given); negative removes. Creates the package if the patient has none of that type.</p>
+    </div>
+  )
+}
+
+/** Gift a free Calm+ app subscription from scratch, for a chosen number of months. */
+function GiftCalmPlus({ userId, field, pending, run }: {
+  userId: string
+  field: React.CSSProperties
+  pending: boolean
+  run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
+}) {
+  const [months, setMonths] = useState('6')
+  return (
+    <div style={{ border: '1px dashed #D8DEE6', borderRadius: 12, padding: '12px 14px', marginBottom: 14, background: 'rgba(109,91,208,.03)' }}>
+      <div style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 8 }}>Gift a free Calm+ subscription</div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Validity (months)</div>
+          <select value={months} onChange={(e) => setMonths(e.target.value)} style={{ ...field, minWidth: 120 }}>
+            <option value="1">1 month</option><option value="4">4 months</option><option value="6">6 months</option><option value="12">1 year</option>
+          </select></div>
+        <button className="btn btn-primary" disabled={pending}
+          onClick={() => run(() => grantCalmPlus({ userId, months: Number(months) }), 'Calm+ gifted.')}>
+          Gift Calm+
+        </button>
+      </div>
+      <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>Free — no charge recorded. Extends the patient&apos;s current plan validity if they have one, otherwise creates a standalone Calm+ package (AI companion, journaling &amp; mood tracker; no sessions).</p>
     </div>
   )
 }
