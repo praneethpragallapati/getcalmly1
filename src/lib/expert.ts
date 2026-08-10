@@ -49,12 +49,17 @@ export type RiskNotification = {
 export type CaseloadPatient = {
   patientId: string
   name: string
+  email: string
   trackLabel: string
   lastMood: number | null
   moodTrend: MoodTrend
   openCrisisCount: number
   sessionsDone: number
   sessionsTotal: number
+  // Facets for filtering the caseload.
+  sessionsCompleted: number // COMPLETED appointments with this clinician
+  packageTypes: string[] // active subscription trackSlugs
+  language: string | null
 }
 
 export type ExpertPatientProfile = {
@@ -290,10 +295,10 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
   // caseload query resilient to schema columns that may not yet exist in a
   // given deployment's database (otherwise Prisma throws P2022 and the whole
   // portal page 500s).
-  const [users, moods, crisis, subs] = await Promise.all([
+  const [users, moods, crisis, subs, completed] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: patientIds } },
-      select: { id: true, name: true, patientProfile: { select: { track: true, trackLabel: true } } },
+      select: { id: true, name: true, email: true, patientProfile: { select: { track: true, trackLabel: true, preferredLanguage: true } } },
     }),
     prisma.moodEntry.findMany({
       where: { userId: { in: patientIds } },
@@ -308,22 +313,40 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
     prisma.subscription.findMany({
       where: { userId: { in: patientIds }, status: 'ACTIVE' },
       orderBy: { createdAt: 'desc' },
-      select: { userId: true, sessionsUsed: true, sessionsTotal: true },
+      select: { userId: true, sessionsUsed: true, sessionsTotal: true, trackSlug: true },
+    }),
+    // Sessions this clinician actually completed with each patient.
+    prisma.appointment.groupBy({
+      by: ['patientId'],
+      where: { patientId: { in: patientIds }, therapistId: therapistProfileId, status: 'COMPLETED' },
+      _count: { _all: true },
     }),
   ])
+
+  const doneByPatient = new Map(completed.map((c) => [c.patientId, c._count._all]))
+  const tracksByUser = new Map<string, Set<string>>()
+  for (const s of subs) {
+    const set = tracksByUser.get(s.userId) ?? new Set<string>()
+    set.add(s.trackSlug); tracksByUser.set(s.userId, set)
+  }
 
   return users.map((u) => {
     const userMoods = moods.filter((m) => m.userId === u.id).slice(0, 14)
     const sub = subs.find((s) => s.userId === u.id)
+    const tracks = tracksByUser.get(u.id)
     return {
       patientId: u.id,
       name: u.name ?? 'Patient',
+      email: u.email ?? '',
       trackLabel: trackLabelFor(u.patientProfile?.track?.[0], u.patientProfile?.trackLabel),
       lastMood: userMoods[0]?.mood ?? null,
       moodTrend: moodTrendOf(userMoods),
       openCrisisCount: crisis.filter((c) => c.userId === u.id).length,
       sessionsDone: sub?.sessionsUsed ?? 0,
       sessionsTotal: sub?.sessionsTotal ?? 0,
+      sessionsCompleted: doneByPatient.get(u.id) ?? 0,
+      packageTypes: tracks ? [...tracks] : [],
+      language: u.patientProfile?.preferredLanguage ?? null,
     }
   })
 }

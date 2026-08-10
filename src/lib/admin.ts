@@ -121,16 +121,26 @@ export async function getEnterpriseLeads(): Promise<LeadRow[]> {
 export type ClinicianRow = {
   profileId: string; name: string; email: string; designation: string
   employmentType: string; isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
+  // Filterable facets.
+  languages: string[]
+  specializations: string[]
+  sessionsCompleted: number
 }
 
 export async function getClinicians(): Promise<ClinicianRow[]> {
   return safe(async () => {
-    const rows = await prisma.therapistProfile.findMany({ include: { user: { select: { name: true, email: true } } } })
+    const [rows, completed] = await Promise.all([
+      prisma.therapistProfile.findMany({ include: { user: { select: { name: true, email: true } } } }),
+      prisma.appointment.groupBy({ by: ['therapistId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
+    ])
+    const doneByProfile = new Map(completed.map((c) => [c.therapistId, c._count._all]))
     return rows
       .map((r) => ({
         profileId: r.id, name: r.user?.name ?? 'Clinician', email: r.user?.email ?? '',
         designation: designationOf(r.specializations), employmentType: (r.employmentType as string) ?? 'FULL_TIME',
         isActive: r.isActive, isVerified: r.isVerified, rating: r.rating, totalReviews: r.totalReviews,
+        languages: r.languages ?? [], specializations: r.specializations ?? [],
+        sessionsCompleted: doneByProfile.get(r.id) ?? 0,
       }))
       .sort((a, b) => Number(b.isActive) - Number(a.isActive) || a.name.localeCompare(b.name))
   }, [])
@@ -228,14 +238,50 @@ export async function getTherapistTasks(therapistUserId: string): Promise<Therap
 
 // ── Patients & subscriptions ───────────────────────────────────────────────────
 
-export type PatientRow = { userId: string; name: string; email: string; activePlans: number }
+// Package track slug → human label. Defined in a client-safe module and
+// re-exported here so both server loaders and client filters can use it.
+export { TRACK_LABEL, trackLabel } from '@/lib/packageLabels'
+import { trackLabel } from '@/lib/packageLabels'
+
+export type PatientRow = {
+  userId: string; name: string; email: string; activePlans: number
+  // Filterable facets: completed sessions, active package types, language, gender.
+  sessionsCompleted: number
+  packageTypes: string[] // active subscription trackSlugs (e.g. ['therapy','calmplus'])
+  language: string | null
+  gender: string | null
+  joinedIso: string
+}
 
 export async function getPatients(): Promise<PatientRow[]> {
   return safe(async () => {
-    const users = await prisma.user.findMany({ where: { role: 'PATIENT' }, select: { id: true, name: true, email: true }, orderBy: { createdAt: 'desc' }, take: 200 })
-    const subs = await prisma.subscription.groupBy({ by: ['userId'], where: { status: 'ACTIVE' }, _count: { _all: true } })
-    const countByUser = new Map(subs.map((s) => [s.userId, s._count._all]))
-    return users.map((u) => ({ userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '', activePlans: countByUser.get(u.id) ?? 0 }))
+    const users = await prisma.user.findMany({
+      where: { role: 'PATIENT' },
+      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
+      orderBy: { createdAt: 'desc' }, take: 300,
+    })
+    const [subs, completed] = await Promise.all([
+      prisma.subscription.findMany({ where: { status: 'ACTIVE' }, select: { userId: true, trackSlug: true } }),
+      prisma.appointment.groupBy({ by: ['patientId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
+    ])
+    const tracksByUser = new Map<string, Set<string>>()
+    for (const s of subs) {
+      const set = tracksByUser.get(s.userId) ?? new Set<string>()
+      set.add(s.trackSlug); tracksByUser.set(s.userId, set)
+    }
+    const doneByUser = new Map(completed.map((c) => [c.patientId, c._count._all]))
+    return users.map((u) => {
+      const tracks = tracksByUser.get(u.id)
+      return {
+        userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '',
+        activePlans: tracks ? tracks.size : 0,
+        sessionsCompleted: doneByUser.get(u.id) ?? 0,
+        packageTypes: tracks ? [...tracks] : [],
+        language: u.patientProfile?.preferredLanguage ?? null,
+        gender: u.patientProfile?.gender ?? null,
+        joinedIso: u.createdAt.toISOString(),
+      }
+    })
   }, [])
 }
 
@@ -428,6 +474,61 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
       },
     }
   }, empty)
+}
+
+// ── Patient feedback: every session rating, filterable ────────────────────────
+// Each patient's post-session rating + comment, with the clinician, package type
+// and session date, so an admin can read feedback by clinician, by patient, by
+// rating, by recency or by package type.
+
+export type FeedbackRow = {
+  id: string
+  rating: number
+  comment: string | null
+  createdIso: string
+  createdLabel: string
+  patientId: string
+  patientName: string
+  therapistProfileId: string
+  therapistName: string
+  sessionIso: string | null
+  sessionLabel: string | null
+  trackSlug: string | null
+  packageLabel: string | null
+}
+
+export async function getFeedback(): Promise<FeedbackRow[]> {
+  return safe(async () => {
+    const reviews = await prisma.sessionReview.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 500,
+      include: {
+        patient: { select: { name: true } },
+        therapist: { select: { user: { select: { name: true } } } },
+        appointment: { select: { scheduledAt: true, consumedSubscriptionId: true } },
+      },
+    })
+    // Resolve each rated session's package type from the subscription it consumed.
+    const subIds = [...new Set(reviews.map((r) => r.appointment?.consumedSubscriptionId).filter((x): x is string => !!x))]
+    const subs = subIds.length
+      ? await prisma.subscription.findMany({ where: { id: { in: subIds } }, select: { id: true, trackSlug: true } })
+      : []
+    const trackBySub = new Map(subs.map((s) => [s.id, s.trackSlug]))
+    return reviews.map((r) => {
+      const track = r.appointment?.consumedSubscriptionId ? trackBySub.get(r.appointment.consumedSubscriptionId) ?? null : null
+      return {
+        id: r.id, rating: r.rating, comment: r.comment,
+        createdIso: r.createdAt.toISOString(),
+        createdLabel: fmt(r.createdAt),
+        patientId: r.patientId, patientName: r.patient?.name ?? 'Patient',
+        therapistProfileId: r.therapistId, therapistName: r.therapist?.user?.name ?? 'Clinician',
+        sessionIso: r.appointment?.scheduledAt ? r.appointment.scheduledAt.toISOString() : null,
+        sessionLabel: r.appointment?.scheduledAt ? fmt(r.appointment.scheduledAt) : null,
+        trackSlug: track,
+        packageLabel: track ? trackLabel(track) : null,
+      }
+    })
+  }, [])
 }
 
 // ── Safety: platform-wide crisis oversight ────────────────────────────────────
