@@ -10,6 +10,7 @@ import { updatePricingConfig } from '@/lib/pricingConfig'
 import type { PricingValues } from '@/data/pricing'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/reassign'
+import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -180,6 +181,27 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update the clinician.' }
+  }
+}
+
+/**
+ * Save the admin-defined compensation fields shown to a full-time clinician on
+ * their Earnings tab. Each field is a free-text value or a dropdown (options +
+ * chosen value). Stored as JSON on the profile; read-only to the clinician.
+ */
+export async function saveCompensationFields(input: { profileId: string; fields: CompensationField[] }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    const clean = parseCompensationFields(input.fields)
+    await prisma.therapistProfile.update({
+      where: { id: input.profileId },
+      data: { compensationFields: clean as unknown as object },
+    })
+    revalidatePath(`/admin/therapists/${input.profileId}`)
+    revalidatePath('/expert/earnings')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save the compensation fields.' }
   }
 }
 

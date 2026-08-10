@@ -10,6 +10,7 @@ import { designationOf, getTherapistEarnings, type EarningLine } from '@/lib/exp
 import { getEarningsConfig } from '@/lib/earningsConfig'
 import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurrence'
 import { fmtIST } from '@/lib/tz'
+import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -156,6 +157,7 @@ export type ClinicianDetail = {
   globalFees: { individual: number; couples: number; psychiatry: number }
   globalBonuses: { second: number; thirdOnwards: number; misc: number; night: number }
   documentUrls: string[]
+  compensationFields: CompensationField[]
   supervisors: { linkId: string; name: string }[]
   supervisees: { linkId: string; name: string }[]
   patients: { userId: string; name: string }[]
@@ -194,6 +196,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
       globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus },
       documentUrls: p.documentUrls ?? [],
+      compensationFields: parseCompensationFields(p.compensationFields),
       supervisors: links.filter((l) => l.superviseeId === profileId).map((l) => ({ linkId: l.id, name: l.supervisor.user?.name ?? 'Clinician' })),
       supervisees: links.filter((l) => l.supervisorId === profileId).map((l) => ({ linkId: l.id, name: l.supervisee.user?.name ?? 'Clinician' })),
       patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),

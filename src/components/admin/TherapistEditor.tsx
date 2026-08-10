@@ -3,9 +3,10 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Star, X, UserPlus } from 'lucide-react'
-import { updateTherapistSettings, assignSupervisor, removeSupervisionLink } from '@/app/admin/actions'
+import { Check, Star, X, UserPlus, Plus, Trash2 } from 'lucide-react'
+import { updateTherapistSettings, assignSupervisor, removeSupervisionLink, saveCompensationFields } from '@/app/admin/actions'
 import type { ClinicianDetail } from '@/lib/admin'
+import type { CompensationField } from '@/lib/compensation'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -121,6 +122,9 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
         </div>
       </div>
 
+      {/* Compensation fields (full-time earnings tab) */}
+      <CompensationEditor profileId={c.profileId} initial={c.compensationFields} isFullTime={employmentType === 'FULL_TIME'} firstName={c.name.split(' ')[0]} />
+
       {/* Patient reviews (read-only) */}
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -196,6 +200,110 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
             <Link key={p.userId} href={`/admin/patients/${p.userId}`} className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 13 }}>{p.name}</Link>
           ))}
         </div>
+      </div>
+    </div>
+  )
+}
+
+type EditField = { label: string; type: 'text' | 'select'; optionsText: string; value: string }
+
+/**
+ * Admin editor for the fields a FULL_TIME clinician sees on their Earnings tab.
+ * Each field is a free-text value or a dropdown (admin defines the options and
+ * picks the value). Read-only to the clinician.
+ */
+function CompensationEditor({ profileId, initial, isFullTime, firstName }: {
+  profileId: string; initial: CompensationField[]; isFullTime: boolean; firstName: string
+}) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [fields, setFields] = useState<EditField[]>(
+    initial.map((f) => ({ label: f.label, type: f.type, optionsText: (f.options ?? []).join(', '), value: f.value })),
+  )
+
+  const set = (i: number, patch: Partial<EditField>) => setFields((fs) => fs.map((f, k) => (k === i ? { ...f, ...patch } : f)))
+  const add = () => setFields((fs) => [...fs, { label: '', type: 'text', optionsText: '', value: '' }])
+  const remove = (i: number) => setFields((fs) => fs.filter((_, k) => k !== i))
+
+  function save() {
+    setMsg(null)
+    const payload: CompensationField[] = fields
+      .filter((f) => f.label.trim())
+      .map((f) => {
+        const options = f.optionsText.split(',').map((o) => o.trim()).filter(Boolean)
+        return f.type === 'select'
+          ? { label: f.label.trim(), type: 'select' as const, options, value: f.value.trim() }
+          : { label: f.label.trim(), type: 'text' as const, value: f.value.trim() }
+      })
+    startTransition(async () => {
+      const res = await saveCompensationFields({ profileId, fields: payload })
+      setMsg(res.ok ? { ok: true, text: 'Saved.' } : { ok: false, text: res.error ?? 'Failed.' })
+      if (res.ok) router.refresh()
+    })
+  }
+
+  return (
+    <div className="card">
+      <div className="section-title" style={{ marginBottom: 4 }}>Compensation fields <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· full-time Earnings tab</span></div>
+      <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
+        {isFullTime
+          ? <>These are what {firstName} sees on their Earnings tab (full-time clinicians don&apos;t get the per-session ledger). Add a free-text field or a dropdown you pick a value from.</>
+          : <>{firstName} is <b>part-time</b>, so their Earnings tab shows the per-session ledger — these fields won&apos;t appear until you switch them to full-time above. You can still prepare them now.</>}
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {fields.length === 0 && <p className="muted" style={{ fontSize: 13.5 }}>No fields yet. Add one below — e.g. &ldquo;Monthly salary&rdquo;, &ldquo;Contract type&rdquo;, &ldquo;Next appraisal&rdquo;.</p>}
+        {fields.map((f, i) => (
+          <div key={i} style={{ border: '1px solid rgba(28,43,58,.1)', borderRadius: 12, padding: '12px 14px' }}>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div style={{ flex: '1 1 180px', minWidth: 150 }}>
+                <label style={label}>Field label</label>
+                <input style={field} value={f.label} maxLength={80} onChange={(e) => set(i, { label: e.target.value })} placeholder="e.g. Monthly salary" />
+              </div>
+              <div style={{ flex: '0 0 150px' }}>
+                <label style={label}>Type</label>
+                <select style={{ ...field, background: '#fff' }} value={f.type} onChange={(e) => set(i, { type: e.target.value as 'text' | 'select' })}>
+                  <option value="text">Custom (free text)</option>
+                  <option value="select">Dropdown</option>
+                </select>
+              </div>
+              <button onClick={() => remove(i)} disabled={pending} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', color: coral, display: 'inline-flex', alignItems: 'center', gap: 5, paddingBottom: 10 }}>
+                <Trash2 size={14} /> Remove
+              </button>
+            </div>
+
+            {f.type === 'select' ? (
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 10 }}>
+                <div style={{ flex: '1 1 220px', minWidth: 180 }}>
+                  <label style={label}>Options <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label>
+                  <input style={field} value={f.optionsText} onChange={(e) => set(i, { optionsText: e.target.value })} placeholder="e.g. Permanent, Probation, Contract" />
+                </div>
+                <div style={{ flex: '1 1 180px', minWidth: 150 }}>
+                  <label style={label}>Selected value</label>
+                  <select style={{ ...field, background: '#fff' }} value={f.value} onChange={(e) => set(i, { value: e.target.value })}>
+                    <option value="">— Not set —</option>
+                    {f.optionsText.split(',').map((o) => o.trim()).filter(Boolean).map((o) => <option key={o} value={o}>{o}</option>)}
+                    {f.value && !f.optionsText.split(',').map((o) => o.trim()).includes(f.value) && <option value={f.value}>{f.value}</option>}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginTop: 10 }}>
+                <label style={label}>Value</label>
+                <input style={field} value={f.value} maxLength={300} onChange={(e) => set(i, { value: e.target.value })} placeholder="e.g. ₹85,000 / month" />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
+        <button onClick={add} disabled={pending} className="btn" style={{ border: `1.5px solid ${coral}`, color: coral, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <Plus size={15} /> Add field
+        </button>
+        <button onClick={save} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>Save fields</button>
+        {msg && <span style={{ fontSize: 13.5, color: msg.ok ? '#2C7A57' : coral, display: 'inline-flex', alignItems: 'center', gap: 5 }}>{msg.ok && <Check size={14} />}{msg.text}</span>}
       </div>
     </div>
   )

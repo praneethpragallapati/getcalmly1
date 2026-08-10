@@ -376,6 +376,12 @@ model TherapistProfile {
   thirdOnwardsBonus  Int?
   miscBonus          Int?
   nightSessionBonus  Int?
+  // Admin-defined fields shown to a FULL_TIME (salaried) clinician on their
+  // Earnings tab, in place of the per-session payout ledger (which only applies
+  // to part-time). Each entry is { label, type: 'text'|'select', value,
+  // options?: string[] } — a dropdown (admin picks from options) or a free-text
+  // value. Read-only to the clinician; only admins edit them.
+  compensationFields Json?
   // Onboarding attachments (certificates, registration proof, ID). Stored as
   // URLs or small inline data URLs, same convention as blog cover images.
   documentUrls    String[]

@@ -93,3 +93,7 @@ ALTER TABLE "CommunityComment" ADD COLUMN IF NOT EXISTS "anonymous" BOOLEAN NOT 
 
 -- 0020 · Patient state / UT (regional filtering + reporting). Idempotent.
 ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "state" TEXT;
+
+-- 0021 · Full-time clinician compensation fields (admin-defined, shown on the
+-- Earnings tab). Idempotent.
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "compensationFields" JSONB;

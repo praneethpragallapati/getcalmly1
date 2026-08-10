@@ -17,6 +17,7 @@ import { sessionMinMinutes, resolveDueAppointments } from '@/lib/sessionLifecycl
 import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
+import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { callModel } from '@/lib/ai/clients'
 import { SYNTH_MODEL } from '@/lib/ai/models'
 import { hasLlm } from '@/lib/ai/config'
@@ -112,6 +113,8 @@ export type TherapistContext = {
   employmentType: EmploymentType
   /** Public-facing title, e.g. "Consultant Psychiatrist" / "Clinical Psychologist". */
   designation: string
+  /** Admin-defined fields shown to full-time clinicians on their Earnings tab. */
+  compensationFields: CompensationField[]
 }
 
 /** Whether a specialization set marks a prescribing psychiatrist. */
@@ -147,6 +150,7 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
       isPsychiatrist: looksPsychiatric(profile.specializations),
       employmentType: (profile.employmentType as EmploymentType) ?? 'FULL_TIME',
       designation: designationOf(profile.specializations),
+      compensationFields: parseCompensationFields(profile.compensationFields),
     }
   } catch {
     return null
