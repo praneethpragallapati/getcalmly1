@@ -131,7 +131,17 @@ export type ClinicianRow = {
 export async function getClinicians(): Promise<ClinicianRow[]> {
   return safe(async () => {
     const [rows, completed] = await Promise.all([
-      prisma.therapistProfile.findMany({ include: { user: { select: { name: true, email: true } } } }),
+      // Narrow select (never a full-row `include`): keeps the list resilient to a
+      // newer migration column the deployment's DB may not have yet (e.g.
+      // clinicianType / compensationFields) — otherwise one missing column makes
+      // the whole query throw and the roster shows empty.
+      prisma.therapistProfile.findMany({
+        select: {
+          id: true, isActive: true, isVerified: true, rating: true, totalReviews: true,
+          employmentType: true, languages: true, specializations: true,
+          user: { select: { name: true, email: true } },
+        },
+      }),
       prisma.appointment.groupBy({ by: ['therapistId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
     ])
     const doneByProfile = new Map(completed.map((c) => [c.therapistId, c._count._all]))
@@ -167,8 +177,27 @@ export type ClinicianDetail = {
 
 export async function getClinicianDetail(profileId: string): Promise<ClinicianDetail | null> {
   return safe(async () => {
-    const p = await prisma.therapistProfile.findUnique({ where: { id: profileId }, include: { user: { select: { id: true, name: true, email: true } } } })
+    // Explicit select (no full-row `include`) so a newer column the DB may not
+    // have yet — e.g. clinicianType — can't make the editor 404. compensationFields
+    // is read separately below, tolerating a not-yet-run migration.
+    const p = await prisma.therapistProfile.findUnique({
+      where: { id: profileId },
+      select: {
+        id: true, specializations: true, bio: true, qualifications: true, languages: true,
+        rciNumber: true, yearsExp: true, sessionFee: true, employmentType: true,
+        isActive: true, isVerified: true, rating: true, totalReviews: true,
+        baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
+        secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
+        documentUrls: true,
+        user: { select: { id: true, name: true, email: true } },
+      },
+    })
     if (!p) return null
+    let compensationFields: CompensationField[] = []
+    try {
+      const comp = await prisma.therapistProfile.findUnique({ where: { id: profileId }, select: { compensationFields: true } })
+      compensationFields = parseCompensationFields(comp?.compensationFields)
+    } catch { /* compensationFields column not migrated yet */ }
     const config = await getEarningsConfig()
     const [links, apptPatients, assigned, allT, reviews] = await Promise.all([
       prisma.supervisionLink.findMany({
@@ -196,7 +225,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
       globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus },
       documentUrls: p.documentUrls ?? [],
-      compensationFields: parseCompensationFields(p.compensationFields),
+      compensationFields,
       supervisors: links.filter((l) => l.superviseeId === profileId).map((l) => ({ linkId: l.id, name: l.supervisor.user?.name ?? 'Clinician' })),
       supervisees: links.filter((l) => l.supervisorId === profileId).map((l) => ({ linkId: l.id, name: l.supervisee.user?.name ?? 'Clinician' })),
       patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),
@@ -266,13 +295,22 @@ export async function getPatients(): Promise<PatientRow[]> {
   return safe(async () => {
     const users = await prisma.user.findMany({
       where: { role: 'PATIENT' },
-      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { preferredLanguage: true, gender: true, state: true } } },
+      // `state` (migration 0020) is fetched separately below so a DB that hasn't
+      // run that migration yet still lists patients instead of failing soft to
+      // an empty roster.
+      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
       orderBy: { createdAt: 'desc' }, take: 300,
     })
     const [subs, completed] = await Promise.all([
       prisma.subscription.findMany({ where: { status: 'ACTIVE' }, select: { userId: true, trackSlug: true, sessionsTotal: true, sessionsUsed: true } }),
       prisma.appointment.groupBy({ by: ['patientId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
     ])
+    // Defensive: skip silently if the `state` column isn't present yet.
+    const stateByUser = new Map<string, string | null>()
+    try {
+      const states = await prisma.patientProfile.findMany({ select: { userId: true, state: true } })
+      for (const s of states) stateByUser.set(s.userId, s.state ?? null)
+    } catch { /* column not migrated yet */ }
     const tracksByUser = new Map<string, Set<string>>()
     const leftByUser = new Map<string, number>()
     for (const s of subs) {
@@ -291,7 +329,7 @@ export async function getPatients(): Promise<PatientRow[]> {
         packageTypes: tracks ? [...tracks] : [],
         language: u.patientProfile?.preferredLanguage ?? null,
         gender: u.patientProfile?.gender ?? null,
-        state: u.patientProfile?.state ?? null,
+        state: stateByUser.get(u.id) ?? null,
         monthsHere: monthsSince(u.createdAt),
         joinedIso: u.createdAt.toISOString(),
       }

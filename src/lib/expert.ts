@@ -137,11 +137,20 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
     const session = await getAuthSession()
     const userId = (session?.user as { id?: string } | undefined)?.id
     if (!userId) return null
+    // Narrow select (never a full-row lookup): the therapist portal must load
+    // even on a deployment whose DB is missing a newer column, so we never pull
+    // columns this function doesn't need. compensationFields is fetched
+    // defensively below so a not-yet-migrated column can't lock a clinician out.
     const profile = await prisma.therapistProfile.findUnique({
       where: { userId },
-      include: { user: { select: { name: true } } },
+      select: { id: true, isActive: true, specializations: true, employmentType: true, user: { select: { name: true } } },
     })
     if (!profile || !profile.isActive) return null
+    let compensationFields: CompensationField[] = []
+    try {
+      const comp = await prisma.therapistProfile.findUnique({ where: { userId }, select: { compensationFields: true } })
+      compensationFields = parseCompensationFields(comp?.compensationFields)
+    } catch { /* compensationFields column not migrated yet */ }
     return {
       userId,
       therapistProfileId: profile.id,
@@ -150,7 +159,7 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
       isPsychiatrist: looksPsychiatric(profile.specializations),
       employmentType: (profile.employmentType as EmploymentType) ?? 'FULL_TIME',
       designation: designationOf(profile.specializations),
-      compensationFields: parseCompensationFields(profile.compensationFields),
+      compensationFields,
     }
   } catch {
     return null
