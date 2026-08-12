@@ -20,6 +20,7 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
   const [lang, setLang] = useState('')
   const [gender, setGender] = useState('')
   const [stateF, setStateF] = useState('')
+  const [therapist, setTherapist] = useState('')
   const [minSessions, setMinSessions] = useState('')
   const [minMonths, setMinMonths] = useState('')
   const [minLeft, setMinLeft] = useState('')
@@ -29,6 +30,12 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
   const languages = useMemo(() => Array.from(new Set(rows.map((r) => r.language).filter((l): l is string => !!l))).sort(), [rows])
   const genders = useMemo(() => Array.from(new Set(rows.map((r) => r.gender).filter((g): g is string => !!g))).sort(), [rows])
   const states = useMemo(() => Array.from(new Set(rows.map((r) => r.state).filter((s): s is string => !!s))).sort(), [rows])
+  const therapists = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const r of rows) if (r.therapistId) m.set(r.therapistId, r.therapistName ?? 'Clinician')
+    return [...m.entries()].sort((a, b) => a[1].localeCompare(b[1]))
+  }, [rows])
+  const hasUnassigned = useMemo(() => rows.some((r) => !r.therapistId), [rows])
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -44,6 +51,8 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
       if (lang && r.language !== lang) return false
       if (gender && r.gender !== gender) return false
       if (stateF && r.state !== stateF) return false
+      if (therapist === '__none__' && r.therapistId) return false
+      if (therapist && therapist !== '__none__' && r.therapistId !== therapist) return false
       if (min && r.sessionsCompleted < min) return false
       if (months && r.monthsHere < months) return false
       if (left && r.sessionsLeft < left) return false
@@ -57,9 +66,9 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
       return b.joinedIso.localeCompare(a.joinedIso)
     })
     return list
-  }, [rows, q, pkg, lang, gender, stateF, minSessions, minMonths, minLeft, sort])
+  }, [rows, q, pkg, lang, gender, stateF, therapist, minSessions, minMonths, minLeft, sort])
 
-  const activeFilters = [pkg, lang, gender, stateF, minSessions, minMonths, minLeft].filter(Boolean).length + (q.trim() ? 1 : 0)
+  const activeFilters = [pkg, lang, gender, stateF, therapist, minSessions, minMonths, minLeft].filter(Boolean).length + (q.trim() ? 1 : 0)
 
   return (
     <div className="stack">
@@ -76,27 +85,27 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
             <option value="">All packages</option>
             {packages.map((p) => <option key={p} value={p}>{trackLabel(p)}</option>)}
           </select></div>
-        {languages.length > 0 && (
-          <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Language</div>
-            <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ ...field, minWidth: 130 }}>
-              <option value="">All languages</option>
-              {languages.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select></div>
-        )}
-        {genders.length > 0 && (
-          <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Gender</div>
-            <select value={gender} onChange={(e) => setGender(e.target.value)} style={{ ...field, minWidth: 120 }}>
-              <option value="">Any</option>
-              {genders.map((g) => <option key={g} value={g}>{g}</option>)}
-            </select></div>
-        )}
-        {states.length > 0 && (
-          <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>State</div>
-            <select value={stateF} onChange={(e) => setStateF(e.target.value)} style={{ ...field, minWidth: 140 }}>
-              <option value="">All states</option>
-              {states.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select></div>
-        )}
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Therapist</div>
+          <select value={therapist} onChange={(e) => setTherapist(e.target.value)} style={{ ...field, minWidth: 170 }}>
+            <option value="">All therapists</option>
+            {therapists.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+            {hasUnassigned && <option value="__none__">— Unassigned —</option>}
+          </select></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Language</div>
+          <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ ...field, minWidth: 130 }}>
+            <option value="">All languages</option>
+            {languages.map((l) => <option key={l} value={l}>{l}</option>)}
+          </select></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Gender</div>
+          <select value={gender} onChange={(e) => setGender(e.target.value)} style={{ ...field, minWidth: 120 }}>
+            <option value="">Any</option>
+            {genders.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select></div>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>State</div>
+          <select value={stateF} onChange={(e) => setStateF(e.target.value)} style={{ ...field, minWidth: 140 }}>
+            <option value="">All states</option>
+            {states.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select></div>
         <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Min. sessions done</div>
           <input type="number" min={0} value={minSessions} onChange={(e) => setMinSessions(e.target.value)} placeholder="0" style={{ ...field, width: 100 }} /></div>
         <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Min. sessions left</div>
@@ -113,7 +122,7 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
           </select></div>
         {activeFilters > 0 && (
           <button className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '9px 12px' }}
-            onClick={() => { setQ(''); setPkg(''); setLang(''); setGender(''); setStateF(''); setMinSessions(''); setMinMonths(''); setMinLeft(''); setSort('recent') }}>
+            onClick={() => { setQ(''); setPkg(''); setLang(''); setGender(''); setStateF(''); setTherapist(''); setMinSessions(''); setMinMonths(''); setMinLeft(''); setSort('recent') }}>
             Clear filters
           </button>
         )}
@@ -138,7 +147,7 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
                   ))}
                 </div>
                 <div className="muted" style={{ fontSize: 12.5 }}>
-                  {p.email}{p.language ? ` · ${p.language}` : ''}{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo here
+                  {p.email}{p.therapistName ? ` · ${p.therapistName}` : ''}{p.language ? ` · ${p.language}` : ''}{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo here
                 </div>
               </div>
               <span className="muted" style={{ fontSize: 12.5, whiteSpace: 'nowrap', textAlign: 'right' }}>

@@ -286,6 +286,8 @@ export type PatientRow = {
   state: string | null
   monthsHere: number // whole months since they joined
   joinedIso: string
+  therapistId: string | null // assigned (default) clinician profile id
+  therapistName: string | null
 }
 
 /** Whole months between an instant and now (approx, 30.44-day months). */
@@ -311,6 +313,18 @@ export async function getPatients(): Promise<PatientRow[]> {
       const states = await prisma.patientProfile.findMany({ select: { userId: true, state: true } })
       for (const s of states) stateByUser.set(s.userId, s.state ?? null)
     } catch { /* column not migrated yet */ }
+    // Assigned (default) clinician per patient + a profileId → name map, so the
+    // roster can be filtered by therapist. Defensive against a pre-assignment DB.
+    const assignedByUser = new Map<string, string | null>()
+    try {
+      const profs = await prisma.patientProfile.findMany({ select: { userId: true, assignedTherapistId: true } })
+      for (const pr of profs) assignedByUser.set(pr.userId, pr.assignedTherapistId ?? null)
+    } catch { /* assignment column not migrated yet */ }
+    const tNameById = new Map<string, string>()
+    try {
+      const tProfiles = await prisma.therapistProfile.findMany({ select: { id: true, user: { select: { name: true } } } })
+      for (const t of tProfiles) tNameById.set(t.id, t.user?.name ?? 'Clinician')
+    } catch { /* ignore */ }
     const tracksByUser = new Map<string, Set<string>>()
     const leftByUser = new Map<string, number>()
     for (const s of subs) {
@@ -332,6 +346,8 @@ export async function getPatients(): Promise<PatientRow[]> {
         state: stateByUser.get(u.id) ?? null,
         monthsHere: monthsSince(u.createdAt),
         joinedIso: u.createdAt.toISOString(),
+        therapistId: assignedByUser.get(u.id) ?? null,
+        therapistName: (() => { const id = assignedByUser.get(u.id); return id ? tNameById.get(id) ?? null : null })(),
       }
     })
   }, [])
