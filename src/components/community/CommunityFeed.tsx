@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createCommunityPost } from '@/app/(dashboard)/app/actions'
 import type { CommunityPostView } from '@/lib/community'
+import type { PollView } from '@/lib/polls'
+import { PollCard } from './PollCard'
 
 // ─── Role badge config ───────────────────────────────────────────────────────
 
@@ -375,6 +377,7 @@ export default function CommunityFeed({
   embedded = false,
   myPostIds = [],
   detailBase = '/community',
+  polls = [],
 }: {
   posts: CommunityPostView[]
   stats: { members: number; discussions: number; replies: number }
@@ -386,6 +389,8 @@ export default function CommunityFeed({
   myPostIds?: string[]
   /** Where discussion cards link to (public detail by default). */
   detailBase?: string
+  /** Calm Club polls shown above the discussions. */
+  polls?: PollView[]
 }) {
   const [search, setSearch] = useState('')
   const [activeTag, setActiveTag] = useState<string | null>(null)
@@ -714,6 +719,9 @@ export default function CommunityFeed({
       >
         {/* ── Main feed ──────────────────────────────────────────────────── */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: 18, minWidth: 0 }}>
+          {/* Calm Club polls, above the discussions */}
+          {polls.length > 0 && polls.map((poll) => <PollCard key={poll.id} poll={poll} canVote={authed} />)}
+
           {/* Result count + (authed) My-posts filter */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ fontSize: 13, color: '#6B7D8E', fontWeight: 600 }}>

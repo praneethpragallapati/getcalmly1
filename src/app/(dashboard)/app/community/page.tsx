@@ -1,15 +1,17 @@
 import CommunityFeed from '@/components/community/CommunityFeed'
 import { getCommunityPosts, getCommunityStats, getMyCommunityPostIds } from '@/lib/community'
+import { getCommunityPolls } from '@/lib/polls'
 import { getSessionUserId } from '@/lib/patient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CommunityPage() {
   const userId = await getSessionUserId()
-  const [posts, stats, myPostIds] = await Promise.all([
+  const [posts, stats, myPostIds, polls] = await Promise.all([
     getCommunityPosts(),
     getCommunityStats(),
     userId ? getMyCommunityPostIds(userId) : Promise.resolve([]),
+    getCommunityPolls(userId),
   ])
 
   return (
@@ -27,7 +29,7 @@ export default async function CommunityPage() {
       >
         Calm Club · Community
       </p>
-      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/community" />
+      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/community" polls={polls} />
     </>
   )
 }

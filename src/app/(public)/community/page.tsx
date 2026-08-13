@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import CommunityFeed from '@/components/community/CommunityFeed'
 import { getCommunityPosts, getCommunityStats } from '@/lib/community'
+import { getCommunityPolls } from '@/lib/polls'
 
 export const metadata: Metadata = {
   title: 'Community | GetCalmly',
@@ -14,6 +15,6 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function CommunityPage() {
-  const [posts, stats] = await Promise.all([getCommunityPosts(), getCommunityStats()])
-  return <CommunityFeed posts={posts} stats={stats} />
+  const [posts, stats, polls] = await Promise.all([getCommunityPosts(), getCommunityStats(), getCommunityPolls(null)])
+  return <CommunityFeed posts={posts} stats={stats} polls={polls} />
 }

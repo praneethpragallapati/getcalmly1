@@ -213,6 +213,7 @@ model User {
   communityPosts      CommunityPost[]    @relation("UserCommunityPosts")
   communityComments   CommunityComment[] @relation("UserCommunityComments")
   communityUpvotes    CommunityUpvote[]  @relation("UserCommunityUpvotes")
+  pollVotes           PollVote[]         @relation("UserPollVotes")
   subscriptions       Subscription[]
   payments            Payment[]
   tasks               Task[]
@@ -981,6 +982,36 @@ model CommunityUpvote {
   @@unique([userId, commentId])
   @@index([postId])
   @@index([commentId])
+}
+
+// A Calm Club poll: admin-authored question with fixed options and an optional
+// expiry. Members cast one vote each; results are the tallied PollVote rows.
+model Poll {
+  id        String     @id @default(cuid())
+  question  String
+  options   String[] // the choices, in display order
+  expiresAt DateTime? // null = never expires
+  createdBy String? // admin User id, for audit
+  createdAt DateTime   @default(now())
+
+  votes     PollVote[]
+
+  @@index([createdAt])
+}
+
+// One vote per member per poll (enforced by the unique index). optionIndex points
+// into Poll.options.
+model PollVote {
+  id          String   @id @default(cuid())
+  pollId      String
+  poll        Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation("UserPollVotes", fields: [userId], references: [id], onDelete: Cascade)
+  optionIndex Int
+  createdAt   DateTime @default(now())
+
+  @@unique([pollId, userId])
+  @@index([pollId])
 }
 
 // A reusable form in the clinical library — consent, intake/information sheets,

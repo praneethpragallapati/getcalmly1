@@ -205,6 +205,40 @@ export async function saveCompensationFields(input: { profileId: string; fields:
   }
 }
 
+/** Create a Calm Club poll: a question, 2–8 options and an optional expiry. */
+export async function createPoll(input: { question: string; options: string[]; expiresAt?: string | null }): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  const question = (input.question ?? '').trim().slice(0, 200)
+  const options = (input.options ?? []).map((o) => o.trim()).filter(Boolean).slice(0, 8)
+  if (!question) return { ok: false, error: 'Add a question.' }
+  if (options.length < 2) return { ok: false, error: 'Add at least two options.' }
+  let expiresAt: Date | null = null
+  if (input.expiresAt) {
+    const d = new Date(input.expiresAt)
+    if (!Number.isNaN(d.getTime())) expiresAt = d
+  }
+  try {
+    await prisma.poll.create({ data: { question, options, expiresAt, createdBy: admin.id ?? null } })
+    revalidatePath('/admin/content'); revalidatePath('/app/community'); revalidatePath('/community')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not create the poll.' }
+  }
+}
+
+/** Delete a poll and its votes. */
+export async function deletePoll(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.poll.delete({ where: { id: input.id } })
+    revalidatePath('/admin/content'); revalidatePath('/app/community'); revalidatePath('/community')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not delete the poll.' }
+  }
+}
+
 export async function assignSupervisor(input: { superviseeId: string; supervisorId: string }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   if (input.superviseeId === input.supervisorId) return { ok: false, error: 'A clinician cannot supervise themselves.' }

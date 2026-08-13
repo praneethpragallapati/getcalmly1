@@ -107,6 +107,31 @@ export async function saveAssessmentResult(payload: {
 
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
+/**
+ * Cast (or change) this member's vote on a Calm Club poll. One vote per member
+ * per poll — re-voting updates the existing row. Rejected once the poll expires.
+ */
+export async function votePoll(input: { pollId: string; optionIndex: number }): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Sign in to vote.' }
+  try {
+    const poll = await prisma.poll.findUnique({ where: { id: input.pollId }, select: { options: true, expiresAt: true } })
+    if (!poll) return { ok: false, persisted: false, error: 'Poll not found.' }
+    if (poll.expiresAt && poll.expiresAt.getTime() < Date.now()) return { ok: false, persisted: false, error: 'This poll has closed.' }
+    const idx = Math.trunc(input.optionIndex)
+    if (idx < 0 || idx >= poll.options.length) return { ok: false, persisted: false, error: 'Invalid option.' }
+    await prisma.pollVote.upsert({
+      where: { pollId_userId: { pollId: input.pollId, userId } },
+      update: { optionIndex: idx },
+      create: { pollId: input.pollId, userId, optionIndex: idx },
+    })
+    revalidatePath('/app/community'); revalidatePath('/community')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not record your vote.' }
+  }
+}
+
 export type UpvoteResult = { ok: boolean; count: number; voted: boolean; error?: string }
 
 /**
