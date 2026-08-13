@@ -11,6 +11,7 @@ import { getEarningsConfig } from '@/lib/earningsConfig'
 import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurrence'
 import { fmtIST } from '@/lib/tz'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
+import { ensureSampleContent } from '@/lib/sampleContent'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -1143,6 +1144,7 @@ export async function getBlogsForModeration(): Promise<BlogModRow[]> {
   // Narrow select: a not-yet-migrated column on prod would otherwise make the
   // full-row SELECT throw and hide every real post behind the [] fallback.
   return safe(async () => {
+    await ensureSampleContent()
     const rows = await prisma.blogPost.findMany({
       orderBy: { publishedAt: 'desc' }, take: 200,
       select: { slug: true, title: true, authorName: true, authorRole: true, published: true, publishedAt: true },
@@ -1153,6 +1155,7 @@ export async function getBlogsForModeration(): Promise<BlogModRow[]> {
 
 export async function getCommunityForModeration(): Promise<CommunityModRow[]> {
   return safe(async () => {
+    await ensureSampleContent()
     const rows = await prisma.communityPost.findMany({
       orderBy: { createdAt: 'desc' }, take: 60,
       select: {

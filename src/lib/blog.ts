@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { blogSeed, type BlogSeed } from '@/data/blogSeed'
+import { ensureSampleContent } from '@/lib/sampleContent'
 
 // The view shape the pages render. Identical to the seed shape so the DB path
 // and the fallback path are interchangeable.
@@ -16,6 +17,7 @@ function formatDate(d: Date): string {
  */
 export async function getBlogPosts(): Promise<BlogPostView[]> {
   try {
+    await ensureSampleContent()
     const rows = await prisma.blogPost.findMany({
       where: { published: true },
       orderBy: { publishedAt: 'desc' },

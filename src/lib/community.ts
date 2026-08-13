@@ -4,6 +4,7 @@ import {
   ENUM_TO_ROLE_NAME,
   type CommunityRoleName,
 } from '@/data/communitySeed'
+import { ensureSampleContent } from '@/lib/sampleContent'
 
 export type CommunityPostView = {
   id: string
@@ -99,6 +100,7 @@ const seedView: CommunityPostView[] = communitySeed.map((p, i) => ({
 /** All discussions, newest first, with DB fallback to bundled sample content. */
 export async function getCommunityPosts(): Promise<CommunityPostView[]> {
   try {
+    await ensureSampleContent()
     const rows = await prisma.communityPost.findMany({
       orderBy: { createdAt: 'desc' },
       include: { _count: { select: { comments: true } } },
