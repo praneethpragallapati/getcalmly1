@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { Pin } from 'lucide-react'
 import { votePoll } from '@/app/(dashboard)/app/actions'
 import type { PollView } from '@/lib/polls'
 
@@ -10,10 +11,11 @@ const coral = '#C8553D'
 const charcoal = '#1C2B3A'
 
 /**
- * A Calm Club poll. Members vote once (changeable); results show as bars after
- * voting or once the poll closes. Guests see results read-only.
+ * The interactive part of a poll: options to vote on (or result bars) plus the
+ * footer. Shared by the full PollCard and the compact home list, so voting
+ * behaves identically everywhere.
  */
-export function PollCard({ poll, canVote = false }: { poll: PollView; canVote?: boolean }) {
+export function PollBody({ poll, canVote = false }: { poll: PollView; canVote?: boolean }) {
   const router = useRouter()
   const [pending, start] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -34,24 +36,7 @@ export function PollCard({ poll, canVote = false }: { poll: PollView; canVote?: 
   }
 
   return (
-    <div
-      style={{
-        background: '#fff', borderRadius: 18, padding: '22px 24px',
-        boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
-        border: '1px solid rgba(200,85,61,.16)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: coral }}>📊 Community poll</span>
-        {poll.expired
-          ? <span style={{ fontSize: 11, fontWeight: 700, color: '#8A97A4' }}>· closed</span>
-          : poll.expiresAtLabel && <span style={{ fontSize: 11, color: '#8A97A4' }}>· closes {poll.expiresAtLabel}</span>}
-      </div>
-
-      <h3 style={{ fontFamily: HEAD_FONT, fontSize: 21, fontWeight: 700, color: charcoal, margin: '0 0 14px', lineHeight: 1.2 }}>
-        {poll.question}
-      </h3>
-
+    <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
         {poll.options.map((opt, i) => {
           const count = poll.counts[i] ?? 0
@@ -95,6 +80,41 @@ export function PollCard({ poll, canVote = false }: { poll: PollView; canVote?: 
         {error && <span style={{ fontSize: 12.5, color: coral, fontWeight: 600 }}>{error}</span>}
         {!canVote && !poll.expired && <span style={{ fontSize: 12, color: '#9AABB8' }}>Sign in to vote</span>}
       </div>
+    </>
+  )
+}
+
+/** Poll status line: label, pinned badge, expiry. Shared header. */
+export function PollMeta({ poll }: { poll: PollView }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: coral }}>📊 Community poll</span>
+      {poll.pinned && <span style={{ fontSize: 10.5, fontWeight: 700, color: coral, background: 'rgba(200,85,61,.1)', padding: '1px 7px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 3 }}><Pin size={10} /> Pinned</span>}
+      {poll.expired
+        ? <span style={{ fontSize: 11, fontWeight: 700, color: '#8A97A4' }}>· closed</span>
+        : poll.expiresAtLabel && <span style={{ fontSize: 11, color: '#8A97A4' }}>· closes {poll.expiresAtLabel}</span>}
+    </div>
+  )
+}
+
+/**
+ * A full Calm Club poll card. Members vote once (changeable) until it closes;
+ * results show as bars. Guests / expired polls are read-only.
+ */
+export function PollCard({ poll, canVote = false }: { poll: PollView; canVote?: boolean }) {
+  return (
+    <div
+      style={{
+        background: '#fff', borderRadius: 18, padding: '22px 24px',
+        boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
+        border: '1px solid rgba(200,85,61,.16)',
+      }}
+    >
+      <div style={{ marginBottom: 8 }}><PollMeta poll={poll} /></div>
+      <h3 style={{ fontFamily: HEAD_FONT, fontSize: 21, fontWeight: 700, color: charcoal, margin: '0 0 14px', lineHeight: 1.2 }}>
+        {poll.question}
+      </h3>
+      <PollBody poll={poll} canVote={canVote} />
     </div>
   )
 }

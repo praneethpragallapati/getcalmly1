@@ -227,6 +227,18 @@ export async function createPoll(input: { question: string; options: string[]; e
   }
 }
 
+/** Pin or unpin a poll so it sorts to the top of the members' Polls tab. */
+export async function togglePollPin(input: { id: string; pinned: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.poll.update({ where: { id: input.id }, data: { pinned: input.pinned } })
+    revalidatePath('/admin/content'); revalidatePath('/app/polls'); revalidatePath('/community')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the poll.' }
+  }
+}
+
 /** Delete a poll and its votes. */
 export async function deletePoll(input: { id: string }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }

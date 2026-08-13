@@ -21,7 +21,7 @@ import { getCommunityPolls } from '@/lib/polls'
 import { CheckIn } from '@/components/dashboard/CheckIn'
 import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
-import { PollCard } from '@/components/community/PollCard'
+import { HomePolls } from '@/components/dashboard/HomePolls'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
@@ -31,7 +31,6 @@ export default async function AppHomePage() {
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
     getCommunityPolls(userId),
   ])
-  const featuredPoll = polls.find((p) => !p.expired) ?? null
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
 
@@ -246,16 +245,8 @@ export default async function AppHomePage() {
         </div>
       </div>
 
-      {/* Calm Club poll of the moment */}
-      {featuredPoll && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-            <div className="section-title">Calm Club poll</div>
-            <Link href="/app/polls" className="link-action">All polls →</Link>
-          </div>
-          <PollCard poll={featuredPoll} canVote={Boolean(userId)} />
-        </div>
-      )}
+      {/* Calm Club polls — compact, collapsible */}
+      {polls.length > 0 && <HomePolls polls={polls} canVote={Boolean(userId)} />}
 
       {/* Recent journal · tasks + meds · community */}
       <div className="home-split home-split-3" style={{ gap: 20 }}>

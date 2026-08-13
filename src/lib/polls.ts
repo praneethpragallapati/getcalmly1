@@ -12,6 +12,7 @@ export type PollView = {
   expiresAtLabel: string | null
   expired: boolean
   createdAtLabel: string
+  pinned: boolean
 }
 
 type PollWithVotes = {
@@ -20,6 +21,7 @@ type PollWithVotes = {
   options: string[]
   expiresAt: Date | null
   createdAt: Date
+  pinned: boolean
   votes: { optionIndex: number; userId: string }[]
 }
 
@@ -40,6 +42,7 @@ function toView(p: PollWithVotes, userId: string | null): PollView {
     expiresAtLabel: p.expiresAt ? fmtIST(p.expiresAt, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null,
     expired: Boolean(p.expiresAt && p.expiresAt.getTime() < Date.now()),
     createdAtLabel: fmtIST(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+    pinned: p.pinned,
   }
 }
 

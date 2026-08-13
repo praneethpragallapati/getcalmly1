@@ -991,6 +991,8 @@ model Poll {
   question  String
   options   String[] // the choices, in display order
   expiresAt DateTime? // null = never expires
+  // Pinned polls sort to the top of the Polls tab (admin-controlled).
+  pinned    Boolean    @default(false)
   createdBy String? // admin User id, for audit
   createdAt DateTime   @default(now())
 

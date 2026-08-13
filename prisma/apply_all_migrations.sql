@@ -131,3 +131,6 @@ DO $$ BEGIN
   ALTER TABLE "PollVote" ADD CONSTRAINT "PollVote_userId_fkey"
     FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- 0023 · Pin a poll to the top of the Polls tab. Idempotent.
+ALTER TABLE "Poll" ADD COLUMN IF NOT EXISTS "pinned" BOOLEAN NOT NULL DEFAULT false;

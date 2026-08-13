@@ -7,8 +7,10 @@ export const dynamic = 'force-dynamic'
 export default async function PollsPage() {
   const userId = await getSessionUserId()
   const polls = await getCommunityPolls(userId)
-  const active = polls.filter((p) => !p.expired)
-  const closed = polls.filter((p) => p.expired)
+  // Pinned polls always sit at the very top of the tab; then open polls, then closed.
+  const pinned = polls.filter((p) => p.pinned)
+  const active = polls.filter((p) => !p.pinned && !p.expired)
+  const closed = polls.filter((p) => !p.pinned && p.expired)
 
   return (
     <>
@@ -24,6 +26,7 @@ export default async function PollsPage() {
         <div className="card"><p className="muted">No polls yet. Check back soon — the getCalmly team posts these from time to time.</p></div>
       ) : (
         <div className="stack" style={{ gap: 16, maxWidth: 640 }}>
+          {pinned.map((p) => <PollCard key={p.id} poll={p} canVote={Boolean(userId) && !p.expired} />)}
           {active.map((p) => <PollCard key={p.id} poll={p} canVote={Boolean(userId)} />)}
           {closed.length > 0 && (
             <>

@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, Check, X } from 'lucide-react'
-import { createPoll, deletePoll } from '@/app/admin/actions'
+import { Plus, Trash2, X, Pin, PinOff } from 'lucide-react'
+import { createPoll, deletePoll, togglePollPin } from '@/app/admin/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PollView } from '@/lib/polls'
 
@@ -39,6 +39,14 @@ export function PollAdmin({ polls }: { polls: PollView[] }) {
       const res = await deletePoll({ id })
       if (res.ok) { toast.success('Poll deleted.'); router.refresh() }
       else toast.error(res.error ?? 'Could not delete.')
+    })
+  }
+
+  function togglePin(id: string, pinned: boolean) {
+    start(async () => {
+      const res = await togglePollPin({ id, pinned })
+      if (res.ok) { toast.success(pinned ? 'Pinned to top.' : 'Unpinned.'); router.refresh() }
+      else toast.error(res.error ?? 'Could not update.')
     })
   }
 
@@ -89,10 +97,18 @@ export function PollAdmin({ polls }: { polls: PollView[] }) {
           {polls.map((p) => (
             <div key={p.id} style={{ border: '1px solid rgba(28,43,58,.1)', borderRadius: 12, padding: '14px 16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
-                <div style={{ fontSize: 14.5, fontWeight: 700, color: charcoal }}>{p.question}</div>
-                <button onClick={() => remove(p.id)} disabled={pending} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <Trash2 size={13} /> Delete
-                </button>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: charcoal, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                  {p.pinned && <span style={{ fontSize: 10.5, fontWeight: 700, color: purple, background: 'rgba(109,91,208,.1)', padding: '2px 8px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Pin size={11} /> Pinned</span>}
+                  {p.question}
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button onClick={() => togglePin(p.id, !p.pinned)} disabled={pending} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', color: purple, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    {p.pinned ? <><PinOff size={13} /> Unpin</> : <><Pin size={13} /> Pin</>}
+                  </button>
+                  <button onClick={() => remove(p.id)} disabled={pending} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <Trash2 size={13} /> Delete
+                  </button>
+                </div>
               </div>
               <div className="muted" style={{ fontSize: 12, margin: '3px 0 10px' }}>
                 {p.totalVotes} vote{p.totalVotes === 1 ? '' : 's'} · created {p.createdAtLabel}
