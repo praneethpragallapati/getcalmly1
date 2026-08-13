@@ -114,8 +114,10 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
 
   // Days in the current month that have a session, for the patient calendar.
   // Read the date in IST so an evening-IST session lands on the right day.
+  // Cancelled sessions are excluded — a cancelled booking shouldn't leave a dot.
   const nowIst = istParts(new Date())
   const markedDays = [...view.upcoming, ...view.past]
+    .filter((s) => s.status !== 'CANCELLED')
     .map((s) => (s.scheduledISO ? istParts(new Date(s.scheduledISO)) : null))
     .filter((p): p is ReturnType<typeof istParts> => !!p && p.month === nowIst.month && p.year === nowIst.year)
     .map((p) => p.day)
