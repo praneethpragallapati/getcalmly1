@@ -5,6 +5,7 @@ import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
 import { LogoutButton } from '@/components/dashboard/LogoutButton'
 import { ProfileEditor } from '@/components/dashboard/ProfileEditor'
 import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
+import { DataPrivacyCard } from '@/components/dashboard/DataPrivacyCard'
 
 export default async function SettingsPage() {
   const { plan, privacy } = await getAccount()
@@ -97,7 +98,10 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <PrivacyControls initial={privacy} />
+        <div className="stack">
+          <PrivacyControls initial={privacy} />
+          <DataPrivacyCard />
+        </div>
       </div>
     </>
   )

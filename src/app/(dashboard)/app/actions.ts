@@ -108,6 +108,79 @@ export async function saveAssessmentResult(payload: {
 export type ActionResult = { ok: boolean; persisted: boolean; error?: string }
 
 /**
+ * DPDP data portability: return everything we hold about the signed-in patient
+ * as a JSON string the browser can download. Read-only; each section is fetched
+ * defensively so one missing table can't fail the whole export.
+ */
+export async function exportMyData(): Promise<{ ok: boolean; json?: string; error?: string }> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, error: 'Please sign in again.' }
+  const q = <T>(p: Promise<T>, fallback: T): Promise<T> => p.catch(() => fallback)
+  try {
+    const [user, moods, journals, tasks, appts, subs, payments, meds, orders, posts, comments, votes, reviews] = await Promise.all([
+      q(prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, phone: true, createdAt: true, patientProfile: true } }), null),
+      q(prisma.moodEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }), []),
+      q(prisma.journalEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }), []),
+      q(prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }), []),
+      q(prisma.appointment.findMany({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { scheduledAt: true, status: true, durationMins: true, fee: true, summary: true, preSessionNote: true, createdAt: true } }), []),
+      q(prisma.subscription.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { planName: true, trackSlug: true, status: true, sessionsTotal: true, sessionsUsed: true, expiresAt: true, createdAt: true } }), []),
+      q(prisma.payment.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { amount: true, kind: true, planName: true, trackSlug: true, createdAt: true } }), []),
+      q(prisma.medication.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }), []),
+      q(prisma.medicationOrder.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }), []),
+      q(prisma.communityPost.findMany({ where: { authorId: userId }, orderBy: { createdAt: 'desc' }, select: { title: true, body: true, tags: true, anonymous: true, createdAt: true } }), []),
+      q(prisma.communityComment.findMany({ where: { authorId: userId }, orderBy: { createdAt: 'desc' }, select: { body: true, anonymous: true, createdAt: true } }), []),
+      q(prisma.pollVote.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { pollId: true, optionIndex: true, createdAt: true } }), []),
+      q(prisma.sessionReview.findMany({ where: { patientId: userId }, orderBy: { createdAt: 'desc' }, select: { rating: true, comment: true, createdAt: true } }), []),
+    ])
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      note: 'Your getCalmly data. Timestamps are in UTC (ISO 8601).',
+      account: user,
+      moodCheckIns: moods,
+      journalEntries: journals,
+      tasks,
+      appointments: appts,
+      subscriptions: subs,
+      payments,
+      medications: meds,
+      medicationOrders: orders,
+      communityPosts: posts,
+      communityComments: comments,
+      pollVotes: votes,
+      sessionRatings: reviews,
+    }
+    return { ok: true, json: JSON.stringify(payload, null, 2) }
+  } catch {
+    return { ok: false, error: 'Could not prepare your data export.' }
+  }
+}
+
+/**
+ * DPDP right to erasure: permanently delete the signed-in patient's account and
+ * all their data. Non-cascading child rows (mood, journal, appointments) are
+ * removed explicitly first, in one transaction, then the user row cascades the
+ * rest. Only PATIENT accounts may self-delete here.
+ */
+export async function deleteMyAccount(): Promise<{ ok: boolean; error?: string }> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, error: 'Please sign in again.' }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    if (!user) return { ok: false, error: 'Account not found.' }
+    if (user.role !== 'PATIENT') return { ok: false, error: 'Only patient accounts can self-delete. Contact support.' }
+    await prisma.$transaction([
+      prisma.moodEntry.deleteMany({ where: { userId } }),
+      prisma.journalEntry.deleteMany({ where: { userId } }),
+      prisma.appointment.deleteMany({ where: { patientId: userId } }),
+      prisma.user.delete({ where: { id: userId } }),
+    ])
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not delete your account. Please contact support.' }
+  }
+}
+
+/**
  * Cast (or change) this member's vote on a Calm Club poll. One vote per member
  * per poll — re-voting updates the existing row. Rejected once the poll expires.
  */
