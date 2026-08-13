@@ -4,6 +4,7 @@ import { Video, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react'
 import { getSessionDetail } from '@/lib/sessions'
 import { PreSessionNote } from '@/components/dashboard/PreSessionNote'
 import { RateSession } from '@/components/dashboard/RateSession'
+import { LocalTime } from '@/components/dashboard/LocalTime'
 
 export default async function SessionDetailPage({ params }: PageProps<'/app/sessions/[id]'>) {
   const { id } = await params
@@ -23,7 +24,7 @@ export default async function SessionDetailPage({ params }: PageProps<'/app/sess
           </Link>
           <h1 className="page-title">Session with {s.expert}</h1>
           <span className="page-meta">
-            {s.when} · {s.durationMins} min
+            <LocalTime iso={s.scheduledISO} fallback={s.when} /> · {s.durationMins} min
           </span>
         </div>
         {!s.isPast && (
@@ -79,7 +80,7 @@ export default async function SessionDetailPage({ params }: PageProps<'/app/sess
           <div className="session-info-grid" style={{ flexWrap: 'wrap' }}>
             <div>
               <div className="lbl">WHEN</div>
-              <div className="val">{s.when}</div>
+              <div className="val"><LocalTime iso={s.scheduledISO} fallback={s.when} /></div>
             </div>
             <div>
               <div className="lbl">DURATION</div>

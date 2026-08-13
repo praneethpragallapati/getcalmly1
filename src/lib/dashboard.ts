@@ -420,6 +420,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           when: nx.scheduledAt.toLocaleString('en-IN', {
             weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
           }),
+          scheduledISO: nx.scheduledAt.toISOString(),
           durationMins: nx.durationMins,
         }
       }

@@ -22,6 +22,7 @@ import { CheckIn } from '@/components/dashboard/CheckIn'
 import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { HomePolls } from '@/components/dashboard/HomePolls'
+import { LocalTime } from '@/components/dashboard/LocalTime'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
@@ -138,7 +139,7 @@ export default async function AppHomePage() {
             <div className="session-info-grid">
               <div>
                 <div className="lbl">TIME</div>
-                <div className="val">{d.todaySession.when.split('·').pop()?.trim()}</div>
+                <div className="val"><LocalTime iso={d.todaySession.scheduledISO} fallback={d.todaySession.when.split('·').pop()?.trim() ?? ''} options={{ hour: 'numeric', minute: '2-digit' }} /></div>
               </div>
               <div>
                 <div className="lbl">DURATION</div>
@@ -174,7 +175,7 @@ export default async function AppHomePage() {
               <span className="doc-avatar">👩‍⚕️</span>
               <div>
                 <div className="doc-name">{d.nextSession.expert}</div>
-                <div className="doc-sub">{d.nextSession.when}</div>
+                <div className="doc-sub"><LocalTime iso={d.nextSession.scheduledISO} fallback={d.nextSession.when} /></div>
               </div>
             </div>
             <div className="session-info-grid">

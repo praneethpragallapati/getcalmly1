@@ -6,6 +6,7 @@ import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
 import { BookSession } from '@/components/dashboard/BookSession'
 import { RateSession } from '@/components/dashboard/RateSession'
 import { SessionActions } from '@/components/dashboard/SessionActions'
+import { LocalTime } from '@/components/dashboard/LocalTime'
 import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
 import { istParts } from '@/lib/tz'
@@ -27,7 +28,7 @@ function SessionRow({ s }: { s: DashSession }) {
           <div className="doc-name" style={{ fontSize: 15 }}>
             {s.expert}
           </div>
-          <div className="doc-sub">{s.when}</div>
+          <div className="doc-sub"><LocalTime iso={s.scheduledISO} fallback={s.when} /></div>
           {s.tags && s.tags.length > 0 && (
             <div className="tag-row">
               {s.tags.map((t) => (
@@ -128,7 +129,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
             <div className="session-when">LIVE NOW · READY TO JOIN</div>
             <h3>Session with {view.today.expert}</h3>
             <div className="sub">
-              {view.today.when} · {view.today.durationMins} min
+              <LocalTime iso={view.today.scheduledISO} fallback={view.today.when} /> · {view.today.durationMins} min
             </div>
           </div>
           <Link href={`/app/sessions/${view.today.id}/room`} className="btn btn-primary">

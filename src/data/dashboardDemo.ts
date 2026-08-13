@@ -115,7 +115,7 @@ export type DashboardData = {
   todaySession: TodaySession | null
   // The soonest upcoming session (may be the same one shown as todaySession when
   // it's within the join window); null when nothing is booked.
-  nextSession: { id: string; expert: string; when: string; durationMins: number } | null
+  nextSession: { id: string; expert: string; when: string; durationMins: number; scheduledISO?: string } | null
   community: CommunityPreview[]
   // Sessions
   upcoming: DashSession[]
