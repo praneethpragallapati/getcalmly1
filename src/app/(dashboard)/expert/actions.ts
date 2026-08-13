@@ -8,6 +8,7 @@ import {
   ownsPatient,
   setAppointmentStatus,
   rescheduleAppointment,
+  requestAppointmentCancellation,
   writeSessionSummary,
   setDayAvailability,
   setAllDaysAvailability,
@@ -129,7 +130,11 @@ export async function confirmAppointment(formData: FormData): Promise<void> {
   revalidatePath('/expert/schedule')
 }
 
-/** Cancel a booking, the patient sees it removed from their upcoming list. */
+/**
+ * Decline a booking REQUEST (still PENDING, not yet confirmed). This is part of
+ * the confirm/decline flow and stays immediate. Cancelling a *confirmed*
+ * session goes through requestCancellation → admin approval instead.
+ */
 export async function cancelAppointment(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return
@@ -137,6 +142,22 @@ export async function cancelAppointment(formData: FormData): Promise<void> {
   if (!id) return
   await setAppointmentStatus(ctx.therapistProfileId, id, 'CANCELLED')
   revalidatePath('/expert/schedule')
+}
+
+/**
+ * Clinician requests cancellation of a confirmed session. Does NOT cancel it —
+ * flags it for admin approval with a reason. The session stays on the patient's
+ * calendar until an admin approves (real cancel) or rejects the request.
+ */
+export async function requestCancellation(formData: FormData): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  const id = String(formData.get('appointmentId') ?? '')
+  const reason = String(formData.get('reason') ?? '')
+  if (!id) return
+  await requestAppointmentCancellation(ctx.therapistProfileId, id, reason)
+  revalidatePath('/expert/schedule')
+  revalidatePath('/expert')
 }
 
 /** Move a booking to a new date/time the therapist proposes. */

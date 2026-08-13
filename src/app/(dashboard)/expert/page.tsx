@@ -8,13 +8,18 @@ import {
   getExpertPatientProfile, getMyAssignedTasks, type ScheduleAppointment,
 } from '@/lib/expert'
 import { MyTaskList } from '@/components/expert/MyTaskList'
+import { RequestCancel } from '@/components/expert/RequestCancel'
+import { fmtIST, istParts } from '@/lib/tz'
 
+// All times shown in IST (backend clock), so a noon-IST session reads as 12:00 PM
+// and not the UTC server time.
 function timeLabel(d: Date) {
-  return d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
+  return fmtIST(d, { hour: 'numeric', minute: '2-digit' })
 }
 function isToday(d: Date) {
-  const n = new Date()
-  return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear()
+  const a = istParts(d)
+  const n = istParts(new Date())
+  return a.day === n.day && a.month === n.month && a.year === n.year
 }
 
 /** The doctor's real to-do list, derived from live data, no separate table. */
@@ -33,7 +38,7 @@ function buildTasks(
       tasks.push({
         key: `note-${a.id}`,
         label: `Write session note · ${a.patientName}`,
-        sub: `Session on ${a.scheduledAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`,
+        sub: `Session on ${fmtIST(a.scheduledAt, { day: 'numeric', month: 'short' })}`,
         href: `/expert/patients/${a.patientId}`,
         urgent: false,
       }),
@@ -56,7 +61,7 @@ function buildTasks(
       tasks.push({
         key: `confirm-${a.id}`,
         label: `Confirm session request · ${a.patientName}`,
-        sub: `Requested for ${a.scheduledAt.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}`,
+        sub: `Requested for ${fmtIST(a.scheduledAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}`,
         href: '/expert/schedule',
         urgent: false,
       }),
@@ -81,25 +86,70 @@ export default async function ExpertHomePage() {
   const tasks = buildTasks(schedule, risk)
 
   // Data-composed pre-session context for the hero (fast; no LLM call here).
+  // Structured, labelled rows rather than a run-on sentence, so the clinician can
+  // scan it before joining. Each row is one clinical signal.
   const nextProfile = next ? await getExpertPatientProfile(ctx.therapistProfileId, next.patientId) : null
-  let brief: string | null = null
+  type BriefRow = { label: string; value: string; alert?: boolean }
+  const briefRows: BriefRow[] = []
   if (next && nextProfile) {
-    const bits: string[] = []
+    const TREND_FRIENDLY: Record<string, string> = {
+      improving: 'trending up',
+      declining: 'trending down',
+      stable: 'stable',
+      insufficient: 'not enough check-ins yet',
+    }
+    // Mood
     if (nextProfile.moodWeek.length) {
       const moods = nextProfile.moodWeek.map((m) => m.mood)
-      bits.push(`Mood last ${moods.length} check-ins: ${moods.join(', ')} (${nextProfile.moodTrend}).`)
+      const latest = moods[moods.length - 1]
+      briefRows.push({
+        label: 'Mood',
+        value: `now ${latest}/10 · ${TREND_FRIENDLY[nextProfile.moodTrend] ?? nextProfile.moodTrend} (last ${moods.length}: ${moods.join(', ')})`,
+        alert: nextProfile.moodTrend === 'declining',
+      })
     }
-    const openTasks = nextProfile.tasks.filter((t) => !t.done)
+    // Homework / tasks
     if (nextProfile.tasks.length) {
-      bits.push(
-        openTasks.length
-          ? `${openTasks.length} of ${nextProfile.tasks.length} homework tasks still open.`
-          : 'All assigned homework completed.',
-      )
+      const open = nextProfile.tasks.filter((t) => !t.done).length
+      briefRows.push({
+        label: 'Homework',
+        value: open === 0
+          ? `all ${nextProfile.tasks.length} tasks done (${nextProfile.taskCompletionPct}%)`
+          : `${open} of ${nextProfile.tasks.length} open · ${nextProfile.taskCompletionPct}% completed`,
+      })
     }
-    if (nextProfile.sessionNotes[0]?.raw) bits.push(`Last note: ${nextProfile.sessionNotes[0].raw}`)
-    if (nextProfile.openCrisisCount > 0) bits.push(`⚠ ${nextProfile.openCrisisCount} open crisis alert(s).`)
-    brief = bits.join(' ')
+    // Medication adherence — psychiatry only
+    if (ctx.isPsychiatrist && nextProfile.medications.length) {
+      const active = nextProfile.medications.filter((m) => m.active).length
+      briefRows.push({
+        label: 'Medication',
+        value: `${active} of ${nextProfile.medications.length} active · ${nextProfile.medicationCompliancePct}% adherence`,
+      })
+    }
+    // Sessions so far
+    if (nextProfile.sessionsTotal > 0) {
+      briefRows.push({
+        label: 'Sessions',
+        value: `${nextProfile.sessionsDone} of ${nextProfile.sessionsTotal} used · ${nextProfile.sessionsRemaining} remaining`,
+      })
+    }
+    // Crisis alerts
+    if (nextProfile.openCrisisCount > 0) {
+      briefRows.push({
+        label: 'Alerts',
+        value: `${nextProfile.openCrisisCount} open crisis alert${nextProfile.openCrisisCount === 1 ? '' : 's'} — review before joining`,
+        alert: true,
+      })
+    }
+    // The patient's own note for THIS session (distinct from clinical notes).
+    if (next.preSessionNote) {
+      briefRows.push({ label: 'Patient’s note for this session', value: next.preSessionNote })
+    }
+    // Last completed session's clinical summary (distinct from the pre-session note).
+    const lastSummary = nextProfile.sessions.find((s) => s.isPast && s.summary)?.summary
+    if (lastSummary) {
+      briefRows.push({ label: 'Last session summary', value: lastSummary })
+    }
   }
 
   const moodRows = caseload.filter((p) => p.lastMood !== null).slice(0, 6)
@@ -113,7 +163,7 @@ export default async function ExpertHomePage() {
           <div className="page-grid" style={{ gridTemplateColumns: '1.5fr 1fr', gap: 28, alignItems: 'start' }}>
             <div>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#4ba8a2', background: 'rgba(75,168,162,.14)', padding: '5px 12px', borderRadius: 20 }}>
-                ● Up next · {isToday(next.scheduledAt) ? `${timeLabel(next.scheduledAt)} today` : next.scheduledAt.toLocaleString('en-IN', { weekday: 'short', hour: 'numeric', minute: '2-digit' })}
+                ● Up next · {isToday(next.scheduledAt) ? `${timeLabel(next.scheduledAt)} today` : fmtIST(next.scheduledAt, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}
               </span>
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 34, lineHeight: 1.05, margin: '14px 0 6px' }}>
                 Session #{nextProfile.sessionsDone + 1} with <span style={{ color: '#4ba8a2', fontWeight: 700 }}>{next.patientName}</span>
@@ -121,13 +171,24 @@ export default async function ExpertHomePage() {
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>
                 {nextProfile.trackLabel} · {next.durationMins} min · Google Meet
               </p>
-              {brief && (
+              {briefRows.length > 0 && (
                 <div style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, padding: '14px 16px', marginBottom: 18 }}>
-                  <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#4ba8a2', marginBottom: 7 }}>✦ Pre-session context</div>
-                  <p style={{ fontSize: 13, lineHeight: 1.65, color: 'rgba(255,255,255,.78)' }}>{brief}</p>
+                  <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#4ba8a2', marginBottom: 10 }}>✦ Pre-session brief</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                    {briefRows.map((r, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
+                        <span style={{ flex: '0 0 148px', fontSize: 10, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', color: r.alert ? '#f0a3a0' : 'rgba(255,255,255,.5)', lineHeight: 1.5 }}>
+                          {r.label}
+                        </span>
+                        <span style={{ flex: 1, fontSize: 13, lineHeight: 1.55, color: r.alert ? '#f5b7b4' : 'rgba(255,255,255,.85)' }}>
+                          {r.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-start' }}>
                 <Link href={`/app/sessions/${next.roomId ?? next.id}/room`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
                   <Video size={15} /> Join Meet
                 </Link>
@@ -137,6 +198,15 @@ export default async function ExpertHomePage() {
                 <Link href={`/expert/patients/${next.patientId}`} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(255,255,255,.08)', color: '#fff', border: '1px solid rgba(255,255,255,.16)' }}>
                   <User size={15} /> {next.patientName.split(' ')[0]}&apos;s profile
                 </Link>
+              </div>
+              <div style={{ marginTop: 14 }}>
+                {next.cancelRequested ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#f5b7b4', background: 'rgba(192,80,75,.18)', border: '1px solid rgba(240,163,160,.3)', padding: '7px 12px', borderRadius: 8 }}>
+                    Cancellation requested · awaiting admin approval
+                  </span>
+                ) : (
+                  <RequestCancel appointmentId={next.id} />
+                )}
               </div>
             </div>
             {/* Today's schedule rail */}

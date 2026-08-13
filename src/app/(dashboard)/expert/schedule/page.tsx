@@ -4,9 +4,11 @@ import { Video, Check, X, CalendarClock } from 'lucide-react'
 import { getTherapistContext, getTherapistSchedule, type ScheduleAppointment } from '@/lib/expert'
 import { confirmAppointment, cancelAppointment, rescheduleAppointmentAction } from '../actions'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
+import { RequestCancel } from '@/components/expert/RequestCancel'
+import { fmtIST } from '@/lib/tz'
 
 function fmt(d: Date): string {
-  return d.toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+  return fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
 function Row({ a }: { a: ScheduleAppointment }) {
@@ -54,7 +56,7 @@ function Row({ a }: { a: ScheduleAppointment }) {
         )}
 
         {a.status === 'CONFIRMED' && !a.isPast && (
-          <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <Link href={`/app/sessions/${a.roomId ?? a.id}/room`} className="btn btn-primary btn-sm">
               <Video size={13} /> Join room
             </Link>
@@ -63,10 +65,13 @@ function Row({ a }: { a: ScheduleAppointment }) {
               <input className="entry-input" type="datetime-local" name="newDate" style={{ padding: '6px 10px' }} />
               <button type="submit" className="btn btn-outline btn-sm">Reschedule</button>
             </form>
-            <form action={cancelAppointment}>
-              <input type="hidden" name="appointmentId" value={a.id} />
-              <button type="submit" className="btn btn-outline btn-sm">Cancel</button>
-            </form>
+            {a.cancelRequested ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: '#C0504B', background: 'rgba(192,80,75,.08)', border: '1px solid rgba(192,80,75,.2)', padding: '7px 12px', borderRadius: 8 }}>
+                Cancellation requested · awaiting admin approval
+              </span>
+            ) : (
+              <RequestCancel appointmentId={a.id} />
+            )}
           </div>
         )}
 

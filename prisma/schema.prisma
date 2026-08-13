@@ -493,6 +493,13 @@ model Appointment {
   // The package a booking reserved a session against (wallet is decremented at
   // booking). On cancel > 24h / void it is restored and this is cleared.
   consumedSubscriptionId String?
+  // Clinician-initiated cancellation goes through admin approval: the clinician
+  // flags the appointment (with a reason) and it stays live until an admin
+  // approves (real cancel + wallet restore) or rejects (flag cleared). Patient
+  // cancellation is unaffected — it stays immediate.
+  cancelRequested   Boolean   @default(false)
+  cancelReason      String?   @db.Text
+  cancelRequestedAt DateTime?
   createdAt      DateTime          @default(now())
 
   review         SessionReview?

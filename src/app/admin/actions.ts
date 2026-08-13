@@ -737,6 +737,58 @@ export async function setAppointmentStatusAdmin(input: { id: string; status: str
 }
 
 /**
+ * Approve a clinician's cancellation request: this is where the cancellation
+ * actually happens. Cancels the session and restores the reserved session to the
+ * exact package it was booked from (atomic guarded decrement, mirroring patient
+ * cancel), then clears the request flag.
+ */
+export async function approveCancellation(input: { appointmentId: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    const appt = await prisma.appointment.findUnique({
+      where: { id: input.appointmentId },
+      select: { id: true, status: true, notes: true, consumedSubscriptionId: true, cancelReason: true },
+    })
+    if (!appt) return { ok: false, error: 'Session not found.' }
+    if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') {
+      return { ok: false, error: 'This session can no longer be cancelled.' }
+    }
+    const stamp = `[Cancelled by clinician request, admin-approved ${new Date().toISOString().slice(0, 10)}${appt.cancelReason ? `: ${appt.cancelReason}` : ''}]`
+    await prisma.$transaction([
+      prisma.appointment.update({
+        where: { id: appt.id },
+        data: {
+          status: 'CANCELLED', consumedSubscriptionId: null,
+          cancelRequested: false, cancelReason: null, cancelRequestedAt: null,
+          notes: appt.notes ? `${appt.notes}\n${stamp}` : stamp,
+        },
+      }),
+      ...(appt.consumedSubscriptionId
+        ? [prisma.subscription.updateMany({
+            where: { id: appt.consumedSubscriptionId, sessionsUsed: { gt: 0 } },
+            data: { sessionsUsed: { decrement: 1 } },
+          })]
+        : []),
+    ])
+    revalidatePath('/admin/operations'); revalidatePath('/admin/money')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not approve the cancellation.' } }
+}
+
+/** Reject a clinician's cancellation request: clear the flag, session stays live. */
+export async function rejectCancellation(input: { appointmentId: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    await prisma.appointment.update({
+      where: { id: input.appointmentId },
+      data: { cancelRequested: false, cancelReason: null, cancelRequestedAt: null },
+    })
+    revalidatePath('/admin/operations')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not update the request.' } }
+}
+
+/**
  * Void a session the clinician was credited for but shouldn't be paid for — e.g.
  * the patient reports the clinician never joined. Cancels the appointment and
  * clears its summary so it drops out of earnings, records the reason, and

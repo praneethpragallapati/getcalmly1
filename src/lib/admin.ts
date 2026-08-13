@@ -682,9 +682,14 @@ export type ApptRow = {
   id: string; patientId: string; patientName: string; therapistId: string; therapistName: string
   scheduledAt: string; status: string; fee: number; isPast: boolean; hasSummary: boolean
 }
+export type CancelRequestRow = {
+  id: string; patientId: string; patientName: string; therapistName: string
+  scheduledAt: string; requestedAt: string; reason: string | null; fee: number
+}
 export type OpsBoard = {
   upcoming: ApptRow[]
   needsNote: ApptRow[]
+  cancelRequests: CancelRequestRow[]
   therapists: { profileId: string; name: string }[]
 }
 
@@ -699,16 +704,28 @@ export async function getOpsBoard(): Promise<OpsBoard> {
       prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
     ])
     const tName = new Map(therapists.map((t) => [t.id, t.user?.name ?? 'Clinician']))
+    const dtFmt: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }
     const map = (r: (typeof appts)[number]): ApptRow => ({
       id: r.id, patientId: r.patientId, patientName: r.patient?.name ?? 'Patient',
       therapistId: r.therapistId, therapistName: tName.get(r.therapistId) ?? 'Clinician',
-      scheduledAt: r.scheduledAt.toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+      scheduledAt: fmtIST(r.scheduledAt, dtFmt),
       status: r.status, fee: r.fee, isPast: r.scheduledAt.getTime() < now.getTime(), hasSummary: Boolean(r.summary),
     })
     const upcoming = appts.filter((a) => a.scheduledAt.getTime() >= now.getTime() && a.status !== 'CANCELLED').sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime()).slice(0, 40).map(map)
     const needsNote = appts.filter((a) => a.scheduledAt.getTime() < now.getTime() && a.status !== 'CANCELLED' && !a.summary).slice(0, 40).map(map)
-    return { upcoming, needsNote, therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)) }
-  }, { upcoming: [], needsNote: [], therapists: [] })
+    // Clinician-requested cancellations awaiting an admin decision.
+    const cancelRequests: CancelRequestRow[] = appts
+      .filter((a) => a.cancelRequested && a.status !== 'CANCELLED' && a.status !== 'COMPLETED')
+      .sort((a, b) => (a.cancelRequestedAt?.getTime() ?? 0) - (b.cancelRequestedAt?.getTime() ?? 0))
+      .map((r) => ({
+        id: r.id, patientId: r.patientId, patientName: r.patient?.name ?? 'Patient',
+        therapistName: tName.get(r.therapistId) ?? 'Clinician',
+        scheduledAt: fmtIST(r.scheduledAt, dtFmt),
+        requestedAt: r.cancelRequestedAt ? fmtIST(r.cancelRequestedAt, dtFmt) : '—',
+        reason: r.cancelReason ?? null, fee: r.fee,
+      }))
+    return { upcoming, needsNote, cancelRequests, therapists: therapists.map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)) }
+  }, { upcoming: [], needsNote: [], cancelRequests: [], therapists: [] })
 }
 
 // ── Money: revenue + payouts ────────────────────────────────────────────────────

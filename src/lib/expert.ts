@@ -683,6 +683,9 @@ export type ScheduleAppointment = {
   // What the patient wrote before the session — shown by the Join button so the
   // clinician can read it before entering the room.
   preSessionNote: string | null
+  // Clinician asked to cancel this session; it stays live until an admin approves.
+  cancelRequested: boolean
+  cancelReason: string | null
 }
 
 /** Every appointment on this therapist's calendar, most recent first. */
@@ -709,7 +712,33 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
     hasSummary: Boolean(r.summary),
     isPast: r.scheduledAt.getTime() < now,
     preSessionNote: r.preSessionNote ?? null,
+    cancelRequested: r.cancelRequested ?? false,
+    cancelReason: r.cancelReason ?? null,
   }))
+}
+
+/**
+ * Clinician asks to cancel a session. This does NOT cancel it — it flags the
+ * appointment for admin approval and records the reason. The session stays live
+ * (patient still sees it) until an admin approves or rejects the request. Only
+ * upcoming, non-terminal appointments can be flagged.
+ */
+export async function requestAppointmentCancellation(
+  therapistProfileId: string,
+  appointmentId: string,
+  reason: string
+): Promise<boolean> {
+  const appt = await prisma.appointment.findFirst({
+    where: { id: appointmentId, therapistId: therapistProfileId },
+    select: { id: true, status: true },
+  })
+  if (!appt) return false
+  if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') return false
+  await prisma.appointment.update({
+    where: { id: appointmentId },
+    data: { cancelRequested: true, cancelReason: reason.trim() || null, cancelRequestedAt: new Date() },
+  })
+  return true
 }
 
 /** Whether the appointment belongs to this therapist (ownership gate for mutations). */

@@ -134,3 +134,8 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- 0023 · Pin a poll to the top of the Polls tab. Idempotent.
 ALTER TABLE "Poll" ADD COLUMN IF NOT EXISTS "pinned" BOOLEAN NOT NULL DEFAULT false;
+
+-- 0024 · Clinician cancellation requests (admin-approved). Idempotent.
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "cancelRequested" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "cancelReason" TEXT;
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "cancelRequestedAt" TIMESTAMP(3);
