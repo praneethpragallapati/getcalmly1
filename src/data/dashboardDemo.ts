@@ -30,7 +30,7 @@ export type DashSession = {
   when: string // human readable
   scheduledISO?: string // machine-readable start, when known (real appointments)
   durationMins: number
-  status: 'UPCOMING' | 'SCHEDULED' | 'COMPLETED'
+  status: 'UPCOMING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
   sessionNo?: number
   tags?: string[]
   hasSummary?: boolean

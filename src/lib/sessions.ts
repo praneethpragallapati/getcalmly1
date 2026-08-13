@@ -96,11 +96,14 @@ export async function getSessionsView(): Promise<SessionsView> {
     const past: DashSession[] = []
     let n = 0
     for (const r of rows) {
-      if (r.status === 'CANCELLED') continue
-      n++
-      // Past only once the whole session window has elapsed — it stays joinable
-      // during the session, then drops off after it ends.
-      const isPast = r.status === 'COMPLETED' || r.scheduledAt.getTime() + r.durationMins * 60_000 < now
+      // A cancelled booking is not erased — it belongs in Past, clearly marked
+      // "Cancelled", so both the patient and the expert keep a record of it. It
+      // doesn't consume a session number and can't be joined or rated.
+      const cancelled = r.status === 'CANCELLED'
+      if (!cancelled) n++
+      // Past once the whole session window has elapsed (or it was cancelled). It
+      // stays joinable during the session, then drops off after it ends.
+      const isPast = cancelled || r.status === 'COMPLETED' || r.scheduledAt.getTime() + r.durationMins * 60_000 < now
       const ds: DashSession = {
         id: r.id,
         expert: r.therapist.user.name ?? 'Your expert',
@@ -108,12 +111,12 @@ export async function getSessionsView(): Promise<SessionsView> {
         when: fmtWhen(r.scheduledAt),
         scheduledISO: r.scheduledAt.toISOString(),
         durationMins: r.durationMins,
-        status: isPast ? 'COMPLETED' : 'UPCOMING',
-        sessionNo: n,
+        status: cancelled ? 'CANCELLED' : isPast ? 'COMPLETED' : 'UPCOMING',
+        sessionNo: cancelled ? undefined : n,
         hasSummary: Boolean(r.summary),
         myRating: r.review?.rating ?? null,
-        // Rateable once it has happened (cancelled sessions are skipped above).
-        reviewable: isPast,
+        // Rateable once it has actually happened — never for a cancelled session.
+        reviewable: isPast && !cancelled,
       }
       if (isPast) past.push(ds)
       else upcoming.push(ds)

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Video, FileText, Calendar, CheckCircle2, Clock } from 'lucide-react'
+import { Video, FileText, Calendar, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import { getSessionsView, getExpertCalendar } from '@/lib/sessions'
 import { getMyCareTeam } from '@/lib/therapist'
 import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
@@ -17,7 +17,9 @@ import type { DashSession } from '@/data/dashboardDemo'
 export const dynamic = 'force-dynamic'
 
 function SessionRow({ s }: { s: DashSession }) {
-  const past = s.status === 'COMPLETED'
+  const cancelled = s.status === 'CANCELLED'
+  // A cancelled session lives in the Past list too, but can't be joined or rated.
+  const past = s.status === 'COMPLETED' || cancelled
   return (
     <div style={{ borderBottom: '1px solid var(--c-line)' }}>
       <div className="sess-row" style={{ borderBottom: 'none' }}>
@@ -40,7 +42,11 @@ function SessionRow({ s }: { s: DashSession }) {
           )}
         </div>
         <div className="sess-actions">
-          {past ? (
+          {cancelled ? (
+            <span className="sess-status" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--c-coral, #C0504B)', fontWeight: 600 }}>
+              <XCircle size={14} /> Cancelled
+            </span>
+          ) : past ? (
             <>
               <span className="sess-status done">
                 <CheckCircle2 size={14} /> Completed
@@ -119,7 +125,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
       <div className="page-head">
         <h1 className="page-title">Sessions</h1>
         <span className="page-meta">
-          {view.upcoming.length} upcoming · {view.past.length} completed
+          {view.upcoming.length} upcoming · {view.past.length} past
         </span>
       </div>
 

@@ -36,6 +36,8 @@ function Row({ a }: { a: ScheduleAppointment }) {
         </div>
         <div className="pattern-sub">
           {fmt(a.scheduledAt)} · {a.durationMins} min · ₹{a.fee}
+          {a.status === 'CANCELLED' && <span style={{ color: 'var(--c-coral, #C0504B)', fontWeight: 700 }}> · Cancelled</span>}
+          {a.status === 'COMPLETED' && <span style={{ color: 'var(--c-green, #2C7A57)', fontWeight: 700 }}> · Completed</span>}
         </div>
 
         {isLive(a) && (
