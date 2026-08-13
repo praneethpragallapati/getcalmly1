@@ -17,17 +17,21 @@ import { getDashboardData } from '@/lib/dashboard'
 import { getMedications } from '@/lib/account'
 import { getSessionUserId } from '@/lib/patient'
 import { getMedicationOrders } from '@/lib/orders'
+import { getCommunityPolls } from '@/lib/polls'
 import { CheckIn } from '@/components/dashboard/CheckIn'
 import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
+import { PollCard } from '@/components/community/PollCard'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
-  const [d, meds, orders] = await Promise.all([
+  const [d, meds, orders, polls] = await Promise.all([
     getDashboardData(),
     getMedications(),
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
+    getCommunityPolls(userId),
   ])
+  const featuredPoll = polls.find((p) => !p.expired) ?? null
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
 
@@ -241,6 +245,17 @@ export default async function AppHomePage() {
           <div className="stat-l">Journal entries</div>
         </div>
       </div>
+
+      {/* Calm Club poll of the moment */}
+      {featuredPoll && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+            <div className="section-title">Calm Club poll</div>
+            <Link href="/app/polls" className="link-action">All polls →</Link>
+          </div>
+          <PollCard poll={featuredPoll} canVote={Boolean(userId)} />
+        </div>
+      )}
 
       {/* Recent journal · tasks + meds · community */}
       <div className="home-split home-split-3" style={{ gap: 20 }}>

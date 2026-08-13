@@ -13,6 +13,7 @@ import {
   CalendarDays,
   Users,
   Newspaper,
+  BarChart3,
   LineChart,
   Pill,
   FileText,
@@ -46,6 +47,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { href: '/app/blogs', label: 'Blogs', icon: Newspaper },
       { href: '/app/community', label: 'Community', icon: Users },
+      { href: '/app/polls', label: 'Polls', icon: BarChart3 },
     ],
   },
   {

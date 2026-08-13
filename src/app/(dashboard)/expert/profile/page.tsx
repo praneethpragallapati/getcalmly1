@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap } from 'lucide-react'
 import { getTherapistContext, getTherapistProfile } from '@/lib/expert'
 import { ProfileEditToggle } from '@/components/expert/ProfileEditToggle'
+import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
 
 export const metadata = { title: 'Profile · Expert portal', robots: { index: false, follow: false } }
 
@@ -107,6 +108,8 @@ export default async function ExpertProfilePage() {
         </div>
       </div>
       </ProfileEditToggle>
+
+      <ChangePasswordCard />
     </div>
   )
 }

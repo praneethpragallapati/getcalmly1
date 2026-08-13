@@ -4,6 +4,7 @@ import { getAccount, getPatientProfileForEdit } from '@/lib/account'
 import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
 import { LogoutButton } from '@/components/dashboard/LogoutButton'
 import { ProfileEditor } from '@/components/dashboard/ProfileEditor'
+import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
 
 export default async function SettingsPage() {
   const { plan, privacy } = await getAccount()
@@ -82,6 +83,9 @@ export default async function SettingsPage() {
 
           {/* Profile */}
           {profile && <ProfileEditor profile={profile} />}
+
+          {/* Change password */}
+          <ChangePasswordCard />
 
           {/* Session */}
           <div className="card">
