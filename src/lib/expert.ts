@@ -1032,9 +1032,14 @@ export async function draftSessionNote(bullets: string): Promise<string | null> 
 // ── Availability ──────────────────────────────────────────────────────────────
 
 /** The four named slot bands. Each is a set of 1-hour slot start-hours. */
+// Contiguous, gap-free bands covering every hour 7 AM–midnight. Each `hours`
+// entry is a slot START hour, so the last usable band-hour is the one whose slot
+// ends at the band's stated end time (e.g. the 11 AM slot runs 11 AM–12 PM).
+// Keep these ranges touching — a missing hour here becomes an unbookable gap on
+// the patient calendar.
 export const SLOT_GROUPS = {
-  morning: { label: 'Morning · 7–11 AM', hours: [7, 8, 9, 10] },
-  afternoon: { label: 'Afternoon · 12–4 PM', hours: [12, 13, 14, 15] },
+  morning: { label: 'Morning · 7 AM–12 PM', hours: [7, 8, 9, 10, 11] },
+  afternoon: { label: 'Afternoon · 12–5 PM', hours: [12, 13, 14, 15, 16] },
   evening: { label: 'Evening · 5–9 PM', hours: [17, 18, 19, 20] },
   night: { label: 'Night · 9 PM–12 AM', hours: [21, 22, 23] },
 } as const
