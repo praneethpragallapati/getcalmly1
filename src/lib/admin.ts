@@ -205,13 +205,37 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         include: { supervisor: { include: { user: { select: { name: true } } } }, supervisee: { include: { user: { select: { name: true } } } } },
       }),
       prisma.appointment.findMany({ where: { therapistId: profileId }, select: { patientId: true, patient: { select: { name: true } } }, distinct: ['patientId'] }),
-      prisma.patientProfile.findMany({ where: { assignedTherapistId: profileId }, select: { userId: true, user: { select: { name: true } } } }),
+      // Everyone the admin assigned to this clinician — via the default column OR
+      // any per-care-type column (individual/couples/psychiatry). Auto-assignment
+      // writes the per-category columns, so matching only assignedTherapistId used
+      // to miss those patients entirely.
+      prisma.patientProfile.findMany({
+        where: {
+          OR: [
+            { assignedTherapistId: profileId },
+            { assignedTherapistIndividualId: profileId },
+            { assignedTherapistCouplesId: profileId },
+            { assignedTherapistPsychiatryId: profileId },
+          ],
+        },
+        select: { userId: true, user: { select: { name: true } } },
+      }),
       prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
       prisma.sessionReview.findMany({ where: { therapistId: profileId }, orderBy: { createdAt: 'desc' }, take: 12, select: { id: true, rating: true, comment: true, createdAt: true } }),
     ])
+    // Also anyone attached to this clinician through an active package.
+    let pkgPatients: { userId: string; user: { name: string | null } | null }[] = []
+    try {
+      pkgPatients = await prisma.subscription.findMany({
+        where: { therapistId: profileId, status: 'ACTIVE' },
+        select: { userId: true, user: { select: { name: true } } },
+        distinct: ['userId'],
+      })
+    } catch { /* 0015 not applied */ }
     const patientMap = new Map<string, string>()
     for (const a of apptPatients) patientMap.set(a.patientId, a.patient?.name ?? 'Patient')
     for (const a of assigned) patientMap.set(a.userId, a.user?.name ?? 'Patient')
+    for (const a of pkgPatients) patientMap.set(a.userId, a.user?.name ?? 'Patient')
 
     return {
       profileId: p.id, userId: p.user?.id ?? '', name: p.user?.name ?? 'Clinician', email: p.user?.email ?? '',

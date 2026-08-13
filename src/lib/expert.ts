@@ -444,7 +444,36 @@ export async function getExpertPatientProfile(
   therapistProfileId: string,
   patientId: string
 ): Promise<ExpertPatientProfile | null> {
-  const owns = await prisma.appointment.findFirst({ where: { therapistId: therapistProfileId, patientId } })
+  // Ownership must match the caseload (patientIdsFor): a clinician owns a patient
+  // if they have an appointment together, OR the admin assigned them (any
+  // care-type column), OR they're attached via an active package. Otherwise a
+  // patient who was assigned but hasn't booked yet 404s when the clinician opens
+  // them, even though they show in the caseload list.
+  let owns = false
+  try {
+    owns = !!(await prisma.appointment.findFirst({ where: { therapistId: therapistProfileId, patientId }, select: { id: true } }))
+  } catch { /* ignore */ }
+  if (!owns) {
+    try {
+      owns = !!(await prisma.patientProfile.findFirst({
+        where: {
+          userId: patientId,
+          OR: [
+            { assignedTherapistId: therapistProfileId },
+            { assignedTherapistIndividualId: therapistProfileId },
+            { assignedTherapistCouplesId: therapistProfileId },
+            { assignedTherapistPsychiatryId: therapistProfileId },
+          ],
+        },
+        select: { id: true },
+      }))
+    } catch { /* 0016 not applied */ }
+  }
+  if (!owns) {
+    try {
+      owns = !!(await prisma.subscription.findFirst({ where: { userId: patientId, therapistId: therapistProfileId, status: 'ACTIVE' }, select: { id: true } }))
+    } catch { /* 0015 not applied */ }
+  }
   if (!owns) return null
 
   const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount] = await Promise.all([
