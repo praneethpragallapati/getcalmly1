@@ -478,6 +478,8 @@ export type PatientSessionRow = {
   bothJoined: boolean
   rating: number | null // the patient's 1–5 rating of this call
   hasSummary: boolean
+  summary: string | null // clinician's post-session note
+  preSessionNote: string | null // what the patient wrote before the session
 }
 
 export type PatientProgress = {
@@ -489,10 +491,15 @@ export type PatientProgress = {
   lastJournalLabel: string | null
   openTasks: number
   doneTasks: number
+  taskAdherencePct: number | null // done / (done + open)
   sessionsCompleted: number
   sessionsUpcoming: number
   avgRatingGiven: number | null // average of the ratings this patient left
   memberSinceLabel: string | null
+  // Medication adherence proxy (psychiatry): active vs total prescriptions.
+  medsActive: number
+  medsTotal: number
+  medAdherencePct: number | null
 }
 
 export type PatientActivity = {
@@ -509,13 +516,14 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
     sessions: [],
     progress: {
       checkIns: 0, lastCheckInLabel: null, avgMood: null, moodTrend: [],
-      journalCount: 0, lastJournalLabel: null, openTasks: 0, doneTasks: 0,
+      journalCount: 0, lastJournalLabel: null, openTasks: 0, doneTasks: 0, taskAdherencePct: null,
       sessionsCompleted: 0, sessionsUpcoming: 0, avgRatingGiven: null, memberSinceLabel: null,
+      medsActive: 0, medsTotal: 0, medAdherencePct: null,
     },
   }
   return safe(async () => {
     const now = Date.now()
-    const [appts, moods, moodCount, journalCount, lastJournal, tasks, user] = await Promise.all([
+    const [appts, moods, moodCount, journalCount, lastJournal, tasks, meds, user] = await Promise.all([
       prisma.appointment.findMany({
         where: { patientId: userId },
         orderBy: { scheduledAt: 'desc' },
@@ -530,6 +538,7 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
       prisma.journalEntry.count({ where: { userId } }),
       prisma.journalEntry.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
       prisma.task.findMany({ where: { userId }, select: { completedAt: true, frequency: true } }),
+      prisma.medication.findMany({ where: { userId }, select: { active: true } }).catch(() => [] as { active: boolean }[]),
       prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }),
     ])
 
@@ -555,6 +564,8 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         bothJoined,
         rating: a.review?.rating ?? null,
         hasSummary: Boolean(a.summary),
+        summary: a.summary ?? null,
+        preSessionNote: a.preSessionNote ?? null,
       }
     })
 
@@ -562,6 +573,10 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
     const avgMood = moods.length ? Math.round((moods.reduce((s, m) => s + m.mood, 0) / moods.length) * 10) / 10 : null
     const ratings = appts.map((a) => a.review?.rating).filter((r): r is number => typeof r === 'number')
     const avgRatingGiven = ratings.length ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10 : null
+    const doneTasks = tasks.filter((t) => isDoneForPeriod(t.completedAt, t.frequency)).length
+    const openTasks = tasks.filter((t) => !isDoneForPeriod(t.completedAt, t.frequency)).length
+    const medsActive = meds.filter((m) => m.active).length
+    const medsTotal = meds.length
 
     return {
       sessions,
@@ -572,12 +587,16 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         moodTrend: moodAsc.map((m) => ({ label: fmtIST(m.createdAt, { day: 'numeric', month: 'short' }), mood: m.mood })),
         journalCount,
         lastJournalLabel: lastJournal ? timeLabel(lastJournal.createdAt) : null,
-        openTasks: tasks.filter((t) => !isDoneForPeriod(t.completedAt, t.frequency)).length,
-        doneTasks: tasks.filter((t) => isDoneForPeriod(t.completedAt, t.frequency)).length,
+        openTasks,
+        doneTasks,
+        taskAdherencePct: doneTasks + openTasks > 0 ? Math.round((doneTasks / (doneTasks + openTasks)) * 100) : null,
         sessionsCompleted: appts.filter((a) => a.status === 'COMPLETED').length,
         sessionsUpcoming: appts.filter((a) => a.scheduledAt.getTime() >= now && a.status !== 'CANCELLED').length,
         avgRatingGiven,
         memberSinceLabel: user?.createdAt ? fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null,
+        medsActive,
+        medsTotal,
+        medAdherencePct: medsTotal > 0 ? Math.round((medsActive / medsTotal) * 100) : null,
       },
     }
   }, empty)

@@ -667,6 +667,9 @@ export type ScheduleAppointment = {
   meetLink: string | null
   hasSummary: boolean
   isPast: boolean
+  // What the patient wrote before the session — shown by the Join button so the
+  // clinician can read it before entering the room.
+  preSessionNote: string | null
 }
 
 /** Every appointment on this therapist's calendar, most recent first. */
@@ -692,6 +695,7 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
     meetLink: r.meetLink,
     hasSummary: Boolean(r.summary),
     isPast: r.scheduledAt.getTime() < now,
+    preSessionNote: r.preSessionNote ?? null,
   }))
 }
 

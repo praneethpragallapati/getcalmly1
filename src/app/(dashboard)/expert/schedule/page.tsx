@@ -44,6 +44,15 @@ function Row({ a }: { a: ScheduleAppointment }) {
           </div>
         )}
 
+        {a.status === 'CONFIRMED' && !a.isPast && a.preSessionNote && (
+          <div style={{ marginTop: 8, maxWidth: 520, padding: '9px 12px', background: 'rgba(200,85,61,.06)', borderRadius: 10, border: '1px solid rgba(200,85,61,.15)' }}>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', color: 'var(--c-coral, #C8553D)', marginBottom: 3 }}>
+              Patient&apos;s note before this session
+            </div>
+            <div style={{ fontSize: 13, color: '#3A4A5A', lineHeight: 1.5 }}>{a.preSessionNote}</div>
+          </div>
+        )}
+
         {a.status === 'CONFIRMED' && !a.isPast && (
           <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
             <Link href={`/app/sessions/${a.roomId ?? a.id}/room`} className="btn btn-primary btn-sm">

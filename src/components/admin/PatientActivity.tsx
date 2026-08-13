@@ -52,8 +52,9 @@ export function PatientProgressCard({ progress }: { progress: PatientProgress })
       <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <Stat label="Sessions completed" value={p.sessionsCompleted} sub={`${p.sessionsUpcoming} upcoming`} />
         <Stat label="Avg mood" value={p.avgMood ?? '—'} sub={p.checkIns > 0 ? `${p.checkIns} check-ins` : 'no check-ins yet'} />
-        <Stat label="Journal entries" value={p.journalCount} sub={p.lastJournalLabel ? `last ${p.lastJournalLabel}` : 'none yet'} />
-        <Stat label="Tasks" value={`${p.doneTasks}/${p.doneTasks + p.openTasks}`} sub={`${p.openTasks} open`} />
+        <Stat label="Journals written" value={p.journalCount} sub={p.lastJournalLabel ? `last ${p.lastJournalLabel}` : 'none yet'} />
+        <Stat label="Task adherence" value={p.taskAdherencePct != null ? `${p.taskAdherencePct}%` : '—'} sub={`${p.doneTasks}/${p.doneTasks + p.openTasks} done`} />
+        <Stat label="Med adherence" value={p.medAdherencePct != null ? `${p.medAdherencePct}%` : '—'} sub={p.medsTotal > 0 ? `${p.medsActive}/${p.medsTotal} active` : 'no prescriptions'} />
         <Stat label="Avg rating given" value={p.avgRatingGiven != null ? `★ ${p.avgRatingGiven}` : '—'} sub={p.lastCheckInLabel ? `last check-in ${p.lastCheckInLabel}` : undefined} />
       </div>
       {p.moodTrend.length > 0 && (
@@ -91,8 +92,19 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
         <Field label="Together" value={s.durationMins != null ? fmtDuration(s.durationMins) : (s.bothJoined ? 'in progress' : '—')} />
         <Field label="Scheduled" value={fmtDuration(s.scheduledMins)} />
         <Field label="Call rating" value={s.rating != null ? `★ ${s.rating}/5` : (s.isPast ? 'not rated' : '—')} muted={s.rating == null} />
-        <Field label="Notes" value={s.hasSummary ? 'written' : (s.isPast ? 'missing' : '—')} muted={!s.hasSummary} />
       </div>
+      {s.preSessionNote && (
+        <div style={{ marginTop: 11, padding: '9px 12px', background: 'rgba(200,85,61,.05)', borderRadius: 10, border: '1px solid rgba(200,85,61,.12)' }}>
+          <div className="muted" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', color: '#B5533C', marginBottom: 3 }}>Pre-session note (from patient)</div>
+          <div style={{ fontSize: 13, color: '#3A4A5A', lineHeight: 1.5 }}>{s.preSessionNote}</div>
+        </div>
+      )}
+      {s.summary && (
+        <div style={{ marginTop: 9, padding: '9px 12px', background: 'rgba(28,43,58,.03)', borderRadius: 10, border: '1px solid rgba(28,43,58,.08)' }}>
+          <div className="muted" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: 3 }}>Session note (from clinician)</div>
+          <div style={{ fontSize: 13, color: '#3A4A5A', lineHeight: 1.5 }}>{s.summary}</div>
+        </div>
+      )}
     </div>
   )
 }
