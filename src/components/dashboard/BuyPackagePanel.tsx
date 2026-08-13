@@ -308,6 +308,15 @@ function TrackCard({
 }
 
 /**
+ * Standalone Calm+ purchase card. Calm+ is app-only (AI companion, journaling,
+ * mood tracker) and independent of session packages, so it can be bought before
+ * a first session — shown on the first-session/billing view for new patients.
+ */
+export function CalmPlusPanel({ pricing }: { pricing: PricingValues }) {
+  return <TrackCard tab="calmplus" sessionsRemaining={0} hasPartner={false} pricing={pricing} />
+}
+
+/**
  * In-app package purchase: the three session tracks side by side, with Calm+
  * on its own row below for people not ready for sessions. Buying ADDS sessions
  * to the patient's existing balance and extends validity (never resets);

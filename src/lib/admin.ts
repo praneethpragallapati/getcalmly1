@@ -372,8 +372,16 @@ export type PatientDetail = {
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
   return safe(async () => {
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true, assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true } } } })
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true } } } })
     if (!user) return null
+    // Per-care-type assignments (migration 0016) fetched defensively so a DB that
+    // hasn't run 0016 still opens the patient page (instead of 404-ing) — the
+    // category assignments just read as unset until the migration lands.
+    let catIds: { ind: string | null; cpl: string | null; psy: string | null } = { ind: null, cpl: null, psy: null }
+    try {
+      const pc = await prisma.patientProfile.findUnique({ where: { userId }, select: { assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true } })
+      catIds = { ind: pc?.assignedTherapistIndividualId ?? null, cpl: pc?.assignedTherapistCouplesId ?? null, psy: pc?.assignedTherapistPsychiatryId ?? null }
+    } catch { /* 0016 not applied yet */ }
     const [subs, therapists, latestAppt] = await Promise.all([
       // Narrow select so a not-yet-applied migration column can't make this throw
       // (which would silently drop the whole packages list).
@@ -385,9 +393,16 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
           sessionsTotal: true, sessionsUsed: true, createdAt: true, expiresAt: true, therapistId: true,
         },
       }),
-      prisma.therapistProfile.findMany({ where: { isActive: true }, include: { user: { select: { name: true } } } }),
+      // Explicit select (no full-row include, no clinicianType) so a missing 0017
+      // column can't blank the clinician picker. clinicianType is read separately.
+      prisma.therapistProfile.findMany({ where: { isActive: true }, select: { id: true, specializations: true, user: { select: { name: true } } } }),
       prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
     ])
+    const clinTypeById = new Map<string, string | null>()
+    try {
+      const types = await prisma.therapistProfile.findMany({ where: { isActive: true }, select: { id: true, clinicianType: true } })
+      for (const t of types) clinTypeById.set(t.id, t.clinicianType ?? null)
+    } catch { /* 0017 not applied yet */ }
     const nameOf = (id: string | null | undefined) => (id ? therapists.find((t) => t.id === id)?.user?.name ?? null : null)
     const pp = user.patientProfile
     const assignedId = pp?.assignedTherapistId ?? latestAppt?.therapistId ?? null
@@ -397,9 +412,9 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       assignedTherapistId: pp?.assignedTherapistId ?? null,
       assignedTherapistName: nameOf(assignedId),
       assignments: {
-        individual: cat(pp?.assignedTherapistIndividualId),
-        couples: cat(pp?.assignedTherapistCouplesId),
-        psychiatry: cat(pp?.assignedTherapistPsychiatryId),
+        individual: cat(catIds.ind),
+        couples: cat(catIds.cpl),
+        psychiatry: cat(catIds.psy),
       },
       subscriptions: subs.map((s) => ({
         id: s.id, planName: s.planName, trackSlug: s.trackSlug, status: s.status,
@@ -411,7 +426,7 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         therapistName: s.therapistId ? therapists.find((t) => t.id === s.therapistId)?.user?.name ?? null : null,
       })),
       therapists: therapists
-        .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', clinicianType: t.clinicianType ?? null, specializations: t.specializations }))
+        .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', clinicianType: clinTypeById.get(t.id) ?? null, specializations: t.specializations }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     }
   }, null)

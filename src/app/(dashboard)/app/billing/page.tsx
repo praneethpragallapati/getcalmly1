@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
 import { hasPartnerOnRecord, getActivePackages } from '@/lib/billing'
 import { getPricingConfig } from '@/lib/pricingConfig'
-import { BuyPackagePanel, FirstSessionPanel } from '@/components/dashboard/BuyPackagePanel'
+import { BuyPackagePanel, FirstSessionPanel, CalmPlusPanel } from '@/components/dashboard/BuyPackagePanel'
 
 const BUYABLE = ['therapy', 'psychiatry', 'couples'] as const
 type BuyableTrack = (typeof BUYABLE)[number]
@@ -79,7 +79,15 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
           </>
         ) : (
-          <FirstSessionPanel hasPartner={hasPartner} pricing={pricing} initialTrack={initialTrack} />
+          <>
+            <FirstSessionPanel hasPartner={hasPartner} pricing={pricing} initialTrack={initialTrack} />
+            <div>
+              <p className="muted" style={{ fontSize: 12.5, margin: '4px 2px 10px' }}>
+                Not ready for a session yet? Get the Calm+ app on its own — AI companion, journaling &amp; mood tracker.
+              </p>
+              <CalmPlusPanel pricing={pricing} />
+            </div>
+          </>
         )}
       </div>
     </>

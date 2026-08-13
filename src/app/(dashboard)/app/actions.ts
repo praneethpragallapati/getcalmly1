@@ -76,15 +76,25 @@ export async function saveAssessmentResult(payload: {
     // package for. We never attach an expert to a care type the patient hasn't
     // bought (e.g. don't put a therapist on Individual when they only bought
     // Psychiatry). Assessment answers only influence WHICH clinician is picked.
-    const subs = await prisma.subscription.findMany({
-      where: { userId, status: 'ACTIVE' },
-      select: { trackSlug: true },
-    })
-    const tracks = new Set<CareTrack>()
-    for (const s of subs) {
-      if (s.trackSlug === 'therapy' || s.trackSlug === 'couples' || s.trackSlug === 'psychiatry') tracks.add(s.trackSlug)
+    //
+    // Best-effort: the assessment is already saved above, so auto-assignment must
+    // never fail the save. If matching throws (e.g. a deployment whose DB is
+    // missing the clinicianType column from migration 0017), we still report the
+    // save as successful — the patient can be assigned by an admin, and matching
+    // resumes working once the migration is applied.
+    try {
+      const subs = await prisma.subscription.findMany({
+        where: { userId, status: 'ACTIVE' },
+        select: { trackSlug: true },
+      })
+      const tracks = new Set<CareTrack>()
+      for (const s of subs) {
+        if (s.trackSlug === 'therapy' || s.trackSlug === 'couples' || s.trackSlug === 'psychiatry') tracks.add(s.trackSlug)
+      }
+      for (const t of tracks) await matchAndAssignForTrack(userId, t)
+    } catch (e) {
+      console.error('[saveAssessmentResult] auto-assignment skipped (matching failed — migration 0016/0017 applied?)', e)
     }
-    for (const t of tracks) await matchAndAssignForTrack(userId, t)
 
     revalidatePath('/app')
     revalidatePath('/app/therapist')
