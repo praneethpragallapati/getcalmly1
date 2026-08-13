@@ -10,6 +10,11 @@ function fmt(d: Date): string {
   return fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
+const chipStyle: React.CSSProperties = {
+  fontSize: 12, fontWeight: 600, color: '#3A4A5A',
+  background: 'rgba(28,43,58,.05)', borderRadius: 8, padding: '5px 10px',
+}
+
 /** A live (bookable/joinable) session: upcoming and not cancelled or completed. */
 function isLive(a: ScheduleAppointment): boolean {
   return !a.isPast && a.status !== 'CANCELLED' && a.status !== 'COMPLETED'
@@ -32,6 +37,18 @@ function Row({ a }: { a: ScheduleAppointment }) {
         <div className="pattern-sub">
           {fmt(a.scheduledAt)} · {a.durationMins} min · ₹{a.fee}
         </div>
+
+        {isLive(a) && (
+          <div style={{ marginTop: 8, maxWidth: 520, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <span style={chipStyle}>
+              Tasks left: {a.tasksTotal === 0 ? 'none assigned' : a.tasksOpen === 0 ? `none (all ${a.tasksTotal} done)` : `${a.tasksOpen} of ${a.tasksTotal}`}
+            </span>
+            {a.medTotal > 0 && (
+              <span style={chipStyle}>Med adherence: {a.medAdherencePct}% ({a.medActive}/{a.medTotal} active)</span>
+            )}
+            <span style={chipStyle}>Journals: {a.journalCount === 0 ? 'none yet' : `${a.journalCount} written`}</span>
+          </div>
+        )}
 
         {isLive(a) && a.preSessionNote && (
           <div style={{ marginTop: 8, maxWidth: 520, padding: '9px 12px', background: 'rgba(200,85,61,.06)', borderRadius: 10, border: '1px solid rgba(200,85,61,.15)' }}>

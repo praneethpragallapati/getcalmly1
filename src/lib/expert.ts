@@ -691,6 +691,13 @@ export type ScheduleAppointment = {
   // Clinician asked to cancel this session; it stays live until an admin approves.
   cancelRequested: boolean
   cancelReason: string | null
+  // At-a-glance patient signals for the pre-session brief near the Join button.
+  tasksOpen: number
+  tasksTotal: number
+  medAdherencePct: number
+  medActive: number
+  medTotal: number
+  journalCount: number
 }
 
 /** Every appointment on this therapist's calendar, most recent first. */
@@ -703,23 +710,65 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
     orderBy: { scheduledAt: 'asc' },
     include: { patient: { select: { name: true } } },
   })
+
+  // Per-patient signals (tasks left, medication adherence, journals written) in
+  // three batched queries, keyed by patient — so each session row can show a
+  // pre-session brief without an N+1 fan-out. All fail-soft.
+  const patientIds = [...new Set(rows.map((r) => r.patientId))]
+  const [tasks, meds, journals] = await Promise.all([
+    patientIds.length
+      ? prisma.task.findMany({ where: { userId: { in: patientIds } }, select: { userId: true, completedAt: true } }).catch(() => [])
+      : [],
+    patientIds.length
+      ? prisma.medication.findMany({ where: { userId: { in: patientIds } }, select: { userId: true, active: true } }).catch(() => [])
+      : [],
+    patientIds.length
+      ? prisma.journalEntry.groupBy({ by: ['userId'], where: { userId: { in: patientIds } }, _count: { _all: true } }).catch(() => [] as { userId: string; _count: { _all: number } }[])
+      : [],
+  ])
+  const taskStat = new Map<string, { open: number; total: number }>()
+  for (const t of tasks) {
+    const s = taskStat.get(t.userId) ?? { open: 0, total: 0 }
+    s.total += 1
+    if (!t.completedAt) s.open += 1
+    taskStat.set(t.userId, s)
+  }
+  const medStat = new Map<string, { active: number; total: number }>()
+  for (const m of meds) {
+    const s = medStat.get(m.userId) ?? { active: 0, total: 0 }
+    s.total += 1
+    if (m.active) s.active += 1
+    medStat.set(m.userId, s)
+  }
+  const journalCountBy = new Map<string, number>(journals.map((j) => [j.userId, j._count._all]))
+
   const now = Date.now()
-  return rows.map((r) => ({
-    id: r.id,
-    patientId: r.patientId,
-    patientName: r.patient.name ?? 'Patient',
-    scheduledAt: r.scheduledAt,
-    durationMins: r.durationMins,
-    status: r.status,
-    fee: r.fee,
-    roomId: r.roomId,
-    meetLink: r.meetLink,
-    hasSummary: Boolean(r.summary),
-    isPast: r.scheduledAt.getTime() < now,
-    preSessionNote: r.preSessionNote ?? null,
-    cancelRequested: r.cancelRequested ?? false,
-    cancelReason: r.cancelReason ?? null,
-  }))
+  return rows.map((r) => {
+    const ts = taskStat.get(r.patientId) ?? { open: 0, total: 0 }
+    const ms = medStat.get(r.patientId) ?? { active: 0, total: 0 }
+    return {
+      id: r.id,
+      patientId: r.patientId,
+      patientName: r.patient.name ?? 'Patient',
+      scheduledAt: r.scheduledAt,
+      durationMins: r.durationMins,
+      status: r.status,
+      fee: r.fee,
+      roomId: r.roomId,
+      meetLink: r.meetLink,
+      hasSummary: Boolean(r.summary),
+      isPast: r.scheduledAt.getTime() < now,
+      preSessionNote: r.preSessionNote ?? null,
+      cancelRequested: r.cancelRequested ?? false,
+      cancelReason: r.cancelReason ?? null,
+      tasksOpen: ts.open,
+      tasksTotal: ts.total,
+      medActive: ms.active,
+      medTotal: ms.total,
+      medAdherencePct: ms.total ? Math.round((ms.active / ms.total) * 100) : 0,
+      journalCount: journalCountBy.get(r.patientId) ?? 0,
+    }
+  })
 }
 
 /**

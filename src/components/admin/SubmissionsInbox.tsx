@@ -3,9 +3,9 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FileCheck2, Inbox, Building2, ChevronDown, Check, UserPlus } from 'lucide-react'
-import { setApplicationStatus, setContactHandled, setLeadHandled } from '@/app/admin/actions'
-import type { ApplicationRow, ContactRow, LeadRow } from '@/lib/admin'
+import { FileCheck2, Inbox, Building2, ChevronDown, Check, UserPlus, CalendarX } from 'lucide-react'
+import { setApplicationStatus, setContactHandled, setLeadHandled, approveCancellation, rejectCancellation } from '@/app/admin/actions'
+import type { ApplicationRow, ContactRow, LeadRow, CancelRequestRow } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -17,20 +17,22 @@ const STATUS_COLOR: Record<string, string> = {
   APPLIED: '#6B7D8E', INTERVIEW_SCHEDULED: '#3E6E9C', UNDER_REVIEW: '#C9973A', APPROVED: '#2C7A57', REJECTED: '#C0504B',
 }
 
-type Tab = 'applications' | 'contact' | 'enterprise'
+type Tab = 'applications' | 'contact' | 'enterprise' | 'cancellations'
 
 export function SubmissionsInbox({
-  applications, contacts, leads,
+  applications, contacts, leads, cancellations,
 }: {
-  applications: ApplicationRow[]; contacts: ContactRow[]; leads: LeadRow[]
+  applications: ApplicationRow[]; contacts: ContactRow[]; leads: LeadRow[]; cancellations: CancelRequestRow[]
 }) {
   const newContacts = contacts.filter((c) => !c.handled).length
   const newLeads = leads.filter((l) => !l.handled).length
   const pendingApps = applications.filter((a) => !['APPROVED', 'REJECTED'].includes(a.status)).length
-  const [tab, setTab] = useState<Tab>('applications')
+  // Cancellation requests are time-sensitive — open on that tab when any are pending.
+  const [tab, setTab] = useState<Tab>(cancellations.length > 0 ? 'cancellations' : 'applications')
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode; badge: number }[] = [
     { key: 'applications', label: 'Applications', icon: <FileCheck2 size={15} />, badge: pendingApps },
+    { key: 'cancellations', label: 'Cancellations', icon: <CalendarX size={15} />, badge: cancellations.length },
     { key: 'contact', label: 'Contact', icon: <Inbox size={15} />, badge: newContacts },
     { key: 'enterprise', label: 'Enterprise', icon: <Building2 size={15} />, badge: newLeads },
   ]
@@ -57,8 +59,48 @@ export function SubmissionsInbox({
       </div>
 
       {tab === 'applications' && <Applications rows={applications} />}
+      {tab === 'cancellations' && <Cancellations rows={cancellations} />}
       {tab === 'contact' && <Contacts rows={contacts} />}
       {tab === 'enterprise' && <Leads rows={leads} />}
+    </div>
+  )
+}
+
+function Cancellations({ rows }: { rows: CancelRequestRow[] }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const approve = (id: string) => startTransition(async () => { await approveCancellation({ appointmentId: id }); router.refresh() })
+  const reject = (id: string) => startTransition(async () => { await rejectCancellation({ appointmentId: id }); router.refresh() })
+
+  if (rows.length === 0) return <Empty label="No pending cancellation requests." />
+  return (
+    <div className="stack" style={{ gap: 10 }}>
+      <p className="muted" style={{ fontSize: 12.5 }}>
+        A clinician asked to cancel these sessions. Approving cancels the session and restores the patient&apos;s
+        reserved session to their package. The patient keeps the session until you approve.
+      </p>
+      {rows.map((c) => (
+        <div key={c.id} className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14.5, fontWeight: 700, color: charcoal }}>
+                <Link href={`/admin/patients/${c.patientId}`} style={{ color: charcoal, textDecoration: 'none' }}>{c.patientName}</Link>
+                <span className="muted" style={{ fontWeight: 400 }}> with {c.therapistName}</span>
+              </div>
+              <div className="muted" style={{ fontSize: 12.5 }}>{c.scheduledAt} · ₹{c.fee.toLocaleString('en-IN')} · requested {c.requestedAt}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button onClick={() => reject(c.id)} disabled={pending} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7D8E' }}>Reject</button>
+              <button onClick={() => approve(c.id)} disabled={pending} className="btn btn-sm" style={{ background: '#C0504B', color: '#fff', border: 'none' }}>Approve cancellation</button>
+            </div>
+          </div>
+          {c.reason && (
+            <div style={{ marginTop: 8, padding: '9px 12px', background: 'rgba(192,80,75,.05)', borderRadius: 10, border: '1px solid rgba(192,80,75,.15)', fontSize: 13, color: '#3A4A5A' }}>
+              <span style={{ fontWeight: 700 }}>Reason:</span> {c.reason}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

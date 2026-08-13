@@ -694,6 +694,33 @@ export type OpsBoard = {
   therapists: { profileId: string; name: string }[]
 }
 
+/**
+ * Clinician-initiated cancellation requests awaiting an admin decision. Queried
+ * directly (not derived from the full board) and fail-soft, so it can feed the
+ * Submissions inbox as its own actionable queue.
+ */
+export async function getCancellationRequests(): Promise<CancelRequestRow[]> {
+  return safe(async () => {
+    const rows = await prisma.appointment.findMany({
+      where: { cancelRequested: true, status: { notIn: ['CANCELLED', 'COMPLETED'] } },
+      orderBy: { cancelRequestedAt: 'asc' },
+      select: {
+        id: true, patientId: true, scheduledAt: true, fee: true, cancelReason: true, cancelRequestedAt: true,
+        patient: { select: { name: true } },
+        therapist: { select: { user: { select: { name: true } } } },
+      },
+    })
+    const dtFmt: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }
+    return rows.map((r) => ({
+      id: r.id, patientId: r.patientId, patientName: r.patient?.name ?? 'Patient',
+      therapistName: r.therapist?.user?.name ?? 'Clinician',
+      scheduledAt: fmtIST(r.scheduledAt, dtFmt),
+      requestedAt: r.cancelRequestedAt ? fmtIST(r.cancelRequestedAt, dtFmt) : '—',
+      reason: r.cancelReason ?? null, fee: r.fee,
+    }))
+  }, [])
+}
+
 export async function getOpsBoard(): Promise<OpsBoard> {
   return safe(async () => {
     const now = new Date()
