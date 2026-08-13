@@ -319,10 +319,12 @@ export async function savePreSessionNote(
 }
 
 /**
- * Request a session at one of the expert's open slots (#9). Creates a PENDING
- * appointment the expert confirms later. Persists only for the signed-in patient
- * and only when an active expert exists; otherwise it succeeds without persisting
- * so the preview stays usable (same posture as the other actions).
+ * Book a session at one of the expert's open slots (#9). The booking is
+ * CONFIRMED immediately — there is no expert confirm/decline step. If the expert
+ * later needs to drop the session, that goes through an admin-approved
+ * cancellation instead. Persists only for the signed-in patient and only when an
+ * active expert exists; otherwise it succeeds without persisting so the preview
+ * stays usable (same posture as the other actions).
  */
 export async function requestSession(slotIso: string, therapistIdOverride?: string): Promise<ActionResult> {
   const userId = await getSessionPatientId()
@@ -407,7 +409,7 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
             therapistId: therapist.id,
             scheduledAt,
             durationMins: sessionDurationMins(isPsychiatrist(therapist.clinicianType, therapist.specializations)),
-            status: 'PENDING',
+            status: 'CONFIRMED',
             fee: therapist.sessionFee,
             roomId: crypto.randomUUID(),
             consumedSubscriptionId: c.id,

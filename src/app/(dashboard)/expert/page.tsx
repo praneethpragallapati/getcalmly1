@@ -53,19 +53,6 @@ function buildTasks(
       urgent: true,
     }),
   )
-  // 3. Session requests awaiting confirmation
-  schedule
-    .filter((a) => !a.isPast && a.status === 'PENDING')
-    .slice(0, 3)
-    .forEach((a) =>
-      tasks.push({
-        key: `confirm-${a.id}`,
-        label: `Confirm session request · ${a.patientName}`,
-        sub: `Requested for ${fmtIST(a.scheduledAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}`,
-        href: '/expert/schedule',
-        urgent: false,
-      }),
-    )
   return tasks.sort((a, b) => Number(b.urgent) - Number(a.urgent))
 }
 

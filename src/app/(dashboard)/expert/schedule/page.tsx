@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Video, Check, X, CalendarClock } from 'lucide-react'
+import { Video, CalendarClock } from 'lucide-react'
 import { getTherapistContext, getTherapistSchedule, type ScheduleAppointment } from '@/lib/expert'
-import { confirmAppointment, cancelAppointment, rescheduleAppointmentAction } from '../actions'
+import { rescheduleAppointmentAction } from '../actions'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { RequestCancel } from '@/components/expert/RequestCancel'
 import { fmtIST } from '@/lib/tz'
@@ -11,12 +11,17 @@ function fmt(d: Date): string {
   return fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
+/** A live (bookable/joinable) session: upcoming and not cancelled or completed. */
+function isLive(a: ScheduleAppointment): boolean {
+  return !a.isPast && a.status !== 'CANCELLED' && a.status !== 'COMPLETED'
+}
+
 function Row({ a }: { a: ScheduleAppointment }) {
-  const needsNote = a.status === 'CONFIRMED' && a.isPast && !a.hasSummary
+  const needsNote = a.isPast && a.status !== 'CANCELLED' && !a.hasSummary
 
   return (
     <div className="pattern" style={{ alignItems: 'flex-start' }}>
-      <span className={`pattern-ic ${a.status === 'PENDING' ? 't-gold' : a.status === 'CANCELLED' ? 't-coral' : 't-green'}`}>
+      <span className={`pattern-ic ${a.status === 'CANCELLED' ? 't-coral' : isLive(a) ? 't-green' : 't-gold'}`}>
         <CalendarClock size={16} />
       </span>
       <div style={{ flex: 1 }}>
@@ -26,27 +31,10 @@ function Row({ a }: { a: ScheduleAppointment }) {
           </Link>
         </div>
         <div className="pattern-sub">
-          {fmt(a.scheduledAt)} · {a.durationMins} min · ₹{a.fee} · {a.status}
+          {fmt(a.scheduledAt)} · {a.durationMins} min · ₹{a.fee}
         </div>
 
-        {a.status === 'PENDING' && (
-          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            <form action={confirmAppointment}>
-              <input type="hidden" name="appointmentId" value={a.id} />
-              <button type="submit" className="btn btn-primary btn-sm">
-                <Check size={13} /> Confirm
-              </button>
-            </form>
-            <form action={cancelAppointment}>
-              <input type="hidden" name="appointmentId" value={a.id} />
-              <button type="submit" className="btn btn-outline btn-sm">
-                <X size={13} /> Decline
-              </button>
-            </form>
-          </div>
-        )}
-
-        {a.status === 'CONFIRMED' && !a.isPast && a.preSessionNote && (
+        {isLive(a) && a.preSessionNote && (
           <div style={{ marginTop: 8, maxWidth: 520, padding: '9px 12px', background: 'rgba(200,85,61,.06)', borderRadius: 10, border: '1px solid rgba(200,85,61,.15)' }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', color: 'var(--c-coral, #C8553D)', marginBottom: 3 }}>
               Patient&apos;s note before this session
@@ -55,7 +43,7 @@ function Row({ a }: { a: ScheduleAppointment }) {
           </div>
         )}
 
-        {a.status === 'CONFIRMED' && !a.isPast && (
+        {isLive(a) && (
           <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <Link href={`/app/sessions/${a.roomId ?? a.id}/room`} className="btn btn-primary btn-sm">
               <Video size={13} /> Join room
@@ -90,11 +78,10 @@ export default async function SchedulePage() {
   if (!ctx) redirect('/login')
 
   const all = await getTherapistSchedule(ctx.therapistProfileId)
-  const pending = all.filter((a) => a.status === 'PENDING')
-  const upcoming = all.filter((a) => a.status === 'CONFIRMED' && !a.isPast)
-  const needsNotes = all.filter((a) => a.status === 'CONFIRMED' && a.isPast && !a.hasSummary)
+  const upcoming = all.filter((a) => !a.isPast && a.status !== 'CANCELLED' && a.status !== 'COMPLETED')
+  const needsNotes = all.filter((a) => a.isPast && a.status !== 'CANCELLED' && !a.hasSummary)
   const history = all
-    .filter((a) => !pending.includes(a) && !upcoming.includes(a) && !needsNotes.includes(a))
+    .filter((a) => !upcoming.includes(a) && !needsNotes.includes(a))
     .sort((a, b) => b.scheduledAt.getTime() - a.scheduledAt.getTime())
     .slice(0, 15)
 
@@ -103,16 +90,9 @@ export default async function SchedulePage() {
       <div className="page-head">
         <div className="page-title">Schedule</div>
         <div className="page-meta">
-          {pending.length} pending · {upcoming.length} upcoming · {needsNotes.length} need notes
+          {upcoming.length} upcoming · {needsNotes.length} need notes
         </div>
       </div>
-
-      {pending.length > 0 && (
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 8 }}>Booking requests</div>
-          {pending.map((a) => <Row key={a.id} a={a} />)}
-        </div>
-      )}
 
       {needsNotes.length > 0 && (
         <div className="card" style={{ borderColor: 'var(--c-gold)', background: 'var(--c-gold-pale)' }}>
