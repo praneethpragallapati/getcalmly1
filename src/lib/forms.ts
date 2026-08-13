@@ -53,18 +53,23 @@ export type LibraryForm = {
 /** The forms a clinician can pick from when sending. INTAKE forms are excluded
  * from the on-demand picker (they're auto-sent), leaving consent/info/feedback. */
 export async function getFormLibrary(): Promise<LibraryForm[]> {
-  await ensureFormTemplates()
-  const rows = await prisma.formTemplate.findMany({
-    where: { active: true, kind: { not: 'INTAKE' } },
-    orderBy: [{ kind: 'asc' }, { title: 'asc' }],
-  })
-  return rows.map((r) => ({
-    id: r.id,
-    slug: r.slug,
-    title: r.title,
-    description: r.description,
-    kind: r.kind,
-  }))
+  try {
+    await ensureFormTemplates()
+    const rows = await prisma.formTemplate.findMany({
+      where: { active: true, kind: { not: 'INTAKE' } },
+      orderBy: [{ kind: 'asc' }, { title: 'asc' }],
+      select: { id: true, slug: true, title: true, description: true, kind: true },
+    })
+    return rows.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      title: r.title,
+      description: r.description,
+      kind: r.kind,
+    }))
+  } catch {
+    return []
+  }
 }
 
 export type PatientFormRow = {
@@ -89,7 +94,7 @@ export async function getPatientFormsForExpert(
   const owns = await prisma.appointment.findFirst({
     where: { therapistId: therapistProfileId, patientId },
     select: { id: true },
-  })
+  }).catch(() => null)
   if (!owns) return []
   return listAssignments(patientId)
 }
@@ -100,20 +105,27 @@ export async function getMyForms(patientId: string): Promise<PatientFormRow[]> {
 }
 
 async function listAssignments(patientId: string): Promise<PatientFormRow[]> {
-  const rows = await prisma.formAssignment.findMany({
-    where: { patientId },
-    orderBy: [{ status: 'asc' }, { sentAt: 'desc' }],
-    include: { template: { select: { title: true, kind: true } } },
-  })
-  return rows.map((r) => ({
-    id: r.id,
-    title: r.template.title,
-    kind: r.template.kind,
-    status: r.status,
-    assignedBy: r.assignedBy,
-    sentLabel: fmt(r.sentAt),
-    completedLabel: r.completedAt ? fmt(r.completedAt) : null,
-  }))
+  try {
+    const rows = await prisma.formAssignment.findMany({
+      where: { patientId },
+      orderBy: [{ status: 'asc' }, { sentAt: 'desc' }],
+      select: {
+        id: true, status: true, assignedBy: true, sentAt: true, completedAt: true,
+        template: { select: { title: true, kind: true } },
+      },
+    })
+    return rows.map((r) => ({
+      id: r.id,
+      title: r.template.title,
+      kind: r.template.kind,
+      status: r.status,
+      assignedBy: r.assignedBy,
+      sentLabel: fmt(r.sentAt),
+      completedLabel: r.completedAt ? fmt(r.completedAt) : null,
+    }))
+  } catch {
+    return []
+  }
 }
 
 export type FormToFill = {

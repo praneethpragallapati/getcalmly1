@@ -476,20 +476,32 @@ export async function getExpertPatientProfile(
   }
   if (!owns) return null
 
+  // Every query is narrow-selected (only the columns actually used below) and
+  // fail-soft (.catch → empty). On prod, a Prisma schema column not yet migrated
+  // into the DB would otherwise make the generated SELECT throw and take the
+  // whole page to the error boundary. Degrading a single query to empty keeps
+  // the patient record rendering.
   const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount] = await Promise.all([
-    prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }),
+    prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
       select: { track: true, trackLabel: true, diagnosis: true, therapyStatus: true },
-    }),
-    prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30, select: { userId: true, mood: true, createdAt: true } }),
+    }).catch(() => null),
+    prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30, select: { userId: true, mood: true, createdAt: true } }).catch(() => []),
     prisma.appointment.findMany({
       where: { patientId, therapistId: therapistProfileId, OR: [{ summary: { not: null } }, { preSessionNote: { not: null } }] },
       orderBy: { scheduledAt: 'desc' },
       take: 10,
-    }),
-    prisma.task.findMany({ where: { userId: patientId } }),
-    prisma.medication.findMany({ where: { userId: patientId } }),
+      select: { id: true, scheduledAt: true, summary: true, preSessionNote: true },
+    }).catch(() => []),
+    prisma.task.findMany({
+      where: { userId: patientId },
+      select: { id: true, title: true, type: true, frequency: true, timesOfDay: true, dueDate: true, completedAt: true, createdAt: true },
+    }).catch(() => []),
+    prisma.medication.findMany({
+      where: { userId: patientId },
+      select: { id: true, name: true, dosage: true, frequency: true, durationDays: true, prescribedBy: true, active: true },
+    }).catch(() => []),
     // All of the patient's sessions across every expert involved — so a
     // clinician sees the full history, not only their own (#notes). Ownership of
     // the patient is already gated above; notes from other experts render
@@ -502,19 +514,20 @@ export async function getExpertPatientProfile(
         id: true, scheduledAt: true, status: true, summary: true, therapistId: true,
         therapist: { select: { user: { select: { name: true } } } },
       },
-    }),
+    }).catch(() => []),
     // ALL active packages — session totals must aggregate across care types
     // (a patient may hold therapy + psychiatry), not just the most recent one.
-    prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { sessionsUsed: true, sessionsTotal: true } }),
-    prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }),
-    prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }),
+    prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { sessionsUsed: true, sessionsTotal: true } }).catch(() => []),
+    prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }).catch(() => 0),
+    prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }).catch(() => 0),
   ])
   if (!user) return null
 
   const orders = await prisma.medicationOrder.findMany({
     where: { userId: patientId },
     orderBy: { createdAt: 'desc' },
-  })
+    select: { medicationId: true, status: true, amount: true },
+  }).catch(() => [] as { medicationId: string | null; status: string; amount: number }[])
   const latestOrderByMed = new Map<string, (typeof orders)[number]>()
   for (const o of orders) {
     if (o.medicationId && !latestOrderByMed.has(o.medicationId)) latestOrderByMed.set(o.medicationId, o)
@@ -1383,10 +1396,12 @@ export async function addSupervisionNote(
 
 /** If `supervisorId` supervises a therapist who owns `patientId`, return that supervisee's profile id. */
 export async function superviseeOwningPatient(supervisorId: string, patientId: string): Promise<string | null> {
-  const links = await prisma.supervisionLink.findMany({ where: { supervisorId }, select: { superviseeId: true } })
-  for (const l of links) {
-    if (await ownsPatient(l.superviseeId, patientId)) return l.superviseeId
-  }
+  try {
+    const links = await prisma.supervisionLink.findMany({ where: { supervisorId }, select: { superviseeId: true } })
+    for (const l of links) {
+      if (await ownsPatient(l.superviseeId, patientId)) return l.superviseeId
+    }
+  } catch { /* supervision links unavailable — treat as no supervisory access */ }
   return null
 }
 
@@ -1469,7 +1484,7 @@ export async function getPatientWeeklyInsight(
     where: { userId: patientId, kind: 'WEEKLY' },
     orderBy: { createdAt: 'desc' },
     select: { title: true, body: true },
-  })
+  }).catch(() => null)
   return row ? { title: row.title, body: row.body } : null
 }
 
