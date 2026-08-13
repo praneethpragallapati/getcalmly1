@@ -98,6 +98,9 @@ export type ExpertPatientProfile = {
   }[]
   openCrisisCount: number
   highStakeChatCount: number
+  // Count of journal entries the patient has written (content is private — only
+  // the count is surfaced to the clinician).
+  journalCount: number
 }
 
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME'
@@ -481,7 +484,7 @@ export async function getExpertPatientProfile(
   // into the DB would otherwise make the generated SELECT throw and take the
   // whole page to the error boundary. Degrading a single query to empty keeps
   // the patient record rendering.
-  const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount] = await Promise.all([
+  const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
     prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
@@ -520,6 +523,7 @@ export async function getExpertPatientProfile(
     prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { sessionsUsed: true, sessionsTotal: true } }).catch(() => []),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }).catch(() => 0),
     prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }).catch(() => 0),
+    prisma.journalEntry.count({ where: { userId: patientId } }).catch(() => 0),
   ])
   if (!user) return null
 
@@ -600,6 +604,7 @@ export async function getExpertPatientProfile(
     }),
     openCrisisCount: crisisCount,
     highStakeChatCount: highStakeCount,
+    journalCount,
   }
 }
 

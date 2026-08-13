@@ -95,24 +95,32 @@ export default async function ExpertHomePage() {
         alert: nextProfile.moodTrend === 'declining',
       })
     }
-    // Homework / tasks
+    // Tasks left (homework)
     if (nextProfile.tasks.length) {
       const open = nextProfile.tasks.filter((t) => !t.done).length
       briefRows.push({
-        label: 'Homework',
+        label: 'Tasks left',
         value: open === 0
-          ? `all ${nextProfile.tasks.length} tasks done (${nextProfile.taskCompletionPct}%)`
-          : `${open} of ${nextProfile.tasks.length} open · ${nextProfile.taskCompletionPct}% completed`,
+          ? `none — all ${nextProfile.tasks.length} done (${nextProfile.taskCompletionPct}% completed)`
+          : `${open} of ${nextProfile.tasks.length} still open · ${nextProfile.taskCompletionPct}% completed`,
       })
     }
-    // Medication adherence — psychiatry only
-    if (ctx.isPsychiatrist && nextProfile.medications.length) {
+    // Medication adherence — shown whenever the patient has any medication on
+    // record (a therapist may be seeing a patient who's also under psychiatry).
+    if (nextProfile.medications.length) {
       const active = nextProfile.medications.filter((m) => m.active).length
       briefRows.push({
-        label: 'Medication',
-        value: `${active} of ${nextProfile.medications.length} active · ${nextProfile.medicationCompliancePct}% adherence`,
+        label: 'Medication adherence',
+        value: `${nextProfile.medicationCompliancePct}% · ${active} of ${nextProfile.medications.length} prescriptions active`,
       })
     }
+    // Journals written so far (content stays private — count only).
+    briefRows.push({
+      label: 'Journals written',
+      value: nextProfile.journalCount === 0
+        ? 'none yet'
+        : `${nextProfile.journalCount} so far`,
+    })
     // Sessions so far
     if (nextProfile.sessionsTotal > 0) {
       briefRows.push({
