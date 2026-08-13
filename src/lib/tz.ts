@@ -49,3 +49,16 @@ export function istParts(d: Date): {
 export function istWallClock(year: number, month: number, day: number, hour: number, minute = 0): Date {
   return new Date(Date.UTC(year, month, day, hour, minute, 0, 0) - IST_OFFSET_MS)
 }
+
+/**
+ * Parse an `<input type="datetime-local">` value ("YYYY-MM-DDTHH:mm") as an IST
+ * wall-clock time. A bare `new Date(value)` reads it in the SERVER timezone
+ * (UTC on Vercel), so a clinician picking 2:00 PM would land at 7:30 PM IST.
+ * Returns null for anything that isn't a well-formed local datetime string.
+ */
+export function istWallClockFromInput(value: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value)
+  if (!m) return null
+  const d = istWallClock(+m[1], +m[2] - 1, +m[3], +m[4], +m[5])
+  return Number.isNaN(d.getTime()) ? null : d
+}

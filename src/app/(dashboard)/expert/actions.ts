@@ -23,6 +23,7 @@ import {
 } from '@/lib/expert'
 import { sendForm } from '@/lib/forms'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
+import { istWallClockFromInput } from '@/lib/tz'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 
@@ -119,7 +120,6 @@ export async function assignTask(formData: FormData): Promise<void> {
   revalidatePath('/app')
 }
 
-/** Confirm a pending booking request. */
 /**
  * Clinician requests cancellation of a confirmed session. Does NOT cancel it —
  * flags it for admin approval with a reason. The session stays on the patient's
@@ -136,15 +136,20 @@ export async function requestCancellation(formData: FormData): Promise<void> {
   revalidatePath('/expert')
 }
 
-/** Move a booking to a new date/time the therapist proposes. */
+/** Move a booking to a new date/time the clinician picks (interpreted in IST). */
 export async function rescheduleAppointmentAction(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return
   const id = String(formData.get('appointmentId') ?? '')
   const newDateRaw = String(formData.get('newDate') ?? '')
   if (!id || !newDateRaw) return
-  await rescheduleAppointment(ctx.therapistProfileId, id, new Date(newDateRaw))
+  // The datetime-local value is IST wall-clock; parse it as IST, not the UTC
+  // server clock, so "2:00 PM" stays 2:00 PM IST instead of drifting to 7:30 PM.
+  const newDate = istWallClockFromInput(newDateRaw)
+  if (!newDate) return
+  await rescheduleAppointment(ctx.therapistProfileId, id, newDate)
   revalidatePath('/expert/schedule')
+  revalidatePath('/expert')
 }
 
 /** Mark a session complete and save the therapist's written summary. */
