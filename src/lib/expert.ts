@@ -757,19 +757,6 @@ export async function setAppointmentStatus(
   return true
 }
 
-export async function rescheduleAppointment(
-  therapistProfileId: string,
-  appointmentId: string,
-  newDate: Date
-): Promise<boolean> {
-  const appt = await ownsAppointment(therapistProfileId, appointmentId)
-  if (!appt || Number.isNaN(newDate.getTime())) return false
-  await prisma.appointment.update({
-    where: { id: appointmentId },
-    data: { scheduledAt: newDate, status: 'RESCHEDULED' },
-  })
-  return true
-}
 
 /** Minimum minutes both sides must have been in the room to count as completed
  *  (per care type — 30 for therapy/couples, 10 for psychiatry). */

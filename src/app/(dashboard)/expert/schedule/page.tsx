@@ -4,7 +4,6 @@ import { Video, CalendarClock } from 'lucide-react'
 import { getTherapistContext, getTherapistSchedule, type ScheduleAppointment } from '@/lib/expert'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { RequestCancel } from '@/components/expert/RequestCancel'
-import { RescheduleControl } from '@/components/expert/RescheduleControl'
 import { fmtIST } from '@/lib/tz'
 
 function fmt(d: Date): string {
@@ -48,7 +47,6 @@ function Row({ a }: { a: ScheduleAppointment }) {
             <Link href={`/app/sessions/${a.roomId ?? a.id}/room`} className="btn btn-primary btn-sm">
               <Video size={13} /> Join room
             </Link>
-            <RescheduleControl appointmentId={a.id} />
             {a.cancelRequested ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: '#C0504B', background: 'rgba(192,80,75,.08)', border: '1px solid rgba(192,80,75,.2)', padding: '7px 12px', borderRadius: 8 }}>
                 Cancellation requested · awaiting admin approval

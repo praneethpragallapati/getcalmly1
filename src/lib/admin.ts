@@ -1140,15 +1140,26 @@ export type CommentModRow = { id: string; author: string; role: string; body: st
 export type CommunityModRow = { id: string; title: string; author: string; role: string; createdAt: string; comments: CommentModRow[] }
 
 export async function getBlogsForModeration(): Promise<BlogModRow[]> {
+  // Narrow select: a not-yet-migrated column on prod would otherwise make the
+  // full-row SELECT throw and hide every real post behind the [] fallback.
   return safe(async () => {
-    const rows = await prisma.blogPost.findMany({ orderBy: { publishedAt: 'desc' }, take: 200 })
+    const rows = await prisma.blogPost.findMany({
+      orderBy: { publishedAt: 'desc' }, take: 200,
+      select: { slug: true, title: true, authorName: true, authorRole: true, published: true, publishedAt: true },
+    })
     return rows.map((r) => ({ slug: r.slug, title: r.title, author: r.authorName, role: r.authorRole, published: r.published, date: r.publishedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))
   }, [])
 }
 
 export async function getCommunityForModeration(): Promise<CommunityModRow[]> {
   return safe(async () => {
-    const rows = await prisma.communityPost.findMany({ orderBy: { createdAt: 'desc' }, take: 60, include: { comments: { orderBy: { createdAt: 'asc' } } } })
+    const rows = await prisma.communityPost.findMany({
+      orderBy: { createdAt: 'desc' }, take: 60,
+      select: {
+        id: true, title: true, authorName: true, authorRole: true, createdAt: true,
+        comments: { orderBy: { createdAt: 'asc' }, select: { id: true, authorName: true, authorRole: true, body: true, postId: true, createdAt: true } },
+      },
+    })
     return rows.map((p) => ({
       id: p.id, title: p.title, author: p.authorName, role: String(p.authorRole), createdAt: fmt(p.createdAt),
       comments: p.comments.map((c) => ({ id: c.id, author: c.authorName, role: String(c.authorRole), body: c.body, postId: c.postId, date: fmt(c.createdAt) })),
