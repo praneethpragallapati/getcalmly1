@@ -25,8 +25,10 @@ export type SessionDetail = {
   preSessionNote: string
   summary: string | null
   isPast: boolean
-  /** True a short while before the start time through the end of the session. */
+  /** True during the join window [start, start+duration]. */
   joinable: boolean
+  /** Whether this patient has already joined the room once (drives re-entry). */
+  joinedThisSide: boolean
   /** The patient's own rating (1–5), or null if not yet rated. */
   myRating: number | null
   myReviewComment: string | null
@@ -44,7 +46,8 @@ export type SessionsView = {
 export type ExpertSlot = { iso: string; label: string; time: string; taken: boolean }
 export type ExpertCalendar = { expert: string; expertRole: string; slots: ExpertSlot[] }
 
-const JOIN_WINDOW_MS = 10 * 60 * 1000 // can join 10 min early
+// No pre-join: the room opens exactly at the scheduled start, not before.
+const JOIN_WINDOW_MS = 0
 
 function fmtWhen(d: Date): string {
   return fmtIST(d, {
@@ -117,6 +120,7 @@ export async function getSessionsView(): Promise<SessionsView> {
         myRating: r.review?.rating ?? null,
         // Rateable once it has actually happened — never for a cancelled session.
         reviewable: isPast && !cancelled,
+        joinedThisSide: Boolean(r.patientJoinedAt),
       }
       if (isPast) past.push(ds)
       else upcoming.push(ds)
@@ -159,6 +163,7 @@ function demoDetail(id: string): SessionDetail | null {
         : null,
     isPast: s.status === 'COMPLETED',
     joinable: s.status !== 'COMPLETED',
+    joinedThisSide: false,
     myRating: null,
     myReviewComment: null,
     reviewable: false, // demo/preview sessions aren't real, so not rateable
@@ -194,6 +199,7 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
       summary: r.summary,
       isPast,
       joinable: !isPast && joinableNow(r.scheduledAt, r.durationMins),
+      joinedThisSide: Boolean(r.patientJoinedAt),
       myRating: r.review?.rating ?? null,
       myReviewComment: r.review?.comment ?? null,
       reviewable: isPast && r.status !== 'CANCELLED',

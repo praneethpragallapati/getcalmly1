@@ -691,6 +691,8 @@ export type ScheduleAppointment = {
   // Clinician asked to cancel this session; it stays live until an admin approves.
   cancelRequested: boolean
   cancelReason: string | null
+  // Whether the clinician has already joined this room once (drives re-entry).
+  joinedThisSide: boolean
   // At-a-glance patient signals for the pre-session brief near the Join button.
   tasksOpen: number
   tasksTotal: number
@@ -765,6 +767,7 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
       preSessionNote: r.preSessionNote ?? null,
       cancelRequested: r.cancelRequested ?? false,
       cancelReason: r.cancelReason ?? null,
+      joinedThisSide: Boolean(r.therapistJoinedAt),
       tasksOpen: ts.open,
       tasksTotal: ts.total,
       medActive: ms.active,
@@ -775,7 +778,10 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
   })
 }
 
-export type ExpertRoom = { roomId: string; patientName: string; therapistName: string; when: string }
+export type ExpertRoom = {
+  roomId: string; patientName: string; therapistName: string; when: string
+  scheduledISO: string; durationMins: number; status: string; joinedThisSide: boolean
+}
 
 /**
  * Resolve a session room for the clinician's OWN video route. The patient room
@@ -787,7 +793,7 @@ export async function getExpertRoom(therapistProfileId: string, appointmentId: s
   const appt = await prisma.appointment.findFirst({
     where: { OR: [{ id: appointmentId }, { roomId: appointmentId }], therapistId: therapistProfileId },
     select: {
-      id: true, roomId: true, scheduledAt: true,
+      id: true, roomId: true, scheduledAt: true, durationMins: true, status: true, therapistJoinedAt: true,
       patient: { select: { name: true } },
       therapist: { select: { user: { select: { name: true } } } },
     },
@@ -798,6 +804,10 @@ export async function getExpertRoom(therapistProfileId: string, appointmentId: s
     patientName: appt.patient?.name ?? 'Patient',
     therapistName: appt.therapist?.user?.name ?? 'Clinician',
     when: fmtIST(appt.scheduledAt, { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+    scheduledISO: appt.scheduledAt.toISOString(),
+    durationMins: appt.durationMins,
+    status: appt.status,
+    joinedThisSide: Boolean(appt.therapistJoinedAt),
   }
 }
 

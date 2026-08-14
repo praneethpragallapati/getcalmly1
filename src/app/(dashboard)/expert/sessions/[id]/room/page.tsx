@@ -3,9 +3,12 @@ import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getTherapistContext, getExpertRoom } from '@/lib/expert'
 import { getHmsMeetingUrl } from '@/lib/hms'
+import { joinPhase, meetingBounds } from '@/lib/meetingWindow'
 import { HmsRoom } from '@/components/dashboard/HmsRoom'
+import { RoomWindowNotice } from '@/components/dashboard/RoomWindowNotice'
 
 export const metadata = { title: 'Session room' }
+export const dynamic = 'force-dynamic'
 
 /**
  * The clinician's video room. Mirrors the patient room, but lives under the
@@ -21,8 +24,17 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
   const room = await getExpertRoom(ctx.therapistProfileId, id)
   if (!room) notFound()
 
+  // Same authoritative join-window gate as the patient side.
+  const { start } = meetingBounds(room.scheduledISO, room.durationMins)
+  const phase = joinPhase(room.scheduledISO, room.durationMins, Date.now(), room.joinedThisSide)
+  const blocked =
+    room.status === 'CANCELLED' ? 'cancelled' :
+    room.status === 'COMPLETED' ? 'completed' :
+    phase === 'early' ? 'early' :
+    phase === 'closed' ? 'closed' : null
+
   // Clinician joins as host; the patient joins the same room as guest.
-  const meetingUrl = await getHmsMeetingUrl(room.roomId, room.therapistName, 'host')
+  const meetingUrl = blocked ? null : await getHmsMeetingUrl(room.roomId, room.therapistName, 'host')
 
   return (
     <>
@@ -42,7 +54,17 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" />
+      {blocked ? (
+        <RoomWindowNotice
+          variant={blocked}
+          scheduledISO={room.scheduledISO}
+          startMs={start}
+          whenLabel={room.when}
+          backHref="/expert/schedule"
+        />
+      ) : (
+        <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" />
+      )}
     </>
   )
 }

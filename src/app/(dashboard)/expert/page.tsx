@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import {
-  Video, ClipboardList, User, CalendarClock, Users, AlertTriangle, ListTodo, CheckCircle2,
+  ClipboardList, User, CalendarClock, Users, AlertTriangle, ListTodo, CheckCircle2,
 } from 'lucide-react'
+import { JoinButton } from '@/components/dashboard/JoinButton'
 import {
   getTherapistContext, getCaseload, getRiskNotifications, getTherapistSchedule,
   getExpertPatientProfile, getMyAssignedTasks, type ScheduleAppointment,
@@ -184,9 +185,14 @@ export default async function ExpertHomePage() {
                 </div>
               )}
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                <Link href={`/expert/sessions/${next.id}/room`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-                  <Video size={15} /> Join Meet
-                </Link>
+                <JoinButton
+                  scheduledISO={next.scheduledAt.toISOString()}
+                  durationMins={next.durationMins}
+                  href={`/expert/sessions/${next.id}/room`}
+                  joinedAlready={next.joinedThisSide}
+                  label="Join Meet"
+                  size="md"
+                />
                 <Link href={`/expert/patients/${next.patientId}`} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(255,255,255,.08)', color: '#fff', border: '1px solid rgba(255,255,255,.16)' }}>
                   <ClipboardList size={15} /> Session notes
                 </Link>

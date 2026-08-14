@@ -7,6 +7,7 @@ import { BookSession } from '@/components/dashboard/BookSession'
 import { RateSession } from '@/components/dashboard/RateSession'
 import { SessionActions } from '@/components/dashboard/SessionActions'
 import { LocalTime } from '@/components/dashboard/LocalTime'
+import { JoinButton } from '@/components/dashboard/JoinButton'
 import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
 import { istParts } from '@/lib/tz'
@@ -57,9 +58,19 @@ function SessionRow({ s }: { s: DashSession }) {
             </>
           ) : (
             <>
-              <Link href={`/app/sessions/${s.id}/room`} className="btn btn-primary btn-sm">
-                <Video size={14} /> Join
-              </Link>
+              {s.scheduledISO ? (
+                <JoinButton
+                  scheduledISO={s.scheduledISO}
+                  durationMins={s.durationMins}
+                  href={`/app/sessions/${s.id}/room`}
+                  joinedAlready={s.joinedThisSide}
+                  label="Join"
+                />
+              ) : (
+                <Link href={`/app/sessions/${s.id}/room`} className="btn btn-primary btn-sm">
+                  <Video size={14} /> Join
+                </Link>
+              )}
               <Link href={`/app/sessions/${s.id}`} className="btn btn-outline btn-sm">
                 <FileText size={14} /> Notes
               </Link>

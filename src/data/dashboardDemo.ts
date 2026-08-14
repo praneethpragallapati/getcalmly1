@@ -38,6 +38,8 @@ export type DashSession = {
   // Only set for real, past appointments; drives the post-session rating prompt.
   myRating?: number | null
   reviewable?: boolean
+  // Whether this patient has already joined the room once (drives re-entry).
+  joinedThisSide?: boolean
 }
 
 export type TodaySession = DashSession & { startsIn: string; tags: string[]; sessionNo: number }

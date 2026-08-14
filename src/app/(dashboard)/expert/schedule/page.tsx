@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Video, CalendarClock } from 'lucide-react'
+import { CalendarClock } from 'lucide-react'
 import { getTherapistContext, getTherapistSchedule, type ScheduleAppointment } from '@/lib/expert'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { RequestCancel } from '@/components/expert/RequestCancel'
+import { JoinButton } from '@/components/dashboard/JoinButton'
 import { fmtIST } from '@/lib/tz'
 
 function fmt(d: Date): string {
@@ -63,9 +64,13 @@ function Row({ a }: { a: ScheduleAppointment }) {
 
         {isLive(a) && (
           <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <Link href={`/expert/sessions/${a.id}/room`} className="btn btn-primary btn-sm">
-              <Video size={13} /> Join room
-            </Link>
+            <JoinButton
+              scheduledISO={a.scheduledAt.toISOString()}
+              durationMins={a.durationMins}
+              href={`/expert/sessions/${a.id}/room`}
+              joinedAlready={a.joinedThisSide}
+              label="Join room"
+            />
             {a.cancelRequested ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: '#C0504B', background: 'rgba(192,80,75,.08)', border: '1px solid rgba(192,80,75,.2)', padding: '7px 12px', borderRadius: 8 }}>
                 Cancellation requested · awaiting admin approval
