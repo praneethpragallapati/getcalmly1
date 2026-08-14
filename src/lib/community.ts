@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import {
   communitySeed,
@@ -122,6 +123,20 @@ export async function getCommunityPosts(): Promise<CommunityPostView[]> {
     return seedView
   }
 }
+
+/**
+ * The community feed is the same for everyone (not per-user), yet it was being
+ * re-queried on every personal dashboard load — an unbounded findMany + a count
+ * subquery on the hot path. Serve the dashboard preview from Next's data cache
+ * (revalidated every 60s and deduped across all users) so it costs the home
+ * page nothing on a cache hit. The live /community page keeps the uncached
+ * read, where up-to-the-second freshness matters.
+ */
+export const getCommunityPostsCached = unstable_cache(
+  getCommunityPosts,
+  ['community-posts-feed'],
+  { revalidate: 60 },
+)
 
 /**
  * Real headline counts for the community page: registered members and the

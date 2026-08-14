@@ -16,7 +16,7 @@ import { prisma } from '@/lib/prisma'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { getSessionUserId } from '@/lib/patient'
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
-import { getCommunityPosts } from '@/lib/community'
+import { getCommunityPostsCached } from '@/lib/community'
 import { patientCode } from '@/lib/ids'
 
 /**
@@ -252,7 +252,7 @@ export async function getDashboardData(): Promise<DashboardData> {
             therapist: { select: { user: { select: { name: true } } } },
           },
         }).catch(() => []),
-        getCommunityPosts().catch(() => []),
+        getCommunityPostsCached().catch(() => []),
       ])
 
     // Mood widgets always reflect the patient's OWN check-ins, never the demo
