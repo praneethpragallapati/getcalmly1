@@ -6,6 +6,7 @@ import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { AdminAccountMenu } from '@/components/admin/AdminAccountMenu'
+import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
 import { ToastProvider } from '@/components/ui/Toast'
 import { roleHome } from '@/lib/roleHome'
 import { mustChangePassword } from '@/lib/accountSecurity'
@@ -26,6 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <ToastProvider>
     <div className="calmly-app admin-theme">
+      <SidebarDrawerToggle />
       <aside className="app-sidebar">
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/admin" tint="purple" />

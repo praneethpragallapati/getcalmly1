@@ -6,6 +6,7 @@ import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { ExpertAccountMenu } from '@/components/expert/ExpertAccountMenu'
+import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
 import { ToastProvider } from '@/components/ui/Toast'
 import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
 import { roleHome } from '@/lib/roleHome'
@@ -36,6 +37,7 @@ export default async function ExpertLayout({ children }: { children: React.React
   return (
     <ToastProvider>
     <div className="calmly-app expert-theme">
+      <SidebarDrawerToggle />
       <aside className="app-sidebar">
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/expert" tint="green" />
