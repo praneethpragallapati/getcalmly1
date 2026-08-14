@@ -229,6 +229,16 @@ model User {
   medicationOrders    MedicationOrder[]
   notifications       Notification[]
   sessionReviews      SessionReview[]    @relation("PatientReviews")
+
+  // Referral program. referralCode is this user's own shareable code; a referred
+  // user carries referredById. walletCreditRupees is store credit applied at
+  // checkout; bonusSessions are free sessions added to the next package purchase.
+  referralCode        String?  @unique
+  referredById        String?
+  walletCreditRupees  Int      @default(0)
+  bonusSessions       Int      @default(0)
+  referralsMade       Referral[] @relation("ReferralReferrer")
+  referralReceived    Referral?  @relation("ReferralReferee")
 }
 
 // Patient-side record holding identity, care context, contacts and consents.
@@ -1114,4 +1124,37 @@ model WebrtcSignal {
 
   @@index([roomId, seq])
   @@index([createdAt])
+}
+
+// One referral relationship: a referrer invited a referee, who is rewarded on
+// their first qualifying package purchase. Status: PENDING → QUALIFIED (referee
+// bought) → REWARDED (both rewards granted) → REVOKED (clawed back on refund).
+model Referral {
+  id                  String    @id @default(cuid())
+  referrerId          String
+  referrer            User      @relation("ReferralReferrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  refereeId           String    @unique
+  referee             User      @relation("ReferralReferee", fields: [refereeId], references: [id], onDelete: Cascade)
+  status              String    @default("PENDING")
+  qualifyingPaymentId String?
+  referrerRewardKind  String? // WALLET_CREDIT | FREE_SESSION (snapshot of config at reward time)
+  referrerRewardValue Int? // rupees, or session count
+  refereeDiscount     Int? // rupees taken off the referee's first purchase
+  createdAt           DateTime  @default(now())
+  qualifiedAt         DateTime?
+
+  @@index([referrerId])
+  @@index([status])
+}
+
+// Singleton program settings, admin-editable. When enabled is false the whole
+// program is off (patient UI hidden, no rewards granted).
+model ReferralConfig {
+  id                  String   @id @default("default")
+  enabled             Boolean  @default(false)
+  referrerRewardKind  String   @default("WALLET_CREDIT") // WALLET_CREDIT | FREE_SESSION | NONE
+  referrerRewardValue Int      @default(500) // rupees (WALLET_CREDIT) or session count (FREE_SESSION)
+  refereeDiscount     Int      @default(500) // rupees off the referee's first package (0 = none)
+  clawback            Boolean  @default(true)
+  updatedAt           DateTime @updatedAt
 }

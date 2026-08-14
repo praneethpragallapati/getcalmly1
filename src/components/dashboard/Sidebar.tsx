@@ -17,6 +17,7 @@ import {
   LineChart,
   Pill,
   FileText,
+  Gift,
   Settings,
   LogOut,
   Menu,
@@ -55,6 +56,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { href: '/app/progress', label: 'My Progress', icon: LineChart },
       { href: '/app/medications', label: 'Medications', icon: Pill },
+      { href: '/app/refer', label: 'Refer & earn', icon: Gift },
       { href: '/app/settings', label: 'Settings', icon: Settings },
     ],
   },

@@ -827,6 +827,47 @@ export async function voidSession(input: { appointmentId: string; reason?: strin
   } catch { return { ok: false, error: 'Could not void the session.' } }
 }
 
+// ── Referral program settings ────────────────────────────────────────────────
+
+/**
+ * Save the referral program settings. Turning `enabled` off removes the program
+ * entirely (patient UI hides, no rewards granted). Referrer reward is either
+ * WALLET_CREDIT (₹) or FREE_SESSION (count), or NONE; the referee gets a
+ * first-purchase discount in ₹.
+ */
+export async function saveReferralConfig(input: {
+  enabled: boolean
+  referrerRewardKind: string
+  referrerRewardValue: number
+  refereeDiscount: number
+  clawback: boolean
+}): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const kind = ['WALLET_CREDIT', 'FREE_SESSION', 'NONE'].includes(input.referrerRewardKind)
+    ? input.referrerRewardKind
+    : 'NONE'
+  const value = Math.max(0, Math.round(Number(input.referrerRewardValue) || 0))
+  const discount = Math.max(0, Math.round(Number(input.refereeDiscount) || 0))
+  const data = {
+    enabled: Boolean(input.enabled),
+    referrerRewardKind: kind,
+    referrerRewardValue: value,
+    refereeDiscount: discount,
+    clawback: Boolean(input.clawback),
+  }
+  try {
+    await prisma.referralConfig.upsert({
+      where: { id: 'default' },
+      update: data,
+      create: { id: 'default', ...data },
+    })
+    revalidatePath('/admin/referrals')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save referral settings.' }
+  }
+}
+
 // ── Content moderation + admin authoring ─────────────────────────────────────
 
 // Byline used for admin-authored content, so it reads as the platform team.
