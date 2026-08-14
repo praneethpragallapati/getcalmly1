@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getSessionDetail } from '@/lib/sessions'
 import { getDashboardData } from '@/lib/dashboard'
-import { JitsiRoom } from '@/components/dashboard/JitsiRoom'
+import { getHmsMeetingUrl } from '@/lib/hms'
+import { HmsRoom } from '@/components/dashboard/HmsRoom'
 
 export const metadata = { title: 'Session room' }
 
@@ -11,6 +12,9 @@ export default async function RoomPage({ params }: PageProps<'/app/sessions/[id]
   const { id } = await params
   const [s, dash] = await Promise.all([getSessionDetail(id), getDashboardData()])
   if (!s) notFound()
+
+  // Patient joins as guest; the clinician joins the same room as host.
+  const meetingUrl = await getHmsMeetingUrl(s.roomId, dash.name, 'guest')
 
   return (
     <>
@@ -30,7 +34,7 @@ export default async function RoomPage({ params }: PageProps<'/app/sessions/[id]
         </div>
       </div>
 
-      <JitsiRoom roomId={s.roomId} displayName={dash.name} backHref="/app/sessions" />
+      <HmsRoom roomId={s.roomId} meetingUrl={meetingUrl} backHref="/app/sessions" />
     </>
   )
 }

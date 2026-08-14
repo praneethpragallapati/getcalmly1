@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getTherapistContext, getExpertRoom } from '@/lib/expert'
-import { JitsiRoom } from '@/components/dashboard/JitsiRoom'
+import { getHmsMeetingUrl } from '@/lib/hms'
+import { HmsRoom } from '@/components/dashboard/HmsRoom'
 
 export const metadata = { title: 'Session room' }
 
@@ -19,6 +20,9 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
 
   const room = await getExpertRoom(ctx.therapistProfileId, id)
   if (!room) notFound()
+
+  // Clinician joins as host; the patient joins the same room as guest.
+  const meetingUrl = await getHmsMeetingUrl(room.roomId, room.therapistName, 'host')
 
   return (
     <>
@@ -38,7 +42,7 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <JitsiRoom roomId={room.roomId} displayName={room.therapistName} backHref="/expert/schedule" />
+      <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" />
     </>
   )
 }
