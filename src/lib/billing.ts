@@ -7,6 +7,7 @@
 import { prisma } from '@/lib/prisma'
 import { packsForIn, type BuyableTrack } from '@/data/pricing'
 import { getPricingConfig } from '@/lib/pricingConfig'
+import { resolveReferralCheckout, finalizeReferralCheckout } from '@/lib/referral'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -109,12 +110,15 @@ async function recordPayment(input: {
   kind: 'package' | 'first_session' | 'calmplus'
   trackSlug: string
   planName: string
-}): Promise<void> {
-  if (input.amount <= 0) return
+}): Promise<string | null> {
+  // Record even a ₹0 net purchase (fully covered by credit/discount) so the
+  // referral engine can tie the qualifying event to a payment row for clawback.
   try {
-    await prisma.payment.create({ data: input })
+    const p = await prisma.payment.create({ data: input, select: { id: true } })
+    return p.id
   } catch {
     // Ledger is a reporting aid; never block a completed purchase on it.
+    return null
   }
 }
 
@@ -130,6 +134,11 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
   if (!pack) return { ok: false, error: 'Unknown package.' }
   const planName = `${PLAN_NAME[track]} ${pack.sessions}-session pack`
 
+  // Referral / wallet: work out the referee first-purchase discount, wallet
+  // credit to spend, and bonus sessions to fold in, before we price the pack.
+  const rr = await resolveReferralCheckout(patientId, pack.total)
+  const sessionsToAdd = pack.sessions + rr.bonusSessionsAdded
+
   // Scope to THIS package type — never merge a psychiatry buy into a therapy pack.
   const existing = await findExistingForTrack(patientId, track)
 
@@ -141,7 +150,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
     // isn't lost when topping up an still-active plan).
     const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
     const expiresAt = addMonths(base, pack.months)
-    const sessionsTotal = existing.sessionsTotal + pack.sessions
+    const sessionsTotal = existing.sessionsTotal + sessionsToAdd
 
     await prisma.subscription.update({
       where: { id: existing.id },
@@ -157,7 +166,8 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
         renewsAt: expiresAt,
       },
     })
-    await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: pack.total, kind: 'package', trackSlug: track, planName })
+    const paymentId = await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
+    await finalizeReferralCheckout(patientId, rr, paymentId)
     return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed) }
   }
 
@@ -172,15 +182,16 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
         status: 'ACTIVE',
         tier: tierEnum(pack.months),
         paidMonths: pack.months,
-        sessionsTotal: pack.sessions,
+        sessionsTotal: sessionsToAdd,
         sessionsUsed: 0,
         startedAt: now,
         expiresAt,
         renewsAt: expiresAt,
       },
     })
-    await recordPayment({ userId: patientId, subscriptionId: created.id, amount: pack.total, kind: 'package', trackSlug: track, planName })
-    return { ok: true, sessionsTotal: pack.sessions, sessionsRemaining: pack.sessions }
+    const paymentId = await recordPayment({ userId: patientId, subscriptionId: created.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
+    await finalizeReferralCheckout(patientId, rr, paymentId)
+    return { ok: true, sessionsTotal: sessionsToAdd, sessionsRemaining: sessionsToAdd }
   } catch (e) {
     // Lost a concurrent create race (double-submit): the partial-unique index on
     // ACTIVE (userId, trackSlug) rejected this one. Treat it as idempotent — the

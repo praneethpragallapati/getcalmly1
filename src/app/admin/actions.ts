@@ -11,6 +11,7 @@ import type { PricingValues } from '@/data/pricing'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/reassign'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
+import { revokeReferral, revokeReferralForPayment } from '@/lib/referral'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -347,11 +348,23 @@ export async function cancelSubscription(input: { id: string }): Promise<AdminRe
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
     await prisma.subscription.update({ where: { id: input.id }, data: { status: 'CANCELLED' } })
+    // Clawback: if a referral was earned on a purchase for this cancelled package,
+    // reverse it (gated by the program's clawback setting inside the helper).
+    const payments = await prisma.payment.findMany({ where: { subscriptionId: input.id }, select: { id: true } })
+    for (const p of payments) await revokeReferralForPayment(p.id)
     revalidatePath('/admin/patients')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not cancel the subscription.' }
   }
+}
+
+/** Manual referral clawback from the admin Referrals table. */
+export async function revokeReferralReward(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const ok = await revokeReferral(input.id)
+  if (ok) revalidatePath('/admin/referrals')
+  return ok ? { ok: true } : { ok: false, error: 'This referral can’t be revoked (not in a rewarded state).' }
 }
 
 // ── Delete accounts (hard delete) ────────────────────────────────────────────

@@ -155,6 +155,162 @@ export async function getPatientReferral(userId: string): Promise<PatientReferra
   }
 }
 
+// ── Reward engine (write side) ───────────────────────────────────────────────
+
+/**
+ * Attribution at signup. Tags a NEW referee to the referrer behind `code` and
+ * opens a PENDING referral. No-ops on self-referral, an unknown code, an already
+ * attributed user, or someone who has already paid (existing customers don't
+ * qualify). Best-effort — never throws into the caller.
+ */
+export async function attributeReferral(refereeId: string, code: string): Promise<void> {
+  try {
+    const clean = code.trim().toUpperCase()
+    if (!clean) return
+    const referee = await prisma.user.findUnique({ where: { id: refereeId }, select: { id: true, referredById: true } })
+    if (!referee || referee.referredById) return
+    const priorPayments = await prisma.payment.count({ where: { userId: refereeId } })
+    if (priorPayments > 0) return // only genuinely new customers
+    const referrer = await prisma.user.findUnique({ where: { referralCode: clean }, select: { id: true } })
+    if (!referrer || referrer.id === refereeId) return // unknown code or self-referral
+    await prisma.user.update({ where: { id: refereeId }, data: { referredById: referrer.id } })
+    await prisma.referral.upsert({
+      where: { refereeId },
+      update: {},
+      create: { referrerId: referrer.id, refereeId, status: 'PENDING' },
+    })
+  } catch {
+    /* best-effort */
+  }
+}
+
+export type CheckoutResolution = {
+  refereeDiscount: number
+  creditUsed: number
+  finalAmount: number
+  bonusSessionsAdded: number
+  referralId: string | null // set only when this is the referee's first qualifying package
+}
+
+/**
+ * Work out the discounts to apply to a package purchase of `basePrice`:
+ * the referee's one-time first-purchase discount (if they were referred and this
+ * is their first package), then any wallet credit, then their bonus sessions.
+ * Read-only — the caller applies the numbers and then calls finalizeReferralCheckout.
+ */
+export async function resolveReferralCheckout(userId: string, basePrice: number): Promise<CheckoutResolution> {
+  const fallback: CheckoutResolution = { refereeDiscount: 0, creditUsed: 0, finalAmount: basePrice, bonusSessionsAdded: 0, referralId: null }
+  try {
+    const [config, user] = await Promise.all([
+      getReferralConfig(),
+      prisma.user.findUnique({ where: { id: userId }, select: { walletCreditRupees: true, bonusSessions: true } }),
+    ])
+    if (!user) return fallback
+
+    let refereeDiscount = 0
+    let referralId: string | null = null
+    if (config.enabled && config.refereeDiscount > 0) {
+      const referral = await prisma.referral.findFirst({ where: { refereeId: userId, status: 'PENDING' }, select: { id: true } })
+      if (referral) {
+        const priorPackages = await prisma.payment.count({ where: { userId, kind: 'package' } })
+        if (priorPackages === 0) {
+          refereeDiscount = Math.min(config.refereeDiscount, basePrice)
+          referralId = referral.id
+        }
+      }
+    }
+    const afterReferee = Math.max(0, basePrice - refereeDiscount)
+    const creditUsed = Math.min(Math.max(0, user.walletCreditRupees), afterReferee)
+    const finalAmount = Math.max(0, afterReferee - creditUsed)
+    return { refereeDiscount, creditUsed, finalAmount, bonusSessionsAdded: Math.max(0, user.bonusSessions), referralId }
+  } catch {
+    return fallback
+  }
+}
+
+/**
+ * Apply the side-effects of a resolved checkout AFTER the package is created:
+ * spend the wallet credit, consume the bonus sessions, and — if this closed a
+ * referral — grant the referrer their reward exactly once. Best-effort; a
+ * failure here must never fail the purchase the patient already completed.
+ */
+export async function finalizeReferralCheckout(
+  userId: string,
+  r: CheckoutResolution,
+  qualifyingPaymentId: string | null
+): Promise<void> {
+  try {
+    const userData: { walletCreditRupees?: { decrement: number }; bonusSessions?: number } = {}
+    if (r.creditUsed > 0) userData.walletCreditRupees = { decrement: r.creditUsed }
+    if (r.bonusSessionsAdded > 0) userData.bonusSessions = 0 // they were folded into the package
+    if (Object.keys(userData).length) await prisma.user.update({ where: { id: userId }, data: userData })
+
+    if (!r.referralId) return
+    const config = await getReferralConfig()
+    const referral = await prisma.referral.findUnique({ where: { id: r.referralId }, select: { id: true, referrerId: true, status: true } })
+    if (!referral || referral.status !== 'PENDING') return // exactly-once guard
+
+    const kind = config.referrerRewardKind
+    const value = config.referrerRewardValue
+    if (kind === 'WALLET_CREDIT' && value > 0) {
+      await prisma.user.update({ where: { id: referral.referrerId }, data: { walletCreditRupees: { increment: value } } })
+    } else if (kind === 'FREE_SESSION' && value > 0) {
+      const pack = await prisma.subscription.findFirst({
+        where: { userId: referral.referrerId, status: 'ACTIVE', sessionsTotal: { gt: 0 } },
+        orderBy: { createdAt: 'desc' }, select: { id: true },
+      })
+      if (pack) await prisma.subscription.update({ where: { id: pack.id }, data: { sessionsTotal: { increment: value } } })
+      else await prisma.user.update({ where: { id: referral.referrerId }, data: { bonusSessions: { increment: value } } })
+    }
+
+    await prisma.referral.update({
+      where: { id: referral.id },
+      data: {
+        status: 'REWARDED',
+        qualifyingPaymentId,
+        referrerRewardKind: kind === 'NONE' ? null : kind,
+        referrerRewardValue: kind === 'NONE' ? null : value,
+        refereeDiscount: r.refereeDiscount,
+        qualifiedAt: new Date(),
+      },
+    })
+  } catch {
+    /* best-effort */
+  }
+}
+
+/** Reverse a granted reward and mark the referral REVOKED (clawback). */
+export async function revokeReferral(referralId: string): Promise<boolean> {
+  try {
+    const referral = await prisma.referral.findUnique({ where: { id: referralId } })
+    if (!referral || referral.status !== 'REWARDED') return false
+    if (referral.referrerRewardKind === 'WALLET_CREDIT' && referral.referrerRewardValue) {
+      await prisma.user.update({ where: { id: referral.referrerId }, data: { walletCreditRupees: { decrement: referral.referrerRewardValue } } })
+      await prisma.user.updateMany({ where: { id: referral.referrerId, walletCreditRupees: { lt: 0 } }, data: { walletCreditRupees: 0 } })
+    } else if (referral.referrerRewardKind === 'FREE_SESSION' && referral.referrerRewardValue) {
+      // Only unspent bonus sessions can be safely reclaimed.
+      await prisma.user.update({ where: { id: referral.referrerId }, data: { bonusSessions: { decrement: referral.referrerRewardValue } } })
+      await prisma.user.updateMany({ where: { id: referral.referrerId, bonusSessions: { lt: 0 } }, data: { bonusSessions: 0 } })
+    }
+    await prisma.referral.update({ where: { id: referralId }, data: { status: 'REVOKED' } })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Clawback tied to a refunded/voided qualifying purchase. Gated by config. */
+export async function revokeReferralForPayment(qualifyingPaymentId: string): Promise<void> {
+  try {
+    const config = await getReferralConfig()
+    if (!config.clawback) return
+    const referral = await prisma.referral.findFirst({ where: { qualifyingPaymentId, status: 'REWARDED' }, select: { id: true } })
+    if (referral) await revokeReferral(referral.id)
+  } catch {
+    /* best-effort */
+  }
+}
+
 export type AdminReferralRow = {
   id: string
   referrer: string

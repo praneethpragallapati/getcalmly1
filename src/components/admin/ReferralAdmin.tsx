@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Gift, Check } from 'lucide-react'
-import { saveReferralConfig } from '@/app/admin/actions'
+import { saveReferralConfig, revokeReferralReward } from '@/app/admin/actions'
 import type { ReferralConfigValues, ReferrerRewardKind, AdminReferralRow } from '@/lib/referral'
 
 const charcoal = '#1C2B3A'
@@ -126,8 +126,8 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
             <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 560, fontSize: 14 }}>
               <thead>
                 <tr>
-                  {['Referrer', 'Friend', 'Status', 'Reward', 'Date'].map((h) => (
-                    <th key={h} style={{ textAlign: 'left', fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: '#8E9EAE', padding: '10px 22px', borderBottom: '1px solid rgba(28,43,58,.08)' }}>{h}</th>
+                  {['Referrer', 'Friend', 'Status', 'Reward', 'Date', ''].map((h, i) => (
+                    <th key={i} style={{ textAlign: 'left', fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: '#8E9EAE', padding: '10px 22px', borderBottom: '1px solid rgba(28,43,58,.08)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -141,6 +141,18 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
                     </td>
                     <td style={{ padding: '12px 22px', borderBottom: '1px solid rgba(28,43,58,.05)', color: '#5A6B7A' }}>{r.reward}</td>
                     <td style={{ padding: '12px 22px', borderBottom: '1px solid rgba(28,43,58,.05)', color: '#8E9EAE' }}>{r.date}</td>
+                    <td style={{ padding: '12px 22px', borderBottom: '1px solid rgba(28,43,58,.05)', textAlign: 'right' }}>
+                      {r.status === 'Rewarded' && (
+                        <button
+                          onClick={() => startTransition(async () => { await revokeReferralReward({ id: r.id }); router.refresh() })}
+                          disabled={pending}
+                          className="link-action"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', fontSize: 12.5 }}
+                        >
+                          Revoke
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

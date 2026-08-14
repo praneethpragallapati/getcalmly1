@@ -54,8 +54,15 @@ function RegisterForm() {
     getProviders().then((p) => setGoogleEnabled(Boolean(p && 'google' in p))).catch(() => {})
   }, [])
   // Care type chosen on the pricing page (therapy / psychiatry / couples / app / free).
-  const c = useSearchParams().get('care')
+  const sp = useSearchParams()
+  const c = sp.get('care')
   const careType = c && CARE_LABELS[c] ? c : null
+  // Referral link (?ref=CODE): stash it in a cookie so it survives the whole
+  // signup flow (including OAuth round-trips) and is claimed on first dashboard load.
+  const refCode = sp.get('ref')
+  useEffect(() => {
+    if (refCode) document.cookie = `gc_ref=${encodeURIComponent(refCode)}; path=/; max-age=2592000; samesite=lax`
+  }, [refCode])
   // Who the care is for is derived from the plan, not asked here — the assessment
   // captures the recipient. A couples plan collects the spouse's details.
   const careFor: CareFor = careType === 'couples' ? 'couple' : 'self'

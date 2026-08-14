@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { Bell, HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
@@ -10,6 +11,7 @@ import { getSidebarSummary } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount } from '@/lib/notifications'
 import { getSessionUser } from '@/lib/session'
+import { attributeReferral } from '@/lib/referral'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -32,6 +34,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (sessionUser.role === 'ADMIN') redirect('/admin')
 
   const userId = await getSessionUserId()
+
+  // Claim a referral if this patient signed up via someone's link (?ref=CODE
+  // stored in the gc_ref cookie). Idempotent + best-effort — no-ops once the
+  // patient is already attributed or if they're an existing customer.
+  if (userId) {
+    const refCode = (await cookies()).get('gc_ref')?.value
+    if (refCode) await attributeReferral(userId, decodeURIComponent(refCode))
+  }
+
   // Chrome-only summary (cheap) + unread badge, fetched together.
   const [d, unread] = await Promise.all([
     getSidebarSummary(),
