@@ -228,3 +228,180 @@ export async function autoSendIntakeForm(patientId: string, priorAppointments: n
     data: { templateId: template.id, patientId, assignedBy: 'Auto' },
   })
 }
+
+// ── Automatic form-send rules ────────────────────────────────────────────────
+
+export type FormRecurrence = 'ONCE' | 'EVERY' | 'EVEN' | 'ODD'
+
+export type FormAutoRuleRow = {
+  id: string
+  templateId: string
+  templateTitle: string
+  trackSlug: string // 'therapy' | 'psychiatry' | 'couples' | 'any'
+  recurrence: FormRecurrence
+  sessionNumber: number | null
+  active: boolean
+  scope: 'PLATFORM' | 'MINE'
+}
+
+/**
+ * Create the FormAutoRule table on demand, so the feature works on a database
+ * that hasn't had the 0027 migration applied by hand. Idempotent; a no-op once
+ * the table exists. Mirrors the referral schema-heal pattern.
+ */
+let formRuleSchemaReady = false
+export async function ensureFormRuleSchema(): Promise<void> {
+  if (formRuleSchemaReady) return
+  const stmts = [
+    `CREATE TABLE IF NOT EXISTS "FormAutoRule" (
+      "id" TEXT NOT NULL,
+      "templateId" TEXT NOT NULL,
+      "trackSlug" TEXT NOT NULL DEFAULT 'any',
+      "recurrence" TEXT NOT NULL DEFAULT 'ONCE',
+      "sessionNumber" INTEGER,
+      "therapistId" TEXT,
+      "active" BOOLEAN NOT NULL DEFAULT true,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "FormAutoRule_pkey" PRIMARY KEY ("id")
+    )`,
+    `CREATE INDEX IF NOT EXISTS "FormAutoRule_active_idx" ON "FormAutoRule"("active")`,
+    `CREATE INDEX IF NOT EXISTS "FormAutoRule_therapistId_idx" ON "FormAutoRule"("therapistId")`,
+    `DO $$ BEGIN
+      ALTER TABLE "FormAutoRule" ADD CONSTRAINT "FormAutoRule_templateId_fkey"
+        FOREIGN KEY ("templateId") REFERENCES "FormTemplate"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
+  ]
+  for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
+  formRuleSchemaReady = true
+}
+
+const VALID_TRACKS = ['therapy', 'psychiatry', 'couples', 'any']
+const VALID_RECURRENCE: FormRecurrence[] = ['ONCE', 'EVERY', 'EVEN', 'ODD']
+
+/**
+ * Create an auto-send rule. `therapistId` null makes it platform-wide (admin);
+ * a value scopes it to that clinician's own patients (expert). Returns false on
+ * bad input or a missing template.
+ */
+export async function createFormRule(input: {
+  templateId: string
+  trackSlug: string
+  recurrence: FormRecurrence
+  sessionNumber?: number | null
+  therapistId: string | null
+}): Promise<{ ok: boolean; error?: string }> {
+  const track = VALID_TRACKS.includes(input.trackSlug) ? input.trackSlug : 'any'
+  const recurrence = VALID_RECURRENCE.includes(input.recurrence) ? input.recurrence : 'ONCE'
+  const sessionNumber = recurrence === 'ONCE' ? Math.max(1, Math.round(Number(input.sessionNumber) || 1)) : null
+  try {
+    await ensureFormRuleSchema()
+    const template = await prisma.formTemplate.findUnique({ where: { id: input.templateId }, select: { id: true } })
+    if (!template) return { ok: false, error: 'Pick a form.' }
+    await prisma.formAutoRule.create({
+      data: { templateId: input.templateId, trackSlug: track, recurrence, sessionNumber, therapistId: input.therapistId },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save the rule.' }
+  }
+}
+
+/** List rules for a scope: admin passes null (platform rules), an expert passes
+ *  their profile id (their own rules). */
+export async function listFormRules(therapistId: string | null): Promise<FormAutoRuleRow[]> {
+  try {
+    await ensureFormRuleSchema()
+    const rows = await prisma.formAutoRule.findMany({
+      where: { therapistId: therapistId ?? null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true, templateId: true, trackSlug: true, recurrence: true, sessionNumber: true, active: true, therapistId: true,
+        template: { select: { title: true } },
+      },
+    })
+    return rows.map((r) => ({
+      id: r.id,
+      templateId: r.templateId,
+      templateTitle: r.template?.title ?? 'Form',
+      trackSlug: r.trackSlug,
+      recurrence: r.recurrence as FormRecurrence,
+      sessionNumber: r.sessionNumber,
+      active: r.active,
+      scope: r.therapistId ? 'MINE' : 'PLATFORM',
+    }))
+  } catch {
+    return []
+  }
+}
+
+/** Delete a rule, guarded to the scope that owns it (admin: null; expert: theirs). */
+export async function deleteFormRule(id: string, therapistId: string | null): Promise<boolean> {
+  try {
+    await ensureFormRuleSchema()
+    const res = await prisma.formAutoRule.deleteMany({ where: { id, therapistId: therapistId ?? null } })
+    return res.count > 0
+  } catch {
+    return false
+  }
+}
+
+/** Enable/disable a rule, scope-guarded. */
+export async function setFormRuleActive(id: string, active: boolean, therapistId: string | null): Promise<boolean> {
+  try {
+    await ensureFormRuleSchema()
+    const res = await prisma.formAutoRule.updateMany({ where: { id, therapistId: therapistId ?? null }, data: { active } })
+    return res.count > 0
+  } catch {
+    return false
+  }
+}
+
+function ruleFiresOn(recurrence: FormRecurrence, ruleSessionNumber: number | null, sessionNumber: number): boolean {
+  switch (recurrence) {
+    case 'EVERY': return true
+    case 'EVEN': return sessionNumber % 2 === 0
+    case 'ODD': return sessionNumber % 2 === 1
+    case 'ONCE': return ruleSessionNumber != null && sessionNumber === ruleSessionNumber
+    default: return false
+  }
+}
+
+/**
+ * Evaluate auto-send rules after a booking and dispatch any matching forms.
+ * `sessionNumber` is this booking's position within the given track (1-based).
+ * Applies platform-wide rules plus the booking clinician's own rules. Best-effort
+ * and fully guarded: a failure here must never fail the booking. Dedupes by
+ * template within this run so a form matched by two rules is sent once.
+ */
+export async function runBookingFormRules(input: {
+  patientId: string
+  trackSlug: string
+  therapistId: string
+  therapistName: string | null
+  sessionNumber: number
+}): Promise<void> {
+  try {
+    await ensureFormRuleSchema()
+    const rules = await prisma.formAutoRule.findMany({
+      where: {
+        active: true,
+        trackSlug: { in: [input.trackSlug, 'any'] },
+        OR: [{ therapistId: null }, { therapistId: input.therapistId }],
+      },
+      select: { templateId: true, recurrence: true, sessionNumber: true },
+    })
+    const sendTemplateIds = new Set<string>()
+    for (const r of rules) {
+      if (ruleFiresOn(r.recurrence as FormRecurrence, r.sessionNumber, input.sessionNumber)) {
+        sendTemplateIds.add(r.templateId)
+      }
+    }
+    for (const templateId of sendTemplateIds) {
+      await prisma.formAssignment.create({
+        data: { templateId, patientId: input.patientId, assignedBy: input.therapistName ?? 'Your care team' },
+      }).catch(() => {})
+    }
+  } catch {
+    /* best-effort — never block a completed booking */
+  }
+}

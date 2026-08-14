@@ -12,6 +12,7 @@ import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/reassign'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
+import { createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -1008,6 +1009,53 @@ export async function setFormActive(input: { id: string; active: boolean }): Pro
     revalidatePath('/admin/config')
     return { ok: true }
   } catch { return { ok: false, error: 'Could not update the form.' } }
+}
+
+// ── Automatic form rules (platform-wide) ─────────────────────────────────────
+
+export async function createPlatformFormRule(input: {
+  templateId: string; trackSlug: string; recurrence: FormRecurrence; sessionNumber?: number | null
+}): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const res = await createFormRule({ ...input, therapistId: null })
+  if (res.ok) revalidatePath('/admin/config')
+  return res
+}
+
+export async function deletePlatformFormRule(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const ok = await deleteFormRule(input.id, null)
+  if (ok) revalidatePath('/admin/config')
+  return ok ? { ok: true } : { ok: false, error: 'Rule not found.' }
+}
+
+export async function togglePlatformFormRule(input: { id: string; active: boolean }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const ok = await setFormRuleActive(input.id, input.active, null)
+  if (ok) revalidatePath('/admin/config')
+  return ok ? { ok: true } : { ok: false, error: 'Rule not found.' }
+}
+
+/**
+ * Add (or remove, with a negative amount) wallet credit for a patient. Wallet
+ * credit is spendable as part-payment on any purchase. Self-heals the referral
+ * schema so the column always exists; floors the balance at 0.
+ */
+export async function adjustWalletCredit(input: { userId: string; amount: number }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const amount = Math.round(Number(input.amount) || 0)
+  if (!amount) return { ok: false, error: 'Enter an amount.' }
+  try {
+    await ensureReferralSchema()
+    await prisma.user.update({ where: { id: input.userId }, data: { walletCreditRupees: { increment: amount } } })
+    // Never let a removal push the balance negative.
+    await prisma.user.updateMany({ where: { id: input.userId, walletCreditRupees: { lt: 0 } }, data: { walletCreditRupees: 0 } })
+    revalidatePath(`/admin/patients/${input.userId}`)
+    revalidatePath('/app/billing'); revalidatePath('/app/refer')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not update the wallet.' }
+  }
 }
 
 export async function broadcastAnnouncement(input: { audience: 'ALL' | 'PATIENT' | 'THERAPIST'; title: string; body?: string; href?: string }): Promise<AdminResult> {

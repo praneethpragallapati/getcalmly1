@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Minus, Plus, XCircle } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, grantCalmPlus, extendValidity } from '@/app/admin/actions'
+import { Check, Minus, Plus, XCircle, Wallet } from 'lucide-react'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, grantCalmPlus, extendValidity, adjustWalletCredit } from '@/app/admin/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
@@ -72,6 +72,7 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
 
         <GrantByType userId={p.userId} field={field} pending={pending} run={run} />
         <GiftCalmPlus userId={p.userId} field={field} pending={pending} run={run} />
+        <WalletCredit userId={p.userId} balance={p.walletCreditRupees} field={field} pending={pending} run={run} />
 
         {p.subscriptions.length === 0 && <p className="muted" style={{ fontSize: 13.5, marginTop: 12 }}>No packages on file.</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -239,6 +240,34 @@ function GiftCalmPlus({ userId, field, pending, run }: {
         </button>
       </div>
       <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>Free — no charge recorded. Extends the patient&apos;s current plan validity if they have one, otherwise creates a standalone Calm+ package (AI companion, journaling &amp; mood tracker; no sessions).</p>
+    </div>
+  )
+}
+
+/** Add or remove wallet credit (₹). Spendable as part-payment on any purchase. */
+function WalletCredit({ userId, balance, field, pending, run }: {
+  userId: string
+  balance: number
+  field: React.CSSProperties
+  pending: boolean
+  run: (fn: () => Promise<{ ok: boolean; error?: string }>, okMsg?: string) => void
+}) {
+  const [amount, setAmount] = useState('500')
+  const apply = (sign: 1 | -1) =>
+    run(() => adjustWalletCredit({ userId, amount: sign * (Number(amount) || 0) }), sign > 0 ? 'Wallet credited.' : 'Wallet debited.')
+  return (
+    <div style={{ border: '1px dashed #D8DEE6', borderRadius: 12, padding: '12px 14px', marginBottom: 14, background: 'rgba(26,127,122,.03)' }}>
+      <div style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Wallet size={14} /> Wallet credit
+        <span className="muted" style={{ fontWeight: 400, marginLeft: 'auto' }}>Balance: <b style={{ color: charcoal }}>₹{balance.toLocaleString('en-IN')}</b></span>
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Amount (₹)</div>
+          <input type="number" min={0} value={amount} onChange={(e) => setAmount(e.target.value)} style={{ ...field, width: 110 }} /></div>
+        <button className="btn btn-primary" disabled={pending} onClick={() => apply(1)}>Add to wallet</button>
+        <button className="btn" style={{ border: '1.5px solid #E2E8F0' }} disabled={pending} onClick={() => apply(-1)}>Remove</button>
+      </div>
+      <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>Money in the wallet is spent automatically as part-payment on the patient&apos;s next purchase (any type). Removing never takes the balance below ₹0.</p>
     </div>
   )
 }

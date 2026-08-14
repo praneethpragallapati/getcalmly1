@@ -1055,8 +1055,34 @@ model FormTemplate {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   assignments FormAssignment[]
+  autoRules   FormAutoRule[]
 
   @@index([kind])
+}
+
+// A default-form rule: automatically send a form after a booking, based on the
+// package/session type and the session number for that type. Recurrence is
+// ONCE (a specific session number), EVERY, EVEN or ODD session. A rule is
+// platform-wide (therapistId null, set by an admin) or scoped to one clinician's
+// own patients (therapistId set, created by that expert).
+model FormAutoRule {
+  id            String       @id @default(cuid())
+  templateId    String
+  template      FormTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  // Which package/session type this applies to: therapy | psychiatry | couples,
+  // or "any" for all types.
+  trackSlug     String       @default("any")
+  // ONCE | EVERY | EVEN | ODD (kept as text so the on-demand schema-heal needs no enum).
+  recurrence    String       @default("ONCE")
+  // The session number this fires on, for ONCE rules. Ignored for the others.
+  sessionNumber Int?
+  // Null = platform-wide (admin). Set = only this clinician's patients (expert).
+  therapistId   String?
+  active        Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+
+  @@index([active])
+  @@index([therapistId])
 }
 
 // A form sent to a specific patient. Carries its own status + responses so the

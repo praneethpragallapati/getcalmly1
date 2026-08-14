@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionUserId, getSessionPatientId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
 import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
-import { autoSendIntakeForm, submitForm } from '@/lib/forms'
+import { autoSendIntakeForm, submitForm, runBookingFormRules } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead } from '@/lib/notifications'
 import { submitReview } from '@/lib/reviews'
@@ -431,6 +431,20 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
 
     // First-ever booking → queue the category-matched intake/information form.
     await autoSendIntakeForm(userId, priorAppointments)
+
+    // Default-form rules: send any forms configured (by admin or this clinician)
+    // for this package type at this session number. sessionNumber is this
+    // booking's position within the track — count appointments consuming this
+    // track's packages (includes the one just created).
+    try {
+      const trackSubIds = (await prisma.subscription.findMany({
+        where: { userId, trackSlug: track }, select: { id: true },
+      })).map((s) => s.id)
+      const sessionNumber = trackSubIds.length
+        ? await prisma.appointment.count({ where: { patientId: userId, consumedSubscriptionId: { in: trackSubIds } } })
+        : priorAppointments + 1
+      await runBookingFormRules({ patientId: userId, trackSlug: track, therapistId: therapist.id, therapistName: null, sessionNumber })
+    } catch { /* best-effort — never block a completed booking */ }
 
     revalidatePath('/app/sessions')
     revalidatePath('/app/forms')

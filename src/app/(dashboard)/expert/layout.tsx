@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock, FileText } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -80,6 +80,10 @@ export default async function ExpertLayout({ children }: { children: React.React
           <SidebarLink href="/expert/blogs">
             <Newspaper size={18} />
             <span>Blogs</span>
+          </SidebarLink>
+          <SidebarLink href="/expert/forms">
+            <FileText size={18} />
+            <span>Default forms</span>
           </SidebarLink>
           <SidebarLink href="/expert/profile">
             <UserCircle size={18} />

@@ -20,7 +20,7 @@ import {
   toggleMyTask,
   type CreateBlogInput,
 } from '@/lib/expert'
-import { sendForm } from '@/lib/forms'
+import { sendForm, createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
@@ -249,6 +249,34 @@ export async function sendFormToPatient(formData: FormData): Promise<void> {
   if (!patientId || !templateId) return
   await sendForm(ctx.therapistProfileId, ctx.therapistName, patientId, templateId)
   revalidatePath(`/expert/patients/${patientId}`)
+}
+
+// ── Automatic form rules (this clinician's own patients) ─────────────────────
+
+export async function createMyFormRule(input: {
+  templateId: string; trackSlug: string; recurrence: FormRecurrence; sessionNumber?: number | null
+}): Promise<{ ok: boolean; error?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Sign in again.' }
+  const res = await createFormRule({ ...input, therapistId: ctx.therapistProfileId })
+  if (res.ok) revalidatePath('/expert/forms')
+  return res
+}
+
+export async function deleteMyFormRule(id: string): Promise<{ ok: boolean }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false }
+  const ok = await deleteFormRule(id, ctx.therapistProfileId)
+  if (ok) revalidatePath('/expert/forms')
+  return { ok }
+}
+
+export async function toggleMyFormRule(id: string, active: boolean): Promise<{ ok: boolean }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false }
+  const ok = await setFormRuleActive(id, active, ctx.therapistProfileId)
+  if (ok) revalidatePath('/expert/forms')
+  return { ok }
 }
 
 export async function toggleMedication(formData: FormData): Promise<void> {

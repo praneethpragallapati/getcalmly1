@@ -393,6 +393,7 @@ export type PatientDetail = {
   assignments: Record<CareCategoryKey, CategoryAssignment>
   subscriptions: SubscriptionRow[]
   therapists: { profileId: string; name: string; clinicianType: string | null; specializations: string[] }[]
+  walletCreditRupees: number
 }
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
@@ -428,6 +429,13 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       const types = await prisma.therapistProfile.findMany({ where: { isActive: true }, select: { id: true, clinicianType: true } })
       for (const t of types) clinTypeById.set(t.id, t.clinicianType ?? null)
     } catch { /* 0017 not applied yet */ }
+    // Wallet balance read defensively — the column may not exist on a DB that
+    // hasn't run the referral migration yet, so a failure just reads as ₹0.
+    let walletCreditRupees = 0
+    try {
+      const w = await prisma.user.findUnique({ where: { id: userId }, select: { walletCreditRupees: true } })
+      walletCreditRupees = w?.walletCreditRupees ?? 0
+    } catch { /* referral columns not applied yet */ }
     const nameOf = (id: string | null | undefined) => (id ? therapists.find((t) => t.id === id)?.user?.name ?? null : null)
     const pp = user.patientProfile
     const assignedId = pp?.assignedTherapistId ?? latestAppt?.therapistId ?? null
@@ -453,6 +461,7 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       therapists: therapists
         .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', clinicianType: clinTypeById.get(t.id) ?? null, specializations: t.specializations }))
         .sort((a, b) => a.name.localeCompare(b.name)),
+      walletCreditRupees,
     }
   }, null)
 }
