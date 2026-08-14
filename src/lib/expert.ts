@@ -757,7 +757,11 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
       roomId: r.roomId,
       meetLink: r.meetLink,
       hasSummary: Boolean(r.summary),
-      isPast: r.scheduledAt.getTime() < now,
+      // "Past" only once the whole session window has elapsed (or it's completed)
+      // — NOT the instant the start time is reached. Otherwise a session flips to
+      // "write notes" at its start and the clinician loses the Join button while
+      // the session is meant to be live. Mirrors the patient side.
+      isPast: r.status === 'COMPLETED' || r.scheduledAt.getTime() + r.durationMins * 60_000 < now,
       preSessionNote: r.preSessionNote ?? null,
       cancelRequested: r.cancelRequested ?? false,
       cancelReason: r.cancelReason ?? null,
