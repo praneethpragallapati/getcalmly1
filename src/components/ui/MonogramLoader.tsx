@@ -36,8 +36,8 @@ export function MonogramLoader({
     <div className="gc-loader" role="status" aria-live="polite">
       <svg className="gc-loader-mark" viewBox="0 0 206 280" fill="none" aria-hidden="true">
         <path d={cPath} stroke={color} strokeWidth={44} strokeLinecap="butt" strokeLinejoin="round" />
-        {/* Square dot, bottom-aligned with the C (bottom at y=272), to its right. */}
-        <rect x={150} y={226} width={46} height={46} rx={7} fill={color} />
+        {/* Square dot with sharp corners, bottom-aligned with the C, to its right. */}
+        <rect x={150} y={226} width={46} height={46} fill={color} />
       </svg>
       <span className="gc-loader-text">{label}</span>
     </div>
