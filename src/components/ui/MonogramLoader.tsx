@@ -26,16 +26,18 @@ export function MonogramLoader({
   label?: string
 }) {
   const color = TINT[tint] ?? TINT.coral
-  // The "C": a single open stroke (gap on the right), centred so the 22px stroke
-  // stays inside the 122×142 viewBox. Bottom of the stroke lands at y≈138.
+  // The "C": a tall, bold, condensed C opening on the right (mouth centred),
+  // drawn as one thick round-capped stroke — a rounded rectangle outline with a
+  // gap in the middle of the right edge. Tuned to the brand monogram's tall,
+  // narrow proportions (~2.4:1). The stroke's bottom lands at y≈272.
   const cPath =
-    'M80 34 C80 20 66 13 52 13 C33 13 22 30 22 70 C22 110 33 127 52 127 C66 127 80 120 80 106'
+    'M120 116 L120 54 Q120 30 96 30 L76 30 Q52 30 52 54 L52 226 Q52 250 76 250 L96 250 Q120 250 120 226 L120 164'
   return (
     <div className="gc-loader" role="status" aria-live="polite">
-      <svg className="gc-loader-mark" viewBox="0 0 122 142" fill="none" aria-hidden="true">
-        <path d={cPath} stroke={color} strokeWidth={22} strokeLinecap="round" />
-        {/* Square dot, bottom-aligned with the C (bottom at y=138), just to its right. */}
-        <rect x={96} y={116} width={22} height={22} rx={3.5} fill={color} />
+      <svg className="gc-loader-mark" viewBox="0 0 206 280" fill="none" aria-hidden="true">
+        <path d={cPath} stroke={color} strokeWidth={44} strokeLinecap="round" strokeLinejoin="round" />
+        {/* Square dot, bottom-aligned with the C (bottom at y=272), to its right. */}
+        <rect x={150} y={226} width={46} height={46} rx={7} fill={color} />
       </svg>
       <span className="gc-loader-text">{label}</span>
     </div>

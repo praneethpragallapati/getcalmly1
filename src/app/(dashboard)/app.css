@@ -2110,7 +2110,7 @@
   width: 100%;
 }
 .gc-loader-mark {
-  width: 66px;
+  width: 58px;
   height: auto;
   transform-origin: center center;
   animation: gc-breathe 3s ease-in-out infinite;
