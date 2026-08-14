@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Gift, Check } from 'lucide-react'
+import { Gift, Check, AlertTriangle } from 'lucide-react'
 import { saveReferralConfig, revokeReferralReward } from '@/app/admin/actions'
 import type { ReferralConfigValues, ReferrerRewardKind, AdminReferralRow } from '@/lib/referral'
 
@@ -17,6 +17,7 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const [enabled, setEnabled] = useState(config.enabled)
   const [kind, setKind] = useState<ReferrerRewardKind>(config.referrerRewardKind)
@@ -26,16 +27,25 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
 
   const save = () => {
     setSaved(false)
+    setError(null)
     startTransition(async () => {
-      await saveReferralConfig({
+      const res = await saveReferralConfig({
         enabled,
         referrerRewardKind: kind,
         referrerRewardValue: Number(value) || 0,
         refereeDiscount: Number(discount) || 0,
         clawback,
       })
-      setSaved(true)
-      router.refresh()
+      if (res?.ok) {
+        setSaved(true)
+        router.refresh()
+      } else {
+        // A failed save is why the toggle "reverts" on refresh: nothing was
+        // persisted, so the page reloads the old (default/off) config. Surface it
+        // instead of a false "Saved". The usual cause is the referral tables not
+        // existing yet on this database.
+        setError(res?.error || 'Could not save. The referral tables may not exist on this database yet — run the pending migration (0026_referrals).')
+      }
     })
   }
 
@@ -108,9 +118,15 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 22 }}>
           <button onClick={save} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>Save settings</button>
-          {saved && !pending && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#2C7A57', fontSize: 13.5 }}><Check size={15} /> Saved</span>}
+          {saved && !pending && !error && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#2C7A57', fontSize: 13.5 }}><Check size={15} /> Saved</span>}
           <span className="muted" style={{ fontSize: 12.5, marginLeft: 'auto' }}>Value in {valueUnit}</span>
         </div>
+        {error && !pending && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 14, padding: '11px 13px', background: 'rgba(192,80,75,.08)', border: '1px solid rgba(192,80,75,.25)', borderRadius: 8, color: '#9E3B36', fontSize: 13 }}>
+            <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+            <span>{error}</span>
+          </div>
+        )}
       </div>
 
       {/* Referrals list */}
