@@ -63,7 +63,7 @@ function Row({ a }: { a: ScheduleAppointment }) {
 
         {isLive(a) && (
           <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <Link href={`/app/sessions/${a.roomId ?? a.id}/room`} className="btn btn-primary btn-sm">
+            <Link href={`/expert/sessions/${a.id}/room`} className="btn btn-primary btn-sm">
               <Video size={13} /> Join room
             </Link>
             {a.cancelRequested ? (

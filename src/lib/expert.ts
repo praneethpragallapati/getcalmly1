@@ -775,6 +775,32 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
   })
 }
 
+export type ExpertRoom = { roomId: string; patientName: string; therapistName: string; when: string }
+
+/**
+ * Resolve a session room for the clinician's OWN video route. The patient room
+ * lives under the patient-only /app layout (which redirects clinicians away), so
+ * the expert needs its own route — this scopes the lookup to the therapist and
+ * returns the shared roomId both sides connect to.
+ */
+export async function getExpertRoom(therapistProfileId: string, appointmentId: string): Promise<ExpertRoom | null> {
+  const appt = await prisma.appointment.findFirst({
+    where: { OR: [{ id: appointmentId }, { roomId: appointmentId }], therapistId: therapistProfileId },
+    select: {
+      id: true, roomId: true, scheduledAt: true,
+      patient: { select: { name: true } },
+      therapist: { select: { user: { select: { name: true } } } },
+    },
+  })
+  if (!appt) return null
+  return {
+    roomId: appt.roomId ?? appt.id,
+    patientName: appt.patient?.name ?? 'Patient',
+    therapistName: appt.therapist?.user?.name ?? 'Clinician',
+    when: fmtIST(appt.scheduledAt, { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+  }
+}
+
 /**
  * Clinician asks to cancel a session. This does NOT cancel it — it flags the
  * appointment for admin approval and records the reason. The session stays live

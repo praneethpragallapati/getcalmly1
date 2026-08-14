@@ -184,7 +184,7 @@ export default async function ExpertHomePage() {
                 </div>
               )}
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                <Link href={`/app/sessions/${next.roomId ?? next.id}/room`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+                <Link href={`/expert/sessions/${next.id}/room`} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
                   <Video size={15} /> Join Meet
                 </Link>
                 <Link href={`/expert/patients/${next.patientId}`} className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(255,255,255,.08)', color: '#fff', border: '1px solid rgba(255,255,255,.16)' }}>
