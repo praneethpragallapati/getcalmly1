@@ -31,7 +31,7 @@ export function MonogramLoader({
   // gap in the middle of the right edge. Tuned to the brand monogram's tall,
   // narrow proportions (~2.4:1). The stroke's bottom lands at y≈272.
   const cPath =
-    'M120 116 L120 54 Q120 30 96 30 L76 30 Q52 30 52 54 L52 226 Q52 250 76 250 L96 250 Q120 250 120 226 L120 164'
+    'M120 104 L120 54 Q120 30 96 30 L76 30 Q52 30 52 54 L52 226 Q52 250 76 250 L96 250 Q120 250 120 226 L120 176'
   return (
     <div className="gc-loader" role="status" aria-live="polite">
       <svg className="gc-loader-mark" viewBox="0 0 206 280" fill="none" aria-hidden="true">
