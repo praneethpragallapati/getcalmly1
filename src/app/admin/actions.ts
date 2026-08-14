@@ -11,7 +11,7 @@ import type { PricingValues } from '@/data/pricing'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/reassign'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
-import { revokeReferral, revokeReferralForPayment } from '@/lib/referral'
+import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -869,6 +869,10 @@ export async function saveReferralConfig(input: {
     clawback: Boolean(input.clawback),
   }
   try {
+    // Self-heal: create the referral tables if the DB hasn't had the migration
+    // applied yet, so the setting actually persists (otherwise the toggle
+    // "reverts" on refresh because nothing was ever stored).
+    await ensureReferralSchema()
     await prisma.referralConfig.upsert({
       where: { id: 'default' },
       update: data,
@@ -876,8 +880,9 @@ export async function saveReferralConfig(input: {
     })
     revalidatePath('/admin/referrals')
     return { ok: true }
-  } catch {
-    return { ok: false, error: 'Could not save referral settings.' }
+  } catch (e) {
+    console.error('saveReferralConfig failed:', e)
+    return { ok: false, error: 'Could not save referral settings. Please try again.' }
   }
 }
 
