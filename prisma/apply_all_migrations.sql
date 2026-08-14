@@ -139,3 +139,16 @@ ALTER TABLE "Poll" ADD COLUMN IF NOT EXISTS "pinned" BOOLEAN NOT NULL DEFAULT fa
 ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "cancelRequested" BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "cancelReason" TEXT;
 ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "cancelRequestedAt" TIMESTAMP(3);
+
+-- 0025 · Durable WebRTC signaling relay (cross-instance). Idempotent.
+CREATE TABLE IF NOT EXISTS "WebrtcSignal" (
+  "seq"       SERIAL NOT NULL,
+  "roomId"    TEXT NOT NULL,
+  "peerId"    TEXT NOT NULL,
+  "kind"      TEXT NOT NULL,
+  "data"      JSONB,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "WebrtcSignal_pkey" PRIMARY KEY ("seq")
+);
+CREATE INDEX IF NOT EXISTS "WebrtcSignal_roomId_seq_idx" ON "WebrtcSignal"("roomId", "seq");
+CREATE INDEX IF NOT EXISTS "WebrtcSignal_createdAt_idx" ON "WebrtcSignal"("createdAt");

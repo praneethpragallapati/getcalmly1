@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<'/api/webrtc/[room
   const since = Number(searchParams.get('since') ?? '0') || 0
   if (!peerId) return Response.json({ error: 'peerId required' }, { status: 400 })
 
-  const { signals, seq } = getSignals(roomId, peerId, since)
+  const { signals, seq } = await getSignals(roomId, peerId, since)
   return Response.json({ signals, seq })
 }
 
@@ -48,6 +48,6 @@ export async function POST(req: NextRequest, ctx: RouteContext<'/api/webrtc/[roo
     return Response.json({ error: 'peerId and a valid kind required' }, { status: 400 })
   }
 
-  const signal = postSignal(roomId, peerId, kind as SignalKind, data)
+  const signal = await postSignal(roomId, peerId, kind as SignalKind, data)
   return Response.json({ ok: true, seq: signal.seq })
 }

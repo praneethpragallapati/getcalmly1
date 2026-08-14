@@ -1097,3 +1097,21 @@ model EnterpriseLead {
 
   @@index([handled, createdAt])
 }
+
+// Durable WebRTC signaling relay. The in-app video room exchanges SDP
+// offers/answers + ICE candidates through short-polling until a direct P2P
+// connection forms. This MUST be a shared store, not per-instance memory: on
+// serverless (Vercel) the two participants hit different instances, so an
+// in-memory relay never lets their signals meet. Rows are swept after a short
+// TTL; no media ever touches the DB — only the tiny setup handshake.
+model WebrtcSignal {
+  seq       Int      @id @default(autoincrement())
+  roomId    String
+  peerId    String
+  kind      String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  @@index([roomId, seq])
+  @@index([createdAt])
+}
