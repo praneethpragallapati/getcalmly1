@@ -179,38 +179,24 @@ export async function getDashboardData(): Promise<DashboardData> {
   const userId = await getSessionUserId()
   if (!userId) return demoDashboard // logged-out: bundled demo, same as blog/community
 
-  // Settle any elapsed sessions (no-shows / auto-complete) so the home dashboard's
-  // "today / next session" reflects the true state, same as the sessions page.
-  await resolveDueAppointments({ patientId: userId })
-
-  // Identity first, in its own guard: even if the analytics queries below fail
-  // (e.g. a schema migration not yet applied on this DB), a signed-in patient
-  // still sees a personalized EMPTY dashboard — never the "Priya" demo.
-  let user: { name: string | null; email: string | null; createdAt: Date } | null = null
-  try {
-    user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { name: true, email: true, createdAt: true },
-    })
-  } catch {
-    /* fall through with a blank, unnamed dashboard */
-  }
-
   const data = blankDashboard()
-  data.name = firstNameFrom(user?.name, user?.email)
   data.patientId = patientCode(userId)
-  if (user?.createdAt) {
-    data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
-  }
 
   try {
-    // Each query is independently resilient: if one fails (e.g. a not-yet-applied
-    // migration column), only that widget goes empty — the rest of the dashboard
-    // (plan, streak, check-ins) still renders. A single throw must never blank
-    // everything back to the "no data" state.
-    const [moods, journals, journalCount, dailyInsight, weeklyInsight, tasks, sub, appts, communityPosts] =
+    // ONE round-trip wave. At high DB latency every sequential `await` costs a
+    // full round trip, so identity, session settlement and all the analytics run
+    // concurrently instead of one-after-another. Settlement's effect (auto
+    // complete/cancel) shows on the next load rather than this one — it's
+    // idempotent and the sessions page settles too, so a one-load lag is fine.
+    // Each query is independently resilient (its own .catch): if one fails only
+    // that widget goes empty; the rest of the dashboard still renders.
+    const [user, [moods, journals, journalCount, dailyInsight, weeklyInsight, tasks, sub, appts, communityPosts]] =
       await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true, createdAt: true },
+      }).catch(() => null),
+      Promise.all([
         prisma.moodEntry.findMany({
           where: { userId },
           orderBy: { createdAt: 'desc' },
@@ -253,7 +239,16 @@ export async function getDashboardData(): Promise<DashboardData> {
           },
         }).catch(() => []),
         getCommunityPostsCached().catch(() => []),
-      ])
+      ]),
+      // Settlement runs in the same wave; its result is unused (see note above).
+      resolveDueAppointments({ patientId: userId }),
+    ])
+
+    data.name = firstNameFrom(user?.name, user?.email)
+    if (user?.createdAt) {
+      data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
+    }
 
     // Mood widgets always reflect the patient's OWN check-ins, never the demo
     // sample. Days (and weeks) they didn't track stay empty instead of showing

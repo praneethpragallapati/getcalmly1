@@ -35,18 +35,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const userId = await getSessionUserId()
 
-  // Claim a referral if this patient signed up via someone's link (?ref=CODE
-  // stored in the gc_ref cookie). Idempotent + best-effort — no-ops once the
-  // patient is already attributed or if they're an existing customer.
-  if (userId) {
-    const refCode = (await cookies()).get('gc_ref')?.value
-    if (refCode) await attributeReferral(userId, decodeURIComponent(refCode))
-  }
+  // Claim a referral if this patient signed up via someone's link (?ref=CODE in
+  // the gc_ref cookie). Idempotent + best-effort — no-ops once attributed. Run
+  // it in the SAME wave as the summary/badge (not a sequential await before
+  // them) so it never adds a round trip to the page load. cookies() is not a DB
+  // hit. Its result is unused by the render.
+  const refCode = userId ? (await cookies()).get('gc_ref')?.value : undefined
 
-  // Chrome-only summary (cheap) + unread badge, fetched together.
   const [d, unread] = await Promise.all([
     getSidebarSummary(),
     userId ? getUnreadCount(userId) : Promise.resolve(0),
+    refCode && userId ? attributeReferral(userId, decodeURIComponent(refCode)) : Promise.resolve(),
   ])
   const now = new Date()
   const dateLine = now.toLocaleDateString('en-IN', {
