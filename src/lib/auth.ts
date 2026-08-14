@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
           where: { phone },
           update: {},
           create: { phone, role: 'PATIENT' },
+          select: { id: true, name: true, email: true },
         })
         return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
       },
@@ -93,6 +94,7 @@ export const authOptions: NextAuthOptions = {
           where: { email },
           update: {},
           create: { email, role: 'PATIENT' },
+          select: { id: true, name: true, email: true },
         })
         return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
       },
@@ -109,7 +111,13 @@ export const authOptions: NextAuthOptions = {
         const password = credentials?.password
         if (!email || !password) return null
 
-        const user = await prisma.user.findUnique({ where: { email } })
+        // Narrow select (never a full-row read): login must not break when the DB
+        // is missing a newer column the Prisma schema knows about — a full-row
+        // SELECT would throw and read as "invalid email or password" for everyone.
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, name: true, email: true, passwordHash: true },
+        })
         if (!user || !verifyPassword(password, user.passwordHash)) return null
 
         return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }
