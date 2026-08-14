@@ -1,5 +1,5 @@
 import { MonogramLoader } from '@/components/ui/MonogramLoader'
 
 export default function Loading() {
-  return <MonogramLoader tint="coral" />
+  return <MonogramLoader tint="purple" />
 }

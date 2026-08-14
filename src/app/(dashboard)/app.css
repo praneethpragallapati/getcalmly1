@@ -2094,3 +2094,59 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Branded loading state ──────────────────────────────────────────────────
+   Shown by each dashboard's loading.tsx (a Suspense fallback) so navigation
+   never lands on a blank screen. The "C." monogram breathes and a trace draws
+   around the C, signalling active work in the brand's calm register. */
+.gc-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: min(60vh, 520px);
+  width: 100%;
+}
+.gc-loader-mark {
+  width: 74px;
+  height: auto;
+  animation: gc-breathe 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+.gc-loader-base { opacity: 0.16; }
+.gc-loader-trace {
+  stroke-dasharray: 150 300;
+  stroke-dashoffset: 450;
+  animation: gc-trace 1.8s cubic-bezier(0.6, 0, 0.35, 1) infinite;
+}
+.gc-loader-dot { animation: gc-dot 1.8s ease-in-out infinite; transform-origin: center; }
+.gc-loader-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--c-gray-d, #6B7D8E);
+  animation: gc-fade 1.8s ease-in-out infinite;
+}
+@keyframes gc-breathe {
+  0%, 100% { transform: scale(0.94); }
+  50%      { transform: scale(1.02); }
+}
+@keyframes gc-trace {
+  0%   { stroke-dashoffset: 450; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes gc-dot {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  55%      { opacity: 1;   transform: scale(1); }
+}
+@keyframes gc-fade {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-loader-mark, .gc-loader-trace, .gc-loader-dot, .gc-loader-text { animation: none; }
+  .gc-loader-base { opacity: 0.4; }
+  .gc-loader-trace { stroke-dashoffset: 0; stroke-dasharray: none; }
+}
