@@ -52,15 +52,17 @@ export function CallRoom({
   const stoppedRef = useRef<boolean>(false)
 
   const send = useCallback(
-    async (kind: string, data: unknown) => {
+    async (kind: string, data: unknown): Promise<boolean> => {
       try {
-        await fetch(`/api/webrtc/${roomId}`, {
+        const res = await fetch(`/api/webrtc/${roomId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ peerId: peerIdRef.current, kind, data }),
         })
+        return res.ok
       } catch {
         /* a dropped signal will be retried by the next negotiation tick */
+        return false
       }
     },
     [roomId]
@@ -197,7 +199,34 @@ export function CallRoom({
 
     pcRef.current = buildPeerConnection()
     setPhase('waiting')
-    await send('hello', null)
+
+    // Start this side's signal cursor at the room's current head, so stale
+    // signals left in the relay by earlier call attempts don't get replayed into
+    // (and corrupt) this fresh negotiation. Discovery still works: an already-
+    // present peer re-announces "hello" when it sees ours.
+    try {
+      const res = await fetch(`/api/webrtc/${roomId}?peerId=${peerIdRef.current}&since=0`, { cache: 'no-store' })
+      if (res.status === 403) {
+        setErrorMsg('You don’t have access to this session room.')
+        setPhase('error')
+        return
+      }
+      if (res.ok) {
+        const j = (await res.json()) as { seq?: number }
+        sinceRef.current = j.seq ?? 0
+      }
+    } catch {
+      /* couldn't prime the cursor — poll() will still advance it */
+    }
+
+    const helloOk = await send('hello', null)
+    if (!helloOk) {
+      // A hard failure here almost always means the signaling backend is
+      // unreachable (e.g. the WebrtcSignal table hasn't been migrated yet).
+      setErrorMsg('Couldn’t reach the session server. Please refresh and try again in a moment.')
+      setPhase('error')
+      return
+    }
     await poll()
     pollRef.current = setInterval(poll, POLL_MS)
   }, [buildPeerConnection, poll, send, roomId])
