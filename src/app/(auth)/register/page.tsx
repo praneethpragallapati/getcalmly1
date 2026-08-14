@@ -57,12 +57,20 @@ function RegisterForm() {
   const sp = useSearchParams()
   const c = sp.get('care')
   const careType = c && CARE_LABELS[c] ? c : null
-  // Referral link (?ref=CODE): stash it in a cookie so it survives the whole
-  // signup flow (including OAuth round-trips) and is claimed on first dashboard load.
+  // Referral code — either from the link (?ref=CODE) or typed in by hand (for
+  // someone who was given a code verbally, not via a link). Whichever it is, we
+  // stash it in a cookie so it survives the whole signup flow (including OAuth
+  // round-trips) and is claimed on first dashboard load. Held in state so the
+  // field stays editable; the URL value just seeds it.
   const refCode = sp.get('ref')
+  const [referral, setReferral] = useState('')
   useEffect(() => {
-    if (refCode) document.cookie = `gc_ref=${encodeURIComponent(refCode)}; path=/; max-age=2592000; samesite=lax`
+    if (refCode) setReferral(refCode.trim().toUpperCase())
   }, [refCode])
+  useEffect(() => {
+    const clean = referral.trim().toUpperCase()
+    if (clean) document.cookie = `gc_ref=${encodeURIComponent(clean)}; path=/; max-age=2592000; samesite=lax`
+  }, [referral])
   // Who the care is for is derived from the plan, not asked here — the assessment
   // captures the recipient. A couples plan collects the spouse's details.
   const careFor: CareFor = careType === 'couples' ? 'couple' : 'self'
@@ -199,6 +207,8 @@ function RegisterForm() {
               )}
               {emailErr && <p style={{ fontSize: 12.5, color: '#C0392B', marginTop: 8 }}>{emailErr}</p>}
             </div>
+
+            <ReferralField value={referral} onChange={setReferral} prefilled={Boolean(refCode)} />
           </div>
 
           <button onClick={continueFromBasics} disabled={checking} style={{ ...primaryBtn, marginTop: 24, opacity: checking ? 0.6 : 1 }}>{checking ? 'Checking…' : 'Continue →'}</button>
@@ -400,6 +410,47 @@ function RegisterForm() {
 }
 
 /* ── small presentational helpers ───────────────────────── */
+
+/**
+ * Optional referral-code entry on step 1. Collapsed to a small link by default,
+ * so it never distracts from signup; expands to an input on tap. When the user
+ * arrived via an invite link (?ref=CODE) the code is already applied, so we show
+ * it open with a confirmation and let them correct it if needed.
+ */
+function ReferralField({ value, onChange, prefilled }: { value: string; onChange: (v: string) => void; prefilled: boolean }) {
+  const [open, setOpen] = useState(prefilled)
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        style={{ background: 'none', border: 'none', color: '#6B7D8E', fontSize: 13, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textDecoration: 'underline', alignSelf: 'flex-start', padding: 0 }}
+      >
+        Have a referral code?
+      </button>
+    )
+  }
+
+  return (
+    <Field label="Referral code (optional)">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value.toUpperCase())}
+        placeholder="e.g. ABC2345"
+        autoCapitalize="characters"
+        spellCheck={false}
+        style={{ ...inputStyle, letterSpacing: '.08em', fontFamily: 'ui-monospace, monospace' }}
+      />
+      <p style={{ fontSize: 12.5, color: prefilled ? '#2C7A57' : '#8E9EAE', marginTop: 7 }}>
+        {prefilled
+          ? '✓ Applied from your invite link — your friend gets credit when you buy your first package.'
+          : 'Enter a friend’s code to unlock your welcome discount.'}
+      </p>
+    </Field>
+  )
+}
 
 function StepHead({ title, sub }: { title: string; sub: string }) {
   return (
