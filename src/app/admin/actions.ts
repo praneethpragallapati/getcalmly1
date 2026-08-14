@@ -845,8 +845,8 @@ export async function voidSession(input: { appointmentId: string; reason?: strin
 /**
  * Save the referral program settings. Turning `enabled` off removes the program
  * entirely (patient UI hides, no rewards granted). Referrer reward is either
- * WALLET_CREDIT (₹) or FREE_SESSION (count), or NONE; the referee gets a
- * first-purchase discount in ₹.
+ * WALLET_CREDIT (₹) or NONE; the referee gets a first-purchase discount in ₹.
+ * Wallet credit can be spent as part-payment on any purchase.
  */
 export async function saveReferralConfig(input: {
   enabled: boolean
@@ -856,7 +856,7 @@ export async function saveReferralConfig(input: {
   clawback: boolean
 }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
-  const kind = ['WALLET_CREDIT', 'FREE_SESSION', 'NONE'].includes(input.referrerRewardKind)
+  const kind = ['WALLET_CREDIT', 'NONE'].includes(input.referrerRewardKind)
     ? input.referrerRewardKind
     : 'NONE'
   const value = Math.max(0, Math.round(Number(input.referrerRewardValue) || 0))

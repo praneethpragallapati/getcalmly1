@@ -7,7 +7,7 @@
 import { prisma } from '@/lib/prisma'
 import { packsForIn, type BuyableTrack } from '@/data/pricing'
 import { getPricingConfig } from '@/lib/pricingConfig'
-import { resolveReferralCheckout, finalizeReferralCheckout } from '@/lib/referral'
+import { resolveReferralCheckout, finalizeReferralCheckout, resolveWalletPayment, spendWalletCredit } from '@/lib/referral'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -48,7 +48,14 @@ function addMonths(from: Date, months: number): Date {
   return d
 }
 
-export type BuyResult = { ok: boolean; sessionsTotal?: number; sessionsRemaining?: number; error?: string }
+export type BuyResult = {
+  ok: boolean
+  sessionsTotal?: number
+  sessionsRemaining?: number
+  walletApplied?: number // ₹ of wallet credit used as part-payment
+  amountPaid?: number // ₹ actually charged after wallet credit
+  error?: string
+}
 
 export type PackageBalance = {
   track: string
@@ -134,10 +141,10 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
   if (!pack) return { ok: false, error: 'Unknown package.' }
   const planName = `${PLAN_NAME[track]} ${pack.sessions}-session pack`
 
-  // Referral / wallet: work out the referee first-purchase discount, wallet
-  // credit to spend, and bonus sessions to fold in, before we price the pack.
+  // Referral / wallet: work out the referee first-purchase discount and wallet
+  // credit to spend as part-payment, before we price the pack.
   const rr = await resolveReferralCheckout(patientId, pack.total)
-  const sessionsToAdd = pack.sessions + rr.bonusSessionsAdded
+  const sessionsToAdd = pack.sessions
 
   // Scope to THIS package type — never merge a psychiatry buy into a therapy pack.
   const existing = await findExistingForTrack(patientId, track)
@@ -168,7 +175,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
     })
     const paymentId = await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
     await finalizeReferralCheckout(patientId, rr, paymentId)
-    return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed) }
+    return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed), walletApplied: rr.creditUsed, amountPaid: rr.finalAmount }
   }
 
   const expiresAt = addMonths(now, pack.months)
@@ -191,7 +198,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
     })
     const paymentId = await recordPayment({ userId: patientId, subscriptionId: created.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
     await finalizeReferralCheckout(patientId, rr, paymentId)
-    return { ok: true, sessionsTotal: sessionsToAdd, sessionsRemaining: sessionsToAdd }
+    return { ok: true, sessionsTotal: sessionsToAdd, sessionsRemaining: sessionsToAdd, walletApplied: rr.creditUsed, amountPaid: rr.finalAmount }
   } catch (e) {
     // Lost a concurrent create race (double-submit): the partial-unique index on
     // ACTIVE (userId, trackSlug) rejected this one. Treat it as idempotent — the
@@ -243,6 +250,9 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
     expiresAt,
     renewsAt: expiresAt,
   }
+  // Wallet credit can part-pay any purchase, including the intro session.
+  const wallet = await resolveWalletPayment(patientId, price)
+
   let sub
   if (existing) {
     sub = await prisma.subscription.update({ where: { id: existing.id }, data })
@@ -259,8 +269,9 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
       throw e
     }
   }
-  await recordPayment({ userId: patientId, subscriptionId: sub.id, amount: price, kind: 'first_session', trackSlug: track, planName })
-  return { ok: true, sessionsTotal: 1, sessionsRemaining: 1 }
+  await recordPayment({ userId: patientId, subscriptionId: sub.id, amount: wallet.finalAmount, kind: 'first_session', trackSlug: track, planName })
+  await spendWalletCredit(patientId, wallet.creditUsed)
+  return { ok: true, sessionsTotal: 1, sessionsRemaining: 1, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount }
 }
 
 /**
@@ -280,6 +291,9 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
   const now = new Date()
   const planLabel = `Calm+ · ${pack.label}`
 
+  // Wallet credit part-pays a Calm+ purchase like any other.
+  const wallet = await resolveWalletPayment(patientId, pack.total)
+
   if (existing) {
     const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
     const expiresAt = addMonths(base, pack.months)
@@ -296,11 +310,14 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
         renewsAt: expiresAt,
       },
     })
-    await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: pack.total, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
+    await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: wallet.finalAmount, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
+    await spendWalletCredit(patientId, wallet.creditUsed)
     return {
       ok: true,
       sessionsTotal: existing.sessionsTotal,
       sessionsRemaining: Math.max(0, existing.sessionsTotal - existing.sessionsUsed),
+      walletApplied: wallet.creditUsed,
+      amountPaid: wallet.finalAmount,
     }
   }
 
@@ -321,8 +338,9 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
       renewsAt: expiresAt,
     },
   })
-  await recordPayment({ userId: patientId, subscriptionId: created.id, amount: pack.total, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
-  return { ok: true, sessionsTotal: 0, sessionsRemaining: 0 }
+  await recordPayment({ userId: patientId, subscriptionId: created.id, amount: wallet.finalAmount, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
+  await spendWalletCredit(patientId, wallet.creditUsed)
+  return { ok: true, sessionsTotal: 0, sessionsRemaining: 0, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount }
 }
 
 /** Whether the patient already has a partner on record (for couples purchases). */

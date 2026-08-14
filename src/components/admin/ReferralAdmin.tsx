@@ -54,7 +54,7 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
     fontFamily: 'inherit', color: charcoal, background: '#fff', width: '100%',
   }
   const label: React.CSSProperties = { fontSize: 12.5, fontWeight: 600, color: '#5A6B7A', marginBottom: 6, display: 'block' }
-  const valueUnit = kind === 'FREE_SESSION' ? 'sessions' : '₹'
+  const valueUnit = '₹'
 
   return (
     <div className="stack">
@@ -84,20 +84,18 @@ export function ReferralAdmin({ config, referrals }: { config: ReferralConfigVal
             <div style={{ display: 'flex', gap: 8 }}>
               <select style={{ ...field, flex: 1 }} value={kind} onChange={(e) => setKind(e.target.value as ReferrerRewardKind)}>
                 <option value="WALLET_CREDIT">Wallet credit (₹)</option>
-                <option value="FREE_SESSION">Free session(s)</option>
                 <option value="NONE">No reward</option>
               </select>
               {kind !== 'NONE' && (
                 <div style={{ position: 'relative', width: 130 }}>
-                  <input style={{ ...field, textAlign: 'right', paddingRight: kind === 'FREE_SESSION' ? 11 : 26 }}
+                  <input style={{ ...field, textAlign: 'right', paddingRight: 26 }}
                     type="number" min={0} value={value} onChange={(e) => setValue(e.target.value)} />
-                  {kind === 'WALLET_CREDIT' && <span style={{ position: 'absolute', left: 11, top: 9, color: '#8E9EAE' }}>₹</span>}
+                  <span style={{ position: 'absolute', left: 11, top: 9, color: '#8E9EAE' }}>₹</span>
                 </div>
               )}
             </div>
             <span className="muted" style={{ fontSize: 12, marginTop: 6, display: 'block' }}>
-              {kind === 'FREE_SESSION' ? 'Added to their most recent package (or next purchase).' :
-                kind === 'WALLET_CREDIT' ? 'Added to their wallet, applied at their next checkout.' : 'The referrer earns nothing.'}
+              {kind === 'WALLET_CREDIT' ? 'Added to their wallet — spendable as part-payment on anything they buy.' : 'The referrer earns nothing.'}
             </span>
           </div>
 

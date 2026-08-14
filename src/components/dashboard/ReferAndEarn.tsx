@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Gift, Copy, Check, Wallet, Ticket } from 'lucide-react'
+import { Gift, Copy, Check, Wallet } from 'lucide-react'
 import type { PatientReferralView } from '@/lib/referral'
 
 export function ReferAndEarn({ data }: { data: PatientReferralView }) {
@@ -68,21 +68,12 @@ export function ReferAndEarn({ data }: { data: PatientReferralView }) {
         )}
       </div>
 
-      {/* Balances */}
-      <div className="grid-2">
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <span style={{ width: 42, height: 42, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'rgba(26,127,122,.1)', color: 'var(--c-green, #1A7F7A)' }}><Wallet size={20} /></span>
-          <div>
-            <div className="section-title" style={{ margin: 0 }}>₹{data.walletCreditRupees.toLocaleString('en-IN')}</div>
-            <div className="muted" style={{ fontSize: 13 }}>wallet credit · applied at your next checkout</div>
-          </div>
-        </div>
-        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <span style={{ width: 42, height: 42, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'rgba(201,151,58,.14)', color: '#B07D2B' }}><Ticket size={20} /></span>
-          <div>
-            <div className="section-title" style={{ margin: 0 }}>{data.bonusSessions}</div>
-            <div className="muted" style={{ fontSize: 13 }}>bonus session{data.bonusSessions === 1 ? '' : 's'} · added to your next package</div>
-          </div>
+      {/* Wallet balance */}
+      <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span style={{ width: 42, height: 42, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'rgba(26,127,122,.1)', color: 'var(--c-green, #1A7F7A)' }}><Wallet size={20} /></span>
+        <div>
+          <div className="section-title" style={{ margin: 0 }}>₹{data.walletCreditRupees.toLocaleString('en-IN')}</div>
+          <div className="muted" style={{ fontSize: 13 }}>wallet credit · spend it as part-payment on anything you buy</div>
         </div>
       </div>
 
