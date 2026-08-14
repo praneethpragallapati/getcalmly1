@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getSessionDetail } from '@/lib/sessions'
 import { getDashboardData } from '@/lib/dashboard'
-import { CallRoom } from '@/components/dashboard/CallRoom'
+import { JitsiRoom } from '@/components/dashboard/JitsiRoom'
 
 export const metadata = { title: 'Session room' }
 
@@ -30,7 +30,7 @@ export default async function RoomPage({ params }: PageProps<'/app/sessions/[id]
         </div>
       </div>
 
-      <CallRoom roomId={s.roomId} expert={s.expert} expertRole={s.expertRole} patientName={dash.name} />
+      <JitsiRoom roomId={s.roomId} displayName={dash.name} backHref="/app/sessions" />
     </>
   )
 }

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getTherapistContext, getExpertRoom } from '@/lib/expert'
-import { CallRoom } from '@/components/dashboard/CallRoom'
+import { JitsiRoom } from '@/components/dashboard/JitsiRoom'
 
 export const metadata = { title: 'Session room' }
 
@@ -38,7 +38,7 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <CallRoom roomId={room.roomId} expert={room.patientName} expertRole="Patient" patientName={room.therapistName} />
+      <JitsiRoom roomId={room.roomId} displayName={room.therapistName} backHref="/expert/schedule" />
     </>
   )
 }
