@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { notify } from '@/lib/notifications'
 
 /**
  * Referral program — data access + the reward engine's read side. The write side
@@ -306,6 +307,7 @@ export async function spendWalletCredit(userId: string, amount: number): Promise
   try {
     await prisma.user.update({ where: { id: userId }, data: { walletCreditRupees: { decrement: amount } } })
     await prisma.user.updateMany({ where: { id: userId, walletCreditRupees: { lt: 0 } }, data: { walletCreditRupees: 0 } })
+    await notify(userId, { type: 'wallet', title: `₹${amount.toLocaleString('en-IN')} used from your wallet`, body: 'Applied as part-payment on your purchase.', href: '/app/billing' })
   } catch {
     /* best-effort */
   }
@@ -334,6 +336,7 @@ export async function finalizeReferralCheckout(
     const value = config.referrerRewardValue
     if (kind === 'WALLET_CREDIT' && value > 0) {
       await prisma.user.update({ where: { id: referral.referrerId }, data: { walletCreditRupees: { increment: value } } })
+      await notify(referral.referrerId, { type: 'wallet', title: `You earned ₹${value.toLocaleString('en-IN')} referral credit`, body: 'A friend you referred bought their first package. Thank you!', href: '/app/refer' })
     }
 
     await prisma.referral.update({

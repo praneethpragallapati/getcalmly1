@@ -13,6 +13,7 @@ import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/re
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
 import { createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
+import { notify, notifyMany } from '@/lib/notifications'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -222,6 +223,9 @@ export async function createPoll(input: { question: string; options: string[]; e
   }
   try {
     await prisma.poll.create({ data: { question, options, expiresAt, createdBy: admin.id ?? null } })
+    // Notify patients there's a new poll to vote on (Others tab).
+    const patients = await prisma.user.findMany({ where: { role: 'PATIENT' }, select: { id: true }, take: 5000 }).catch(() => [])
+    await notifyMany(patients.map((p) => p.id), { type: 'poll', title: 'New poll in the community', body: question, href: '/app/community' })
     revalidatePath('/admin/content'); revalidatePath('/app/community'); revalidatePath('/community')
     return { ok: true }
   } catch {
@@ -294,6 +298,9 @@ export async function reassignPatient(input: { userId: string; therapistProfileI
     // re-book with the new clinician rather than keeping a stale booking.
     const oldId = before?.assignedTherapistId
     if (oldId && oldId !== input.therapistProfileId) await cancelUpcomingWithTherapist(oldId, input.userId)
+    if (oldId !== (input.therapistProfileId || null)) {
+      await notify(input.userId, { type: 'therapist', title: 'Your therapist was updated', body: 'Your care team has changed. Open your dashboard to see who you now book with.', href: '/app/therapist' })
+    }
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist'); revalidatePath('/app'); revalidatePath('/app/sessions')
     revalidatePath('/expert'); revalidatePath('/expert/patients'); revalidatePath('/expert/schedule')
@@ -333,6 +340,9 @@ export async function assignCategoryClinician(input: { userId: string; category:
     // previous clinician (sessions restored to the wallet), so they re-book with
     // the new one instead of holding a stale booking.
     if (oldId && oldId !== input.therapistProfileId) await cancelUpcomingWithTherapist(oldId, input.userId)
+    if (oldId !== (input.therapistProfileId || null)) {
+      await notify(input.userId, { type: 'therapist', title: `Your ${input.category} therapist was updated`, body: 'Your care team changed. Open your dashboard to see who you now book with.', href: '/app/therapist' })
+    }
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist')
     revalidatePath('/app'); revalidatePath('/app/sessions')
@@ -761,7 +771,7 @@ export async function approveCancellation(input: { appointmentId: string }): Pro
   try {
     const appt = await prisma.appointment.findUnique({
       where: { id: input.appointmentId },
-      select: { id: true, status: true, notes: true, consumedSubscriptionId: true, cancelReason: true },
+      select: { id: true, status: true, notes: true, consumedSubscriptionId: true, cancelReason: true, patientId: true },
     })
     if (!appt) return { ok: false, error: 'Session not found.' }
     if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') {
@@ -784,6 +794,7 @@ export async function approveCancellation(input: { appointmentId: string }): Pro
           })]
         : []),
     ])
+    await notify(appt.patientId, { type: 'cancellation', title: 'A session was cancelled', body: 'Your clinician had to cancel a session — it has been credited back to you. Please re-book at a time that suits you.', href: '/app/sessions' })
     revalidatePath('/admin/operations'); revalidatePath('/admin/money')
     return { ok: true }
   } catch { return { ok: false, error: 'Could not approve the cancellation.' } }
@@ -1050,6 +1061,12 @@ export async function adjustWalletCredit(input: { userId: string; amount: number
     await prisma.user.update({ where: { id: input.userId }, data: { walletCreditRupees: { increment: amount } } })
     // Never let a removal push the balance negative.
     await prisma.user.updateMany({ where: { id: input.userId, walletCreditRupees: { lt: 0 } }, data: { walletCreditRupees: 0 } })
+    await notify(input.userId, {
+      type: 'wallet',
+      title: amount > 0 ? `₹${amount.toLocaleString('en-IN')} added to your wallet` : `₹${Math.abs(amount).toLocaleString('en-IN')} removed from your wallet`,
+      body: 'Wallet credit is applied automatically as part-payment on your next purchase.',
+      href: '/app/billing',
+    })
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/billing'); revalidatePath('/app/refer')
     return { ok: true }

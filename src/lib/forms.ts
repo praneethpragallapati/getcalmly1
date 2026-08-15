@@ -7,6 +7,7 @@
  */
 import { prisma } from '@/lib/prisma'
 import { ownsPatient } from '@/lib/expert'
+import { notify } from '@/lib/notifications'
 import { FORM_TEMPLATES, intakeSlugForCategory, type FormField } from '@/data/forms'
 
 export type { FormField } from '@/data/forms'
@@ -185,11 +186,12 @@ export async function sendForm(
   // patient (by appointment OR admin assignment OR an attached package) can send
   // a form, not only one who already has an appointment with them.
   if (!(await ownsPatient(therapistProfileId, patientId))) return false
-  const template = await prisma.formTemplate.findUnique({ where: { id: templateId }, select: { id: true } })
+  const template = await prisma.formTemplate.findUnique({ where: { id: templateId }, select: { id: true, title: true } })
   if (!template) return false
   await prisma.formAssignment.create({
     data: { templateId, patientId, assignedBy: therapistName ?? 'Your care team' },
   })
+  await notify(patientId, { type: 'form', title: 'New form to fill', body: template.title, href: '/app/forms' })
   return true
 }
 
@@ -227,6 +229,7 @@ export async function autoSendIntakeForm(patientId: string, priorAppointments: n
   await prisma.formAssignment.create({
     data: { templateId: template.id, patientId, assignedBy: 'Auto' },
   })
+  await notify(patientId, { type: 'form', title: 'New form to fill', body: 'Please complete your intake form before your session.', href: '/app/forms' })
 }
 
 // ── Automatic form-send rules ────────────────────────────────────────────────
@@ -400,6 +403,9 @@ export async function runBookingFormRules(input: {
       await prisma.formAssignment.create({
         data: { templateId, patientId: input.patientId, assignedBy: input.therapistName ?? 'Your care team' },
       }).catch(() => {})
+    }
+    if (sendTemplateIds.size > 0) {
+      await notify(input.patientId, { type: 'form', title: 'New form to fill', body: 'A form was sent for your upcoming session.', href: '/app/forms' })
     }
   } catch {
     /* best-effort — never block a completed booking */

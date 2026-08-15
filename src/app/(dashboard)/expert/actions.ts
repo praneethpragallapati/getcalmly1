@@ -21,6 +21,7 @@ import {
   type CreateBlogInput,
 } from '@/lib/expert'
 import { sendForm, createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
+import { notify } from '@/lib/notifications'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
@@ -113,6 +114,8 @@ export async function assignTask(formData: FormData): Promise<void> {
       assignedById: ctx.userId,
     },
   })
+
+  await notify(patientId, { type: 'task', title: 'New task assigned', body: title, href: '/app' })
 
   revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app')

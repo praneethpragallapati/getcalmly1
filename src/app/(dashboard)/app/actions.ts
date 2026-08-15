@@ -7,7 +7,8 @@ import { rebuildAiProfile, runChat } from '@/lib/ai'
 import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm, runBookingFormRules } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
-import { markAllRead } from '@/lib/notifications'
+import { markAllRead, notify } from '@/lib/notifications'
+import { fmtIST } from '@/lib/tz'
 import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
@@ -446,6 +447,14 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
       await runBookingFormRules({ patientId: userId, trackSlug: track, therapistId: therapist.id, therapistName: null, sessionNumber })
     } catch { /* best-effort — never block a completed booking */ }
 
+    // Tell the patient their booking is confirmed.
+    await notify(userId, {
+      type: 'booking',
+      title: 'Session booked',
+      body: `Your ${TRACK_LABEL[track] ?? 'therapy'} session is confirmed for ${fmtIST(scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}.`,
+      href: '/app/sessions',
+    })
+
     revalidatePath('/app/sessions')
     revalidatePath('/app/forms')
     revalidatePath('/app')
@@ -532,6 +541,12 @@ export async function cancelMyAppointment(appointmentId: string): Promise<Action
           })]
         : []),
     ])
+    await notify(userId, {
+      type: 'cancellation',
+      title: 'Session cancelled',
+      body: `Your session on ${fmtIST(appt.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} was cancelled and the session credited back.`,
+      href: '/app/sessions',
+    })
     revalidatePath('/app/sessions'); revalidatePath('/app'); revalidatePath('/app/therapist'); revalidatePath('/app/billing')
     return { ok: true, persisted: true }
   } catch {
@@ -572,6 +587,12 @@ export async function rescheduleMyAppointment(appointmentId: string, newSlotIso:
     // dropping a CONFIRMED booking to a fresh-looking PENDING. It stays visible
     // as upcoming and signals both sides that the new slot needs re-confirmation.
     await prisma.appointment.update({ where: { id: appt.id }, data: { scheduledAt: newAt, status: 'RESCHEDULED' } })
+    await notify(userId, {
+      type: 'reschedule',
+      title: 'Session rescheduled',
+      body: `Your session was moved to ${fmtIST(newAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}.`,
+      href: '/app/sessions',
+    })
     revalidatePath('/app/sessions'); revalidatePath('/app')
     return { ok: true, persisted: true }
   } catch {
@@ -881,6 +902,11 @@ export async function addCommunityComment(input: {
         anonymous: anon,
       },
     })
+    // Notify the post's author of a new reply (not for replying to yourself).
+    const post = await prisma.communityPost.findUnique({ where: { id: input.postId }, select: { authorId: true, title: true } }).catch(() => null)
+    if (post?.authorId && post.authorId !== userId) {
+      await notify(post.authorId, { type: 'community', title: 'New reply to your post', body: post.title, href: `/app/community` })
+    }
     revalidatePath(`/community/${input.postId}`)
     revalidatePath('/community')
     revalidatePath('/app/community')
