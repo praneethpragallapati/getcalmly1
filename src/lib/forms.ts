@@ -245,6 +245,8 @@ export type FormAutoRuleRow = {
   sessionNumber: number | null
   active: boolean
   scope: 'PLATFORM' | 'MINE'
+  patientId: string | null
+  patientName: string | null // null when the rule applies to all patients
 }
 
 /**
@@ -273,6 +275,7 @@ export async function ensureFormRuleSchema(): Promise<void> {
       ALTER TABLE "FormAutoRule" ADD CONSTRAINT "FormAutoRule_templateId_fkey"
         FOREIGN KEY ("templateId") REFERENCES "FormTemplate"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
+    `ALTER TABLE "FormAutoRule" ADD COLUMN IF NOT EXISTS "patientId" TEXT`,
   ]
   for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
   formRuleSchemaReady = true
@@ -292,6 +295,7 @@ export async function createFormRule(input: {
   recurrence: FormRecurrence
   sessionNumber?: number | null
   therapistId: string | null
+  patientId?: string | null
 }): Promise<{ ok: boolean; error?: string }> {
   const track = VALID_TRACKS.includes(input.trackSlug) ? input.trackSlug : 'any'
   const recurrence = VALID_RECURRENCE.includes(input.recurrence) ? input.recurrence : 'ONCE'
@@ -301,7 +305,7 @@ export async function createFormRule(input: {
     const template = await prisma.formTemplate.findUnique({ where: { id: input.templateId }, select: { id: true } })
     if (!template) return { ok: false, error: 'Pick a form.' }
     await prisma.formAutoRule.create({
-      data: { templateId: input.templateId, trackSlug: track, recurrence, sessionNumber, therapistId: input.therapistId },
+      data: { templateId: input.templateId, trackSlug: track, recurrence, sessionNumber, therapistId: input.therapistId, patientId: input.patientId || null },
     })
     return { ok: true }
   } catch {
@@ -318,10 +322,15 @@ export async function listFormRules(therapistId: string | null): Promise<FormAut
       where: { therapistId: therapistId ?? null },
       orderBy: { createdAt: 'desc' },
       select: {
-        id: true, templateId: true, trackSlug: true, recurrence: true, sessionNumber: true, active: true, therapistId: true,
+        id: true, templateId: true, trackSlug: true, recurrence: true, sessionNumber: true, active: true, therapistId: true, patientId: true,
         template: { select: { title: true } },
       },
     })
+    // Resolve patient names for the scoped rules in one query.
+    const pids = [...new Set(rows.map((r) => r.patientId).filter(Boolean) as string[])]
+    const names = pids.length
+      ? new Map((await prisma.user.findMany({ where: { id: { in: pids } }, select: { id: true, name: true } })).map((u) => [u.id, u.name]))
+      : new Map<string, string | null>()
     return rows.map((r) => ({
       id: r.id,
       templateId: r.templateId,
@@ -331,6 +340,8 @@ export async function listFormRules(therapistId: string | null): Promise<FormAut
       sessionNumber: r.sessionNumber,
       active: r.active,
       scope: r.therapistId ? 'MINE' : 'PLATFORM',
+      patientId: r.patientId,
+      patientName: r.patientId ? (names.get(r.patientId) ?? 'Patient') : null,
     }))
   } catch {
     return []
@@ -389,7 +400,10 @@ export async function runBookingFormRules(input: {
       where: {
         active: true,
         trackSlug: { in: [input.trackSlug, 'any'] },
+        // Platform (therapistId null) OR this clinician's own rules.
         OR: [{ therapistId: null }, { therapistId: input.therapistId }],
+        // Applies to all patients (patientId null) OR to this specific patient.
+        AND: [{ OR: [{ patientId: null }, { patientId: input.patientId }] }],
       },
       select: { templateId: true, recurrence: true, sessionNumber: true },
     })

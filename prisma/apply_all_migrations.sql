@@ -198,3 +198,6 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 -- 0028_session_presence
 ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "patientLastSeenAt" TIMESTAMP(3);
 ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "therapistLastSeenAt" TIMESTAMP(3);
+
+-- 0029_form_rule_patient
+ALTER TABLE "FormAutoRule" ADD COLUMN IF NOT EXISTS "patientId" TEXT;

@@ -25,17 +25,20 @@ function recurrenceLabel(r: FormRecurrence, n: number | null): string {
 }
 
 type TemplateOpt = { id: string; title: string }
+type PatientOpt = { id: string; name: string }
 
 /**
  * Set up rules that auto-send a form after a booking, by package/session type and
- * session number (once at N, or every / even / odd session). Used at both admin
- * (platform-wide) and expert (their own patients) scope — the `scope` prop picks
- * which server actions to call.
+ * session number (once at N, or every / even / odd session). Every rule targets a
+ * specific patient or all patients in scope. Used at both admin (platform-wide)
+ * and expert (their own patients) scope — the `scope` prop picks which server
+ * actions to call.
  */
-export function FormRulesManager({ scope, rules, templates }: {
+export function FormRulesManager({ scope, rules, templates, patients }: {
   scope: 'admin' | 'expert'
   rules: FormAutoRuleRow[]
   templates: TemplateOpt[]
+  patients: PatientOpt[]
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -43,6 +46,7 @@ export function FormRulesManager({ scope, rules, templates }: {
   const [track, setTrack] = useState('any')
   const [recurrence, setRecurrence] = useState<FormRecurrence>('ONCE')
   const [sessionNumber, setSessionNumber] = useState('1')
+  const [patientId, setPatientId] = useState('') // '' = all patients
   const [error, setError] = useState<string | null>(null)
 
   const field: React.CSSProperties = {
@@ -54,9 +58,9 @@ export function FormRulesManager({ scope, rules, templates }: {
     setError(null)
     if (!templateId) { setError('Pick a form.'); return }
     startTransition(async () => {
-      const input = { templateId, trackSlug: track, recurrence, sessionNumber: Number(sessionNumber) || 1 }
+      const input = { templateId, trackSlug: track, recurrence, sessionNumber: Number(sessionNumber) || 1, patientId: patientId || null }
       const res = scope === 'admin' ? await createPlatformFormRule(input) : await createMyFormRule(input)
-      if (res.ok) { setTemplateId(''); router.refresh() }
+      if (res.ok) { setTemplateId(''); setPatientId(''); router.refresh() }
       else setError(res.error || 'Could not save the rule.')
     })
   }
@@ -90,8 +94,7 @@ export function FormRulesManager({ scope, rules, templates }: {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: charcoal }}>{r.templateTitle}</div>
               <div className="muted" style={{ fontSize: 12 }}>
-                {TRACK_LABEL[r.trackSlug] ?? r.trackSlug} · {recurrenceLabel(r.recurrence, r.sessionNumber)}
-                {scope === 'admin' && r.scope === 'PLATFORM' ? '' : ''}
+                {r.patientName ?? 'All patients'} · {TRACK_LABEL[r.trackSlug] ?? r.trackSlug} · {recurrenceLabel(r.recurrence, r.sessionNumber)}
               </div>
             </div>
             <button onClick={() => toggle(r.id, !r.active)} disabled={pending} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5 }}>
@@ -106,6 +109,13 @@ export function FormRulesManager({ scope, rules, templates }: {
 
       {/* Create */}
       <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', marginTop: 8, paddingTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div>
+          <div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Patient</div>
+          <select value={patientId} onChange={(e) => setPatientId(e.target.value)} style={{ ...field, minWidth: 170 }}>
+            <option value="">All patients</option>
+            {patients.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
         <div>
           <div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Form</div>
           <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} style={{ ...field, minWidth: 190 }}>

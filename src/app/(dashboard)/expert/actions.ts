@@ -257,11 +257,15 @@ export async function sendFormToPatient(formData: FormData): Promise<void> {
 // ── Automatic form rules (this clinician's own patients) ─────────────────────
 
 export async function createMyFormRule(input: {
-  templateId: string; trackSlug: string; recurrence: FormRecurrence; sessionNumber?: number | null
+  templateId: string; trackSlug: string; recurrence: FormRecurrence; sessionNumber?: number | null; patientId?: string | null
 }): Promise<{ ok: boolean; error?: string }> {
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Sign in again.' }
-  const res = await createFormRule({ ...input, therapistId: ctx.therapistProfileId })
+  // A patient-scoped rule must target a patient this clinician actually owns.
+  if (input.patientId && !(await ownsPatient(ctx.therapistProfileId, input.patientId))) {
+    return { ok: false, error: 'That patient is not on your caseload.' }
+  }
+  const res = await createFormRule({ ...input, therapistId: ctx.therapistProfileId, patientId: input.patientId ?? null })
   if (res.ok) revalidatePath('/expert/forms')
   return res
 }

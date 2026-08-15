@@ -1025,10 +1025,10 @@ export async function setFormActive(input: { id: string; active: boolean }): Pro
 // ── Automatic form rules (platform-wide) ─────────────────────────────────────
 
 export async function createPlatformFormRule(input: {
-  templateId: string; trackSlug: string; recurrence: FormRecurrence; sessionNumber?: number | null
+  templateId: string; trackSlug: string; recurrence: FormRecurrence; sessionNumber?: number | null; patientId?: string | null
 }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
-  const res = await createFormRule({ ...input, therapistId: null })
+  const res = await createFormRule({ ...input, therapistId: null, patientId: input.patientId ?? null })
   if (res.ok) revalidatePath('/admin/config')
   return res
 }

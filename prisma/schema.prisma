@@ -1084,6 +1084,8 @@ model FormAutoRule {
   sessionNumber Int?
   // Null = platform-wide (admin). Set = only this clinician's patients (expert).
   therapistId   String?
+  // Null = applies to every patient in scope; set = only this one patient.
+  patientId     String?
   active        Boolean      @default(true)
   createdAt     DateTime     @default(now())
 
