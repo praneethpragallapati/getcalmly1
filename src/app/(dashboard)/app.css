@@ -971,23 +971,35 @@
 }
 
 /* journal editor inputs */
+/* Default: light form input, for the white cards that fill the dashboards. The
+   journal composer (a dark card) opts into the dark variant via .entry-dark. */
 .entry-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #fff;
+  border: 1.5px solid #d8dee6;
   border-radius: 12px;
   padding: 11px 14px;
   font-size: 14px;
   font-family: var(--font-body);
-  color: #fff;
+  color: var(--c-charcoal);
   resize: vertical;
 }
 .entry-input::placeholder {
-  color: #8595a4;
+  color: var(--c-gray);
 }
 .entry-input:focus {
   outline: none;
   border-color: var(--c-coral);
+  box-shadow: 0 0 0 3px rgba(200, 85, 61, 0.12);
+}
+/* Dark variant, for inputs sitting on a dark card (e.g. the journal composer). */
+.entry-dark .entry-input {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.entry-dark .entry-input::placeholder {
+  color: #8595a4;
 }
 
 /* detected/pattern row on light cards */

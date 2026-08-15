@@ -39,7 +39,7 @@ export function NewEntry() {
   }
 
   return (
-    <div className="card" style={{ background: '#1c2b3a', color: '#fff', border: 'none' }}>
+    <div className="card entry-dark" style={{ background: '#1c2b3a', color: '#fff', border: 'none' }}>
       <div className="section-title" style={{ color: '#fff' }}>
         Write something new ✍️
       </div>
