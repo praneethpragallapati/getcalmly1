@@ -14,7 +14,7 @@ import { communityIdentity } from '@/lib/community'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
-import { sessionDurationMins } from '@/lib/sessionLifecycle'
+import { sessionDurationMins, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -458,23 +458,28 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
 }
 
 /**
- * Record that the caller (patient or clinician) has joined the session room.
- * Sets the first-join timestamp for their side; the strict completion rule
- * (both joined + >= 30 min + a note) reads these. Safe to call repeatedly.
+ * Presence heartbeat: records that the caller (patient or clinician) is in the
+ * session room right now. Sets the first-join timestamp once, and refreshes
+ * their `lastSeenAt` on every call — the room pings this every ~20s while open,
+ * so "time together" is measured from real presence (join → last seen), and a
+ * call that ends early is measured by when the pings stopped, not the scheduled
+ * window. Safe to call repeatedly; used by both the patient and clinician rooms.
  */
 export async function markSessionJoined(roomOrId: string): Promise<{ ok: boolean }> {
   const userId = await getSessionUserId()
   if (!userId || !roomOrId) return { ok: false }
   try {
+    await ensureSessionPresenceSchema()
     const appt = await prisma.appointment.findFirst({
       where: { OR: [{ id: roomOrId }, { roomId: roomOrId }] },
       select: { id: true, patientId: true, patientJoinedAt: true, therapistJoinedAt: true, therapist: { select: { userId: true } } },
     })
     if (!appt) return { ok: false }
+    const now = new Date()
     if (appt.patientId === userId) {
-      if (!appt.patientJoinedAt) await prisma.appointment.update({ where: { id: appt.id }, data: { patientJoinedAt: new Date() } })
+      await prisma.appointment.update({ where: { id: appt.id }, data: { patientJoinedAt: appt.patientJoinedAt ?? now, patientLastSeenAt: now } })
     } else if (appt.therapist.userId === userId) {
-      if (!appt.therapistJoinedAt) await prisma.appointment.update({ where: { id: appt.id }, data: { therapistJoinedAt: new Date() } })
+      await prisma.appointment.update({ where: { id: appt.id }, data: { therapistJoinedAt: appt.therapistJoinedAt ?? now, therapistLastSeenAt: now } })
     } else {
       return { ok: false }
     }

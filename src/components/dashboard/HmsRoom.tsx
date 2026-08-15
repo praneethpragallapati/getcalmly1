@@ -20,8 +20,15 @@ export function HmsRoom({
   backHref: string
 }) {
   useEffect(() => {
-    // Record this side's join for the strict completion rule (best-effort).
+    // Record this side's join, then keep a presence heartbeat while the call is
+    // open (every 20s). "Time together" is measured from these pings, so a call
+    // that ends early counts only the minutes actually spent — not the whole
+    // scheduled slot. Best-effort; a missed ping just shortens the measured time.
     void markSessionJoined(roomId)
+    const iv = setInterval(() => { void markSessionJoined(roomId) }, 20_000)
+    const onVisible = () => { if (document.visibilityState === 'visible') void markSessionJoined(roomId) }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { clearInterval(iv); document.removeEventListener('visibilitychange', onVisible) }
   }, [roomId])
 
   if (!meetingUrl) {

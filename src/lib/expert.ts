@@ -13,7 +13,7 @@ import { cache } from 'react'
 import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
-import { sessionMinMinutes, resolveDueAppointments } from '@/lib/sessionLifecycle'
+import { sessionMinMinutes, resolveDueAppointments, computePresence, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
 import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
@@ -861,28 +861,25 @@ export async function writeSessionSummary(
   appointmentId: string,
   summary: string
 ): Promise<boolean> {
+  await ensureSessionPresenceSchema()
   const appt = await ownsAppointment(therapistProfileId, appointmentId)
   if (!appt) return false
 
   const prof = await prisma.therapistProfile.findUnique({ where: { id: therapistProfileId }, select: { clinicianType: true, specializations: true } })
   const psych = isPsychiatrist(prof?.clinicianType ?? null, prof?.specializations ?? [])
-  const thresholdMs = sessionMinMinutes(psych) * 60 * 1000
 
-  // A session is COMPLETED only when the note is written AND both sides joined
-  // AND they were together for at least the minimum billable time. Otherwise the
-  // note is saved but the session stays un-completed (so it isn't paid or counted).
-  const bothJoined = Boolean(appt.patientJoinedAt && appt.therapistJoinedAt)
-  const laterJoin = bothJoined
-    ? Math.max(appt.patientJoinedAt!.getTime(), appt.therapistJoinedAt!.getTime())
-    : null
-  const endRef = appt.endedAt ? appt.endedAt.getTime() : Date.now()
-  const enoughTime = laterJoin != null && endRef - laterJoin >= thresholdMs
+  // A session is COMPLETED (paid + counted) only when both sides joined AND were
+  // actually together — by the room heartbeat — for at least the minimum billable
+  // time. A 2-minute call therefore saves the note but stays un-completed. This
+  // measures REAL presence, not the scheduled window or "now minus join".
+  const p = computePresence(appt)
+  const eligible = p.bothJoined && p.minutesTogether >= sessionMinMinutes(psych)
 
   await prisma.appointment.update({
     where: { id: appointmentId },
     data: {
       summary,
-      status: bothJoined && enoughTime ? 'COMPLETED' : appt.status,
+      status: eligible ? 'COMPLETED' : appt.status,
     },
   })
   return true

@@ -11,6 +11,7 @@
  * 3rd-onwards bonus from the 3rd on.
  */
 import { prisma } from '@/lib/prisma'
+import { istParts } from '@/lib/tz'
 
 /** The three service types that carry their own base fee. */
 export type ServiceType = 'individual' | 'couples' | 'psychiatry'
@@ -126,10 +127,15 @@ export async function updateEarningsConfig(
   })
 }
 
-/** A night-slot session: starts at or after 9 PM, or before 6 AM (local). */
+/**
+ * A night-slot session: starts at or after 11 PM, or before 6 AM — read in IST,
+ * NOT the server timezone. `getHours()` follows the server clock (UTC on Vercel),
+ * so a 10:00 am IST session (04:30 UTC) was wrongly flagged as night; istParts
+ * pins it to the India wall clock.
+ */
 export function isNightSession(scheduledAt: Date): boolean {
-  const h = scheduledAt.getHours()
-  return h >= 21 || h < 6
+  const h = istParts(scheduledAt).hour
+  return h >= 23 || h < 6
 }
 
 /** The session-number bonus for a given per-patient ordinal (1-based). */

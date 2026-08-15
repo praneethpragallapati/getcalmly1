@@ -500,6 +500,12 @@ model Appointment {
   patientJoinedAt   DateTime?
   therapistJoinedAt DateTime?
   endedAt           DateTime?
+  // Heartbeat: the last time each side was seen active in the room (the call
+  // pings while open). The real "time together" is max(joins) → min(lastSeens),
+  // so a session that ends early is measured by when a side stopped pinging —
+  // NOT the scheduled window. This is what makes the >= min-duration rule real.
+  patientLastSeenAt   DateTime?
+  therapistLastSeenAt DateTime?
   // The package a booking reserved a session against (wallet is decremented at
   // booking). On cancel > 24h / void it is restored and this is cleared.
   consumedSubscriptionId String?
