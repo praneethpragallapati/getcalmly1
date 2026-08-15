@@ -19,19 +19,24 @@ export function PollBody({ poll, canVote = false }: { poll: PollView; canVote?: 
   const router = useRouter()
   const [pending, start] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [myVote, setMyVote] = useState<number | null>(poll.myVote)
+  const [myVotes, setMyVotes] = useState<number[]>(poll.myVotes)
 
-  const showResults = myVote !== null || poll.expired || !canVote
+  const voted = myVotes.length > 0
+  // Single-select flips to results once voted; multi-select keeps the options
+  // tappable (so you can add/remove) while showing the tallies alongside.
+  const showResults = poll.multiple ? voted : (voted || poll.expired || !canVote)
   const total = poll.totalVotes
 
   function vote(i: number) {
     if (!canVote || poll.expired || pending) return
     setError(null)
-    setMyVote(i) // optimistic
+    const prev = myVotes
+    // optimistic
+    setMyVotes(poll.multiple ? (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]) : [i])
     start(async () => {
       const res = await votePoll({ pollId: poll.id, optionIndex: i })
       if (res.ok) router.refresh()
-      else { setError(res.error ?? 'Could not record your vote.'); setMyVote(poll.myVote) }
+      else { setError(res.error ?? 'Could not record your vote.'); setMyVotes(prev) }
     })
   }
 
@@ -41,16 +46,36 @@ export function PollBody({ poll, canVote = false }: { poll: PollView; canVote?: 
         {poll.options.map((opt, i) => {
           const count = poll.counts[i] ?? 0
           const pct = total > 0 ? Math.round((count / total) * 100) : 0
-          const mine = myVote === i
-          if (showResults) {
+          const mine = myVotes.includes(i)
+          const clickable = canVote && !poll.expired && (poll.multiple || !showResults)
+          const showBar = showResults || (!poll.multiple && voted)
+
+          // Result/interactive row. For multi-select the row is both the toggle
+          // and the result bar; for single-select it's a plain option button
+          // until voted, then a static result bar.
+          if (showBar || poll.multiple) {
             return (
-              <div key={i} style={{ position: 'relative', border: `1.5px solid ${mine ? 'rgba(200,85,61,.4)' : 'rgba(28,43,58,.1)'}`, borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
-                <div style={{ position: 'absolute', inset: 0, width: `${pct}%`, background: mine ? 'rgba(200,85,61,.14)' : 'rgba(28,43,58,.06)', transition: 'width .4s ease' }} />
+              <button
+                key={i}
+                onClick={() => clickable && vote(i)}
+                disabled={!clickable || pending}
+                style={{
+                  position: 'relative', textAlign: 'left', width: '100%',
+                  border: `1.5px solid ${mine ? 'rgba(200,85,61,.4)' : 'rgba(28,43,58,.12)'}`, borderRadius: 12, overflow: 'hidden',
+                  background: '#fff', cursor: clickable && !pending ? 'pointer' : 'default', padding: 0, fontFamily: 'inherit',
+                }}
+              >
+                {(showResults || voted) && <div style={{ position: 'absolute', inset: 0, width: `${pct}%`, background: mine ? 'rgba(200,85,61,.14)' : 'rgba(28,43,58,.06)', transition: 'width .4s ease' }} />}
                 <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '11px 14px' }}>
-                  <span style={{ fontSize: 14, fontWeight: mine ? 700 : 500, color: charcoal }}>{opt}{mine ? ' ✓' : ''}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: mine ? coral : '#5A6B7A', whiteSpace: 'nowrap' }}>{pct}% · {count}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
+                    {poll.multiple && (
+                      <span style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, border: `1.5px solid ${mine ? coral : '#C3CDD6'}`, background: mine ? coral : '#fff', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 900 }}>{mine ? '✓' : ''}</span>
+                    )}
+                    <span style={{ fontSize: 14, fontWeight: mine ? 700 : 500, color: charcoal }}>{opt}{!poll.multiple && mine ? ' ✓' : ''}</span>
+                  </span>
+                  {(showResults || voted) && <span style={{ fontSize: 13, fontWeight: 700, color: mine ? coral : '#5A6B7A', whiteSpace: 'nowrap' }}>{pct}% · {count}</span>}
                 </div>
-              </div>
+              </button>
             )
           }
           return (
@@ -75,7 +100,9 @@ export function PollBody({ poll, canVote = false }: { poll: PollView; canVote?: 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginTop: 12 }}>
         <span style={{ fontSize: 12, color: '#9AABB8' }}>
           {total} vote{total === 1 ? '' : 's'}
-          {myVote !== null && !poll.expired && canVote && ' · tap another option to change'}
+          {poll.multiple && !poll.expired && canVote
+            ? ' · select all that apply'
+            : (voted && !poll.expired && canVote ? ' · tap another option to change' : '')}
         </span>
         {error && <span style={{ fontSize: 12.5, color: coral, fontWeight: 600 }}>{error}</span>}
         {!canVote && !poll.expired && <span style={{ fontSize: 12, color: '#9AABB8' }}>Sign in to vote</span>}

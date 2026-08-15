@@ -201,3 +201,8 @@ ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "therapistLastSeenAt" TIMESTA
 
 -- 0029_form_rule_patient
 ALTER TABLE "FormAutoRule" ADD COLUMN IF NOT EXISTS "patientId" TEXT;
+
+-- 0030_poll_multiselect
+ALTER TABLE "Poll" ADD COLUMN IF NOT EXISTS "multiple" BOOLEAN NOT NULL DEFAULT false;
+DROP INDEX IF EXISTS "PollVote_pollId_userId_key";
+CREATE UNIQUE INDEX IF NOT EXISTS "PollVote_pollId_userId_optionIndex_key" ON "PollVote"("pollId", "userId", "optionIndex");

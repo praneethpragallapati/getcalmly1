@@ -7,9 +7,11 @@ export const dynamic = 'force-dynamic'
 export default async function PollsPage() {
   const userId = await getSessionUserId()
   const polls = await getCommunityPolls(userId)
-  // Pinned polls sit at the very top; then every other poll in newest-first order
-  // (getCommunityPolls already returns createdAt desc, and this sort is stable).
-  const ordered = [...polls].sort((a, b) => Number(b.pinned) - Number(a.pinned))
+  // Show only polls still open and not yet answered by this member. Pinned first,
+  // then newest-first (getCommunityPolls returns createdAt desc; the sort is stable).
+  const ordered = polls
+    .filter((p) => !p.expired && p.myVote === null)
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned))
 
   return (
     <>
@@ -21,11 +23,11 @@ export default async function PollsPage() {
         <div className="page-meta">Have your say — one vote each, results update live.</div>
       </div>
 
-      {polls.length === 0 ? (
-        <div className="card"><p className="muted">No polls yet. Check back soon — the getCalmly team posts these from time to time.</p></div>
+      {ordered.length === 0 ? (
+        <div className="card"><p className="muted">{polls.length === 0 ? 'No polls yet. Check back soon — the getCalmly team posts these from time to time.' : 'You’ve answered all the current polls. Check back soon for new ones.'}</p></div>
       ) : (
         <div className="stack" style={{ gap: 16, maxWidth: 640 }}>
-          {ordered.map((p) => <PollCard key={p.id} poll={p} canVote={Boolean(userId) && !p.expired} />)}
+          {ordered.map((p) => <PollCard key={p.id} poll={p} canVote={Boolean(userId)} />)}
         </div>
       )}
     </>

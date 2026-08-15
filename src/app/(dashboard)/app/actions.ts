@@ -8,6 +8,7 @@ import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, 
 import { autoSendIntakeForm, submitForm, runBookingFormRules } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead, notify } from '@/lib/notifications'
+import { ensurePollSchema } from '@/lib/polls'
 import { fmtIST } from '@/lib/tz'
 import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
@@ -189,17 +190,26 @@ export async function votePoll(input: { pollId: string; optionIndex: number }): 
   const userId = await getSessionUserId()
   if (!userId) return { ok: false, persisted: false, error: 'Sign in to vote.' }
   try {
-    const poll = await prisma.poll.findUnique({ where: { id: input.pollId }, select: { options: true, expiresAt: true } })
+    await ensurePollSchema()
+    const poll = await prisma.poll.findUnique({ where: { id: input.pollId }, select: { options: true, expiresAt: true, multiple: true } })
     if (!poll) return { ok: false, persisted: false, error: 'Poll not found.' }
     if (poll.expiresAt && poll.expiresAt.getTime() < Date.now()) return { ok: false, persisted: false, error: 'This poll has closed.' }
     const idx = Math.trunc(input.optionIndex)
     if (idx < 0 || idx >= poll.options.length) return { ok: false, persisted: false, error: 'Invalid option.' }
-    await prisma.pollVote.upsert({
-      where: { pollId_userId: { pollId: input.pollId, userId } },
-      update: { optionIndex: idx },
-      create: { pollId: input.pollId, userId, optionIndex: idx },
-    })
-    revalidatePath('/app/community'); revalidatePath('/community')
+
+    if (poll.multiple) {
+      // Toggle this option on/off, leaving the member's other choices intact.
+      const existing = await prisma.pollVote.findFirst({ where: { pollId: input.pollId, userId, optionIndex: idx }, select: { id: true } })
+      if (existing) await prisma.pollVote.delete({ where: { id: existing.id } })
+      else await prisma.pollVote.create({ data: { pollId: input.pollId, userId, optionIndex: idx } })
+    } else {
+      // Single choice: replace any prior vote atomically.
+      await prisma.$transaction([
+        prisma.pollVote.deleteMany({ where: { pollId: input.pollId, userId } }),
+        prisma.pollVote.create({ data: { pollId: input.pollId, userId, optionIndex: idx } }),
+      ])
+    }
+    revalidatePath('/app/community'); revalidatePath('/community'); revalidatePath('/app/polls'); revalidatePath('/app')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not record your vote.' }

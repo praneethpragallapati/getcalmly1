@@ -18,6 +18,7 @@ export function PollAdmin({ polls }: { polls: PollView[] }) {
   const [question, setQuestion] = useState('')
   const [options, setOptions] = useState<string[]>(['', ''])
   const [expiresAt, setExpiresAt] = useState('')
+  const [multiple, setMultiple] = useState(false)
 
   const setOpt = (i: number, v: string) => setOptions((o) => o.map((x, k) => (k === i ? v : x)))
   const addOpt = () => setOptions((o) => (o.length < 8 ? [...o, ''] : o))
@@ -28,8 +29,8 @@ export function PollAdmin({ polls }: { polls: PollView[] }) {
     if (!question.trim()) return toast.error('Add a question.')
     if (opts.length < 2) return toast.error('Add at least two options.')
     start(async () => {
-      const res = await createPoll({ question, options: opts, expiresAt: expiresAt || null })
-      if (res.ok) { toast.success('Poll created.'); setQuestion(''); setOptions(['', '']); setExpiresAt(''); router.refresh() }
+      const res = await createPoll({ question, options: opts, expiresAt: expiresAt || null, multiple })
+      if (res.ok) { toast.success('Poll created.'); setQuestion(''); setOptions(['', '']); setExpiresAt(''); setMultiple(false); router.refresh() }
       else toast.error(res.error ?? 'Could not create the poll.')
     })
   }
@@ -84,6 +85,10 @@ export function PollAdmin({ polls }: { polls: PollView[] }) {
             <label className="muted" style={{ fontSize: 11.5, fontWeight: 600, display: 'block', marginBottom: 4 }}>Closes at <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(optional)</span></label>
             <input type="datetime-local" style={field} value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
           </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }}>
+            <input type="checkbox" checked={multiple} onChange={(e) => setMultiple(e.target.checked)} />
+            <span style={{ fontSize: 13.5, color: charcoal }}>Allow multiple selections <span className="muted" style={{ fontWeight: 400 }}>— members can pick more than one option</span></span>
+          </label>
           <div>
             <button onClick={create} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>Create poll</button>
           </div>

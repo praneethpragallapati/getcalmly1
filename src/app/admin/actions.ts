@@ -14,6 +14,7 @@ import { parseCompensationFields, type CompensationField } from '@/lib/compensat
 import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
 import { createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
 import { notify, notifyMany } from '@/lib/notifications'
+import { ensurePollSchema } from '@/lib/polls'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -209,7 +210,7 @@ export async function saveCompensationFields(input: { profileId: string; fields:
 }
 
 /** Create a Calm Club poll: a question, 2–8 options and an optional expiry. */
-export async function createPoll(input: { question: string; options: string[]; expiresAt?: string | null }): Promise<AdminResult> {
+export async function createPoll(input: { question: string; options: string[]; expiresAt?: string | null; multiple?: boolean }): Promise<AdminResult> {
   const admin = await requireAdmin()
   if (!admin) return { ok: false, error: 'Admin access required.' }
   const question = (input.question ?? '').trim().slice(0, 200)
@@ -222,7 +223,8 @@ export async function createPoll(input: { question: string; options: string[]; e
     if (!Number.isNaN(d.getTime())) expiresAt = d
   }
   try {
-    await prisma.poll.create({ data: { question, options, expiresAt, createdBy: admin.id ?? null } })
+    await ensurePollSchema()
+    await prisma.poll.create({ data: { question, options, expiresAt, multiple: Boolean(input.multiple), createdBy: admin.id ?? null } })
     // Notify patients there's a new poll to vote on (Others tab).
     const patients = await prisma.user.findMany({ where: { role: 'PATIENT' }, select: { id: true }, take: 5000 }).catch(() => [])
     await notifyMany(patients.map((p) => p.id), { type: 'poll', title: 'New poll in the community', body: question, href: '/app/community' })
