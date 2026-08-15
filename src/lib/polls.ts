@@ -46,7 +46,8 @@ function toView(p: PollWithVotes, userId: string | null): PollView {
   }
 }
 
-/** Polls for the community feed: newest first, active ones first. */
+/** Polls for the community feed / tab: newest first (the query order). The polls
+ *  page puts pinned ones on top; the home page picks the most recent unvoted. */
 export async function getCommunityPolls(userId: string | null): Promise<PollView[]> {
   try {
     const polls = await prisma.poll.findMany({
@@ -54,9 +55,7 @@ export async function getCommunityPolls(userId: string | null): Promise<PollView
       take: 50,
       include: { votes: { select: { optionIndex: true, userId: true } } },
     })
-    const views = polls.map((p) => toView(p, userId))
-    // Active polls first, then most recent.
-    return views.sort((a, b) => Number(a.expired) - Number(b.expired))
+    return polls.map((p) => toView(p, userId))
   } catch {
     return []
   }
