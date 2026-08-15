@@ -534,11 +534,18 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
   return safe(async () => {
     const now = Date.now()
     const [appts, moods, moodCount, journalCount, lastJournal, tasks, meds, user] = await Promise.all([
+      // Narrow, explicit select (never a full-row read): the whole snapshot is
+      // wrapped in safe(), so if this read hit a column the DB doesn't have yet
+      // (e.g. a not-yet-applied migration) it would throw and blank EVERY metric
+      // to zero. Select only the fields the snapshot actually uses.
       prisma.appointment.findMany({
         where: { patientId: userId },
         orderBy: { scheduledAt: 'desc' },
         take: 200,
-        include: {
+        select: {
+          id: true, scheduledAt: true, status: true, durationMins: true,
+          patientJoinedAt: true, therapistJoinedAt: true, endedAt: true,
+          summary: true, preSessionNote: true,
           therapist: { select: { rating: true, user: { select: { name: true } } } },
           review: { select: { rating: true } },
         },

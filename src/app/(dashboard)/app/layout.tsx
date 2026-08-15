@@ -7,6 +7,7 @@ import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { AccountMenu } from '@/components/dashboard/AccountMenu'
 import { NotificationBell } from '@/components/dashboard/NotificationBell'
+import { HelplineButton } from '@/components/dashboard/HelplineButton'
 import { ToastProvider } from '@/components/ui/Toast'
 import { getSidebarSummary } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
@@ -87,6 +88,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         <main className="app-content">{children}</main>
       </div>
+      <HelplineButton />
     </div>
     </ToastProvider>
   )
