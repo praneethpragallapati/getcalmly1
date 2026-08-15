@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Download } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
-import { hasPartnerOnRecord, getActivePackages } from '@/lib/billing'
+import { hasPartnerOnRecord, getActivePackages, getInvoices } from '@/lib/billing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { BuyPackagePanel, FirstSessionPanel, CalmPlusPanel } from '@/components/dashboard/BuyPackagePanel'
 
@@ -12,9 +12,10 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams
   const initialTrack: BuyableTrack | undefined = (BUYABLE as readonly string[]).includes(sp.track ?? '') ? (sp.track as BuyableTrack) : undefined
   const userId = await getSessionUserId()
-  const [packages, pricing] = await Promise.all([
+  const [packages, pricing, invoices] = await Promise.all([
     userId ? getActivePackages(userId) : Promise.resolve([]),
     getPricingConfig(),
+    userId ? getInvoices(userId) : Promise.resolve([]),
   ])
   const hasPartner = userId ? await hasPartnerOnRecord(userId) : false
 
@@ -76,6 +77,24 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                 </p>
               )}
             </div>
+            {invoices.length > 0 && (
+              <div className="card">
+                <div className="section-title">Invoices</div>
+                <div style={{ display: 'flex', flexDirection: 'column', marginTop: 8 }}>
+                  {invoices.map((inv) => (
+                    <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: '1px solid var(--c-line)' }}>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-charcoal)' }}>{inv.label}</div>
+                        <div className="muted" style={{ fontSize: 12.5 }}>{inv.dateLabel} · ₹{inv.amount.toLocaleString('en-IN')}</div>
+                      </div>
+                      <a href={`/app/billing/invoice/${inv.id}`} target="_blank" rel="noopener" className="link-action" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        <Download size={14} /> Invoice
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
           </>
         ) : (

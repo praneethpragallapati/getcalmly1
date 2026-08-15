@@ -347,6 +347,27 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
   return { ok: true, sessionsTotal: 0, sessionsRemaining: 0, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount, paymentId, planName: planLabel }
 }
 
+export type InvoiceRow = { id: string; label: string; amount: number; dateLabel: string }
+
+/** The patient's payment history, each with an id that links to its invoice PDF. */
+export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
+  const KIND: Record<string, string> = { package: 'Session package', first_session: 'Intro session', calmplus: 'Calm+ subscription' }
+  try {
+    const rows = await prisma.payment.findMany({
+      where: { userId }, orderBy: { createdAt: 'desc' }, take: 50,
+      select: { id: true, amount: true, planName: true, kind: true, createdAt: true },
+    })
+    return rows.map((p) => ({
+      id: p.id,
+      label: p.planName ?? KIND[p.kind] ?? 'Purchase',
+      amount: p.amount,
+      dateLabel: p.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+    }))
+  } catch {
+    return []
+  }
+}
+
 /** Whether the patient already has a partner on record (for couples purchases). */
 export async function hasPartnerOnRecord(patientId: string): Promise<boolean> {
   const profile = await prisma.patientProfile.findUnique({

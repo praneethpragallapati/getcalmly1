@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText, Send } from 'lucide-react'
+import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText } from 'lucide-react'
 import {
   getTherapistContext, getExpertPatientProfile, getPatientWeeklyInsight, getRiskNotifications,
   superviseeOwningPatient,
@@ -7,10 +7,11 @@ import {
 import { patientCode } from '@/lib/ids'
 import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
 import { getWeeklyProgress } from '@/lib/dashboard'
-import { toggleMedication, sendFormToPatient, resolveAlert } from '../../actions'
+import { toggleMedication, resolveAlert } from '../../actions'
 import { AssignTaskForm } from '@/components/expert/AssignTaskForm'
 import { PrescribeForm } from '@/components/expert/PrescribeForm'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
+import { SendFormCard } from '@/components/expert/SendFormCard'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -281,24 +282,10 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         ))}
 
         {!supervisorView && (
-        <form action={sendFormToPatient} className="stack" style={{ gap: 10, marginTop: 14 }}>
-          <input type="hidden" name="patientId" value={p.patientId} />
-          <div className="grid-2" style={{ gap: 10 }}>
-            <select className="entry-input" name="templateId" defaultValue="" required>
-              <option value="" disabled>
-                Choose a form…
-              </option>
-              {formLibrary.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.title} ({FORM_KIND_LABEL[t.kind] ?? t.kind})
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="btn btn-primary btn-sm">
-              <Send size={14} /> Send form
-            </button>
-          </div>
-        </form>
+          <SendFormCard
+            patientId={p.patientId}
+            templates={formLibrary.map((t) => ({ id: t.id, title: `${t.title} (${FORM_KIND_LABEL[t.kind] ?? t.kind})` }))}
+          />
         )}
       </div>
 
