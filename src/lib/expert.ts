@@ -941,9 +941,9 @@ export async function prescribeMedication(
       userId: patientId,
       type: 'prescription',
       title: `New prescription: ${name}${med.dosage ? ` ${med.dosage}` : ''}`,
-      body: `${prescriberName ?? 'Your psychiatrist'} prescribed a new medication${
+      body: `${prescriberName ?? 'Your psychiatrist'} issued an e-prescription${
         durationDays ? ` for ${durationDays} days` : ''
-      }. You can order a home delivery from your Medications page.`,
+      } (valid 1 week). Download it or order a home delivery from your Medications page.`,
       href: '/app/medications',
     },
   })

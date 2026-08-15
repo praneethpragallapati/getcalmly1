@@ -1,6 +1,7 @@
 /** In-app notifications: creation helper, category split (Important / Others),
  *  unread counts for the bell, list, and mark-read. */
 import { prisma } from '@/lib/prisma'
+import { fmtIST, istParts } from '@/lib/tz'
 
 export type NotificationCategory = 'IMPORTANT' | 'OTHER'
 
@@ -13,6 +14,8 @@ export type NotificationView = {
   href: string | null
   read: boolean
   createdLabel: string
+  timeLabel: string // "3:40 PM" today, "12 Aug, 3:40 PM" otherwise (IST)
+  today: boolean
 }
 
 /**
@@ -59,6 +62,11 @@ export async function notifyMany(
   }
 }
 
+function istDayKey(d: Date): string {
+  const p = istParts(d)
+  return `${p.year}-${p.month}-${p.day}`
+}
+
 function relativeLabel(d: Date): string {
   const s = Math.max(0, Math.round((Date.now() - d.getTime()) / 1000))
   if (s < 60) return 'just now'
@@ -86,16 +94,24 @@ export async function getNotifications(userId: string): Promise<NotificationView
       orderBy: { createdAt: 'desc' },
       take: 80,
     })
-    return rows.map((n) => ({
-      id: n.id,
-      type: n.type,
-      category: categoryForType(n.type),
-      title: n.title,
-      body: n.body,
-      href: n.href,
-      read: n.read,
-      createdLabel: relativeLabel(n.createdAt),
-    }))
+    const todayKey = istDayKey(new Date())
+    return rows.map((n) => {
+      const today = istDayKey(n.createdAt) === todayKey
+      return {
+        id: n.id,
+        type: n.type,
+        category: categoryForType(n.type),
+        title: n.title,
+        body: n.body,
+        href: n.href,
+        read: n.read,
+        createdLabel: relativeLabel(n.createdAt),
+        today,
+        timeLabel: today
+          ? fmtIST(n.createdAt, { hour: 'numeric', minute: '2-digit' })
+          : fmtIST(n.createdAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+      }
+    })
   } catch {
     return []
   }

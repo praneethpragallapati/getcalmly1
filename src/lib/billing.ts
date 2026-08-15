@@ -54,6 +54,8 @@ export type BuyResult = {
   sessionsRemaining?: number
   walletApplied?: number // ₹ of wallet credit used as part-payment
   amountPaid?: number // ₹ actually charged after wallet credit
+  paymentId?: string | null // the recorded payment (for the invoice link)
+  planName?: string // human label of what was bought
   error?: string
 }
 
@@ -175,7 +177,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
     })
     const paymentId = await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
     await finalizeReferralCheckout(patientId, rr, paymentId)
-    return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed), walletApplied: rr.creditUsed, amountPaid: rr.finalAmount }
+    return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed), walletApplied: rr.creditUsed, amountPaid: rr.finalAmount, paymentId, planName }
   }
 
   const expiresAt = addMonths(now, pack.months)
@@ -198,7 +200,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
     })
     const paymentId = await recordPayment({ userId: patientId, subscriptionId: created.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
     await finalizeReferralCheckout(patientId, rr, paymentId)
-    return { ok: true, sessionsTotal: sessionsToAdd, sessionsRemaining: sessionsToAdd, walletApplied: rr.creditUsed, amountPaid: rr.finalAmount }
+    return { ok: true, sessionsTotal: sessionsToAdd, sessionsRemaining: sessionsToAdd, walletApplied: rr.creditUsed, amountPaid: rr.finalAmount, paymentId, planName }
   } catch (e) {
     // Lost a concurrent create race (double-submit): the partial-unique index on
     // ACTIVE (userId, trackSlug) rejected this one. Treat it as idempotent — the
@@ -269,9 +271,9 @@ export async function buyFirstSessionFor(patientId: string, track: BuyableTrack)
       throw e
     }
   }
-  await recordPayment({ userId: patientId, subscriptionId: sub.id, amount: wallet.finalAmount, kind: 'first_session', trackSlug: track, planName })
+  const paymentId = await recordPayment({ userId: patientId, subscriptionId: sub.id, amount: wallet.finalAmount, kind: 'first_session', trackSlug: track, planName })
   await spendWalletCredit(patientId, wallet.creditUsed)
-  return { ok: true, sessionsTotal: 1, sessionsRemaining: 1, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount }
+  return { ok: true, sessionsTotal: 1, sessionsRemaining: 1, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount, paymentId, planName }
 }
 
 /**
@@ -310,7 +312,7 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
         renewsAt: expiresAt,
       },
     })
-    await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: wallet.finalAmount, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
+    const paymentId = await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: wallet.finalAmount, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
     await spendWalletCredit(patientId, wallet.creditUsed)
     return {
       ok: true,
@@ -318,6 +320,8 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
       sessionsRemaining: Math.max(0, existing.sessionsTotal - existing.sessionsUsed),
       walletApplied: wallet.creditUsed,
       amountPaid: wallet.finalAmount,
+      paymentId,
+      planName: planLabel,
     }
   }
 
@@ -338,9 +342,9 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
       renewsAt: expiresAt,
     },
   })
-  await recordPayment({ userId: patientId, subscriptionId: created.id, amount: wallet.finalAmount, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
+  const paymentId = await recordPayment({ userId: patientId, subscriptionId: created.id, amount: wallet.finalAmount, kind: 'calmplus', trackSlug: 'calmplus', planName: planLabel })
   await spendWalletCredit(patientId, wallet.creditUsed)
-  return { ok: true, sessionsTotal: 0, sessionsRemaining: 0, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount }
+  return { ok: true, sessionsTotal: 0, sessionsRemaining: 0, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount, paymentId, planName: planLabel }
 }
 
 /** Whether the patient already has a partner on record (for couples purchases). */

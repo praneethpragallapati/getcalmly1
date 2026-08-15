@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import {
   Bell, Pill, FileText, Truck, Wallet, CalendarPlus, CalendarX2, CalendarClock,
-  UserRoundCheck, ListTodo, MessagesSquare, BarChart3, HeartPulse, Megaphone,
+  UserRoundCheck, ListTodo, MessagesSquare, BarChart3, HeartPulse, Megaphone, Receipt,
 } from 'lucide-react'
 import type { NotificationView, NotificationCategory } from '@/lib/notifications'
 
@@ -18,6 +18,7 @@ const ICON: Record<string, typeof Bell> = {
   cancellation: CalendarX2,
   reschedule: CalendarClock,
   therapist: UserRoundCheck,
+  invoice: Receipt,
   task: ListTodo,
   community: MessagesSquare,
   poll: BarChart3,

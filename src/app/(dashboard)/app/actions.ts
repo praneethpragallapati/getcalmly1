@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId, getSessionPatientId } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
-import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack } from '@/lib/billing'
+import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack, type BuyResult } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm, runBookingFormRules } from '@/lib/forms'
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead, notify } from '@/lib/notifications'
@@ -966,6 +966,17 @@ export async function toggleCommunityUpvote(input: {
   }
 }
 
+/** Notify the buyer their payment went through, with a link to the invoice PDF. */
+async function notifyPurchase(userId: string, result: BuyResult): Promise<void> {
+  if (!result.paymentId) return
+  await notify(userId, {
+    type: 'invoice',
+    title: 'Payment successful — invoice ready',
+    body: `₹${(result.amountPaid ?? 0).toLocaleString('en-IN')} paid for ${result.planName ?? 'your purchase'}. Tap to download your invoice.`,
+    href: `/app/billing/invoice/${result.paymentId}`,
+  })
+}
+
 /**
  * Buy a session package (#packages). Additive by design, sessions are added to
  * any existing balance and validity is extended, never reset to zero (lib/billing).
@@ -1003,6 +1014,7 @@ export async function buyPackage(
 
     const result = await buyPackageFor(userId, track, packIndex)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    await notifyPurchase(userId, result)
     // Auto-match a clinician for this package now, if the assessment is done.
     if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track as CareTrack)
     revalidatePath('/app/settings')
@@ -1026,6 +1038,7 @@ export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
   try {
     const result = await buyCalmPlusFor(userId, packIndex)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    await notifyPurchase(userId, result)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')
     revalidatePath('/app')
@@ -1063,6 +1076,7 @@ export async function buyFirstSession(
 
     const result = await buyFirstSessionFor(userId, track)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
+    await notifyPurchase(userId, result)
     if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track as CareTrack)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')

@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { Bell, HelpCircle } from 'lucide-react'
+import { HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { AccountMenu } from '@/components/dashboard/AccountMenu'
+import { NotificationBell } from '@/components/dashboard/NotificationBell'
 import { ToastProvider } from '@/components/ui/Toast'
 import { getSidebarSummary } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
-import { getUnreadCount } from '@/lib/notifications'
+import { getUnreadCount, getNotifications } from '@/lib/notifications'
 import { getSessionUser } from '@/lib/session'
 import { attributeReferral } from '@/lib/referral'
 
@@ -42,9 +43,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // hit. Its result is unused by the render.
   const refCode = userId ? (await cookies()).get('gc_ref')?.value : undefined
 
-  const [d, unread] = await Promise.all([
+  const [d, unread, notes] = await Promise.all([
     getSidebarSummary(),
     userId ? getUnreadCount(userId) : Promise.resolve(0),
+    userId ? getNotifications(userId) : Promise.resolve([]),
     refCode && userId ? attributeReferral(userId, decodeURIComponent(refCode)) : Promise.resolve(),
   ])
   const now = new Date()
@@ -75,20 +77,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </div>
           </div>
           <div className="tb-actions">
-            <Link href="/app/notifications" className="tb-icon" aria-label="Notifications" style={{ position: 'relative' }}>
-              <Bell size={17} />
-              {unread > 0 && (
-                <span
-                  style={{
-                    position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px',
-                    borderRadius: 8, background: 'var(--c-coral)', color: '#fff', fontSize: 10, fontWeight: 700,
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  {unread > 9 ? '9+' : unread}
-                </span>
-              )}
-            </Link>
+            <NotificationBell items={notes} unread={unread} />
             <Link href="/contact" className="tb-icon" aria-label="Help &amp; support">
               <HelpCircle size={17} />
             </Link>

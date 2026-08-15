@@ -128,6 +128,132 @@ export async function buildStatementPdf(opts: {
   return doc.save()
 }
 
+/** Shared branded header used by the document PDFs below. Returns the y cursor. */
+async function docHeader(doc: PDFDocument, page: import('pdf-lib').PDFPage, font: PDFFont, bold: PDFFont, title: string, right?: string): Promise<number> {
+  const logo = await doc.embedPng(await brandMark())
+  const h = 30
+  const w = (logo.width / logo.height) * h
+  let y = A4[1] - MARGIN
+  page.drawImage(logo, { x: MARGIN, y: y - h, width: w, height: h })
+  if (right) page.drawText(right, { x: A4[0] - MARGIN - font.widthOfTextAtSize(right, 10), y: y - 12, size: 10, font, color: MUTED })
+  y -= h + 22
+  page.drawText(title, { x: MARGIN, y, size: 20, font: bold, color: INK })
+  y -= 10
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: A4[0] - MARGIN, y }, thickness: 1, color: LINE })
+  return y - 24
+}
+
+/**
+ * A clinical e-prescription. Lists the patient's current medications with an
+ * explicit validity (typically 1 week). System-generated; carries the
+ * prescriber's name in place of a wet signature.
+ */
+export async function buildPrescriptionPdf(opts: {
+  patientName: string
+  patientCode: string
+  prescriber: string
+  dateLabel: string
+  validUntilLabel: string
+  meds: { name: string; dosage: string; frequency: string; duration: string; notes: string }[]
+}): Promise<Uint8Array> {
+  const doc = await PDFDocument.create()
+  const font = await doc.embedFont(StandardFonts.Helvetica)
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold)
+  const page = doc.addPage(A4)
+  const contentW = A4[0] - MARGIN * 2
+  let y = await docHeader(doc, page, font, bold, 'e-Prescription', 'getcalmly.com')
+
+  const kv = (label: string, value: string, x: number, yy: number) => {
+    page.drawText(label.toUpperCase(), { x, y: yy, size: 7.5, font, color: MUTED })
+    page.drawText(value, { x, y: yy - 13, size: 11, font: bold, color: INK })
+  }
+  kv('Patient', `${opts.patientName}  (${opts.patientCode})`, MARGIN, y)
+  kv('Prescriber', opts.prescriber, MARGIN + contentW / 2, y)
+  y -= 38
+  kv('Date', opts.dateLabel, MARGIN, y)
+  kv('Valid until', opts.validUntilLabel, MARGIN + contentW / 2, y)
+  y -= 40
+
+  // Rx symbol + heading
+  page.drawText('Rx', { x: MARGIN, y, size: 22, font: bold, color: CORAL })
+  y -= 22
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + contentW, y }, thickness: 0.5, color: LINE })
+  y -= 20
+
+  if (opts.meds.length === 0) {
+    page.drawText('No active medications on record.', { x: MARGIN, y, size: 11, font, color: MUTED })
+    y -= 20
+  }
+  opts.meds.forEach((m, i) => {
+    page.drawText(`${i + 1}.  ${m.name}${m.dosage ? `  —  ${m.dosage}` : ''}`, { x: MARGIN, y, size: 12, font: bold, color: INK })
+    y -= 16
+    const detail = [m.frequency, m.duration].filter(Boolean).join('  ·  ')
+    if (detail) { page.drawText(detail, { x: MARGIN + 16, y, size: 10, font, color: MUTED }); y -= 14 }
+    if (m.notes) { page.drawText(`Note: ${m.notes}`, { x: MARGIN + 16, y, size: 10, font, color: MUTED }); y -= 14 }
+    y -= 8
+  })
+
+  // Signature / validity footer
+  y = Math.max(y, MARGIN + 80)
+  const sy = MARGIN + 64
+  page.drawText(opts.prescriber, { x: A4[0] - MARGIN - 180, y: sy, size: 11, font: bold, color: INK })
+  page.drawLine({ start: { x: A4[0] - MARGIN - 180, y: sy - 6 }, end: { x: A4[0] - MARGIN, y: sy - 6 }, thickness: 0.6, color: LINE })
+  page.drawText('Prescribing clinician (digitally issued)', { x: A4[0] - MARGIN - 180, y: sy - 18, size: 8, font, color: MUTED })
+  page.drawText(`This prescription is valid until ${opts.validUntilLabel}.`, { x: MARGIN, y: MARGIN + 4, size: 9, font, color: MUTED })
+  page.drawText('Issued electronically by GetCalmly · verify with your clinician if in doubt.', { x: MARGIN, y: MARGIN - 10, size: 8, font, color: MUTED })
+  return doc.save()
+}
+
+/** A tax-style invoice / receipt for a purchase. */
+export async function buildInvoicePdf(opts: {
+  invoiceNo: string
+  dateLabel: string
+  patientName: string
+  patientCode: string
+  items: { desc: string; amount: number }[]
+  total: number
+}): Promise<Uint8Array> {
+  const doc = await PDFDocument.create()
+  const font = await doc.embedFont(StandardFonts.Helvetica)
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold)
+  const page = doc.addPage(A4)
+  const contentW = A4[0] - MARGIN * 2
+  let y = await docHeader(doc, page, font, bold, 'Invoice', `Invoice ${opts.invoiceNo}`)
+
+  const kv = (label: string, value: string, x: number, yy: number) => {
+    page.drawText(label.toUpperCase(), { x, y: yy, size: 7.5, font, color: MUTED })
+    page.drawText(value, { x, y: yy - 13, size: 11, font: bold, color: INK })
+  }
+  kv('Billed to', `${opts.patientName}  (${opts.patientCode})`, MARGIN, y)
+  kv('Date', opts.dateLabel, MARGIN + contentW / 2, y)
+  y -= 44
+
+  // table header
+  page.drawText('DESCRIPTION', { x: MARGIN, y, size: 8, font: bold, color: MUTED })
+  const amtHdr = 'AMOUNT'
+  page.drawText(amtHdr, { x: A4[0] - MARGIN - bold.widthOfTextAtSize(amtHdr, 8), y, size: 8, font: bold, color: MUTED })
+  y -= 8
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + contentW, y }, thickness: 1, color: LINE })
+  y -= 18
+
+  for (const it of opts.items) {
+    page.drawText(it.desc, { x: MARGIN, y, size: 11, font, color: INK })
+    const a = rs(it.amount)
+    page.drawText(a, { x: A4[0] - MARGIN - font.widthOfTextAtSize(a, 11), y, size: 11, font, color: INK })
+    y -= 10
+    page.drawLine({ start: { x: MARGIN, y: y + 2 }, end: { x: MARGIN + contentW, y: y + 2 }, thickness: 0.5, color: LINE })
+    y -= 16
+  }
+  y -= 6
+  page.drawText('Total paid', { x: A4[0] - MARGIN - 200, y, size: 12, font: bold, color: INK })
+  const tot = rs(opts.total)
+  page.drawText(tot, { x: A4[0] - MARGIN - bold.widthOfTextAtSize(tot, 12), y, size: 12, font: bold, color: CORAL })
+
+  page.drawText('Thank you for choosing GetCalmly.', { x: MARGIN, y: MARGIN + 4, size: 9, font, color: MUTED })
+  page.drawText('This is a system-generated invoice and needs no signature. All amounts in INR.', { x: MARGIN, y: MARGIN - 10, size: 8, font, color: MUTED })
+  return doc.save()
+}
+
 /** A Response that downloads as a .pdf file. */
 export function pdfResponse(filename: string, bytes: Uint8Array): Response {
   return new Response(bytes as unknown as BodyInit, {
