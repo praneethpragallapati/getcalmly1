@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Plus, Trash2 } from 'lucide-react'
 import { savePricingConfig } from '@/app/admin/actions'
 import { perSession, inr, type PricingValues, type SessionPack, type AppPack, type BuyableTrack } from '@/data/pricing'
 
@@ -24,7 +24,13 @@ function NumInput({ value, onChange, prefix }: { value: number; onChange: (n: nu
   )
 }
 
-/** Editable table of session packs for one track. Row count is fixed (re-price only). */
+const iconBtn: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+  width: 32, height: 32, border: '1.5px solid #E2E8F0', borderRadius: 8,
+  background: '#fff', cursor: 'pointer', color: '#C0504B',
+}
+
+/** Editable table of session packs for one track. Rows can be re-priced, added, or removed. */
 function PackTable({
   title, packs, base, onPacks, onBase,
 }: {
@@ -33,21 +39,31 @@ function PackTable({
 }) {
   const set = (i: number, key: keyof SessionPack, n: number) =>
     onPacks(packs.map((p, idx) => (idx === i ? { ...p, [key]: n } : p)))
+  const removeRow = (i: number) => onPacks(packs.filter((_, idx) => idx !== i))
+  const addRow = () => {
+    // Seed a new pack from the largest existing one so validity/price start sensible.
+    const last = packs[packs.length - 1]
+    const seed: SessionPack = last
+      ? { sessions: last.sessions + 1, months: last.months, total: last.total }
+      : { sessions: 1, months: 1, total: 0 }
+    onPacks([...packs, seed])
+  }
 
   return (
     <div className="card">
       <div className="section-title" style={{ marginBottom: 2 }}>{title}</div>
       <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>
-        Per-session price is derived from the total. The largest pack is shown as “Best value”.
+        Per-session price is derived from the total. The largest pack is shown as “Best value”. Add or remove tiers as needed — each keeps its own validity.
       </p>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 460 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
           <thead>
             <tr>
               <th style={th}>Sessions</th>
               <th style={th}>Validity (months)</th>
               <th style={th}>Total (₹)</th>
               <th style={th}>Per session</th>
+              <th style={{ ...th, width: 44 }}></th>
             </tr>
           </thead>
           <tbody>
@@ -57,11 +73,25 @@ function PackTable({
                 <td style={{ ...td, width: 140 }}><NumInput value={p.months} onChange={(n) => set(i, 'months', n)} /></td>
                 <td style={{ ...td, width: 150 }}><NumInput value={p.total} onChange={(n) => set(i, 'total', n)} prefix="₹" /></td>
                 <td style={{ ...td, color: '#5A6B7A', fontWeight: 600 }}>{p.sessions > 0 ? inr(perSession(p)) : '—'}</td>
+                <td style={{ ...td, width: 44 }}>
+                  <button
+                    type="button"
+                    onClick={() => removeRow(i)}
+                    disabled={packs.length <= 1}
+                    title={packs.length <= 1 ? 'At least one pack is required' : 'Remove this pack'}
+                    style={{ ...iconBtn, opacity: packs.length <= 1 ? 0.35 : 1, cursor: packs.length <= 1 ? 'not-allowed' : 'pointer' }}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <button type="button" onClick={addRow} className="btn" style={{ marginTop: 10, border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '7px 12px', display: 'inline-flex', alignItems: 'center', gap: 6, color: charcoal }}>
+        <Plus size={14} /> Add pack
+      </button>
       <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, fontSize: 13.5, color: '#3A4A5A' }}>
         <span style={{ fontWeight: 600 }}>List price / session (MRP, struck through)</span>
         <span style={{ width: 130 }}><NumInput value={base} onChange={onBase} prefix="₹" /></span>
@@ -79,6 +109,14 @@ export function PricingConfigForm({ initial }: { initial: PricingValues }) {
   const setFirst = (track: BuyableTrack, n: number) => patch({ firstSession: { ...values.firstSession, [track]: n } })
   const setCalmPack = (i: number, key: keyof AppPack, n: number | string) =>
     patch({ calmPlusPacks: values.calmPlusPacks.map((p, idx) => (idx === i ? { ...p, [key]: n } : p)) })
+  const removeCalmPack = (i: number) => patch({ calmPlusPacks: values.calmPlusPacks.filter((_, idx) => idx !== i) })
+  const addCalmPack = () => {
+    const last = values.calmPlusPacks[values.calmPlusPacks.length - 1]
+    const seed: AppPack = last
+      ? { label: `${last.months + 1} months`, months: last.months + 1, total: last.total }
+      : { label: '1 month', months: 1, total: 0 }
+    patch({ calmPlusPacks: [...values.calmPlusPacks, seed] })
+  }
 
   function save() {
     setMsg(null)
@@ -128,6 +166,7 @@ export function PricingConfigForm({ initial }: { initial: PricingValues }) {
                 <th style={th}>Validity (months)</th>
                 <th style={th}>Total (₹)</th>
                 <th style={th}>Per month</th>
+                <th style={{ ...th, width: 44 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -139,11 +178,25 @@ export function PricingConfigForm({ initial }: { initial: PricingValues }) {
                   <td style={{ ...td, width: 140 }}><NumInput value={p.months} onChange={(n) => setCalmPack(i, 'months', n)} /></td>
                   <td style={{ ...td, width: 150 }}><NumInput value={p.total} onChange={(n) => setCalmPack(i, 'total', n)} prefix="₹" /></td>
                   <td style={{ ...td, color: '#5A6B7A', fontWeight: 600 }}>{p.months > 0 ? inr(Math.floor(p.total / p.months)) : '—'}</td>
+                  <td style={{ ...td, width: 44 }}>
+                    <button
+                      type="button"
+                      onClick={() => removeCalmPack(i)}
+                      disabled={values.calmPlusPacks.length <= 1}
+                      title={values.calmPlusPacks.length <= 1 ? 'At least one plan is required' : 'Remove this plan'}
+                      style={{ ...iconBtn, opacity: values.calmPlusPacks.length <= 1 ? 0.35 : 1, cursor: values.calmPlusPacks.length <= 1 ? 'not-allowed' : 'pointer' }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <button type="button" onClick={addCalmPack} className="btn" style={{ marginTop: 10, border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '7px 12px', display: 'inline-flex', alignItems: 'center', gap: 6, color: charcoal }}>
+          <Plus size={14} /> Add plan
+        </button>
         <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, fontSize: 13.5, color: '#3A4A5A' }}>
           <span style={{ fontWeight: 600 }}>List price / month (MRP, struck through)</span>
           <span style={{ width: 130 }}><NumInput value={values.calmPlusBase} onChange={(n) => patch({ calmPlusBase: n })} prefix="₹" /></span>
