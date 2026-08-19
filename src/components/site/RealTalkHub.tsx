@@ -253,7 +253,7 @@ export default function RealTalkHub({
 
       {/* ══ FEATURED READS (bento) ══ */}
       <section id="reads" style={{ maxWidth: 1160, margin: '0 auto', padding: '84px 24px 0', scrollMarginTop: 70 }}>
-        <SectionHead kicker="From our clinicians" title="Fresh reads" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
+        <SectionHead kicker="From our experts" title="Fresh reads" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
 
         <div className="rt-reveal" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.5fr) minmax(0,1fr)', gap: 20 }}>
           {lead && <FeaturedRead post={lead} />}

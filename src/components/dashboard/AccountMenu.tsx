@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react'
 import { Settings, LogOut } from 'lucide-react'
 
 /** Topbar avatar with a small account dropdown (Settings + Log out). */
-export function AccountMenu({ name }: { name: string }) {
+export function AccountMenu({ name, photoUrl = null }: { name: string; photoUrl?: string | null }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -33,8 +33,14 @@ export function AccountMenu({ name }: { name: string }) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
+        style={photoUrl ? { padding: 0, overflow: 'hidden' } : undefined}
       >
-        {name.charAt(0).toUpperCase()}
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+        ) : (
+          name.charAt(0).toUpperCase()
+        )}
       </button>
 
       {open && (

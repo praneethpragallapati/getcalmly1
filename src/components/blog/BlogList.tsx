@@ -103,7 +103,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
               marginBottom: 18,
             }}
           >
-            From our clinicians
+            From our experts
           </p>
           <h1
             style={{

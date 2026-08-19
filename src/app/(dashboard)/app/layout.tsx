@@ -67,6 +67,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         planActive={d.planActive}
         planName={d.planName}
         sessionsToday={d.sessionsToday}
+        photoUrl={d.photoUrl}
+        feeling={d.feeling}
       />
 
       <div className="app-main">
@@ -82,7 +84,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/contact" className="tb-icon" aria-label="Help &amp; support">
               <HelpCircle size={17} />
             </Link>
-            <AccountMenu name={d.name} />
+            <AccountMenu name={d.name} photoUrl={d.photoUrl} />
           </div>
         </header>
 

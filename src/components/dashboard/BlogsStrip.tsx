@@ -15,7 +15,7 @@ export function BlogsStrip({ posts, limit = 3 }: { posts: BlogPostView[]; limit?
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
         <div>
           <h2 style={{ fontFamily: "'Big Shoulders Display',sans-serif", fontWeight: 300, fontSize: 'clamp(24px,3.2vw,32px)', color: 'var(--c-charcoal)', margin: 0, lineHeight: 1.05 }}>
-            From our clinicians
+            From our experts
           </h2>
           <p className="muted" style={{ marginTop: 4 }}>Evidence-based reads, written by professionals.</p>
         </div>

@@ -27,7 +27,7 @@ export default async function CommunityPage() {
         tabs={REAL_TALK_TABS.map((t) => (t.href === '/app/polls' ? { ...t, badge: openPolls } : t))}
         active="/app/community"
       />
-      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/app/community" polls={polls} />
+      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/app/community" polls={polls} showHero={false} />
     </>
   )
 }

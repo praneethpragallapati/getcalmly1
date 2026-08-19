@@ -71,12 +71,16 @@ export function Sidebar({
   planActive = false,
   planName = 'No active plan',
   sessionsToday = 0,
+  photoUrl = null,
+  feeling = null,
 }: {
   name: string
   planLine: string
   planActive?: boolean
   planName?: string
   sessionsToday?: number
+  photoUrl?: string | null
+  feeling?: string | null
 }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
@@ -120,12 +124,17 @@ export function Sidebar({
         </div>
 
         <Link href="/app/settings" className="sb-profile" onClick={() => setOpen(false)}>
-          <span className="sb-avatar">{initial}</span>
-          <span>
+          {photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photoUrl} alt="" className="sb-avatar" style={{ objectFit: 'cover' }} />
+          ) : (
+            <span className="sb-avatar">{initial}</span>
+          )}
+          <span style={{ minWidth: 0 }}>
             <span className="sb-profile-name" style={{ display: 'block' }}>
               {name}
             </span>
-            <span className="sb-profile-sub">{planLine}</span>
+            <span className="sb-profile-sub">{feeling ?? planLine}</span>
           </span>
         </Link>
 

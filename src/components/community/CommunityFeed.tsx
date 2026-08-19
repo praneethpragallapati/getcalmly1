@@ -381,6 +381,7 @@ export default function CommunityFeed({
   stats,
   authed = false,
   embedded = false,
+  showHero = true,
   myPostIds = [],
   detailBase = '/community',
   polls = [],
@@ -391,6 +392,8 @@ export default function CommunityFeed({
   authed?: boolean
   /** Rendered inside a dashboard shell: tighter hero, no sticky offset. */
   embedded?: boolean
+  /** Dashboards render their own section header, so they hide this hero. */
+  showHero?: boolean
   /** IDs of the current user's own posts, for the "My posts" filter. */
   myPostIds?: string[]
   /** Where discussion cards link to (public detail by default). */
@@ -453,6 +456,7 @@ export default function CommunityFeed({
   return (
     <div style={{ background: '#FFFCFA', minHeight: embedded ? 'auto' : '100vh', fontFamily: BODY_FONT, borderRadius: embedded ? 18 : 0, overflow: embedded ? 'hidden' : 'visible' }}>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      {showHero && (
       <section
         style={{
           position: 'relative',
@@ -621,6 +625,7 @@ export default function CommunityFeed({
           </div>
         </div>
       </section>
+      )}
 
       {/* ── Community guidelines banner ──────────────────────────────────── */}
       <div

@@ -162,7 +162,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
       {/* Related reads (blogs sharing tags) */}
       {relatedReads.length > 0 && (
         <section style={{ padding: '40px 24px 8px', maxWidth: 760, margin: '0 auto' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: coral, marginBottom: 8 }}>From our clinicians</p>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: coral, marginBottom: 8 }}>From our experts</p>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 26, fontWeight: 300, color: charcoal, marginBottom: 16 }}>Related reads</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
             {relatedReads.map((r) => (

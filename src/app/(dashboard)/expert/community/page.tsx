@@ -22,7 +22,7 @@ export default async function ExpertCommunityPage() {
   return (
     <>
       <BlogsStrip posts={blogs} />
-      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/expert/community" />
+      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/expert/community" showHero={false} />
     </>
   )
 }
