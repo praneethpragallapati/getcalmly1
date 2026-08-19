@@ -3,6 +3,9 @@ import { getAdminSession } from '@/lib/admin'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { PricingConfigForm } from './PricingConfigForm'
 
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { ADMIN_PRICING_TABS } from '@/data/sectionTabs'
+
 export const metadata = { title: 'Admin · Pricing', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
 
@@ -20,8 +23,9 @@ export default async function AdminPricingPage() {
 
   return (
     <div className="stack">
+      <SectionTabs title="Pricing &amp; offers" meta="What members pay, and what they earn for bringing a friend." tabs={ADMIN_PRICING_TABS} active="/admin/pricing" />
       <div className="page-head">
-        <div className="page-title">Pricing</div>
+        <div className="page-title">Packages &amp; pricing</div>
         <div className="page-meta">
           What patients pay. Edits go live on the pricing page and the in-app buy flow, and set the amount recorded as revenue on each purchase.
         </div>

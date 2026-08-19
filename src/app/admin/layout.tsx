@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Gift, Video, Waves } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UserPlus, HeartPulse, CalendarClock, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
+import { NavGroup } from '@/components/dashboard/NavGroup'
 import { AdminAccountMenu } from '@/components/admin/AdminAccountMenu'
 import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -33,8 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Logo size={26} onDark tagline={false} href="/admin" tint="purple" />
         </div>
 
-        <div className="sb-section">OVERVIEW</div>
-        <nav className="sb-nav">
+        <NavGroup heading="OVERVIEW" storageKey="admin" hrefs={['/admin/submissions']}>
           <SidebarLink href="/admin" exact>
             <LayoutDashboard size={18} />
             <span>Dashboard</span>
@@ -43,11 +43,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Inbox size={18} />
             <span>Submissions</span>
           </SidebarLink>
-        </nav>
+        </NavGroup>
 
-        <div className="sb-section">PEOPLE</div>
-        <nav className="sb-nav">
-          <SidebarLink href="/admin/therapists">
+        <NavGroup heading="PEOPLE" storageKey="admin" hrefs={['/admin/therapists', '/admin/supervision', '/admin/patients', '/admin/create', '/admin/feedback']}>
+          {/* Clinicians also covers Supervision (tabbed together). */}
+          <SidebarLink href="/admin/therapists" match={['/admin/supervision']}>
             <Users size={18} />
             <span>Clinicians</span>
           </SidebarLink>
@@ -59,59 +59,40 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <UserPlus size={18} />
             <span>New account</span>
           </SidebarLink>
-          <SidebarLink href="/admin/supervision">
-            <UsersRound size={18} />
-            <span>Supervision</span>
-          </SidebarLink>
           <SidebarLink href="/admin/feedback">
             <MessageSquareHeart size={18} />
             <span>Feedback</span>
           </SidebarLink>
-        </nav>
+        </NavGroup>
 
-        <div className="sb-section">OPERATIONS</div>
-        <nav className="sb-nav">
+        <NavGroup heading="OPERATIONS" storageKey="admin" hrefs={['/admin/operations', '/admin/money', '/admin/revenue', '/admin/pricing', '/admin/referrals']}>
           <SidebarLink href="/admin/operations">
             <CalendarClock size={18} />
             <span>Operations</span>
           </SidebarLink>
-          <SidebarLink href="/admin/money">
-            <Banknote size={18} />
-            <span>Therapist payout</span>
-          </SidebarLink>
-          <SidebarLink href="/admin/revenue">
+          {/* Money = revenue + clinician payouts. */}
+          <SidebarLink href="/admin/revenue" match={['/admin/money']}>
             <TrendingUp size={18} />
-            <span>Revenue</span>
+            <span>Money</span>
           </SidebarLink>
-          <SidebarLink href="/admin/pricing">
+          {/* Pricing also covers Referrals (both commercial levers). */}
+          <SidebarLink href="/admin/pricing" match={['/admin/referrals']}>
             <Tags size={18} />
-            <span>Pricing</span>
+            <span>Pricing &amp; offers</span>
           </SidebarLink>
-          <SidebarLink href="/admin/referrals">
-            <Gift size={18} />
-            <span>Referrals</span>
-          </SidebarLink>
-        </nav>
+        </NavGroup>
 
-        <div className="sb-section">PLATFORM</div>
-        <nav className="sb-nav">
-          <SidebarLink href="/admin/content">
+        <NavGroup heading="PLATFORM" storageKey="admin" hrefs={['/admin/content', '/admin/perspectives', '/admin/guided', '/admin/config']}>
+          {/* Content also covers Perspectives + Guided calm (tabbed together). */}
+          <SidebarLink href="/admin/content" match={['/admin/perspectives', '/admin/guided']}>
             <Newspaper size={18} />
             <span>Content</span>
-          </SidebarLink>
-          <SidebarLink href="/admin/perspectives">
-            <Video size={18} />
-            <span>Perspectives</span>
-          </SidebarLink>
-          <SidebarLink href="/admin/guided">
-            <Waves size={18} />
-            <span>Guided calm</span>
           </SidebarLink>
           <SidebarLink href="/admin/config">
             <Settings size={18} />
             <span>Configuration</span>
           </SidebarLink>
-        </nav>
+        </NavGroup>
       </aside>
 
       <div className="app-main">

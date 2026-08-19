@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import Logo from '@/components/ui/Logo'
+import { NavGroup } from '@/components/dashboard/NavGroup'
 import {
   Home,
   Sparkles,
@@ -20,11 +21,8 @@ import {
   Menu,
   Video,
   Waves,
-  ChevronDown,
   X,
 } from 'lucide-react'
-
-const COLLAPSE_KEY = 'gc-sidebar-collapsed'
 
 // `match` lists the sibling routes a merged entry also owns, so the item stays
 // highlighted across every tab of its section (see data/sectionTabs).
@@ -82,21 +80,6 @@ export function Sidebar({
 }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  // Collapsed group headings, persisted so the sidebar stays how you left it.
-  const [collapsed, setCollapsed] = useState<string[]>([])
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(COLLAPSE_KEY)
-      if (raw) setCollapsed(JSON.parse(raw) as string[])
-    } catch { /* first visit / storage blocked */ }
-  }, [])
-  const toggleGroup = (heading: string) =>
-    setCollapsed((prev) => {
-      const next = prev.includes(heading) ? prev.filter((h) => h !== heading) : [...prev, heading]
-      try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next)) } catch { /* ignore */ }
-      return next
-    })
-
   const initial = name.charAt(0).toUpperCase()
   // Only show the Sessions badge when there's genuinely a session today.
   const badgeFor = (href: string): string | undefined =>
@@ -146,48 +129,32 @@ export function Sidebar({
           </span>
         </Link>
 
-        {GROUPS.map((g) => {
-          // A group holding the current page never hides it.
-          const hasActive = g.items.some(isActive)
-          const isCollapsed = collapsed.includes(g.heading) && !hasActive
-          return (
-            <div key={g.heading}>
-              <button
-                type="button"
-                className="sb-section sb-section-btn"
-                aria-expanded={!isCollapsed}
-                onClick={() => toggleGroup(g.heading)}
-              >
-                <span>{g.heading.toUpperCase()}</span>
-                <ChevronDown
-                  size={13}
-                  style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'none', transition: 'transform .18s' }}
-                />
-              </button>
-              {!isCollapsed && (
-                <nav className="sb-nav">
-                  {g.items.map((item) => {
-                    const { href, label, icon: Icon, badge } = item
-                    const active = isActive(item)
-                    const shownBadge = badge ?? badgeFor(href)
-                    return (
-                      <Link
-                        key={href}
-                        href={href}
-                        className={`sb-link${active ? ' active' : ''}`}
-                        onClick={() => setOpen(false)}
-                      >
-                        <Icon size={18} strokeWidth={active ? 2.4 : 2} />
-                        <span>{label}</span>
-                        {shownBadge && <span className="sb-badge">{shownBadge}</span>}
-                      </Link>
-                    )
-                  })}
-                </nav>
-              )}
-            </div>
-          )
-        })}
+        {GROUPS.map((g) => (
+          <NavGroup
+            key={g.heading}
+            heading={g.heading.toUpperCase()}
+            storageKey="patient"
+            hrefs={g.items.flatMap((i) => [i.href, ...(i.match ?? [])])}
+          >
+            {g.items.map((item) => {
+              const { href, label, icon: Icon, badge } = item
+              const active = isActive(item)
+              const shownBadge = badge ?? badgeFor(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`sb-link${active ? ' active' : ''}`}
+                  onClick={() => setOpen(false)}
+                >
+                  <Icon size={18} strokeWidth={active ? 2.4 : 2} />
+                  <span>{label}</span>
+                  {shownBadge && <span className="sb-badge">{shownBadge}</span>}
+                </Link>
+              )
+            })}
+          </NavGroup>
+        ))}
 
         <div className="sb-plan">
           <div className="sb-plan-label">{planActive ? 'YOUR PLAN' : 'NO ACTIVE PLAN'}</div>

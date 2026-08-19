@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, CalendarCog, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock, FileText, Video } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock, FileText, Video } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
+import { NavGroup } from '@/components/dashboard/NavGroup'
 import { ExpertAccountMenu } from '@/components/expert/ExpertAccountMenu'
 import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -42,8 +43,7 @@ export default async function ExpertLayout({ children }: { children: React.React
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/expert" tint="green" />
         </div>
-        <div className="sb-section">CASELOAD</div>
-        <nav className="sb-nav">
+        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
           <SidebarLink href="/expert" exact>
             <Home size={18} />
             <span>Dashboard</span>
@@ -52,13 +52,10 @@ export default async function ExpertLayout({ children }: { children: React.React
             <Users size={18} />
             <span>My Patients</span>
           </SidebarLink>
-          <SidebarLink href="/expert/schedule">
+          {/* Schedule also covers Availability (tabbed together). */}
+          <SidebarLink href="/expert/schedule" match={['/expert/availability']}>
             <CalendarClock size={18} />
             <span>Schedule</span>
-          </SidebarLink>
-          <SidebarLink href="/expert/availability">
-            <CalendarCog size={18} />
-            <span>Availability</span>
           </SidebarLink>
           <SidebarLink href="/expert/risk">
             <AlertTriangle size={18} />
@@ -69,21 +66,17 @@ export default async function ExpertLayout({ children }: { children: React.React
             <UsersRound size={18} />
             <span>Supervision</span>
           </SidebarLink>
-        </nav>
+        </NavGroup>
 
-        <div className="sb-section">PRACTICE</div>
-        <nav className="sb-nav">
+        <NavGroup heading="PRACTICE" storageKey="expert" hrefs={['/expert/community', '/expert/blogs', '/expert/perspectives', '/expert/forms', '/expert/profile', '/expert/earnings']}>
           <SidebarLink href="/expert/community">
             <MessagesSquare size={18} />
             <span>Community</span>
           </SidebarLink>
-          <SidebarLink href="/expert/blogs">
+          {/* Publishing = blogs (write) + Perspectives talks (submit). */}
+          <SidebarLink href="/expert/blogs" match={['/expert/perspectives']}>
             <Newspaper size={18} />
-            <span>Blogs</span>
-          </SidebarLink>
-          <SidebarLink href="/expert/perspectives">
-            <Video size={18} />
-            <span>Perspectives</span>
+            <span>Publishing</span>
           </SidebarLink>
           <SidebarLink href="/expert/forms">
             <FileText size={18} />
@@ -110,7 +103,7 @@ export default async function ExpertLayout({ children }: { children: React.React
               <Lock size={13} style={{ marginLeft: 'auto' }} />
             </span>
           )}
-        </nav>
+        </NavGroup>
       </aside>
 
       <div className="app-main">

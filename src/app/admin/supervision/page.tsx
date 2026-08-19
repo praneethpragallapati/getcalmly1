@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { adminListTherapists, adminListSupervisionLinks } from '@/lib/expert'
 import { assignSupervisionAction, removeSupervisionAction } from '../actions'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { ADMIN_CLINICIAN_TABS } from '@/data/sectionTabs'
 
 export const metadata = { title: 'Admin · Supervision', robots: { index: false, follow: false } }
 
@@ -26,8 +28,8 @@ export default async function AdminSupervisionPage() {
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 24px', fontFamily: "'DM Sans', sans-serif" }}>
-      <p style={{ fontSize: 12.5, fontWeight: 700, color: '#8E9EAE', letterSpacing: 0.5 }}>ADMIN</p>
-      <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 32, color: '#1C2B3A', marginBottom: 8 }}>
+      <SectionTabs title="Clinicians" meta="Your practising team and who supervises whom." tabs={ADMIN_CLINICIAN_TABS} active="/admin/supervision" />
+      <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 26, color: '#1C2B3A', margin: '8px 0' }}>
         Supervision assignments
       </h1>
       <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: 28 }}>

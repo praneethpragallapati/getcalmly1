@@ -19,22 +19,22 @@ export function GuidedView({ tracks }: { tracks: GuidedTrackView[] }) {
       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, padding: 'clamp(28px, 5vw, 48px)', background: `radial-gradient(ellipse 70% 60% at 85% 12%, rgba(44,122,107,.4), transparent 55%), radial-gradient(ellipse 50% 50% at 6% 74%, rgba(44,122,107,.16), transparent 60%), ${ink}`, color: '#fff', marginBottom: 26 }}>
         <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', color: '#9FE0CF', margin: 0 }}>Care · Guided calm</p>
         <h1 style={{ fontFamily: HEAD, fontSize: 'clamp(30px, 5.5vw, 52px)', fontWeight: 300, lineHeight: 1.05, letterSpacing: '-0.5px', margin: '10px 0 12px', maxWidth: 640 }}>
-          Practices to <span style={{ color: '#8FE3D0', fontWeight: 700 }}>steady you.</span>
+          Press play. <span style={{ color: '#8FE3D0', fontWeight: 700 }}>Come back to yourself.</span>
         </h1>
-        <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.72)', margin: 0, maxWidth: 520, lineHeight: 1.6 }}>
-          Guided breathing, grounding and sleep tracks — some open to everyone, some hand-picked for you by your clinician.
+        <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.72)', margin: 0, maxWidth: 540, lineHeight: 1.6 }}>
+          Breathwork for the spiral. Grounding for the panic. Something soft for the nights that won&apos;t end. A few are open to everyone — the rest, your clinician picks for you.
         </p>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 18, background: 'rgba(255,255,255,.12)', color: '#fff', fontSize: 12.5, fontWeight: 700, padding: '7px 14px', borderRadius: 999 }}>
-          ✨ Coming soon — the first guided tracks are on the way
+          ✨ Coming soon — the first tracks are being recorded
         </span>
       </div>
 
       {tracks.length === 0 ? (
         <div style={{ border: '1.5px dashed rgba(28,43,58,.16)', borderRadius: 18, padding: '40px 24px', textAlign: 'center', color: '#8595a4' }}>
           <div style={{ fontSize: 26, marginBottom: 8 }}>🧘</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#5A6B7A' }}>Your guided tracks will appear here</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#5A6B7A' }}>Nothing to play just yet</div>
           <div style={{ fontSize: 13, marginTop: 4, maxWidth: 420, marginInline: 'auto', lineHeight: 1.5 }}>
-            Public tracks and any your clinician assigns to you will show up in this space.
+            Open tracks land here as we release them — and anything your clinician picks for you shows up the moment they do.
           </div>
         </div>
       ) : (
@@ -58,7 +58,7 @@ export function GuidedView({ tracks }: { tracks: GuidedTrackView[] }) {
                   </div>
                 ) : (
                   <div style={{ border: '1.5px dashed rgba(28,43,58,.16)', borderRadius: 16, padding: '24px', textAlign: 'center', color: '#8595a4', background: 'rgba(28,43,58,.02)' }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 600, color: '#5A6B7A' }}>Videos arriving soon for this track.</div>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: '#5A6B7A' }}>We&apos;re recording this one now.</div>
                   </div>
                 )}
               </section>

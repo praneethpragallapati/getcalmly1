@@ -9,6 +9,8 @@ import {
   DAY_LABELS,
 } from '@/lib/expert'
 import { saveAvailability, blockDate, unblockDate } from '../actions'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { EXPERT_SCHEDULE_TABS } from '@/data/sectionTabs'
 
 function hourLabel(h: number): string {
   const ampm = h < 12 ? 'AM' : 'PM'
@@ -54,6 +56,7 @@ export default async function AvailabilityPage() {
 
   return (
     <div className="stack">
+      <SectionTabs title="Schedule" tabs={EXPERT_SCHEDULE_TABS} active="/expert/availability" />
       <div className="page-head">
         <div className="page-title">Availability</div>
         <div className="page-meta">{openDays} of 7 days open · feeds the patient booking calendar</div>

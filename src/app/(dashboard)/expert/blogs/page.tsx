@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { getTherapistContext, getExpertBlogPosts } from '@/lib/expert'
 import { getBlogPosts } from '@/lib/blog'
 import { BlogsManager } from '@/components/expert/BlogsManager'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { EXPERT_PUBLISH_TABS } from '@/data/sectionTabs'
 
 export const metadata = { title: 'Blogs · Expert portal', robots: { index: false, follow: false } }
 
@@ -13,6 +15,7 @@ export default async function ExpertBlogsPage() {
 
   return (
     <div className="stack">
+      <SectionTabs title="Publishing" tabs={EXPERT_PUBLISH_TABS} active="/expert/blogs" />
       <div className="page-head">
         <div className="page-title">Blogs</div>
         <div className="page-meta">Write for the public blog · bylined as <b>{ctx.designation}</b></div>

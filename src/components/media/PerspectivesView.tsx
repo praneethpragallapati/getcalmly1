@@ -15,14 +15,14 @@ export function PerspectivesHero({ comingSoon = true }: { comingSoon?: boolean }
     <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, padding: 'clamp(28px, 5vw, 48px)', background: `radial-gradient(ellipse 70% 60% at 85% 10%, rgba(200,85,61,.35), transparent 55%), radial-gradient(ellipse 50% 50% at 5% 70%, rgba(200,85,61,.14), transparent 60%), ${ink}`, color: '#fff', marginBottom: 22 }}>
       <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', color: '#F0B7A8', margin: 0 }}>Calm Club · Perspectives</p>
       <h1 style={{ fontFamily: HEAD, fontSize: 'clamp(30px, 5.5vw, 52px)', fontWeight: 300, lineHeight: 1.05, letterSpacing: '-0.5px', margin: '10px 0 12px', maxWidth: 640 }}>
-        Voices worth <span style={{ color: '#F6A38C', fontWeight: 700 }}>sitting with.</span>
+        The things nobody <span style={{ color: '#F6A38C', fontWeight: 700 }}>says out loud.</span>
       </h1>
-      <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.72)', margin: 0, maxWidth: 520, lineHeight: 1.6 }}>
-        Essays and short talks from founders, clinicians and members — on the things that actually move mental health forward.
+      <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.72)', margin: 0, maxWidth: 540, lineHeight: 1.6 }}>
+        Our clinicians, our founders, and people who&apos;ve lived it — on therapy, medication, burnout, and the questions you&apos;d rather Google at 2am.
       </p>
       {comingSoon && (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 18, background: 'rgba(255,255,255,.12)', color: '#fff', fontSize: 12.5, fontWeight: 700, padding: '7px 14px', borderRadius: 999 }}>
-          ✨ More talks coming soon — we&apos;re curating the first ones now
+          ✨ First talks dropping soon — worth the wait
         </span>
       )}
     </div>
@@ -56,8 +56,8 @@ export function PerspectivesView({ sections, onDark = true, showHero = true }: {
             ) : (
               <div style={{ border: '1.5px dashed rgba(28,43,58,.16)', borderRadius: 16, padding: '26px 22px', textAlign: 'center', color: '#8595a4', background: 'rgba(28,43,58,.02)' }}>
                 <div style={{ fontSize: 22, marginBottom: 6 }}>🎬</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#5A6B7A' }}>Talks arriving soon</div>
-                <div style={{ fontSize: 12.5, marginTop: 2 }}>We&apos;re lining up the first videos for this section.</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#5A6B7A' }}>Being filmed as we speak</div>
+                <div style={{ fontSize: 12.5, marginTop: 2 }}>The first voices for this one are lining up.</div>
               </div>
             )}
           </section>

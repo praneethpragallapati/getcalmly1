@@ -5,6 +5,9 @@ import { getAdminSession, getMoneyOverview, getMasterPayout } from '@/lib/admin'
 import { expertCode } from '@/lib/ids'
 import { MasterPayoutView } from '@/components/admin/MasterPayoutView'
 
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { ADMIN_MONEY_TABS } from '@/data/sectionTabs'
+
 export const dynamic = 'force-dynamic'
 
 const charcoal = '#1C2B3A'
@@ -29,6 +32,7 @@ export default async function AdminMoneyPage() {
 
   return (
     <div className="stack">
+      <SectionTabs title="Money" meta="Package sales and what every clinician is owed." tabs={ADMIN_MONEY_TABS} active="/admin/money" />
       <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div className="page-title">Therapist payout</div>

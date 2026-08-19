@@ -6,6 +6,8 @@ import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { RequestCancel } from '@/components/expert/RequestCancel'
 import { JoinButton } from '@/components/dashboard/JoinButton'
 import { fmtIST } from '@/lib/tz'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { EXPERT_SCHEDULE_TABS } from '@/data/sectionTabs'
 
 function fmt(d: Date): string {
   return fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
@@ -105,6 +107,7 @@ export default async function SchedulePage() {
 
   return (
     <div className="stack">
+      <SectionTabs title="Schedule" tabs={EXPERT_SCHEDULE_TABS} active="/expert/schedule" />
       <div className="page-head">
         <div className="page-title">Schedule</div>
         <div className="page-meta">
