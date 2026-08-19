@@ -12,6 +12,8 @@ import { AssignTaskForm } from '@/components/expert/AssignTaskForm'
 import { PrescribeForm } from '@/components/expert/PrescribeForm'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { SendFormCard } from '@/components/expert/SendFormCard'
+import { AssignGuidedTrack } from '@/components/expert/AssignGuidedTrack'
+import { getGuidedTrackOptions, getGuidedAssignmentsFor } from '@/lib/guided'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -49,12 +51,14 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   }
   if (!p) notFound()
 
-  const [weekly, weeklyInsight, formLibrary, sentForms, allRisk] = await Promise.all([
+  const [weekly, weeklyInsight, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
     getWeeklyProgress(id),
     getPatientWeeklyInsight(id),
     getFormLibrary(),
     getPatientFormsForExpert(effectiveTherapistId, id),
     getRiskNotifications(effectiveTherapistId),
+    getGuidedTrackOptions(),
+    getGuidedAssignmentsFor(id),
   ])
   const patientAlerts = allRisk.filter((r) => r.patientId === id)
 
@@ -332,6 +336,10 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
           <AssignTaskForm patientId={p.patientId} />
         </div>
+        )}
+
+        {!supervisorView && (
+          <AssignGuidedTrack patientId={p.patientId} tracks={guidedTracks} assignments={guidedAssignments} />
         )}
       </div>
 

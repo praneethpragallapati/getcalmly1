@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Gift } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UsersRound, UserPlus, HeartPulse, CalendarClock, Banknote, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Gift, Video, Waves } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -98,6 +98,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/content">
             <Newspaper size={18} />
             <span>Content</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/perspectives">
+            <Video size={18} />
+            <span>Perspectives</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/guided">
+            <Waves size={18} />
+            <span>Guided calm</span>
           </SidebarLink>
           <SidebarLink href="/admin/config">
             <Settings size={18} />

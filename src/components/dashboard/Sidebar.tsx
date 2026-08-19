@@ -21,6 +21,8 @@ import {
   Settings,
   LogOut,
   Menu,
+  Video,
+  Waves,
   X,
 } from 'lucide-react'
 
@@ -41,6 +43,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
       { href: '/app/medications', label: 'Medications', icon: Pill },
+      { href: '/app/guided', label: 'Guided calm', icon: Waves, badge: 'Soon' },
       { href: '/app/forms', label: 'Forms', icon: FileText },
     ],
   },
@@ -49,6 +52,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { href: '/app/blogs', label: 'Blogs', icon: Newspaper },
       { href: '/app/community', label: 'Community', icon: Users },
+      { href: '/app/perspectives', label: 'Perspectives', icon: Video, badge: 'Soon' },
       { href: '/app/polls', label: 'Polls', icon: BarChart3 },
     ],
   },

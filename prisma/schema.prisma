@@ -1202,3 +1202,78 @@ model ReferralConfig {
   clawback            Boolean  @default(true)
   updatedAt           DateTime @updatedAt
 }
+
+// ── Perspectives (Calm Club) ─────────────────────────────────────────────────
+// Curated YouTube talks grouped into sections (Founder's Voice, Ask your expert,
+// Real stories, Mind matters, Inside getCalmly). Admins manage sections & videos;
+// therapists can submit a video that an admin approves. Relation-free (ids as
+// strings) so the tables self-heal without touching User/TherapistProfile.
+model PerspectiveSection {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  comingSoon  Boolean  @default(true)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([sortOrder])
+}
+
+model PerspectiveVideo {
+  id              String   @id @default(cuid())
+  sectionId       String
+  title           String
+  youtubeId       String
+  description     String?
+  status          String   @default("APPROVED") // APPROVED | PENDING | REJECTED
+  submittedById   String? // submitting therapist's User id; null = admin-added
+  submittedByName String?
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  @@index([sectionId])
+  @@index([status])
+}
+
+// ── Guided calm (Care) ───────────────────────────────────────────────────────
+// Admin-authored guided video tracks. A track is either public or assigned to a
+// patient (with optional validity) by an expert, mirroring how tasks are assigned.
+model GuidedTrack {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  isPublic    Boolean  @default(false)
+  comingSoon  Boolean  @default(true)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([sortOrder])
+}
+
+model GuidedVideo {
+  id          String   @id @default(cuid())
+  trackId     String
+  title       String
+  youtubeId   String
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([trackId])
+}
+
+model GuidedAssignment {
+  id           String    @id @default(cuid())
+  trackId      String
+  patientId    String // patient's User id
+  assignedById String? // assigning therapist's User id
+  validUntil   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([patientId])
+  @@index([trackId])
+}
