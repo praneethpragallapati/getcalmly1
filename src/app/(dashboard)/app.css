@@ -147,6 +147,26 @@
   padding: 0 10px;
   margin: 14px 0 6px;
 }
+/* Collapsible group heading (patient sidebar). Looks identical to .sb-section
+   but is a button, with a chevron pushed to the right. */
+.sb-section-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  border-radius: 8px;
+  padding: 4px 10px;
+  transition: color 0.15s, background 0.15s;
+}
+.sb-section-btn:hover {
+  color: #9fb0c0;
+  background: rgba(255, 255, 255, 0.04);
+}
 .sb-nav {
   display: flex;
   flex-direction: column;

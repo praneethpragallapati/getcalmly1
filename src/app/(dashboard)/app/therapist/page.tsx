@@ -4,6 +4,8 @@ import {
   Sparkles, UserPlus, Clock, FileText,
 } from 'lucide-react'
 import { getMyCareTeam, type CareSlot } from '@/lib/therapist'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { CARE_TEAM_TABS } from '@/data/sectionTabs'
 
 // Always read the assignment/packages fresh, so an admin reassignment shows on
 // the patient's next load (never a stale server-cached copy).
@@ -15,12 +17,12 @@ export default async function TherapistPage() {
 
   return (
     <>
-      <div className="page-head">
-        <h1 className="page-title">My Care Team</h1>
-        <span className="page-meta">
-          {activeCount > 0 ? `${activeCount} active ${activeCount === 1 ? 'package' : 'packages'}` : 'Your experts by package'}
-        </span>
-      </div>
+      <SectionTabs
+        title="My Care Team"
+        meta={activeCount > 0 ? `${activeCount} active ${activeCount === 1 ? 'package' : 'packages'}` : 'Your experts by package'}
+        tabs={CARE_TEAM_TABS}
+        active="/app/therapist"
+      />
 
       {/* Next session (global) */}
       {team.nextSessionWhen && (

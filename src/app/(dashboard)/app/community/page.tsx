@@ -2,6 +2,8 @@ import CommunityFeed from '@/components/community/CommunityFeed'
 import { getCommunityPosts, getCommunityStats, getMyCommunityPostIds } from '@/lib/community'
 import { getCommunityPolls } from '@/lib/polls'
 import { getSessionUserId } from '@/lib/patient'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { REAL_TALK_TABS } from '@/data/sectionTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,21 +16,17 @@ export default async function CommunityPage() {
     getCommunityPolls(userId),
   ])
 
+  const openPolls = polls.filter((p) => !p.expired && p.myVote === null).length
+
   return (
     <>
-      <p
-        className="muted"
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '1.4px',
-          textTransform: 'uppercase',
-          color: 'var(--c-coral)',
-          marginBottom: 6,
-        }}
-      >
-        Calm Club · Community
-      </p>
+      <SectionTabs
+        eyebrow="Calm Club · Real Talk"
+        title="Real Talk"
+        meta="Honest conversations with people who get it."
+        tabs={REAL_TALK_TABS.map((t) => (t.href === '/app/polls' ? { ...t, badge: openPolls } : t))}
+        active="/app/community"
+      />
       <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/app/community" polls={polls} />
     </>
   )
