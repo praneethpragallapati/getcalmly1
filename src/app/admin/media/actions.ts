@@ -45,7 +45,7 @@ export async function adminDeletePerspectiveSection(id: string): Promise<Res> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   const r = await deletePerspectiveSection(id); if (r.ok) bumpPerspectives(); return r
 }
-export async function adminAddPerspectiveVideo(input: { sectionId: string; title: string; url: string; description?: string | null }): Promise<Res> {
+export async function adminAddPerspectiveVideo(input: { sectionId: string; title: string; url: string; description?: string | null; tags?: string[] }): Promise<Res> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   const r = await addPerspectiveVideo(input, { status: 'APPROVED' }); if (r.ok) bumpPerspectives(); return r
 }

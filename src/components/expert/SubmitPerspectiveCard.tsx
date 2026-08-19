@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Send } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import { submitPerspectiveVideo } from '@/app/(dashboard)/expert/media/actions'
+import { TagPicker } from '@/components/ui/TagPicker'
 
 const charcoal = '#1C2B3A'
 const field: React.CSSProperties = { border: '1.5px solid #E2E8F0', borderRadius: 9, padding: '9px 11px', fontSize: 14, fontFamily: 'inherit', color: charcoal, background: '#fff', width: '100%', boxSizing: 'border-box' }
@@ -18,16 +19,17 @@ export function SubmitPerspectiveCard({ sections }: { sections: { id: string; ti
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [description, setDescription] = useState('')
+  const [tags, setTags] = useState<string[]>([])
 
   function submit() {
     if (!sectionId) return toast.error('Pick a section.')
     if (!title.trim()) return toast.error('Enter a video title.')
     if (!url.trim()) return toast.error('Paste the YouTube link.')
     start(async () => {
-      const res = await submitPerspectiveVideo({ sectionId, title, url, description })
+      const res = await submitPerspectiveVideo({ sectionId, title, url, description, tags })
       if (res.ok) {
         toast.success('Sent for admin approval.')
-        setTitle(''); setUrl(''); setDescription('')
+        setTitle(''); setUrl(''); setDescription(''); setTags([])
         router.refresh()
       } else toast.error(res.error ?? 'Could not submit.')
     })
@@ -46,6 +48,10 @@ export function SubmitPerspectiveCard({ sections }: { sections: { id: string; ti
         <input style={field} value={title} maxLength={120} placeholder="Video title" onChange={(e) => setTitle(e.target.value)} />
         <input style={field} value={url} placeholder="YouTube link or video id" onChange={(e) => setUrl(e.target.value)} />
         <textarea style={{ ...field, minHeight: 70, resize: 'vertical' }} value={description} maxLength={300} placeholder="Why this is worth watching (optional)" onChange={(e) => setDescription(e.target.value)} />
+        <div>
+          <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#4A5F70', marginBottom: 6 }}>Tags</label>
+          <TagPicker value={tags} onChange={setTags} compact />
+        </div>
         <div>
           <button onClick={submit} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>
             <Send size={14} /> {pending ? 'Submitting…' : 'Submit for approval'}

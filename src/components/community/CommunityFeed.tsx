@@ -7,6 +7,8 @@ import { createCommunityPost } from '@/app/(dashboard)/app/actions'
 import type { CommunityPostView } from '@/lib/community'
 import type { PollView } from '@/lib/polls'
 import { PollCard } from './PollCard'
+import { TagPicker } from '@/components/ui/TagPicker'
+import { tagLabel } from '@/data/tags'
 
 // ─── Role badge config ───────────────────────────────────────────────────────
 
@@ -234,7 +236,7 @@ export function CommunityPostCard({ post, base = '/community' }: { post: Communi
         {/* Tags */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {post.tags.map((tag) => (
-            <TagChip key={tag} tag={`#${tag}`} small />
+            <TagChip key={tag} tag={`#${tagLabel(tag)}`} small />
           ))}
         </div>
 
@@ -306,7 +308,7 @@ function AuthedComposer() {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [tags, setTags] = useState('')
+  const [tags, setTags] = useState<string[]>([])
   const [anon, setAnon] = useState(false)
   const [pending, startTransition] = useTransition()
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
@@ -317,11 +319,11 @@ function AuthedComposer() {
       const res = await createCommunityPost({
         title,
         body,
-        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+        tags,
         anonymous: anon,
       })
       if (res.ok && res.persisted) {
-        setTitle(''); setBody(''); setTags(''); setAnon(false); setOpen(false)
+        setTitle(''); setBody(''); setTags([]); setAnon(false); setOpen(false)
         router.refresh()
       } else {
         setMsg({ ok: false, text: res.error ?? 'Could not post your discussion.' })
@@ -356,7 +358,10 @@ function AuthedComposer() {
     <div style={{ background: '#fff', borderRadius: 18, padding: '20px 22px', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)', border: '1px solid rgba(28,43,58,.07)', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <input style={field} placeholder="A short, clear title" value={title} onChange={(e) => setTitle(e.target.value)} />
       <textarea style={{ ...field, resize: 'vertical' }} rows={4} placeholder="Share what's helping, or ask the community…" value={body} onChange={(e) => setBody(e.target.value)} />
-      <input style={field} placeholder="Tags, comma-separated (e.g. anxiety, sleep)" value={tags} onChange={(e) => setTags(e.target.value)} />
+      <div>
+        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#4A5F70', marginBottom: 6 }}>Tags</label>
+        <TagPicker value={tags} onChange={setTags} compact />
+      </div>
       <label style={{ display: 'inline-flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontSize: 13.5, color: '#4A5F70', fontFamily: BODY_FONT, userSelect: 'none' }}>
         <input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#C8553D', cursor: 'pointer' }} />
         <span>Post anonymously — your name and badge stay hidden, shown only as <strong style={{ color: '#1C2B3A' }}>Anonymous</strong></span>

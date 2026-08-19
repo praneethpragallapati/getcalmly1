@@ -282,3 +282,6 @@ CREATE TABLE IF NOT EXISTS "GuidedAssignment" (
 );
 CREATE INDEX IF NOT EXISTS "GuidedAssignment_patientId_idx" ON "GuidedAssignment"("patientId");
 CREATE INDEX IF NOT EXISTS "GuidedAssignment_trackId_idx" ON "GuidedAssignment"("trackId");
+
+-- 0033_perspective_video_tags
+ALTER TABLE "PerspectiveVideo" ADD COLUMN IF NOT EXISTS "tags" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

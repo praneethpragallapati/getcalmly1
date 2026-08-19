@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { parseYouTubeId, youTubeThumb, youTubeEmbed, youTubeWatch } from '@/lib/youtube'
+import { normalizeTags } from '@/data/tags'
 
 /**
  * "Perspectives" — curated YouTube talks grouped into sections, shown in Calm
@@ -17,6 +18,7 @@ export type PerspectiveVideoView = {
   description: string | null
   status: string
   submittedByName: string | null
+  tags: string[]
   createdAt: string
 }
 export type PerspectiveSectionView = {
@@ -52,6 +54,7 @@ export async function ensurePerspectiveSchema(): Promise<void> {
       "description" TEXT, "status" TEXT NOT NULL DEFAULT 'APPROVED', "submittedById" TEXT, "submittedByName" TEXT,
       "sortOrder" INTEGER NOT NULL DEFAULT 0, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT "PerspectiveVideo_pkey" PRIMARY KEY ("id"))`)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "PerspectiveVideo" ADD COLUMN IF NOT EXISTS "tags" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]`)
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "PerspectiveVideo_sectionId_idx" ON "PerspectiveVideo"("sectionId")`)
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "PerspectiveVideo_status_idx" ON "PerspectiveVideo"("status")`)
     perspectiveSchemaReady = true
@@ -79,9 +82,10 @@ export async function seedPerspectiveDefaults(): Promise<void> {
   }
 }
 
-const toVideoView = (v: { id: string; title: string; youtubeId: string; description: string | null; status: string; submittedByName: string | null; createdAt: Date }): PerspectiveVideoView => ({
+const toVideoView = (v: { id: string; title: string; youtubeId: string; description: string | null; status: string; submittedByName: string | null; tags?: string[]; createdAt: Date }): PerspectiveVideoView => ({
   id: v.id, title: v.title, youtubeId: v.youtubeId, thumb: youTubeThumb(v.youtubeId), embed: youTubeEmbed(v.youtubeId), watch: youTubeWatch(v.youtubeId),
   description: v.description, status: v.status, submittedByName: v.submittedByName,
+  tags: v.tags ?? [],
   createdAt: v.createdAt.toISOString(),
 })
 
@@ -170,7 +174,7 @@ export async function deletePerspectiveSection(id: string): Promise<{ ok: boolea
 
 /** Add a video. Admin adds are APPROVED; therapist submissions are PENDING. */
 export async function addPerspectiveVideo(
-  input: { sectionId: string; title: string; url: string; description?: string | null },
+  input: { sectionId: string; title: string; url: string; description?: string | null; tags?: string[] },
   by: { status: 'APPROVED' | 'PENDING'; submittedById?: string | null; submittedByName?: string | null },
 ): Promise<{ ok: boolean; error?: string }> {
   await ensurePerspectiveSchema()
@@ -183,6 +187,7 @@ export async function addPerspectiveVideo(
     await prisma.perspectiveVideo.create({
       data: {
         sectionId: input.sectionId, title, youtubeId, description: input.description?.trim() || null,
+        tags: normalizeTags(input.tags ?? []),
         status: by.status, submittedById: by.submittedById ?? null, submittedByName: by.submittedByName ?? null,
         sortOrder: (max._max.sortOrder ?? 0) + 1,
       },

@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Play, X } from 'lucide-react'
+import { tagLabel } from '@/data/tags'
 
 export type LightboxVideo = {
   id: string
@@ -10,6 +12,7 @@ export type LightboxVideo = {
   embed: string
   description?: string | null
   submittedByName?: string | null
+  tags?: string[]
 }
 
 /**
@@ -40,6 +43,15 @@ export function VideoCard({ video, accent = '#C8553D' }: { video: LightboxVideo;
           {video.description && <div style={{ fontSize: 12.5, color: '#6B7D8E', marginTop: 5, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{video.description}</div>}
         </div>
       </button>
+      {video.tags && video.tags.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 7 }}>
+          {video.tags.map((t) => (
+            <Link key={t} href={`/app/tag/${t}`} style={{ textDecoration: 'none', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: 'rgba(28,43,58,.06)', color: '#1C2B3A' }}>
+              #{tagLabel(t)}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {open && (
         <div

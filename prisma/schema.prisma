@@ -1227,6 +1227,8 @@ model PerspectiveVideo {
   title           String
   youtubeId       String
   description     String?
+  // Shared tag vocabulary (data/tags.ts) — same slugs as blogs and community.
+  tags            String[]
   status          String   @default("APPROVED") // APPROVED | PENDING | REJECTED
   submittedById   String? // submitting therapist's User id; null = admin-added
   submittedByName String?

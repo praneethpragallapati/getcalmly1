@@ -23,6 +23,7 @@ import {
 import { sendForm, createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
 import { notify } from '@/lib/notifications'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
+import { normalizeTags } from '@/data/tags'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 
@@ -30,7 +31,7 @@ export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 export async function publishBlog(input: CreateBlogInput): Promise<ExpertActionResult> {
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Please sign in.' }
-  const res = await createExpertBlogPost(ctx, input)
+  const res = await createExpertBlogPost(ctx, { ...input, tags: normalizeTags(input.tags ?? []) })
   if (res.ok) {
     revalidatePath('/expert/blogs')
     revalidatePath('/blog')
@@ -42,7 +43,7 @@ export async function publishBlog(input: CreateBlogInput): Promise<ExpertActionR
 export async function updateBlog(slug: string, input: CreateBlogInput): Promise<ExpertActionResult> {
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Please sign in.' }
-  const res = await updateExpertBlogPost(ctx, slug, input)
+  const res = await updateExpertBlogPost(ctx, slug, { ...input, tags: normalizeTags(input.tags ?? []) })
   if (res.ok) {
     revalidatePath('/expert/blogs')
     revalidatePath('/blog')

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { PenLine, ExternalLink, ImagePlus, X } from 'lucide-react'
 import { publishBlog, updateBlog } from '@/app/(dashboard)/expert/actions'
 import type { ExpertBlogEdit } from '@/lib/expert'
+import { TagPicker } from '@/components/ui/TagPicker'
 
 const inputStyle: React.CSSProperties = {
   width: '100%', border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '11px 13px',
@@ -21,7 +22,7 @@ export function BlogComposer({ designation, initial }: { designation: string; in
   const [title, setTitle] = useState(initial?.title ?? '')
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? '')
   const [body, setBody] = useState(initial?.body ?? '')
-  const [tags, setTags] = useState((initial?.tags ?? []).join(', '))
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? [])
   const [cover, setCover] = useState<string | null>(initial?.coverImage ?? null)
   const [pending, startTransition] = useTransition()
   const [msg, setMsg] = useState<{ ok: boolean; text: string; slug?: string } | null>(null)
@@ -48,13 +49,13 @@ export function BlogComposer({ designation, initial }: { designation: string; in
       title,
       excerpt,
       body,
-      tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+      tags,
       coverImage: cover,
     }
     startTransition(async () => {
       const res = editing ? await updateBlog(initial!.slug, input) : await publishBlog(input)
       if (res.ok) {
-        if (!editing) { setTitle(''); setExcerpt(''); setBody(''); setTags(''); setCover(null) }
+        if (!editing) { setTitle(''); setExcerpt(''); setBody(''); setTags([]); setCover(null) }
         setMsg({ ok: true, text: editing ? 'Changes saved.' : 'Published to the public blog.', slug: res.slug ?? initial?.slug })
         router.refresh()
       } else {
@@ -110,8 +111,8 @@ export function BlogComposer({ designation, initial }: { designation: string; in
           <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={9} style={{ ...inputStyle, resize: 'vertical' }} placeholder={'Write your post here.\n\nLeave a blank line between paragraphs.'} />
         </div>
         <div>
-          <label style={labelStyle}>Tags <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label>
-          <input value={tags} onChange={(e) => setTags(e.target.value)} style={inputStyle} placeholder="anxiety, self-care" />
+          <label style={labelStyle}>Tags <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(shared across Real Talk, Read &amp; Watch)</span></label>
+          <TagPicker value={tags} onChange={setTags} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button

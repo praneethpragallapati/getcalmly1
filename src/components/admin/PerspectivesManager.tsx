@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Trash2, Check, X, Eye, EyeOff } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
+import { TagPicker } from '@/components/ui/TagPicker'
 import type { PerspectiveSectionView, PerspectiveVideoView } from '@/lib/perspectives'
 import {
   adminCreatePerspectiveSection, adminUpdatePerspectiveSection, adminDeletePerspectiveSection,
@@ -76,6 +77,7 @@ function SectionCard({ section: s, pending, run }: { section: PerspectiveSection
   const toast = useToast()
   const [vt, setVt] = useState('')
   const [vurl, setVurl] = useState('')
+  const [vtags, setVtags] = useState<string[]>([])
 
   return (
     <div className="card">
@@ -115,10 +117,15 @@ function SectionCard({ section: s, pending, run }: { section: PerspectiveSection
       )}
 
       {/* Add video */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-        <input style={{ ...field, flex: 2, minWidth: 150 }} value={vt} maxLength={120} placeholder="Video title" onChange={(e) => setVt(e.target.value)} />
-        <input style={{ ...field, flex: 3, minWidth: 200 }} value={vurl} placeholder="YouTube link or id" onChange={(e) => setVurl(e.target.value)} />
-        <button onClick={() => { if (!vt.trim() || !vurl.trim()) return toast.error('Title and link required.'); run(() => adminAddPerspectiveVideo({ sectionId: s.id, title: vt, url: vurl }), 'Video added.'); setVt(''); setVurl('') }} disabled={pending} className="btn" style={{ border: '1.5px solid #E2E8F0' }}><Plus size={14} /> Add video</button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input style={{ ...field, flex: 2, minWidth: 150 }} value={vt} maxLength={120} placeholder="Video title" onChange={(e) => setVt(e.target.value)} />
+          <input style={{ ...field, flex: 3, minWidth: 200 }} value={vurl} placeholder="YouTube link or id" onChange={(e) => setVurl(e.target.value)} />
+        </div>
+        <TagPicker value={vtags} onChange={setVtags} compact />
+        <div>
+          <button onClick={() => { if (!vt.trim() || !vurl.trim()) return toast.error('Title and link required.'); run(() => adminAddPerspectiveVideo({ sectionId: s.id, title: vt, url: vurl, tags: vtags }), 'Video added.'); setVt(''); setVurl(''); setVtags([]) }} disabled={pending} className="btn" style={{ border: '1.5px solid #E2E8F0' }}><Plus size={14} /> Add video</button>
+        </div>
       </div>
     </div>
   )

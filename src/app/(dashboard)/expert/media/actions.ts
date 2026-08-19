@@ -8,7 +8,7 @@ import { assignGuidedTrack, unassignGuidedTrack } from '@/lib/guided'
 type Res = { ok: boolean; error?: string }
 
 /** A clinician submits a video to a Perspectives section for admin approval. */
-export async function submitPerspectiveVideo(input: { sectionId: string; title: string; url: string; description?: string | null }): Promise<Res> {
+export async function submitPerspectiveVideo(input: { sectionId: string; title: string; url: string; description?: string | null; tags?: string[] }): Promise<Res> {
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Sign in as a clinician first.' }
   const r = await addPerspectiveVideo(input, { status: 'PENDING', submittedById: ctx.userId, submittedByName: ctx.therapistName ?? 'Clinician' })

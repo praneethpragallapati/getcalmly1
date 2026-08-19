@@ -14,6 +14,7 @@ import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 import { cleanFeeling, ensureFeelingSchema } from '@/lib/feeling'
+import { normalizeTags } from '@/data/tags'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
@@ -752,7 +753,7 @@ export async function createCommunityPost(input: {
         authorRole: anon ? 'MEMBER' : me.role,
         tenure: anon ? null : me.tenure,
         anonymous: anon,
-        tags: input.tags ?? [],
+        tags: normalizeTags(input.tags ?? []),
       },
     })
     revalidatePath('/app/community')
