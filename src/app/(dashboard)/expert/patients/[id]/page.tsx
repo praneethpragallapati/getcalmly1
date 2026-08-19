@@ -70,6 +70,11 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             {p.name}
             <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '2px 8px', borderRadius: 6 }}>{patientCode(p.patientId)}</span>
+            {p.feeling && (
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--c-coral)', background: 'var(--c-coral-pale)', padding: '3px 10px', borderRadius: 999 }} title="Patient's self-reported status">
+                {p.feeling}
+              </span>
+            )}
           </div>
           <div className="page-meta">{p.trackLabel}{p.diagnosis ? ` · ${p.diagnosis}` : ''}{p.therapyStatus ? ` · ${p.therapyStatus}` : ''}</div>
         </div>

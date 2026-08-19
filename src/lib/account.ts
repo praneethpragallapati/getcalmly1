@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId, getPrivacy } from '@/lib/patient'
 import { tierForMonths, firstNameFrom } from '@/lib/dashboard'
+import { ensureFeelingSchema } from '@/lib/feeling'
 
 /**
  * Account-area data (plan/billing, care category, privacy, medications). Same
@@ -160,12 +161,14 @@ export type PatientProfileEdit = {
   emergencyName: string | null
   emergencyPhone: string | null
   emergencyRelation: string | null
+  feeling: string | null
 }
 
 /** The signed-in patient's editable profile fields (everything except email). */
 export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | null> {
   const userId = await getSessionUserId()
   if (!userId) return null
+  await ensureFeelingSchema()
   try {
     const [user, profile] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, phone: true, image: true } }),
@@ -174,7 +177,7 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
           where: { userId },
           select: {
             gender: true, dateOfBirth: true, state: true, preferredLanguage: true,
-            emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+            emergencyName: true, emergencyPhone: true, emergencyRelation: true, feeling: true,
           },
         })
         .catch(() => null),
@@ -191,6 +194,7 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
       emergencyName: profile?.emergencyName ?? null,
       emergencyPhone: profile?.emergencyPhone ?? null,
       emergencyRelation: profile?.emergencyRelation ?? null,
+      feeling: profile?.feeling ?? null,
     }
   } catch {
     return null

@@ -206,3 +206,7 @@ ALTER TABLE "FormAutoRule" ADD COLUMN IF NOT EXISTS "patientId" TEXT;
 ALTER TABLE "Poll" ADD COLUMN IF NOT EXISTS "multiple" BOOLEAN NOT NULL DEFAULT false;
 DROP INDEX IF EXISTS "PollVote_pollId_userId_key";
 CREATE UNIQUE INDEX IF NOT EXISTS "PollVote_pollId_userId_optionIndex_key" ON "PollVote"("pollId", "userId", "optionIndex");
+
+-- 0031_patient_feeling
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "feeling" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "feelingAt" TIMESTAMP(3);

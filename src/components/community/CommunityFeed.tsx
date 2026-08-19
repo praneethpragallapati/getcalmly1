@@ -185,13 +185,19 @@ export function CommunityPostCard({ post, base = '/community' }: { post: Communi
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700, fontSize: 14, color: '#1C2B3A' }}>{post.author}</span>
               <RoleBadge role={post.role} />
-              {post.role === 'Paid Member' && post.tenure && (
-                <span style={{ fontSize: 12, color: '#C8553D', fontWeight: 500 }}>
-                  ⭐ {post.tenure}
+              {post.feeling && (
+                <span style={{ fontSize: 12, color: '#C8553D', fontWeight: 600 }}>
+                  {post.feeling}
                 </span>
               )}
             </div>
-            <span style={{ fontSize: 12, color: '#9AABB8' }}>{post.date}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, color: '#9AABB8' }}>{post.date}</span>
+              {post.tenure && <span style={{ fontSize: 12, color: '#9AABB8' }}>· {post.tenure}</span>}
+              {typeof post.streak === 'number' && post.streak > 0 && (
+                <span style={{ fontSize: 12, color: '#9AABB8' }}>· 🔥 {post.streak}-day streak</span>
+              )}
+            </div>
           </div>
         </div>
 

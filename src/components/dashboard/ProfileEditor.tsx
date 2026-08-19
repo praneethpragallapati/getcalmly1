@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/Toast'
 import type { PatientProfileEdit } from '@/lib/account'
 import { IN_STATES } from '@/lib/inStates'
 import { fileToAvatarDataUrl } from '@/lib/clientImage'
+import { FEELING_PRESETS, MAX_FEELING } from '@/data/feelings'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -30,6 +31,7 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
   const [emName, setEmName] = useState(profile.emergencyName ?? '')
   const [emPhone, setEmPhone] = useState(profile.emergencyPhone ?? '')
   const [emRel, setEmRel] = useState(profile.emergencyRelation ?? '')
+  const [feeling, setFeeling] = useState(profile.feeling ?? '')
   // undefined = unchanged; null = removed; string = new data URL
   const [photo, setPhoto] = useState<string | null | undefined>(undefined)
   const shownPhoto = photo === undefined ? profile.photoUrl : photo
@@ -63,6 +65,7 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         emergencyName: emName,
         emergencyPhone: emPhone,
         emergencyRelation: emRel,
+        feeling: feeling.trim() || null,
         photo,
       })
       if (res.ok) {
@@ -112,6 +115,47 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         <div className="field-input" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--c-bg, #f6efea)', color: 'var(--c-gray-d)' }}>
           <Mail size={14} /> {profile.email ?? 'Not signed in'}
         </div>
+      </div>
+
+      {/* How I'm feeling */}
+      <div style={{ marginTop: 16 }}>
+        <label className="field-label">How I&apos;m feeling</label>
+        <p className="muted" style={{ fontSize: 12, margin: '0 0 8px' }}>
+          Optional. Shown next to you in the community and to your care team. Pick one or write your own.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 9 }}>
+          {FEELING_PRESETS.map((f) => {
+            const active = feeling.trim() === f
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFeeling(active ? '' : f)}
+                style={{
+                  fontSize: 13, fontWeight: 600, padding: '6px 12px', borderRadius: 999, cursor: 'pointer',
+                  border: `1.5px solid ${active ? 'var(--c-coral)' : 'var(--c-line, #e2ddd8)'}`,
+                  background: active ? 'var(--c-coral)' : '#fff',
+                  color: active ? '#fff' : 'var(--c-ink, #1C2B3A)',
+                  transition: 'background .15s, border-color .15s, color .15s',
+                }}
+              >
+                {f}
+              </button>
+            )
+          })}
+        </div>
+        <input
+          className="field-input"
+          value={feeling}
+          maxLength={MAX_FEELING}
+          onChange={(e) => setFeeling(e.target.value)}
+          placeholder="Or write your own — e.g. 🎯 Focused"
+        />
+        {feeling.trim() && (
+          <button type="button" onClick={() => setFeeling('')} style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--c-coral)', cursor: 'pointer', fontSize: 12.5, fontWeight: 600, padding: 0 }}>
+            Clear status
+          </button>
+        )}
       </div>
 
       <div className="field-grid" style={{ marginTop: 16 }}>

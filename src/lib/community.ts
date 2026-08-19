@@ -6,6 +6,76 @@ import {
   type CommunityRoleName,
 } from '@/data/communitySeed'
 import { ensureSampleContent } from '@/lib/sampleContent'
+import { feelingsFor } from '@/lib/feeling'
+
+type AuthorExtras = { tenure: string | null; streak: number | null; feeling: string | null }
+
+const startOfDayKey = (d: Date) => {
+  const x = new Date(d)
+  x.setHours(0, 0, 0, 0)
+  return x.getTime()
+}
+
+/** Consecutive days ending today/yesterday with at least one mood check-in. */
+function streakFromDates(dates: Date[]): number {
+  const days = new Set(dates.map(startOfDayKey))
+  let streak = 0
+  const cursor = new Date()
+  if (!days.has(startOfDayKey(cursor))) cursor.setDate(cursor.getDate() - 1)
+  while (days.has(startOfDayKey(cursor))) {
+    streak++
+    cursor.setDate(cursor.getDate() - 1)
+  }
+  return streak
+}
+
+/**
+ * Batched author identity extras for the community — how long they've been on
+ * the platform (live tenure from their active plan), current check-in streak,
+ * and their "how I'm feeling" status. Keyed by userId. Best-effort: any part
+ * that can't be read is simply omitted, never throwing.
+ */
+export async function authorExtrasFor(userIds: string[]): Promise<Map<string, AuthorExtras>> {
+  const out = new Map<string, AuthorExtras>()
+  const ids = Array.from(new Set(userIds.filter(Boolean)))
+  if (ids.length === 0) return out
+
+  const since = new Date()
+  since.setDate(since.getDate() - 60)
+
+  const [moods, subs, feelings] = await Promise.all([
+    prisma.moodEntry.findMany({
+      where: { userId: { in: ids }, createdAt: { gte: since } },
+      select: { userId: true, createdAt: true },
+    }).catch(() => [] as { userId: string; createdAt: Date }[]),
+    prisma.subscription.findMany({
+      where: { userId: { in: ids }, status: 'ACTIVE' },
+      select: { userId: true, paidMonths: true },
+    }).catch(() => [] as { userId: string; paidMonths: number }[]),
+    feelingsFor(ids),
+  ])
+
+  const moodByUser = new Map<string, Date[]>()
+  for (const m of moods) {
+    const arr = moodByUser.get(m.userId) ?? []
+    arr.push(m.createdAt)
+    moodByUser.set(m.userId, arr)
+  }
+  const monthsByUser = new Map<string, number>()
+  for (const s of subs) monthsByUser.set(s.userId, Math.max(monthsByUser.get(s.userId) ?? 0, s.paidMonths))
+
+  for (const id of ids) {
+    const months = monthsByUser.get(id)
+    const dates = moodByUser.get(id)
+    const streak = dates ? streakFromDates(dates) : 0
+    out.set(id, {
+      tenure: months ? `${months} month${months === 1 ? '' : 's'} on getCalmly` : null,
+      streak: streak > 0 ? streak : null,
+      feeling: feelings.get(id) ?? null,
+    })
+  }
+  return out
+}
 
 export type CommunityPostView = {
   id: string
@@ -113,18 +183,25 @@ export async function getCommunityPosts(): Promise<CommunityPostView[]> {
       include: { _count: { select: { comments: true } } },
     })
     if (rows.length === 0) return seedView
-    return rows.map((r) => ({
-      id: r.id,
-      title: r.title,
-      body: r.body,
-      author: r.authorName,
-      role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
-      tenure: r.tenure,
-      date: relativeTime(r.createdAt),
-      tags: r.tags,
-      upvotes: r.upvotes,
-      comments: r._count.comments,
-    }))
+    // Author extras (live tenure / streak / feeling) for non-anonymous posters.
+    const extras = await authorExtrasFor(rows.filter((r) => !r.anonymous && r.authorId).map((r) => r.authorId as string))
+    return rows.map((r) => {
+      const ex = !r.anonymous && r.authorId ? extras.get(r.authorId) : undefined
+      return {
+        id: r.id,
+        title: r.title,
+        body: r.body,
+        author: r.authorName,
+        role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
+        tenure: ex?.tenure ?? r.tenure,
+        streak: ex?.streak ?? null,
+        feeling: ex?.feeling ?? null,
+        date: relativeTime(r.createdAt),
+        tags: r.tags,
+        upvotes: r.upvotes,
+        comments: r._count.comments,
+      }
+    })
   } catch {
     return seedView
   }
@@ -178,13 +255,16 @@ export async function getCommunityPost(id: string): Promise<CommunityPostView | 
       include: { _count: { select: { comments: true } } },
     })
     if (r) {
+      const ex = !r.anonymous && r.authorId ? (await authorExtrasFor([r.authorId])).get(r.authorId) : undefined
       return {
         id: r.id,
         title: r.title,
         body: r.body,
         author: r.authorName,
         role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
-        tenure: r.tenure,
+        tenure: ex?.tenure ?? r.tenure,
+        streak: ex?.streak ?? null,
+        feeling: ex?.feeling ?? null,
         date: relativeTime(r.createdAt),
         tags: r.tags,
         upvotes: r.upvotes,
@@ -204,14 +284,21 @@ export async function getCommunityComments(postId: string): Promise<CommunityCom
       where: { postId },
       orderBy: { createdAt: 'asc' },
     })
-    return rows.map((r) => ({
-      id: r.id,
-      body: r.body,
-      author: r.authorName,
-      role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
-      date: relativeTime(r.createdAt),
-      upvotes: r.upvotes,
-    }))
+    const extras = await authorExtrasFor(rows.filter((r) => !r.anonymous && r.authorId).map((r) => r.authorId as string))
+    return rows.map((r) => {
+      const ex = !r.anonymous && r.authorId ? extras.get(r.authorId) : undefined
+      return {
+        id: r.id,
+        body: r.body,
+        author: r.authorName,
+        role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
+        date: relativeTime(r.createdAt),
+        upvotes: r.upvotes,
+        tenure: ex?.tenure ?? null,
+        streak: ex?.streak ?? null,
+        feeling: ex?.feeling ?? null,
+      }
+    })
   } catch {
     return []
   }

@@ -394,6 +394,7 @@ export type PatientDetail = {
   subscriptions: SubscriptionRow[]
   therapists: { profileId: string; name: string; clinicianType: string | null; specializations: string[] }[]
   walletCreditRupees: number
+  feeling: string | null
 }
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
@@ -408,6 +409,12 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       const pc = await prisma.patientProfile.findUnique({ where: { userId }, select: { assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true } })
       catIds = { ind: pc?.assignedTherapistIndividualId ?? null, cpl: pc?.assignedTherapistCouplesId ?? null, psy: pc?.assignedTherapistPsychiatryId ?? null }
     } catch { /* 0016 not applied yet */ }
+    // Self-reported "how I'm feeling" — read defensively (column may predate 0031).
+    let feeling: string | null = null
+    try {
+      const pf = await prisma.patientProfile.findUnique({ where: { userId }, select: { feeling: true } })
+      feeling = pf?.feeling ?? null
+    } catch { /* 0031 not applied yet */ }
     const [subs, therapists, latestAppt] = await Promise.all([
       // Narrow select so a not-yet-applied migration column can't make this throw
       // (which would silently drop the whole packages list).
@@ -462,6 +469,7 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', clinicianType: clinTypeById.get(t.id) ?? null, specializations: t.specializations }))
         .sort((a, b) => a.name.localeCompare(b.name)),
       walletCreditRupees,
+      feeling,
     }
   }, null)
 }

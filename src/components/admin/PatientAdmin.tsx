@@ -36,6 +36,12 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
 
   return (
     <div className="stack">
+      {p.feeling && (
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, alignSelf: 'flex-start', background: 'rgba(200,85,61,.08)', color: '#C8553D', border: '1px solid rgba(200,85,61,.2)', borderRadius: 999, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', opacity: 0.7 }}>Feeling</span>
+          {p.feeling}
+        </div>
+      )}
       {/* Assignment */}
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Assigned clinicians</div>
