@@ -18,6 +18,9 @@ export type CommunityPostView = {
   tags: string[]
   upvotes: number
   comments: number
+  // Author identity extras, filled where known (community feed / thread).
+  streak?: number | null
+  feeling?: string | null
 }
 
 export type CommunityCommentView = {
@@ -27,6 +30,9 @@ export type CommunityCommentView = {
   role: CommunityRoleName
   date: string
   upvotes: number
+  tenure?: string | null
+  streak?: number | null
+  feeling?: string | null
 }
 
 export type RelatedDiscussion = { id: string; title: string; tags: string[] }

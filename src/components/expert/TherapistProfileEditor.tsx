@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Camera, Check, Trash2, X } from 'lucide-react'
 import { updateTherapistProfile } from '@/app/(dashboard)/expert/actions'
 import { useToast } from '@/components/ui/Toast'
+import { fileToAvatarDataUrl } from '@/lib/clientImage'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -40,15 +41,18 @@ export function TherapistProfileEditor(props: Props) {
   const shownPhoto = photo === undefined ? props.photoUrl : photo
   const initials = name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
 
-  function pickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+  async function pickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
     if (!file.type.startsWith('image/')) return toast.error('Please choose an image file.')
     if (file.size > MAX_PHOTO_BYTES) return toast.error('Image is too large — keep it under 2 MB.')
-    const reader = new FileReader()
-    reader.onload = () => setPhoto(reader.result as string)
-    reader.readAsDataURL(file)
+    try {
+      // Downscale in-browser: a full-res data URL trips the Server Action body limit.
+      setPhoto(await fileToAvatarDataUrl(file))
+    } catch {
+      toast.error('Could not read that image. Try a different one.')
+    }
   }
 
   function save() {

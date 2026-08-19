@@ -40,6 +40,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
+      { href: '/app/medications', label: 'Medications', icon: Pill },
       { href: '/app/forms', label: 'Forms', icon: FileText },
     ],
   },
@@ -55,7 +56,6 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     heading: 'Account',
     items: [
       { href: '/app/progress', label: 'My Progress', icon: LineChart },
-      { href: '/app/medications', label: 'Medications', icon: Pill },
       { href: '/app/refer', label: 'Refer & earn', icon: Gift },
       { href: '/app/settings', label: 'Settings', icon: Settings },
     ],

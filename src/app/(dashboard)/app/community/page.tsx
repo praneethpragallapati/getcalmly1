@@ -29,7 +29,7 @@ export default async function CommunityPage() {
       >
         Calm Club · Community
       </p>
-      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/community" polls={polls} />
+      <CommunityFeed posts={posts} stats={stats} authed embedded myPostIds={myPostIds} detailBase="/app/community" polls={polls} />
     </>
   )
 }

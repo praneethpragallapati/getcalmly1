@@ -68,6 +68,21 @@
   display: flex;
   flex-direction: column;
   padding: 22px 16px 18px;
+  /* On short viewports the nav + plan card + logout can exceed the height;
+     scroll instead of clipping the bottom items (Settings / Log out). */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+.app-sidebar::-webkit-scrollbar {
+  width: 7px;
+}
+.app-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+}
+.app-sidebar::-webkit-scrollbar-track {
+  background: transparent;
 }
 .sb-logo {
   display: flex;

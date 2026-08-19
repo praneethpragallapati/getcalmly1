@@ -7,6 +7,7 @@ import { updatePatientProfile } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PatientProfileEdit } from '@/lib/account'
 import { IN_STATES } from '@/lib/inStates'
+import { fileToAvatarDataUrl } from '@/lib/clientImage'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -34,15 +35,19 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
   const shownPhoto = photo === undefined ? profile.photoUrl : photo
   const initial = (name || profile.email || 'U').charAt(0).toUpperCase()
 
-  function pickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+  async function pickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
     if (!file.type.startsWith('image/')) return toast.error('Please choose an image file.')
     if (file.size > MAX_PHOTO_BYTES) return toast.error('Image is too large — keep it under 2 MB.')
-    const reader = new FileReader()
-    reader.onload = () => setPhoto(reader.result as string)
-    reader.readAsDataURL(file)
+    try {
+      // Downscale in the browser so the upload stays tiny and well under the
+      // Server Action body limit (a full-res data URL fails the save).
+      setPhoto(await fileToAvatarDataUrl(file))
+    } catch {
+      toast.error('Could not read that image. Try a different one.')
+    }
   }
 
   function save() {
