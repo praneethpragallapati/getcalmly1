@@ -1,6 +1,8 @@
-import { Flame, TrendingUp, CalendarCheck, NotebookPen, Check, Lock } from 'lucide-react'
+import { Flame, TrendingUp, CalendarCheck, NotebookPen } from 'lucide-react'
 import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
+import { getMilestones } from '@/lib/milestones'
 import { getSessionUserId } from '@/lib/patient'
+import { MilestonesPanel } from '@/components/dashboard/MilestonesPanel'
 
 function LineChart({ points }: { points: { label: string; value: number }[] }) {
   const w = 520
@@ -34,7 +36,9 @@ function LineChart({ points }: { points: { label: string; value: number }[] }) {
 export default async function ProgressPage() {
   const d = await getDashboardData()
   const userId = await getSessionUserId()
-  const weekly = userId ? await getWeeklyProgress(userId) : null
+  const [weekly, milestones] = userId
+    ? await Promise.all([getWeeklyProgress(userId), getMilestones(userId)])
+    : [null, []]
   const first = d.moodOverTime[0]?.value ?? 0
   const last = d.moodOverTime[d.moodOverTime.length - 1]?.value ?? 0
 
@@ -137,22 +141,7 @@ export default async function ProgressPage() {
             )}
           </div>
 
-          <div className="card">
-            <div className="section-title" style={{ marginBottom: 6 }}>
-              Milestones
-            </div>
-            {d.milestones.map((m) => (
-              <div className="milestone" key={m.label}>
-                <span className={`ms-ic ${m.done ? 'done' : 'todo'}`}>
-                  {m.done ? <Check size={16} strokeWidth={3} /> : <Lock size={15} />}
-                </span>
-                <div>
-                  <div className={`ms-label ${m.done ? '' : 'todo'}`}>{m.label}</div>
-                  <div className="ms-sub">{m.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <MilestonesPanel milestones={milestones} />
         </div>
       </div>
     </>
