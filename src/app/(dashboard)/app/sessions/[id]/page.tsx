@@ -5,6 +5,7 @@ import { getSessionDetail } from '@/lib/sessions'
 import { PreSessionNote } from '@/components/dashboard/PreSessionNote'
 import { RateSession } from '@/components/dashboard/RateSession'
 import { LocalTime } from '@/components/dashboard/LocalTime'
+import { SessionNote } from '@/components/ui/SessionNote'
 
 export default async function SessionDetailPage({ params }: PageProps<'/app/sessions/[id]'>) {
   const { id } = await params
@@ -40,15 +41,21 @@ export default async function SessionDetailPage({ params }: PageProps<'/app/sess
             <>
               <div className="card">
                 <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles size={17} /> Session summary
+                  <Sparkles size={17} /> Session notes
                 </div>
                 {s.summary ? (
-                  <p style={{ fontSize: 14, color: 'var(--c-gray-d)', lineHeight: 1.65, marginTop: 12 }}>
-                    {s.summary}
-                  </p>
+                  <div style={{ marginTop: 12 }}>
+                    {/* Collapsed by default — the note is long and structured, so
+                        it opens on demand rather than filling the page. */}
+                    <SessionNote
+                      note={s.summary}
+                      title={`Notes from ${s.expert}`}
+                      meta={s.when}
+                    />
+                  </div>
                 ) : (
                   <p className="muted" style={{ marginTop: 12 }}>
-                    Your expert hasn’t added a summary for this session yet.
+                    Your expert hasn’t added notes for this session yet.
                   </p>
                 )}
               </div>

@@ -15,6 +15,7 @@ import { ToastProvider } from '@/components/ui/Toast'
 import { roleHome } from '@/lib/roleHome'
 import { mustChangePassword } from '@/lib/accountSecurity'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { backfillRegistrationNumbers } from '@/lib/registration'
 
 export const metadata: Metadata = {
   title: 'Admin · GetCalmly',
@@ -27,6 +28,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Create the 0038 contact columns if the migration hasn't been run yet.
   // Flag-guarded, so this is one statement per process, not per request.
   await ensureContactSchema().catch(() => {})
+  // Give any account created before registration numbers existed one now,
+  // in signup order. One pass per process.
+  await backfillRegistrationNumbers()
   const admin = await getSessionUser()
   if (!admin?.id) redirect('/login')
   if (admin.role !== 'ADMIN') redirect(roleHome(admin.role))

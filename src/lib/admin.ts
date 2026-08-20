@@ -123,6 +123,8 @@ export async function getEnterpriseLeads(): Promise<LeadRow[]> {
 
 export type ClinicianRow = {
   profileId: string; name: string; email: string; designation: string
+  /** Platform registration number (GC-E-…), blank until one is allocated. */
+  registrationNo: string | null
   employmentType: string; isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
   // Filterable facets.
   languages: string[]
@@ -141,7 +143,7 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
         select: {
           id: true, isActive: true, isVerified: true, rating: true, totalReviews: true,
           employmentType: true, languages: true, specializations: true,
-          user: { select: { name: true, email: true } },
+          user: { select: { name: true, email: true, registrationNo: true } },
         },
       }),
       prisma.appointment.groupBy({ by: ['therapistId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
@@ -150,6 +152,7 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
     return rows
       .map((r) => ({
         profileId: r.id, name: r.user?.name ?? 'Clinician', email: r.user?.email ?? '',
+        registrationNo: r.user?.registrationNo ?? null,
         designation: designationOf(r.specializations), employmentType: (r.employmentType as string) ?? 'FULL_TIME',
         isActive: r.isActive, isVerified: r.isVerified, rating: r.rating, totalReviews: r.totalReviews,
         languages: r.languages ?? [], specializations: r.specializations ?? [],
@@ -161,6 +164,7 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
 
 export type ClinicianDetail = {
   profileId: string; userId: string; name: string; email: string; designation: string
+  registrationNo: string | null
   bio: string; qualifications: string[]; languages: string[]; specializations: string[]
   rciNumber: string; yearsExp: number; sessionFee: number; employmentType: string
   isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
@@ -208,7 +212,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
         secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
         documentUrls: true, gender: true, createdAt: true,
-        user: { select: { id: true, name: true, email: true, phone: true } },
+        user: { select: { id: true, name: true, email: true, phone: true, registrationNo: true } },
       },
     })
     if (!p) return null
@@ -255,7 +259,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
     // The 0038 contact columns are fetched in their own guarded query: adding
     // them to the select above would make an un-migrated DB 404 the profile.
     let clinicianContact: PersonContact = {
-      code: p.rciNumber ?? null,
+      code: p.user?.registrationNo ?? null,
       email: p.user?.email ?? null,
       phone: p.user?.phone ?? null,
       dateOfBirth: null,
@@ -301,6 +305,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
 
     return {
       profileId: p.id, userId: p.user?.id ?? '', name: p.user?.name ?? 'Clinician', email: p.user?.email ?? '',
+      registrationNo: p.user?.registrationNo ?? null,
       designation: designationOf(p.specializations), bio: p.bio, qualifications: p.qualifications, languages: p.languages,
       specializations: p.specializations, rciNumber: p.rciNumber, yearsExp: p.yearsExp, sessionFee: p.sessionFee,
       employmentType: (p.employmentType as string) ?? 'FULL_TIME', isActive: p.isActive, isVerified: p.isVerified,
@@ -463,6 +468,8 @@ import { trackLabel } from '@/lib/packageLabels'
 
 export type PatientRow = {
   userId: string; name: string; email: string; activePlans: number
+  /** Platform registration number (GC-P-…), blank until one is allocated. */
+  registrationNo: string | null
   // Filterable facets: completed sessions, active package types, language, gender.
   sessionsCompleted: number
   sessionsLeft: number // remaining sessions across active packages
@@ -486,7 +493,7 @@ export async function getPatients(): Promise<PatientRow[]> {
       // `state` (migration 0020) is fetched separately below so a DB that hasn't
       // run that migration yet still lists patients instead of failing soft to
       // an empty roster.
-      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
+      select: { id: true, name: true, email: true, createdAt: true, registrationNo: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
       orderBy: { createdAt: 'desc' }, take: 300,
     })
     const [subs, completed] = await Promise.all([
@@ -523,6 +530,7 @@ export async function getPatients(): Promise<PatientRow[]> {
       const tracks = tracksByUser.get(u.id)
       return {
         userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '',
+        registrationNo: u.registrationNo ?? null,
         activePlans: tracks ? tracks.size : 0,
         sessionsCompleted: doneByUser.get(u.id) ?? 0,
         sessionsLeft: leftByUser.get(u.id) ?? 0,
@@ -568,12 +576,12 @@ export type PatientDetail = {
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
   return safe(async () => {
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, phone: true, createdAt: true, patientProfile: { select: { assignedTherapistId: true } } } })
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, phone: true, createdAt: true, registrationNo: true, patientProfile: { select: { assignedTherapistId: true } } } })
     if (!user) return null
     // Contact block read defensively: 0038 may not be applied yet, in which case
     // the fields simply read as unset rather than 404-ing the whole page.
     let contact: PersonContact = {
-      code: null, email: user.email ?? null, phone: user.phone ?? null, dateOfBirth: null,
+      code: user.registrationNo ?? null, email: user.email ?? null, phone: user.phone ?? null, dateOfBirth: null,
       gender: null, preferredLanguage: null, occupation: null, maritalStatus: null,
       country: 'IN', state: null, city: null, addressLine1: null, addressLine2: null, postalCode: null,
       emergencyName: null, emergencyPhone: null, emergencyRelation: null,
@@ -592,7 +600,6 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       if (c) {
         contact = {
           ...contact,
-          code: c.patientId ?? null,
           dateOfBirth: c.dateOfBirth ? c.dateOfBirth.toISOString().slice(0, 10) : null,
           gender: c.gender ?? null,
           preferredLanguage: c.preferredLanguage ?? null,
@@ -715,6 +722,10 @@ export type PatientSessionRow = {
   durationMins: number | null
   scheduledMins: number
   bothJoined: boolean
+  /** Minutes the clinician joined after the scheduled start; negative = early.
+   *  Null when they never joined, or joined on a different day (where a minute
+   *  delta is meaningless and the dated label says what happened). */
+  joinDelayMins: number | null
   rating: number | null // the patient's 1–5 rating of this call
   hasSummary: boolean
   /** A clinical note is owed (paid sessions only — see AdminSessionRow). */
@@ -752,6 +763,15 @@ export type PatientActivity = {
 
 const timeLabel = (d: Date | null | undefined): string | null =>
   d ? fmtIST(d, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : null
+
+/** Whether a join happened on the session's own IST day — a "delay" measured in
+ *  minutes only means something inside that day. */
+const sameDayJoin = (joined: Date | null | undefined, scheduledAt: Date): boolean => {
+  if (!joined) return false
+  const a = istParts(joined)
+  const b = istParts(scheduledAt)
+  return a.year === b.year && a.month === b.month && a.day === b.day
+}
 
 /** Everything the admin needs to audit a patient's sessions and track progress. */
 /** The appointment shape the snapshot reads — named so a per-query fallback can
@@ -831,6 +851,9 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         durationMins,
         scheduledMins: a.durationMins,
         bothJoined,
+        joinDelayMins: sameDayJoin(a.therapistJoinedAt, a.scheduledAt)
+          ? Math.round((a.therapistJoinedAt!.getTime() - a.scheduledAt.getTime()) / 60_000)
+          : null,
         rating: a.review?.rating ?? null,
         hasSummary: Boolean(a.summary),
         needsNote: a.status === 'COMPLETED' && !a.summary,

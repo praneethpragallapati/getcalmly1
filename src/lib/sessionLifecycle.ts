@@ -21,7 +21,7 @@
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { notify } from '@/lib/notifications'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, istParts } from '@/lib/tz'
 
 /** How long a session runs, by clinician kind. */
 export function sessionDurationMins(psych: boolean): number {
@@ -102,6 +102,11 @@ export type PresenceDetail = {
   hasSpans: boolean
 }
 
+const istDayKey = (d: Date): string => {
+  const p = istParts(d)
+  return `${p.year}-${p.month}-${p.day}`
+}
+
 const overlapMs = (a: { s: number; e: number }, b: { s: number; e: number }) =>
   Math.max(0, Math.min(a.e, b.e) - Math.max(a.s, b.s))
 
@@ -126,12 +131,18 @@ export async function getPresenceDetail(appointmentId: string): Promise<Presence
     })
     if (rows.length === 0) return empty
 
-    const hhmm = (d: Date) => fmtIST(d, { hour: 'numeric', minute: '2-digit' })
+    // A span shown as a bare "7:49 am" is read against the session's own day, so
+    // anything that starts on a different day has to carry its date.
+    const firstDay = istDayKey(rows[0].joinedAt)
+    const stamp = (d: Date) =>
+      istDayKey(d) === firstDay
+        ? fmtIST(d, { hour: 'numeric', minute: '2-digit' })
+        : fmtIST(d, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
     const build = (role: PresenceRole) => {
       const mine = rows.filter((r) => r.role === role)
       const spans = mine.map((r) => ({
-        joinedLabel: hhmm(r.joinedAt),
-        leftLabel: hhmm(r.lastSeenAt),
+        joinedLabel: stamp(r.joinedAt),
+        leftLabel: stamp(r.lastSeenAt),
         minutes: Math.max(0, Math.round((r.lastSeenAt.getTime() - r.joinedAt.getTime()) / 60_000)),
       }))
       return {

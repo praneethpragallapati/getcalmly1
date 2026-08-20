@@ -1,3 +1,4 @@
+import { SessionNote } from '@/components/ui/SessionNote'
 import type { PatientActivity, PatientSessionRow, PatientProgress } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
@@ -87,7 +88,15 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
       </div>
       <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', marginTop: 11 }}>
         <Field label="Patient joined" value={s.patientJoinedLabel ?? 'did not join'} muted={!s.patientJoinedLabel} />
-        <Field label="Clinician joined" value={s.therapistJoinedLabel ?? 'did not join'} muted={!s.therapistJoinedLabel} />
+        <Field
+          label="Clinician joined"
+          value={
+            s.therapistJoinedLabel
+              ? <>{s.therapistJoinedLabel}{s.joinDelayMins != null && <DelayChip mins={s.joinDelayMins} />}</>
+              : 'did not join'
+          }
+          muted={!s.therapistJoinedLabel}
+        />
         <Field label="Ended" value={s.endedLabel ?? '—'} muted={!s.endedLabel} />
         <Field
           label="Together"
@@ -104,10 +113,10 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
         <Field label="Scheduled" value={fmtDuration(s.scheduledMins)} />
         <Field label="Call rating" value={s.rating != null ? `★ ${s.rating}/5` : (s.isPast ? 'not rated' : '—')} muted={s.rating == null} />
       </div>
-      {s.presence.hasSpans && (s.presence.patient.rejoins > 0 || s.presence.therapist.rejoins > 0) && (
+      {s.presence.hasSpans && (
         <div style={{ marginTop: 11, padding: '10px 12px', background: 'rgba(28,43,58,.03)', borderRadius: 10, border: '1px solid rgba(28,43,58,.08)' }}>
           <div className="muted" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: 6 }}>
-            Attendance — joined &amp; left more than once
+            Attendance — every join and drop, per side
           </div>
           <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap' }}>
             <SpanList title="Patient" side={s.presence.patient} />
@@ -122,12 +131,23 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
         </div>
       )}
       {s.summary && (
-        <div style={{ marginTop: 9, padding: '9px 12px', background: 'rgba(28,43,58,.03)', borderRadius: 10, border: '1px solid rgba(28,43,58,.08)' }}>
-          <div className="muted" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: 3 }}>Session note (from clinician)</div>
-          <div style={{ fontSize: 13, color: '#3A4A5A', lineHeight: 1.5 }}>{s.summary}</div>
+        <div style={{ marginTop: 9 }}>
+          <SessionNote note={s.summary} title="Session note (from clinician)" meta={s.clinicianName} />
         </div>
       )}
     </div>
+  )
+}
+
+/** How late (or early) the clinician was, coloured only when it's material. */
+function DelayChip({ mins }: { mins: number }) {
+  if (mins === 0) return <span className="muted" style={{ fontWeight: 600 }}> · on time</span>
+  const late = mins > 0
+  const heavy = late && mins >= 5
+  return (
+    <span style={{ fontWeight: 700, color: heavy ? '#C0504B' : late ? '#B7791F' : '#2C7A57' }}>
+      {' '}· {late ? `${mins}m late` : `${Math.abs(mins)}m early`}
+    </span>
   )
 }
 

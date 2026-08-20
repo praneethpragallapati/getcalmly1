@@ -19,6 +19,7 @@ import {
 import { notify, notifyMany, markAllRead } from '@/lib/notifications'
 import { ensureBlogReviewSchema } from '@/lib/expert'
 import { ensurePollSchema } from '@/lib/polls'
+import { ensureRegistrationNo } from '@/lib/registration'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -84,7 +85,7 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
     const docs = (input.documentUrls ?? []).map((u) => u.trim()).filter(Boolean).slice(0, 12)
 
     const tempPassword = generateTempPassword()
-    await prisma.user.create({
+    const created = await prisma.user.create({
       data: {
         name, email, role: 'THERAPIST', passwordHash: hashPassword(tempPassword), mustChangePassword: true,
         therapistProfile: {
@@ -113,6 +114,7 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
         },
       },
     })
+    await ensureRegistrationNo(created.id, 'THERAPIST')
     revalidatePath('/admin/therapists'); revalidatePath('/admin')
     return { ok: true, email, tempPassword }
   } catch {
@@ -130,9 +132,10 @@ export async function createAdmin(input: { name: string; email: string }): Promi
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) return { ok: false, error: 'An account with that email already exists.' }
     const tempPassword = generateTempPassword()
-    await prisma.user.create({
+    const created = await prisma.user.create({
       data: { name, email, role: 'ADMIN', passwordHash: hashPassword(tempPassword), mustChangePassword: true },
     })
+    await ensureRegistrationNo(created.id, 'ADMIN')
     return { ok: true, email, tempPassword }
   } catch {
     return { ok: false, error: 'Could not create the admin account.' }

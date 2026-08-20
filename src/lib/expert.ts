@@ -137,6 +137,8 @@ export type TherapistContext = {
   userId: string
   therapistProfileId: string
   therapistName: string | null
+  /** Platform registration number (GC-E-…), null until one is allocated. */
+  registrationNo: string | null
   specializations: string[]
   /** Psychiatrists may prescribe/manage medication; derived from specializations. */
   isPsychiatrist: boolean
@@ -174,7 +176,7 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
     // defensively below so a not-yet-migrated column can't lock a clinician out.
     const profile = await prisma.therapistProfile.findUnique({
       where: { userId },
-      select: { id: true, isActive: true, specializations: true, employmentType: true, user: { select: { name: true } } },
+      select: { id: true, isActive: true, specializations: true, employmentType: true, user: { select: { name: true, registrationNo: true } } },
     })
     if (!profile || !profile.isActive) return null
     let compensationFields: CompensationField[] = []
@@ -186,6 +188,7 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
       userId,
       therapistProfileId: profile.id,
       therapistName: profile.user?.name ?? null,
+      registrationNo: profile.user?.registrationNo ?? null,
       specializations: profile.specializations,
       isPsychiatrist: looksPsychiatric(profile.specializations),
       employmentType: (profile.employmentType as EmploymentType) ?? 'FULL_TIME',
@@ -216,6 +219,8 @@ export type TherapistProfileView = {
   isPsychiatrist: boolean
   photoUrl: string | null
   gender: string | null
+  /** Platform registration number (GC-E-…). */
+  registrationNo: string | null
   // Contact + location. Shown to the clinician themselves and to admins; never
   // on the patient-facing expert card.
   email: string | null
@@ -243,7 +248,7 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
       specializations: true, employmentType: true, bio: true, qualifications: true,
       languages: true, yearsExp: true, rciNumber: true, sessionFee: true,
       rating: true, totalReviews: true, isVerified: true, photoUrl: true, gender: true,
-      user: { select: { name: true, email: true, phone: true } },
+      user: { select: { name: true, email: true, phone: true, registrationNo: true } },
     },
   })
   if (!p) return null
@@ -304,6 +309,7 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
     isPsychiatrist: looksPsychiatric(p.specializations),
     photoUrl: p.photoUrl,
     gender: p.gender,
+    registrationNo: p.user?.registrationNo ?? null,
     email: p.user?.email ?? null,
     phone: p.user?.phone ?? null,
     ...contact,
@@ -643,7 +649,7 @@ export async function getExpertPatientProfile(
   // whole page to the error boundary. Degrading a single query to empty keeps
   // the patient record rendering.
   const [user, profile, addr, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
-    prisma.user.findUnique({ where: { id: patientId }, select: { name: true, email: true, phone: true, createdAt: true } }).catch(() => null),
+    prisma.user.findUnique({ where: { id: patientId }, select: { name: true, email: true, phone: true, createdAt: true, registrationNo: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
       select: {
@@ -718,7 +724,7 @@ export async function getExpertPatientProfile(
     patientId,
     name: user.name ?? 'Patient',
     contact: {
-      code: profile?.patientId ?? null,
+      code: user.registrationNo ?? null,
       email: user.email ?? null,
       phone: user.phone ?? null,
       dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,

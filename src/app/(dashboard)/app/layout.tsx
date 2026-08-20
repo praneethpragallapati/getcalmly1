@@ -17,6 +17,7 @@ import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
 import { fmtIST } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { backfillRegistrationNumbers } from '@/lib/registration'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -34,6 +35,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Create the 0038 contact columns if the migration hasn't been run yet.
   // Flag-guarded, so this is one statement per process, not per request.
   await ensureContactSchema().catch(() => {})
+  // Give any account created before registration numbers existed one now,
+  // in signup order. One pass per process.
+  await backfillRegistrationNumbers()
   const sessionUser = await getSessionUser()
   // Defense in depth behind the proxy gate: never render the patient area for a
   // signed-out visitor, and keep each role in its own area.

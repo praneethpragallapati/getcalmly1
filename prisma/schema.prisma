@@ -198,6 +198,9 @@ model User {
   // Set when an admin creates the account with a temporary password; forces a
   // password change on next sign-in.
   mustChangePassword Boolean @default(false)
+  // Human-facing registration number, unique across the platform and stable for
+  // life — see lib/registration.ts for the format and how it's allocated.
+  registrationNo String? @unique
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -239,6 +242,15 @@ model User {
   bonusSessions       Int      @default(0)
   referralsMade       Referral[] @relation("ReferralReferrer")
   referralReceived    Referral?  @relation("ReferralReferee")
+}
+
+// Allocates the sequential part of a registration number. One row per
+// role-and-year bucket (e.g. "P-26"); `value` is the last number handed out.
+// Incremented atomically so two simultaneous signups can never collide.
+model RegistrationCounter {
+  key       String   @id
+  value     Int      @default(0)
+  updatedAt DateTime @updatedAt
 }
 
 // Patient-side record holding identity, care context, contacts and consents.

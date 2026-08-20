@@ -14,13 +14,13 @@ export function PersonDetailsCard({
   name,
   title = 'Contact & personal details',
   note,
-  codeLabel = 'Patient ID',
+  codeLabel = 'Registration no.',
 }: {
   contact: PersonContact
   name?: string
   title?: string
   note?: string
-  /** What `contact.code` is — the patient identifier, or a clinician's registration. */
+  /** Overrides the label on `contact.code` (the platform registration number). */
   codeLabel?: string
 }) {
   const age = ageFrom(contact.dateOfBirth)

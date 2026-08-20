@@ -18,6 +18,7 @@ import { expertCode } from '@/lib/ids'
 import { mustChangePassword } from '@/lib/accountSecurity'
 import { fmtIST } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { backfillRegistrationNumbers } from '@/lib/registration'
 
 export const metadata: Metadata = {
   title: 'Expert portal',
@@ -30,6 +31,9 @@ export default async function ExpertLayout({ children }: { children: React.React
   // Create the 0038 contact columns if the migration hasn't been run yet.
   // Flag-guarded, so this is one statement per process, not per request.
   await ensureContactSchema().catch(() => {})
+  // Give any account created before registration numbers existed one now,
+  // in signup order. One pass per process.
+  await backfillRegistrationNumbers()
   const su = await getSessionUser()
   if (!su?.id) redirect('/login')
   if (su.role !== 'THERAPIST') redirect(roleHome(su.role))
@@ -139,7 +143,7 @@ export default async function ExpertLayout({ children }: { children: React.React
                   </>
                 )
               })()}
-              <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.12)', padding: '2px 8px', borderRadius: 6 }}>{expertCode(ctx.therapistProfileId)}</span>
+              <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.12)', padding: '2px 8px', borderRadius: 6 }}>{ctx.registrationNo ?? expertCode(ctx.therapistProfileId)}</span>
             </div>
           </div>
           <div className="tb-actions">

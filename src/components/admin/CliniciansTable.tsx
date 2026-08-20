@@ -30,7 +30,7 @@ export function CliniciansTable({ rows }: { rows: ClinicianRow[] }) {
     const min = Number(minRating) || 0
     let list = rows.filter((r) => {
       if (needle) {
-        const hay = `${r.name} ${r.email} ${expertCode(r.profileId)} ${r.specializations.join(' ')}`.toLowerCase()
+        const hay = `${r.name} ${r.email} ${r.registrationNo ?? ''} ${expertCode(r.profileId)} ${r.specializations.join(' ')}`.toLowerCase()
         if (!hay.includes(needle)) return false
       }
       if (designation && r.designation !== designation) return false
@@ -125,7 +125,7 @@ export function CliniciansTable({ rows }: { rows: ClinicianRow[] }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 14.5, fontWeight: 700, color: charcoal }}>{c.name}</span>
-                  <span style={idChip}>{expertCode(c.profileId)}</span>
+                  <span style={idChip}>{c.registrationNo ?? expertCode(c.profileId)}</span>
                   {!c.isActive && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#C0504B', background: 'rgba(192,80,75,.1)', padding: '2px 8px', borderRadius: 20 }}>Inactive</span>}
                   {!c.isVerified && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#C9973A', background: 'rgba(201,151,58,.12)', padding: '2px 8px', borderRadius: 20 }}>Unverified</span>}
                 </div>

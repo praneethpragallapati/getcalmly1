@@ -334,3 +334,14 @@ ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "postalCode" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "emergencyName" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "emergencyPhone" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "emergencyRelation" TEXT;
+
+-- 0039_registration_numbers
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "registrationNo" TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS "User_registrationNo_key" ON "User"("registrationNo");
+
+CREATE TABLE IF NOT EXISTS "RegistrationCounter" (
+  "key" TEXT NOT NULL,
+  "value" INTEGER NOT NULL DEFAULT 0,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "RegistrationCounter_pkey" PRIMARY KEY ("key")
+);

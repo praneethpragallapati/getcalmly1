@@ -6,7 +6,6 @@ import {
 } from '@/lib/expert'
 import { patientCode } from '@/lib/ids'
 import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
-import { getWeeklyProgress } from '@/lib/dashboard'
 import { toggleMedication, resolveAlert } from '../../actions'
 import { AssignTaskForm } from '@/components/expert/AssignTaskForm'
 import { PrescribeForm } from '@/components/expert/PrescribeForm'
@@ -16,7 +15,9 @@ import { AssignGuidedTrack } from '@/components/expert/AssignGuidedTrack'
 import { getGuidedTrackOptions, getGuidedAssignmentsFor } from '@/lib/guided'
 import { getPatientWeeklySummary } from '@/lib/patientSummary'
 import { WeeklySummaryCard } from '@/components/expert/WeeklySummaryCard'
-import { PersonDetailsCard } from '@/components/ui/PersonDetailsCard'
+import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
+import { SessionNote } from '@/components/ui/SessionNote'
+import { fmtIST } from '@/lib/tz'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -54,8 +55,9 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   }
   if (!p) notFound()
 
-  const [weekly, weeklySummary, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
-    getWeeklyProgress(id),
+  // The weekly figures come from the summary card now, so the old
+  // getWeeklyProgress read (which said the same thing again) is gone.
+  const [weeklySummary, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
     getPatientWeeklySummary(id),
     getFormLibrary(),
     getPatientFormsForExpert(effectiveTherapistId, id),
@@ -77,7 +79,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         <div>
           <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             {p.name}
-            <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '2px 8px', borderRadius: 6 }}>{patientCode(p.patientId)}</span>
+            <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '2px 8px', borderRadius: 6 }}>{p.contact.code ?? patientCode(p.patientId)}</span>
           </div>
           <div className="page-meta">{p.trackLabel}{p.diagnosis ? ` · ${p.diagnosis}` : ''}{p.therapyStatus ? ` · ${p.therapyStatus}` : ''}</div>
         </div>
@@ -104,11 +106,33 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           adherence. Not an AI brief — every figure comes off the record. */}
       {weeklySummary && <WeeklySummaryCard summary={weeklySummary} />}
 
-      <PersonDetailsCard
-        contact={p.contact}
-        name={p.name}
-        note="How to reach this patient and their emergency contact between sessions."
-      />
+      {/* Reference, not clinical work — collapsed so the care sections stay
+          near the top. */}
+      <details className="card" style={{ padding: 0 }}>
+        <summary style={{ cursor: 'pointer', padding: '16px 20px', fontWeight: 700, fontSize: 15, color: 'var(--c-charcoal)' }}>
+          Contact &amp; personal details
+        </summary>
+        <div style={{ padding: '0 20px 18px' }}>
+          <p className="muted" style={{ fontSize: 12.5, margin: '0 0 4px' }}>
+            How to reach this patient and their emergency contact between sessions.
+          </p>
+          <DetailGrid
+            fields={[
+              { label: 'Registration no.', value: p.contact.code },
+              { label: 'Email', value: p.contact.email },
+              { label: 'Phone', value: p.contact.phone },
+              { label: 'Date of birth', value: p.contact.dateOfBirth ? fmtIST(new Date(p.contact.dateOfBirth), { day: 'numeric', month: 'short', year: 'numeric' }) : null },
+              { label: 'Gender', value: p.contact.gender },
+              { label: 'Marital status', value: p.contact.maritalStatus },
+              { label: 'Occupation', value: p.contact.occupation },
+              { label: 'Preferred language', value: p.contact.preferredLanguage },
+              { label: 'Address', value: formatAddress(p.contact) },
+              { label: 'Emergency contact', value: formatEmergencyContact(p.contact) },
+              { label: 'Member since', value: p.contact.joinedLabel },
+            ]}
+          />
+        </div>
+      </details>
 
       {(patientAlerts.length > 0 || p.moodTrend === 'declining') && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
@@ -141,62 +165,42 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      <div className="grid-4">
-        <div className="card">
-          <div className="eyebrow">STREAK</div>
-          <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Flame size={16} /> {p.streakDays} days
-          </div>
+      {/* At a glance — the numbers a clinician scans before a session, in one
+          card rather than six. */}
+      <div className="card">
+        <div className="section-title">At a glance</div>
+        <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap', marginTop: 12 }}>
+          <Metric label="Streak" value={`${p.streakDays} days`} icon={<Flame size={15} />} />
+          <Metric label="Mood trend" value={TREND_LABEL[p.moodTrend]} />
+          <Metric label="Sessions" value={`${p.sessionsDone}/${p.sessionsTotal}`} sub={`${p.sessionsRemaining} remaining`} />
+          <Metric label="Task completion" value={`${p.taskCompletionPct}%`} />
+          <Metric
+            label="Medication"
+            value={p.medications.length ? `${p.medicationCompliancePct}%` : '—'}
+            sub={p.medications.length ? `${p.medications.filter((m) => m.active).length}/${p.medications.length} active` : 'none prescribed'}
+          />
+          <Metric label="High-risk chats" value={String(p.highStakeChatCount)} alert={p.highStakeChatCount > 0} />
         </div>
-        <div className="card">
-          <div className="eyebrow">MOOD TREND</div>
-          <div className="section-title">{TREND_LABEL[p.moodTrend]}</div>
-        </div>
-        <div className="card">
-          <div className="eyebrow">SESSIONS</div>
-          <div className="section-title">{p.sessionsDone}/{p.sessionsTotal} done</div>
-          <div className="muted">{p.sessionsRemaining} remaining</div>
-        </div>
-        <div className="card">
-          <div className="eyebrow">HIGH-RISK CHATS</div>
-          <div className="section-title">{p.highStakeChatCount}</div>
-        </div>
-      </div>
 
-      <div className="grid-2">
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Mood, last 14 check-ins</div>
-          {p.moodWeek.length === 0 && <p className="muted">No mood check-ins yet.</p>}
-          {p.moodWeek.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 90 }}>
+        <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(28,43,58,.08)' }}>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Mood, last 14 check-ins</div>
+          {p.moodWeek.length === 0 ? (
+            <p className="muted" style={{ fontSize: 13.5, margin: 0 }}>No mood check-ins yet.</p>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 80 }}>
               {p.moodWeek.map((m, i) => (
                 <div
                   key={i}
                   title={`${m.date}: ${m.mood}/10`}
                   style={{
                     flex: 1,
-                    height: `${Math.max(6, m.mood * 9)}px`,
+                    height: `${Math.max(6, m.mood * 8)}px`,
                     background: m.mood <= 4 ? 'var(--c-coral)' : m.mood <= 6 ? 'var(--c-gold)' : 'var(--c-green)',
                     borderRadius: 4,
                   }}
                 />
               ))}
             </div>
-          )}
-        </div>
-
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Compliance</div>
-          <div className="muted">Task completion: {p.taskCompletionPct}%</div>
-          <div className="muted">Medication compliance (active vs. prescribed): {p.medicationCompliancePct}%</div>
-          {p.medications.length > 0 && (
-            <ul style={{ marginTop: 10, paddingLeft: 18 }}>
-              {p.medications.map((m, i) => (
-                <li key={i} className="muted">
-                  {m.name}{m.dosage ? ` (${m.dosage})` : ''}, {m.active ? 'active' : 'discontinued'}
-                </li>
-              ))}
-            </ul>
           )}
         </div>
       </div>
@@ -290,17 +294,6 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         )}
       </div>
 
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 12 }}>This week&apos;s progress</div>
-        <div className="muted">
-          Tasks completed: {weekly.tasksCompleted}/{weekly.tasksAssigned} ({weekly.completionPct}%)
-        </div>
-        <div className="muted">
-          Mood check-ins: {weekly.moodCheckins}
-          {weekly.moodAvg !== null ? ` · avg ${weekly.moodAvg}/10` : ''}
-        </div>
-      </div>
-
       <div className="grid-2" style={{ alignItems: 'start' }}>
         <div className="card">
           <div className="section-title" style={{ marginBottom: 12 }}>Assigned tasks ({p.taskCompletionPct}% done)</div>
@@ -324,16 +317,16 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
 
         {!supervisorView && (
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
-          <AssignTaskForm patientId={p.patientId} />
-        </div>
-        )}
-
-        {!supervisorView && (
-          <AssignGuidedTrack patientId={p.patientId} tracks={guidedTracks} assignments={guidedAssignments} />
+          <div className="card">
+            <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
+            <AssignTaskForm patientId={p.patientId} />
+          </div>
         )}
       </div>
+
+      {!supervisorView && (
+        <AssignGuidedTrack patientId={p.patientId} tracks={guidedTracks} assignments={guidedAssignments} />
+      )}
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Session notes</div>
@@ -360,16 +353,25 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                     {s.isOwn ? 'You' : s.author}
                   </span>
                 </div>
-                {s.summary && <div className="pattern-sub" style={{ marginBottom: 8 }}>{s.summary}</div>}
-                {editable ? (
-                  <div style={{ maxWidth: 520, marginTop: 6 }}>
-                    <SessionNoteForm
-                      appointmentId={s.id}
-                      patientId={p.patientId}
-                      initialSummary={s.summary ?? ''}
-                      submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
-                    />
+                {s.summary && (
+                  <div style={{ maxWidth: 560, marginTop: 8 }}>
+                    <SessionNote note={s.summary} title="Note" meta={s.isOwn ? 'yours' : s.author} />
                   </div>
+                )}
+                {editable ? (
+                  <details style={{ maxWidth: 560, marginTop: 8 }}>
+                    <summary className="link-action" style={{ cursor: 'pointer', fontSize: 12.5, fontWeight: 700 }}>
+                      {s.summary ? 'Edit this note' : 'Write the note'}
+                    </summary>
+                    <div style={{ marginTop: 10 }}>
+                      <SessionNoteForm
+                        appointmentId={s.id}
+                        patientId={p.patientId}
+                        initialSummary={s.summary ?? ''}
+                        submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
+                      />
+                    </div>
+                  </details>
                 ) : (
                   !s.summary && <div className="pattern-sub" style={{ fontStyle: 'italic', opacity: 0.7 }}>No note written yet.</div>
                 )}
@@ -378,6 +380,32 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           )
         })}
       </div>
+    </div>
+  )
+}
+
+/** One figure in the "At a glance" row — same shape for every metric, so the
+ *  row reads as a single scale rather than a set of unrelated cards. */
+function Metric({ label, value, sub, icon, alert }: {
+  label: string
+  value: string
+  sub?: string
+  icon?: React.ReactNode
+  alert?: boolean
+}) {
+  return (
+    <div style={{ minWidth: 116 }}>
+      <div className="muted" style={{ fontSize: 11.5, fontWeight: 600 }}>{label}</div>
+      <div
+        style={{
+          fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 21, lineHeight: 1.15, marginTop: 2,
+          color: alert ? '#C0504B' : 'var(--c-charcoal, #1C2B3A)',
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        {icon}{value}
+      </div>
+      {sub && <div className="muted" style={{ fontSize: 11.5, marginTop: 1 }}>{sub}</div>}
     </div>
   )
 }
