@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Star, X, UserPlus, Plus, Trash2 } from 'lucide-react'
+import { Check, Star, X, UserPlus, Plus, Trash2, Clock, Timer, CalendarCheck } from 'lucide-react'
 import { updateTherapistSettings, assignSupervisor, removeSupervisionLink, saveCompensationFields } from '@/app/admin/actions'
 import type { ClinicianDetail } from '@/lib/admin'
 import type { CompensationField } from '@/lib/compensation'
@@ -102,12 +102,42 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
           </div>
 
           <div>
-            <label style={label}>Patient rating <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(from reviews — not editable)</span></label>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(28,43,58,.04)', borderRadius: 10, padding: '9px 14px' }}>
-              <Star size={16} style={{ color: '#C9973A', fill: c.totalReviews > 0 ? '#C9973A' : 'none' }} />
-              <span style={{ fontSize: 15, fontWeight: 800, color: charcoal }}>{c.totalReviews > 0 ? c.rating.toFixed(1) : '—'}</span>
-              <span className="muted" style={{ fontSize: 12.5 }}>{c.totalReviews} review{c.totalReviews === 1 ? '' : 's'}</span>
+            <label style={label}>Delivery <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(measured — not editable)</span></label>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <Stat
+                icon={<Star size={15} style={{ color: '#C9973A', fill: c.totalReviews > 0 ? '#C9973A' : 'none' }} />}
+                value={c.totalReviews > 0 ? c.rating.toFixed(1) : '—'}
+                label={`${c.totalReviews} review${c.totalReviews === 1 ? '' : 's'}`}
+              />
+              <Stat
+                icon={<Clock size={15} style={{ color: delayTone(c.delivery.avgJoinDelayMins) }} />}
+                value={c.delivery.avgJoinDelayMins === null
+                  ? '—'
+                  : `${c.delivery.avgJoinDelayMins > 0 ? '+' : ''}${c.delivery.avgJoinDelayMins}m`}
+                label="avg join delay"
+                tone={delayTone(c.delivery.avgJoinDelayMins)}
+              />
+              <Stat
+                icon={<Timer size={15} style={{ color: '#5A6A7A' }} />}
+                value={c.delivery.avgMinutesTogether === null ? '—' : `${c.delivery.avgMinutesTogether}m`}
+                label={c.delivery.avgScheduledMins ? `avg session · of ${c.delivery.avgScheduledMins}m booked` : 'avg session'}
+              />
+              <Stat
+                icon={<CalendarCheck size={15} style={{ color: '#5A6A7A' }} />}
+                value={c.delivery.onTimePct === null ? '—' : `${c.delivery.onTimePct}%`}
+                label="joined on time"
+              />
             </div>
+            <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+              {c.delivery.sessionsMeasured > 0
+                ? `From ${c.delivery.sessionsMeasured} past session${c.delivery.sessionsMeasured === 1 ? '' : 's'} where both sides joined.`
+                : 'No past sessions with join data yet.'}
+              {c.delivery.noShowCount > 0 && (
+                <span style={{ color: '#C0504B', fontWeight: 700 }}>
+                  {' '}· {c.delivery.noShowCount} session{c.delivery.noShowCount === 1 ? '' : 's'} they never joined.
+                </span>
+              )}
+            </p>
           </div>
 
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
@@ -317,5 +347,26 @@ function Toggle({ label: l, checked, onChange }: { label: string; checked: boole
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} style={{ width: 17, height: 17, accentColor: coral }} />
       {l}
     </label>
+  )
+}
+
+/** Late is only worth flagging past a couple of minutes; early reads as fine. */
+function delayTone(mins: number | null): string {
+  if (mins === null) return '#5A6A7A'
+  if (mins > 5) return '#C0504B'
+  if (mins > 2) return '#C9973A'
+  return '#2C7A57'
+}
+
+/** One measured figure: icon, value, and what it means. */
+function Stat({ icon, value, label, tone }: { icon: React.ReactNode; value: string; label: string; tone?: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'rgba(28,43,58,.04)', borderRadius: 10, padding: '9px 14px' }}>
+      {icon}
+      <div style={{ lineHeight: 1.2 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: tone ?? charcoal }}>{value}</div>
+        <div className="muted" style={{ fontSize: 11.5 }}>{label}</div>
+      </div>
+    </div>
   )
 }

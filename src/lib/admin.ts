@@ -12,6 +12,7 @@ import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurr
 import { fmtIST } from '@/lib/tz'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { ensureSampleContent } from '@/lib/sampleContent'
+import { computePresence, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -174,6 +175,15 @@ export type ClinicianDetail = {
   patients: { userId: string; name: string }[]
   allTherapists: { profileId: string; name: string }[]
   reviews: { id: string; rating: number; comment: string | null; date: string }[]
+  /** How this clinician actually delivers: punctuality and time in the room. */
+  delivery: {
+    sessionsMeasured: number // completed sessions with both sides present
+    avgJoinDelayMins: number | null // + = joined late, - = early
+    onTimePct: number | null // share joined within 2 minutes of the start
+    avgMinutesTogether: number | null
+    avgScheduledMins: number | null
+    noShowCount: number // completed sessions the clinician never joined
+  }
 }
 
 export async function getClinicianDetail(profileId: string): Promise<ClinicianDetail | null> {
@@ -200,7 +210,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       compensationFields = parseCompensationFields(comp?.compensationFields)
     } catch { /* compensationFields column not migrated yet */ }
     const config = await getEarningsConfig()
-    const [links, apptPatients, assigned, allT, reviews] = await Promise.all([
+    const [links, apptPatients, assigned, allT, reviews, delivery] = await Promise.all([
       prisma.supervisionLink.findMany({
         where: { OR: [{ supervisorId: profileId }, { superviseeId: profileId }] },
         include: { supervisor: { include: { user: { select: { name: true } } } }, supervisee: { include: { user: { select: { name: true } } } } },
@@ -223,6 +233,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       }),
       prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
       prisma.sessionReview.findMany({ where: { therapistId: profileId }, orderBy: { createdAt: 'desc' }, take: 12, select: { id: true, rating: true, comment: true, createdAt: true } }),
+      getClinicianDelivery(profileId),
     ])
     // Also anyone attached to this clinician through an active package.
     let pkgPatients: { userId: string; user: { name: string | null } | null }[] = []
@@ -256,8 +267,75 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),
       allTherapists: allT.filter((t) => t.id !== profileId).map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
       reviews: reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, date: r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })),
+      delivery,
     }
   }, null)
+}
+
+/**
+ * Punctuality and time-in-room for a clinician, from the presence timestamps the
+ * room writes. Only past, non-cancelled sessions count. Best-effort: a DB
+ * without the presence columns (migration 0028) reads as "nothing measured"
+ * rather than failing the profile.
+ */
+export async function getClinicianDelivery(profileId: string): Promise<ClinicianDetail['delivery']> {
+  const empty = {
+    sessionsMeasured: 0,
+    avgJoinDelayMins: null,
+    onTimePct: null,
+    avgMinutesTogether: null,
+    avgScheduledMins: null,
+    noShowCount: 0,
+  }
+  await ensureSessionPresenceSchema()
+  try {
+    const rows = await prisma.appointment.findMany({
+      where: {
+        therapistId: profileId,
+        status: { not: 'CANCELLED' },
+        scheduledAt: { lt: new Date() },
+      },
+      orderBy: { scheduledAt: 'desc' },
+      take: 200,
+      select: {
+        scheduledAt: true, durationMins: true,
+        patientJoinedAt: true, therapistJoinedAt: true,
+        patientLastSeenAt: true, therapistLastSeenAt: true,
+      },
+    })
+    if (rows.length === 0) return empty
+
+    const delays: number[] = []
+    const togethers: number[] = []
+    const scheduled: number[] = []
+    let onTime = 0
+    let noShow = 0
+
+    for (const a of rows) {
+      if (!a.therapistJoinedAt) { noShow++; continue }
+      const delay = (a.therapistJoinedAt.getTime() - a.scheduledAt.getTime()) / 60_000
+      delays.push(delay)
+      if (delay <= 2) onTime++
+      const pres = computePresence(a)
+      if (pres.bothJoined) {
+        togethers.push(pres.minutesTogether)
+        scheduled.push(a.durationMins)
+      }
+    }
+
+    const avg = (xs: number[]) => (xs.length ? xs.reduce((t, v) => t + v, 0) / xs.length : null)
+    const round1 = (v: number | null) => (v === null ? null : Math.round(v * 10) / 10)
+    return {
+      sessionsMeasured: togethers.length,
+      avgJoinDelayMins: round1(avg(delays)),
+      onTimePct: delays.length ? Math.round((onTime / delays.length) * 100) : null,
+      avgMinutesTogether: round1(avg(togethers)),
+      avgScheduledMins: round1(avg(scheduled)),
+      noShowCount: noShow,
+    }
+  } catch {
+    return empty
+  }
 }
 
 // ── Admin → therapist tasks ────────────────────────────────────────────────────
@@ -961,6 +1039,14 @@ export type AdminSessionRow = {
   hasSummary: boolean
   voided: boolean
   fee: number
+  // Who actually turned up, and for how long. Null when that side never joined.
+  patientJoinedLabel: string | null
+  therapistJoinedLabel: string | null
+  /** Minutes both parties were in the room together (max(join) → min(lastSeen)). */
+  minutesTogether: number | null
+  /** Minutes the clinician joined after the scheduled start; negative = early. */
+  joinDelayMins: number | null
+  scheduledMins: number
 }
 export type RosterPatient = {
   userId: string
@@ -988,8 +1074,11 @@ export async function getClinicianRoster(profileId: string): Promise<ClinicianRo
       include: { patient: { select: { id: true, name: true, email: true } } },
     })
     const now = Date.now()
+    const hhmm = (d: Date | null | undefined) =>
+      d ? d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }) : null
     const rows: AdminSessionRow[] = appts.map((a) => {
       const d = a.scheduledAt
+      const pres = computePresence(a)
       return {
         id: a.id,
         patientId: a.patientId,
@@ -1003,6 +1092,13 @@ export async function getClinicianRoster(profileId: string): Promise<ClinicianRo
         hasSummary: !!a.summary,
         voided: a.status === 'CANCELLED',
         fee: a.fee,
+        patientJoinedLabel: hhmm(a.patientJoinedAt),
+        therapistJoinedLabel: hhmm(a.therapistJoinedAt),
+        minutesTogether: pres.bothJoined ? Math.round(pres.minutesTogether) : null,
+        joinDelayMins: a.therapistJoinedAt
+          ? Math.round((a.therapistJoinedAt.getTime() - d.getTime()) / 60_000)
+          : null,
+        scheduledMins: a.durationMins,
       }
     })
 

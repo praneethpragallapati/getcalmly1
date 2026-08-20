@@ -65,11 +65,43 @@ function VoidControl({ session }: { session: AdminSessionRow }) {
   )
 }
 
+/** Who joined when, and how long both sides were actually in the room. */
+function Presence({ s }: { s: AdminSessionRow }) {
+  if (!s.isPast || s.voided) return null
+  const none = !s.patientJoinedLabel && !s.therapistJoinedLabel
+  if (none) {
+    return <span style={{ fontSize: 11.5, color: '#8E9EAE', fontWeight: 600 }}>nobody joined</span>
+  }
+  const late = s.joinDelayMins !== null && s.joinDelayMins > 2
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 11.5, color: '#5A6A7A' }}>
+      <span title="When the patient joined">
+        P <b style={{ color: s.patientJoinedLabel ? charcoal : '#C0504B' }}>{s.patientJoinedLabel ?? 'no-show'}</b>
+      </span>
+      <span title="When the clinician joined">
+        T <b style={{ color: s.therapistJoinedLabel ? charcoal : '#C0504B' }}>{s.therapistJoinedLabel ?? 'no-show'}</b>
+        {s.joinDelayMins !== null && (
+          <span style={{ color: late ? '#C0504B' : green, fontWeight: 700 }}>
+            {' '}({s.joinDelayMins > 0 ? `+${s.joinDelayMins}` : s.joinDelayMins}m)
+          </span>
+        )}
+      </span>
+      {s.minutesTogether !== null && (
+        <span title="Minutes both were in the room together, against the scheduled length">
+          ⏱ <b style={{ color: charcoal }}>{s.minutesTogether}m</b>
+          <span style={{ color: '#9AABB8' }}> / {s.scheduledMins}m</span>
+        </span>
+      )}
+    </span>
+  )
+}
+
 function SessionRow({ s }: { s: AdminSessionRow }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: '1px solid rgba(28,43,58,.06)' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: '1px solid rgba(28,43,58,.06)' }}>
       <span style={{ fontSize: 13, color: charcoal, minWidth: 190 }}>{s.dateLabel} · {s.timeLabel}</span>
       <StatusPill s={s} />
+      <Presence s={s} />
       {s.isPast && !s.voided && !s.hasSummary && <span style={{ fontSize: 11, color: '#C9973A', fontWeight: 700 }}>no note</span>}
       <div style={{ marginLeft: 'auto' }}><VoidControl session={s} /></div>
     </div>
