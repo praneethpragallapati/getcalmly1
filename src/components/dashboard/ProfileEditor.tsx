@@ -7,6 +7,7 @@ import { updatePatientProfile } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PatientProfileEdit } from '@/lib/account'
 import { IN_STATES } from '@/lib/inStates'
+import { COUNTRIES, hasStateList } from '@/lib/countries'
 import { fileToAvatarDataUrl } from '@/lib/clientImage'
 
 const MAX_PHOTO_BYTES = 2_000_000
@@ -25,8 +26,15 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
   const [phone, setPhone] = useState(profile.phone ?? '')
   const [gender, setGender] = useState(profile.gender ?? '')
   const [dob, setDob] = useState(profile.dateOfBirth ?? '')
+  const [country, setCountry] = useState(profile.country || 'IN')
   const [state, setState] = useState(profile.state ?? '')
+  const [city, setCity] = useState(profile.city ?? '')
+  const [addr1, setAddr1] = useState(profile.addressLine1 ?? '')
+  const [addr2, setAddr2] = useState(profile.addressLine2 ?? '')
+  const [pin, setPin] = useState(profile.postalCode ?? '')
   const [language, setLanguage] = useState(profile.preferredLanguage ?? '')
+  const [occupation, setOccupation] = useState(profile.occupation ?? '')
+  const [marital, setMarital] = useState(profile.maritalStatus ?? '')
   const [emName, setEmName] = useState(profile.emergencyName ?? '')
   const [emPhone, setEmPhone] = useState(profile.emergencyPhone ?? '')
   const [emRel, setEmRel] = useState(profile.emergencyRelation ?? '')
@@ -58,8 +66,15 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         phone,
         gender,
         dateOfBirth: dob || null,
+        country,
         state,
+        city,
+        addressLine1: addr1,
+        addressLine2: addr2,
+        postalCode: pin,
         preferredLanguage: language,
+        occupation,
+        maritalStatus: marital,
         emergencyName: emName,
         emergencyPhone: emPhone,
         emergencyRelation: emRel,
@@ -139,11 +154,64 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
           <input className="field-input" value={language} maxLength={40} onChange={(e) => setLanguage(e.target.value)} placeholder="e.g. Hindi, English" />
         </div>
         <div>
-          <label className="field-label">State</label>
-          <input className="field-input" value={state} maxLength={60} onChange={(e) => setState(e.target.value)} placeholder="e.g. Karnataka" list="in-states" />
-          <datalist id="in-states">
-            {IN_STATES.map((s) => <option key={s} value={s} />)}
-          </datalist>
+          <label className="field-label">Marital status</label>
+          <select className="field-select" value={marital} onChange={(e) => setMarital(e.target.value)}>
+            <option value="">Prefer not to say</option>
+            <option>Single</option>
+            <option>In a relationship</option>
+            <option>Married</option>
+            <option>Separated</option>
+            <option>Divorced</option>
+            <option>Widowed</option>
+          </select>
+        </div>
+        <div>
+          <label className="field-label">Occupation</label>
+          <input className="field-input" value={occupation} maxLength={80} onChange={(e) => setOccupation(e.target.value)} placeholder="e.g. Software engineer, Student" />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
+        <div className="field-label" style={{ fontSize: 12.5, marginBottom: 10 }}>ADDRESS</div>
+        <div style={{ marginBottom: 12 }}>
+          <label className="field-label">Address line 1</label>
+          <input className="field-input" value={addr1} maxLength={120} onChange={(e) => setAddr1(e.target.value)} placeholder="Flat / house no., building, street" />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label className="field-label">Address line 2</label>
+          <input className="field-input" value={addr2} maxLength={120} onChange={(e) => setAddr2(e.target.value)} placeholder="Area, landmark (optional)" />
+        </div>
+        <div className="field-grid">
+          <div>
+            <label className="field-label">Country</label>
+            <select className="field-select" value={country} onChange={(e) => setCountry(e.target.value)}>
+              {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            {/* The states datalist only makes sense for India; elsewhere it's a
+                free-text state / province / region. */}
+            <label className="field-label">{hasStateList(country) ? 'State' : 'State / province'}</label>
+            <input
+              className="field-input"
+              value={state}
+              maxLength={60}
+              onChange={(e) => setState(e.target.value)}
+              placeholder={hasStateList(country) ? 'e.g. Karnataka' : 'e.g. Dubai'}
+              list={hasStateList(country) ? 'in-states' : undefined}
+            />
+            <datalist id="in-states">
+              {IN_STATES.map((s) => <option key={s} value={s} />)}
+            </datalist>
+          </div>
+          <div>
+            <label className="field-label">City</label>
+            <input className="field-input" value={city} maxLength={60} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Bengaluru" />
+          </div>
+          <div>
+            <label className="field-label">{hasStateList(country) ? 'PIN code' : 'Postal code'}</label>
+            <input className="field-input" value={pin} maxLength={16} onChange={(e) => setPin(e.target.value)} placeholder={hasStateList(country) ? 'e.g. 560001' : 'Postal code'} />
+          </div>
         </div>
       </div>
 

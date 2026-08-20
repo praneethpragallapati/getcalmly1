@@ -308,3 +308,29 @@ CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_role_idx" ON "Sess
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdById" TEXT;
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdByName" TEXT;
 CREATE INDEX IF NOT EXISTS "FormTemplate_createdById_idx" ON "FormTemplate"("createdById");
+
+-- 0037_blog_review
+ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewStatus" TEXT NOT NULL DEFAULT 'APPROVED';
+ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewNote" TEXT;
+ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "submittedAt" TIMESTAMP(3);
+ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewedAt" TIMESTAMP(3);
+ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewedByName" TEXT;
+CREATE INDEX IF NOT EXISTS "BlogPost_reviewStatus_idx" ON "BlogPost"("reviewStatus");
+
+-- 0038_contact_details
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "addressLine1" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "addressLine2" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "city" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "postalCode" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "occupation" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "maritalStatus" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3);
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "country" TEXT NOT NULL DEFAULT 'IN';
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "state" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "city" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "addressLine1" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "addressLine2" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "postalCode" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "emergencyName" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "emergencyPhone" TEXT;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "emergencyRelation" TEXT;

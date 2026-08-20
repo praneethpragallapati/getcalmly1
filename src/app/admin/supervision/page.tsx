@@ -5,6 +5,7 @@ import { adminListTherapists, adminListSupervisionLinks } from '@/lib/expert'
 import { assignSupervisionAction, removeSupervisionAction } from '../actions'
 import { SectionTabs } from '@/components/ui/SectionTabs'
 import { ADMIN_CLINICIAN_TABS } from '@/data/sectionTabs'
+import { fmtIST } from '@/lib/tz'
 
 export const metadata = { title: 'Admin · Supervision', robots: { index: false, follow: false } }
 
@@ -70,7 +71,7 @@ export default async function AdminSupervisionPage() {
             <span style={{ fontSize: 14.5, fontWeight: 700, color: '#1C2B3A' }}>{l.supervisorName}</span>
             <span style={{ fontSize: 13, color: '#8E9EAE' }}> supervises </span>
             <span style={{ fontSize: 14.5, fontWeight: 700, color: '#1C2B3A' }}>{l.superviseeName}</span>
-            <span style={{ fontSize: 12, color: '#A0ADB8' }}> · since {l.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+            <span style={{ fontSize: 12, color: '#A0ADB8' }}> · since {fmtIST(l.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           </div>
           <form action={removeSupervisionAction}>
             <input type="hidden" name="linkId" value={l.id} />

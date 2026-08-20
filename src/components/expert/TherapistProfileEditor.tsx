@@ -6,6 +6,8 @@ import { Camera, Check, Trash2, X } from 'lucide-react'
 import { updateTherapistProfile } from '@/app/(dashboard)/expert/actions'
 import { useToast } from '@/components/ui/Toast'
 import { fileToAvatarDataUrl } from '@/lib/clientImage'
+import { IN_STATES } from '@/lib/inStates'
+import { COUNTRIES, hasStateList } from '@/lib/countries'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -17,6 +19,17 @@ type Props = {
   languages: string[]
   specializations: string[]
   photoUrl: string | null
+  phone: string | null
+  dateOfBirth: string | null // yyyy-mm-dd
+  country: string
+  state: string | null
+  city: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  postalCode: string | null
+  emergencyName: string | null
+  emergencyPhone: string | null
+  emergencyRelation: string | null
   onClose: () => void
 }
 
@@ -37,6 +50,17 @@ export function TherapistProfileEditor(props: Props) {
   const [qualifications, setQualifications] = useState(props.qualifications.join(', '))
   const [languages, setLanguages] = useState(props.languages.join(', '))
   const [specializations, setSpecializations] = useState(props.specializations.join(', '))
+  const [phone, setPhone] = useState(props.phone ?? '')
+  const [dob, setDob] = useState(props.dateOfBirth ?? '')
+  const [country, setCountry] = useState(props.country || 'IN')
+  const [state, setState] = useState(props.state ?? '')
+  const [city, setCity] = useState(props.city ?? '')
+  const [addr1, setAddr1] = useState(props.addressLine1 ?? '')
+  const [addr2, setAddr2] = useState(props.addressLine2 ?? '')
+  const [pin, setPin] = useState(props.postalCode ?? '')
+  const [emName, setEmName] = useState(props.emergencyName ?? '')
+  const [emPhone, setEmPhone] = useState(props.emergencyPhone ?? '')
+  const [emRel, setEmRel] = useState(props.emergencyRelation ?? '')
   const [photo, setPhoto] = useState<string | null | undefined>(undefined)
   const shownPhoto = photo === undefined ? props.photoUrl : photo
   const initials = name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
@@ -58,7 +82,12 @@ export function TherapistProfileEditor(props: Props) {
   function save() {
     if (!name.trim()) return toast.error('Please enter your name.')
     start(async () => {
-      const res = await updateTherapistProfile({ name, bio, gender, qualifications, languages, specializations, photo })
+      const res = await updateTherapistProfile({
+        name, bio, gender, qualifications, languages, specializations, photo,
+        phone, dateOfBirth: dob || null, country, state, city,
+        addressLine1: addr1, addressLine2: addr2, postalCode: pin,
+        emergencyName: emName, emergencyPhone: emPhone, emergencyRelation: emRel,
+      })
       if (res.ok) {
         toast.success('Profile updated')
         props.onClose()
@@ -122,6 +151,14 @@ export function TherapistProfileEditor(props: Props) {
           <label className="field-label">Languages <span style={{ fontWeight: 500, color: 'var(--c-gray)' }}>(comma-separated)</span></label>
           <input className="field-input" value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Hindi, Tamil" />
         </div>
+        <div>
+          <label className="field-label">Phone</label>
+          <input className="field-input" value={phone} maxLength={20} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" />
+        </div>
+        <div>
+          <label className="field-label">Date of birth</label>
+          <input className="field-input" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+        </div>
       </div>
 
       <div style={{ marginTop: 16 }}>
@@ -134,8 +171,69 @@ export function TherapistProfileEditor(props: Props) {
         <input className="field-input" value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, Depression, Trauma" />
       </div>
 
+      <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
+        <div className="field-label" style={{ fontSize: 12.5, marginBottom: 10 }}>ADDRESS</div>
+        <div style={{ marginBottom: 12 }}>
+          <label className="field-label">Address line 1</label>
+          <input className="field-input" value={addr1} maxLength={120} onChange={(e) => setAddr1(e.target.value)} placeholder="Flat / house no., building, street" />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label className="field-label">Address line 2</label>
+          <input className="field-input" value={addr2} maxLength={120} onChange={(e) => setAddr2(e.target.value)} placeholder="Area, landmark (optional)" />
+        </div>
+        <div className="field-grid">
+          <div>
+            <label className="field-label">Country</label>
+            <select className="field-select" value={country} onChange={(e) => setCountry(e.target.value)}>
+              {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="field-label">{hasStateList(country) ? 'State' : 'State / province'}</label>
+            <input
+              className="field-input"
+              value={state}
+              maxLength={60}
+              onChange={(e) => setState(e.target.value)}
+              placeholder={hasStateList(country) ? 'e.g. Karnataka' : 'e.g. Dubai'}
+              list={hasStateList(country) ? 'in-states-expert' : undefined}
+            />
+            <datalist id="in-states-expert">
+              {IN_STATES.map((st) => <option key={st} value={st} />)}
+            </datalist>
+          </div>
+          <div>
+            <label className="field-label">City</label>
+            <input className="field-input" value={city} maxLength={60} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Bengaluru" />
+          </div>
+          <div>
+            <label className="field-label">{hasStateList(country) ? 'PIN code' : 'Postal code'}</label>
+            <input className="field-input" value={pin} maxLength={16} onChange={(e) => setPin(e.target.value)} placeholder={hasStateList(country) ? 'e.g. 560001' : 'Postal code'} />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>
+        <div className="field-label" style={{ fontSize: 12.5, marginBottom: 10 }}>EMERGENCY CONTACT</div>
+        <div className="field-grid">
+          <div>
+            <label className="field-label">Name</label>
+            <input className="field-input" value={emName} maxLength={80} onChange={(e) => setEmName(e.target.value)} placeholder="Contact name" />
+          </div>
+          <div>
+            <label className="field-label">Phone</label>
+            <input className="field-input" value={emPhone} maxLength={20} onChange={(e) => setEmPhone(e.target.value)} placeholder="Contact phone" />
+          </div>
+          <div>
+            <label className="field-label">Relationship</label>
+            <input className="field-input" value={emRel} maxLength={40} onChange={(e) => setEmRel(e.target.value)} placeholder="e.g. Spouse, Parent" />
+          </div>
+        </div>
+      </div>
+
       <p className="muted" style={{ fontSize: 12.5, marginTop: 14 }}>
         Verification, employment type, registration number and fees are managed by the admin team.
+        Your address and emergency contact are visible only to the admin team.
       </p>
 
       <button className="btn btn-primary" style={{ marginTop: 12 }} disabled={pending} onClick={save}>

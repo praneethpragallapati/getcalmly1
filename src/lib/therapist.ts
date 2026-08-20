@@ -4,6 +4,7 @@ import { getSessionsView } from '@/lib/sessions'
 import { designationOf } from '@/lib/expert'
 import { clinicianMatchesTrack, type CareTrack } from '@/lib/matching'
 import { isPsychiatrist } from '@/lib/clinicianScope'
+import { fmtIST } from '@/lib/tz'
 
 /**
  * The patient's assigned expert (#2). Real data comes from the patient's most
@@ -287,7 +288,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         sessionsTotal: sub?.sessionsTotal ?? null,
         sessionsLeft: sub ? Math.max(0, sub.sessionsTotal - sub.sessionsUsed) : null,
         validUntil: sub?.expiresAt
-          ? sub.expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          ? fmtIST(sub.expiresAt, { day: 'numeric', month: 'short', year: 'numeric' })
           : null,
         validUntilIso: sub?.expiresAt ? sub.expiresAt.toISOString() : null,
         expired: Boolean(sub?.expiresAt && sub.expiresAt.getTime() < Date.now()),

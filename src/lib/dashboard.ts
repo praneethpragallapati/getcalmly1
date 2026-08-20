@@ -20,6 +20,7 @@ import { resolveDueAppointments } from '@/lib/sessionLifecycle'
 import { getCommunityPostsCached } from '@/lib/community'
 import { patientCode } from '@/lib/ids'
 import { designationOf } from '@/lib/expert'
+import { fmtIST } from '@/lib/tz'
 
 /**
  * Tenure-based membership tier from cumulative paid months (#18). Kept here so
@@ -251,7 +252,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     data.name = firstNameFrom(user?.name, user?.email)
     if (user?.createdAt) {
-      data.startedOn = user.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      data.startedOn = fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })
       data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
     }
 
@@ -301,7 +302,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       const avg = (sel: (m: (typeof moods)[number]) => number) =>
         bucket.length ? Math.round(bucket.reduce((a, m) => a + sel(m), 0) / bucket.length) : 0
       sixWeeks.push({
-        day: new Date(start).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+        day: fmtIST(new Date(start), { day: 'numeric', month: 'short' }),
         mood: avg((m) => m.mood),
         energy: avg((m) => m.energy),
         calm: avg((m) => m.calm ?? 5),
@@ -347,7 +348,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       data.journals = journals.map<DashJournal>((j) => ({
         id: j.id,
         title: j.title ?? 'Untitled entry',
-        date: j.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+        date: fmtIST(j.createdAt, { day: 'numeric', month: 'short' }),
         preview: j.content,
         moodTag: j.moodTag ?? undefined,
         topicTags: j.topicTags,
@@ -367,7 +368,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         timesLabel: timesOfDayChip(t.timesOfDay),
         assignedBy: t.assignedBy ?? undefined,
         dueLabel: t.dueDate
-          ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+          ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' })
           : undefined,
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       }))
@@ -414,7 +415,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           expert: todayAppt.therapist.user.name ?? 'Your expert',
           expertRole: designationOf(todayAppt.therapist.specializations),
           expertImage: todayAppt.therapist.user.image ?? null,
-          when: todayAppt.scheduledAt.toLocaleString('en-IN', {
+          when: fmtIST(todayAppt.scheduledAt, {
             weekday: 'long',
             day: 'numeric',
             month: 'short',
@@ -444,7 +445,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           expert: nx.therapist.user.name ?? 'Your expert',
           expertRole: designationOf(nx.therapist.specializations),
           expertImage: nx.therapist.user.image ?? null,
-          when: nx.scheduledAt.toLocaleString('en-IN', {
+          when: fmtIST(nx.scheduledAt, {
             weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
           }),
           scheduledISO: nx.scheduledAt.toISOString(),
@@ -459,7 +460,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       const earliestMood = moods.length ? moods[moods.length - 1] : null
       const firstCompletedAppt = completedAppts[0] ?? null
       const sessionsForMilestone = sub ? sub.sessionsUsed : completedAppts.length
-      const fmt = (d: Date) => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+      const fmt = (d: Date) => fmtIST(d, { day: 'numeric', month: 'short' })
       data.milestones = [
         {
           label: 'First mood check-in',

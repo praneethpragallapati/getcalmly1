@@ -21,6 +21,7 @@
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { notify } from '@/lib/notifications'
+import { fmtIST } from '@/lib/tz'
 
 /** How long a session runs, by clinician kind. */
 export function sessionDurationMins(psych: boolean): number {
@@ -125,7 +126,7 @@ export async function getPresenceDetail(appointmentId: string): Promise<Presence
     })
     if (rows.length === 0) return empty
 
-    const hhmm = (d: Date) => d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
+    const hhmm = (d: Date) => fmtIST(d, { hour: 'numeric', minute: '2-digit' })
     const build = (role: PresenceRole) => {
       const mine = rows.filter((r) => r.role === role)
       const spans = mine.map((r) => ({

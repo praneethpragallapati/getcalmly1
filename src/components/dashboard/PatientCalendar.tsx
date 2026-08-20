@@ -1,4 +1,5 @@
 import { CalendarDays } from 'lucide-react'
+import { fmtIST } from '@/lib/tz'
 
 /**
  * The patient's own month-at-a-glance calendar (#9). Highlights today and dots
@@ -10,7 +11,7 @@ export function PatientCalendar({ markedDays }: { markedDays: number[] }) {
   const year = now.getFullYear()
   const month = now.getMonth()
   const today = now.getDate()
-  const monthLabel = now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+  const monthLabel = fmtIST(now, { month: 'long', year: 'numeric' })
 
   const firstDay = new Date(year, month, 1).getDay() // 0 = Sun
   const daysInMonth = new Date(year, month + 1, 0).getDate()

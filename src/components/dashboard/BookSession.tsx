@@ -6,6 +6,7 @@ import { Check, CalendarPlus } from 'lucide-react'
 import { requestSession } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { ExpertSlot } from '@/lib/sessions'
+import { fmtIST } from '@/lib/tz'
 
 type Clinician = { profileId: string; name: string; typeLabel: string }
 
@@ -38,7 +39,7 @@ export function BookSession({
   const bookUntil = bookUntilIso ? new Date(bookUntilIso).getTime() : null
   const afterExpiry = (iso: string) => bookUntil != null && new Date(iso).getTime() > bookUntil
   const validUntilLabel = bookUntilIso
-    ? new Date(bookUntilIso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    ? fmtIST(new Date(bookUntilIso), { day: 'numeric', month: 'short', year: 'numeric' })
     : null
   const toast = useToast()
   const [selected, setSelected] = useState<string | null>(null)

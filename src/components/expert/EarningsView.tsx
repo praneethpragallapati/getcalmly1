@@ -3,6 +3,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import { Download, ChevronDown, IndianRupee, CalendarDays, TrendingUp } from 'lucide-react'
 import type { Earnings, EarningLine } from '@/lib/expert'
+import { fmtIST } from '@/lib/tz'
 
 const coral = '#C8553D'
 const charcoal = '#1C2B3A'
@@ -38,7 +39,7 @@ function printStatement(opts: {
 }) {
   const { clinicianName, designation, periodLabel, lines } = opts
   const total = lines.reduce((s, l) => s + l.amount, 0)
-  const generated = new Date().toLocaleString('en-IN', {
+  const generated = fmtIST(new Date(), {
     day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit',
   })
   const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] as string))

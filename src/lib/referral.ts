@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { notify } from '@/lib/notifications'
+import { fmtIST } from '@/lib/tz'
 
 /**
  * Referral program — data access + the reward engine's read side. The write side
@@ -194,7 +195,7 @@ export async function getPatientReferral(userId: string): Promise<PatientReferra
     const invites: ReferralInvite[] = referrals.map((r) => ({
       name: r.referee?.name ?? 'Invited friend',
       status: STATUS_LABEL[r.status] ?? r.status,
-      joinedLabel: r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      joinedLabel: fmtIST(r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
     }))
     return {
       ...base,
@@ -412,7 +413,7 @@ export async function getReferralsForAdmin(): Promise<AdminReferralRow[]> {
       reward: r.referrerRewardKind
         ? referrerRewardLabel(r.referrerRewardKind as ReferrerRewardKind, r.referrerRewardValue ?? 0)
         : '—',
-      date: r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      date: fmtIST(r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
     }))
   } catch {
     return []

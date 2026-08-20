@@ -8,6 +8,23 @@ import type { ExpertBlogView } from '@/lib/expert'
 import type { BlogPostView } from '@/lib/blog'
 
 const charcoal = '#1C2B3A'
+
+/**
+ * What the author needs to know at a glance. Editorial state leads: a post can be
+ * live and still be back in the queue after an edit, and "Draft" would wrongly
+ * suggest the author still has to do something to send it.
+ */
+function postStatus(p: ExpertBlogView): string {
+  if (p.reviewStatus === 'PENDING') return p.published ? 'Live · re-review' : 'In review'
+  if (p.reviewStatus === 'REJECTED') return 'Needs changes'
+  return p.published ? 'Live' : 'Not live'
+}
+function postTone(p: ExpertBlogView): React.CSSProperties {
+  if (p.reviewStatus === 'PENDING') return { color: '#9A6B1F', background: 'rgba(201,151,58,.14)' }
+  if (p.reviewStatus === 'REJECTED') return { color: '#C0504B', background: 'rgba(192,80,75,.1)' }
+  if (p.published) return { color: '#3D9E72', background: 'rgba(61,158,114,.1)' }
+  return { color: '#8E9EAE', background: 'rgba(28,43,58,.06)' }
+}
 const coral = '#C8553D'
 
 type Tab = 'mine' | 'write' | 'all'
@@ -68,8 +85,10 @@ export function BlogsManager({
       {tab === 'mine' && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 4 }}>Your posts</div>
-          <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>{myPosts.length} published · bylined as {designation}</p>
-          {myPosts.length === 0 && <p className="muted">You haven&apos;t published anything yet. Use “Write new” to publish your first post.</p>}
+          <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
+            {myPosts.filter((p) => p.published).length} live · {myPosts.filter((p) => p.reviewStatus === 'PENDING').length} in review · bylined as {designation}
+          </p>
+          {myPosts.length === 0 && <p className="muted">You haven&apos;t written anything yet. Use “Write new” to send your first post to the editorial team.</p>}
           <div>
             {myPosts.map((p) => (
               <div key={p.slug} style={{ display: 'flex', gap: 14, padding: '14px 0', borderTop: '1px solid rgba(28,43,58,.06)' }}>
@@ -77,11 +96,16 @@ export function BlogsManager({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 15.5, fontWeight: 700, color: charcoal }}>{p.title}</span>
-                    <span style={{ fontSize: 10.5, fontWeight: 700, color: p.published ? '#3D9E72' : '#8E9EAE', background: p.published ? 'rgba(61,158,114,.1)' : 'rgba(28,43,58,.06)', padding: '2px 8px', borderRadius: 20 }}>
-                      {p.published ? 'Published' : 'Draft'}
+                    <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 20, ...postTone(p) }}>
+                      {postStatus(p)}
                     </span>
                   </div>
                   <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.6, margin: '5px 0 8px' }}>{p.excerpt}</p>
+                  {p.reviewStatus === 'REJECTED' && p.reviewNote && (
+                    <p style={{ fontSize: 13, lineHeight: 1.55, margin: '0 0 8px', padding: '8px 11px', borderRadius: 9, background: 'rgba(192,80,75,.07)', border: '1px solid rgba(192,80,75,.18)', color: '#8A3A36' }}>
+                      <b>Sent back:</b> {p.reviewNote} — edit the post to resubmit it.
+                    </p>
+                  )}
                   <div className="muted" style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <span>{p.dateLabel}</span>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Clock size={12} /> {p.readTime}</span>

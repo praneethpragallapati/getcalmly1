@@ -17,6 +17,7 @@ import {
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, notifyMany } from '@/lib/notifications'
+import { ensureBlogReviewSchema } from '@/lib/expert'
 import { ensurePollSchema } from '@/lib/polls'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
@@ -949,6 +950,7 @@ export async function createAdminBlogPost(input: {
         coverImage: adminCleanCover(input.coverImage),
         readTime: adminReadTime(paragraphs),
         published: true,
+        reviewStatus: 'APPROVED',
       },
     })
     revalidatePath('/admin/content'); revalidatePath('/blog'); revalidatePath(`/blog/${post.slug}`)
@@ -987,6 +989,89 @@ export async function setBlogPublished(input: { slug: string; published: boolean
     revalidatePath('/admin/content'); revalidatePath('/blog'); revalidatePath(`/blog/${input.slug}`)
     return { ok: true }
   } catch { return { ok: false, error: 'Could not update the post.' } }
+}
+
+// ── Blog review: clinician submissions ───────────────────────────────────────
+
+/**
+ * Approve a clinician's submission — it goes live on the public blog, dated from
+ * the moment of approval so the feed orders by when readers could actually see
+ * it. Re-approving an already-live post that was edited just clears the flag and
+ * leaves its original date alone.
+ */
+export async function approveBlogPost(input: { slug: string }): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  try {
+    await ensureBlogReviewSchema()
+    const post = await prisma.blogPost.findUnique({
+      where: { slug: input.slug },
+      select: { authorId: true, title: true, published: true },
+    })
+    if (!post) return { ok: false, error: 'That post no longer exists.' }
+    await prisma.blogPost.update({
+      where: { slug: input.slug },
+      data: {
+        published: true,
+        reviewStatus: 'APPROVED',
+        reviewNote: null,
+        reviewedAt: new Date(),
+        reviewedByName: admin.name ?? 'Admin',
+        ...(post.published ? {} : { publishedAt: new Date() }),
+      },
+    })
+    if (post.authorId) {
+      await notify(post.authorId, {
+        type: 'announcement',
+        title: 'Your post is live',
+        body: post.title,
+        href: `/blog/${input.slug}`,
+      })
+    }
+    revalidatePath('/admin/content'); revalidatePath('/blog'); revalidatePath(`/blog/${input.slug}`)
+    revalidatePath('/expert/blogs')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not approve the post.' } }
+}
+
+/**
+ * Send a submission back with a reason. The post comes off the public blog (if
+ * it was live) and the author sees the note, so they can fix it and resubmit.
+ */
+export async function rejectBlogPost(input: { slug: string; note: string }): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin) return { ok: false, error: 'Admin access required.' }
+  const note = input.note.trim().slice(0, 1000)
+  if (!note) return { ok: false, error: 'Give the author a reason.' }
+  try {
+    await ensureBlogReviewSchema()
+    const post = await prisma.blogPost.findUnique({
+      where: { slug: input.slug },
+      select: { authorId: true, title: true },
+    })
+    if (!post) return { ok: false, error: 'That post no longer exists.' }
+    await prisma.blogPost.update({
+      where: { slug: input.slug },
+      data: {
+        published: false,
+        reviewStatus: 'REJECTED',
+        reviewNote: note,
+        reviewedAt: new Date(),
+        reviewedByName: admin.name ?? 'Admin',
+      },
+    })
+    if (post.authorId) {
+      await notify(post.authorId, {
+        type: 'announcement',
+        title: 'Your post needs changes',
+        body: note,
+        href: '/expert/blogs',
+      })
+    }
+    revalidatePath('/admin/content'); revalidatePath('/blog'); revalidatePath(`/blog/${input.slug}`)
+    revalidatePath('/expert/blogs')
+    return { ok: true }
+  } catch { return { ok: false, error: 'Could not send the post back.' } }
 }
 
 export async function deleteBlogPost(input: { slug: string }): Promise<AdminResult> {

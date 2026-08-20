@@ -12,6 +12,17 @@ type Props = {
   languages: string[]
   specializations: string[]
   photoUrl: string | null
+  phone: string | null
+  dateOfBirth: string | null
+  country: string
+  state: string | null
+  city: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  postalCode: string | null
+  emergencyName: string | null
+  emergencyPhone: string | null
+  emergencyRelation: string | null
   /** The read-only profile view, shown when not editing. */
   children: React.ReactNode
 }

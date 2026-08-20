@@ -9,6 +9,7 @@ import { prisma } from '@/lib/prisma'
 import { ownsPatient } from '@/lib/expert'
 import { notify } from '@/lib/notifications'
 import { FORM_TEMPLATES, intakeSlugForCategory, type FormField } from '@/data/forms'
+import { fmtIST } from '@/lib/tz'
 
 export type { FormField } from '@/data/forms'
 
@@ -276,7 +277,7 @@ export type PatientFormRow = {
 }
 
 function fmt(d: Date): string {
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  return fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 /** Forms sent to a patient (clinician's view on the patient profile). */

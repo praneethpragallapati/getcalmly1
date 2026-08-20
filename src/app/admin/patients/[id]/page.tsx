@@ -6,6 +6,7 @@ import { PatientAdmin } from '@/components/admin/PatientAdmin'
 import { PatientActivitySections } from '@/components/admin/PatientActivity'
 import { DeleteAccount } from '@/components/admin/DeleteAccount'
 import { patientCode } from '@/lib/ids'
+import { PersonDetailsCard } from '@/components/ui/PersonDetailsCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,11 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
         </div>
         <div className="page-meta">{p.email}</div>
       </div>
+      <PersonDetailsCard
+        contact={p.contact}
+        name={p.name}
+        note="Everything on file for this patient."
+      />
       <PatientAdmin p={p} />
       <PatientActivitySections activity={activity} />
       <DeleteAccount kind="patient" userId={p.userId} name={p.name} />

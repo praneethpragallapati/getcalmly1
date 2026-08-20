@@ -18,6 +18,7 @@ import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/mat
 import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
+import { normalizeCountry } from '@/lib/countries'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -804,8 +805,15 @@ export type PatientProfileInput = {
   phone?: string | null
   gender?: string | null
   dateOfBirth?: string | null // ISO date (yyyy-mm-dd) or null
+  country?: string | null
   state?: string | null
+  city?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  postalCode?: string | null
   preferredLanguage?: string | null
+  occupation?: string | null
+  maritalStatus?: string | null
   emergencyName?: string | null
   emergencyPhone?: string | null
   emergencyRelation?: string | null
@@ -859,10 +867,23 @@ export async function updatePatientProfile(input: PatientProfileInput): Promise<
     const gender = clean(input.gender, 30)
     if (gender !== undefined) profileData.gender = gender
     if (dob !== undefined) profileData.dateOfBirth = dob
+    if (input.country !== undefined) profileData.country = normalizeCountry(input.country)
     const state = clean(input.state, 60)
     if (state !== undefined) profileData.state = state
+    const city = clean(input.city, 60)
+    if (city !== undefined) profileData.city = city
+    const addr1 = clean(input.addressLine1, 120)
+    if (addr1 !== undefined) profileData.addressLine1 = addr1
+    const addr2 = clean(input.addressLine2, 120)
+    if (addr2 !== undefined) profileData.addressLine2 = addr2
+    const pin = clean(input.postalCode, 16)
+    if (pin !== undefined) profileData.postalCode = pin
     const lang = clean(input.preferredLanguage, 40)
     if (lang !== undefined) profileData.preferredLanguage = lang
+    const occupation = clean(input.occupation, 80)
+    if (occupation !== undefined) profileData.occupation = occupation
+    const marital = clean(input.maritalStatus, 40)
+    if (marital !== undefined) profileData.maritalStatus = marital
     const emN = clean(input.emergencyName, 80)
     if (emN !== undefined) profileData.emergencyName = emN
     const emP = clean(input.emergencyPhone, 20)

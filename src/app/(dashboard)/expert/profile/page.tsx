@@ -3,6 +3,8 @@ import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap } from 'lucide
 import { getTherapistContext, getTherapistProfile } from '@/lib/expert'
 import { ProfileEditToggle } from '@/components/expert/ProfileEditToggle'
 import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
+import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
+import { fmtIST } from '@/lib/tz'
 
 export const metadata = { title: 'Profile · Expert portal', robots: { index: false, follow: false } }
 
@@ -33,6 +35,17 @@ export default async function ExpertProfilePage() {
         languages={p.languages}
         specializations={p.specializations}
         photoUrl={p.photoUrl}
+        phone={p.phone}
+        dateOfBirth={p.dateOfBirth}
+        country={p.country}
+        state={p.state}
+        city={p.city}
+        addressLine1={p.addressLine1}
+        addressLine2={p.addressLine2}
+        postalCode={p.postalCode}
+        emergencyName={p.emergencyName}
+        emergencyPhone={p.emergencyPhone}
+        emergencyRelation={p.emergencyRelation}
       >
       {/* Identity card */}
       <div className="card" style={{ display: 'flex', gap: 22, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -106,6 +119,22 @@ export default async function ExpertProfilePage() {
           ))}
           {p.specializations.length === 0 && <span className="muted">None listed.</span>}
         </div>
+      </div>
+      {/* Contact & address — admin-visible, never shown on the patient-facing card */}
+      <div className="card">
+        <div className="section-title">Contact &amp; address</div>
+        <p className="muted" style={{ fontSize: 12.5, margin: '4px 0 0' }}>
+          Held for the admin team — payroll, compliance and reaching you in an emergency. Patients never see this.
+        </p>
+        <DetailGrid
+          fields={[
+            { label: 'Email', value: p.email },
+            { label: 'Phone', value: p.phone },
+            { label: 'Date of birth', value: p.dateOfBirth ? fmtIST(new Date(p.dateOfBirth), { day: 'numeric', month: 'short', year: 'numeric' }) : null },
+            { label: 'Address', value: formatAddress(p) },
+            { label: 'Emergency contact', value: formatEmergencyContact(p) },
+          ]}
+        />
       </div>
       </ProfileEditToggle>
 

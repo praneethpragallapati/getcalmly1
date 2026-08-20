@@ -1,12 +1,13 @@
 import { VideoCard } from '@/components/media/VideoLightbox'
 import type { GuidedTrackView } from '@/lib/guided'
+import { fmtIST } from '@/lib/tz'
 
 const HEAD = "'Big Shoulders Display', sans-serif"
 const teal = '#2C7A6B'
 const ink = '#13241f'
 
 const fmtDate = (iso: string | null | undefined) =>
-  iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null
+  iso ? fmtIST(new Date(iso), { day: 'numeric', month: 'short', year: 'numeric' }) : null
 
 /**
  * Guided calm — admin-authored guided video tracks under Care. Tracks are public

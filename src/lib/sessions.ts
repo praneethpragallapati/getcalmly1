@@ -247,8 +247,8 @@ function demoCalendar(): ExpertCalendar {
       if (slot.getTime() < earliest) continue
       slots.push({
         iso: slot.toISOString(),
-        label: slot.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
-        time: slot.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+        label: fmtIST(slot, { weekday: 'short', day: 'numeric', month: 'short' }),
+        time: fmtIST(slot, { hour: 'numeric', minute: '2-digit' }),
         taken: false,
       })
       added++

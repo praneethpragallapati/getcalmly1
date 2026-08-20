@@ -76,7 +76,7 @@ function relativeLabel(d: Date): string {
   if (h < 24) return `${h}h ago`
   const days = Math.round(h / 24)
   if (days < 7) return `${days}d ago`
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  return fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {

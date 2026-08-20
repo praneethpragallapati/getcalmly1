@@ -15,6 +15,7 @@ import { getUnreadCount, getNotifications } from '@/lib/notifications'
 import { getSessionUser } from '@/lib/session'
 import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
+import { fmtIST } from '@/lib/tz'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -54,7 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     refCode && userId ? attributeReferral(userId, decodeURIComponent(refCode)) : Promise.resolve(),
   ])
   const now = new Date()
-  const dateLine = now.toLocaleDateString('en-IN', {
+  const dateLine = fmtIST(now, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

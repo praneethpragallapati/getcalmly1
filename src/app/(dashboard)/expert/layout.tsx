@@ -16,6 +16,7 @@ import { getNotifications, getUnreadCount } from '@/lib/notifications'
 import { roleHome } from '@/lib/roleHome'
 import { expertCode } from '@/lib/ids'
 import { mustChangePassword } from '@/lib/accountSecurity'
+import { fmtIST } from '@/lib/tz'
 
 export const metadata: Metadata = {
   title: 'Expert portal',
@@ -122,7 +123,7 @@ export default async function ExpertLayout({ children }: { children: React.React
         <header className="app-topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div className="tb-date">
-              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {fmtIST(new Date(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
             <div className="tb-greeting" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               {(() => {

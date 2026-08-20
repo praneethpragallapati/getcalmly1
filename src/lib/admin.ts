@@ -6,10 +6,10 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { designationOf, getTherapistEarnings, type EarningLine } from '@/lib/expert'
+import { designationOf, getTherapistEarnings, ensureBlogReviewSchema, type EarningLine, type PersonContact } from '@/lib/expert'
 import { getEarningsConfig } from '@/lib/earningsConfig'
 import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurrence'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, istParts } from '@/lib/tz'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { ensureSampleContent } from '@/lib/sampleContent'
 import { computePresence, ensureSessionPresenceSchema, getPresenceDetail, type PresenceDetail } from '@/lib/sessionLifecycle'
@@ -72,7 +72,7 @@ export type ApplicationRow = {
 export type ContactRow = { id: string; name: string; email: string; phone: string | null; message: string; handled: boolean; createdAt: string }
 export type LeadRow = { id: string; name: string; email: string; organisation: string | null; sector: string | null; teamSize: string | null; phone: string | null; message: string | null; handled: boolean; createdAt: string }
 
-const fmt = (d: Date) => d.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+const fmt = (d: Date) => fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 
 export async function getApplications(): Promise<ApplicationRow[]> {
   return safe(async () => {
@@ -169,6 +169,8 @@ export type ClinicianDetail = {
   globalFees: { individual: number; couples: number; psychiatry: number }
   globalBonuses: { second: number; thirdOnwards: number; misc: number; night: number }
   documentUrls: string[]
+  /** The clinician's own contact + address record. Admin-only. */
+  contact: PersonContact
   compensationFields: CompensationField[]
   supervisors: { linkId: string; name: string }[]
   supervisees: { linkId: string; name: string }[]
@@ -205,8 +207,8 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         isActive: true, isVerified: true, rating: true, totalReviews: true,
         baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
         secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
-        documentUrls: true,
-        user: { select: { id: true, name: true, email: true } },
+        documentUrls: true, gender: true, createdAt: true,
+        user: { select: { id: true, name: true, email: true, phone: true } },
       },
     })
     if (!p) return null
@@ -250,6 +252,48 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         distinct: ['userId'],
       })
     } catch { /* 0015 not applied */ }
+    // The 0038 contact columns are fetched in their own guarded query: adding
+    // them to the select above would make an un-migrated DB 404 the profile.
+    let clinicianContact: PersonContact = {
+      code: p.rciNumber ?? null,
+      email: p.user?.email ?? null,
+      phone: p.user?.phone ?? null,
+      dateOfBirth: null,
+      gender: p.gender ?? null,
+      preferredLanguage: p.languages?.[0] ?? null,
+      occupation: null,
+      maritalStatus: null,
+      country: 'IN',
+      state: null, city: null, addressLine1: null, addressLine2: null, postalCode: null,
+      emergencyName: null, emergencyPhone: null, emergencyRelation: null,
+      joinedLabel: p.createdAt ? fmtIST(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null,
+    }
+    try {
+      const c = await prisma.therapistProfile.findUnique({
+        where: { id: profileId },
+        select: {
+          dateOfBirth: true, country: true, state: true, city: true,
+          addressLine1: true, addressLine2: true, postalCode: true,
+          emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+        },
+      })
+      if (c) {
+        clinicianContact = {
+          ...clinicianContact,
+          dateOfBirth: c.dateOfBirth ? c.dateOfBirth.toISOString().slice(0, 10) : null,
+          country: c.country ?? 'IN',
+          state: c.state ?? null,
+          city: c.city ?? null,
+          addressLine1: c.addressLine1 ?? null,
+          addressLine2: c.addressLine2 ?? null,
+          postalCode: c.postalCode ?? null,
+          emergencyName: c.emergencyName ?? null,
+          emergencyPhone: c.emergencyPhone ?? null,
+          emergencyRelation: c.emergencyRelation ?? null,
+        }
+      }
+    } catch { /* 0038 not applied yet */ }
+
     const patientMap = new Map<string, string>()
     for (const a of apptPatients) patientMap.set(a.patientId, a.patient?.name ?? 'Patient')
     for (const a of assigned) patientMap.set(a.userId, a.user?.name ?? 'Patient')
@@ -267,12 +311,13 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
       globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus },
       documentUrls: p.documentUrls ?? [],
+      contact: clinicianContact,
       compensationFields,
       supervisors: links.filter((l) => l.superviseeId === profileId).map((l) => ({ linkId: l.id, name: l.supervisor.user?.name ?? 'Clinician' })),
       supervisees: links.filter((l) => l.supervisorId === profileId).map((l) => ({ linkId: l.id, name: l.supervisee.user?.name ?? 'Clinician' })),
       patients: [...patientMap.entries()].map(([userId, name]) => ({ userId, name })),
       allTherapists: allT.filter((t) => t.id !== profileId).map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician' })).sort((a, b) => a.name.localeCompare(b.name)),
-      reviews: reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, date: r.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })),
+      reviews: reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, date: fmtIST(r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) })),
       delivery,
     }
   }, null)
@@ -401,7 +446,7 @@ export async function getTherapistTasks(therapistUserId: string): Promise<Therap
       description: t.description,
       frequencyLabel: frequencyChip(t.frequency),
       timesLabel: timesOfDayChip(t.timesOfDay),
-      dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
+      dueLabel: t.dueDate ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' }) : undefined,
       assignedBy: t.assignedBy,
       done: isDoneForPeriod(t.completedAt, t.frequency),
       expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
@@ -505,6 +550,8 @@ export type CategoryAssignment = { id: string | null; name: string | null }
 
 export type PatientDetail = {
   userId: string; name: string; email: string
+  /** The full identity + contact record. Admin sees everything on file. */
+  contact: PersonContact
   assignedTherapistId: string | null; assignedTherapistName: string | null
   assignments: Record<CareCategoryKey, CategoryAssignment>
   subscriptions: SubscriptionRow[]
@@ -514,8 +561,48 @@ export type PatientDetail = {
 
 export async function getPatientDetail(userId: string): Promise<PatientDetail | null> {
   return safe(async () => {
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, patientProfile: { select: { assignedTherapistId: true } } } })
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, phone: true, createdAt: true, patientProfile: { select: { assignedTherapistId: true } } } })
     if (!user) return null
+    // Contact block read defensively: 0038 may not be applied yet, in which case
+    // the fields simply read as unset rather than 404-ing the whole page.
+    let contact: PersonContact = {
+      code: null, email: user.email ?? null, phone: user.phone ?? null, dateOfBirth: null,
+      gender: null, preferredLanguage: null, occupation: null, maritalStatus: null,
+      country: 'IN', state: null, city: null, addressLine1: null, addressLine2: null, postalCode: null,
+      emergencyName: null, emergencyPhone: null, emergencyRelation: null,
+      joinedLabel: fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+    }
+    try {
+      const c = await prisma.patientProfile.findUnique({
+        where: { userId },
+        select: {
+          patientId: true, dateOfBirth: true, gender: true, preferredLanguage: true,
+          occupation: true, maritalStatus: true, country: true, state: true, city: true,
+          addressLine1: true, addressLine2: true, postalCode: true,
+          emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+        },
+      })
+      if (c) {
+        contact = {
+          ...contact,
+          code: c.patientId ?? null,
+          dateOfBirth: c.dateOfBirth ? c.dateOfBirth.toISOString().slice(0, 10) : null,
+          gender: c.gender ?? null,
+          preferredLanguage: c.preferredLanguage ?? null,
+          occupation: c.occupation ?? null,
+          maritalStatus: c.maritalStatus ?? null,
+          country: c.country ?? 'IN',
+          state: c.state ?? null,
+          city: c.city ?? null,
+          addressLine1: c.addressLine1 ?? null,
+          addressLine2: c.addressLine2 ?? null,
+          postalCode: c.postalCode ?? null,
+          emergencyName: c.emergencyName ?? null,
+          emergencyPhone: c.emergencyPhone ?? null,
+          emergencyRelation: c.emergencyRelation ?? null,
+        }
+      }
+    } catch { /* 0038 not applied yet */ }
     // Per-care-type assignments (migration 0016) fetched defensively so a DB that
     // hasn't run 0016 still opens the patient page (instead of 404-ing) — the
     // category assignments just read as unset until the migration lands.
@@ -558,6 +645,7 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
     const cat = (id: string | null | undefined): CategoryAssignment => ({ id: id ?? null, name: nameOf(id) })
     return {
       userId: user.id, name: user.name ?? 'Patient', email: user.email ?? '',
+      contact,
       assignedTherapistId: pp?.assignedTherapistId ?? null,
       assignedTherapistName: nameOf(assignedId),
       assignments: {
@@ -1137,29 +1225,45 @@ export async function getClinicianRoster(profileId: string): Promise<ClinicianRo
       include: { patient: { select: { id: true, name: true, email: true } } },
     })
     const now = Date.now()
-    const hhmm = (d: Date | null | undefined) =>
-      d ? d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }) : null
+    // Join times are shown against the session's own day, so a bare "7:49 am" is
+    // read as that day. When someone joined on a DIFFERENT day (stale room tab,
+    // a mis-booked slot), the date has to come with it or the row lies.
+    const istDay = (d: Date) => { const p = istParts(d); return `${p.year}-${p.month}-${p.day}` }
+    const joinLabel = (d: Date | null | undefined, scheduledAt: Date) => {
+      if (!d) return null
+      const sameDay = istDay(d) === istDay(scheduledAt)
+      return sameDay
+        ? fmtIST(d, { hour: 'numeric', minute: '2-digit' })
+        : fmtIST(d, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+    }
     const rows: AdminSessionRow[] = appts.map((a) => {
       const d = a.scheduledAt
       const pres = computePresence(a)
+      const sameDayJoin =
+        a.therapistJoinedAt != null && istDay(a.therapistJoinedAt) === istDay(d)
       return {
         id: a.id,
         patientId: a.patientId,
         patientName: a.patient?.name ?? 'Patient',
         scheduledAtIso: d.toISOString(),
-        dateIso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
-        dateLabel: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
-        timeLabel: d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }),
+        dateIso: (() => { const p = istParts(d); return `${p.year}-${String(p.month + 1).padStart(2, '0')}-${String(p.day).padStart(2, '0')}` })(),
+        dateLabel: fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+        timeLabel: fmtIST(d, { hour: 'numeric', minute: '2-digit' }),
         status: a.status,
-        isPast: d.getTime() < now,
+        // Past once the whole slot has elapsed, not the moment it starts —
+        // otherwise a session still running shows up under "past".
+        isPast: d.getTime() + a.durationMins * 60_000 < now,
         hasSummary: !!a.summary,
         needsNote: a.status === 'COMPLETED' && !a.summary,
         voided: a.status === 'CANCELLED',
         fee: a.fee,
-        patientJoinedLabel: hhmm(a.patientJoinedAt),
-        therapistJoinedLabel: hhmm(a.therapistJoinedAt),
+        patientJoinedLabel: joinLabel(a.patientJoinedAt, d),
+        therapistJoinedLabel: joinLabel(a.therapistJoinedAt, d),
         minutesTogether: pres.bothJoined ? Math.round(pres.minutesTogether) : null,
-        joinDelayMins: a.therapistJoinedAt
+        // A "delay" only means something within the session's own day. A join on
+        // another day is not a clinician running late by 20 hours — the labelled
+        // date says what happened, so leave the delay off.
+        joinDelayMins: sameDayJoin && a.therapistJoinedAt
           ? Math.round((a.therapistJoinedAt.getTime() - d.getTime()) / 60_000)
           : null,
         scheduledMins: a.durationMins,
@@ -1196,7 +1300,9 @@ const KIND_LABEL: Record<string, string> = {
 
 /** ISO-8601 week key like "2026-W30" (weeks start Monday). */
 function isoWeek(d: Date): { key: string; label: string } {
-  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+  // Bucket by the IST calendar day, matching the labels shown beside it.
+  const ist = istParts(d)
+  const t = new Date(Date.UTC(ist.year, ist.month, ist.day))
   const day = t.getUTCDay() || 7
   t.setUTCDate(t.getUTCDate() + 4 - day)
   const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1))
@@ -1255,15 +1361,18 @@ export async function getRevenueLines(): Promise<RevenueLine[]> {
     })
     return rows.map((p) => {
       const d = p.createdAt
+      // Group on the IST calendar, so a payment at 2 am IST doesn't fall into
+      // the previous day's bucket while its label reads the current one.
+      const ist = istParts(d)
       return {
         id: p.id,
         isoDateTime: d.toISOString(),
-        dateIso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
-        dayLabel: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+        dateIso: `${ist.year}-${String(ist.month + 1).padStart(2, '0')}-${String(ist.day).padStart(2, '0')}`,
+        dayLabel: fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric' }),
         weekKey: isoWeek(d).key,
-        monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
-        monthLabel: d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
-        year: d.getFullYear(),
+        monthKey: `${ist.year}-${String(ist.month + 1).padStart(2, '0')}`,
+        monthLabel: fmtIST(d, { month: 'long', year: 'numeric' }),
+        year: ist.year,
         userId: p.userId,
         patientName: p.user?.name ?? 'Patient',
         patientEmail: p.user?.email ?? '',
@@ -1339,7 +1448,17 @@ export async function getRevenueReport(): Promise<RevenueReport> {
 
 // ── Content moderation ─────────────────────────────────────────────────────────
 
-export type BlogModRow = { slug: string; title: string; author: string; role: string; published: boolean; date: string }
+export type BlogModRow = {
+  slug: string; title: string; author: string; role: string; published: boolean; date: string
+  /** PENDING posts are clinician submissions waiting on an admin decision. */
+  reviewStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
+  reviewNote: string | null
+  excerpt: string
+  tags: string[]
+  /** Whether this is a clinician submission (vs. an admin/seeded post). */
+  fromClinician: boolean
+  submittedLabel: string | null
+}
 export type CommentModRow = { id: string; author: string; role: string; body: string; postId: string; date: string }
 export type CommunityModRow = { id: string; title: string; author: string; role: string; createdAt: string; comments: CommentModRow[] }
 
@@ -1348,11 +1467,30 @@ export async function getBlogsForModeration(): Promise<BlogModRow[]> {
   // full-row SELECT throw and hide every real post behind the [] fallback.
   return safe(async () => {
     await ensureSampleContent()
+    await ensureBlogReviewSchema()
     const rows = await prisma.blogPost.findMany({
       orderBy: { publishedAt: 'desc' }, take: 200,
-      select: { slug: true, title: true, authorName: true, authorRole: true, published: true, publishedAt: true },
+      select: {
+        slug: true, title: true, authorName: true, authorRole: true, published: true, publishedAt: true,
+        reviewStatus: true, reviewNote: true, submittedAt: true, excerpt: true, tags: true, authorId: true,
+      },
     })
-    return rows.map((r) => ({ slug: r.slug, title: r.title, author: r.authorName, role: r.authorRole, published: r.published, date: r.publishedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))
+    return rows.map((r) => ({
+      slug: r.slug,
+      title: r.title,
+      author: r.authorName,
+      role: r.authorRole,
+      published: r.published,
+      date: fmtIST(r.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+      reviewStatus: (r.reviewStatus ?? 'APPROVED') as BlogModRow['reviewStatus'],
+      reviewNote: r.reviewNote ?? null,
+      excerpt: r.excerpt,
+      tags: r.tags,
+      fromClinician: Boolean(r.authorId),
+      submittedLabel: r.submittedAt
+        ? fmtIST(r.submittedAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+        : null,
+    }))
   }, [])
 }
 

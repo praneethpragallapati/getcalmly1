@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/prisma'
 import { blogSeed, type BlogSeed } from '@/data/blogSeed'
 import { ensureSampleContent } from '@/lib/sampleContent'
+import { fmtIST } from '@/lib/tz'
 
 // The view shape the pages render. Identical to the seed shape so the DB path
 // and the fallback path are interchangeable.
 export type BlogPostView = BlogSeed
 
 function formatDate(d: Date): string {
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  return fmtIST(d, { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 /**

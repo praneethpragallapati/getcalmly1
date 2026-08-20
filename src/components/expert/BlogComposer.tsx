@@ -56,7 +56,13 @@ export function BlogComposer({ designation, initial }: { designation: string; in
       const res = editing ? await updateBlog(initial!.slug, input) : await publishBlog(input)
       if (res.ok) {
         if (!editing) { setTitle(''); setExcerpt(''); setBody(''); setTags([]); setCover(null) }
-        setMsg({ ok: true, text: editing ? 'Changes saved.' : 'Published to the public blog.', slug: res.slug ?? initial?.slug })
+        setMsg({
+          ok: true,
+          text: editing
+            ? 'Changes saved and sent back to the editorial team for review.'
+            : 'Sent for review. It goes live on the public blog once an admin approves it.',
+          slug: res.slug ?? initial?.slug,
+        })
         router.refresh()
       } else {
         setMsg({ ok: false, text: res.error ?? 'Could not save.' })
@@ -68,7 +74,7 @@ export function BlogComposer({ designation, initial }: { designation: string; in
     <div className="card">
       <div className="section-title" style={{ marginBottom: 4 }}>{editing ? 'Edit post' : 'Write a new blog'}</div>
       <p className="muted" style={{ fontSize: 12.5, marginBottom: 16 }}>
-        {editing ? 'Update your post — the link stays the same.' : 'Published to the public blog under your name as'} {!editing && <b>{designation}</b>}{!editing && '.'} Separate paragraphs with a blank line.
+        {editing ? 'Update your post — the link stays the same, and the edit goes back for review.' : 'Sent to the editorial team for review, then published under your name as'} {!editing && <b>{designation}</b>}{!editing && '.'} Separate paragraphs with a blank line.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {/* Cover photo */}
@@ -121,7 +127,7 @@ export function BlogComposer({ designation, initial }: { designation: string; in
             className="btn btn-primary"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 7, opacity: pending ? 0.6 : 1 }}
           >
-            <PenLine size={14} /> {pending ? 'Saving…' : editing ? 'Save changes' : 'Publish post'}
+            <PenLine size={14} /> {pending ? 'Saving…' : editing ? 'Save changes' : 'Submit for review'}
           </button>
           {msg && (
             <span style={{ fontSize: 13, color: msg.ok ? '#3D9E72' : '#C8553D', display: 'inline-flex', alignItems: 'center', gap: 6 }}>

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, CalendarDays, Ban } from 'lucide-react'
 import { voidSession } from '@/app/admin/actions'
 import type { ClinicianRoster as Roster, AdminSessionRow } from '@/lib/admin'
+import { fmtIST } from '@/lib/tz'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -127,7 +128,7 @@ function Calendar({ sessions }: { sessions: AdminSessionRow[] }) {
   for (let i = 0; i < startPad; i++) cells.push(null)
   for (let d = 1; d <= daysInMonth; d++) cells.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
 
-  const monthLabel = view.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+  const monthLabel = fmtIST(view, { month: 'long', year: 'numeric' })
   const selectedSessions = selected ? (byDay.get(selected) ?? []) : []
 
   return (

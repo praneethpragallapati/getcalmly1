@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma'
 import { packsForIn, type BuyableTrack } from '@/data/pricing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { resolveReferralCheckout, finalizeReferralCheckout, resolveWalletPayment, spendWalletCredit } from '@/lib/referral'
+import { fmtIST } from '@/lib/tz'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -99,7 +100,7 @@ export async function getActivePackages(patientId: string): Promise<PackageBalan
         remaining: Math.max(0, s.sessionsTotal - s.sessionsUsed),
         expired: Boolean(s.expiresAt && s.expiresAt.getTime() < Date.now()),
         validUntil: s.expiresAt
-          ? s.expiresAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          ? fmtIST(s.expiresAt, { day: 'numeric', month: 'short', year: 'numeric' })
           : null,
       }))
   } catch {
@@ -361,7 +362,7 @@ export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
       id: p.id,
       label: p.planName ?? KIND[p.kind] ?? 'Purchase',
       amount: p.amount,
-      dateLabel: p.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      dateLabel: fmtIST(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
     }))
   } catch {
     return []

@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText } from 'lucide-react'
 import {
-  getTherapistContext, getExpertPatientProfile, getPatientWeeklyInsight, getRiskNotifications,
+  getTherapistContext, getExpertPatientProfile, getRiskNotifications,
   superviseeOwningPatient,
 } from '@/lib/expert'
 import { patientCode } from '@/lib/ids'
@@ -14,6 +14,9 @@ import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { SendFormCard } from '@/components/expert/SendFormCard'
 import { AssignGuidedTrack } from '@/components/expert/AssignGuidedTrack'
 import { getGuidedTrackOptions, getGuidedAssignmentsFor } from '@/lib/guided'
+import { getPatientWeeklySummary } from '@/lib/patientSummary'
+import { WeeklySummaryCard } from '@/components/expert/WeeklySummaryCard'
+import { PersonDetailsCard } from '@/components/ui/PersonDetailsCard'
 
 const TREND_LABEL: Record<string, string> = {
   improving: 'Improving',
@@ -51,9 +54,9 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   }
   if (!p) notFound()
 
-  const [weekly, weeklyInsight, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
+  const [weekly, weeklySummary, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
     getWeeklyProgress(id),
-    getPatientWeeklyInsight(id),
+    getPatientWeeklySummary(id),
     getFormLibrary(),
     getPatientFormsForExpert(effectiveTherapistId, id),
     getRiskNotifications(effectiveTherapistId),
@@ -97,22 +100,15 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      {weeklyInsight && (
-        <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
-          <div className="pattern" style={{ padding: 0 }}>
-            <span className="pattern-ic t-purple">
-              <Sparkles size={16} />
-            </span>
-            <div>
-              <div className="pattern-title">AI co-pilot brief · {weeklyInsight.title}</div>
-              <div className="pattern-sub">{weeklyInsight.body}</div>
-              <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
-                The same weekly insight the patient sees on their dashboard.
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* The patient's week, from session notes, mood check-ins and task
+          adherence. Not an AI brief — every figure comes off the record. */}
+      {weeklySummary && <WeeklySummaryCard summary={weeklySummary} />}
+
+      <PersonDetailsCard
+        contact={p.contact}
+        name={p.name}
+        note="How to reach this patient and their emergency contact between sessions."
+      />
 
       {(patientAlerts.length > 0 || p.moodTrend === 'declining') && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>

@@ -66,9 +66,36 @@ export type CaseloadPatient = {
   monthsHere: number // whole months since they joined
 }
 
+/**
+ * The identity + contact block on a patient's record. The treating clinician
+ * needs it to reach the patient (and their emergency contact) between sessions;
+ * admin sees the same fields.
+ */
+export type PersonContact = {
+  code: string | null // the stable GC-P-… identifier
+  email: string | null
+  phone: string | null
+  dateOfBirth: string | null // yyyy-mm-dd
+  gender: string | null
+  preferredLanguage: string | null
+  occupation: string | null
+  maritalStatus: string | null
+  country: string
+  state: string | null
+  city: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  postalCode: string | null
+  emergencyName: string | null
+  emergencyPhone: string | null
+  emergencyRelation: string | null
+  joinedLabel: string | null
+}
+
 export type ExpertPatientProfile = {
   patientId: string
   name: string
+  contact: PersonContact
   trackLabel: string
   diagnosis?: string
   therapyStatus?: string
@@ -188,13 +215,27 @@ export type TherapistProfileView = {
   isPsychiatrist: boolean
   photoUrl: string | null
   gender: string | null
+  // Contact + location. Shown to the clinician themselves and to admins; never
+  // on the patient-facing expert card.
+  email: string | null
+  phone: string | null
+  dateOfBirth: string | null // yyyy-mm-dd for the date input
+  country: string
+  state: string | null
+  city: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  postalCode: string | null
+  emergencyName: string | null
+  emergencyPhone: string | null
+  emergencyRelation: string | null
 }
 
 /** The signed-in clinician's own profile, for the portal Profile page. */
 export async function getTherapistProfile(therapistProfileId: string): Promise<TherapistProfileView | null> {
   const p = await prisma.therapistProfile.findUnique({
     where: { id: therapistProfileId },
-    include: { user: { select: { name: true } } },
+    include: { user: { select: { name: true, email: true, phone: true } } },
   })
   if (!p) return null
   return {
@@ -214,6 +255,18 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
     isPsychiatrist: looksPsychiatric(p.specializations),
     photoUrl: p.photoUrl,
     gender: p.gender,
+    email: p.user?.email ?? null,
+    phone: p.user?.phone ?? null,
+    dateOfBirth: p.dateOfBirth ? p.dateOfBirth.toISOString().slice(0, 10) : null,
+    country: p.country ?? 'IN',
+    state: p.state ?? null,
+    city: p.city ?? null,
+    addressLine1: p.addressLine1 ?? null,
+    addressLine2: p.addressLine2 ?? null,
+    postalCode: p.postalCode ?? null,
+    emergencyName: p.emergencyName ?? null,
+    emergencyPhone: p.emergencyPhone ?? null,
+    emergencyRelation: p.emergencyRelation ?? null,
   }
 }
 
@@ -403,7 +456,7 @@ export async function getMyAssignedTasks(therapistUserId: string): Promise<MyTas
       detail: t.description ?? undefined,
       frequencyLabel: frequencyChip(t.frequency),
       timesLabel: timesOfDayChip(t.timesOfDay),
-      dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
+      dueLabel: t.dueDate ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' }) : undefined,
       assignedBy: t.assignedBy ?? undefined,
       done: isDoneForPeriod(t.completedAt, t.frequency),
       expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
@@ -550,10 +603,16 @@ export async function getExpertPatientProfile(
   // whole page to the error boundary. Degrading a single query to empty keeps
   // the patient record rendering.
   const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
-    prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }).catch(() => null),
+    prisma.user.findUnique({ where: { id: patientId }, select: { name: true, email: true, phone: true, createdAt: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
-      select: { track: true, trackLabel: true, diagnosis: true, therapyStatus: true },
+      select: {
+        track: true, trackLabel: true, diagnosis: true, therapyStatus: true,
+        patientId: true, dateOfBirth: true, gender: true, preferredLanguage: true,
+        occupation: true, maritalStatus: true,
+        country: true, state: true, city: true, addressLine1: true, addressLine2: true, postalCode: true,
+        emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+      },
     }).catch(() => null),
     prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30, select: { userId: true, mood: true, createdAt: true } }).catch(() => []),
     prisma.appointment.findMany({
@@ -611,6 +670,26 @@ export async function getExpertPatientProfile(
   return {
     patientId,
     name: user.name ?? 'Patient',
+    contact: {
+      code: profile?.patientId ?? null,
+      email: user.email ?? null,
+      phone: user.phone ?? null,
+      dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,
+      gender: profile?.gender ?? null,
+      preferredLanguage: profile?.preferredLanguage ?? null,
+      occupation: profile?.occupation ?? null,
+      maritalStatus: profile?.maritalStatus ?? null,
+      country: profile?.country ?? 'IN',
+      state: profile?.state ?? null,
+      city: profile?.city ?? null,
+      addressLine1: profile?.addressLine1 ?? null,
+      addressLine2: profile?.addressLine2 ?? null,
+      postalCode: profile?.postalCode ?? null,
+      emergencyName: profile?.emergencyName ?? null,
+      emergencyPhone: profile?.emergencyPhone ?? null,
+      emergencyRelation: profile?.emergencyRelation ?? null,
+      joinedLabel: user.createdAt ? fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null,
+    },
     trackLabel: trackLabelFor(profile?.track?.[0], profile?.trackLabel),
     diagnosis: profile?.diagnosis ?? undefined,
     therapyStatus: profile?.therapyStatus ?? undefined,
@@ -649,7 +728,7 @@ export async function getExpertPatientProfile(
         type: t.type,
         frequencyLabel: frequencyChip(t.frequency),
         timesLabel: timesOfDayChip(t.timesOfDay),
-        dueLabel: t.dueDate ? t.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined,
+        dueLabel: t.dueDate ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' }) : undefined,
         done: isDoneForPeriod(t.completedAt, t.frequency),
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       })),
@@ -1149,7 +1228,7 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
       dayLabel: fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
       timeLabel: fmtIST(d, { hour: 'numeric', minute: '2-digit' }),
       monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
-      monthLabel: d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+      monthLabel: fmtIST(d, { month: 'long', year: 'numeric' }),
       year: d.getFullYear(),
       patientName: r.patient.name ?? 'Patient',
       service,
@@ -1399,7 +1478,7 @@ export async function getAvailabilityExceptions(therapistProfileId: string): Pro
   return rows.map((r) => ({
     id: r.id,
     date: r.date,
-    dateLabel: r.date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+    dateLabel: fmtIST(r.date, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
     fullDayOff: r.fullDayOff,
     hoursOff: [...r.hoursOff].sort((a, b) => a - b),
   }))
@@ -1680,21 +1759,13 @@ export async function adminRemoveSupervision(linkId: string): Promise<void> {
   await prisma.supervisionLink.delete({ where: { id: linkId } }).catch(() => undefined)
 }
 
-// ── Patient's weekly AI brief, reused on the expert side ────────────────────
-// The expert "co-pilot brief" is the SAME weekly insight the patient sees on
-// their dashboard, so both sides work from one narrative.
-export async function getPatientWeeklyInsight(
-  patientId: string,
-): Promise<{ title: string; body: string } | null> {
-  const row = await prisma.aiInsight.findFirst({
-    where: { userId: patientId, kind: 'WEEKLY' },
-    orderBy: { createdAt: 'desc' },
-    select: { title: true, body: true },
-  }).catch(() => null)
-  return row ? { title: row.title, body: row.body } : null
-}
+// The clinician's weekly view of a patient is NOT the patient's own AI insight
+// relabelled — it is computed from session notes, mood check-ins and task
+// adherence in lib/patientSummary.ts, so every figure traces to the record.
 
 // ── Blogs (clinician-authored, published to the public /blog) ────────────────
+
+export type BlogReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 
 export type ExpertBlogView = {
   slug: string
@@ -1703,6 +1774,10 @@ export type ExpertBlogView = {
   tags: string[]
   readTime: string
   published: boolean
+  /** Where the post sits with the editorial team. */
+  reviewStatus: BlogReviewStatus
+  /** An admin's reason for sending it back, shown to the author. */
+  reviewNote: string | null
   dateLabel: string
   paragraphs: number
   coverImage: string | null
@@ -1744,25 +1819,55 @@ function cleanCover(cover?: string | null): string | null {
   return c
 }
 
+/**
+ * Blog-review columns, created on demand so submission works on a database that
+ * hasn't had 0037 applied by hand. Idempotent; a no-op once present.
+ */
+let blogReviewSchemaReady = false
+export async function ensureBlogReviewSchema(): Promise<void> {
+  if (blogReviewSchemaReady) return
+  const stmts = [
+    `ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewStatus" TEXT NOT NULL DEFAULT 'APPROVED'`,
+    `ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewNote" TEXT`,
+    `ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "submittedAt" TIMESTAMP(3)`,
+    `ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewedAt" TIMESTAMP(3)`,
+    `ALTER TABLE "BlogPost" ADD COLUMN IF NOT EXISTS "reviewedByName" TEXT`,
+    `CREATE INDEX IF NOT EXISTS "BlogPost_reviewStatus_idx" ON "BlogPost"("reviewStatus")`,
+  ]
+  for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
+  blogReviewSchemaReady = true
+}
+
 /** This clinician's own blog posts, newest first. Never throws (degrades to []). */
 export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogView[]> {
-  let rows: Awaited<ReturnType<typeof prisma.blogPost.findMany>>
   try {
-    rows = await prisma.blogPost.findMany({ where: { authorId }, orderBy: { publishedAt: 'desc' } })
+    await ensureBlogReviewSchema()
+    // Narrow select: a column missing on an un-migrated database would otherwise
+    // throw and hide every post behind the [] fallback.
+    const rows = await prisma.blogPost.findMany({
+      where: { authorId },
+      orderBy: { publishedAt: 'desc' },
+      select: {
+        slug: true, title: true, excerpt: true, tags: true, readTime: true, published: true,
+        reviewStatus: true, reviewNote: true, publishedAt: true, content: true, coverImage: true,
+      },
+    })
+    return rows.map((r) => ({
+      slug: r.slug,
+      title: r.title,
+      excerpt: r.excerpt,
+      tags: r.tags,
+      readTime: r.readTime,
+      published: r.published,
+      reviewStatus: (r.reviewStatus ?? 'APPROVED') as BlogReviewStatus,
+      reviewNote: r.reviewNote ?? null,
+      dateLabel: fmtIST(r.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+      paragraphs: r.content.length,
+      coverImage: r.coverImage ?? null,
+    }))
   } catch {
     return []
   }
-  return rows.map((r) => ({
-    slug: r.slug,
-    title: r.title,
-    excerpt: r.excerpt,
-    tags: r.tags,
-    readTime: r.readTime,
-    published: r.published,
-    dateLabel: r.publishedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-    paragraphs: r.content.length,
-    coverImage: r.coverImage ?? null,
-  }))
 }
 
 /** One of this clinician's own posts by slug, for editing. Ownership-gated. Never throws. */
@@ -1811,6 +1916,9 @@ export async function createExpertBlogPost(
   const v = validateBlog(input)
   if (!v.ok) return v
   try {
+    await ensureBlogReviewSchema()
+    // A clinician's post is SUBMITTED, not published: it goes to the admin
+    // review queue and stays off the public blog until it's approved.
     const post = await prisma.blogPost.create({
       data: {
         slug: slugify(v.title),
@@ -1823,12 +1931,14 @@ export async function createExpertBlogPost(
         tags: v.tags,
         coverImage: v.coverImage,
         readTime: estimateReadTime(v.paragraphs),
-        published: true,
+        published: false,
+        reviewStatus: 'PENDING',
+        submittedAt: new Date(),
       },
     })
     return { ok: true, slug: post.slug }
   } catch {
-    return { ok: false, error: 'Could not publish the post.' }
+    return { ok: false, error: 'Could not submit the post.' }
   }
 }
 
@@ -1838,11 +1948,20 @@ export async function updateExpertBlogPost(
   slug: string,
   input: CreateBlogInput,
 ): Promise<{ ok: boolean; slug?: string; error?: string }> {
-  const existing = await prisma.blogPost.findUnique({ where: { slug }, select: { authorId: true } })
+  await ensureBlogReviewSchema().catch(() => {})
+  const existing = await prisma.blogPost.findUnique({
+    where: { slug },
+    select: { authorId: true, published: true },
+  })
   if (!existing || existing.authorId !== ctx.userId) return { ok: false, error: 'Post not found.' }
   const v = validateBlog(input)
   if (!v.ok) return v
   try {
+    // Any edit goes back through review. A post that is already live stays live
+    // with the new text — pulling a published article off the site over a typo
+    // fix would be worse than an admin seeing it a few hours later — but it
+    // re-enters the queue so the change is always seen. A post still awaiting
+    // approval simply stays pending.
     await prisma.blogPost.update({
       where: { slug },
       data: {
@@ -1852,6 +1971,11 @@ export async function updateExpertBlogPost(
         tags: v.tags,
         coverImage: v.coverImage,
         readTime: estimateReadTime(v.paragraphs),
+        reviewStatus: 'PENDING',
+        reviewNote: null,
+        submittedAt: new Date(),
+        reviewedAt: null,
+        reviewedByName: null,
       },
     })
     return { ok: true, slug }

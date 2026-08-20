@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Trash2 } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import { expertAssignGuidedTrack, expertUnassignGuidedTrack } from '@/app/(dashboard)/expert/media/actions'
+import { fmtIST } from '@/lib/tz'
 
 const charcoal = '#1C2B3A'
 const teal = '#2C7A6B'
@@ -32,7 +33,7 @@ export function AssignGuidedTrack({
   const run = (fn: () => Promise<{ ok: boolean; error?: string }>, ok: string) =>
     start(async () => { const r = await fn(); if (r.ok) { toast.success(ok); router.refresh() } else toast.error(r.error ?? 'Something went wrong.') })
 
-  const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No expiry'
+  const fmt = (iso: string | null) => iso ? fmtIST(new Date(iso), { day: 'numeric', month: 'short', year: 'numeric' }) : 'No expiry'
 
   return (
     <div className="card">

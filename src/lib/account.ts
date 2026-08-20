@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId, getPrivacy } from '@/lib/patient'
 import { tierForMonths, firstNameFrom } from '@/lib/dashboard'
+import { fmtIST } from '@/lib/tz'
 
 /**
  * Account-area data (plan/billing, care category, privacy, medications). Same
@@ -44,7 +45,7 @@ const CATEGORY_LABEL: Record<string, CareCategoryName> = {
 }
 
 function fmtDate(d: Date): string {
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  return fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export async function getAccount(): Promise<Account> {
@@ -155,8 +156,15 @@ export type PatientProfileEdit = {
   photoUrl: string | null
   gender: string | null
   dateOfBirth: string | null // yyyy-mm-dd for the date input
+  country: string // ISO alpha-2, 'IN' by default
   state: string | null
+  city: string | null
+  addressLine1: string | null
+  addressLine2: string | null
+  postalCode: string | null
   preferredLanguage: string | null
+  occupation: string | null
+  maritalStatus: string | null
   emergencyName: string | null
   emergencyPhone: string | null
   emergencyRelation: string | null
@@ -173,7 +181,9 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
         .findUnique({
           where: { userId },
           select: {
-            gender: true, dateOfBirth: true, state: true, preferredLanguage: true,
+            gender: true, dateOfBirth: true, country: true, state: true, city: true,
+            addressLine1: true, addressLine2: true, postalCode: true,
+            preferredLanguage: true, occupation: true, maritalStatus: true,
             emergencyName: true, emergencyPhone: true, emergencyRelation: true,
           },
         })
@@ -186,8 +196,15 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
       photoUrl: user?.image ?? null,
       gender: profile?.gender ?? null,
       dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,
+      country: profile?.country ?? 'IN',
       state: profile?.state ?? null,
+      city: profile?.city ?? null,
+      addressLine1: profile?.addressLine1 ?? null,
+      addressLine2: profile?.addressLine2 ?? null,
+      postalCode: profile?.postalCode ?? null,
       preferredLanguage: profile?.preferredLanguage ?? null,
+      occupation: profile?.occupation ?? null,
+      maritalStatus: profile?.maritalStatus ?? null,
       emergencyName: profile?.emergencyName ?? null,
       emergencyPhone: profile?.emergencyPhone ?? null,
       emergencyRelation: profile?.emergencyRelation ?? null,

@@ -290,7 +290,16 @@ model PatientProfile {
   // Indian state / UT the patient lives in (free text, e.g. "Karnataka"). Used
   // for admin/clinician filtering and regional reporting.
   state             String?
+  // Postal address. Kept as separate parts (not one blob) so admin exports and
+  // any future courier/dispatch integration can read the city and PIN directly.
+  addressLine1      String?
+  addressLine2      String?
+  city              String?
+  postalCode        String?
   preferredLanguage String?
+  // Context a clinician asks for in intake anyway, kept on the record instead.
+  occupation        String?
+  maritalStatus     String?
 
   // Emergency contact
   emergencyName     String?
@@ -397,6 +406,18 @@ model TherapistProfile {
   // URLs or small inline data URLs, same convention as blog cover images.
   documentUrls    String[]
   photoUrl        String?
+  // Contact + location, mirroring the patient record so admin has one complete
+  // view of everyone on the platform. The login phone/email live on User.
+  dateOfBirth     DateTime?
+  country         String   @default("IN") // ISO 3166-1 alpha-2
+  state           String?
+  city            String?
+  addressLine1    String?
+  addressLine2    String?
+  postalCode      String?
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
   createdAt       DateTime @default(now())
 
   appointments           Appointment[]           @relation("TherapistAppointments")
@@ -934,12 +955,22 @@ model BlogPost {
   // (small uploads). When null, a tag-based stock cover is used at render time.
   coverImage  String?  @db.Text
   published   Boolean  @default(true)
+  // Editorial state: PENDING (a clinician submitted it, awaiting an admin),
+  // APPROVED, or REJECTED. Defaults to APPROVED so seeded and admin-written
+  // posts — which need no review — behave exactly as before.
+  reviewStatus String  @default("APPROVED")
+  // Why an admin sent it back, shown to the author so they can fix it.
+  reviewNote   String? @db.Text
+  submittedAt  DateTime?
+  reviewedAt   DateTime?
+  reviewedByName String?
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([slug])
   @@index([publishedAt])
+  @@index([reviewStatus])
 }
 
 // A Reddit-style community discussion. Visible to everyone; only members may

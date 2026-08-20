@@ -24,22 +24,42 @@ import {
   sendForm, createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
-import { notify, markAllRead } from '@/lib/notifications'
+import { notify, notifyMany, markAllRead } from '@/lib/notifications'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { normalizeTags } from '@/data/tags'
+import { normalizeCountry } from '@/lib/countries'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 
-/** Publish a blog post to the public /blog under this clinician's byline. */
+/**
+ * Submit a post for the public /blog under this clinician's byline. It is NOT
+ * published on submission — an admin reviews it first.
+ */
 export async function publishBlog(input: CreateBlogInput): Promise<ExpertActionResult> {
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await createExpertBlogPost(ctx, { ...input, tags: normalizeTags(input.tags ?? []) })
   if (res.ok) {
+    await notifyAdminsOfSubmission(ctx.therapistName, input.title)
     revalidatePath('/expert/blogs')
-    revalidatePath('/blog')
+    revalidatePath('/admin/content')
   }
   return res
+}
+
+/** Tell the admins there's something in the blog review queue. Best-effort. */
+async function notifyAdminsOfSubmission(author: string | null, title: string): Promise<void> {
+  try {
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
+    await notifyMany(admins.map((a) => a.id), {
+      type: 'announcement',
+      title: 'Blog post awaiting review',
+      body: `${author ?? 'A clinician'} submitted "${title.trim().slice(0, 90)}"`,
+      href: '/admin/content',
+    })
+  } catch {
+    /* the queue is still visible in the admin console either way */
+  }
 }
 
 /** Edit one of this clinician's own blog posts. */
@@ -48,7 +68,9 @@ export async function updateBlog(slug: string, input: CreateBlogInput): Promise<
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await updateExpertBlogPost(ctx, slug, { ...input, tags: normalizeTags(input.tags ?? []) })
   if (res.ok) {
+    await notifyAdminsOfSubmission(ctx.therapistName, input.title)
     revalidatePath('/expert/blogs')
+    revalidatePath('/admin/content')
     revalidatePath('/blog')
     revalidatePath(`/blog/${slug}`)
   }
@@ -360,6 +382,18 @@ export type TherapistProfileInput = {
   languages?: string // comma-separated
   specializations?: string // comma-separated
   photo?: string | null // data URL, '' / null to remove, omit to leave unchanged
+  // Contact + location. Visible to the admin team, not to patients.
+  phone?: string | null
+  dateOfBirth?: string | null // yyyy-mm-dd
+  country?: string | null
+  state?: string | null
+  city?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  postalCode?: string | null
+  emergencyName?: string | null
+  emergencyPhone?: string | null
+  emergencyRelation?: string | null
 }
 
 /**
@@ -380,9 +414,32 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
     return { ok: false, error: 'Use a JPG/PNG/WebP image under 2 MB.' }
   }
 
+  // Trim to a single spaced line, or null when cleared. undefined = leave alone.
+  const clean = (v: string | null | undefined, max: number): string | null | undefined => {
+    if (v === undefined) return undefined
+    const t = (v ?? '').trim()
+    return t ? t.replace(/\s+/g, ' ').slice(0, max) : null
+  }
+
+  let dob: Date | null | undefined = undefined
+  if (input.dateOfBirth !== undefined) {
+    if (!input.dateOfBirth) dob = null
+    else {
+      const d = new Date(input.dateOfBirth)
+      if (Number.isNaN(d.getTime()) || d.getTime() > Date.now()) {
+        return { ok: false, error: 'Enter a valid date of birth.' }
+      }
+      dob = d
+    }
+  }
+
   try {
-    if (name !== undefined) {
-      await prisma.user.update({ where: { id: ctx.userId }, data: { name } })
+    const userData: Record<string, unknown> = {}
+    if (name !== undefined) userData.name = name
+    const phone = clean(input.phone, 20)
+    if (phone !== undefined) userData.phone = phone
+    if (Object.keys(userData).length) {
+      await prisma.user.update({ where: { id: ctx.userId }, data: userData })
     }
 
     const data: Record<string, unknown> = {}
@@ -392,6 +449,16 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
     if (input.languages !== undefined) data.languages = toList(input.languages)
     if (input.specializations !== undefined) data.specializations = toList(input.specializations)
     if (photo !== undefined) data.photoUrl = photo
+    if (dob !== undefined) data.dateOfBirth = dob
+    if (input.country !== undefined) data.country = normalizeCountry(input.country)
+    const state = clean(input.state, 60); if (state !== undefined) data.state = state
+    const city = clean(input.city, 60); if (city !== undefined) data.city = city
+    const a1 = clean(input.addressLine1, 120); if (a1 !== undefined) data.addressLine1 = a1
+    const a2 = clean(input.addressLine2, 120); if (a2 !== undefined) data.addressLine2 = a2
+    const pin = clean(input.postalCode, 16); if (pin !== undefined) data.postalCode = pin
+    const emN = clean(input.emergencyName, 80); if (emN !== undefined) data.emergencyName = emN
+    const emP = clean(input.emergencyPhone, 20); if (emP !== undefined) data.emergencyPhone = emP
+    const emR = clean(input.emergencyRelation, 40); if (emR !== undefined) data.emergencyRelation = emR
     if (Object.keys(data).length) {
       await prisma.therapistProfile.update({ where: { id: ctx.therapistProfileId }, data })
     }
@@ -399,7 +466,10 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
     revalidatePath('/expert/profile')
     revalidatePath('/expert')
     return { ok: true }
-  } catch {
-    return { ok: false, error: 'Could not save your profile.' }
+  } catch (e) {
+    const msg = e instanceof Error && /Unique constraint/i.test(e.message)
+      ? 'That phone number is already in use.'
+      : 'Could not save your profile.'
+    return { ok: false, error: msg }
   }
 }

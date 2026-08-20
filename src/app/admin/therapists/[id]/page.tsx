@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getAdminSession, getClinicianDetail, getClinicianRoster, getTherapistTasks } from '@/lib/admin'
 import { TherapistEditor } from '@/components/admin/TherapistEditor'
 import { ClinicianRoster } from '@/components/admin/ClinicianRoster'
+import { PersonDetailsCard } from '@/components/ui/PersonDetailsCard'
 import { TherapistTasks } from '@/components/admin/TherapistTasks'
 import { DeleteAccount } from '@/components/admin/DeleteAccount'
 import { expertCode } from '@/lib/ids'
@@ -33,6 +34,13 @@ export default async function AdminClinicianDetailPage({ params }: { params: Pro
         </div>
         <Link href={`/admin/money/${c.profileId}`} className="btn" style={{ border: '1.5px solid #E2E8F0' }}>Earnings &amp; statements →</Link>
       </div>
+      <PersonDetailsCard
+        contact={c.contact}
+        name={c.name}
+        title="Contact & address"
+        codeLabel="Registration no."
+        note="Everything on file for this clinician. Patients never see this."
+      />
       <TherapistEditor c={c} />
       <TherapistTasks therapistUserId={c.userId} profileId={c.profileId} tasks={tasks} />
       {roster && <ClinicianRoster roster={roster} />}
