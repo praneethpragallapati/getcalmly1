@@ -1,6 +1,6 @@
 import CommunityFeed from '@/components/community/CommunityFeed'
 import { getCommunityPosts, getCommunityStats, getMyCommunityPostIds } from '@/lib/community'
-import { getCommunityPolls } from '@/lib/polls'
+import { getCommunityPolls, needsAnswer } from '@/lib/polls'
 import { getSessionUserId } from '@/lib/patient'
 import { SectionTabs } from '@/components/ui/SectionTabs'
 import { REAL_TALK_TABS } from '@/data/sectionTabs'
@@ -16,7 +16,7 @@ export default async function CommunityPage() {
     getCommunityPolls(userId),
   ])
 
-  const openPolls = polls.filter((p) => !p.expired && p.myVote === null).length
+  const openPolls = polls.filter(needsAnswer).length
 
   return (
     <>

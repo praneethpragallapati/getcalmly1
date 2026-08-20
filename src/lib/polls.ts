@@ -17,6 +17,36 @@ export type PollView = {
   pinned: boolean
 }
 
+/** Whether this member has recorded at least one choice. */
+export const hasVoted = (p: PollView): boolean => p.myVotes.length > 0
+
+/**
+ * Whether the member still has business with this poll — i.e. it should stay on
+ * screen.
+ *
+ * The subtlety is multi-select. `myVote` is set the instant the FIRST option is
+ * chosen, and treating that as "answered" pulled a multi-select poll off the
+ * page after one tap, before the member could pick their other options. There is
+ * no moment a multi-select poll is provably "done", so while it is open it stays
+ * put and the member simply stops tapping. A single-select poll is finished the
+ * moment it is answered, but stays visible too — that is how you see the result
+ * you just contributed to.
+ */
+export const isPollOpen = (p: PollView): boolean => !p.expired
+
+/** Polls that still want an answer — what a badge should count. */
+export const needsAnswer = (p: PollView): boolean => !p.expired && !hasVoted(p)
+
+/** Unanswered first, pinned first within each group, newest first after that
+ *  (the source list is already createdAt-desc and the sort is stable). */
+export function orderPolls(polls: PollView[]): PollView[] {
+  return [...polls].sort(
+    (a, b) =>
+      Number(needsAnswer(b)) - Number(needsAnswer(a)) ||
+      Number(b.pinned) - Number(a.pinned),
+  )
+}
+
 type PollWithVotes = {
   id: string
   question: string

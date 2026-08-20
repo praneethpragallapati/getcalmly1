@@ -1,21 +1,33 @@
 'use client'
 
+import { useRef } from 'react'
 import Link from 'next/link'
-import type { PollView } from '@/lib/polls'
+import { needsAnswer, isPollOpen, type PollView } from '@/lib/polls'
 import { PollBody } from '@/components/community/PollCard'
 
 const charcoal = '#1C2B3A'
 
 /**
- * One Calm Club poll on the patient home page, shown with its options. We show
- * the most recent poll the patient hasn't voted on yet; once they vote, the data
- * refreshes and the next unvoted poll takes its place. Polls they've already
- * answered (or that have closed) are never shown again here.
+ * One Calm Club poll on the patient home page.
+ *
+ * The card sticks to whichever poll it first showed, for as long as that poll is
+ * open. Picking an option triggers a server refresh, and choosing the poll fresh
+ * each render meant a multi-select poll was swapped out after the first tap —
+ * the member never got to pick their remaining options. Staying put also means a
+ * single-select voter sees the result they just contributed to; the next poll
+ * comes up on their next visit.
  */
 export function HomePolls({ polls, canVote }: { polls: PollView[]; canVote: boolean }) {
-  // Most recent poll still open and not yet voted on by this patient.
-  const poll = polls.find((p) => p.myVote === null && !p.expired)
+  // Survives the re-render a vote causes; a ref (not state) because changing it
+  // must never itself schedule a render.
+  const shownId = useRef<string | null>(null)
+
+  const pinned = shownId.current ? polls.find((p) => p.id === shownId.current) : undefined
+  const poll = pinned && isPollOpen(pinned)
+    ? pinned
+    : polls.find(needsAnswer) ?? null
   if (!poll) return null
+  shownId.current = poll.id
 
   return (
     <div className="card">
