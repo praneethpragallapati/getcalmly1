@@ -1568,6 +1568,9 @@
 }
 
 @media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
   .cat-options {
     grid-template-columns: 1fr;
   }
@@ -1851,9 +1854,6 @@
   }
   .app-topbar {
     padding-left: 72px;
-  }
-  .hero {
-    grid-template-columns: 1fr;
   }
   .grid-4 {
     grid-template-columns: 1fr 1fr;
