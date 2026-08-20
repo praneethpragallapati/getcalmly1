@@ -183,6 +183,12 @@ export type ClinicianDetail = {
     avgMinutesTogether: number | null
     avgScheduledMins: number | null
     noShowCount: number // completed sessions the clinician never joined
+    // Volume: how much they work, and how deep the work goes per patient.
+    completedTotal: number
+    patientsSeen: number // distinct patients with at least one completed session
+    avgSessionsPerPatient: number | null // completedTotal / patientsSeen
+    sessionsPerWeek: number | null // recent throughput, last 12 weeks
+    weeksMeasured: number // weeks the per-week figure is averaged over
   }
 }
 
@@ -286,6 +292,11 @@ export async function getClinicianDelivery(profileId: string): Promise<Clinician
     avgMinutesTogether: null,
     avgScheduledMins: null,
     noShowCount: 0,
+    completedTotal: 0,
+    patientsSeen: 0,
+    avgSessionsPerPatient: null,
+    sessionsPerWeek: null,
+    weeksMeasured: 0,
   }
   await ensureSessionPresenceSchema()
   try {
@@ -325,6 +336,28 @@ export async function getClinicianDelivery(profileId: string): Promise<Clinician
 
     const avg = (xs: number[]) => (xs.length ? xs.reduce((t, v) => t + v, 0) / xs.length : null)
     const round1 = (v: number | null) => (v === null ? null : Math.round(v * 10) / 10)
+
+    // Volume counted over ALL completed sessions (not the 200-row presence
+    // sample above), so "sessions per patient" matches the real ledger.
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+    const WINDOW_WEEKS = 12
+    const windowStart = new Date(Date.now() - WINDOW_WEEKS * WEEK_MS)
+    const completedWhere = { therapistId: profileId, status: 'COMPLETED' as const }
+
+    const [completedTotal, distinctPatients, firstSession, recentCount] = await Promise.all([
+      prisma.appointment.count({ where: completedWhere }),
+      prisma.appointment.findMany({ where: completedWhere, distinct: ['patientId'], select: { patientId: true } }),
+      prisma.appointment.findFirst({ where: completedWhere, orderBy: { scheduledAt: 'asc' }, select: { scheduledAt: true } }),
+      prisma.appointment.count({ where: { ...completedWhere, scheduledAt: { gte: windowStart } } }),
+    ])
+
+    const patientsSeen = distinctPatients.length
+    // Average over the weeks they've actually been practising, capped at the
+    // window — otherwise someone two weeks in looks like they barely work.
+    const weeksActive = firstSession
+      ? Math.max(1, Math.min(WINDOW_WEEKS, Math.ceil((Date.now() - firstSession.scheduledAt.getTime()) / WEEK_MS)))
+      : 0
+
     return {
       sessionsMeasured: togethers.length,
       avgJoinDelayMins: round1(avg(delays)),
@@ -332,6 +365,11 @@ export async function getClinicianDelivery(profileId: string): Promise<Clinician
       avgMinutesTogether: round1(avg(togethers)),
       avgScheduledMins: round1(avg(scheduled)),
       noShowCount: noShow,
+      completedTotal,
+      patientsSeen,
+      avgSessionsPerPatient: patientsSeen > 0 ? Math.round((completedTotal / patientsSeen) * 10) / 10 : null,
+      sessionsPerWeek: weeksActive > 0 ? Math.round((recentCount / weeksActive) * 10) / 10 : null,
+      weeksMeasured: weeksActive,
     }
   } catch {
     return empty

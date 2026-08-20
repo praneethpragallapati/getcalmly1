@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Star, X, UserPlus, Plus, Trash2, Clock, Timer, CalendarCheck } from 'lucide-react'
+import { Check, Star, X, UserPlus, Plus, Trash2, Clock, Timer, CalendarCheck, CalendarRange, Users } from 'lucide-react'
 import { updateTherapistSettings, assignSupervisor, removeSupervisionLink, saveCompensationFields } from '@/app/admin/actions'
 import type { ClinicianDetail } from '@/lib/admin'
 import type { CompensationField } from '@/lib/compensation'
@@ -127,6 +127,16 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
                 value={c.delivery.onTimePct === null ? '—' : `${c.delivery.onTimePct}%`}
                 label="joined on time"
               />
+              <Stat
+                icon={<CalendarRange size={15} style={{ color: '#5A6A7A' }} />}
+                value={c.delivery.sessionsPerWeek === null ? '—' : String(c.delivery.sessionsPerWeek)}
+                label={c.delivery.weeksMeasured > 0 ? `sessions / week · last ${c.delivery.weeksMeasured} wk${c.delivery.weeksMeasured === 1 ? '' : 's'}` : 'sessions / week'}
+              />
+              <Stat
+                icon={<Users size={15} style={{ color: '#5A6A7A' }} />}
+                value={c.delivery.avgSessionsPerPatient === null ? '—' : String(c.delivery.avgSessionsPerPatient)}
+                label="sessions / patient"
+              />
             </div>
             <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
               {c.delivery.sessionsMeasured > 0
@@ -136,6 +146,13 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
                 <span style={{ color: '#C0504B', fontWeight: 700 }}>
                   {' '}· {c.delivery.noShowCount} session{c.delivery.noShowCount === 1 ? '' : 's'} they never joined.
                 </span>
+              )}
+              {c.delivery.completedTotal > 0 && (
+                <>
+                  {' '}Volume is from all {c.delivery.completedTotal} completed session
+                  {c.delivery.completedTotal === 1 ? '' : 's'} across {c.delivery.patientsSeen} patient
+                  {c.delivery.patientsSeen === 1 ? '' : 's'}.
+                </>
               )}
             </p>
           </div>
