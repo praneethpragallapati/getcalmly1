@@ -348,7 +348,7 @@ export default function RealTalkHub({
                   <span style={{ fontWeight: 800, color: CHARCOAL, fontSize: 15 }}>{t.label}</span>
                   <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#8B6FC9', background: 'rgba(139,111,201,.12)', padding: '2px 8px', borderRadius: 999 }}>Soon</span>
                 </div>
-                <div style={{ fontSize: 12.5, color: '#667585', marginTop: 2 }}>{t.sub}</div>
+                <div style={{ fontSize: 12.5, color: '#5F6E7D', marginTop: 2 }}>{t.sub}</div>
               </div>
             </div>
           ))}
@@ -420,7 +420,7 @@ function SecondaryRead({ post }: { post: BlogPostView }) {
       <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: CORAL, marginBottom: 6 }}>{post.tags[0]}</span>
         <h4 style={{ fontFamily: HEAD, fontSize: 22, fontWeight: 700, color: CHARCOAL, lineHeight: 1.1, letterSpacing: '-0.3px', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.title}</h4>
-        <p style={{ fontSize: 12, color: '#667585', margin: 'auto 0 0', paddingTop: 8 }}>{post.author} · {post.readTime}</p>
+        <p style={{ fontSize: 12, color: '#5F6E7D', margin: 'auto 0 0', paddingTop: 8 }}>{post.author} · {post.readTime}</p>
       </div>
     </Link>
   )

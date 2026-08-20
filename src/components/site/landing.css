@@ -13,8 +13,8 @@
   --green-ink:#276B4B;
   --charcoal:#1C2B3A; --charcoal-m:#2E3E50; --charcoal-l:#5A6A7A;
   --bg:#FFFCFA; --bg-warm:#FFFCFA; --white:#FFFFFF;
-  --border:rgba(200,85,61,0.1); --gray:#667585; --gray-l:#EDECEA;
-  --green:#3D9E72; --green-pale:#E5F4EE;
+  --border:rgba(200,85,61,0.1); --gray:#5F6E7D; --gray-l:#EDECEA;
+  --green:#3D9E72; --green-pale:#E5F4EE; --gold-pale:#FFF8E7;
   --gold:#C9973A;
   /* Gold at 9-12px needs a darker cut: #C9973A is 2.6:1 on white. */
   --gold-ink:#8D6A29;
@@ -98,16 +98,21 @@
   color:var(--charcoal);margin-bottom:16px;transform:scaleX(.9);transform-origin:left;}
 .lp-page .sec-h2 span{color:var(--coral);font-weight:900;}
 .lp-page .sec-p{font-size:17px;font-weight:300;color:var(--charcoal-l);line-height:1.85;max-width:480px;}
+/* The hero gradient carries the whole palette rather than one hue at two
+   opacities: coral falling from the top, gold low-right, green low-left, over a
+   warm-to-cream vertical base. Every layer stays light enough that #111A25
+   headline copy keeps a wide margin over AA. */
 .lp-page .hero{min-height:calc(100vh - 84px);display:grid;place-items:center;padding:64px 6% 48px;position:relative;overflow:hidden;
   background:
-    radial-gradient(ellipse 95% 60% at 50% 0%,rgba(200,85,61,.34) 0%,transparent 62%),
-    radial-gradient(ellipse 55% 60% at 92% 88%,rgba(200,85,61,.12) 0%,transparent 60%),
-    #FFFCFA;}
+    radial-gradient(ellipse 92% 58% at 50% -6%,rgba(200,85,61,.46) 0%,rgba(200,85,61,.17) 44%,transparent 70%),
+    radial-gradient(ellipse 62% 58% at 96% 86%,rgba(201,151,58,.22) 0%,transparent 62%),
+    radial-gradient(ellipse 58% 62% at 0% 72%,rgba(61,158,114,.16) 0%,transparent 62%),
+    linear-gradient(180deg,#FFF5F1 0%,#FFFCFA 58%);}
 .lp-page .hero-layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:72px;align-items:center;max-width:1200px;width:100%;position:relative;z-index:1;}
 .lp-page .orb{position:absolute;border-radius:50%;pointer-events:none;}
-.lp-page .orb-1{width:480px;height:480px;top:-100px;right:8%;background:radial-gradient(circle,rgba(193,74,48,.12) 0%,transparent 65%);}
-.lp-page .orb-2{width:320px;height:320px;bottom:-80px;left:-40px;background:radial-gradient(circle,rgba(61,158,114,.10) 0%,transparent 65%);}
-.lp-page .orb-3{width:160px;height:160px;top:35%;left:4%;background:radial-gradient(circle,rgba(193,74,48,.09) 0%,transparent 70%);animation:drift 9s ease-in-out infinite;}
+.lp-page .orb-1{width:520px;height:520px;top:-110px;right:6%;background:radial-gradient(circle,rgba(193,74,48,.18) 0%,transparent 66%);}
+.lp-page .orb-2{width:360px;height:360px;bottom:-90px;left:-50px;background:radial-gradient(circle,rgba(61,158,114,.15) 0%,transparent 66%);}
+.lp-page .orb-3{width:180px;height:180px;top:35%;left:4%;background:radial-gradient(circle,rgba(201,151,58,.14) 0%,transparent 70%);animation:drift 9s ease-in-out infinite;}
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
 .lp-page .hero-left{display:flex;flex-direction:column;align-items:flex-start;min-width:0;}
 .lp-page .hero-pill{display:inline-flex;align-items:center;gap:8px;background:var(--coral-pale);border:1px solid rgba(193,74,48,.3);
@@ -151,7 +156,9 @@
 .lp-page .btn-hero.outline:hover{border-color:var(--coral-ink);color:var(--coral-ink);}
 .lp-page .btn-hero:active{transform:translateY(1px);}
 .lp-page .hero-trust{display:flex;gap:20px;margin-top:28px;animation:rise .7s .34s ease both;}
-.lp-page .ht{font-size:12px;color:var(--gray);display:flex;align-items:center;gap:5px;}
+/* These sit over the hero's green orb, where the shared grey lands at 4.4:1.
+   The trust line is small and load-bearing, so it takes the darker ink. */
+.lp-page .ht{font-size:12px;color:var(--charcoal-l);display:flex;align-items:center;gap:5px;}
 .lp-page .ht::before{content:'✓';color:var(--green-ink);font-weight:700;}
 @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .lp-page .hero-phone{animation:rise .8s .22s ease both;position:relative;}

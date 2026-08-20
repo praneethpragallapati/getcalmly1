@@ -239,7 +239,7 @@ export default function EnterprisePage() {
                   <span style={{ width: 26, height: 26, borderRadius: 8, background: charcoal, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 13, fontFamily: "'Big Shoulders Display', sans-serif" }}>G</span>
                   <span style={{ fontSize: 14, fontWeight: 700, color: charcoal }}>Wellbeing Overview</span>
                 </div>
-                <span style={{ fontSize: 11.5, color: '#667585', background: '#F2F5F8', padding: '5px 10px', borderRadius: 20, fontWeight: 600 }}>Last 30 days ▾</span>
+                <span style={{ fontSize: 11.5, color: '#5F6E7D', background: '#F2F5F8', padding: '5px 10px', borderRadius: 20, fontWeight: 600 }}>Last 30 days ▾</span>
               </div>
 
               {/* KPI row */}
@@ -250,7 +250,7 @@ export default function EnterprisePage() {
                   ['Wellbeing index', '7.4', '+0.6 vs last mo', teal],
                 ].map(([label, val, sub, c]) => (
                   <div key={label} style={{ background: '#fff', padding: '18px 18px 16px' }}>
-                    <p style={{ fontSize: 11.5, color: '#667585', fontWeight: 600, marginBottom: 8 }}>{label}</p>
+                    <p style={{ fontSize: 11.5, color: '#5F6E7D', fontWeight: 600, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: charcoal, lineHeight: 1 }}>{val}</p>
                     <p style={{ fontSize: 11.5, color: c as string, fontWeight: 700, marginTop: 6 }}>{sub}</p>
                   </div>
@@ -261,7 +261,7 @@ export default function EnterprisePage() {
               <div style={{ padding: '18px 20px', borderTop: '1px solid rgba(0,0,0,.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <p style={{ fontSize: 12.5, fontWeight: 700, color: charcoal }}>Engagement trend</p>
-                  <span style={{ fontSize: 11, color: '#667585' }}>weekly active</span>
+                  <span style={{ fontSize: 11, color: '#5F6E7D' }}>weekly active</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 78 }}>
                   {[38, 46, 42, 55, 61, 58, 72, 80].map((h, i) => (
@@ -272,7 +272,7 @@ export default function EnterprisePage() {
 
               {/* Themes row */}
               <div style={{ padding: '16px 20px 20px', borderTop: '1px solid rgba(0,0,0,.06)' }}>
-                <p style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 12 }}>Top themes raised <span style={{ fontWeight: 400, color: '#667585' }}>· anonymised</span></p>
+                <p style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 12 }}>Top themes raised <span style={{ fontWeight: 400, color: '#5F6E7D' }}>· anonymised</span></p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
                   {[
                     ['Workload & stress', 34, coral],
@@ -284,13 +284,13 @@ export default function EnterprisePage() {
                       <div style={{ flex: 1, height: 7, background: '#EEF1F4', borderRadius: 10, overflow: 'hidden' }}>
                         <div style={{ width: `${pct}%`, height: '100%', background: c as string, borderRadius: 10 }} />
                       </div>
-                      <span style={{ fontSize: 11.5, color: '#667585', fontWeight: 600, width: 32, textAlign: 'right' }}>{pct}%</span>
+                      <span style={{ fontSize: 11.5, color: '#5F6E7D', fontWeight: 600, width: 32, textAlign: 'right' }}>{pct}%</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: 11.5, color: '#667585', textAlign: 'center', marginTop: 14, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 11.5, color: '#5F6E7D', textAlign: 'center', marginTop: 14, lineHeight: 1.5 }}>
               Illustrative view. Aggregate data only, individual records are never visible to your organisation.
             </p>
           </div>
@@ -493,7 +493,7 @@ export default function EnterprisePage() {
                 }}>
                   {pending ? 'Submitting…' : 'Submit interest →'}
                 </button>
-                <p style={{ fontSize: 12.5, color: '#667585', textAlign: 'center', lineHeight: 1.6 }}>
+                <p style={{ fontSize: 12.5, color: '#5F6E7D', textAlign: 'center', lineHeight: 1.6 }}>
                   Enterprise plans are in development. By submitting, you agree to be contacted about GetCalmly for organisations. See our <Link href="/privacy" style={{ color: coral, fontWeight: 600 }}>Privacy Policy</Link>.
                 </p>
               </form>

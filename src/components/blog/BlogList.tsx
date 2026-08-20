@@ -507,7 +507,7 @@ function AuthorRow({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
         <span style={{ fontWeight: 700, fontSize: 13, color: '#1C2B3A' }}>{post.author}</span>
         <span style={{ fontSize: 12, color: '#5A6A7A' }}>{post.role}</span>
-        <span style={{ fontSize: 11.5, color: '#667585', marginTop: 3 }}>
+        <span style={{ fontSize: 11.5, color: '#5F6E7D', marginTop: 3 }}>
           {post.date} · {post.readTime}
         </span>
       </div>

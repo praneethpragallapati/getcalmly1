@@ -2,8 +2,6 @@
 
 import Link from 'next/link'
 import { SERVICE_ICONS } from '@/components/site/serviceIcons'
-import { FaqSection } from '@/components/site/FaqSection'
-import { SERVICES_FAQ } from '@/data/siteFaq'
 
 // Ordered by how people actually arrive: core 1:1 care first, the medical
 // layer next, then relationships, life-stage, tools, and specialised care.
@@ -212,7 +210,7 @@ export default function ServicesPage() {
                     }}>{it}</span>
                   ))}
                   {b.items.length > 4 && (
-                    <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 50, background: '#F5F7FA', color: '#5C6B7A', fontWeight: 600 }}>
+                    <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 50, background: '#F5F7FA', color: '#5F6E7D', fontWeight: 600 }}>
                       +{b.items.length - 4} more
                     </span>
                   )}
@@ -263,13 +261,6 @@ export default function ServicesPage() {
           </Link>
         </div>
       </section>
-
-      <FaqSection
-        eyebrow="Choosing your care"
-        heading="Not sure which one you need?"
-        items={SERVICES_FAQ}
-        background="#FFFFFF"
-      />
     </div>
   )
 }

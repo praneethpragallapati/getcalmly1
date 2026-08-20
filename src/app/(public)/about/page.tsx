@@ -219,7 +219,7 @@ export default function AboutPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 28, marginBottom: 8 }}>
             {contacts.map((c) => (
               <a key={c.label} href={c.href} style={{ textDecoration: 'none', display: 'block', paddingTop: 24, borderTop: '1px solid rgba(0,0,0,.07)' }}>
-                <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 8 }}>{c.label}</span>
+                <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 8 }}>{c.label}</span>
                 <span style={{ display: 'block', fontSize: 18, fontWeight: 700, color: charcoal, letterSpacing: '-0.2px' }}>{c.value}</span>
               </a>
             ))}
@@ -227,14 +227,14 @@ export default function AboutPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 40, marginTop: 56 }}>
             <div>
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Visit / write to us</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Visit / write to us</p>
               <p style={{ fontSize: 16, color: charcoal, fontWeight: 600, marginBottom: 4 }}>GetCalmly</p>
               <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>
                 316, 11th A Main, Classic Paradise Layout,<br />Begur, Bengaluru 560068, India
               </p>
             </div>
             <div>
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Support hours</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Support hours</p>
               <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>
                 Monday to Saturday<br />9:00 AM to 8:00 PM IST
               </p>
@@ -242,7 +242,7 @@ export default function AboutPage() {
           </div>
 
           <div style={{ marginTop: 48 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 16 }}>Follow along</p>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 16 }}>Follow along</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               {socials.map(([name, url]) => (
                 <a key={name} href={url} target="_blank" rel="noopener noreferrer" style={{

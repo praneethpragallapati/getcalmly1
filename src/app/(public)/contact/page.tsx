@@ -76,7 +76,7 @@ export default function ContactPage() {
             <div style={{ marginBottom: 40 }}>
               {channels.map((c) => (
                 <a key={c.label} href={c.href} className="cchan" style={{ borderTop: c === channels[0] ? 'none' : undefined }}>
-                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 8 }}>{c.label}</span>
+                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 8 }}>{c.label}</span>
                   <span style={{ display: 'block', fontSize: 20, fontWeight: 700, color: charcoal, letterSpacing: '-0.3px', marginBottom: 5 }}>{c.value}</span>
                   <span style={{ display: 'block', fontSize: 14, color: '#5A6A7A', lineHeight: 1.5 }}>{c.note}</span>
                 </a>
@@ -85,13 +85,13 @@ export default function ContactPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Write to us</p>
+                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Write to us</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>
                   316, 11th A Main, Classic Paradise Layout,<br />Begur, Bengaluru 560068, India
                 </p>
               </div>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Support hours</p>
+                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Support hours</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>
                   Monday to Saturday<br />9:00 AM to 8:00 PM IST
                 </p>

@@ -48,7 +48,7 @@ export function ContactForm() {
           <input type="email" className="cfield" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div>
-          <label className="clabel">Phone <span style={{ color: '#667585', fontWeight: 400 }}>(optional)</span></label>
+          <label className="clabel">Phone <span style={{ color: '#5F6E7D', fontWeight: 400 }}>(optional)</span></label>
           <input type="tel" className="cfield" placeholder="+91" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
       </div>
@@ -60,7 +60,7 @@ export function ContactForm() {
         {pending ? 'Sending…' : 'Send message →'}
       </button>
       {err && <p style={{ fontSize: 13, color: coral, textAlign: 'center' }}>{err}</p>}
-      <p style={{ fontSize: 12.5, color: '#667585', textAlign: 'center', lineHeight: 1.6 }}>
+      <p style={{ fontSize: 12.5, color: '#5F6E7D', textAlign: 'center', lineHeight: 1.6 }}>
         By sending, you agree to our{' '}
         <Link href="/privacy" style={{ color: coral, fontWeight: 600 }}>Privacy Policy</Link>.
       </p>

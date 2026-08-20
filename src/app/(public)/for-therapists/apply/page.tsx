@@ -149,7 +149,7 @@ export default function TherapistApplyPage() {
             </div>
             <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Years of experience</label><input name="yearsExp" type="number" min={0} style={inputStyle} placeholder="e.g. 8" /></div>
           </div>
-          <div><label style={labelStyle}>Qualifications</label><input name="qualifications" style={inputStyle} placeholder="e.g. M.Phil Clinical Psychology, M.Sc Psychology" /><p style={{ fontSize: 12, color: '#667585', marginTop: 6 }}>Comma-separated. List degrees and clinical training.</p></div>
+          <div><label style={labelStyle}>Qualifications</label><input name="qualifications" style={inputStyle} placeholder="e.g. M.Phil Clinical Psychology, M.Sc Psychology" /><p style={{ fontSize: 12, color: '#5F6E7D', marginTop: 6 }}>Comma-separated. List degrees and clinical training.</p></div>
         </Section>
 
         <Section n="3" title="Your practice">
@@ -170,7 +170,7 @@ export default function TherapistApplyPage() {
           }}>
             <span style={{ fontSize: 28 }}>📎</span>
             <span style={{ fontSize: 14, fontWeight: 600, color: '#1C2B3A' }}>Click to upload or drag files here</span>
-            <span style={{ fontSize: 12, color: '#667585' }}>Up to 10MB each</span>
+            <span style={{ fontSize: 12, color: '#5F6E7D' }}>Up to 10MB each</span>
             <input
               type="file"
               multiple
@@ -223,7 +223,7 @@ export default function TherapistApplyPage() {
         >
           {pending ? 'Submitting…' : 'Submit application →'}
         </button>
-        <p style={{ fontSize: 12.5, color: '#667585', textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 12.5, color: '#5F6E7D', textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
           Your application is routed directly to our admin team for review. We typically respond within 3–5 working days.
         </p>
       </form>

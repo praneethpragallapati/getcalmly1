@@ -54,7 +54,7 @@ function ChatMock() {
         <span style={chip}>Start 4-7-8 breathing</span>
         <span style={chip}>Note it for Tuesday</span>
       </div>
-      <p style={{ marginTop: 12, fontSize: 10.5, color: '#667585' }}>Drawing on: last session · Thursday&apos;s journal · your Sunday pattern</p>
+      <p style={{ marginTop: 12, fontSize: 10.5, color: '#5F6E7D' }}>Drawing on: last session · Thursday&apos;s journal · your Sunday pattern</p>
     </div>
   )
 }
@@ -69,7 +69,7 @@ function MoodMock() {
           <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 6, background: i === 5 ? coral : 'rgba(200,85,61,.22)' }} />
         ))}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: '#667585' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: '#5F6E7D' }}>
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <span key={i}>{d}</span>)}
       </div>
       <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 10, background: 'rgba(200,85,61,.07)', fontSize: 12, color: '#9A4332', fontWeight: 600 }}>Sundays tend to dip. A short walk has helped before.</div>
@@ -98,7 +98,7 @@ function InsightMock() {
           Recommended: a 7 PM Sunday wind-down this week · added to Dr. Ananya&apos;s brief
         </div>
       </div>
-      <p style={{ marginTop: 12, fontSize: 11, color: '#667585' }}>Learned from six weeks of your mood, sleep, journal &amp; sessions</p>
+      <p style={{ marginTop: 12, fontSize: 11, color: '#5F6E7D' }}>Learned from six weeks of your mood, sleep, journal &amp; sessions</p>
     </div>
   )
 }
@@ -130,12 +130,12 @@ function BriefMock() {
           ['PHQ-9', '11 → 8 over three weeks'],
         ].map(([k, v]) => (
           <div key={k} style={{ display: 'flex', gap: 10, fontSize: 12.5 }}>
-            <span style={{ width: 64, color: '#667585', flexShrink: 0, fontWeight: 600 }}>{k}</span>
+            <span style={{ width: 64, color: '#5F6E7D', flexShrink: 0, fontWeight: 600 }}>{k}</span>
             <span style={{ color: '#3A4A5A', lineHeight: 1.45 }}>{v}</span>
           </div>
         ))}
       </div>
-      <p style={{ marginTop: 12, fontSize: 11, color: '#667585' }}>AI-drafted · reviewed by your clinician</p>
+      <p style={{ marginTop: 12, fontSize: 11, color: '#5F6E7D' }}>AI-drafted · reviewed by your clinician</p>
     </div>
   )
 }
@@ -190,7 +190,7 @@ function PrivacyMock() {
           )
         })}
       </div>
-      <p style={{ marginTop: 14, fontSize: 11, color: '#667585' }}>Flip any off. A master switch turns it all off at once.</p>
+      <p style={{ marginTop: 14, fontSize: 11, color: '#5F6E7D' }}>Flip any off. A master switch turns it all off at once.</p>
     </div>
   )
 }
@@ -357,7 +357,7 @@ const mockCard: React.CSSProperties = {
   background: '#fff', borderRadius: 18, padding: '20px', border: '1px solid rgba(28,43,58,.07)',
   boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
 }
-const mockLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: 0.4, color: '#667585', textTransform: 'uppercase' }
+const mockLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: 0.4, color: '#5F6E7D', textTransform: 'uppercase' }
 const chip: React.CSSProperties = { fontSize: 11, fontWeight: 600, color: '#3A4A5A', background: '#F5F7FA', padding: '6px 11px', borderRadius: 50 }
 const ctaPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff',

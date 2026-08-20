@@ -11,12 +11,17 @@
   --c-coral-d: #a8432d;
   --c-coral-l: #e8896f;
   --c-coral-pale: #fdeae6;
+  /* The fill that carries white text. Brand coral is 4.35:1 under white, just
+     short of AA; this is the cut the public site uses for its buttons. */
+  --c-coral-cta: #b8482f;
   --c-charcoal: #1c2b3a;
   --c-charcoal-2: #233140;
   --c-ink: #16212d;
   --c-bg: #fffcfa;
   --c-white: #ffffff;
-  --c-gray: #8e9eae;
+  /* Was #8e9eae — 2.7:1 on white, which is why secondary copy read as absent
+     rather than quiet. Matches the site's --gray. */
+  --c-gray: #5f6e7d;
   --c-gray-d: #5a6a7a;
   --c-line: #efe7e2;
   --c-green: #3d9e72;
@@ -24,7 +29,12 @@
   --c-purple: #6d5bd0;
   --c-purple-pale: #ece9fb;
   --c-gold: #c9973a;
-  --c-gold-pale: #faf0db;
+  /* The site's gold wash. Heavier golds push the gold ink under AA. */
+  --c-gold-pale: #fff8e7;
+  /* Green and gold are artwork hues — 3.3:1 and 2.6:1 on white. Text inside the
+     tinted cards takes these ink cuts, the same two the public site uses. */
+  --c-green-ink: #276b4b;
+  --c-gold-ink: #8d6a29;
   --c-shadow: 0 1px 2px rgba(28, 43, 58, 0.04), 0 10px 28px rgba(28, 43, 58, 0.06);
   --c-shadow-h: 0 18px 48px rgba(28, 43, 58, 0.12);
 
@@ -44,6 +54,7 @@
   --c-coral-d: #256f50;
   --c-coral-l: #5bb491;
   --c-coral-pale: #e5f4ee;
+  --c-coral-cta: #2a835e;
   --c-bg: #f7fcfa;
 }
 
@@ -54,6 +65,7 @@
   --c-coral-d: #574ab0;
   --c-coral-l: #9184e0;
   --c-coral-pale: #ece9fb;
+  --c-coral-cta: #5f4dc4;
   --c-bg: #f8f7fe;
 }
 
@@ -268,7 +280,7 @@
   line-height: 1.1;
 }
 .tb-greeting span {
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .tb-actions {
   display: flex;
@@ -328,9 +340,11 @@
   margin-bottom: 20px;
 }
 .page-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 800;
   font-family: var(--font-display);
+  letter-spacing: -0.6px;
+  line-height: 1.08;
   color: var(--c-charcoal);
 }
 .page-meta {
@@ -340,7 +354,7 @@
 .link-action {
   font-size: 13px;
   font-weight: 600;
-  color: var(--c-coral);
+  color: var(--c-coral-d);
   text-decoration: none;
 }
 
@@ -372,18 +386,42 @@
   flex-direction: column;
   gap: 20px;
 }
+/* Big Shoulders is the brand's display face — the dashboards should read as the
+   same product as the site, so every heading and every headline number takes it,
+   always with negative tracking (the condensed face closes up, it never opens). */
+/* Zero-specificity DEFAULTS (:where), so any class or inline style still wins —
+   these only catch headings that have opted into nothing. */
+:where(.calmly-app) :where(h1, h2, h3) {
+  font-family: var(--font-display);
+  letter-spacing: -0.4px;
+}
+:where(.calmly-app) :where(h1) { font-size: 30px; font-weight: 800; line-height: 1.08; }
+:where(.calmly-app) :where(h2) { font-size: 24px; font-weight: 800; line-height: 1.12; }
+:where(.calmly-app) :where(h3) { font-size: 19px; font-weight: 700; line-height: 1.2; }
+/* Headline numbers take the display face too — same as the site's big stats. */
+.calmly-app .stat-n,
+.calmly-app .big-score .n,
+.calmly-app .mood-avg-n,
+.calmly-app .modal-title,
+.calmly-app .kpi-n {
+  font-family: var(--font-display);
+  letter-spacing: -0.4px;
+}
+
 .section-title {
   font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1.15;
   color: var(--c-charcoal);
 }
 .eyebrow {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 1.2px;
-  color: var(--c-coral);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--c-coral-d);
 }
 .muted {
   color: var(--c-gray);
@@ -497,7 +535,7 @@
 }
 .btn-outline:hover {
   border-color: var(--c-coral);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .hero-side {
   background: transparent;
@@ -548,7 +586,7 @@
 /* tone helpers */
 .t-coral {
   background: var(--c-coral-pale);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .t-green {
   background: var(--c-green-pale);
@@ -577,7 +615,7 @@
 }
 .streak-chip {
   background: var(--c-coral-pale);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
   font-size: 13px;
   font-weight: 700;
   padding: 7px 13px;
@@ -786,7 +824,7 @@
   padding: 3px 9px;
   border-radius: 20px;
   background: var(--c-coral-pale);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .session-info-grid {
   display: flex;
@@ -984,7 +1022,7 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--c-coral-pale);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 
 /* milestones */
@@ -1264,7 +1302,7 @@
 }
 .slot-chip:hover:not(.taken) {
   border-color: var(--c-coral);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .slot-chip.selected {
   background: var(--c-coral);
@@ -1377,7 +1415,7 @@
 }
 .call-btn:hover {
   border-color: var(--c-coral);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .call-btn.off {
   background: var(--c-charcoal);
@@ -1566,7 +1604,7 @@
   align-items: center;
   justify-content: center;
   background: var(--c-coral-pale);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
   margin-bottom: 4px;
 }
 .cat-option.active .cat-ic {
@@ -1794,7 +1832,7 @@
 }
 .chat-prompt:hover {
   border-color: var(--c-coral);
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .chat-input {
   display: flex;
@@ -1887,7 +1925,7 @@
   border-bottom: none;
 }
 .disc:hover .disc-title {
-  color: var(--c-coral);
+  color: var(--c-coral-d);
 }
 .disc-vote {
   display: flex;
@@ -2730,17 +2768,23 @@
   background-repeat: no-repeat;
 }
 .calmly-app .tint-coral {
-  background-image: linear-gradient(168deg, var(--c-coral-pale), var(--c-white) 88%);
-  border-color: rgba(200, 85, 61, 0.18);
+  background-image: linear-gradient(168deg, var(--c-coral-pale), var(--c-white) 96%);
+  border-color: rgba(200, 85, 61, 0.28);
 }
 .calmly-app .tint-gold {
-  background-image: linear-gradient(168deg, var(--c-gold-pale), var(--c-white) 88%);
-  border-color: rgba(201, 151, 58, 0.24);
+  background-image: linear-gradient(168deg, var(--c-gold-pale), var(--c-white) 96%);
+  border-color: rgba(201, 151, 58, 0.34);
 }
 .calmly-app .tint-green {
-  background-image: linear-gradient(168deg, var(--c-green-pale), var(--c-white) 88%);
-  border-color: rgba(61, 158, 114, 0.2);
+  background-image: linear-gradient(168deg, var(--c-green-pale), var(--c-white) 96%);
+  border-color: rgba(61, 158, 114, 0.3);
 }
+/* A tinted card carries its colour in the heading too, the way the site's
+   green and gold badges do — the wash alone is too quiet to read as a colour.
+   Each ink cut clears AA against its own wash. */
+.calmly-app .tint-coral .section-title { color: var(--c-coral-d); }
+.calmly-app .tint-gold .section-title { color: var(--c-gold-ink); }
+.calmly-app .tint-green .section-title { color: var(--c-green-ink); }
 /* A live session already renders as a dark card — never wash that. */
 .calmly-app .next-card-live.tint-coral {
   background-image: none;
@@ -2866,7 +2910,7 @@
 .mini-link {
   font-size: 12.5px;
   font-weight: 700;
-  color: var(--c-coral);
+  color: var(--c-coral-d);
   text-decoration: none;
   margin-top: 8px;
 }
