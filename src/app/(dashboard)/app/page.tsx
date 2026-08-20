@@ -13,7 +13,8 @@ import {
   MessageCircle,
   Truck,
 } from 'lucide-react'
-import { getDashboardData } from '@/lib/dashboard'
+import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
+import { getMilestones } from '@/lib/milestones'
 import { getMedications } from '@/lib/account'
 import { getSessionUserId } from '@/lib/patient'
 import { getMedicationOrders } from '@/lib/orders'
@@ -23,14 +24,18 @@ import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { HomePolls } from '@/components/dashboard/HomePolls'
 import { LocalTime } from '@/components/dashboard/LocalTime'
+import { MilestonesPanel } from '@/components/dashboard/MilestonesPanel'
+import { ZoneHead } from '@/components/dashboard/ZoneHead'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
-  const [d, meds, orders, polls] = await Promise.all([
+  const [d, meds, orders, polls, weekly, milestones] = await Promise.all([
     getDashboardData(),
     getMedications(),
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
     getCommunityPolls(userId),
+    userId ? getWeeklyProgress(userId) : Promise.resolve(null),
+    userId ? getMilestones(userId) : Promise.resolve([]),
   ])
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
@@ -184,7 +189,41 @@ export default async function AppHomePage() {
       {/* Morning check-in (#8) */}
       <CheckIn initial={d.checkin} streakDays={d.streakDays} />
 
-      {/* Reflective pair: how the week went, and what the AI made of it. */}
+      {/* ── Your progress ─────────────────────────────────────────────────── */}
+      <ZoneHead title="Your progress" meta={`Started ${d.startedOn} · ${d.daysOnPlatform} days on getCalmly`} />
+
+      <div className="grid-4">
+        <div className="card stat-card">
+          <span className="stat-ic t-coral"><Flame size={20} /></span>
+          <span className="stat-badge t-coral">Personal best</span>
+          <div className="stat-n">{d.streakDays}<span> days</span></div>
+          <div className="stat-l">Current streak</div>
+        </div>
+        <div className="card stat-card">
+          <span className="stat-ic t-purple"><TrendingUp size={20} /></span>
+          {d.moodMonthChangePct !== null && (
+            <span className={`stat-badge ${d.moodMonthChangePct >= 0 ? 't-green' : 't-coral'}`}>
+              {d.moodMonthChangePct >= 0 ? '↑' : '↓'}{Math.abs(d.moodMonthChangePct)}% month
+            </span>
+          )}
+          <div className="stat-n">{d.avgMood > 0 ? d.avgMood.toFixed(1) : '—'}{d.avgMood > 0 && <span> /10</span>}</div>
+          <div className="stat-l">Avg mood score</div>
+        </div>
+        <div className="card stat-card">
+          <span className="stat-ic t-green"><CalendarCheck size={20} /></span>
+          <span className={`stat-badge ${d.planActive ? 't-green' : 't-gold'}`}>{d.planActive ? 'Active' : 'No active plan'}</span>
+          <div className="stat-n">{d.sessionsDone}</div>
+          <div className="stat-l">Therapy sessions</div>
+        </div>
+        <div className="card stat-card">
+          <span className="stat-ic t-gold"><NotebookPen size={20} /></span>
+          <span className="stat-badge t-gold">Consistent</span>
+          <div className="stat-n">{d.journalCount}</div>
+          <div className="stat-l">Journal entries</div>
+        </div>
+      </div>
+
+      {/* Mood over time (week / 6-week toggle) beside what this week held. */}
       <div className="home-split home-split-2" style={{ gap: 20 }}>
         <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
         <div className="card">
@@ -197,14 +236,27 @@ export default async function AppHomePage() {
               ? d.weeklyInsight.body
               : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
           </p>
-          <Link href="/app/progress" className="link-action" style={{ display: 'inline-block', marginTop: 12 }}>
-            See your progress →
-          </Link>
+          {weekly && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--c-line, rgba(28,43,58,.1))', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div className="muted" style={{ fontSize: 13 }}>
+                Tasks from your expert: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.tasksCompleted}/{weekly.tasksAssigned}</b> completed ({weekly.completionPct}%)
+              </div>
+              <div className="muted" style={{ fontSize: 13 }}>
+                Mood check-ins: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.moodCheckins}</b>
+                {weekly.moodAvg !== null ? ` · avg ${weekly.moodAvg}/10` : ''}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Milestones — the long game, moved here from the old Progress page. */}
+      <MilestonesPanel milestones={milestones} />
 
-      {/* Calm Club polls — compact, collapsible */}
+
+      {/* ── Your space ────────────────────────────────────────────────────── */}
+      <ZoneHead title="Your space" meta="Journalling, tasks and what the community is talking about" />
+
       {polls.length > 0 && <HomePolls polls={polls} canVote={Boolean(userId)} />}
 
       {/* Recent journal · tasks + meds · community */}

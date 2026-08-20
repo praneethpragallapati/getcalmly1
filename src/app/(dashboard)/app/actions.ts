@@ -258,7 +258,6 @@ export async function saveCheckin(scores: {
     // AI profile refresh is a nice-to-have; never let it fail a saved check-in.
     await rebuildAiProfile(userId).catch(() => {})
     revalidatePath('/app')
-    revalidatePath('/app/progress')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not save your check-in.' }
@@ -660,7 +659,6 @@ export async function toggleTask(id: string, done: boolean): Promise<ActionResul
     })
     if (result.count === 0) return { ok: true, persisted: false }
     revalidatePath('/app')
-    revalidatePath('/app/progress')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not update this task.' }
