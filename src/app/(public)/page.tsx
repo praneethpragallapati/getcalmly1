@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { LANDING_MARKUP } from '@/components/site/landingMarkup'
+import { FaqSection } from '@/components/site/FaqSection'
+import { HOME_FAQ } from '@/data/siteFaq'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
 
@@ -41,6 +43,14 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
       />
       <div dangerouslySetInnerHTML={{ __html: LANDING_MARKUP }} />
+      {/* The questions people ask before trusting the platform at all —
+          answered on the page, and emitted as FAQPage so they can surface in
+          search and in answer engines. */}
+      <FaqSection
+        eyebrow="Before you start"
+        heading="The things people ask us first."
+        items={HOME_FAQ}
+      />
     </>
   )
 }

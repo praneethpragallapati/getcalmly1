@@ -407,7 +407,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </div>
             <div>
               <span style={{ fontWeight: 700, fontSize: 15, color: '#1C2B3A' }}>{post.author}</span>
-              <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6B7D8E', lineHeight: 1.55 }}>
+              <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6A7A', lineHeight: 1.55 }}>
                 {post.author} is a {post.role.toLowerCase()} practising on GetCalmly.
               </p>
             </div>
@@ -486,7 +486,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 17, fontWeight: 800, color: '#1C2B3A', lineHeight: 1.2, margin: '0 0 6px' }}>
                       {r.title}
                     </h3>
-                    <p style={{ fontSize: 12.5, color: '#6B7D8E', margin: 0 }}>{r.readTime}</p>
+                    <p style={{ fontSize: 12.5, color: '#5A6A7A', margin: 0 }}>{r.readTime}</p>
                   </div>
                 </article>
               </Link>

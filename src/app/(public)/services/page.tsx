@@ -2,14 +2,21 @@
 
 import Link from 'next/link'
 import { SERVICE_ICONS } from '@/components/site/serviceIcons'
+import { FaqSection } from '@/components/site/FaqSection'
+import { SERVICES_FAQ } from '@/data/siteFaq'
 
 // Ordered by how people actually arrive: core 1:1 care first, the medical
 // layer next, then relationships, life-stage, tools, and specialised care.
+// Each branch carries two cuts of its colour: `accent` for the icon and
+// decoration, and `ink` for TEXT. Four of the eight accents read below WCAG AA's
+// 4.5:1 at 13px on white — coral 4.35, pink 4.55, green 3.32, sand 2.67, gold
+// 2.63 — so the copy takes a darker cut while the artwork keeps the brand hue.
 const branches = [
   {
     slug: 'therapy',
     icon: '🧠',
     accent: '#C8553D',
+    ink: '#A8432D',
     pale: 'rgba(200,85,61,.08)',
     title: 'Therapy That Stays With You',
     tagline: "You've been the strong one long enough. This hour is yours.",
@@ -22,6 +29,7 @@ const branches = [
     slug: 'psychiatry',
     icon: '💊',
     accent: '#1A7F7A',
+    ink: '#15706B',
     pale: 'rgba(26,127,122,.08)',
     title: 'Psychiatry, Without the Stigma',
     tagline: "You did the work and still feel stuck. That's chemistry, not failure.",
@@ -34,6 +42,7 @@ const branches = [
     slug: 'addiction',
     icon: '🛟',
     accent: '#3E6E9C',
+    ink: '#3E6E9C',
     pale: 'rgba(62,110,156,.08)',
     title: 'Recovery, Without the Shame',
     tagline: "You don't have to hit rock bottom to deserve help.",
@@ -46,6 +55,7 @@ const branches = [
     slug: 'couples',
     icon: '💑',
     accent: '#7C5CBF',
+    ink: '#7C5CBF',
     pale: 'rgba(124,92,191,.08)',
     title: 'Couples, Reconnected',
     tagline: 'Before you give up on each other, give one honest hour a chance.',
@@ -58,6 +68,7 @@ const branches = [
     slug: 'child',
     icon: '🌱',
     accent: '#3D9E72',
+    ink: '#2F7D5A',
     pale: 'rgba(61,158,114,.08)',
     title: 'Care for Growing Minds',
     tagline: 'You knew something was off. Trust that. So do we.',
@@ -70,6 +81,7 @@ const branches = [
     slug: 'maternal',
     icon: '🤱',
     accent: '#D98C5F',
+    ink: '#8F5B3B',
     pale: 'rgba(217,140,95,.10)',
     title: 'Motherhood, Held',
     tagline: 'Everyone asks about the baby. We ask about you.',
@@ -82,6 +94,7 @@ const branches = [
     slug: 'assessments',
     icon: '📋',
     accent: '#C9973A',
+    ink: '#8D6A29',
     pale: 'rgba(201,151,58,.08)',
     title: 'Finally, Answers',
     tagline: 'Stop guessing why your mind works the way it does.',
@@ -94,6 +107,7 @@ const branches = [
     slug: 'specialised',
     icon: '🫶',
     accent: '#C04B8A',
+    ink: '#AD3F79',
     pale: 'rgba(192,75,138,.08)',
     title: 'Care Built Around You',
     tagline: "You shouldn't have to explain your whole world before someone gets it.",
@@ -111,7 +125,7 @@ export default function ServicesPage() {
       <section style={{ background: 'radial-gradient(ellipse 65% 75% at 88% 8%, rgba(192,75,138,.26), transparent 55%), radial-gradient(ellipse 45% 60% at 4% 80%, rgba(200,85,61,.14), transparent 60%), #2F1C2A', padding: '124px 48px 56px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -150, right: -120, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(192,75,138,.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 20 }}>What we offer</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#E8896F', textTransform: 'uppercase', marginBottom: 20 }}>What we offer</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
             fontWeight: 300,
@@ -129,7 +143,7 @@ export default function ServicesPage() {
           </p>
           <Link href="/assess" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: '#C8553D', color: '#fff', padding: '15px 30px',
+            background: '#B8482F', color: '#fff', padding: '15px 30px',
             borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
             fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.4)',
           }}>
@@ -184,21 +198,21 @@ export default function ServicesPage() {
                   </div>
                   <div>
                     <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 21, fontWeight: 700, color: '#1C2B3A', marginBottom: 4, letterSpacing: '-0.2px' }}>{b.title}</p>
-                    <p style={{ fontSize: 13, color: b.accent, fontWeight: 600, lineHeight: 1.4 }}>{b.tagline}</p>
+                    <p style={{ fontSize: 13, color: b.ink, fontWeight: 600, lineHeight: 1.4 }}>{b.tagline}</p>
                   </div>
                 </div>
 
-                <p style={{ fontSize: 14, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 18 }}>{b.desc}</p>
+                <p style={{ fontSize: 14, color: '#5A6A7A', lineHeight: 1.65, marginBottom: 18 }}>{b.desc}</p>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
                   {b.items.slice(0, 4).map((it) => (
                     <span key={it} style={{
                       fontSize: 12, padding: '5px 10px', borderRadius: 50,
-                      background: b.pale, color: b.accent, fontWeight: 600,
+                      background: b.pale, color: b.ink, fontWeight: 600,
                     }}>{it}</span>
                   ))}
                   {b.items.length > 4 && (
-                    <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 50, background: '#F5F7FA', color: '#8E9EAE', fontWeight: 600 }}>
+                    <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 50, background: '#F5F7FA', color: '#5C6B7A', fontWeight: 600 }}>
                       +{b.items.length - 4} more
                     </span>
                   )}
@@ -216,7 +230,7 @@ export default function ServicesPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: b.accent, fontSize: 13, fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: b.ink, fontSize: 13, fontWeight: 700 }}>
                   Learn more <span style={{ fontSize: 16 }}>→</span>
                 </div>
               </div>
@@ -229,7 +243,7 @@ export default function ServicesPage() {
       {/* Bottom CTA */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(192,75,138,.26), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.14), transparent 60%), #2F1C2A', padding: '76px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: 560, margin: '0 auto' }}>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#C8553D', textTransform: 'uppercase', marginBottom: 16 }}>Not sure where to start?</p>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#E8896F', textTransform: 'uppercase', marginBottom: 16 }}>Not sure where to start?</p>
           <h2 style={{
             fontFamily: "'Big Shoulders Display', sans-serif",
             fontWeight: 300, fontSize: 36, color: '#fff', marginBottom: 16, letterSpacing: '-0.5px',
@@ -241,7 +255,7 @@ export default function ServicesPage() {
           </p>
           <Link href="/assess" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: '#C8553D', color: '#fff', padding: '15px 32px',
+            background: '#B8482F', color: '#fff', padding: '15px 32px',
             borderRadius: 50, fontSize: 16, fontWeight: 700, textDecoration: 'none',
             fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)',
           }}>
@@ -249,6 +263,13 @@ export default function ServicesPage() {
           </Link>
         </div>
       </section>
+
+      <FaqSection
+        eyebrow="Choosing your care"
+        heading="Not sure which one you need?"
+        items={SERVICES_FAQ}
+        background="#FFFFFF"
+      />
     </div>
   )
 }

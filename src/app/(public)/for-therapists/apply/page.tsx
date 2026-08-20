@@ -24,7 +24,7 @@ function Section({ n, title, children }: { n: string; title: string; children: R
   return (
     <div style={{ background: '#fff', borderRadius: 20, padding: '28px', border: '1.5px solid rgba(0,0,0,.06)', marginBottom: 18 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
-        <span style={{ width: 30, height: 30, borderRadius: 9, background: '#E9F6EF', color: '#3D9E72', fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>
+        <span style={{ width: 30, height: 30, borderRadius: 9, background: '#E9F6EF', color: '#2F7D5A', fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>
         <h2 style={{ fontSize: 18, fontWeight: 300, color: '#1C2B3A', fontFamily: "'DM Sans', sans-serif" }}>{title}</h2>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{children}</div>
@@ -38,9 +38,9 @@ function Chips({ options, selected, onToggle }: { options: string[]; selected: s
       {options.map((o) => (
         <button key={o} type="button" onClick={() => onToggle(o)} style={{
           padding: '8px 13px', borderRadius: 50, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          border: selected.includes(o) ? '1.5px solid #3D9E72' : '1.5px solid #E2E8F0',
+          border: selected.includes(o) ? '1.5px solid #2F7D5A' : '1.5px solid #E2E8F0',
           background: selected.includes(o) ? '#E9F6EF' : '#fff',
-          color: selected.includes(o) ? '#3D9E72' : '#6B7D8E', fontFamily: "'DM Sans', sans-serif",
+          color: selected.includes(o) ? '#2F7D5A' : '#5A6A7A', fontFamily: "'DM Sans', sans-serif",
         }}>{o}</button>
       ))}
     </div>
@@ -91,10 +91,10 @@ export default function TherapistApplyPage() {
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 34, color: '#1C2B3A', marginBottom: 14, lineHeight: 1.1 }}>
             Application received.
           </h1>
-          <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.7, marginBottom: 28 }}>
+          <p style={{ fontSize: 15, color: '#5A6A7A', lineHeight: 1.7, marginBottom: 28 }}>
             Thank you for applying to GetCalmly. Our clinical team will verify your registration and review your documents, then reach out to schedule your interview. You&apos;ll hear from us within 3–5 working days.
           </p>
-          <Link href="/" style={{ display: 'inline-block', padding: '13px 26px', borderRadius: 50, background: '#3D9E72', color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif" }}>
+          <Link href="/" style={{ display: 'inline-block', padding: '13px 26px', borderRadius: 50, background: '#2F7D5A', color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif" }}>
             Back to home
           </Link>
         </div>
@@ -149,7 +149,7 @@ export default function TherapistApplyPage() {
             </div>
             <div style={{ flex: '1 1 200px' }}><label style={labelStyle}>Years of experience</label><input name="yearsExp" type="number" min={0} style={inputStyle} placeholder="e.g. 8" /></div>
           </div>
-          <div><label style={labelStyle}>Qualifications</label><input name="qualifications" style={inputStyle} placeholder="e.g. M.Phil Clinical Psychology, M.Sc Psychology" /><p style={{ fontSize: 12, color: '#A0ADB8', marginTop: 6 }}>Comma-separated. List degrees and clinical training.</p></div>
+          <div><label style={labelStyle}>Qualifications</label><input name="qualifications" style={inputStyle} placeholder="e.g. M.Phil Clinical Psychology, M.Sc Psychology" /><p style={{ fontSize: 12, color: '#667585', marginTop: 6 }}>Comma-separated. List degrees and clinical training.</p></div>
         </Section>
 
         <Section n="3" title="Your practice">
@@ -160,7 +160,7 @@ export default function TherapistApplyPage() {
         </Section>
 
         <Section n="4" title="Documents">
-          <p style={{ fontSize: 13.5, color: '#6B7D8E', lineHeight: 1.6, marginTop: -6 }}>
+          <p style={{ fontSize: 13.5, color: '#5A6A7A', lineHeight: 1.6, marginTop: -6 }}>
             Upload your council registration proof, degree certificates, and a government photo ID. PDF, JPG or PNG.
           </p>
           <label style={{
@@ -170,7 +170,7 @@ export default function TherapistApplyPage() {
           }}>
             <span style={{ fontSize: 28 }}>📎</span>
             <span style={{ fontSize: 14, fontWeight: 600, color: '#1C2B3A' }}>Click to upload or drag files here</span>
-            <span style={{ fontSize: 12, color: '#A0ADB8' }}>Up to 10MB each</span>
+            <span style={{ fontSize: 12, color: '#667585' }}>Up to 10MB each</span>
             <input
               type="file"
               multiple
@@ -191,7 +191,7 @@ export default function TherapistApplyPage() {
         </Section>
 
         <Section n="5" title="Schedule your interview">
-          <p style={{ fontSize: 13.5, color: '#6B7D8E', lineHeight: 1.6, marginTop: -6 }}>
+          <p style={{ fontSize: 13.5, color: '#5A6A7A', lineHeight: 1.6, marginTop: -6 }}>
             Pick a preferred window for a short conversation with our clinical team. We&apos;ll confirm a final time by email.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -205,10 +205,10 @@ export default function TherapistApplyPage() {
 
         {/* Consent + submit */}
         <label style={{ display: 'flex', gap: 11, alignItems: 'flex-start', cursor: 'pointer', padding: '16px 18px', borderRadius: 14, border: `1.5px solid ${agree ? 'rgba(61,158,114,.3)' : '#E2E8F0'}`, background: agree ? '#FFF8F5' : '#fff', marginBottom: 20 }}>
-          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ marginTop: 2, width: 17, height: 17, accentColor: '#3D9E72', flexShrink: 0 }} />
+          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ marginTop: 2, width: 17, height: 17, accentColor: '#2F7D5A', flexShrink: 0 }} />
           <span style={{ fontSize: 13, color: '#3A4A5A', lineHeight: 1.55 }}>
             I confirm the information provided is accurate, I hold valid registration, and I consent to GetCalmly verifying my credentials and storing this application securely per the{' '}
-            <Link href="/privacy" style={{ color: '#3D9E72', fontWeight: 600, textDecoration: 'underline' }}>Privacy Policy</Link>.
+            <Link href="/privacy" style={{ color: '#2F7D5A', fontWeight: 600, textDecoration: 'underline' }}>Privacy Policy</Link>.
           </span>
         </label>
 
@@ -216,14 +216,14 @@ export default function TherapistApplyPage() {
           type="submit"
           disabled={!agree || pending}
           style={{
-            width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: '#3D9E72', color: '#fff',
+            width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: '#2F7D5A', color: '#fff',
             fontSize: 16, fontWeight: 700, cursor: agree && !pending ? 'pointer' : 'not-allowed', opacity: agree && !pending ? 1 : 0.45,
             fontFamily: "'DM Sans', sans-serif", boxShadow: '0 6px 20px rgba(61,158,114,.3)',
           }}
         >
           {pending ? 'Submitting…' : 'Submit application →'}
         </button>
-        <p style={{ fontSize: 12.5, color: '#A0ADB8', textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 12.5, color: '#667585', textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
           Your application is routed directly to our admin team for review. We typically respond within 3–5 working days.
         </p>
       </form>

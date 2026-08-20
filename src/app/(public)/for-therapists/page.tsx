@@ -26,12 +26,12 @@ export default function ForTherapistsPage() {
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '99px 24px 72px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>Join our expert team</p>
+          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.62)', marginBottom: 18 }}>Join our expert team</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
             fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22,
           }}>
-            Spend your time<br /><span style={{ color: '#3D9E72' }}>on care, not admin.</span>
+            Spend your time<br /><span style={{ color: '#2F7D5A' }}>on care, not admin.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.75, maxWidth: 600, margin: '0 auto', fontWeight: 300 }}>
             GetCalmly gives you matched clients, an AI clinical co-pilot, supervision tools, and a calendar that runs itself. The parts of practice that drain you fade into the background, and the part you trained for takes centre stage.
@@ -55,8 +55,8 @@ export default function ForTherapistsPage() {
             ['100%', 'sessions on secure Google Meet'],
           ].map(([n, d]) => (
             <div key={d}>
-              <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 38, color: '#3D9E72', lineHeight: 1 }}>{n}</p>
-              <p style={{ fontSize: 13.5, color: '#6B7D8E', marginTop: 6 }}>{d}</p>
+              <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 38, color: '#2F7D5A', lineHeight: 1 }}>{n}</p>
+              <p style={{ fontSize: 13.5, color: '#5A6A7A', marginTop: 6 }}>{d}</p>
             </div>
           ))}
         </div>
@@ -69,7 +69,7 @@ export default function ForTherapistsPage() {
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(30px, 5vw, 44px)', color: '#1C2B3A', letterSpacing: '-1px', marginBottom: 14 }}>
               Clinical tools, finally on your side.
             </h2>
-            <p style={{ fontSize: 17, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>
+            <p style={{ fontSize: 17, color: '#5A6A7A', lineHeight: 1.7, fontWeight: 300 }}>
               Everything below is built around one idea: protect your clinical time and judgement.
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function ForTherapistsPage() {
                 display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
                 padding: '24px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
               }}>
-                <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#3D9E72', marginTop: 9 }} />
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#2F7D5A', marginTop: 9 }} />
                 <div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1C2B3A', marginBottom: 7, letterSpacing: '-0.2px' }}>{b.t}</h3>
                   <p style={{ fontSize: 15.5, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>{b.d}</p>
@@ -94,7 +94,7 @@ export default function ForTherapistsPage() {
       <section style={{ background: '#fff', padding: '85px 24px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#3D9E72', textTransform: 'uppercase', marginBottom: 14 }}>Joining is simple</p>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#2F7D5A', textTransform: 'uppercase', marginBottom: 14 }}>Joining is simple</p>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 5vw, 40px)', color: '#1C2B3A', letterSpacing: '-1px' }}>
               From application to first client.
             </h2>
@@ -106,10 +106,10 @@ export default function ForTherapistsPage() {
             ['04', 'Go live', 'Set your availability, connect Google Calendar, and start receiving matched clients.'],
           ].map(([n, t, d]) => (
             <div key={n} style={{ display: 'flex', gap: 20, alignItems: 'flex-start', padding: '20px 0', borderBottom: '1px solid #EEF0F3' }}>
-              <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#3D9E72', lineHeight: 1, flexShrink: 0, width: 46 }}>{n}</span>
+              <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#2F7D5A', lineHeight: 1, flexShrink: 0, width: 46 }}>{n}</span>
               <div>
                 <p style={{ fontSize: 17, fontWeight: 800, color: '#1C2B3A', marginBottom: 4 }}>{t}</p>
-                <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.65 }}>{d}</p>
+                <p style={{ fontSize: 14.5, color: '#5A6A7A', lineHeight: 1.65 }}>{d}</p>
               </div>
             </div>
           ))}
@@ -136,7 +136,7 @@ export default function ForTherapistsPage() {
 }
 
 const ctaPrimary: React.CSSProperties = {
-  display: 'inline-flex', alignItems: 'center', gap: 8, background: '#3D9E72', color: '#fff',
+  display: 'inline-flex', alignItems: 'center', gap: 8, background: '#2F7D5A', color: '#fff',
   padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none',
   fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(61,158,114,.35)',
 }

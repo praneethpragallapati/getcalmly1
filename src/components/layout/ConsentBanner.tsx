@@ -69,7 +69,7 @@ export default function ConsentBanner() {
               fontSize: 14,
               fontWeight: 700,
               color: '#fff',
-              background: '#C8553D',
+              background: '#B8482F',
               border: 'none',
               padding: '10px 26px',
               borderRadius: 50,

@@ -8,7 +8,10 @@ export const metadata: Metadata = {
 }
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+// Brand coral is only AA-safe as large display text. Everything on this page
+// uses it at body/eyebrow/button size, so it points at the darker ink cut
+// (5.99:1 on cream, and on white behind a CTA) instead of #C8553D at 4.26:1.
+const coral = '#A8432D'
 const cream = '#FFFCFA'
 const heroBg =
   'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29'

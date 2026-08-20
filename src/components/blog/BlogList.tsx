@@ -99,7 +99,9 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
               fontWeight: 700,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color: '#C8553D',
+              // Sits on the dark hero, where the light coral clears AA (6.6:1)
+              // and the darker ink cut would not (2.8:1).
+              color: '#E8896F',
               marginBottom: 18,
             }}
           >
@@ -203,7 +205,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
             fontSize: 13,
             fontWeight: 600,
             letterSpacing: '0.5px',
-            color: '#6B7D8E',
+            color: '#5A6A7A',
           }}
         >
           {filtered.length} {filtered.length === 1 ? 'article' : 'articles'}
@@ -212,7 +214,7 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
       </section>
 
       {filtered.length === 0 && (
-        <p style={{ color: '#6B7D8E', textAlign: 'center', padding: '76px 24px 96px' }}>
+        <p style={{ color: '#5A6A7A', textAlign: 'center', padding: '76px 24px 96px' }}>
           No articles match your search.
         </p>
       )}
@@ -295,7 +297,7 @@ export function BlogLeadCard({ post }: { post: BlogPostView }) {
               letterSpacing: '1.5px',
               textTransform: 'uppercase',
               color: '#fff',
-              background: 'rgba(255,255,255,0.16)',
+              background: 'rgba(18,26,35,0.72)',
               padding: '6px 14px',
               borderRadius: 999,
               backdropFilter: 'blur(4px)',
@@ -404,7 +406,7 @@ export function BlogCard({ post }: { post: BlogPostView }) {
               letterSpacing: '1.5px',
               textTransform: 'uppercase',
               color: 'rgba(255,255,255,0.92)',
-              background: 'rgba(255,255,255,0.15)',
+              background: 'rgba(18,26,35,0.72)',
               padding: '5px 12px',
               borderRadius: 999,
             }}
@@ -504,8 +506,8 @@ function AuthorRow({
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
         <span style={{ fontWeight: 700, fontSize: 13, color: '#1C2B3A' }}>{post.author}</span>
-        <span style={{ fontSize: 12, color: '#6B7D8E' }}>{post.role}</span>
-        <span style={{ fontSize: 11.5, color: '#8a9aaa', marginTop: 3 }}>
+        <span style={{ fontSize: 12, color: '#5A6A7A' }}>{post.role}</span>
+        <span style={{ fontSize: 11.5, color: '#667585', marginTop: 3 }}>
           {post.date} · {post.readTime}
         </span>
       </div>
@@ -513,13 +515,18 @@ function AuthorRow({
   )
 }
 
+// White on brand coral is 4.35:1, short of AA at this size — the filled chip
+// and the tag pill both take the darker cuts (5.2:1 and 5.2:1 respectively).
+const coralFill = '#B8482F'
+const coralInk = '#A8432D'
+
 function chipStyle(active: boolean): React.CSSProperties {
   return {
     padding: '7px 16px',
     borderRadius: 999,
     border: '1.5px solid',
-    borderColor: active ? '#C8553D' : '#d5cbc5',
-    background: active ? '#C8553D' : 'transparent',
+    borderColor: active ? coralFill : '#d5cbc5',
+    background: active ? coralFill : 'transparent',
     color: active ? '#fff' : '#1C2B3A',
     fontSize: 13,
     fontWeight: 600,
@@ -531,7 +538,7 @@ function chipStyle(active: boolean): React.CSSProperties {
 
 const tagPillStyle: React.CSSProperties = {
   background: '#F2ECE8',
-  color: '#C8553D',
+  color: coralInk,
   fontSize: 11,
   fontWeight: 700,
   padding: '3px 10px',

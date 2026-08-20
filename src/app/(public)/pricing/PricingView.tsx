@@ -7,8 +7,14 @@ import {
   freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures, couplesFeatures,
   type SessionPack, type AppPack, type PricingValues,
 } from '@/data/pricing'
+import { FaqSection } from '@/components/site/FaqSection'
+import { PRICING_FAQ } from '@/data/siteFaq'
 
-const coral = '#C8553D'
+// The therapy accent doubles as 11px text — both as the ribbon fill under white
+// and as the "Pay today" label on white. Brand coral is 4.35:1 either way, just
+// under AA; this darker cut clears it at 5.2:1 and is indistinguishable at a
+// glance. The other three accents already pass at this size.
+const coral = '#B8482F'
 const charcoal = '#1C2B3A'
 const green = '#3D9E72'
 const teal = '#1A7F7A'
@@ -30,7 +36,7 @@ function PackSelector<T>({ items, i, setI, label, badges, accent }: {
         >
           {label(t)}
           {badges[idx] && (
-            <span className="pr-tab-badge" style={{ color: idx === i ? accent : '#8E9EAE', background: (idx === i ? accent : '#8E9EAE') + '1f' }}>
+            <span className="pr-tab-badge" style={{ color: idx === i ? accent : '#667585', background: (idx === i ? accent : '#667585') + '1f' }}>
               {badges[idx]}
             </span>
           )}
@@ -309,6 +315,15 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
           <Link href="/terms" className="pr-refund-link">See how refunds work →</Link>
         </div>
       </section>
+
+      {/* Objections belong where the money decision is made — and this is the
+          page where FAQ rich results are worth most. */}
+      <FaqSection
+        eyebrow="Before you pay"
+        heading="What people ask about cost."
+        items={PRICING_FAQ}
+        background="#FFFFFF"
+      />
     </div>
   )
 }
@@ -340,11 +355,11 @@ const CSS = `
   .pr-step{ background: #fff; border: 1px solid var(--line-card); border-radius: 18px; padding: 24px 24px 26px; box-shadow: var(--sh-card); }
   .pr-step-n{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 30px; color: var(--coral-l); letter-spacing: -1px; }
   .pr-step-t{ font-size: 16.5px; font-weight: 800; color: var(--charcoal); margin: 8px 0 6px; }
-  .pr-step-d{ font-size: 13.8px; color: #6B7D8E; line-height: 1.6; }
+  .pr-step-d{ font-size: 13.8px; color: #5A6A7A; line-height: 1.6; }
 
   /* Section head */
   .pr-head{ text-align: center; max-width: 620px; margin: 0 auto 34px; }
-  .pr-head-sub{ font-size: 15.5px; color: #6B7D8E; margin: 12px auto 0; line-height: 1.6; }
+  .pr-head-sub{ font-size: 15.5px; color: #5A6A7A; margin: 12px auto 0; line-height: 1.6; }
   .pr-hint{ font-size: 13px; color: var(--green); font-weight: 700; margin-top: 16px; }
 
   /* Segmented plan toggle */
@@ -352,11 +367,11 @@ const CSS = `
   .pr-toggle{ display: inline-flex; gap: 5px; background: #fff; border: 1px solid var(--line-card);
     padding: 5px; border-radius: 14px; box-shadow: var(--sh-card); }
   .pr-toggle button{ border: none; cursor: pointer; background: transparent; font-family: 'DM Sans', sans-serif;
-    font-size: 14.5px; font-weight: 700; color: #8E9EAE; padding: 11px 28px; border-radius: 10px;
+    font-size: 14.5px; font-weight: 700; color: #667585; padding: 11px 28px; border-radius: 10px;
     transition: background .22s, color .22s, box-shadow .22s; }
-  .pr-toggle button.on{ background: var(--coral); color: #fff; box-shadow: 0 6px 16px rgba(200,85,61,.32); }
+  .pr-toggle button.on{ background: var(--coral-cta); color: #fff; box-shadow: 0 6px 16px rgba(200,85,61,.32); }
   .pr-toggle button:not(.on):hover{ color: var(--charcoal); }
-  .pr-toggle-hint{ font-size: 14px; color: #6B7D8E; text-align: center; max-width: 620px;
+  .pr-toggle-hint{ font-size: 14px; color: #5A6A7A; text-align: center; max-width: 620px;
     margin: 16px auto 36px; line-height: 1.6; }
 
   /* Cards grid */
@@ -368,7 +383,7 @@ const CSS = `
   .pr-first-label{ font-size: 13px; font-weight: 700; color: var(--charcoal); }
   .pr-first-val{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: -0.5px; }
   .pr-first + .pr-cta{ margin-top: 12px; }
-  .pr-packs-h{ font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8E9EAE; margin-bottom: 10px; }
+  .pr-packs-h{ font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #667585; margin-bottom: 10px; }
   .pr-tier-label{ font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin: 16px 0 8px; }
 
   /* Pack-pricing disclosure (kept out of the way until asked for) */
@@ -377,7 +392,7 @@ const CSS = `
     font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--charcoal);
     transition: background .18s, border-color .18s; }
   .pr-disc:hover{ background: #FBFBFC; }
-  .pr-disc-car{ color: #A0ADB8; font-size: 11px; }
+  .pr-disc-car{ color: #667585; font-size: 11px; }
   .pr-disc.pr-disc-hd{ border-bottom-left-radius: 0; border-bottom-right-radius: 0; background: #F6F7F9; }
   .pr-disc-open{ border: 1px solid var(--line-card); border-top: none; border-radius: 0 0 12px 12px;
     background: #FBFBFC; padding: 16px 15px 18px; margin-top: -1px; }
@@ -385,7 +400,7 @@ const CSS = `
   /* Transition between the professional plans and the app-only plans */
   .pr-more{ display: flex; align-items: center; gap: 16px; max-width: 720px; margin: 40px auto 8px; padding: 0 24px; }
   .pr-more-line{ flex: 1; height: 1px; background: var(--line-card); }
-  .pr-more-text{ font-size: 13.5px; font-weight: 700; color: var(--coral); white-space: nowrap; }
+  .pr-more-text{ font-size: 13.5px; font-weight: 700; color: var(--coral-ink); white-space: nowrap; }
 
   .pr-card{ position: relative; background: #fff; border-radius: 22px; padding: 32px 26px;
     border: 1px solid var(--line-card); box-shadow: var(--sh-card); display: flex; flex-direction: column;
@@ -401,26 +416,26 @@ const CSS = `
   .pr-card-head{ display: flex; align-items: center; gap: 9px; }
   .pr-dot{ width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
   .pr-card-name{ font-size: 20px; font-weight: 800; color: var(--charcoal); }
-  .pr-card-sub{ font-size: 13.5px; color: #6B7D8E; margin: 6px 0 18px; min-height: 38px; line-height: 1.5; }
+  .pr-card-sub{ font-size: 13.5px; color: #5A6A7A; margin: 6px 0 18px; min-height: 38px; line-height: 1.5; }
 
   .pr-seg{ display: flex; gap: 6px; background: #F4F6F9; padding: 4px; border-radius: 12px; margin-bottom: 18px; }
   .pr-seg button{ flex: 1; padding: 8px 2px; border-radius: 9px; border: none; cursor: pointer; background: transparent;
     display: flex; flex-direction: column; align-items: center; font-size: 12.5px; font-weight: 700;
-    font-family: 'DM Sans', sans-serif; color: #8E9EAE; transition: background .2s, color .2s, box-shadow .2s; }
+    font-family: 'DM Sans', sans-serif; color: #667585; transition: background .2s, color .2s, box-shadow .2s; }
   .pr-seg button.on{ background: #fff; box-shadow: 0 1px 5px rgba(28,43,58,.12); }
   .pr-tab-badge{ font-size: 9px; font-weight: 800; letter-spacing: .3px; padding: 2px 6px; border-radius: 50px;
     text-transform: uppercase; margin-top: 4px; }
 
   .pr-price-row{ display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .pr-price{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 46px; line-height: 1; color: var(--charcoal); letter-spacing: -1px; }
-  .pr-price-note{ font-size: 13px; color: #A0ADB8; }
-  .pr-from{ font-size: 13px; color: #A0ADB8; font-weight: 500; }
-  .pr-persession{ font-size: 13.5px; color: #6B7D8E; margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pr-price-note{ font-size: 13px; color: #667585; }
+  .pr-from{ font-size: 13px; color: #667585; font-weight: 500; }
+  .pr-persession{ font-size: 13.5px; color: #5A6A7A; margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .pr-persession strong{ font-size: 15px; }
   .pr-strike{ text-decoration: line-through; color: #B6C0CA; }
   .pr-strike.lg{ font-size: 15px; font-weight: 600; }
   .pr-save{ font-size: 12px; font-weight: 700; color: var(--green); background: rgba(61,158,114,.1); padding: 2px 8px; border-radius: 50px; }
-  .pr-valid{ font-size: 12.5px; color: #A0ADB8; margin-top: 6px; }
+  .pr-valid{ font-size: 12.5px; color: #667585; margin-top: 6px; }
 
   .pr-divider{ height: 1px; background: #EEF0F3; margin: 20px 0; }
   .pr-feats{ display: flex; flex-direction: column; gap: 11px; flex: 1; }
@@ -430,7 +445,7 @@ const CSS = `
   .pr-cta{ display: block; text-align: center; margin-top: 24px; padding: 14px; border-radius: 12px;
     font-size: 15px; font-weight: 700; text-decoration: none; font-family: 'DM Sans', sans-serif; transition: transform .2s, filter .2s; }
   .pr-cta:hover{ transform: translateY(-2px); filter: brightness(1.03); }
-  .pr-cta-note{ font-size: 12px; color: #A0ADB8; text-align: center; margin-top: 10px; }
+  .pr-cta-note{ font-size: 12px; color: #667585; text-align: center; margin-top: 10px; }
 
   /* Refund */
   .pr-refund{ background: #fff; border-radius: 22px; padding: 34px; border: 1.5px solid rgba(61,158,114,.25);
@@ -438,7 +453,7 @@ const CSS = `
   .pr-refund-badge{ font-size: 30px; margin-bottom: 10px; }
   .pr-refund-t{ font-size: 23px; font-weight: 800; color: var(--charcoal); margin-bottom: 10px; }
   .pr-refund-p{ font-size: 15px; color: #3A4A5A; line-height: 1.7; max-width: 540px; margin: 0 auto 18px; }
-  .pr-refund-link{ font-size: 14px; color: var(--coral); font-weight: 700; text-decoration: none; }
+  .pr-refund-link{ font-size: 14px; color: var(--coral-ink); font-weight: 700; text-decoration: none; }
   .pr-refund-link:hover{ text-decoration: underline; }
 
   /* Entrance animation (self-contained, no observer dependency) */

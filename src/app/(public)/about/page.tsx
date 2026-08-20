@@ -2,13 +2,18 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'About | GetCalmly',
+  // The root template appends '| getCalmly', so the brand must not repeat here.
+  title: 'Our Story',
   description:
-    'GetCalmly bridges India’s mental health treatment gap with RCI-licensed, vernacular-first, culturally-aware therapy, amplified by thoughtful AI.',
+    'GetCalmly bridges India’s mental health treatment gap with RCI-licensed, vernacular-first, culturally-aware therapy, amplified by thoughtful AI. Meet the team and the principles behind the care.',
+  alternates: { canonical: '/about' },
 }
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+// Brand coral is only AA-safe as large display text. Everything on this page
+// uses it at body/eyebrow/button size, so it points at the darker ink cut
+// (5.99:1 on cream, and on white behind a CTA) instead of #C8553D at 4.26:1.
+const coral = '#A8432D'
 const cream = '#FFFCFA'
 
 const stats: [string, string][] = [
@@ -37,9 +42,12 @@ const socials: [string, string][] = [
   ['Facebook', 'https://www.facebook.com/share/1H2D79NEb3/'],
 ]
 
+// The dark hero flips the requirement: the ink cut that clears AA on cream is
+// 2.8:1 on charcoal, so eyebrows there take the LIGHT coral (6.6:1).
 const eyebrow: React.CSSProperties = {
   fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: coral,
 }
+const eyebrowOnDark: React.CSSProperties = { ...eyebrow, color: '#E8896F' }
 const heading: React.CSSProperties = {
   fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, letterSpacing: '-0.5px',
 }
@@ -68,7 +76,7 @@ export default function AboutPage() {
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="awrap about-hero" style={{ position: 'relative' }}>
           <div>
-            <p style={{ ...eyebrow, marginBottom: 22 }}>Our story</p>
+            <p style={{ ...eyebrowOnDark, marginBottom: 22 }}>Our story</p>
             <h1 style={{
               ...heading, fontWeight: 300, fontSize: 'clamp(40px, 6vw, 76px)', color: '#fff',
               letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 0,
@@ -104,7 +112,7 @@ export default function AboutPage() {
                 padding: '22px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.09)',
               }}>
                 <p style={{ ...heading, fontSize: 'clamp(38px, 5vw, 56px)', color: coral, lineHeight: 1, letterSpacing: '-1.5px', minWidth: 130 }}>{n}</p>
-                <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.55, fontWeight: 300 }}>{d}</p>
+                <p style={{ fontSize: 15.5, color: '#5A6A7A', lineHeight: 1.55, fontWeight: 300 }}>{d}</p>
               </div>
             ))}
           </div>
@@ -114,7 +122,7 @@ export default function AboutPage() {
       {/* ─── THE MISSION: charcoal band, single bold idea ─── */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '113px 40px' }}>
         <div className="awrap" style={{ maxWidth: 900, textAlign: 'center' }}>
-          <p style={{ ...eyebrow, marginBottom: 24 }}>Our mission</p>
+          <p style={{ ...eyebrowOnDark, marginBottom: 24 }}>Our mission</p>
           <p style={{
             ...heading, fontWeight: 900, fontSize: 'clamp(30px, 4.6vw, 52px)',
             color: '#fff', letterSpacing: '-1px', lineHeight: 1.12, margin: '0 auto',
@@ -211,7 +219,7 @@ export default function AboutPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 28, marginBottom: 8 }}>
             {contacts.map((c) => (
               <a key={c.label} href={c.href} style={{ textDecoration: 'none', display: 'block', paddingTop: 24, borderTop: '1px solid rgba(0,0,0,.07)' }}>
-                <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 8 }}>{c.label}</span>
+                <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 8 }}>{c.label}</span>
                 <span style={{ display: 'block', fontSize: 18, fontWeight: 700, color: charcoal, letterSpacing: '-0.2px' }}>{c.value}</span>
               </a>
             ))}
@@ -219,14 +227,14 @@ export default function AboutPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 40, marginTop: 56 }}>
             <div>
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 12 }}>Visit / write to us</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Visit / write to us</p>
               <p style={{ fontSize: 16, color: charcoal, fontWeight: 600, marginBottom: 4 }}>GetCalmly</p>
               <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>
                 316, 11th A Main, Classic Paradise Layout,<br />Begur, Bengaluru 560068, India
               </p>
             </div>
             <div>
-              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 12 }}>Support hours</p>
+              <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Support hours</p>
               <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>
                 Monday to Saturday<br />9:00 AM to 8:00 PM IST
               </p>
@@ -234,7 +242,7 @@ export default function AboutPage() {
           </div>
 
           <div style={{ marginTop: 48 }}>
-            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 16 }}>Follow along</p>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 16 }}>Follow along</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               {socials.map(([name, url]) => (
                 <a key={name} href={url} target="_blank" rel="noopener noreferrer" style={{
@@ -246,7 +254,7 @@ export default function AboutPage() {
           </div>
 
           <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(0,0,0,.07)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-            <p style={{ fontSize: 16, color: '#6B7D8E', fontWeight: 300 }}>Prefer a structured message? Use our contact form.</p>
+            <p style={{ fontSize: 16, color: '#5A6A7A', fontWeight: 300 }}>Prefer a structured message? Use our contact form.</p>
             <Link href="/contact" style={{
               padding: '13px 26px', borderRadius: 50, background: charcoal, color: '#fff',
               fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
@@ -275,7 +283,7 @@ export default function AboutPage() {
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '104px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session, from ₹799</p>
+          <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from ₹799</p>
           <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(32px, 5vw, 46px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             Take the first step today.
           </h2>

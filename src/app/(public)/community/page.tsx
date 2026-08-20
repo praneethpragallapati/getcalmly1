@@ -4,7 +4,7 @@ import { getCommunityPosts, getCommunityStats } from '@/lib/community'
 import { getCommunityPolls } from '@/lib/polls'
 
 export const metadata: Metadata = {
-  title: 'Community | GetCalmly',
+  title: 'Community',
   description:
     'A safe, moderated space to share experiences and feel understood. Read freely, join to take part.',
   alternates: { canonical: '/community' },

@@ -2,13 +2,16 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Features | GetCalmly',
+  title: 'Calm AI, Mood Insights & Smart Matching',
   description: 'Human care, amplified by thoughtful AI. Matching, the Calm AI companion, mood insights, smart journaling, and a clinician co-pilot. Always human-led, never automated away.',
   alternates: { canonical: '/features' },
 }
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+// Brand coral is only AA-safe as large display text. Everything on this page
+// uses it at body/eyebrow/button size, so it points at the darker ink cut
+// (5.99:1 on cream, and on white behind a CTA) instead of #C8553D at 4.26:1.
+const coral = '#A8432D'
 
 /* ── In-house product mock visuals (no external images) ───────────── */
 
@@ -20,7 +23,7 @@ function MatchMock() {
         <div style={{ width: 46, height: 46, borderRadius: 12, background: 'rgba(26,127,122,.12)', color: '#1A7F7A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>AS</div>
         <div>
           <p style={{ fontSize: 14, fontWeight: 800, color: charcoal }}>Dr. Ananya Sharma</p>
-          <p style={{ fontSize: 12, color: '#6B7D8E' }}>Clinical Psychologist · 8 yrs · CBT</p>
+          <p style={{ fontSize: 12, color: '#5A6A7A' }}>Clinical Psychologist · 8 yrs · CBT</p>
         </div>
       </div>
       <div className="stagger" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 14 }}>
@@ -51,7 +54,7 @@ function ChatMock() {
         <span style={chip}>Start 4-7-8 breathing</span>
         <span style={chip}>Note it for Tuesday</span>
       </div>
-      <p style={{ marginTop: 12, fontSize: 10.5, color: '#A0ADB8' }}>Drawing on: last session · Thursday&apos;s journal · your Sunday pattern</p>
+      <p style={{ marginTop: 12, fontSize: 10.5, color: '#667585' }}>Drawing on: last session · Thursday&apos;s journal · your Sunday pattern</p>
     </div>
   )
 }
@@ -66,7 +69,7 @@ function MoodMock() {
           <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 6, background: i === 5 ? coral : 'rgba(200,85,61,.22)' }} />
         ))}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: '#A0ADB8' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: '#667585' }}>
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <span key={i}>{d}</span>)}
       </div>
       <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 10, background: 'rgba(200,85,61,.07)', fontSize: 12, color: '#9A4332', fontWeight: 600 }}>Sundays tend to dip. A short walk has helped before.</div>
@@ -95,7 +98,7 @@ function InsightMock() {
           Recommended: a 7 PM Sunday wind-down this week · added to Dr. Ananya&apos;s brief
         </div>
       </div>
-      <p style={{ marginTop: 12, fontSize: 11, color: '#A0ADB8' }}>Learned from six weeks of your mood, sleep, journal &amp; sessions</p>
+      <p style={{ marginTop: 12, fontSize: 11, color: '#667585' }}>Learned from six weeks of your mood, sleep, journal &amp; sessions</p>
     </div>
   )
 }
@@ -105,7 +108,7 @@ function JournalMock() {
     <div style={mockCard}>
       <p style={mockLabel}>Your journal · Thursday</p>
       <p style={{ fontSize: 13.5, color: charcoal, fontWeight: 700, marginTop: 10, lineHeight: 1.5 }}>&ldquo;Today was hard but I didn&apos;t spiral. That&apos;s new.&rdquo;</p>
-      <p style={{ fontSize: 12, color: '#6B7D8E', marginTop: 10 }}>Themes noticed in your words:</p>
+      <p style={{ fontSize: 12, color: '#5A6A7A', marginTop: 10 }}>Themes noticed in your words:</p>
       <div className="stagger" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
         {['self-compassion', 'boundary-setting', 'resilience'].map((t) => (
           <span key={t} style={{ fontSize: 11, fontWeight: 600, color: '#7C5CBF', background: 'rgba(124,92,191,.1)', padding: '4px 10px', borderRadius: 50 }}>{t}</span>
@@ -127,12 +130,12 @@ function BriefMock() {
           ['PHQ-9', '11 → 8 over three weeks'],
         ].map(([k, v]) => (
           <div key={k} style={{ display: 'flex', gap: 10, fontSize: 12.5 }}>
-            <span style={{ width: 64, color: '#8E9EAE', flexShrink: 0, fontWeight: 600 }}>{k}</span>
+            <span style={{ width: 64, color: '#667585', flexShrink: 0, fontWeight: 600 }}>{k}</span>
             <span style={{ color: '#3A4A5A', lineHeight: 1.45 }}>{v}</span>
           </div>
         ))}
       </div>
-      <p style={{ marginTop: 12, fontSize: 11, color: '#A0ADB8' }}>AI-drafted · reviewed by your clinician</p>
+      <p style={{ marginTop: 12, fontSize: 11, color: '#667585' }}>AI-drafted · reviewed by your clinician</p>
     </div>
   )
 }
@@ -187,7 +190,7 @@ function PrivacyMock() {
           )
         })}
       </div>
-      <p style={{ marginTop: 14, fontSize: 11, color: '#A0ADB8' }}>Flip any off. A master switch turns it all off at once.</p>
+      <p style={{ marginTop: 14, fontSize: 11, color: '#667585' }}>Flip any off. A master switch turns it all off at once.</p>
     </div>
   )
 }
@@ -210,9 +213,9 @@ export default function FeaturesPage() {
         <div style={{ position: 'absolute', top: -120, right: -100, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,182,168,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -80, left: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 740, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.45)', marginBottom: 18 }}>How GetCalmly works</p>
+          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.62)', marginBottom: 18 }}>How GetCalmly works</p>
           <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(40px, 7vw, 66px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22 }}>
-            Human care.<br /><span style={{ color: coral }}>Amplified by AI.</span>
+            Human care.<br /><span style={{ color: '#E8896F' }}>Amplified by AI.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.75, maxWidth: 600, margin: '0 auto', fontWeight: 300 }}>
             Real therapy with licensed professionals sits at the heart of everything. The technology around it makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
@@ -232,7 +235,7 @@ export default function FeaturesPage() {
               <div className={i % 2 === 0 ? 'reveal-l' : 'reveal-r'} style={{ order: i % 2 === 0 ? 1 : 2 }}>
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: coral, textTransform: 'uppercase', marginBottom: 12 }}>{f.eyebrow}</p>
                 <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 3.4vw, 36px)', color: charcoal, letterSpacing: '-0.5px', lineHeight: 1.08, marginBottom: 14 }}>{f.title}</h2>
-                <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.7 }}>{f.body}</p>
+                <p style={{ fontSize: 15.5, color: '#5A6A7A', lineHeight: 1.7 }}>{f.body}</p>
               </div>
               <div className={i % 2 === 0 ? 'reveal-r' : 'reveal-l'} style={{ order: i % 2 === 0 ? 2 : 1 }}>{f.visual}</div>
             </div>
@@ -248,7 +251,7 @@ export default function FeaturesPage() {
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4.5vw, 42px)', color: charcoal, letterSpacing: '-1px' }}>
               Built for both sides of care
             </h2>
-            <p style={{ fontSize: 15.5, color: '#6B7D8E', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.65 }}>
+            <p style={{ fontSize: 15.5, color: '#5A6A7A', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.65 }}>
               A calm, intelligent space for you, and the clinical tools your professional needs to give you their best.
             </p>
           </div>
@@ -268,7 +271,7 @@ export default function FeaturesPage() {
                   <img src={src} alt={label} loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
                 </div>
                 <p style={{ fontSize: 16, fontWeight: 800, color: charcoal, marginTop: 16 }}>{label}</p>
-                <p style={{ fontSize: 14, color: '#6B7D8E', marginTop: 4, lineHeight: 1.55 }}>{sub}</p>
+                <p style={{ fontSize: 14, color: '#5A6A7A', marginTop: 4, lineHeight: 1.55 }}>{sub}</p>
               </div>
             ))}
           </div>
@@ -299,7 +302,7 @@ export default function FeaturesPage() {
                 <div key={store} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.08)', border: '1.5px solid rgba(255,255,255,.16)', borderRadius: 12, padding: '10px 18px' }}>
                   <span style={{ fontSize: 18 }}>{icon || ''}</span>
                   <div style={{ lineHeight: 1.1 }}>
-                    <p style={{ fontSize: 9, color: 'rgba(255,255,255,.5)' }}>Coming soon to</p>
+                    <p style={{ fontSize: 9, color: 'rgba(255,255,255,.68)' }}>Coming soon to</p>
                     <p style={{ fontSize: 14, color: '#fff', fontWeight: 700 }}>{store}</p>
                   </div>
                 </div>
@@ -354,7 +357,7 @@ const mockCard: React.CSSProperties = {
   background: '#fff', borderRadius: 18, padding: '20px', border: '1px solid rgba(28,43,58,.07)',
   boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
 }
-const mockLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: 0.4, color: '#A0ADB8', textTransform: 'uppercase' }
+const mockLabel: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: 0.4, color: '#667585', textTransform: 'uppercase' }
 const chip: React.CSSProperties = { fontSize: 11, fontWeight: 600, color: '#3A4A5A', background: '#F5F7FA', padding: '6px 11px', borderRadius: 50 }
 const ctaPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff',

@@ -3,7 +3,7 @@ import { getPerspectivesPublic } from '@/lib/perspectives'
 import { PerspectivesView } from '@/components/media/PerspectivesView'
 
 export const metadata: Metadata = {
-  title: 'Perspectives | GetCalmly',
+  title: 'Perspectives',
   description: 'Short talks from founders, clinicians and members on the things that move mental health forward.',
   alternates: { canonical: '/perspectives' },
 }

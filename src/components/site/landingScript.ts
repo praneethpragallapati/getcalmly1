@@ -6,8 +6,18 @@ export const LANDING_SCRIPT = `
   var nav=document.getElementById('nav');
   if(nav){window.addEventListener('scroll',function(){nav.classList.toggle('stuck',window.scrollY>40);});}
 
-  var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1});
-  document.querySelectorAll('.reveal, .reveal-l, .reveal-r').forEach(function(el){obs.observe(el);});
+  // Mark the page as reveal-capable ONLY once the observer is actually attached.
+  // Until then the stylesheet runs a slow fade-in fallback, so a script error or
+  // a browser without IntersectionObserver can never leave content stuck at
+  // opacity:0 — which is what the CSS default is.
+  var page=document.querySelector('.lp-page');
+  try{
+    var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.1});
+    document.querySelectorAll('.reveal, .reveal-l, .reveal-r').forEach(function(el){obs.observe(el);});
+    if(page)page.classList.add('reveal-ready');
+  }catch(err){
+    document.querySelectorAll('.reveal, .reveal-l, .reveal-r').forEach(function(el){el.classList.add('in');});
+  }
   // Safety net: if the observer misses an element that's already at/above the
   // fold on load (fast paint, tab restore), reveal it so nothing stays stuck at
   // opacity:0. Below-fold elements are left to animate on scroll as normal.

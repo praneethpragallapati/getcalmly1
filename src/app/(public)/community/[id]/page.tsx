@@ -15,11 +15,14 @@ import { UpvoteButton } from '@/components/community/UpvoteButton'
 import { ReplyForm } from '@/components/community/ReplyForm'
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+// Brand coral is only AA-safe as large display text. Everything on this page
+// uses it at body/eyebrow/button size, so it points at the darker ink cut
+// (5.99:1 on cream, and on white behind a CTA) instead of #C8553D at 4.26:1.
+const coral = '#A8432D'
 
 const ROLE_COLOR: Record<string, { bg: string; color: string; label: string }> = {
   'Paid Member': { bg: 'rgba(200,85,61,.1)', color: '#C8553D', label: 'Paid Member ⭐' },
-  Member: { bg: 'rgba(0,0,0,.05)', color: '#6B7D8E', label: 'Member' },
+  Member: { bg: 'rgba(0,0,0,.05)', color: '#5A6A7A', label: 'Member' },
   Therapist: { bg: 'rgba(61,158,114,.1)', color: '#2C7A57', label: 'Therapist 🧑‍⚕️' },
   Psychiatrist: { bg: 'rgba(100,80,180,.1)', color: '#5A40B0', label: 'Psychiatrist 👨‍⚕️' },
   Admin: { bg: 'rgba(28,43,58,.1)', color: '#1C2B3A', label: 'Admin 🛡️' },
@@ -108,7 +111,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
           ))}
 
           {/* Footer */}
-          <div style={{ marginTop: 28, paddingTop: 18, borderTop: '1px solid #f0eae6', display: 'flex', alignItems: 'center', gap: 18, fontSize: 13.5, color: '#6B7D8E', fontWeight: 600 }}>
+          <div style={{ marginTop: 28, paddingTop: 18, borderTop: '1px solid #f0eae6', display: 'flex', alignItems: 'center', gap: 18, fontSize: 13.5, color: '#5A6A7A', fontWeight: 600 }}>
             <span>💬 {post.comments} comments</span>
             <span>▲ {post.upvotes} upvotes</span>
           </div>
@@ -173,7 +176,7 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
                   </div>
                   <div style={{ padding: '14px 16px' }}>
                     <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 17, fontWeight: 800, color: charcoal, lineHeight: 1.2, margin: '0 0 6px' }}>{r.title}</h3>
-                    <p style={{ fontSize: 12.5, color: '#6B7D8E', margin: 0 }}>{r.readTime}</p>
+                    <p style={{ fontSize: 12.5, color: '#5A6A7A', margin: 0 }}>{r.readTime}</p>
                   </div>
                 </article>
               </Link>

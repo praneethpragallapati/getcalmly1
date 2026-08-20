@@ -18,12 +18,14 @@ const SERVICES = [
   { slug: 'specialised', accent: '#C04B8A', pale: 'rgba(192,75,138,.10)', title: 'Specialised Support', tag: 'LGBTQIA+, grief, chronic illness' },
 ]
 
-const NAV = [
+// Enterprise is deliberately absent: an unlaunched product was holding one of
+// five primary nav slots on every page. It keeps its footer link (and its own
+// page) until it actually ships, at which point it earns a slot back.
+const NAV: { label: string; href: string; soon?: boolean }[] = [
   { label: 'Home', href: '/' },
   { label: 'Features', href: '/features' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Calm Club', href: '/real-talk' },
-  { label: 'Enterprise', href: '/enterprise', soon: true },
 ]
 
 export default function SiteHeader() {
@@ -31,7 +33,7 @@ export default function SiteHeader() {
 
   return (
     <nav id="nav">
-      <Logo size={36} href="/" tagline />
+      <Logo size={40} href="/" tagline={false} />
 
       <ul className="nav-links">
         <li><Link href="/">Home</Link></li>
@@ -76,7 +78,7 @@ export default function SiteHeader() {
         <Link
           href="/for-therapists"
           className="btn-ghost"
-          style={{ color: '#3D9E72', borderColor: 'rgba(61,158,114,.35)' }}
+          style={{ color: '#2F7D5A', borderColor: 'rgba(61,158,114,.45)' }}
         >
           Join our experts
         </Link>
@@ -154,7 +156,7 @@ export default function SiteHeader() {
               {n.soon && <span className="nav-soon-badge">Soon</span>}
             </Link>
           ))}
-          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#3D9E72', textDecoration: 'none' }}>Join our experts</Link>
+          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#2F7D5A', textDecoration: 'none' }}>Join our experts</Link>
           <Link href="/login" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, color: 'var(--charcoal)', textDecoration: 'none' }}>Log in</Link>
           <Link href="/assess" onClick={() => setOpen(false)} className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>Book session</Link>
         </div>

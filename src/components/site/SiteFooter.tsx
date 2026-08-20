@@ -6,7 +6,7 @@ export default function SiteFooter() {
     <footer>
       <div className="foot-grid">
         <div className="foot-brand">
-          <Logo size={36} href="/" onDark />
+          <Logo size={52} href="/" onDark matchTaglineWidth markWidth={300} />
           <p style={{ marginTop: 16, lineHeight: 1.6 }}>
             Mental wellness reimagined. Clinical-grade therapy, AI insights, and a community that
             understands, all in one calm, trustworthy space.
@@ -18,7 +18,7 @@ export default function SiteFooter() {
             <a href="mailto:connect@getcalmly.com" style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>✉️</span> connect@getcalmly.com
             </a>
-            <p style={{ color: 'rgba(255,255,255,.4)', fontSize: 12.5, lineHeight: 1.6, marginTop: 4 }}>
+            <p style={{ color: 'rgba(255,255,255,.56)', fontSize: 12.5, lineHeight: 1.6, marginTop: 4 }}>
               GetCalmly Private Limited<br />
               316, 11th A Cross, Classic Layout,<br />
               Begur, Bengaluru 560068, India

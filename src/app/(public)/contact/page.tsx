@@ -3,19 +3,25 @@ import type { Metadata } from 'next'
 import { ContactForm } from '@/components/site/ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Contact | GetCalmly',
-  description: 'Get in touch with the GetCalmly team, questions about care, billing, or partnerships.',
+  title: 'Contact Us',
+  description: 'Talk to the getCalmly team about starting therapy, your existing sessions, billing, or partnering with us. We reply on weekdays, usually within one working day.',
 }
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+// Brand coral is only AA-safe as large display text. Everything on this page
+// uses it at body/eyebrow/button size, so it points at the darker ink cut
+// (5.99:1 on cream, and on white behind a CTA) instead of #C8553D at 4.26:1.
+const coral = '#A8432D'
 const cream = '#FFFCFA'
 const heroBg =
   'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29'
 
+// The dark hero flips the requirement: the ink cut that clears AA on cream is
+// 2.8:1 on charcoal, so eyebrows there take the LIGHT coral (6.6:1).
 const eyebrow: React.CSSProperties = {
   fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: coral,
 }
+const eyebrowOnDark: React.CSSProperties = { ...eyebrow, color: '#E8896F' }
 const heading: React.CSSProperties = {
   fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, letterSpacing: '-0.5px',
 }
@@ -49,7 +55,7 @@ export default function ContactPage() {
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="cwrap contact-hero" style={{ position: 'relative' }}>
           <div>
-            <p style={{ ...eyebrow, marginBottom: 22 }}>Contact</p>
+            <p style={{ ...eyebrowOnDark, marginBottom: 22 }}>Contact</p>
             <h1 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(40px, 6vw, 72px)', color: '#fff', letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 0 }}>
               We&apos;re real people.<br />Say hello.
             </h1>
@@ -70,22 +76,22 @@ export default function ContactPage() {
             <div style={{ marginBottom: 40 }}>
               {channels.map((c) => (
                 <a key={c.label} href={c.href} className="cchan" style={{ borderTop: c === channels[0] ? 'none' : undefined }}>
-                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 8 }}>{c.label}</span>
+                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 8 }}>{c.label}</span>
                   <span style={{ display: 'block', fontSize: 20, fontWeight: 700, color: charcoal, letterSpacing: '-0.3px', marginBottom: 5 }}>{c.value}</span>
-                  <span style={{ display: 'block', fontSize: 14, color: '#6B7D8E', lineHeight: 1.5 }}>{c.note}</span>
+                  <span style={{ display: 'block', fontSize: 14, color: '#5A6A7A', lineHeight: 1.5 }}>{c.note}</span>
                 </a>
               ))}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 12 }}>Write to us</p>
+                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Write to us</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>
                   316, 11th A Main, Classic Paradise Layout,<br />Begur, Bengaluru 560068, India
                 </p>
               </div>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#9AA8B4', marginBottom: 12 }}>Support hours</p>
+                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#667585', marginBottom: 12 }}>Support hours</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>
                   Monday to Saturday<br />9:00 AM to 8:00 PM IST
                 </p>
@@ -106,7 +112,7 @@ export default function ContactPage() {
           {/* Right: form card */}
           <div style={{ background: '#fff', borderRadius: 24, padding: '36px 34px', border: '1px solid rgba(0,0,0,.07)', boxShadow: '0 20px 56px rgba(28,43,58,.08)' }}>
             <h2 style={{ ...heading, fontWeight: 700, fontSize: 26, color: charcoal, marginBottom: 6 }}>Send a message</h2>
-            <p style={{ fontSize: 14.5, color: '#6B7D8E', marginBottom: 26, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 14.5, color: '#5A6A7A', marginBottom: 26, lineHeight: 1.6 }}>
               Tell us what you need. Everything you share here is confidential.
             </p>
             <ContactForm />

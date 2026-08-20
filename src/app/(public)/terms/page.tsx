@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 }
 
 const charcoal = '#1C2B3A'
-const coral = '#C8553D'
+// Brand coral is only AA-safe as large display text. Everything on this page
+// uses it at body/eyebrow/button size, so it points at the darker ink cut
+// (5.99:1 on cream, and on white behind a CTA) instead of #C8553D at 4.26:1.
+const coral = '#A8432D'
 
 function H({ children }: { children: React.ReactNode }) {
   return <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 26, color: charcoal, margin: '40px 0 14px' }}>{children}</h2>

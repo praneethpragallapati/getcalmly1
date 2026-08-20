@@ -11,6 +11,14 @@ import Link from 'next/link'
  *   onDark  , light-ink variant for dark backgrounds
  *   tagline , include the "Mental Healthcare…" strapline
  *   href    , wrap in a link (null = just the mark)
+ *   matchTaglineWidth , lock the mark and the strapline to one width
+ *
+ * On matchTaglineWidth: the strapline is far wider than the mark, and scaling
+ * `size` cannot close that gap — both are sized from `size`, so the ratio
+ * between them never changes. Matching them at the strapline's natural nowrap
+ * width would need a ~450px mark, which swamps a footer. So the column is capped
+ * (markWidth) and the strapline is allowed to wrap inside it: the mark fills the
+ * cap, the text wraps to the same measure, and the two align on both edges.
  */
 // Per-dashboard accent tints. The default coral is the brand mark; each
 // dashboard re-skins the "Calmly." wordmark to match its theme.
@@ -26,12 +34,18 @@ export default function Logo({
   onDark = false,
   href = '/',
   tagline = true,
+  matchTaglineWidth = false,
+  markWidth: matchedWidth = 300,
   tint = 'coral',
 }: {
   size?: number
   onDark?: boolean
   href?: string | null
   tagline?: boolean
+  /** Lock the mark and strapline to one width (footer-scale only). */
+  matchTaglineWidth?: boolean
+  /** The shared width used by matchTaglineWidth, in px. */
+  markWidth?: number
   /** Recolours the "Calmly." wordmark to a dashboard accent (default brand coral). */
   tint?: Tint
 }) {
@@ -51,16 +65,30 @@ export default function Logo({
   const markWidth = Math.round(markHeight * markRatio * widen)
   const tagColor = onDark ? 'rgba(255,255,255,.82)' : '#1C2B3A'
   const tagSize = Math.max(9, Math.round(size * 0.24))
+  // Coral on a light background fails AA at strapline size, so the accent takes
+  // the darker ink there; on dark the bright coral is already well clear.
+  const tagAccent = tint === 'coral' ? (onDark ? '#E8896F' : '#A8432D') : TINT_ACCENT[tint]
+  const stretch = matchTaglineWidth && tagline
 
   const inner = (
-    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: Math.round(size * 0.12) }}>
+    <span style={{
+      display: 'inline-flex',
+      flexDirection: 'column',
+      alignItems: stretch ? 'stretch' : 'flex-start',
+      gap: Math.round(size * 0.12),
+      ...(stretch ? { width: matchedWidth, maxWidth: '100%' } : {}),
+    }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={markSrc}
         alt="getCalmly"
         width={markWidth}
         height={markHeight}
-        style={{ height: markHeight, width: markWidth, display: 'block' }}
+        style={stretch
+          // aspect-ratio keeps the deliberate 10% optical widening while the
+          // width is driven by the strapline beneath.
+          ? { width: '100%', aspectRatio: String(markRatio * widen), height: 'auto', display: 'block' }
+          : { height: markHeight, width: markWidth, display: 'block' }}
       />
       {tagline && (
         <span
@@ -71,11 +99,11 @@ export default function Logo({
             fontSize: `${tagSize}px`,
             color: tagColor,
             letterSpacing: '.1px',
-            lineHeight: 1.1,
-            whiteSpace: 'nowrap',
+            lineHeight: 1.35,
+            whiteSpace: stretch ? 'normal' : 'nowrap',
           }}
         >
-          Mental Healthcare, Powered by Experts, <span style={{ color: tint === 'coral' ? '#C8553D' : TINT_ACCENT[tint] }}>Personalized by AI</span>
+          Mental Healthcare, Powered by Experts, <span style={{ color: tagAccent }}>Personalized by AI</span>
         </span>
       )}
     </span>

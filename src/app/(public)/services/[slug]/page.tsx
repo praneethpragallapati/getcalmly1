@@ -324,6 +324,20 @@ function darkBand(accent: string): string {
   return `radial-gradient(ellipse 65% 55% at 88% 8%, ${accent}48, transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, ${accent}1F, transparent 60%), ${deepTone(accent)}`
 }
 
+/**
+ * The accent lifted towards white, for eyebrow text sitting ON a dark band.
+ *
+ * The raw accents are tuned for cream: on the ~#141E29 band they land around
+ * 2.8:1, well under AA. Mixing 55% towards white clears 4.5:1 for every accent
+ * in the set while still reading as that service's colour.
+ */
+function liftTone(hex: string): string {
+  const n = parseInt(hex.slice(1), 16)
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+  const lift = (c: number) => Math.round(c + (255 - c) * 0.55)
+  return `rgb(${lift(r)}, ${lift(g)}, ${lift(b)})`
+}
+
 // deepTone with alpha, for scrims layered over hero photos.
 function deepToneA(hex: string, alpha: number): string {
   const n = parseInt(hex.slice(1), 16)
@@ -448,6 +462,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     : null
 
   const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 2, color: s.accent, textTransform: 'uppercase' }
+  const eyebrowOnDark: React.CSSProperties = { ...eyebrow, color: liftTone(s.accent) }
   const photo = heroPhoto[slug as ServiceSlug]
 
   return (
@@ -473,7 +488,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           </Link>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 64, alignItems: 'center' }}>
             <div>
-              <p style={{ ...eyebrow, marginBottom: 20 }}>{s.title}</p>
+              <p style={{ ...eyebrowOnDark, marginBottom: 20 }}>{s.title}</p>
               <h1 style={{
                 fontFamily: "'Big Shoulders Display', sans-serif",
                 fontWeight: 300, fontSize: 'clamp(34px, 5.4vw, 56px)',
@@ -530,7 +545,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               </p>
             ))}
           </div>
-          <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300, textAlign: 'center', marginTop: 32 }}>
+          <p style={{ fontSize: 16, color: '#5A6A7A', lineHeight: 1.7, fontWeight: 300, textAlign: 'center', marginTop: 32 }}>
             If any of this sounds familiar, you don&apos;t have to keep carrying it alone.
           </p>
         </div>
@@ -544,7 +559,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               What care looks like here.
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
-            <p style={{ fontSize: 15.5, color: '#6B7D8E', lineHeight: 1.8, fontWeight: 300, marginTop: 18 }}>
+            <p style={{ fontSize: 15.5, color: '#5A6A7A', lineHeight: 1.8, fontWeight: 300, marginTop: 18 }}>
               And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and Calm AI whenever you need to talk things through, so your next session picks up right where you left off.
             </p>
           </div>
@@ -566,7 +581,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
               What we help with
             </h2>
-            <p style={{ fontSize: 16, color: '#6B7D8E', lineHeight: 1.7, fontWeight: 300 }}>
+            <p style={{ fontSize: 16, color: '#5A6A7A', lineHeight: 1.7, fontWeight: 300 }}>
               Whatever you&apos;re carrying, there&apos;s a place to start.
             </p>
           </div>
@@ -646,7 +661,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: darkBand(s.accent), padding: '94px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ ...eyebrow, marginBottom: 16 }}>Your first session, from ₹799</p>
+          <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from ₹799</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             You don&apos;t have to figure this out alone.
           </h3>

@@ -4,7 +4,8 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { submitContactMessage } from '@/app/(public)/actions'
 
-const coral = '#C8553D'
+// White on brand coral is 4.35:1 — the submit button takes the darker fill.
+const coral = '#B8482F'
 
 export function ContactForm() {
   const [name, setName] = useState('')
@@ -30,7 +31,7 @@ export function ContactForm() {
       <div style={{ textAlign: 'center', padding: '32px 8px' }}>
         <div style={{ fontSize: 30, marginBottom: 10 }}>✅</div>
         <div style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontSize: 24, fontWeight: 700, color: '#1C2B3A', marginBottom: 8 }}>Message received</div>
-        <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6 }}>Thanks for reaching out. Our team usually replies within a working day.</p>
+        <p style={{ fontSize: 14.5, color: '#5A6A7A', lineHeight: 1.6 }}>Thanks for reaching out. Our team usually replies within a working day.</p>
       </div>
     )
   }
@@ -47,7 +48,7 @@ export function ContactForm() {
           <input type="email" className="cfield" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div>
-          <label className="clabel">Phone <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(optional)</span></label>
+          <label className="clabel">Phone <span style={{ color: '#667585', fontWeight: 400 }}>(optional)</span></label>
           <input type="tel" className="cfield" placeholder="+91" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
       </div>
@@ -59,7 +60,7 @@ export function ContactForm() {
         {pending ? 'Sending…' : 'Send message →'}
       </button>
       {err && <p style={{ fontSize: 13, color: coral, textAlign: 'center' }}>{err}</p>}
-      <p style={{ fontSize: 12.5, color: '#A0ADB8', textAlign: 'center', lineHeight: 1.6 }}>
+      <p style={{ fontSize: 12.5, color: '#667585', textAlign: 'center', lineHeight: 1.6 }}>
         By sending, you agree to our{' '}
         <Link href="/privacy" style={{ color: coral, fontWeight: 600 }}>Privacy Policy</Link>.
       </p>
