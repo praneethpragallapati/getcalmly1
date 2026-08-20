@@ -12,7 +12,10 @@ import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { reassignAwayFromTherapist, cancelUpcomingWithTherapist } from '@/lib/reassign'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
-import { createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
+import {
+  createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
+  type FormRecurrence, type CustomFormInput,
+} from '@/lib/forms'
 import { notify, notifyMany } from '@/lib/notifications'
 import { ensurePollSchema } from '@/lib/polls'
 
@@ -1024,6 +1027,23 @@ export async function setFormActive(input: { id: string; active: boolean }): Pro
   } catch { return { ok: false, error: 'Could not update the form.' } }
 }
 
+/** Build a new form. Admin-built forms join the library for every clinician. */
+export async function createPlatformForm(input: CustomFormInput): Promise<AdminResult> {
+  const admin = await requireAdmin()
+  if (!admin?.id) return { ok: false, error: 'Admin access required.' }
+  const res = await createFormTemplate(input, { id: admin.id, name: admin.name })
+  if (res.ok) revalidatePath('/admin/config')
+  return { ok: res.ok, error: res.error }
+}
+
+/** Retire any custom form (admin scope covers forms clinicians built too). */
+export async function removePlatformForm(id: string): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const res = await deleteFormTemplate(id, null)
+  if (res.ok) revalidatePath('/admin/config')
+  return res
+}
+
 // ── Automatic form rules (platform-wide) ─────────────────────────────────────
 
 export async function createPlatformFormRule(input: {
@@ -1131,8 +1151,18 @@ export async function assignTherapistTask(formData: FormData): Promise<void> {
     },
   })
 
+  // Ring the clinician's bell — otherwise a task only shows up if they happen to
+  // open their portal and look.
+  await notify(therapistUserId, {
+    type: 'task',
+    title: 'New task from admin',
+    body: title,
+    href: '/expert/tasks',
+  })
+
   if (profileId) revalidatePath(`/admin/therapists/${profileId}`)
   revalidatePath('/expert')
+  revalidatePath('/expert/tasks')
 }
 
 /** Remove a task an admin assigned to a therapist. */
@@ -1147,4 +1177,5 @@ export async function deleteTherapistTask(formData: FormData): Promise<void> {
   await prisma.task.deleteMany({ where: { id: taskId, assignedById: admin.id } })
   if (profileId) revalidatePath(`/admin/therapists/${profileId}`)
   revalidatePath('/expert')
+  revalidatePath('/expert/tasks')
 }

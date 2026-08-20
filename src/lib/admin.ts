@@ -604,6 +604,8 @@ export type PatientSessionRow = {
   bothJoined: boolean
   rating: number | null // the patient's 1–5 rating of this call
   hasSummary: boolean
+  /** A clinical note is owed (paid sessions only — see AdminSessionRow). */
+  needsNote: boolean
   summary: string | null // clinician's post-session note
   preSessionNote: string | null // what the patient wrote before the session
   /** Each side's individual time and their join/leave stretches (0035). */
@@ -707,6 +709,7 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         bothJoined,
         rating: a.review?.rating ?? null,
         hasSummary: Boolean(a.summary),
+        needsNote: a.status === 'COMPLETED' && !a.summary,
         summary: a.summary ?? null,
         preSessionNote: a.preSessionNote ?? null,
         presence: presenceById.get(a.id) ?? {
@@ -830,6 +833,8 @@ export async function getCrisisAlerts(): Promise<CrisisRow[]> {
 export type ApptRow = {
   id: string; patientId: string; patientName: string; therapistId: string; therapistName: string
   scheduledAt: string; status: string; fee: number; isPast: boolean; hasSummary: boolean
+  /** A clinical note is owed (paid sessions only). */
+  needsNote: boolean
 }
 export type CancelRequestRow = {
   id: string; patientId: string; patientName: string; therapistName: string
@@ -886,9 +891,10 @@ export async function getOpsBoard(): Promise<OpsBoard> {
       therapistId: r.therapistId, therapistName: tName.get(r.therapistId) ?? 'Clinician',
       scheduledAt: fmtIST(r.scheduledAt, dtFmt),
       status: r.status, fee: r.fee, isPast: r.scheduledAt.getTime() < now.getTime(), hasSummary: Boolean(r.summary),
+      needsNote: r.status === 'COMPLETED' && !r.summary,
     })
     const upcoming = appts.filter((a) => a.scheduledAt.getTime() >= now.getTime() && a.status !== 'CANCELLED').sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime()).slice(0, 40).map(map)
-    const needsNote = appts.filter((a) => a.scheduledAt.getTime() < now.getTime() && a.status !== 'CANCELLED' && !a.summary).slice(0, 40).map(map)
+    const needsNote = appts.filter((a) => a.status === 'COMPLETED' && !a.summary).slice(0, 40).map(map)
     // Clinician-requested cancellations awaiting an admin decision.
     const cancelRequests: CancelRequestRow[] = appts
       .filter((a) => a.cancelRequested && a.status !== 'CANCELLED' && a.status !== 'COMPLETED')
@@ -1091,6 +1097,9 @@ export type AdminSessionRow = {
   status: string
   isPast: boolean
   hasSummary: boolean
+  /** A clinical note is owed. Only ever true for sessions the clinician is paid
+   *  for — cancelled and voided sessions are never chased for a note. */
+  needsNote: boolean
   voided: boolean
   fee: number
   // Who actually turned up, and for how long. Null when that side never joined.
@@ -1144,6 +1153,7 @@ export async function getClinicianRoster(profileId: string): Promise<ClinicianRo
         status: a.status,
         isPast: d.getTime() < now,
         hasSummary: !!a.summary,
+        needsNote: a.status === 'COMPLETED' && !a.summary,
         voided: a.status === 'CANCELLED',
         fee: a.fee,
         patientJoinedLabel: hhmm(a.patientJoinedAt),

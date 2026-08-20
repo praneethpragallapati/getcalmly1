@@ -3,7 +3,8 @@ import { getAdminSession, getFormsLibrary } from '@/lib/admin'
 import { ConfigPanel } from '@/components/admin/ConfigPanel'
 import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
 import { FormRulesManager } from '@/components/forms/FormRulesManager'
-import { getFormLibrary, listFormRules } from '@/lib/forms'
+import { FormBuilder } from '@/components/forms/FormBuilder'
+import { getFormLibrary, listFormRules, listCustomForms } from '@/lib/forms'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -11,15 +12,17 @@ export const dynamic = 'force-dynamic'
 export default async function AdminConfigPage() {
   const admin = await getAdminSession()
   if (!admin) redirect('/login')
-  const [forms, ruleTemplates, rules, patients] = await Promise.all([
+  const [forms, ruleTemplates, rules, patients, customForms] = await Promise.all([
     getFormsLibrary(),
     getFormLibrary(),
     listFormRules(null),
     prisma.user.findMany({ where: { role: 'PATIENT' }, select: { id: true, name: true, email: true }, orderBy: { createdAt: 'desc' }, take: 1000 }).catch(() => []),
+    listCustomForms(null),
   ])
   return (
     <div className="stack">
       <ConfigPanel forms={forms} />
+      <FormBuilder scope="admin" forms={customForms} />
       <FormRulesManager
         scope="admin"
         rules={rules}

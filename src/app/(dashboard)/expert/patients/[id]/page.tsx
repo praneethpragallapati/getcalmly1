@@ -62,10 +62,11 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   ])
   const patientAlerts = allRisk.filter((r) => r.patientId === id)
 
-  // Sessions a note can be written/edited for: past ones (plus any already noted).
-  // Own past sessions (to write notes on) + any session from any expert that
-  // already has a note, so the clinician sees the whole picture.
-  const pastSessions = p.sessions.filter((s) => s.summary || (s.isOwn && s.isPast))
+  // Sessions a note can be written/edited for. Own delivered (paid) sessions —
+  // cancelled and voided ones are left out, since there's no session to write up
+  // and no pay riding on it — plus any session from any expert that already has
+  // a note, so the clinician still sees the whole picture.
+  const pastSessions = p.sessions.filter((s) => s.summary || (s.isOwn && s.payable))
 
   return (
     <div className="stack">

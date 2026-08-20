@@ -24,8 +24,6 @@ function isLive(a: ScheduleAppointment): boolean {
 }
 
 function Row({ a }: { a: ScheduleAppointment }) {
-  const needsNote = a.isPast && a.status !== 'CANCELLED' && !a.hasSummary
-
   return (
     <div className="pattern" style={{ alignItems: 'flex-start' }}>
       <span className={`pattern-ic ${a.status === 'CANCELLED' ? 't-coral' : isLive(a) ? 't-green' : 't-gold'}`}>
@@ -83,7 +81,7 @@ function Row({ a }: { a: ScheduleAppointment }) {
           </div>
         )}
 
-        {needsNote && (
+        {a.needsNote && (
           <div style={{ marginTop: 10, maxWidth: 480 }}>
             <SessionNoteForm appointmentId={a.id} patientId={a.patientId} />
           </div>
@@ -99,7 +97,9 @@ export default async function SchedulePage() {
 
   const all = await getTherapistSchedule(ctx.therapistProfileId)
   const upcoming = all.filter((a) => !a.isPast && a.status !== 'CANCELLED' && a.status !== 'COMPLETED')
-  const needsNotes = all.filter((a) => a.isPast && a.status !== 'CANCELLED' && !a.hasSummary)
+  // Only sessions the clinician is paid for are chased for a note — a cancelled
+  // or voided session has nothing to write up.
+  const needsNotes = all.filter((a) => a.needsNote)
   const history = all
     .filter((a) => !upcoming.includes(a) && !needsNotes.includes(a))
     .sort((a, b) => b.scheduledAt.getTime() - a.scheduledAt.getTime())

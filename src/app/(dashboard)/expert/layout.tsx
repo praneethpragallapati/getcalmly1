@@ -1,15 +1,18 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, FileText, Video } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, FileText, Video, ListTodo } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { NavGroup } from '@/components/dashboard/NavGroup'
 import { ExpertAccountMenu } from '@/components/expert/ExpertAccountMenu'
 import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
+import { NotificationBell } from '@/components/dashboard/NotificationBell'
+import { markExpertNotificationsRead } from '@/app/(dashboard)/expert/actions'
 import { ToastProvider } from '@/components/ui/Toast'
-import { getTherapistContext, getRiskNotifications } from '@/lib/expert'
+import { getTherapistContext, getRiskNotifications, getExpertTaskCounts } from '@/lib/expert'
+import { getNotifications, getUnreadCount } from '@/lib/notifications'
 import { roleHome } from '@/lib/roleHome'
 import { expertCode } from '@/lib/ids'
 import { mustChangePassword } from '@/lib/accountSecurity'
@@ -28,9 +31,12 @@ export default async function ExpertLayout({ children }: { children: React.React
 
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
-  const [mustChange, risk] = await Promise.all([
+  const [mustChange, risk, taskCounts, unread, notes] = await Promise.all([
     mustChangePassword(ctx.userId),
     getRiskNotifications(ctx.therapistProfileId),
+    getExpertTaskCounts(ctx.therapistProfileId, ctx.userId),
+    getUnreadCount(ctx.userId),
+    getNotifications(ctx.userId),
   ])
   if (mustChange) redirect('/change-password')
   const openCount = risk.length
@@ -43,7 +49,7 @@ export default async function ExpertLayout({ children }: { children: React.React
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/expert" tint="green" />
         </div>
-        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
+        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/tasks', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
           <SidebarLink href="/expert" exact>
             <Home size={18} />
             <span>Dashboard</span>
@@ -51,6 +57,12 @@ export default async function ExpertLayout({ children }: { children: React.React
           <SidebarLink href="/expert/patients">
             <Users size={18} />
             <span>My Patients</span>
+          </SidebarLink>
+          {/* Session notes owed + anything admin has sent this clinician. */}
+          <SidebarLink href="/expert/tasks">
+            <ListTodo size={18} />
+            <span>Tasks</span>
+            {taskCounts.total > 0 && <span className="sb-badge">{taskCounts.total}</span>}
           </SidebarLink>
           {/* Schedule also covers Availability (tabbed together). */}
           <SidebarLink href="/expert/schedule" match={['/expert/availability']}>
@@ -125,7 +137,15 @@ export default async function ExpertLayout({ children }: { children: React.React
               <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.12)', padding: '2px 8px', borderRadius: 6 }}>{expertCode(ctx.therapistProfileId)}</span>
             </div>
           </div>
-          <ExpertAccountMenu name={ctx.therapistName ?? 'Doctor'} />
+          <div className="tb-actions">
+            <NotificationBell
+              items={notes}
+              unread={unread}
+              seeAllHref="/expert/notifications"
+              onMarkRead={markExpertNotificationsRead}
+            />
+            <ExpertAccountMenu name={ctx.therapistName ?? 'Doctor'} />
+          </div>
         </header>
         <main className="app-content">{children}</main>
       </div>

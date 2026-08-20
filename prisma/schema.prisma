@@ -1062,12 +1062,17 @@ model FormTemplate {
   autoSend    Boolean          @default(false)
   fields      Json // ordered [{ key, label, type, options?, required }]
   active      Boolean          @default(true)
+  // Set only for forms built in the admin / expert UI. Null means the form comes
+  // from the in-code library (src/data/forms.ts) and is managed there.
+  createdById String?
+  createdByName String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   assignments FormAssignment[]
   autoRules   FormAutoRule[]
 
   @@index([kind])
+  @@index([createdById])
 }
 
 // A default-form rule: automatically send a form after a booking, based on the

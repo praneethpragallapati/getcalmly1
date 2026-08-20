@@ -20,8 +20,11 @@ import {
   toggleMyTask,
   type CreateBlogInput,
 } from '@/lib/expert'
-import { sendForm, createFormRule, deleteFormRule, setFormRuleActive, type FormRecurrence } from '@/lib/forms'
-import { notify } from '@/lib/notifications'
+import {
+  sendForm, createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
+  type FormRecurrence, type CustomFormInput,
+} from '@/lib/forms'
+import { notify, markAllRead } from '@/lib/notifications'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { normalizeTags } from '@/data/tags'
 
@@ -70,7 +73,7 @@ export async function toggleMyAssignedTask(id: string, done: boolean): Promise<{
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false }
   const ok = await toggleMyTask(ctx.userId, id, done)
-  if (ok) revalidatePath('/expert')
+  if (ok) { revalidatePath('/expert'); revalidatePath('/expert/tasks') }
   return { ok }
 }
 
@@ -148,6 +151,8 @@ export async function completeSession(formData: FormData): Promise<void> {
   if (!id || !summary) return
   await writeSessionSummary(ctx.therapistProfileId, id, summary)
   revalidatePath('/expert/schedule')
+  revalidatePath('/expert/tasks')
+  revalidatePath('/expert')
   if (patientId) revalidatePath(`/expert/patients/${patientId}`)
 }
 
@@ -285,6 +290,41 @@ export async function toggleMyFormRule(id: string, active: boolean): Promise<{ o
   const ok = await setFormRuleActive(id, active, ctx.therapistProfileId)
   if (ok) revalidatePath('/expert/forms')
   return { ok }
+}
+
+// ── Custom forms built by this clinician ─────────────────────────────────────
+
+/** Build a new form. It joins the library, so it can be sent or used in a rule. */
+export async function createMyForm(input: CustomFormInput): Promise<{ ok: boolean; error?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const res = await createFormTemplate(input, { id: ctx.userId, name: ctx.therapistName })
+  if (res.ok) revalidatePath('/expert/forms')
+  return res
+}
+
+/** Retire a form this clinician built (their own only). */
+export async function removeMyForm(id: string): Promise<{ ok: boolean; error?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const res = await deleteFormTemplate(id, ctx.userId)
+  if (res.ok) revalidatePath('/expert/forms')
+  return res
+}
+
+// ── Notifications ────────────────────────────────────────────────────────────
+
+/** Clear the clinician's notification badge (opening the bell marks all read). */
+export async function markExpertNotificationsRead(): Promise<void> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return
+  try {
+    await markAllRead(ctx.userId)
+    revalidatePath('/expert/notifications')
+    revalidatePath('/expert')
+  } catch {
+    /* the badge is cosmetic — never surface a failure here */
+  }
 }
 
 export async function toggleMedication(formData: FormData): Promise<void> {

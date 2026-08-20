@@ -102,7 +102,7 @@ function SessionRow({ s }: { s: AdminSessionRow }) {
       <span style={{ fontSize: 13, color: charcoal, minWidth: 190 }}>{s.dateLabel} · {s.timeLabel}</span>
       <StatusPill s={s} />
       <Presence s={s} />
-      {s.isPast && !s.voided && !s.hasSummary && <span style={{ fontSize: 11, color: '#C9973A', fontWeight: 700 }}>no note</span>}
+      {s.needsNote && <span style={{ fontSize: 11, color: '#C9973A', fontWeight: 700 }}>no note</span>}
       <div style={{ marginLeft: 'auto' }}><VoidControl session={s} /></div>
     </div>
   )

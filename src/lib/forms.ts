@@ -43,6 +43,198 @@ export async function ensureFormTemplates(): Promise<void> {
   }
 }
 
+// ── Custom forms (built in the admin / expert UI) ────────────────────────────
+// The in-code library covers the standard clinical set. Anything a clinician or
+// an admin builds themselves lives only in the DB, tagged with who made it so
+// each side can manage its own. Code-seeded slugs are never editable from the
+// UI — ensureFormTemplates() would overwrite the change on the next call.
+
+const CODE_SLUGS = new Set(FORM_TEMPLATES.map((t) => t.slug))
+
+/** Custom-form columns, created on demand so this works before 0036 is applied. */
+let customFormSchemaReady = false
+export async function ensureCustomFormSchema(): Promise<void> {
+  if (customFormSchemaReady) return
+  const stmts = [
+    `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdById" TEXT`,
+    `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdByName" TEXT`,
+    `CREATE INDEX IF NOT EXISTS "FormTemplate_createdById_idx" ON "FormTemplate"("createdById")`,
+  ]
+  for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
+  customFormSchemaReady = true
+}
+
+/** Kinds a person can build. INTAKE is excluded: those are the auto-sent,
+ *  category-matched forms the booking flow owns, one per care category. */
+export const CUSTOM_FORM_KINDS = ['INFO', 'CONSENT', 'FEEDBACK'] as const
+export type CustomFormKind = (typeof CUSTOM_FORM_KINDS)[number]
+
+const FIELD_TYPES: FormField['type'][] = ['text', 'textarea', 'select', 'checkbox', 'date', 'tel', 'email']
+
+export type CustomFormInput = {
+  title: string
+  description?: string
+  kind: string
+  fields: { label: string; type: string; required?: boolean; options?: string[]; help?: string }[]
+}
+
+export type CustomFormRow = {
+  id: string
+  title: string
+  kind: string
+  fieldCount: number
+  active: boolean
+  createdByName: string | null
+  mine: boolean
+}
+
+/** A stable, readable key for a field, derived from its label ("Full name" →
+ *  "fullName"). Collisions inside one form get a numeric suffix. */
+function fieldKey(label: string, taken: Set<string>): string {
+  const words = label.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 6)
+  let base = words.length
+    ? words[0] + words.slice(1).map((w) => w[0].toUpperCase() + w.slice(1)).join('')
+    : 'field'
+  if (/^\d/.test(base)) base = `f${base}`
+  let key = base
+  for (let i = 2; taken.has(key); i++) key = `${base}${i}`
+  taken.add(key)
+  return key
+}
+
+function slugify(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'form'
+}
+
+/**
+ * Build a new form. `createdById` scopes ownership: an admin's forms are
+ * platform-wide, a clinician's are their own to manage. Both end up in the same
+ * library, so a custom form is sendable and rule-usable exactly like a built-in.
+ */
+export async function createFormTemplate(
+  input: CustomFormInput,
+  author: { id: string; name: string | null },
+): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const title = input.title.trim().replace(/\s+/g, ' ').slice(0, 120)
+  if (!title) return { ok: false, error: 'Give the form a title.' }
+
+  const kind = (CUSTOM_FORM_KINDS as readonly string[]).includes(input.kind)
+    ? (input.kind as CustomFormKind)
+    : 'INFO'
+
+  const taken = new Set<string>()
+  const fields: FormField[] = []
+  for (const f of input.fields ?? []) {
+    const label = String(f.label ?? '').trim().slice(0, 200)
+    if (!label) continue // a blank row is just an unused slot in the builder
+    const type = (FIELD_TYPES as string[]).includes(f.type) ? (f.type as FormField['type']) : 'text'
+    const options = type === 'select'
+      ? [...new Set((f.options ?? []).map((o) => String(o).trim()).filter(Boolean))].slice(0, 20)
+      : undefined
+    if (type === 'select' && (!options || options.length < 2)) {
+      return { ok: false, error: `"${label}" is a dropdown, so it needs at least two choices.` }
+    }
+    fields.push({
+      key: fieldKey(label, taken),
+      label,
+      type,
+      ...(options ? { options } : {}),
+      ...(f.required ? { required: true } : {}),
+      ...(f.help?.trim() ? { help: f.help.trim().slice(0, 200) } : {}),
+    })
+    if (fields.length >= 40) break
+  }
+  if (fields.length === 0) return { ok: false, error: 'Add at least one question.' }
+
+  try {
+    await ensureCustomFormSchema()
+    // Unique slug: the title, plus a counter only if that name is already taken.
+    const base = slugify(title)
+    let slug = base
+    for (let i = 2; i < 50; i++) {
+      const clash = await prisma.formTemplate.findUnique({ where: { slug }, select: { id: true } })
+      if (!clash) break
+      slug = `${base}-${i}`
+    }
+    const row = await prisma.formTemplate.create({
+      data: {
+        slug,
+        title,
+        description: input.description?.trim().slice(0, 500) || null,
+        kind,
+        fields: fields as unknown as object,
+        createdById: author.id,
+        createdByName: author.name ?? null,
+      },
+      select: { id: true },
+    })
+    return { ok: true, id: row.id }
+  } catch {
+    return { ok: false, error: 'Could not save the form.' }
+  }
+}
+
+/**
+ * Forms built in the UI. Admin (`ownerId` null) sees every custom form; a
+ * clinician sees their own. Built-in library forms are never listed here —
+ * they're managed in code.
+ */
+export async function listCustomForms(ownerId: string | null): Promise<CustomFormRow[]> {
+  try {
+    await ensureCustomFormSchema()
+    const rows = await prisma.formTemplate.findMany({
+      where: {
+        slug: { notIn: [...CODE_SLUGS] },
+        ...(ownerId ? { createdById: ownerId } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, kind: true, fields: true, active: true, createdById: true, createdByName: true },
+    })
+    return rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      kind: String(r.kind),
+      fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
+      active: r.active,
+      createdByName: r.createdByName ?? null,
+      mine: ownerId ? r.createdById === ownerId : true,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Retire a custom form. Deleted outright when nothing has been sent yet;
+ * otherwise deactivated, so completed responses stay readable on the patients
+ * who filled it in. Built-in forms can't be removed. `ownerId` null = admin
+ * (any custom form); a clinician may only remove one they created.
+ */
+export async function deleteFormTemplate(
+  id: string,
+  ownerId: string | null,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await ensureCustomFormSchema()
+    const row = await prisma.formTemplate.findUnique({
+      where: { id },
+      select: { slug: true, createdById: true, _count: { select: { assignments: true } } },
+    })
+    if (!row) return { ok: false, error: 'That form no longer exists.' }
+    if (CODE_SLUGS.has(row.slug)) return { ok: false, error: 'Built-in forms cannot be removed.' }
+    if (ownerId && row.createdById !== ownerId) return { ok: false, error: 'That form belongs to someone else.' }
+
+    if (row._count.assignments > 0) {
+      await prisma.formTemplate.update({ where: { id }, data: { active: false } })
+      return { ok: true }
+    }
+    await prisma.formTemplate.delete({ where: { id } })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not remove the form.' }
+  }
+}
+
 export type LibraryForm = {
   id: string
   slug: string

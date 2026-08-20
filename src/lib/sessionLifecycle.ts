@@ -20,6 +20,7 @@
  */
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
+import { notify } from '@/lib/notifications'
 
 /** How long a session runs, by clinician kind. */
 export function sessionDurationMins(psych: boolean): number {
@@ -215,8 +216,8 @@ export async function resolveDueAppointments(scope: { patientId?: string; therap
       select: {
         id: true, scheduledAt: true, durationMins: true, notes: true,
         patientJoinedAt: true, therapistJoinedAt: true, endedAt: true, consumedSubscriptionId: true,
-        patientLastSeenAt: true, therapistLastSeenAt: true,
-        therapist: { select: { clinicianType: true, specializations: true } },
+        patientLastSeenAt: true, therapistLastSeenAt: true, summary: true,
+        therapist: { select: { clinicianType: true, specializations: true, userId: true } },
       },
     })
 
@@ -274,6 +275,19 @@ export async function resolveDueAppointments(scope: { patientId?: string; therap
           ? [prisma.subscription.updateMany({ where: { id: a.consumedSubscriptionId, sessionsUsed: { gt: 0 } }, data: { sessionsUsed: { decrement: 1 } } })]
           : []),
       ])
+
+      // A session that settled as COMPLETED is one the clinician is paid for, and
+      // pay needs a note — so tell them it's waiting. Voided and cancelled
+      // sessions are never chased: there's nothing to write up. Best-effort;
+      // `notify` swallows its own failures.
+      if (status === 'COMPLETED' && !a.summary && a.therapist?.userId) {
+        await notify(a.therapist.userId, {
+          type: 'task',
+          title: 'Session note due',
+          body: 'Write it up to move this session onto your earnings.',
+          href: '/expert/tasks',
+        })
+      }
     }
   } catch (e) {
     console.error('[resolveDueAppointments] failed', e)

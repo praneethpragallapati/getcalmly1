@@ -78,7 +78,7 @@ export type ExpertPatientProfile = {
   sessionNotes: { date: string; raw: string; synthesized?: string }[]
   /** The patient's sessions across all experts involved. `isOwn` sessions are
    *  editable by the viewer; others render read-only, labelled by author. */
-  sessions: { id: string; dateLabel: string; status: string; isPast: boolean; summary: string | null; author: string; isOwn: boolean }[]
+  sessions: { id: string; dateLabel: string; status: string; isPast: boolean; payable: boolean; summary: string | null; author: string; isOwn: boolean }[]
   sessionsDone: number
   sessionsTotal: number
   sessionsRemaining: number
@@ -413,6 +413,71 @@ export async function getMyAssignedTasks(therapistUserId: string): Promise<MyTas
   }
 }
 
+// ── The clinician's task board ───────────────────────────────────────────────
+// Two things land on a clinician's plate: session notes they owe for sessions
+// they delivered, and tasks an admin sent them. Both surface here so there's one
+// place to check rather than two half-lists on the dashboard.
+
+export type NoteDueRow = {
+  appointmentId: string
+  patientId: string
+  patientName: string
+  dateLabel: string
+  /** Whole days since the session ended — drives the "overdue" emphasis. */
+  daysAgo: number
+}
+
+/**
+ * Sessions this clinician owes a note for: delivered and paid, but unwritten.
+ * Cancelled and voided sessions never appear — there's no session to write up,
+ * and no pay riding on it. Oldest first, so the longest-overdue is at the top.
+ */
+export async function getSessionsNeedingNote(therapistProfileId: string): Promise<NoteDueRow[]> {
+  try {
+    // Settle anything that has just elapsed, so a session that ended minutes ago
+    // is already COMPLETED (or voided) by the time we filter on status.
+    await resolveDueAppointments({ therapistId: therapistProfileId })
+    const rows = await prisma.appointment.findMany({
+      where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: null },
+      orderBy: { scheduledAt: 'asc' },
+      take: 50,
+      select: { id: true, patientId: true, scheduledAt: true, patient: { select: { name: true } } },
+    })
+    const now = Date.now()
+    return rows.map((r) => ({
+      appointmentId: r.id,
+      patientId: r.patientId,
+      patientName: r.patient?.name ?? 'Patient',
+      dateLabel: fmtIST(r.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+      daysAgo: Math.max(0, Math.floor((now - r.scheduledAt.getTime()) / 86_400_000)),
+    }))
+  } catch {
+    return []
+  }
+}
+
+export type ExpertTaskCounts = { notesDue: number; adminOpen: number; total: number }
+
+/**
+ * What's open on the clinician's task board, for the sidebar badge. Kept to two
+ * narrow counts so it can run on every page load in the layout.
+ */
+export async function getExpertTaskCounts(
+  therapistProfileId: string,
+  therapistUserId: string,
+): Promise<ExpertTaskCounts> {
+  try {
+    const [notesDue, adminTasks] = await Promise.all([
+      prisma.appointment.count({ where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: null } }),
+      getMyAssignedTasks(therapistUserId),
+    ])
+    const adminOpen = adminTasks.filter((t) => !t.done).length
+    return { notesDue, adminOpen, total: notesDue + adminOpen }
+  } catch {
+    return { notesDue: 0, adminOpen: 0, total: 0 }
+  }
+}
+
 /** Mark one of the therapist's own (admin-assigned) tasks done/undone. */
 export async function toggleMyTask(therapistUserId: string, taskId: string, done: boolean): Promise<boolean> {
   try {
@@ -567,6 +632,7 @@ export async function getExpertPatientProfile(
       }),
       status: a.status,
       isPast: a.scheduledAt.getTime() < now,
+      payable: isPayableSession(a.status),
       summary: a.summary ?? null,
       author: a.therapist?.user?.name ?? 'Clinician',
       isOwn: a.therapistId === therapistProfileId,
@@ -685,6 +751,10 @@ export type ScheduleAppointment = {
   meetLink: string | null
   hasSummary: boolean
   isPast: boolean
+  /** Whether this session counts towards the clinician's pay — see `payableStatus`. */
+  payable: boolean
+  /** A clinical note is owed: the session was delivered and paid, but unwritten. */
+  needsNote: boolean
   // What the patient wrote before the session — shown by the Join button so the
   // clinician can read it before entering the room.
   preSessionNote: string | null
@@ -700,6 +770,27 @@ export type ScheduleAppointment = {
   medActive: number
   medTotal: number
   journalCount: number
+}
+
+/**
+ * Whether a session counts towards the clinician's pay. Settlement
+ * (resolveDueAppointments) leaves every elapsed session either COMPLETED — both
+ * sides attended, or the patient no-showed after the clinician waited out the
+ * 15-minute window — or CANCELLED, which is every unpaid outcome: cancelled
+ * ahead of time, voided and refunded, or nobody joined. The earnings ledger
+ * pays on COMPLETED only, so that single status is the whole rule.
+ */
+export function isPayableSession(status: string): boolean {
+  return status === 'COMPLETED'
+}
+
+/**
+ * A session note is owed only where the clinician is being paid. There is
+ * nothing to write up for a session that never happened, and asking for notes on
+ * cancelled and voided sessions buried the ones that actually matter.
+ */
+export function sessionNeedsNote(a: { status: string; hasSummary: boolean }): boolean {
+  return isPayableSession(a.status) && !a.hasSummary
 }
 
 /** Every appointment on this therapist's calendar, most recent first. */
@@ -748,6 +839,7 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
   return rows.map((r) => {
     const ts = taskStat.get(r.patientId) ?? { open: 0, total: 0 }
     const ms = medStat.get(r.patientId) ?? { active: 0, total: 0 }
+    const hasSummary = Boolean(r.summary)
     return {
       id: r.id,
       patientId: r.patientId,
@@ -758,7 +850,9 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
       fee: r.fee,
       roomId: r.roomId,
       meetLink: r.meetLink,
-      hasSummary: Boolean(r.summary),
+      hasSummary,
+      payable: isPayableSession(r.status),
+      needsNote: sessionNeedsNote({ status: r.status, hasSummary }),
       // "Past" only once the whole session window has elapsed (or it's completed)
       // — NOT the instant the start time is reached. Otherwise a session flips to
       // "write notes" at its start and the clinician loses the Join button while

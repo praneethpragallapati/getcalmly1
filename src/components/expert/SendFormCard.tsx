@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Send } from 'lucide-react'
 import { sendFormToPatient, createMyFormRule } from '@/app/(dashboard)/expert/actions'
+import { FormBuilder } from '@/components/forms/FormBuilder'
 
 type Template = { id: string; title: string; kind?: string }
 
@@ -79,6 +80,9 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
         {err && <span className="muted" style={{ fontSize: 12.5, color: '#C0504B' }}>{err}</span>}
       </div>
       {when !== 'now' && <span className="muted" style={{ fontSize: 11.5 }}>Applies to this patient only, sent automatically after they book.</span>}
+      {/* Nothing in the library fits? Build the form here — it lands in the
+          dropdown above without leaving this patient. */}
+      <FormBuilder scope="expert" embedded />
     </div>
   )
 }

@@ -303,3 +303,8 @@ CREATE TABLE IF NOT EXISTS "SessionPresenceSpan" (
 );
 CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_idx" ON "SessionPresenceSpan"("appointmentId");
 CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_role_idx" ON "SessionPresenceSpan"("appointmentId", "role");
+
+-- 0036_custom_forms
+ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdById" TEXT;
+ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdByName" TEXT;
+CREATE INDEX IF NOT EXISTS "FormTemplate_createdById_idx" ON "FormTemplate"("createdById");

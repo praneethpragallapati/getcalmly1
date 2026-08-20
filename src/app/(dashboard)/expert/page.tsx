@@ -6,9 +6,8 @@ import {
 import { JoinButton } from '@/components/dashboard/JoinButton'
 import {
   getTherapistContext, getCaseload, getRiskNotifications, getTherapistSchedule,
-  getExpertPatientProfile, getMyAssignedTasks, type ScheduleAppointment,
+  getExpertPatientProfile, getMyAssignedTasks, type ScheduleAppointment, type MyTask,
 } from '@/lib/expert'
-import { MyTaskList } from '@/components/expert/MyTaskList'
 import { RequestCancel } from '@/components/expert/RequestCancel'
 import { fmtIST, istParts } from '@/lib/tz'
 
@@ -29,18 +28,20 @@ type DoctorTask = { key: string; label: string; sub: string; href: string; urgen
 function buildTasks(
   schedule: ScheduleAppointment[],
   risk: { id: string; patientId: string; patientName: string; kind: string }[],
+  adminTasks: MyTask[],
 ): DoctorTask[] {
   const tasks: DoctorTask[] = []
-  // 1. Past sessions still missing a clinical note
+  // 1. Delivered sessions still missing a clinical note. Cancelled and voided
+  // sessions never appear — nothing to write up, and no pay riding on them.
   schedule
-    .filter((a) => a.isPast && a.status !== 'CANCELLED' && !a.hasSummary)
+    .filter((a) => a.needsNote)
     .slice(-4)
     .forEach((a) =>
       tasks.push({
         key: `note-${a.id}`,
         label: `Write session note · ${a.patientName}`,
         sub: `Session on ${fmtIST(a.scheduledAt, { day: 'numeric', month: 'short' })}`,
-        href: `/expert/patients/${a.patientId}`,
+        href: '/expert/tasks',
         urgent: false,
       }),
     )
@@ -52,6 +53,17 @@ function buildTasks(
       sub: "Opens the patient's profile, resolve it there",
       href: `/expert/patients/${r.patientId}`,
       urgent: true,
+    }),
+  )
+  // 3. Anything admin has sent this clinician
+  adminTasks.filter((t) => !t.done).slice(0, 4).forEach((t) =>
+    tasks.push({
+      key: `admin-${t.id}`,
+      label: t.title,
+      sub: [t.assignedBy ? `From ${t.assignedBy}` : 'From admin', t.expired ? 'overdue' : t.dueLabel ? `until ${t.dueLabel}` : null]
+        .filter(Boolean).join(' · '),
+      href: '/expert/tasks',
+      urgent: t.expired,
     }),
   )
   return tasks.sort((a, b) => Number(b.urgent) - Number(a.urgent))
@@ -71,7 +83,7 @@ export default async function ExpertHomePage() {
   const upcoming = schedule.filter((a) => !a.isPast && a.status !== 'CANCELLED')
   const today = upcoming.filter((a) => isToday(a.scheduledAt))
   const next = upcoming[0] ?? null
-  const tasks = buildTasks(schedule, risk)
+  const tasks = buildTasks(schedule, risk, myTasks)
 
   // Data-composed pre-session context for the hero (fast; no LLM call here).
   // Structured, labelled rows rather than a run-on sentence, so the clinician can
@@ -251,19 +263,19 @@ export default async function ExpertHomePage() {
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 30, marginTop: 8, color: risk.length ? '#C0504B' : undefined }}>{risk.length}</div>
           <div className="muted">{risk.length === 1 ? 'alert needs review' : 'alerts need review'}</div>
         </Link>
-        <div className="card">
+        <Link href="/expert/tasks" className="card" style={{ textDecoration: 'none' }}>
           <ListTodo size={18} style={{ color: 'var(--c-coral)' }} />
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 30, marginTop: 8 }}>{tasks.length}</div>
           <div className="muted">pending tasks</div>
-        </div>
+        </Link>
       </div>
 
       <div className="grid-2">
         {/* ── Pending tasks ── */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div className="section-title">Pending tasks</div>
-            <span className="muted" style={{ fontSize: 12 }}>{tasks.length} open</span>
+            <div className="section-title">Tasks</div>
+            <Link href="/expert/tasks" className="link-action">See all</Link>
           </div>
           {tasks.length === 0 && (
             <p className="muted" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -304,19 +316,6 @@ export default async function ExpertHomePage() {
           </div>
         </div>
       </div>
-
-      {/* ── Tasks assigned by admin ── */}
-      {myTasks.length > 0 && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div className="section-title">Tasks from admin</div>
-            <span className="muted" style={{ fontSize: 12 }}>{myTasks.filter((t) => !t.done).length} open</span>
-          </div>
-          <div style={{ marginTop: 8 }}>
-            <MyTaskList tasks={myTasks} />
-          </div>
-        </div>
-      )}
 
       {/* ── Patient alerts ── */}
       <div className="card">

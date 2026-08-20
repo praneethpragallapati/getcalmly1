@@ -114,7 +114,7 @@ function ApptItem({ a, therapists, reassignable }: { a: ApptRow; therapists: { p
             <Link href={`/admin/patients/${a.patientId}`} style={{ color: charcoal, textDecoration: 'none' }}>{a.patientName}</Link>
             <span className="muted" style={{ fontWeight: 400 }}> with {a.therapistName}</span>
           </div>
-          <div className="muted" style={{ fontSize: 12.5 }}>{a.scheduledAt} · ₹{a.fee.toLocaleString('en-IN')}{a.isPast && !a.hasSummary ? ' · note pending' : ''}</div>
+          <div className="muted" style={{ fontSize: 12.5 }}>{a.scheduledAt} · ₹{a.fee.toLocaleString('en-IN')}{a.needsNote ? ' · note pending' : ''}</div>
         </div>
         <span style={{ fontSize: 11, fontWeight: 700, color: STATUS_COLOR[a.status] ?? '#6B7D8E', background: `${STATUS_COLOR[a.status] ?? '#6B7D8E'}1a`, padding: '3px 9px', borderRadius: 20 }}>{a.status.toLowerCase()}</span>
       </div>

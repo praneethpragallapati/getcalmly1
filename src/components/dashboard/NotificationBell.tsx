@@ -20,8 +20,18 @@ const ICON: Record<string, typeof Bell> = {
  * Facebook-style notification bell: clicking opens a small dropdown (not the
  * full page) with the latest 10, grouped Today / Older with timestamps. Opening
  * it marks everything read (clears the badge). "See all" opens the full page.
+ *
+ * Notifications are stored per user, not per role, so the same bell serves the
+ * patient and the expert portals. Each passes its own mark-read action and
+ * "see all" route, since those live under different layouts.
  */
-export function NotificationBell({ items, unread }: { items: NotificationView[]; unread: number }) {
+export function NotificationBell({ items, unread, seeAllHref = '/app/notifications', onMarkRead }: {
+  items: NotificationView[]
+  unread: number
+  seeAllHref?: string
+  /** Defaults to the patient action; the expert portal passes its own. */
+  onMarkRead?: () => Promise<unknown>
+}) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [count, setCount] = useState(unread)
@@ -44,7 +54,8 @@ export function NotificationBell({ items, unread }: { items: NotificationView[];
     setOpen(next)
     if (next && count > 0) {
       setCount(0)
-      markNotificationsRead().then(() => router.refresh()).catch(() => {})
+      const mark = onMarkRead ?? markNotificationsRead
+      mark().then(() => router.refresh()).catch(() => {})
     }
   }
 
@@ -108,8 +119,8 @@ export function NotificationBell({ items, unread }: { items: NotificationView[];
             )}
           </div>
 
-          {items.length > 10 && (
-            <Link href="/app/notifications" onClick={() => setOpen(false)} style={{ display: 'block', textAlign: 'center', padding: '11px', fontSize: 12.5, fontWeight: 600, color: 'var(--c-coral, #C8553D)', textDecoration: 'none', borderTop: '1px solid rgba(28,43,58,.07)' }}>
+          {items.length > 0 && (
+            <Link href={seeAllHref} onClick={() => setOpen(false)} style={{ display: 'block', textAlign: 'center', padding: '11px', fontSize: 12.5, fontWeight: 600, color: 'var(--c-coral, #C8553D)', textDecoration: 'none', borderTop: '1px solid rgba(28,43,58,.07)' }}>
               See all notifications
             </Link>
           )}
