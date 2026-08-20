@@ -13,8 +13,7 @@ import {
   MessageCircle,
   Truck,
 } from 'lucide-react'
-import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
-import { getMilestones } from '@/lib/milestones'
+import { getDashboardData } from '@/lib/dashboard'
 import { getMedications } from '@/lib/account'
 import { getSessionUserId } from '@/lib/patient'
 import { getMedicationOrders } from '@/lib/orders'
@@ -24,18 +23,14 @@ import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { HomePolls } from '@/components/dashboard/HomePolls'
 import { LocalTime } from '@/components/dashboard/LocalTime'
-import { MilestonesPanel } from '@/components/dashboard/MilestonesPanel'
-import { ZoneHead } from '@/components/dashboard/ZoneHead'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
-  const [d, meds, orders, polls, weekly, milestones] = await Promise.all([
+  const [d, meds, orders, polls] = await Promise.all([
     getDashboardData(),
     getMedications(),
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
     getCommunityPolls(userId),
-    userId ? getWeeklyProgress(userId) : Promise.resolve(null),
-    userId ? getMilestones(userId) : Promise.resolve([]),
   ])
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
@@ -48,7 +43,39 @@ export default async function AppHomePage() {
 
   return (
     <div className="stack">
-      {/* What's happening now — the most time-critical thing on the page. */}
+      {/* Calm AI leads the page: the day ahead, with the week's insight beside it. */}
+      <section className="hero">
+        <div>
+          <span className="hero-badge">CALM AI · YOUR DAY AHEAD</span>
+          <h2>{d.dailyInsight ? d.dailyInsight.title : `Welcome, ${d.name}.`}</h2>
+          <p>
+            {d.dailyInsight
+              ? d.dailyInsight.body
+              : 'Your personalised daily insight appears here once you’ve checked in and journaled for a few days. Start with a check-in below.'}
+          </p>
+          <div className="hero-actions">
+            <Link href="/app/calm-ai" className="btn btn-primary">
+              <Sparkles size={16} /> Open Calm AI
+            </Link>
+            <Link href="/app/journal" className="btn btn-ghost-d">
+              <PenLine size={16} /> Start a journal entry
+            </Link>
+          </div>
+        </div>
+        <div className="hero-side">
+          <div className="hero-side-label">WEEKLY INSIGHT</div>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
+            {d.weeklyInsight ? d.weeklyInsight.title : 'Nothing to reflect on yet'}
+          </div>
+          <p style={{ fontSize: 13, color: '#b9c3cd', lineHeight: 1.6, margin: 0 }}>
+            {d.weeklyInsight
+              ? d.weeklyInsight.body
+              : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
+          </p>
+        </div>
+      </section>
+
+      {/* Next up — join or book your session. */}
       {d.todaySession ? (
         <div className="card">
           <div
@@ -165,97 +192,13 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Today: one job — the day ahead, and the two things you can do about it. */}
-      <section className="hero">
-        <div>
-          <span className="hero-badge">CALM AI · YOUR DAY AHEAD</span>
-          <h2>{d.dailyInsight ? d.dailyInsight.title : `Welcome, ${d.name}.`}</h2>
-          <p>
-            {d.dailyInsight
-              ? d.dailyInsight.body
-              : 'Your personalised daily insight appears here once you’ve checked in and journaled for a few days. Start with a check-in below.'}
-          </p>
-          <div className="hero-actions">
-            <Link href="/app/calm-ai" className="btn btn-primary">
-              <Sparkles size={16} /> Open Calm AI
-            </Link>
-            <Link href="/app/journal" className="btn btn-ghost-d">
-              <PenLine size={16} /> Start a journal entry
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Morning check-in (#8) */}
       <CheckIn initial={d.checkin} streakDays={d.streakDays} />
 
-      {/* ── Your progress ─────────────────────────────────────────────────── */}
-      <ZoneHead title="Your progress" meta={`Started ${d.startedOn} · ${d.daysOnPlatform} days on getCalmly`} />
-
-      <div className="grid-4">
-        <div className="card stat-card">
-          <span className="stat-ic t-coral"><Flame size={20} /></span>
-          <span className="stat-badge t-coral">Personal best</span>
-          <div className="stat-n">{d.streakDays}<span> days</span></div>
-          <div className="stat-l">Current streak</div>
-        </div>
-        <div className="card stat-card">
-          <span className="stat-ic t-purple"><TrendingUp size={20} /></span>
-          {d.moodMonthChangePct !== null && (
-            <span className={`stat-badge ${d.moodMonthChangePct >= 0 ? 't-green' : 't-coral'}`}>
-              {d.moodMonthChangePct >= 0 ? '↑' : '↓'}{Math.abs(d.moodMonthChangePct)}% month
-            </span>
-          )}
-          <div className="stat-n">{d.avgMood > 0 ? d.avgMood.toFixed(1) : '—'}{d.avgMood > 0 && <span> /10</span>}</div>
-          <div className="stat-l">Avg mood score</div>
-        </div>
-        <div className="card stat-card">
-          <span className="stat-ic t-green"><CalendarCheck size={20} /></span>
-          <span className={`stat-badge ${d.planActive ? 't-green' : 't-gold'}`}>{d.planActive ? 'Active' : 'No active plan'}</span>
-          <div className="stat-n">{d.sessionsDone}</div>
-          <div className="stat-l">Therapy sessions</div>
-        </div>
-        <div className="card stat-card">
-          <span className="stat-ic t-gold"><NotebookPen size={20} /></span>
-          <span className="stat-badge t-gold">Consistent</span>
-          <div className="stat-n">{d.journalCount}</div>
-          <div className="stat-l">Journal entries</div>
-        </div>
-      </div>
-
-      {/* Mood over time (week / 6-week toggle) beside what this week held. */}
-      <div className="home-split home-split-2" style={{ gap: 20 }}>
-        <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 10 }}>This week</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-charcoal)', marginBottom: 8 }}>
-            {d.weeklyInsight ? d.weeklyInsight.title : 'Nothing to reflect on yet'}
-          </div>
-          <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.6, margin: 0 }}>
-            {d.weeklyInsight
-              ? d.weeklyInsight.body
-              : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
-          </p>
-          {weekly && (
-            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--c-line, rgba(28,43,58,.1))', display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div className="muted" style={{ fontSize: 13 }}>
-                Tasks from your expert: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.tasksCompleted}/{weekly.tasksAssigned}</b> completed ({weekly.completionPct}%)
-              </div>
-              <div className="muted" style={{ fontSize: 13 }}>
-                Mood check-ins: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.moodCheckins}</b>
-                {weekly.moodAvg !== null ? ` · avg ${weekly.moodAvg}/10` : ''}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Milestones — the long game, moved here from the old Progress page. */}
-      <MilestonesPanel milestones={milestones} />
+      {/* Mood, with a week / 6-week toggle. */}
+      <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
 
 
-      {/* ── Your space ────────────────────────────────────────────────────── */}
-      <ZoneHead title="Your space" meta="Journalling, tasks and what the community is talking about" />
 
       {polls.length > 0 && <HomePolls polls={polls} canVote={Boolean(userId)} />}
 

@@ -258,6 +258,7 @@ export async function saveCheckin(scores: {
     // AI profile refresh is a nice-to-have; never let it fail a saved check-in.
     await rebuildAiProfile(userId).catch(() => {})
     revalidatePath('/app')
+    revalidatePath('/app/progress')
     return { ok: true, persisted: true }
   } catch {
     return { ok: false, persisted: false, error: 'Could not save your check-in.' }
