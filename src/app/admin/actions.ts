@@ -16,7 +16,7 @@ import {
   createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
-import { notify, notifyMany } from '@/lib/notifications'
+import { notify, notifyMany, markAllRead } from '@/lib/notifications'
 import { ensureBlogReviewSchema } from '@/lib/expert'
 import { ensurePollSchema } from '@/lib/polls'
 
@@ -1265,4 +1265,19 @@ export async function deleteTherapistTask(formData: FormData): Promise<void> {
   if (profileId) revalidatePath(`/admin/therapists/${profileId}`)
   revalidatePath('/expert')
   revalidatePath('/expert/tasks')
+}
+
+// ── Notifications ────────────────────────────────────────────────────────────
+
+/** Clear the admin's notification badge (opening the bell marks all read). */
+export async function markAdminNotificationsRead(): Promise<void> {
+  const admin = await requireAdmin()
+  if (!admin?.id) return
+  try {
+    await markAllRead(admin.id)
+    revalidatePath('/admin/notifications')
+    revalidatePath('/admin')
+  } catch {
+    /* the badge is cosmetic — never surface a failure here */
+  }
 }

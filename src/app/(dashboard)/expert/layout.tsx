@@ -17,6 +17,7 @@ import { roleHome } from '@/lib/roleHome'
 import { expertCode } from '@/lib/ids'
 import { mustChangePassword } from '@/lib/accountSecurity'
 import { fmtIST } from '@/lib/tz'
+import { ensureContactSchema } from '@/lib/contactSchema'
 
 export const metadata: Metadata = {
   title: 'Expert portal',
@@ -26,6 +27,9 @@ export const metadata: Metadata = {
 export default async function ExpertLayout({ children }: { children: React.ReactNode }) {
   // Pin the area by fresh role (the session callback refreshes it from the DB):
   // a signed-in non-therapist is sent to their own dashboard, not left here.
+  // Create the 0038 contact columns if the migration hasn't been run yet.
+  // Flag-guarded, so this is one statement per process, not per request.
+  await ensureContactSchema().catch(() => {})
   const su = await getSessionUser()
   if (!su?.id) redirect('/login')
   if (su.role !== 'THERAPIST') redirect(roleHome(su.role))

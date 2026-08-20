@@ -113,6 +113,12 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: charcoal }}>{s.sessionsLeft}</div>
                       </div>
                       <div>
+                        <div className="muted" style={{ fontSize: 12 }}>Booked against it</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: s.countMismatch ? coral : charcoal }}>
+                          {s.bookedAgainst}
+                        </div>
+                      </div>
+                      <div>
                         <div className="muted" style={{ fontSize: 12, marginBottom: 4 }}>Validity</div>
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                           <button className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 12.5, padding: '6px 10px' }} disabled={pending}
@@ -122,6 +128,17 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                         </div>
                       </div>
                     </div>
+                    {/* The counter and the calendar should agree. When they don't,
+                        something created sessions outside the booking flow (or the
+                        counter was adjusted by hand) — say so rather than showing a
+                        bare "0 used" next to real sessions. */}
+                    {s.countMismatch && (
+                      <div style={{ marginTop: 12, fontSize: 12.5, lineHeight: 1.5, color: '#8A3A36', background: 'rgba(192,80,75,.07)', border: '1px solid rgba(192,80,75,.18)', borderRadius: 9, padding: '8px 11px' }}>
+                        <b>Counter doesn&apos;t match the calendar.</b> {s.bookedAgainst} session{s.bookedAgainst === 1 ? ' is' : 's are'} booked
+                        against this package but it counts {s.sessionsUsed} used. Sessions created outside the booking
+                        flow don&apos;t claim a slot — use the stepper to line them up.
+                      </div>
+                    )}
                     <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(28,43,58,.08)' }}>
                       <div className="muted" style={{ fontSize: 12 }}>
                         Expert:{' '}

@@ -16,6 +16,7 @@ import { getSessionUser } from '@/lib/session'
 import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
 import { fmtIST } from '@/lib/tz'
+import { ensureContactSchema } from '@/lib/contactSchema'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -30,6 +31,9 @@ function greetingFor(date: Date): string {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  // Create the 0038 contact columns if the migration hasn't been run yet.
+  // Flag-guarded, so this is one statement per process, not per request.
+  await ensureContactSchema().catch(() => {})
   const sessionUser = await getSessionUser()
   // Defense in depth behind the proxy gate: never render the patient area for a
   // signed-out visitor, and keep each role in its own area.

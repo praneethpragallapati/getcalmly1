@@ -24,7 +24,8 @@ import {
   sendForm, createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
-import { notify, notifyMany, markAllRead } from '@/lib/notifications'
+import { notify, markAllRead } from '@/lib/notifications'
+import { notifyBlogSubmission } from '@/lib/adminNotify'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { normalizeTags } from '@/data/tags'
 import { normalizeCountry } from '@/lib/countries'
@@ -41,26 +42,11 @@ export async function publishBlog(input: CreateBlogInput): Promise<ExpertActionR
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await createExpertBlogPost(ctx, { ...input, tags: normalizeTags(input.tags ?? []) })
   if (res.ok) {
-    await notifyAdminsOfSubmission(ctx.therapistName, input.title)
+    await notifyBlogSubmission(ctx.therapistName, input.title)
     revalidatePath('/expert/blogs')
     revalidatePath('/admin/content')
   }
   return res
-}
-
-/** Tell the admins there's something in the blog review queue. Best-effort. */
-async function notifyAdminsOfSubmission(author: string | null, title: string): Promise<void> {
-  try {
-    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
-    await notifyMany(admins.map((a) => a.id), {
-      type: 'announcement',
-      title: 'Blog post awaiting review',
-      body: `${author ?? 'A clinician'} submitted "${title.trim().slice(0, 90)}"`,
-      href: '/admin/content',
-    })
-  } catch {
-    /* the queue is still visible in the admin console either way */
-  }
 }
 
 /** Edit one of this clinician's own blog posts. */
@@ -69,7 +55,7 @@ export async function updateBlog(slug: string, input: CreateBlogInput): Promise<
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await updateExpertBlogPost(ctx, slug, { ...input, tags: normalizeTags(input.tags ?? []) })
   if (res.ok) {
-    await notifyAdminsOfSubmission(ctx.therapistName, input.title)
+    await notifyBlogSubmission(ctx.therapistName, input.title)
     revalidatePath('/expert/blogs')
     revalidatePath('/admin/content')
     revalidatePath('/blog')

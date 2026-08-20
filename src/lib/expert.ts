@@ -17,6 +17,7 @@ import { sessionMinMinutes, resolveDueAppointments, computePresence, ensureSessi
 import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
+import { notifyCancellationRequest } from '@/lib/adminNotify'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { callModel } from '@/lib/ai/clients'
 import { SYNTH_MODEL } from '@/lib/ai/models'
@@ -1043,7 +1044,11 @@ export async function requestAppointmentCancellation(
 ): Promise<boolean> {
   const appt = await prisma.appointment.findFirst({
     where: { id: appointmentId, therapistId: therapistProfileId },
-    select: { id: true, status: true },
+    select: {
+      id: true, status: true, scheduledAt: true,
+      patient: { select: { name: true } },
+      therapist: { select: { user: { select: { name: true } } } },
+    },
   })
   if (!appt) return false
   if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') return false
@@ -1051,6 +1056,13 @@ export async function requestAppointmentCancellation(
     where: { id: appointmentId },
     data: { cancelRequested: true, cancelReason: reason.trim() || null, cancelRequestedAt: new Date() },
   })
+  // The session stays on the patient's calendar until an admin decides, so the
+  // request is useless unless somebody is told it exists.
+  await notifyCancellationRequest(
+    appt.therapist?.user?.name ?? 'A clinician',
+    appt.patient?.name ?? 'Patient',
+    fmtIST(appt.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+  )
   return true
 }
 

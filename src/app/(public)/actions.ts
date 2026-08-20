@@ -1,6 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
+import { notifyContactMessage, notifyEnterpriseLead, notifyClinicianApplication } from '@/lib/adminNotify'
 
 export type SubmitResult = { ok: boolean; error?: string }
 
@@ -19,6 +20,7 @@ export async function submitContactMessage(input: {
     await prisma.contactMessage.create({
       data: { name, email, phone: clean(input.phone, 40) || null, message },
     })
+    await notifyContactMessage(name, message.slice(0, 80))
     return { ok: true }
   } catch {
     // No DB (preview) — accept without persisting so the form still feels done.
@@ -44,6 +46,7 @@ export async function submitEnterpriseLead(input: {
         message: clean(input.message) || null,
       },
     })
+    await notifyEnterpriseLead(clean(input.organisation, 160) || name, email)
     return { ok: true }
   } catch {
     return { ok: true }
@@ -77,6 +80,7 @@ export async function submitTherapistApplication(input: {
         preferredInterviewAt: when && !Number.isNaN(when.getTime()) ? when : null,
       },
     })
+    await notifyClinicianApplication(fullName, (input.specializations ?? [])[0] ?? null)
     return { ok: true }
   } catch {
     return { ok: true }

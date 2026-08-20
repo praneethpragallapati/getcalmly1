@@ -7,10 +7,14 @@ import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
 import { NavGroup } from '@/components/dashboard/NavGroup'
 import { AdminAccountMenu } from '@/components/admin/AdminAccountMenu'
+import { NotificationBell } from '@/components/dashboard/NotificationBell'
+import { markAdminNotificationsRead } from '@/app/admin/actions'
+import { getNotifications, getUnreadCount } from '@/lib/notifications'
 import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
 import { ToastProvider } from '@/components/ui/Toast'
 import { roleHome } from '@/lib/roleHome'
 import { mustChangePassword } from '@/lib/accountSecurity'
+import { ensureContactSchema } from '@/lib/contactSchema'
 
 export const metadata: Metadata = {
   title: 'Admin · GetCalmly',
@@ -20,10 +24,20 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Role read fresh from the DB (the session callback authoritatively refreshes
   // it), so this pins the area correctly the moment a role changes — no re-login.
+  // Create the 0038 contact columns if the migration hasn't been run yet.
+  // Flag-guarded, so this is one statement per process, not per request.
+  await ensureContactSchema().catch(() => {})
   const admin = await getSessionUser()
   if (!admin?.id) redirect('/login')
   if (admin.role !== 'ADMIN') redirect(roleHome(admin.role))
   if (await mustChangePassword(admin.id)) redirect('/change-password')
+
+  // Applications, contact messages, enterprise leads, cancellation requests,
+  // crisis alerts, blog submissions and purchases all ring this bell.
+  const [unread, notes] = await Promise.all([
+    getUnreadCount(admin.id),
+    getNotifications(admin.id),
+  ])
 
   return (
     <ToastProvider>
@@ -105,7 +119,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Admin console<span> · {admin.name ?? 'GetCalmly'}</span>
             </div>
           </div>
-          <AdminAccountMenu name={admin.name ?? 'Admin'} />
+          <div className="tb-actions">
+            <NotificationBell
+              items={notes}
+              unread={unread}
+              seeAllHref="/admin/notifications"
+              onMarkRead={markAdminNotificationsRead}
+            />
+            <AdminAccountMenu name={admin.name ?? 'Admin'} />
+          </div>
         </header>
         <main className="app-content">{children}</main>
       </div>

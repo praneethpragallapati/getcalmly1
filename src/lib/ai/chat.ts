@@ -24,6 +24,7 @@ import {
   VALID_INTENTS,
   VALID_LABELS,
 } from './models'
+import { notifyCrisisAlert } from '@/lib/adminNotify'
 
 const ICALL = aiConfig.iCall
 
@@ -350,6 +351,8 @@ async function saveCrisisAlert(ctx: PatientContext, question: string, answer: st
       handoffNote: handoff,
     },
   })
+  // Admins watch safety centrally, alongside the treating clinician.
+  await notifyCrisisAlert(ctx.name, label)
 }
 
 export type ChatResult = {

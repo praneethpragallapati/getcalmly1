@@ -9,6 +9,7 @@ import { packsForIn, type BuyableTrack } from '@/data/pricing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { resolveReferralCheckout, finalizeReferralCheckout, resolveWalletPayment, spendWalletCredit } from '@/lib/referral'
 import { fmtIST } from '@/lib/tz'
+import { notifyPurchase } from '@/lib/adminNotify'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -125,6 +126,11 @@ async function recordPayment(input: {
   // referral engine can tie the qualifying event to a payment row for clawback.
   try {
     const p = await prisma.payment.create({ data: input, select: { id: true } })
+    // Money in is worth telling the admin team about as it happens.
+    const buyer = await prisma.user
+      .findUnique({ where: { id: input.userId }, select: { name: true, email: true } })
+      .catch(() => null)
+    await notifyPurchase(buyer?.name ?? buyer?.email ?? 'A patient', input.planName, input.amount)
     return p.id
   } catch {
     // Ledger is a reporting aid; never block a completed purchase on it.

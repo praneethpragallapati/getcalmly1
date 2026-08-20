@@ -544,6 +544,13 @@ export type SubscriptionRow = {
   sessionsTotal: number; sessionsUsed: number; sessionsLeft: number; createdAt: string
   validUntil: string | null; expired: boolean
   therapistId: string | null; therapistName: string | null
+  /** Appointments actually booked against this package (live ones — a voided
+   *  session releases its slot). The counter above is what billing decrements;
+   *  this is what the calendar says, and the two can drift when sessions are
+   *  created outside the booking flow or adjusted by hand. */
+  bookedAgainst: number
+  /** True when the counter and the calendar disagree, so admin can see it. */
+  countMismatch: boolean
 }
 export type CareCategoryKey = 'individual' | 'couples' | 'psychiatry'
 export type CategoryAssignment = { id: string | null; name: string | null }
@@ -639,6 +646,22 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       const w = await prisma.user.findUnique({ where: { id: userId }, select: { walletCreditRupees: true } })
       walletCreditRupees = w?.walletCreditRupees ?? 0
     } catch { /* referral columns not applied yet */ }
+    // How many appointments actually hold a slot on each package. Booking sets
+    // consumedSubscriptionId and increments sessionsUsed together, and voiding
+    // reverses both — so a difference means something bypassed that path and is
+    // worth an admin's attention rather than silently reading as "0 used".
+    const consumedBySub = new Map<string, number>()
+    try {
+      const grouped = await prisma.appointment.groupBy({
+        by: ['consumedSubscriptionId'],
+        where: { patientId: userId, consumedSubscriptionId: { not: null }, status: { not: 'CANCELLED' } },
+        _count: { _all: true },
+      })
+      for (const g of grouped) {
+        if (g.consumedSubscriptionId) consumedBySub.set(g.consumedSubscriptionId, g._count._all)
+      }
+    } catch { /* reporting only — never block the page */ }
+
     const nameOf = (id: string | null | undefined) => (id ? therapists.find((t) => t.id === id)?.user?.name ?? null : null)
     const pp = user.patientProfile
     const assignedId = pp?.assignedTherapistId ?? latestAppt?.therapistId ?? null
@@ -656,6 +679,8 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       subscriptions: subs.map((s) => ({
         id: s.id, planName: s.planName, trackSlug: s.trackSlug, status: s.status,
         sessionsTotal: s.sessionsTotal, sessionsUsed: s.sessionsUsed, sessionsLeft: Math.max(0, s.sessionsTotal - s.sessionsUsed),
+        bookedAgainst: consumedBySub.get(s.id) ?? 0,
+        countMismatch: (consumedBySub.get(s.id) ?? 0) !== s.sessionsUsed,
         createdAt: fmt(s.createdAt),
         validUntil: s.expiresAt ? fmt(s.expiresAt) : null,
         expired: Boolean(s.expiresAt && s.expiresAt.getTime() < Date.now()),
@@ -729,6 +754,16 @@ const timeLabel = (d: Date | null | undefined): string | null =>
   d ? fmtIST(d, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : null
 
 /** Everything the admin needs to audit a patient's sessions and track progress. */
+/** The appointment shape the snapshot reads — named so a per-query fallback can
+ *  be typed without repeating it. */
+type ApptSnapshotRow = {
+  id: string; scheduledAt: Date; status: string; durationMins: number
+  patientJoinedAt: Date | null; therapistJoinedAt: Date | null; endedAt: Date | null
+  summary: string | null; preSessionNote: string | null
+  therapist: { rating: number; user: { name: string | null } | null } | null
+  review: { rating: number } | null
+}
+
 export async function getPatientActivity(userId: string): Promise<PatientActivity> {
   const empty: PatientActivity = {
     sessions: [],
@@ -742,10 +777,11 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
   return safe(async () => {
     const now = Date.now()
     const [appts, moods, moodCount, journalCount, lastJournal, tasks, meds, user] = await Promise.all([
-      // Narrow, explicit select (never a full-row read): the whole snapshot is
-      // wrapped in safe(), so if this read hit a column the DB doesn't have yet
-      // (e.g. a not-yet-applied migration) it would throw and blank EVERY metric
-      // to zero. Select only the fields the snapshot actually uses.
+      // Narrow, explicit selects (never a full-row read) AND a per-query
+      // fallback. Both matter: a full row can name a column the DB doesn't have
+      // yet, and without the individual .catch() one such failure reaches the
+      // outer safe() and blanks EVERY metric to zero — which reads as "this
+      // patient has done nothing" rather than "one metric is unavailable".
       prisma.appointment.findMany({
         where: { patientId: userId },
         orderBy: { scheduledAt: 'desc' },
@@ -757,14 +793,14 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
           therapist: { select: { rating: true, user: { select: { name: true } } } },
           review: { select: { rating: true } },
         },
-      }),
-      prisma.moodEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 14, select: { mood: true, createdAt: true } }),
-      prisma.moodEntry.count({ where: { userId } }),
-      prisma.journalEntry.count({ where: { userId } }),
-      prisma.journalEntry.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
-      prisma.task.findMany({ where: { userId }, select: { completedAt: true, frequency: true } }),
+      }).catch(() => [] as ApptSnapshotRow[]),
+      prisma.moodEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 14, select: { mood: true, createdAt: true } }).catch(() => [] as { mood: number; createdAt: Date }[]),
+      prisma.moodEntry.count({ where: { userId } }).catch(() => 0),
+      prisma.journalEntry.count({ where: { userId } }).catch(() => 0),
+      prisma.journalEntry.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }).catch(() => null),
+      prisma.task.findMany({ where: { userId }, select: { completedAt: true, frequency: true } }).catch(() => [] as { completedAt: Date | null; frequency: string | null }[]),
       prisma.medication.findMany({ where: { userId }, select: { active: true } }).catch(() => [] as { active: boolean }[]),
-      prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }).catch(() => null),
     ])
 
     // Presence spans for these sessions, fetched in one wave (one query per
