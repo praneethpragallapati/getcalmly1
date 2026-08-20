@@ -164,8 +164,9 @@ export default async function AppHomePage() {
         </div>
 
         {/* One card, like its neighbours — tasks, with today's medication as a
-            footer strip rather than a second card of a different size. */}
-        <div className="card">
+            footer strip rather than a second card of a different size. Tinted as
+            the anchor of this row; its two neighbours stay white. */}
+        <div className="card tint-green">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <div className="section-title">Today’s tasks</div>
             <span className="link-action">{openTasks} left</span>

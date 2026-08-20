@@ -31,7 +31,7 @@ export function NextSessionCard({ d }: { d: DashboardData }) {
   const s = d.todaySession
   if (s) {
     return (
-      <div className="next-card next-card-live">
+      <div className="next-card next-card-live tint-coral">
         <div className="ns-top">
           <ExpertAvatar name={s.expert} src={s.expertImage} onDark />
           <div className="ns-id">
@@ -68,7 +68,7 @@ export function NextSessionCard({ d }: { d: DashboardData }) {
   if (d.nextSession) {
     const nx = d.nextSession
     return (
-      <div className="next-card">
+      <div className="next-card tint-coral">
         <div className="ns-top">
           <ExpertAvatar name={nx.expert} src={nx.expertImage} />
           <div className="ns-id">
@@ -103,7 +103,7 @@ export function NextSessionCard({ d }: { d: DashboardData }) {
   }
 
   return (
-    <div className="next-card next-card-empty">
+    <div className="next-card next-card-empty tint-coral">
       <div className="next-eyebrow">YOUR CARE</div>
       <div className="ns-when ns-when-sm">No session booked</div>
       <div className="ns-meta">Book one with your care team whenever you&apos;re ready.</div>

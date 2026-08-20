@@ -920,6 +920,11 @@
   color: var(--c-charcoal);
   margin: 4px 0 6px;
   line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .comm-stats {
   font-size: 11px;
@@ -2701,6 +2706,56 @@
   width: 100%;
   justify-content: center;
   margin-top: 18px;
+}
+
+/* ===== Card tints =====
+   The home page was six near-identical white boxes stacked down the screen, so
+   nothing led the eye. These wash a SUBSET of them — one per band, alternating
+   hue as you scroll — while everything else stays white, so the tint reads as
+   emphasis rather than decoration. Each is a soft gradient falling back to white
+   rather than a flat fill, so the card still reads as paper and the text keeps
+   its contrast. Hues come from the existing palette; nothing new is introduced.
+
+   Applied to: the next-session card (coral, the brand accent, and the day's
+   action), milestones (gold, achievement) and today's tasks (green, progress).
+   Deliberately NOT applied to the check-in, mood chart, journal or community —
+   six tinted cards would be a rainbow and no better than six white ones. */
+.calmly-app .tint-coral,
+.calmly-app .tint-gold,
+.calmly-app .tint-green {
+  /* The wash sits on the card's own border radius and shadow; only the surface
+     and the border colour change. Scoped to .calmly-app so these outrank a
+     component rule that sets the `background` shorthand (which resets
+     background-image) later in this file. */
+  background-repeat: no-repeat;
+}
+.calmly-app .tint-coral {
+  background-image: linear-gradient(168deg, var(--c-coral-pale), var(--c-white) 88%);
+  border-color: rgba(200, 85, 61, 0.18);
+}
+.calmly-app .tint-gold {
+  background-image: linear-gradient(168deg, var(--c-gold-pale), var(--c-white) 88%);
+  border-color: rgba(201, 151, 58, 0.24);
+}
+.calmly-app .tint-green {
+  background-image: linear-gradient(168deg, var(--c-green-pale), var(--c-white) 88%);
+  border-color: rgba(61, 158, 114, 0.2);
+}
+/* A live session already renders as a dark card — never wash that. */
+.calmly-app .next-card-live.tint-coral {
+  background-image: none;
+}
+/* The three-up row stacks on narrow screens; a full-bleed wash on a tall stacked
+   card is heavy, so soften it there. */
+@media (max-width: 720px) {
+  .calmly-app .tint-coral,
+  .calmly-app .tint-gold,
+  .calmly-app .tint-green {
+    background-image: none;
+  }
+  .calmly-app .tint-coral { background-color: var(--c-coral-pale); }
+  .calmly-app .tint-gold { background-color: var(--c-gold-pale); }
+  .calmly-app .tint-green { background-color: var(--c-green-pale); }
 }
 
 /* ===== Milestones, concise (narrow companion) ===== */

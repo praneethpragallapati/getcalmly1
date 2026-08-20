@@ -16,7 +16,7 @@ export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) 
   const pct = milestones.length ? Math.round((done / milestones.length) * 100) : 0
 
   return (
-    <div className="mini-card">
+    <div className="mini-card tint-gold">
       <div className="eyebrow">MILESTONES</div>
 
       <div className="mini-score">
