@@ -289,3 +289,17 @@ ALTER TABLE "PerspectiveVideo" ADD COLUMN IF NOT EXISTS "tags" TEXT[] NOT NULL D
 -- 0034_drop_patient_feeling
 ALTER TABLE "PatientProfile" DROP COLUMN IF EXISTS "feeling";
 ALTER TABLE "PatientProfile" DROP COLUMN IF EXISTS "feelingAt";
+
+-- 0035_session_presence_spans
+CREATE TABLE IF NOT EXISTS "SessionPresenceSpan" (
+  "id" TEXT NOT NULL,
+  "appointmentId" TEXT NOT NULL,
+  "role" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "joinedAt" TIMESTAMP(3) NOT NULL,
+  "lastSeenAt" TIMESTAMP(3) NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "SessionPresenceSpan_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_idx" ON "SessionPresenceSpan"("appointmentId");
+CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_role_idx" ON "SessionPresenceSpan"("appointmentId", "role");

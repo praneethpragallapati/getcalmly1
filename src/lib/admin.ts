@@ -12,7 +12,7 @@ import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurr
 import { fmtIST } from '@/lib/tz'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { ensureSampleContent } from '@/lib/sampleContent'
-import { computePresence, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
+import { computePresence, ensureSessionPresenceSchema, getPresenceDetail, type PresenceDetail } from '@/lib/sessionLifecycle'
 
 export type AdminUser = { id: string; name: string | null; role: string }
 
@@ -606,6 +606,8 @@ export type PatientSessionRow = {
   hasSummary: boolean
   summary: string | null // clinician's post-session note
   preSessionNote: string | null // what the patient wrote before the session
+  /** Each side's individual time and their join/leave stretches (0035). */
+  presence: PresenceDetail
 }
 
 export type PatientProgress = {
@@ -675,6 +677,14 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
       prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }),
     ])
 
+    // Presence spans for these sessions, fetched in one wave (one query per
+    // session, run together) so the detail view can show each side's own time.
+    const presenceById = new Map<string, PresenceDetail>(
+      await Promise.all(
+        appts.map(async (a) => [a.id, await getPresenceDetail(a.id)] as const),
+      ),
+    )
+
     const sessions: PatientSessionRow[] = appts.map((a) => {
       const bothJoined = Boolean(a.patientJoinedAt && a.therapistJoinedAt)
       let durationMins: number | null = null
@@ -699,6 +709,12 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         hasSummary: Boolean(a.summary),
         summary: a.summary ?? null,
         preSessionNote: a.preSessionNote ?? null,
+        presence: presenceById.get(a.id) ?? {
+          patient: { spans: [], totalMins: 0, rejoins: 0 },
+          therapist: { spans: [], totalMins: 0, rejoins: 0 },
+          togetherMins: 0,
+          hasSpans: false,
+        },
       }
     })
 

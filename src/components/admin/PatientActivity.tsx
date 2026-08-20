@@ -89,10 +89,32 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
         <Field label="Patient joined" value={s.patientJoinedLabel ?? 'did not join'} muted={!s.patientJoinedLabel} />
         <Field label="Clinician joined" value={s.therapistJoinedLabel ?? 'did not join'} muted={!s.therapistJoinedLabel} />
         <Field label="Ended" value={s.endedLabel ?? '—'} muted={!s.endedLabel} />
-        <Field label="Together" value={s.durationMins != null ? fmtDuration(s.durationMins) : (s.bothJoined ? 'in progress' : '—')} />
+        <Field
+          label="Together"
+          value={s.presence.hasSpans
+            ? fmtDuration(s.presence.togetherMins)
+            : (s.durationMins != null ? fmtDuration(s.durationMins) : (s.bothJoined ? 'in progress' : '—'))}
+        />
+        {s.presence.hasSpans && (
+          <>
+            <Field label="Patient total" value={fmtDuration(s.presence.patient.totalMins)} />
+            <Field label="Clinician total" value={fmtDuration(s.presence.therapist.totalMins)} />
+          </>
+        )}
         <Field label="Scheduled" value={fmtDuration(s.scheduledMins)} />
         <Field label="Call rating" value={s.rating != null ? `★ ${s.rating}/5` : (s.isPast ? 'not rated' : '—')} muted={s.rating == null} />
       </div>
+      {s.presence.hasSpans && (s.presence.patient.rejoins > 0 || s.presence.therapist.rejoins > 0) && (
+        <div style={{ marginTop: 11, padding: '10px 12px', background: 'rgba(28,43,58,.03)', borderRadius: 10, border: '1px solid rgba(28,43,58,.08)' }}>
+          <div className="muted" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: 6 }}>
+            Attendance — joined &amp; left more than once
+          </div>
+          <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap' }}>
+            <SpanList title="Patient" side={s.presence.patient} />
+            <SpanList title="Clinician" side={s.presence.therapist} />
+          </div>
+        </div>
+      )}
       {s.preSessionNote && (
         <div style={{ marginTop: 11, padding: '9px 12px', background: 'rgba(200,85,61,.05)', borderRadius: 10, border: '1px solid rgba(200,85,61,.12)' }}>
           <div className="muted" style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase', color: '#B5533C', marginBottom: 3 }}>Pre-session note (from patient)</div>
@@ -156,5 +178,35 @@ export function PatientActivitySections({ activity }: { activity: PatientActivit
       <PatientProgressCard progress={activity.progress} />
       <PatientSessionsCard sessions={activity.sessions} />
     </>
+  )
+}
+
+/** One participant's join/leave stretches for a session. */
+function SpanList({ title, side }: { title: string; side: PatientSessionRow['presence']['patient'] }) {
+  if (side.spans.length === 0) {
+    return (
+      <div>
+        <div style={{ fontSize: 11.5, fontWeight: 700, color: charcoal, marginBottom: 4 }}>{title}</div>
+        <div className="muted" style={{ fontSize: 12 }}>did not join</div>
+      </div>
+    )
+  }
+  return (
+    <div>
+      <div style={{ fontSize: 11.5, fontWeight: 700, color: charcoal, marginBottom: 4 }}>
+        {title}
+        {side.rejoins > 0 && (
+          <span style={{ color: '#C9973A', fontWeight: 700 }}> · rejoined {side.rejoins}×</span>
+        )}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {side.spans.map((sp, i) => (
+          <div key={i} style={{ fontSize: 12, color: '#3A4A5A' }}>
+            {sp.joinedLabel} – {sp.leftLabel}
+            <span className="muted"> · {sp.minutes}m</span>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

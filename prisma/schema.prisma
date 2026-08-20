@@ -1273,3 +1273,21 @@ model GuidedAssignment {
   @@index([patientId])
   @@index([trackId])
 }
+
+// One continuous stretch of a participant being present in a session room.
+// The room heartbeats every ~20s; a gap longer than the stale threshold closes
+// the current span and the next beat opens a new one — so leaving and rejoining
+// produces several spans, and their sum is that person's real time in the room.
+model SessionPresenceSpan {
+  id            String   @id @default(cuid())
+  appointmentId String
+  // PATIENT | THERAPIST — who this span belongs to.
+  role          String
+  userId        String
+  joinedAt      DateTime
+  lastSeenAt    DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([appointmentId])
+  @@index([appointmentId, role])
+}

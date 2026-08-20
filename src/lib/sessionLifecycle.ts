@@ -43,7 +43,118 @@ export async function ensureSessionPresenceSchema(): Promise<void> {
   if (presenceSchemaReady) return
   await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "patientLastSeenAt" TIMESTAMP(3)`)
   await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "therapistLastSeenAt" TIMESTAMP(3)`)
+  await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "SessionPresenceSpan" (
+    "id" TEXT NOT NULL, "appointmentId" TEXT NOT NULL, "role" TEXT NOT NULL, "userId" TEXT NOT NULL,
+    "joinedAt" TIMESTAMP(3) NOT NULL, "lastSeenAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SessionPresenceSpan_pkey" PRIMARY KEY ("id"))`)
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_idx" ON "SessionPresenceSpan"("appointmentId")`)
+  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "SessionPresenceSpan_appointmentId_role_idx" ON "SessionPresenceSpan"("appointmentId", "role")`)
   presenceSchemaReady = true
+}
+
+/**
+ * The room heartbeats about every 20s. A gap wider than this means the person
+ * actually left (closed the tab, dropped, walked away) rather than a beat being
+ * slow, so the next beat starts a fresh span instead of extending the old one.
+ */
+export const PRESENCE_GAP_MS = 90_000
+
+export type PresenceRole = 'PATIENT' | 'THERAPIST'
+
+/**
+ * Record a heartbeat for one participant: extend their open span, or open a new
+ * one if they'd been away longer than PRESENCE_GAP_MS. Best-effort — presence
+ * detail is reporting, and must never break joining a call.
+ */
+export async function recordPresenceBeat(
+  appointmentId: string,
+  role: PresenceRole,
+  userId: string,
+  now: Date = new Date(),
+): Promise<void> {
+  try {
+    const open = await prisma.sessionPresenceSpan.findFirst({
+      where: { appointmentId, role, lastSeenAt: { gte: new Date(now.getTime() - PRESENCE_GAP_MS) } },
+      orderBy: { lastSeenAt: 'desc' },
+      select: { id: true },
+    })
+    if (open) {
+      await prisma.sessionPresenceSpan.update({ where: { id: open.id }, data: { lastSeenAt: now } })
+    } else {
+      await prisma.sessionPresenceSpan.create({
+        data: { appointmentId, role, userId, joinedAt: now, lastSeenAt: now },
+      })
+    }
+  } catch {
+    // table not migrated yet, or a transient write failure — ignore
+  }
+}
+
+export type PresenceSpanView = { joinedLabel: string; leftLabel: string; minutes: number }
+export type PresenceDetail = {
+  patient: { spans: PresenceSpanView[]; totalMins: number; rejoins: number }
+  therapist: { spans: PresenceSpanView[]; totalMins: number; rejoins: number }
+  /** Minutes both were in the room at the same time, across all overlaps. */
+  togetherMins: number
+  hasSpans: boolean
+}
+
+const overlapMs = (a: { s: number; e: number }, b: { s: number; e: number }) =>
+  Math.max(0, Math.min(a.e, b.e) - Math.max(a.s, b.s))
+
+/**
+ * The full attendance picture for one session: each side's join/leave stretches,
+ * their individual totals, and the time they genuinely overlapped. Falls back to
+ * an empty detail (hasSpans false) for sessions recorded before spans existed —
+ * callers show the single-join summary in that case.
+ */
+export async function getPresenceDetail(appointmentId: string): Promise<PresenceDetail> {
+  const empty: PresenceDetail = {
+    patient: { spans: [], totalMins: 0, rejoins: 0 },
+    therapist: { spans: [], totalMins: 0, rejoins: 0 },
+    togetherMins: 0,
+    hasSpans: false,
+  }
+  try {
+    const rows = await prisma.sessionPresenceSpan.findMany({
+      where: { appointmentId },
+      orderBy: { joinedAt: 'asc' },
+      select: { role: true, joinedAt: true, lastSeenAt: true },
+    })
+    if (rows.length === 0) return empty
+
+    const hhmm = (d: Date) => d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })
+    const build = (role: PresenceRole) => {
+      const mine = rows.filter((r) => r.role === role)
+      const spans = mine.map((r) => ({
+        joinedLabel: hhmm(r.joinedAt),
+        leftLabel: hhmm(r.lastSeenAt),
+        minutes: Math.max(0, Math.round((r.lastSeenAt.getTime() - r.joinedAt.getTime()) / 60_000)),
+      }))
+      return {
+        spans,
+        totalMins: spans.reduce((t, sp) => t + sp.minutes, 0),
+        rejoins: Math.max(0, mine.length - 1),
+      }
+    }
+
+    const toIv = (role: PresenceRole) =>
+      rows.filter((r) => r.role === role).map((r) => ({ s: r.joinedAt.getTime(), e: r.lastSeenAt.getTime() }))
+    const pIv = toIv('PATIENT')
+    const tIv = toIv('THERAPIST')
+    let togetherMs = 0
+    for (const a of pIv) for (const b of tIv) togetherMs += overlapMs(a, b)
+
+    return {
+      patient: build('PATIENT'),
+      therapist: build('THERAPIST'),
+      togetherMins: Math.round(togetherMs / 60_000),
+      hasSpans: true,
+    }
+  } catch {
+    return empty
+  }
 }
 
 type PresenceRow = {

@@ -17,7 +17,7 @@ import { normalizeTags } from '@/data/tags'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
-import { sessionDurationMins, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
+import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -496,10 +496,15 @@ export async function markSessionJoined(roomOrId: string): Promise<{ ok: boolean
     })
     if (!appt) return { ok: false }
     const now = new Date()
+    // The Appointment columns stay the first-join / last-seen summary that
+    // settlement and the existing views read; the span log additionally records
+    // each separate stretch, so leaving and rejoining is visible.
     if (appt.patientId === userId) {
       await prisma.appointment.update({ where: { id: appt.id }, data: { patientJoinedAt: appt.patientJoinedAt ?? now, patientLastSeenAt: now } })
+      await recordPresenceBeat(appt.id, 'PATIENT', userId, now)
     } else if (appt.therapist.userId === userId) {
       await prisma.appointment.update({ where: { id: appt.id }, data: { therapistJoinedAt: appt.therapistJoinedAt ?? now, therapistLastSeenAt: now } })
+      await recordPresenceBeat(appt.id, 'THERAPIST', userId, now)
     } else {
       return { ok: false }
     }
