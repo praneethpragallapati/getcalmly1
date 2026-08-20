@@ -14,23 +14,27 @@ import {
   Truck,
 } from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard'
+import { getMilestones } from '@/lib/milestones'
 import { getMedications } from '@/lib/account'
 import { getSessionUserId } from '@/lib/patient'
 import { getMedicationOrders } from '@/lib/orders'
 import { getCommunityPolls } from '@/lib/polls'
 import { CheckIn } from '@/components/dashboard/CheckIn'
-import { MoodWeekChart } from '@/components/dashboard/MoodWeekChart'
+import { MoodTrendChart } from '@/components/dashboard/MoodTrendChart'
+import { NextSessionCard } from '@/components/dashboard/NextSessionCard'
+import { MilestonesMini } from '@/components/dashboard/MilestonesMini'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { HomePolls } from '@/components/dashboard/HomePolls'
 import { LocalTime } from '@/components/dashboard/LocalTime'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
-  const [d, meds, orders, polls] = await Promise.all([
+  const [d, meds, orders, polls, milestones] = await Promise.all([
     getDashboardData(),
     getMedications(),
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
     getCommunityPolls(userId),
+    userId ? getMilestones(userId) : Promise.resolve([]),
   ])
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
@@ -86,93 +90,6 @@ export default async function AppHomePage() {
         </div>
       </section>
 
-      {/* Next up — join or book your session. */}
-      {d.todaySession ? (
-        <div className="card">
-          <div
-            style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}
-          >
-            <div className="section-title">Today’s session</div>
-            <Link href="/app/sessions" className="link-action">
-              All →
-            </Link>
-          </div>
-          <div className="session-card-row">
-            <span className="doc-avatar">👩‍⚕️</span>
-            <div>
-              <div className="doc-name">{d.todaySession.expert}</div>
-              <div className="doc-sub">{d.todaySession.expertRole}</div>
-              <div className="tag-row">
-                {d.todaySession.tags.map((t) => (
-                  <span className="tag" key={t}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="session-info-grid">
-            <div>
-              <div className="lbl">TIME</div>
-              <div className="val"><LocalTime iso={d.todaySession.scheduledISO} fallback={d.todaySession.when.split('·').pop()?.trim() ?? ''} options={{ hour: 'numeric', minute: '2-digit' }} /></div>
-            </div>
-            <div>
-              <div className="lbl">DURATION</div>
-              <div className="val">{d.todaySession.durationMins} min</div>
-            </div>
-            <div>
-              <div className="lbl">SESSION</div>
-              <div className="val">#{d.todaySession.sessionNo}</div>
-            </div>
-          </div>
-          <Link
-            href={`/app/sessions/${d.todaySession.id}/room`}
-            className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            <Video size={16} /> Join session
-          </Link>
-          <Link
-            href={`/app/sessions/${d.todaySession.id}`}
-            className="link-action"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14 }}
-          >
-            <FileText size={14} /> Add pre-session note
-          </Link>
-        </div>
-      ) : d.nextSession ? (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div className="section-title">Next session</div>
-            <Link href="/app/sessions" className="link-action">All →</Link>
-          </div>
-          <div className="session-card-row">
-            <span className="doc-avatar">👩‍⚕️</span>
-            <div>
-              <div className="doc-name">{d.nextSession.expert}</div>
-              <div className="doc-sub"><LocalTime iso={d.nextSession.scheduledISO} fallback={d.nextSession.when} /></div>
-            </div>
-          </div>
-          <div className="session-info-grid">
-            <div>
-              <div className="lbl">DURATION</div>
-              <div className="val">{d.nextSession.durationMins} min</div>
-            </div>
-          </div>
-          <Link href="/app/sessions" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
-            <FileText size={16} /> Manage session
-          </Link>
-        </div>
-      ) : (
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', gap: 10 }}>
-          <div className="section-title">Next session</div>
-          <p className="muted" style={{ fontSize: 14 }}>No session booked yet. Book one with your care team whenever you’re ready.</p>
-          <Link href="/app/therapist" className="btn btn-primary">
-            <Video size={16} /> Book a session
-          </Link>
-        </div>
-      )}
-
       {awaitingPayment.length > 0 && (
         <Link
           href="/app/medications"
@@ -203,11 +120,18 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Morning check-in (#8) */}
-      <CheckIn initial={d.checkin} streakDays={d.streakDays} />
+      {/* Band 1 — today's check-in, with what's next beside it. */}
+      <div className="home-band">
+        <CheckIn initial={d.checkin} streakDays={d.streakDays} />
+        <NextSessionCard d={d} />
+      </div>
 
-      {/* Mood, with a week / 6-week toggle. */}
-      <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
+      {/* Band 2 — how you've been, with milestones at a glance beside it. */}
+      <div className="home-band">
+        <MoodTrendChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
+        <MilestonesMini milestones={milestones} />
+      </div>
+
 
 
 

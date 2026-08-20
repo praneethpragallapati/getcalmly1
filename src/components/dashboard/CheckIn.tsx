@@ -6,10 +6,12 @@ import { Check } from 'lucide-react'
 import { saveCheckin } from '@/app/(dashboard)/app/actions'
 import type { CheckinScores } from '@/data/dashboardDemo'
 
-const DIMS: { key: keyof CheckinScores; label: string; color: string }[] = [
-  { key: 'mood', label: 'Mood', color: '#c8553d' },
-  { key: 'energy', label: 'Energy', color: '#6d5bd0' },
-  { key: 'calm', label: 'Calm', color: '#3d9e72' },
+// Muted and harmonious rather than three saturated primaries — the same trio
+// the mood chart uses, so a colour means the same thing in both places.
+const DIMS: { key: keyof CheckinScores; label: string; color: string; tint: string }[] = [
+  { key: 'mood', label: 'Mood', color: '#C8553D', tint: 'rgba(200,85,61,.10)' },
+  { key: 'energy', label: 'Energy', color: '#D9A441', tint: 'rgba(217,164,65,.12)' },
+  { key: 'calm', label: 'Calm', color: '#4E9E8F', tint: 'rgba(78,158,143,.12)' },
 ]
 
 /**
@@ -55,7 +57,7 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
   }
 
   return (
-    <div className="card">
+    <div className="card checkin-card">
       <div className="checkin-head">
         <div>
           <div className="eyebrow">MORNING CHECK-IN</div>
@@ -69,13 +71,13 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
         <span className="streak-chip">🔥 {streakDays}-day streak</span>
       </div>
 
-      {DIMS.map(({ key, label, color }) => {
+      {DIMS.map(({ key, label, color, tint }) => {
         const v = scores[key]
         return (
           <div className="slider-row" key={key}>
             <div className="slider-top">
               <span className="slider-label">{label}</span>
-              <span className="slider-val" style={{ color }}>
+              <span className="slider-val" style={{ color, background: v > 0 ? tint : 'transparent' }}>
                 {v}
               </span>
             </div>
@@ -91,7 +93,8 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
                 setConfirmZero(false)
               }}
               style={{
-                background: `linear-gradient(to right, ${color} ${v * 10}%, #efe7e2 ${v * 10}%)`,
+                color,
+                background: `linear-gradient(to right, ${color} 0%, ${color} ${v * 10}%, rgba(28,43,58,.08) ${v * 10}%)`,
               }}
             />
           </div>
