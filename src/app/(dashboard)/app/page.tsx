@@ -163,35 +163,23 @@ export default async function AppHomePage() {
           )}
         </div>
 
-        <div className="stack">
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <div className="section-title">Today’s tasks</div>
-              <span className="link-action">{openTasks} left</span>
-            </div>
-            <TaskList tasks={d.tasks} />
+        {/* One card, like its neighbours — tasks, with today's medication as a
+            footer strip rather than a second card of a different size. */}
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div className="section-title">Today’s tasks</div>
+            <span className="link-action">{openTasks} left</span>
           </div>
+          <TaskList tasks={d.tasks} />
 
-          {/* Medications glimpse (#14, full screen at /app/medications) */}
           {med && (
-            <Link href="/app/medications" className="card" style={{ display: 'block' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div className="section-title">Medications</div>
-                <span className="link-action">Manage →</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="task-ic">
-                  <Pill size={16} />
-                </span>
-                <div>
-                  <div className="doc-name" style={{ fontSize: 15 }}>
-                    {med.name} {med.dosage}
-                  </div>
-                  <div className="doc-sub">
-                    {med.frequency} · {med.times.join(', ')}
-                  </div>
-                </div>
-              </div>
+            <Link href="/app/medications" className="med-strip">
+              <span className="task-ic"><Pill size={15} /></span>
+              <span className="med-strip-body">
+                <span className="med-strip-name">{med.name} {med.dosage}</span>
+                <span className="med-strip-sub">{med.frequency} · {med.times.join(', ')}</span>
+              </span>
+              <span className="link-action">Manage →</span>
             </Link>
           )}
         </div>

@@ -19,6 +19,7 @@ import { getSessionUserId } from '@/lib/patient'
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
 import { getCommunityPostsCached } from '@/lib/community'
 import { patientCode } from '@/lib/ids'
+import { designationOf } from '@/lib/expert'
 
 /**
  * Tenure-based membership tier from cumulative paid months (#18). Kept here so
@@ -239,7 +240,7 @@ export async function getDashboardData(): Promise<DashboardData> {
             scheduledAt: true,
             durationMins: true,
             status: true,
-            therapist: { select: { user: { select: { name: true } } } },
+            therapist: { select: { specializations: true, user: { select: { name: true, image: true } } } },
           },
         }).catch(() => []),
         getCommunityPostsCached().catch(() => []),
@@ -411,7 +412,8 @@ export async function getDashboardData(): Promise<DashboardData> {
         data.todaySession = {
           id: todayAppt.id,
           expert: todayAppt.therapist.user.name ?? 'Your expert',
-          expertRole: 'Clinical Psychologist',
+          expertRole: designationOf(todayAppt.therapist.specializations),
+          expertImage: todayAppt.therapist.user.image ?? null,
           when: todayAppt.scheduledAt.toLocaleString('en-IN', {
             weekday: 'long',
             day: 'numeric',
@@ -440,6 +442,8 @@ export async function getDashboardData(): Promise<DashboardData> {
         data.nextSession = {
           id: nx.id,
           expert: nx.therapist.user.name ?? 'Your expert',
+          expertRole: designationOf(nx.therapist.specializations),
+          expertImage: nx.therapist.user.image ?? null,
           when: nx.scheduledAt.toLocaleString('en-IN', {
             weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
           }),
