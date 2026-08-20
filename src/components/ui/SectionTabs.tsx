@@ -18,7 +18,7 @@ export function SectionTabs({
   eyebrow?: string
   /** Omit when the page already shows its own hero/heading — only pills render. */
   title?: string
-  meta?: string
+  meta?: React.ReactNode
   tabs: SectionTab[]
   active: string // href of the current tab
 }) {
@@ -35,6 +35,7 @@ export function SectionTabs({
           {meta && <div className="page-meta">{meta}</div>}
         </div>
       )}
+      {tabs.length > 0 && (
       <div style={{ display: 'inline-flex', background: 'rgba(28,43,58,.05)', borderRadius: 999, padding: 3, gap: 2, flexWrap: 'wrap' }}>
         {tabs.map((t) => {
           const on = t.href === active
@@ -66,6 +67,7 @@ export function SectionTabs({
           )
         })}
       </div>
+      )}
     </div>
   )
 }

@@ -27,8 +27,8 @@ export const EXPERT_SCHEDULE_TABS: SectionTab[] = [
 ]
 
 export const EXPERT_PUBLISH_TABS: SectionTab[] = [
-  { href: '/expert/blogs', label: 'Blogs' },
-  { href: '/expert/perspectives', label: 'Talks' },
+  { href: '/expert/blogs', label: 'Read' },
+  { href: '/expert/perspectives', label: 'Watch' },
 ]
 
 // ── Admin ────────────────────────────────────────────────────────────────────

@@ -16,7 +16,7 @@ export default async function ExpertPerspectivesPage() {
   const sections = await getPerspectivesPublic()
   return (
     <>
-      <SectionTabs title="Publishing" tabs={EXPERT_PUBLISH_TABS} active="/expert/perspectives" />
+      <SectionTabs eyebrow="Calm Club · Perspectives" title="Perspectives" tabs={EXPERT_PUBLISH_TABS} active="/expert/perspectives" />
       <div className="stack" style={{ gap: 24 }}>
         <SubmitPerspectiveCard sections={sections.map((s) => ({ id: s.id, title: s.title }))} />
         <PerspectivesView sections={sections} />

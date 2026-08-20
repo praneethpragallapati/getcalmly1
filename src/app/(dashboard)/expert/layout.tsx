@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, Newspaper, UserCircle, Lock, FileText, Video } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, FileText, Video } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -71,12 +71,12 @@ export default async function ExpertLayout({ children }: { children: React.React
         <NavGroup heading="PRACTICE" storageKey="expert" hrefs={['/expert/community', '/expert/blogs', '/expert/perspectives', '/expert/forms', '/expert/profile', '/expert/earnings']}>
           <SidebarLink href="/expert/community">
             <MessagesSquare size={18} />
-            <span>Community</span>
+            <span>Real Talk</span>
           </SidebarLink>
-          {/* Publishing = blogs (write) + Perspectives talks (submit). */}
+          {/* Perspectives = essays (Read) + talks (Watch) — same as the patient side. */}
           <SidebarLink href="/expert/blogs" match={['/expert/perspectives']}>
-            <Newspaper size={18} />
-            <span>Publishing</span>
+            <Video size={18} />
+            <span>Perspectives</span>
           </SidebarLink>
           <SidebarLink href="/expert/forms">
             <FileText size={18} />

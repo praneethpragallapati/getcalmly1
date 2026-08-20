@@ -15,11 +15,13 @@ export default async function ExpertBlogsPage() {
 
   return (
     <div className="stack">
-      <SectionTabs title="Publishing" tabs={EXPERT_PUBLISH_TABS} active="/expert/blogs" />
-      <div className="page-head">
-        <div className="page-title">Blogs</div>
-        <div className="page-meta">Write for the public blog · bylined as <b>{ctx.designation}</b></div>
-      </div>
+      <SectionTabs
+        eyebrow="Calm Club · Perspectives"
+        title="Perspectives"
+        meta={<>Write for the public blog · bylined as <b>{ctx.designation}</b></>}
+        tabs={EXPERT_PUBLISH_TABS}
+        active="/expert/blogs"
+      />
       <BlogsManager myPosts={myPosts} allPosts={allPosts} designation={ctx.designation} />
     </div>
   )
