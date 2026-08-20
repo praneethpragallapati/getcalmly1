@@ -118,9 +118,8 @@ export type SidebarSummary = {
   planName: string
   streakDays: number
   sessionsToday: number
-  /** Profile photo (data URL) and self-reported feeling, shown in the chrome. */
+  /** Profile photo (data URL), shown in the chrome. */
   photoUrl: string | null
-  feeling: string | null
 }
 
 /**
@@ -131,11 +130,11 @@ export type SidebarSummary = {
  * that show that data). Request-memoised so the page can reuse it for free.
  */
 export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
-  const fallback: SidebarSummary = { name: demoDashboard.name, planActive: false, planName: '', streakDays: 0, sessionsToday: 0, photoUrl: null, feeling: null }
+  const fallback: SidebarSummary = { name: demoDashboard.name, planActive: false, planName: '', streakDays: 0, sessionsToday: 0, photoUrl: null }
   const userId = await getSessionUserId()
   if (!userId) return fallback
   try {
-    const [user, sub, moods, appt, profile] = await Promise.all([
+    const [user, sub, moods, appt] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, image: true } }).catch(() => null),
       prisma.subscription.findFirst({
         where: { userId, status: 'ACTIVE' },
@@ -157,8 +156,6 @@ export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
         orderBy: { scheduledAt: 'asc' },
         select: { scheduledAt: true, durationMins: true },
       }).catch(() => null),
-      // Feeling column may predate migration 0031 — degrade to null, never throw.
-      prisma.patientProfile.findUnique({ where: { userId }, select: { feeling: true } }).catch(() => null),
     ])
 
     let sessionsToday = 0
@@ -175,7 +172,6 @@ export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
       streakDays: computeStreak(moods.map((m) => m.createdAt)),
       sessionsToday,
       photoUrl: user?.image ?? null,
-      feeling: profile?.feeling ?? null,
     }
   } catch {
     return fallback

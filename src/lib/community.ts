@@ -6,9 +6,8 @@ import {
   type CommunityRoleName,
 } from '@/data/communitySeed'
 import { ensureSampleContent } from '@/lib/sampleContent'
-import { feelingsFor } from '@/lib/feeling'
 
-type AuthorExtras = { tenure: string | null; streak: number | null; feeling: string | null }
+type AuthorExtras = { tenure: string | null; streak: number | null }
 
 const startOfDayKey = (d: Date) => {
   const x = new Date(d)
@@ -43,7 +42,7 @@ export async function authorExtrasFor(userIds: string[]): Promise<Map<string, Au
   const since = new Date()
   since.setDate(since.getDate() - 60)
 
-  const [moods, subs, feelings] = await Promise.all([
+  const [moods, subs] = await Promise.all([
     prisma.moodEntry.findMany({
       where: { userId: { in: ids }, createdAt: { gte: since } },
       select: { userId: true, createdAt: true },
@@ -52,7 +51,6 @@ export async function authorExtrasFor(userIds: string[]): Promise<Map<string, Au
       where: { userId: { in: ids }, status: 'ACTIVE' },
       select: { userId: true, paidMonths: true },
     }).catch(() => [] as { userId: string; paidMonths: number }[]),
-    feelingsFor(ids),
   ])
 
   const moodByUser = new Map<string, Date[]>()
@@ -71,7 +69,6 @@ export async function authorExtrasFor(userIds: string[]): Promise<Map<string, Au
     out.set(id, {
       tenure: months ? `${months} month${months === 1 ? '' : 's'} on getCalmly` : null,
       streak: streak > 0 ? streak : null,
-      feeling: feelings.get(id) ?? null,
     })
   }
   return out
@@ -90,7 +87,6 @@ export type CommunityPostView = {
   comments: number
   // Author identity extras, filled where known (community feed / thread).
   streak?: number | null
-  feeling?: string | null
 }
 
 export type CommunityCommentView = {
@@ -102,7 +98,6 @@ export type CommunityCommentView = {
   upvotes: number
   tenure?: string | null
   streak?: number | null
-  feeling?: string | null
 }
 
 export type RelatedDiscussion = { id: string; title: string; tags: string[] }
@@ -195,7 +190,6 @@ export async function getCommunityPosts(): Promise<CommunityPostView[]> {
         role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
         tenure: ex?.tenure ?? r.tenure,
         streak: ex?.streak ?? null,
-        feeling: ex?.feeling ?? null,
         date: relativeTime(r.createdAt),
         tags: r.tags,
         upvotes: r.upvotes,
@@ -264,7 +258,6 @@ export async function getCommunityPost(id: string): Promise<CommunityPostView | 
         role: ENUM_TO_ROLE_NAME[r.authorRole] ?? 'Member',
         tenure: ex?.tenure ?? r.tenure,
         streak: ex?.streak ?? null,
-        feeling: ex?.feeling ?? null,
         date: relativeTime(r.createdAt),
         tags: r.tags,
         upvotes: r.upvotes,
@@ -296,7 +289,6 @@ export async function getCommunityComments(postId: string): Promise<CommunityCom
         upvotes: r.upvotes,
         tenure: ex?.tenure ?? null,
         streak: ex?.streak ?? null,
-        feeling: ex?.feeling ?? null,
       }
     })
   } catch {

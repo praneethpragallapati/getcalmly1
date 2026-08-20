@@ -90,7 +90,6 @@ export function NotificationBell({ items, unread }: { items: NotificationView[];
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 15px', borderBottom: '1px solid rgba(28,43,58,.07)' }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--c-charcoal, #1C2B3A)' }}>Notifications</span>
-            <Link href="/app/notifications" onClick={() => setOpen(false)} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--c-coral, #C8553D)', textDecoration: 'none' }}>See all</Link>
           </div>
 
           <div style={{ maxHeight: 420, overflowY: 'auto' }}>

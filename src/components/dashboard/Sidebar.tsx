@@ -28,6 +28,9 @@ import {
 // highlighted across every tab of its section (see data/sectionTabs).
 type Item = { href: string; label: string; icon: typeof Home; badge?: string; match?: string[] }
 
+// Slotted into Care only when the member actually has guided tracks (below).
+const GUIDED_ITEM: Item = { href: '/app/guided', label: 'Guided calm', icon: Waves }
+
 const GROUPS: { heading: string; items: Item[] }[] = [
   {
     heading: 'Main',
@@ -43,7 +46,6 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       // My Care Team also covers Medications (tabbed together).
       { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope, match: ['/app/medications'] },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
-      { href: '/app/guided', label: 'Guided calm', icon: Waves, badge: 'Soon' },
       { href: '/app/forms', label: 'Forms', icon: FileText },
     ],
   },
@@ -72,7 +74,7 @@ export function Sidebar({
   planName = 'No active plan',
   sessionsToday = 0,
   photoUrl = null,
-  feeling = null,
+  showGuided = false,
 }: {
   name: string
   planLine: string
@@ -80,7 +82,8 @@ export function Sidebar({
   planName?: string
   sessionsToday?: number
   photoUrl?: string | null
-  feeling?: string | null
+  /** Guided calm only earns a nav slot once it has tracks to show. */
+  showGuided?: boolean
 }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
@@ -134,11 +137,15 @@ export function Sidebar({
             <span className="sb-profile-name" style={{ display: 'block' }}>
               {name}
             </span>
-            <span className="sb-profile-sub">{feeling ?? planLine}</span>
+            <span className="sb-profile-sub">{planLine}</span>
           </span>
         </Link>
 
-        {GROUPS.map((g) => (
+        {GROUPS.map((group) => {
+          const g = group.heading === 'Care' && showGuided
+            ? { ...group, items: [...group.items.slice(0, 2), GUIDED_ITEM, ...group.items.slice(2)] }
+            : group
+          return (
           <NavGroup
             key={g.heading}
             heading={g.heading.toUpperCase()}
@@ -163,14 +170,15 @@ export function Sidebar({
               )
             })}
           </NavGroup>
-        ))}
+          )
+        })}
 
         <div className="sb-plan">
           <div className="sb-plan-label">{planActive ? 'YOUR PLAN' : 'NO ACTIVE PLAN'}</div>
           <div className="sb-plan-text">
             {planActive ? planName : 'Book your first session to get started'}
           </div>
-          <Link href={planActive ? '/app/settings' : '/app/billing'} className="sb-plan-btn">
+          <Link href="/app/billing" className="sb-plan-btn">
             {planActive ? 'Manage plan →' : 'Book a session →'}
           </Link>
         </div>

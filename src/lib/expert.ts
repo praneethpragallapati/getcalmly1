@@ -72,7 +72,6 @@ export type ExpertPatientProfile = {
   trackLabel: string
   diagnosis?: string
   therapyStatus?: string
-  feeling?: string
   streakDays: number
   moodTrend: MoodTrend
   moodWeek: { date: string; mood: number }[]
@@ -489,7 +488,7 @@ export async function getExpertPatientProfile(
     prisma.user.findUnique({ where: { id: patientId }, select: { name: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
-      select: { track: true, trackLabel: true, diagnosis: true, therapyStatus: true, feeling: true },
+      select: { track: true, trackLabel: true, diagnosis: true, therapyStatus: true },
     }).catch(() => null),
     prisma.moodEntry.findMany({ where: { userId: patientId }, orderBy: { createdAt: 'desc' }, take: 30, select: { userId: true, mood: true, createdAt: true } }).catch(() => []),
     prisma.appointment.findMany({
@@ -550,7 +549,6 @@ export async function getExpertPatientProfile(
     trackLabel: trackLabelFor(profile?.track?.[0], profile?.trackLabel),
     diagnosis: profile?.diagnosis ?? undefined,
     therapyStatus: profile?.therapyStatus ?? undefined,
-    feeling: profile?.feeling ?? undefined,
     streakDays: computeStreak(moods.map((m) => m.createdAt)),
     moodTrend: moodTrendOf(moods.slice(0, 14)),
     moodWeek: moods.slice(0, 14).reverse().map((m) => ({ date: isoDate(m.createdAt), mood: m.mood })),

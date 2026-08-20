@@ -13,7 +13,6 @@ import { fmtIST } from '@/lib/tz'
 import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
-import { cleanFeeling, ensureFeelingSchema } from '@/lib/feeling'
 import { normalizeTags } from '@/data/tags'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 import { rateLimit } from '@/lib/rateLimit'
@@ -806,7 +805,6 @@ export type PatientProfileInput = {
   emergencyName?: string | null
   emergencyPhone?: string | null
   emergencyRelation?: string | null
-  feeling?: string | null // "how I'm feeling" status; '' / null clears it
   photo?: string | null // data URL, '' / null to remove, omit to leave unchanged
 }
 
@@ -867,12 +865,6 @@ export async function updatePatientProfile(input: PatientProfileInput): Promise<
     if (emP !== undefined) profileData.emergencyPhone = emP
     const emR = clean(input.emergencyRelation, 40)
     if (emR !== undefined) profileData.emergencyRelation = emR
-    const feeling = cleanFeeling(input.feeling)
-    if (feeling !== undefined) {
-      await ensureFeelingSchema()
-      profileData.feeling = feeling
-      profileData.feelingAt = feeling ? new Date() : null
-    }
     if (Object.keys(profileData).length) {
       // The patient may not have a profile row yet — upsert so the first save works.
       await prisma.patientProfile.upsert({

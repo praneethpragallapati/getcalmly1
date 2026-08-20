@@ -187,11 +187,6 @@ export function CommunityPostCard({ post, base = '/community' }: { post: Communi
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700, fontSize: 14, color: '#1C2B3A' }}>{post.author}</span>
               <RoleBadge role={post.role} />
-              {post.feeling && (
-                <span style={{ fontSize: 12, color: '#C8553D', fontWeight: 600 }}>
-                  {post.feeling}
-                </span>
-              )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12, color: '#9AABB8' }}>{post.date}</span>
@@ -233,10 +228,12 @@ export function CommunityPostCard({ post, base = '/community' }: { post: Communi
           {post.body}
         </p>
 
-        {/* Tags */}
+        {/* Tags — each opens the cross-content hub for that tag. */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {post.tags.map((tag) => (
-            <TagChip key={tag} tag={`#${tagLabel(tag)}`} small />
+            <Link key={tag} href={`/app/tag/${tag}`} onClick={(e) => e.stopPropagation()} style={{ textDecoration: 'none' }}>
+              <TagChip tag={`#${tagLabel(tag)}`} small />
+            </Link>
           ))}
         </div>
 

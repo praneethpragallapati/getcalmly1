@@ -285,3 +285,7 @@ CREATE INDEX IF NOT EXISTS "GuidedAssignment_trackId_idx" ON "GuidedAssignment"(
 
 -- 0033_perspective_video_tags
 ALTER TABLE "PerspectiveVideo" ADD COLUMN IF NOT EXISTS "tags" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];
+
+-- 0034_drop_patient_feeling
+ALTER TABLE "PatientProfile" DROP COLUMN IF EXISTS "feeling";
+ALTER TABLE "PatientProfile" DROP COLUMN IF EXISTS "feelingAt";

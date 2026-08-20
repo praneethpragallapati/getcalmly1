@@ -16,18 +16,13 @@ const ROLE_COLOR: Record<string, { bg: string; color: string; label: string }> =
 }
 
 /** Small "on platform / streak" line shown under a community author, when known. */
-function IdentityLine({ tenure, streak, feeling }: { tenure?: string | null; streak?: number | null; feeling?: string | null }) {
+function IdentityLine({ tenure, streak }: { tenure?: string | null; streak?: number | null }) {
   const bits: string[] = []
   if (tenure) bits.push(tenure)
   if (typeof streak === 'number' && streak > 0) bits.push(`🔥 ${streak}-day streak`)
   return (
     <>
       {bits.length > 0 && <span style={{ fontSize: 12, color: '#9AABB8' }}>{bits.join(' · ')}</span>}
-      {feeling && (
-        <span style={{ fontSize: 12, color: coral, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-          {feeling}
-        </span>
-      )}
     </>
   )
 }
@@ -80,7 +75,7 @@ export function DashboardCommunityThread({
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 2 }}>
               <span style={{ fontSize: 12.5, color: '#9AABB8' }}>{post.date}</span>
-              <IdentityLine tenure={post.tenure} streak={post.streak} feeling={post.feeling} />
+              <IdentityLine tenure={post.tenure} streak={post.streak} />
             </div>
           </div>
           <UpvoteButton variant="post" target={{ postId: post.id }} count={post.upvotes} voted={votes.post} signedIn />
@@ -113,7 +108,7 @@ export function DashboardCommunityThread({
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 12, color: '#9AABB8' }}>{c.date}</span>
-                        <IdentityLine tenure={c.tenure} streak={c.streak} feeling={c.feeling} />
+                        <IdentityLine tenure={c.tenure} streak={c.streak} />
                       </div>
                     </div>
                   </div>

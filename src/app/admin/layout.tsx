@@ -41,7 +41,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </SidebarLink>
           <SidebarLink href="/admin/submissions">
             <Inbox size={18} />
-            <span>Submissions</span>
+            <span>Clinician applications</span>
           </SidebarLink>
         </NavGroup>
 

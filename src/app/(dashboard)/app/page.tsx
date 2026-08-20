@@ -43,6 +43,93 @@ export default async function AppHomePage() {
 
   return (
     <div className="stack">
+      {/* What's happening now — the most time-critical thing on the page. */}
+      {d.todaySession ? (
+        <div className="card">
+          <div
+            style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}
+          >
+            <div className="section-title">Today’s session</div>
+            <Link href="/app/sessions" className="link-action">
+              All →
+            </Link>
+          </div>
+          <div className="session-card-row">
+            <span className="doc-avatar">👩‍⚕️</span>
+            <div>
+              <div className="doc-name">{d.todaySession.expert}</div>
+              <div className="doc-sub">{d.todaySession.expertRole}</div>
+              <div className="tag-row">
+                {d.todaySession.tags.map((t) => (
+                  <span className="tag" key={t}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="session-info-grid">
+            <div>
+              <div className="lbl">TIME</div>
+              <div className="val"><LocalTime iso={d.todaySession.scheduledISO} fallback={d.todaySession.when.split('·').pop()?.trim() ?? ''} options={{ hour: 'numeric', minute: '2-digit' }} /></div>
+            </div>
+            <div>
+              <div className="lbl">DURATION</div>
+              <div className="val">{d.todaySession.durationMins} min</div>
+            </div>
+            <div>
+              <div className="lbl">SESSION</div>
+              <div className="val">#{d.todaySession.sessionNo}</div>
+            </div>
+          </div>
+          <Link
+            href={`/app/sessions/${d.todaySession.id}/room`}
+            className="btn btn-primary"
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            <Video size={16} /> Join session
+          </Link>
+          <Link
+            href={`/app/sessions/${d.todaySession.id}`}
+            className="link-action"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14 }}
+          >
+            <FileText size={14} /> Add pre-session note
+          </Link>
+        </div>
+      ) : d.nextSession ? (
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div className="section-title">Next session</div>
+            <Link href="/app/sessions" className="link-action">All →</Link>
+          </div>
+          <div className="session-card-row">
+            <span className="doc-avatar">👩‍⚕️</span>
+            <div>
+              <div className="doc-name">{d.nextSession.expert}</div>
+              <div className="doc-sub"><LocalTime iso={d.nextSession.scheduledISO} fallback={d.nextSession.when} /></div>
+            </div>
+          </div>
+          <div className="session-info-grid">
+            <div>
+              <div className="lbl">DURATION</div>
+              <div className="val">{d.nextSession.durationMins} min</div>
+            </div>
+          </div>
+          <Link href="/app/sessions" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
+            <FileText size={16} /> Manage session
+          </Link>
+        </div>
+      ) : (
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', gap: 10 }}>
+          <div className="section-title">Next session</div>
+          <p className="muted" style={{ fontSize: 14 }}>No session booked yet. Book one with your care team whenever you’re ready.</p>
+          <Link href="/app/therapist" className="btn btn-primary">
+            <Video size={16} /> Book a session
+          </Link>
+        </div>
+      )}
+
       {awaitingPayment.length > 0 && (
         <Link
           href="/app/medications"
@@ -73,7 +160,7 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Hero: the day ahead (predictive) + the week's insight (reflective) */}
+      {/* Today: one job — the day ahead, and the two things you can do about it. */}
       <section className="hero">
         <div>
           <span className="hero-badge">CALM AI · YOUR DAY AHEAD</span>
@@ -81,7 +168,7 @@ export default async function AppHomePage() {
           <p>
             {d.dailyInsight
               ? d.dailyInsight.body
-              : 'Your personalised daily insight appears here once you’ve checked in and journaled for a few days. Start with a check-in above.'}
+              : 'Your personalised daily insight appears here once you’ve checked in and journaled for a few days. Start with a check-in below.'}
           </p>
           <div className="hero-actions">
             <Link href="/app/calm-ai" className="btn btn-primary">
@@ -92,159 +179,30 @@ export default async function AppHomePage() {
             </Link>
           </div>
         </div>
-        <div className="hero-side">
-          <div className="hero-side-label">WEEKLY INSIGHT</div>
-          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
-            {d.weeklyInsight ? d.weeklyInsight.title : 'Nothing to reflect on yet'}
-          </div>
-          <p style={{ fontSize: 13, color: '#b9c3cd', lineHeight: 1.6, margin: 0 }}>
-            {d.weeklyInsight
-              ? d.weeklyInsight.body
-              : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
-          </p>
-        </div>
       </section>
 
       {/* Morning check-in (#8) */}
       <CheckIn initial={d.checkin} streakDays={d.streakDays} />
 
-      {/* Mood trend (#15) + today's session (#3) */}
+      {/* Reflective pair: how the week went, and what the AI made of it. */}
       <div className="home-split home-split-2" style={{ gap: 20 }}>
         <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} />
-
-        {d.todaySession ? (
-          <div className="card">
-            <div
-              style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}
-            >
-              <div className="section-title">Today’s session</div>
-              <Link href="/app/sessions" className="link-action">
-                All →
-              </Link>
-            </div>
-            <div className="session-card-row">
-              <span className="doc-avatar">👩‍⚕️</span>
-              <div>
-                <div className="doc-name">{d.todaySession.expert}</div>
-                <div className="doc-sub">{d.todaySession.expertRole}</div>
-                <div className="tag-row">
-                  {d.todaySession.tags.map((t) => (
-                    <span className="tag" key={t}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="session-info-grid">
-              <div>
-                <div className="lbl">TIME</div>
-                <div className="val"><LocalTime iso={d.todaySession.scheduledISO} fallback={d.todaySession.when.split('·').pop()?.trim() ?? ''} options={{ hour: 'numeric', minute: '2-digit' }} /></div>
-              </div>
-              <div>
-                <div className="lbl">DURATION</div>
-                <div className="val">{d.todaySession.durationMins} min</div>
-              </div>
-              <div>
-                <div className="lbl">SESSION</div>
-                <div className="val">#{d.todaySession.sessionNo}</div>
-              </div>
-            </div>
-            <Link
-              href={`/app/sessions/${d.todaySession.id}/room`}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              <Video size={16} /> Join session
-            </Link>
-            <Link
-              href={`/app/sessions/${d.todaySession.id}`}
-              className="link-action"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14 }}
-            >
-              <FileText size={14} /> Add pre-session note
-            </Link>
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 10 }}>This week</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-charcoal)', marginBottom: 8 }}>
+            {d.weeklyInsight ? d.weeklyInsight.title : 'Nothing to reflect on yet'}
           </div>
-        ) : d.nextSession ? (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div className="section-title">Next session</div>
-              <Link href="/app/sessions" className="link-action">All →</Link>
-            </div>
-            <div className="session-card-row">
-              <span className="doc-avatar">👩‍⚕️</span>
-              <div>
-                <div className="doc-name">{d.nextSession.expert}</div>
-                <div className="doc-sub"><LocalTime iso={d.nextSession.scheduledISO} fallback={d.nextSession.when} /></div>
-              </div>
-            </div>
-            <div className="session-info-grid">
-              <div>
-                <div className="lbl">DURATION</div>
-                <div className="val">{d.nextSession.durationMins} min</div>
-              </div>
-            </div>
-            <Link href="/app/sessions" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
-              <FileText size={16} /> Manage session
-            </Link>
-          </div>
-        ) : (
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start', gap: 10 }}>
-            <div className="section-title">Next session</div>
-            <p className="muted" style={{ fontSize: 14 }}>No session booked yet. Book one with your care team whenever you’re ready.</p>
-            <Link href="/app/therapist" className="btn btn-primary">
-              <Video size={16} /> Book a session
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Quick stats (#8) */}
-      <div className="grid-4">
-        <div className="card stat-card">
-          <span className="stat-ic t-coral">
-            <Flame size={20} />
-          </span>
-          <span className="stat-badge t-coral">Personal best</span>
-          <div className="stat-n">
-            {d.streakDays}
-            <span> days</span>
-          </div>
-          <div className="stat-l">Current streak</div>
-        </div>
-        <div className="card stat-card">
-          <span className="stat-ic t-purple">
-            <TrendingUp size={20} />
-          </span>
-          {d.moodMonthChangePct !== null && (
-            <span className={`stat-badge ${d.moodMonthChangePct >= 0 ? 't-green' : 't-coral'}`}>
-              {d.moodMonthChangePct >= 0 ? '↑' : '↓'}
-              {Math.abs(d.moodMonthChangePct)}% month
-            </span>
-          )}
-          <div className="stat-n">
-            {d.avgMood > 0 ? d.avgMood.toFixed(1) : '—'}
-            {d.avgMood > 0 && <span> /10</span>}
-          </div>
-          <div className="stat-l">Avg mood score</div>
-        </div>
-        <div className="card stat-card">
-          <span className="stat-ic t-green">
-            <CalendarCheck size={20} />
-          </span>
-          <span className={`stat-badge ${d.planActive ? 't-green' : 't-gold'}`}>{d.planActive ? 'Active' : 'No active plan'}</span>
-          <div className="stat-n">{d.sessionsDone}</div>
-          <div className="stat-l">Therapy sessions</div>
-        </div>
-        <div className="card stat-card">
-          <span className="stat-ic t-gold">
-            <NotebookPen size={20} />
-          </span>
-          <span className="stat-badge t-gold">Consistent</span>
-          <div className="stat-n">{d.journalCount}</div>
-          <div className="stat-l">Journal entries</div>
+          <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.6, margin: 0 }}>
+            {d.weeklyInsight
+              ? d.weeklyInsight.body
+              : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
+          </p>
+          <Link href="/app/progress" className="link-action" style={{ display: 'inline-block', marginTop: 12 }}>
+            See your progress →
+          </Link>
         </div>
       </div>
+
 
       {/* Calm Club polls — compact, collapsible */}
       {polls.length > 0 && <HomePolls polls={polls} canVote={Boolean(userId)} />}

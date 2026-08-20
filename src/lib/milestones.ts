@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import { ensureFeelingSchema } from '@/lib/feeling'
 
 /**
  * The member's achievement milestones. A broad catalog (~50) spanning
@@ -35,7 +34,6 @@ type Stats = {
   replies: number
   pollsVoted: number
   tasksCompleted: number
-  feelingSet: boolean
   photoSet: boolean
   profileFields: number // 0..5 of the key personal fields filled
   months: number // paid months on an active plan
@@ -63,7 +61,6 @@ function streakFromDates(dates: Date[]): number {
 }
 
 async function gatherStats(userId: string): Promise<Stats> {
-  await ensureFeelingSchema()
   const num = (p: Promise<number>) => p.catch(() => 0)
 
   const [
@@ -79,7 +76,7 @@ async function gatherStats(userId: string): Promise<Stats> {
     num(prisma.pollVote.count({ where: { userId } })),
     num(prisma.task.count({ where: { userId, NOT: { completedAt: null } } })),
     prisma.user.findUnique({ where: { id: userId }, select: { image: true, phone: true, createdAt: true } }).catch(() => null),
-    prisma.patientProfile.findUnique({ where: { userId }, select: { gender: true, dateOfBirth: true, state: true, emergencyPhone: true, feeling: true } }).catch(() => null),
+    prisma.patientProfile.findUnique({ where: { userId }, select: { gender: true, dateOfBirth: true, state: true, emergencyPhone: true } }).catch(() => null),
     num(prisma.medication.count({ where: { userId } })),
   ])
 
@@ -118,7 +115,6 @@ async function gatherStats(userId: string): Promise<Stats> {
     replies,
     pollsVoted,
     tasksCompleted,
-    feelingSet: Boolean(profile?.feeling),
     photoSet: Boolean(user?.image),
     profileFields,
     months,
@@ -195,7 +191,6 @@ const DEFS: Def[] = [
 
   // ── Profile ──
   { key: 'photo', group: 'Profile', icon: '🖼️', label: 'Add a profile photo', target: 1, value: (s) => (s.photoSet ? 1 : 0), bool: true, doneSub: 'Photo added' },
-  { key: 'feeling', group: 'Profile', icon: '😌', label: 'Set your feeling status', target: 1, value: (s) => (s.feelingSet ? 1 : 0), bool: true, doneSub: 'Status set' },
   { key: 'profile-complete', group: 'Profile', icon: '🪪', label: 'Complete your profile', target: 5, value: (s) => s.profileFields, unit: 'fields' },
 
   // ── Tenure ──

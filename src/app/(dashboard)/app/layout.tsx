@@ -14,6 +14,7 @@ import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount, getNotifications } from '@/lib/notifications'
 import { getSessionUser } from '@/lib/session'
 import { attributeReferral } from '@/lib/referral'
+import { getGuidedTracksForPatient } from '@/lib/guided'
 
 export const metadata: Metadata = {
   title: 'Your space',
@@ -44,10 +45,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // hit. Its result is unused by the render.
   const refCode = userId ? (await cookies()).get('gc_ref')?.value : undefined
 
-  const [d, unread, notes] = await Promise.all([
+  const [d, unread, notes, guidedTracks] = await Promise.all([
     getSidebarSummary(),
     userId ? getUnreadCount(userId) : Promise.resolve(0),
     userId ? getNotifications(userId) : Promise.resolve([]),
+    // Guided calm only earns a nav slot once there's something to play.
+    getGuidedTracksForPatient(userId).catch(() => []),
     refCode && userId ? attributeReferral(userId, decodeURIComponent(refCode)) : Promise.resolve(),
   ])
   const now = new Date()
@@ -68,7 +71,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         planName={d.planName}
         sessionsToday={d.sessionsToday}
         photoUrl={d.photoUrl}
-        feeling={d.feeling}
+        showGuided={guidedTracks.some((t) => t.videos.length > 0)}
       />
 
       <div className="app-main">

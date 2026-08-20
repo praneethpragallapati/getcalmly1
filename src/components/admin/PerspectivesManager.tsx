@@ -31,7 +31,7 @@ export function PerspectivesManager({ sections, submissions }: { sections: Persp
     <div className="stack">
       {/* Pending submissions */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 4 }}>Therapist submissions {submissions.length > 0 && <span style={{ color: '#C8553D' }}>· {submissions.length} pending</span>}</div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Video submissions {submissions.length > 0 && <span style={{ color: '#C8553D' }}>· {submissions.length} pending</span>}</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>Videos submitted by clinicians. Approve to publish, or reject.</p>
         {submissions.length === 0 ? (
           <p className="muted" style={{ fontSize: 13.5 }}>No pending submissions.</p>

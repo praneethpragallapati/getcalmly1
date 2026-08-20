@@ -292,12 +292,6 @@ model PatientProfile {
   state             String?
   preferredLanguage String?
 
-  // Self-reported "how I'm feeling" status. Shown next to the member in the
-  // community and to their clinician/admin. A short label (may include an emoji),
-  // chosen from a preset list or free-typed. Self-healed on read (lib/feeling).
-  feeling   String?
-  feelingAt DateTime?
-
   // Emergency contact
   emergencyName     String?
   emergencyPhone    String?
