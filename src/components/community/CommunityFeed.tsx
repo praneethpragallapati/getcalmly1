@@ -97,11 +97,16 @@ function TagChip({
   active,
   onClick,
   small,
+  count,
+  raw,
 }: {
   tag: string
   active?: boolean
   onClick?: () => void
   small?: boolean
+  count?: number
+  /** Print `tag` as given instead of looking up its label (used for "All"). */
+  raw?: boolean
 }) {
   const [hover, setHover] = useState(false)
   const interactive = !!onClick
@@ -129,7 +134,10 @@ function TagChip({
         whiteSpace: 'nowrap',
       }}
     >
-      {tag}
+      {raw ? tag : tagLabel(tag)}
+      {count !== undefined && (
+        <span style={{ marginLeft: 6, fontSize: small ? 10 : 11, opacity: active ? 0.65 : 0.45 }}>{count}</span>
+      )}
     </button>
   )
 }
@@ -705,11 +713,12 @@ export default function CommunityFeed({
 
           {/* Tag filter chips */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-            <TagChip tag="All" active={activeTag === null} onClick={() => setActiveTag(null)} />
-            {allTags.map((tag) => (
+            <TagChip tag="All" raw count={posts.length} active={activeTag === null} onClick={() => setActiveTag(null)} />
+            {popularTags.map(({ tag, count }) => (
               <TagChip
                 key={tag}
                 tag={tag}
+                count={count}
                 active={activeTag === tag}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
               />

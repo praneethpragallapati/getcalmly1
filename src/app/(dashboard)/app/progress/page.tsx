@@ -60,7 +60,7 @@ export default async function ProgressPage() {
         </div>
 
         {weekly && (
-          <div className="card">
+          <div className="card tint-green">
             <div className="section-title" style={{ marginBottom: 8 }}>This week</div>
             <div className="muted">
               Tasks from your expert: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.tasksCompleted}/{weekly.tasksAssigned}</b> completed ({weekly.completionPct}%)

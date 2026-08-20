@@ -23,6 +23,7 @@ export function VideoCard({ video, accent = '#C8553D' }: { video: LightboxVideo;
   const [open, setOpen] = useState(false)
   return (
     <>
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -52,6 +53,7 @@ export function VideoCard({ video, accent = '#C8553D' }: { video: LightboxVideo;
           ))}
         </div>
       )}
+      </div>
 
       {open && (
         <div

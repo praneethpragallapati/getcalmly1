@@ -3,9 +3,10 @@ import { Check } from 'lucide-react'
 import type { MilestoneView } from '@/lib/milestones'
 
 /**
- * The concise milestone companion beside the mood chart: how many are unlocked,
- * and the two nearest wins with their progress. The full catalogue lives on
- * My Progress — this is a glance, sized to sit level with the chart.
+ * The concise milestone companion beside the mood chart: the three nearest wins
+ * with their progress, and the earned count as a footnote. It deliberately does
+ * NOT lead with "10 of 49" — a big outstanding number makes each one matter
+ * less, which is the whole point of holding the live list to three.
  */
 export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) {
   const done = milestones.filter((m) => m.done).length
@@ -21,7 +22,7 @@ export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) 
 
       <div className="mini-score">
         <span className="mini-n">{done}</span>
-        <span className="mini-of">of {milestones.length}</span>
+        <span className="mini-of">earned</span>
       </div>
       <div className="mini-track"><span className="mini-fill" style={{ width: `${pct}%` }} /></div>
 
@@ -46,7 +47,7 @@ export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) 
 
       {done > 0 && (
         <div className="mini-done">
-          <Check size={12} strokeWidth={3} /> {done} unlocked so far
+          <Check size={12} strokeWidth={3} /> {next.length ? 'Closest first' : 'All unlocked'}
         </div>
       )}
       <Link href="/app/progress" className="mini-link">See all →</Link>
