@@ -72,7 +72,14 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
 
   const [user, profile, sub, latestAppt] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
-    prisma.patientProfile.findUnique({ where: { userId } }),
+    prisma.patientProfile.findUnique({
+      where: { userId },
+      // Narrow select: a full row would pull columns a not-yet-migrated DB lacks.
+      select: {
+        diagnosis: true, track: true, subTrack: true, trackLabel: true,
+        currentSituation: true, therapyStatus: true,
+      },
+    }),
     prisma.subscription.findFirst({
       where: { userId, status: 'ACTIVE' },
       orderBy: { createdAt: 'desc' },

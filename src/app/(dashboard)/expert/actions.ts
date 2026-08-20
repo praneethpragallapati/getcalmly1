@@ -28,6 +28,7 @@ import { notify, notifyMany, markAllRead } from '@/lib/notifications'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { normalizeTags } from '@/data/tags'
 import { normalizeCountry } from '@/lib/countries'
+import { ensureContactSchema } from '@/lib/contactSchema'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 
@@ -434,6 +435,8 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
   }
 
   try {
+    // The contact columns must exist before we write them.
+    await ensureContactSchema().catch(() => {})
     const userData: Record<string, unknown> = {}
     if (name !== undefined) userData.name = name
     const phone = clean(input.phone, 20)

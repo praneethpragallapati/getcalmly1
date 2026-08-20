@@ -88,7 +88,7 @@ export async function getSessionsView(): Promise<SessionsView> {
       where: { patientId: userId },
       orderBy: { scheduledAt: 'asc' },
       include: {
-        therapist: { include: { user: { select: { name: true } } } },
+        therapist: { select: { id: true, specializations: true, clinicianType: true, user: { select: { name: true } } } },
         review: { select: { rating: true } },
       },
     })
@@ -179,7 +179,7 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
     const r = await prisma.appointment.findFirst({
       where: { id, patientId: userId }, // ownership enforced in the query
       include: {
-        therapist: { include: { user: { select: { name: true } } } },
+        therapist: { select: { id: true, specializations: true, clinicianType: true, user: { select: { name: true } } } },
         review: { select: { rating: true, comment: true } },
       },
     })

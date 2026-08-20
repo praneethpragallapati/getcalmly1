@@ -233,11 +233,59 @@ export type TherapistProfileView = {
 
 /** The signed-in clinician's own profile, for the portal Profile page. */
 export async function getTherapistProfile(therapistProfileId: string): Promise<TherapistProfileView | null> {
+  // Narrow select over the pre-0038 columns only. A full-row read would SELECT
+  // the contact columns too, and on a database that hasn't run 0038 that throws
+  // and takes the whole profile page down.
   const p = await prisma.therapistProfile.findUnique({
     where: { id: therapistProfileId },
-    include: { user: { select: { name: true, email: true, phone: true } } },
+    select: {
+      specializations: true, employmentType: true, bio: true, qualifications: true,
+      languages: true, yearsExp: true, rciNumber: true, sessionFee: true,
+      rating: true, totalReviews: true, isVerified: true, photoUrl: true, gender: true,
+      user: { select: { name: true, email: true, phone: true } },
+    },
   })
   if (!p) return null
+
+  // The 0038 contact block, fetched separately and guarded: until the migration
+  // runs these simply read as unset instead of failing the page.
+  let contact = {
+    dateOfBirth: null as string | null,
+    country: 'IN',
+    state: null as string | null,
+    city: null as string | null,
+    addressLine1: null as string | null,
+    addressLine2: null as string | null,
+    postalCode: null as string | null,
+    emergencyName: null as string | null,
+    emergencyPhone: null as string | null,
+    emergencyRelation: null as string | null,
+  }
+  try {
+    const c = await prisma.therapistProfile.findUnique({
+      where: { id: therapistProfileId },
+      select: {
+        dateOfBirth: true, country: true, state: true, city: true,
+        addressLine1: true, addressLine2: true, postalCode: true,
+        emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+      },
+    })
+    if (c) {
+      contact = {
+        dateOfBirth: c.dateOfBirth ? c.dateOfBirth.toISOString().slice(0, 10) : null,
+        country: c.country ?? 'IN',
+        state: c.state ?? null,
+        city: c.city ?? null,
+        addressLine1: c.addressLine1 ?? null,
+        addressLine2: c.addressLine2 ?? null,
+        postalCode: c.postalCode ?? null,
+        emergencyName: c.emergencyName ?? null,
+        emergencyPhone: c.emergencyPhone ?? null,
+        emergencyRelation: c.emergencyRelation ?? null,
+      }
+    }
+  } catch { /* 0038 not applied yet */ }
+
   return {
     name: p.user?.name ?? 'Doctor',
     designation: designationOf(p.specializations),
@@ -257,16 +305,7 @@ export async function getTherapistProfile(therapistProfileId: string): Promise<T
     gender: p.gender,
     email: p.user?.email ?? null,
     phone: p.user?.phone ?? null,
-    dateOfBirth: p.dateOfBirth ? p.dateOfBirth.toISOString().slice(0, 10) : null,
-    country: p.country ?? 'IN',
-    state: p.state ?? null,
-    city: p.city ?? null,
-    addressLine1: p.addressLine1 ?? null,
-    addressLine2: p.addressLine2 ?? null,
-    postalCode: p.postalCode ?? null,
-    emergencyName: p.emergencyName ?? null,
-    emergencyPhone: p.emergencyPhone ?? null,
-    emergencyRelation: p.emergencyRelation ?? null,
+    ...contact,
   }
 }
 
@@ -602,15 +641,22 @@ export async function getExpertPatientProfile(
   // into the DB would otherwise make the generated SELECT throw and take the
   // whole page to the error boundary. Degrading a single query to empty keeps
   // the patient record rendering.
-  const [user, profile, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
+  const [user, profile, addr, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
     prisma.user.findUnique({ where: { id: patientId }, select: { name: true, email: true, phone: true, createdAt: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
       select: {
         track: true, trackLabel: true, diagnosis: true, therapyStatus: true,
         patientId: true, dateOfBirth: true, gender: true, preferredLanguage: true,
-        occupation: true, maritalStatus: true,
-        country: true, state: true, city: true, addressLine1: true, addressLine2: true, postalCode: true,
+      },
+    }).catch(() => null),
+    // The 0038 contact columns, in their own query: bundling them above would
+    // make an un-migrated DB lose the clinical fields too.
+    prisma.patientProfile.findUnique({
+      where: { userId: patientId },
+      select: {
+        occupation: true, maritalStatus: true, country: true, state: true, city: true,
+        addressLine1: true, addressLine2: true, postalCode: true,
         emergencyName: true, emergencyPhone: true, emergencyRelation: true,
       },
     }).catch(() => null),
@@ -677,17 +723,17 @@ export async function getExpertPatientProfile(
       dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,
       gender: profile?.gender ?? null,
       preferredLanguage: profile?.preferredLanguage ?? null,
-      occupation: profile?.occupation ?? null,
-      maritalStatus: profile?.maritalStatus ?? null,
-      country: profile?.country ?? 'IN',
-      state: profile?.state ?? null,
-      city: profile?.city ?? null,
-      addressLine1: profile?.addressLine1 ?? null,
-      addressLine2: profile?.addressLine2 ?? null,
-      postalCode: profile?.postalCode ?? null,
-      emergencyName: profile?.emergencyName ?? null,
-      emergencyPhone: profile?.emergencyPhone ?? null,
-      emergencyRelation: profile?.emergencyRelation ?? null,
+      occupation: addr?.occupation ?? null,
+      maritalStatus: addr?.maritalStatus ?? null,
+      country: addr?.country ?? 'IN',
+      state: addr?.state ?? null,
+      city: addr?.city ?? null,
+      addressLine1: addr?.addressLine1 ?? null,
+      addressLine2: addr?.addressLine2 ?? null,
+      postalCode: addr?.postalCode ?? null,
+      emergencyName: addr?.emergencyName ?? null,
+      emergencyPhone: addr?.emergencyPhone ?? null,
+      emergencyRelation: addr?.emergencyRelation ?? null,
       joinedLabel: user.createdAt ? fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null,
     },
     trackLabel: trackLabelFor(profile?.track?.[0], profile?.trackLabel),
@@ -1594,8 +1640,8 @@ export async function getSupervision(therapistProfileId: string): Promise<Superv
   const links = await prisma.supervisionLink.findMany({
     where: { OR: [{ supervisorId: therapistProfileId }, { superviseeId: therapistProfileId }] },
     include: {
-      supervisor: { include: { user: { select: { name: true } } } },
-      supervisee: { include: { user: { select: { name: true } } } },
+      supervisor: { select: { id: true, user: { select: { name: true } } } },
+      supervisee: { select: { id: true, user: { select: { name: true } } } },
       notes: { orderBy: { createdAt: 'desc' } },
     },
   })
@@ -1609,7 +1655,7 @@ export async function getSupervision(therapistProfileId: string): Promise<Superv
       if (n.patientId) patientIds.add(n.patientId)
     }
   const [authors, patients] = await Promise.all([
-    prisma.therapistProfile.findMany({ where: { id: { in: [...authorIds] } }, include: { user: { select: { name: true } } } }),
+    prisma.therapistProfile.findMany({ where: { id: { in: [...authorIds] } }, select: { id: true, user: { select: { name: true } } } }),
     prisma.user.findMany({ where: { id: { in: [...patientIds] } }, select: { id: true, name: true } }),
   ])
   const authorName = (id: string) => authors.find((a) => a.id === id)?.user?.name ?? 'Therapist'
@@ -1696,7 +1742,7 @@ export type SuperviseeCaseload = { superviseeId: string; superviseeName: string;
 export async function getSuperviseeCaseloads(supervisorId: string): Promise<SuperviseeCaseload[]> {
   const links = await prisma.supervisionLink.findMany({
     where: { supervisorId },
-    include: { supervisee: { include: { user: { select: { name: true } } } } },
+    select: { id: true, supervisorId: true, superviseeId: true, supervisee: { select: { id: true, user: { select: { name: true } } } } },
     orderBy: { createdAt: 'asc' },
   })
   return Promise.all(
@@ -1717,7 +1763,7 @@ export type AdminSupervisionLink = { id: string; supervisorName: string; supervi
 
 export async function adminListTherapists(): Promise<AdminTherapistOption[]> {
   const rows = await prisma.therapistProfile.findMany({
-    include: { user: { select: { name: true, email: true } } },
+    select: { id: true, specializations: true, employmentType: true, user: { select: { name: true, email: true } } },
   })
   return rows
     .map((r) => ({ profileId: r.id, name: r.user?.name ?? 'Therapist', email: r.user?.email ?? '' }))
@@ -1727,8 +1773,8 @@ export async function adminListTherapists(): Promise<AdminTherapistOption[]> {
 export async function adminListSupervisionLinks(): Promise<AdminSupervisionLink[]> {
   const links = await prisma.supervisionLink.findMany({
     include: {
-      supervisor: { include: { user: { select: { name: true } } } },
-      supervisee: { include: { user: { select: { name: true } } } },
+      supervisor: { select: { id: true, user: { select: { name: true } } } },
+      supervisee: { select: { id: true, user: { select: { name: true } } } },
     },
     orderBy: { createdAt: 'desc' },
   })
@@ -1872,9 +1918,18 @@ export async function getExpertBlogPosts(authorId: string): Promise<ExpertBlogVi
 
 /** One of this clinician's own posts by slug, for editing. Ownership-gated. Never throws. */
 export async function getExpertBlogPostForEdit(authorId: string, slug: string): Promise<ExpertBlogEdit | null> {
-  let r: Awaited<ReturnType<typeof prisma.blogPost.findUnique>>
+  let r: {
+    slug: string; title: string; excerpt: string; content: string[]
+    tags: string[]; coverImage: string | null; authorId: string | null
+  } | null
   try {
-    r = await prisma.blogPost.findUnique({ where: { slug } })
+    r = await prisma.blogPost.findUnique({
+      where: { slug },
+      select: {
+        slug: true, title: true, excerpt: true, content: true, tags: true,
+        coverImage: true, authorId: true,
+      },
+    })
   } catch {
     return null
   }
@@ -1996,7 +2051,7 @@ export type AdminTherapistEmployment = {
 
 export async function adminListTherapistEmployment(): Promise<AdminTherapistEmployment[]> {
   const rows = await prisma.therapistProfile.findMany({
-    include: { user: { select: { name: true, email: true } } },
+    select: { id: true, specializations: true, employmentType: true, user: { select: { name: true, email: true } } },
   })
   return rows
     .map((r) => ({

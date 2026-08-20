@@ -175,16 +175,25 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
   const userId = await getSessionUserId()
   if (!userId) return null
   try {
-    const [user, profile] = await Promise.all([
+    const [user, profile, addr] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, phone: true, image: true } }),
       prisma.patientProfile
         .findUnique({
           where: { userId },
           select: {
-            gender: true, dateOfBirth: true, country: true, state: true, city: true,
-            addressLine1: true, addressLine2: true, postalCode: true,
-            preferredLanguage: true, occupation: true, maritalStatus: true,
+            gender: true, dateOfBirth: true, state: true, preferredLanguage: true,
             emergencyName: true, emergencyPhone: true, emergencyRelation: true,
+          },
+        })
+        .catch(() => null),
+      // The 0038 columns in their own query: bundling them above would blank the
+      // whole editor on a database that hasn't run the migration.
+      prisma.patientProfile
+        .findUnique({
+          where: { userId },
+          select: {
+            country: true, city: true, addressLine1: true, addressLine2: true,
+            postalCode: true, occupation: true, maritalStatus: true,
           },
         })
         .catch(() => null),
@@ -196,15 +205,15 @@ export async function getPatientProfileForEdit(): Promise<PatientProfileEdit | n
       photoUrl: user?.image ?? null,
       gender: profile?.gender ?? null,
       dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,
-      country: profile?.country ?? 'IN',
+      country: addr?.country ?? 'IN',
       state: profile?.state ?? null,
-      city: profile?.city ?? null,
-      addressLine1: profile?.addressLine1 ?? null,
-      addressLine2: profile?.addressLine2 ?? null,
-      postalCode: profile?.postalCode ?? null,
+      city: addr?.city ?? null,
+      addressLine1: addr?.addressLine1 ?? null,
+      addressLine2: addr?.addressLine2 ?? null,
+      postalCode: addr?.postalCode ?? null,
       preferredLanguage: profile?.preferredLanguage ?? null,
-      occupation: profile?.occupation ?? null,
-      maritalStatus: profile?.maritalStatus ?? null,
+      occupation: addr?.occupation ?? null,
+      maritalStatus: addr?.maritalStatus ?? null,
       emergencyName: profile?.emergencyName ?? null,
       emergencyPhone: profile?.emergencyPhone ?? null,
       emergencyRelation: profile?.emergencyRelation ?? null,

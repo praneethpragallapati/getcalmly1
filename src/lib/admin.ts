@@ -221,7 +221,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
     const [links, apptPatients, assigned, allT, reviews, delivery] = await Promise.all([
       prisma.supervisionLink.findMany({
         where: { OR: [{ supervisorId: profileId }, { superviseeId: profileId }] },
-        include: { supervisor: { include: { user: { select: { name: true } } } }, supervisee: { include: { user: { select: { name: true } } } } },
+        select: { id: true, supervisorId: true, superviseeId: true, supervisor: { select: { id: true, user: { select: { name: true } } } }, supervisee: { select: { id: true, user: { select: { name: true } } } } },
       }),
       prisma.appointment.findMany({ where: { therapistId: profileId }, select: { patientId: true, patient: { select: { name: true } } }, distinct: ['patientId'] }),
       // Everyone the admin assigned to this clinician — via the default column OR
@@ -239,7 +239,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         },
         select: { userId: true, user: { select: { name: true } } },
       }),
-      prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
+      prisma.therapistProfile.findMany({ select: { id: true, user: { select: { name: true } } } }),
       prisma.sessionReview.findMany({ where: { therapistId: profileId }, orderBy: { createdAt: 'desc' }, take: 12, select: { id: true, rating: true, comment: true, createdAt: true } }),
       getClinicianDelivery(profileId),
     ])
@@ -970,7 +970,7 @@ export async function getOpsBoard(): Promise<OpsBoard> {
         orderBy: { scheduledAt: 'desc' }, take: 400,
         include: { patient: { select: { name: true } } },
       }),
-      prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
+      prisma.therapistProfile.findMany({ select: { id: true, employmentType: true, user: { select: { name: true } } } }),
     ])
     const tName = new Map(therapists.map((t) => [t.id, t.user?.name ?? 'Clinician']))
     const dtFmt: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }
@@ -1017,7 +1017,7 @@ export async function getMoneyOverview(): Promise<MoneyOverview> {
       prisma.payment.findMany({ select: { amount: true, createdAt: true } }),
       prisma.appointment.findMany({ where: { status: 'COMPLETED' }, select: { fee: true, scheduledAt: true } }),
       prisma.subscription.count({ where: { status: 'ACTIVE' } }),
-      prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } }),
+      prisma.therapistProfile.findMany({ select: { id: true, employmentType: true, user: { select: { name: true } } } }),
     ])
     // Revenue is what patients paid for packages. Until the first purchase is
     // recorded, fall back to completed-session fees so the figures aren't blank
@@ -1068,7 +1068,7 @@ export type MasterPayout = {
 
 export async function getMasterPayout(): Promise<MasterPayout> {
   return safe(async () => {
-    const clinicians = await prisma.therapistProfile.findMany({ include: { user: { select: { name: true } } } })
+    const clinicians = await prisma.therapistProfile.findMany({ select: { id: true, employmentType: true, user: { select: { name: true } } } })
 
     const day = new Map<string, PayoutBreakdownRow>()
     const month = new Map<string, PayoutBreakdownRow>()

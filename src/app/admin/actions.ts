@@ -69,7 +69,9 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) return { ok: false, error: 'An account with that email already exists.' }
     if (registrationNo) {
-      const regTaken = await prisma.therapistProfile.findUnique({ where: { rciNumber: registrationNo } }).catch(() => null)
+      const regTaken = await prisma.therapistProfile
+        .findUnique({ where: { rciNumber: registrationNo }, select: { id: true } })
+        .catch(() => null)
       if (regTaken) return { ok: false, error: 'That registration number is already in use.' }
     }
 

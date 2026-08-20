@@ -19,6 +19,7 @@ import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
 import { normalizeCountry } from '@/lib/countries'
+import { ensureContactSchema } from '@/lib/contactSchema'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -856,6 +857,8 @@ export async function updatePatientProfile(input: PatientProfileInput): Promise<
   }
 
   try {
+    // The address/occupation columns must exist before we write them.
+    await ensureContactSchema().catch(() => {})
     const userData: Record<string, unknown> = {}
     if (name !== undefined) userData.name = name
     const phone = clean(input.phone, 20)

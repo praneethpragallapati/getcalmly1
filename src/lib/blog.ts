@@ -22,6 +22,10 @@ export async function getBlogPosts(): Promise<BlogPostView[]> {
     const rows = await prisma.blogPost.findMany({
       where: { published: true },
       orderBy: { publishedAt: 'desc' },
+      select: {
+        slug: true, title: true, excerpt: true, authorName: true, authorRole: true,
+        publishedAt: true, readTime: true, tags: true, content: true, coverImage: true,
+      },
     })
     if (rows.length === 0) return blogSeed
     return rows.map((r) => ({
@@ -43,7 +47,13 @@ export async function getBlogPosts(): Promise<BlogPostView[]> {
 
 export async function getBlogPost(slug: string): Promise<BlogPostView | null> {
   try {
-    const r = await prisma.blogPost.findUnique({ where: { slug } })
+    const r = await prisma.blogPost.findUnique({
+      where: { slug },
+      select: {
+        slug: true, title: true, excerpt: true, authorName: true, authorRole: true,
+        publishedAt: true, readTime: true, tags: true, content: true, coverImage: true,
+      },
+    })
     if (r) {
       return {
         slug: r.slug,
