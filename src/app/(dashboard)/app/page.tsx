@@ -64,14 +64,25 @@ export default async function AppHomePage() {
         </div>
         <div className="hero-side">
           <div className="hero-side-label">WEEKLY INSIGHT</div>
-          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
-            {d.weeklyInsight ? d.weeklyInsight.title : 'Nothing to reflect on yet'}
-          </div>
-          <p style={{ fontSize: 13, color: '#b9c3cd', lineHeight: 1.6, margin: 0 }}>
-            {d.weeklyInsight
-              ? d.weeklyInsight.body
-              : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
-          </p>
+          {d.weeklyInsight?.parts ? (
+            // Three distinct reads: what recurs, what's underneath it, what's working.
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <InsightPart label="Pattern found" text={d.weeklyInsight.parts.pattern} tone="#e8896f" />
+              <InsightPart label="Hidden driver" text={d.weeklyInsight.parts.driver} tone="#9184e0" />
+              <InsightPart label="Quiet win" text={d.weeklyInsight.parts.win} tone="#6fc79b" />
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
+                {d.weeklyInsight ? d.weeklyInsight.title : 'Nothing to reflect on yet'}
+              </div>
+              <p style={{ fontSize: 13, color: '#b9c3cd', lineHeight: 1.6, margin: 0 }}>
+                {d.weeklyInsight
+                  ? d.weeklyInsight.body
+                  : 'A weekly pattern summary shows up here once you have a week of check-ins and journal entries.'}
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -289,6 +300,18 @@ export default async function AppHomePage() {
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+/** One labelled line of the weekly insight: a coloured label, then the finding. */
+function InsightPart({ label, text, tone }: { label: string; text: string; tone: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.9px', textTransform: 'uppercase', color: tone, marginBottom: 3 }}>
+        {label}
+      </div>
+      <p style={{ fontSize: 13, color: '#c9d3dd', lineHeight: 1.55, margin: 0 }}>{text}</p>
     </div>
   )
 }

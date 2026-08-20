@@ -30,7 +30,7 @@ export type InsightPayload = {
 
 const VALID_TONES = new Set<Tone>(['coral', 'green', 'gold', 'purple'])
 
-function parseJson(raw: string): { title?: string; body?: string; patterns?: unknown[] } | null {
+function parseJson(raw: string): { title?: string; body?: string; patterns?: unknown[]; pattern?: string; driver?: string; win?: string } | null {
   const cleaned = raw.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim()
   try {
     return JSON.parse(cleaned)
@@ -226,24 +226,47 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
     (w.low ? `Lowest point: ${w.low}\n` : '') +
     (w.high ? `Highest point: ${w.high}\n` : '') +
     colour +
-    'Return ONLY a JSON object: {"title": short headline (max 8 words, no scores), ' +
-    '"body": 3-4 sentences, second person, no numbers/scores, how the week felt (use the arc), one moment that stood out (named by day), one specific thing to carry forward grounded in what helped, "patterns": ' +
-    'up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": coral|green|gold|purple}] drawn from journals/mood, no scores}.'
+    'Return ONLY a JSON object with these keys:\n' +
+    '"title": short headline, max 8 words, no scores.\n' +
+    '"pattern": ONE sentence naming a recurring pattern you can see — when/where it shows up. ' +
+    'Write the sentence only; do NOT prefix it with a label. Example shape: "your anxiety runs highest on Sunday nights, right before your Monday stand-up."\n' +
+    '"driver": ONE sentence naming something underneath the pattern that they may not have connected — a driver, not a restatement. ' +
+    'Example shape: "nights under 6 hours of sleep double the self-criticism in your journal the next day."\n' +
+    '"win": ONE sentence naming something that is quietly working, so it can be repeated. ' +
+    'Example shape: "on weeks you journal 4+ days, your mood recovers almost twice as fast."\n' +
+    'All three: second person, warm, concrete, grounded in the data above, no clinical scores. ' +
+    'Each must say something DIFFERENT — never restate one in another.\n' +
+    '"patterns": up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": coral|green|gold|purple}] drawn from journals/mood, no scores.'
 
   const res = await callModel(INSIGHT_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
     temperature: 0.6,
-    maxTokens: 360,
+    maxTokens: 420,
     jsonMode: true,
   })
   if (!res.answer) return null
   const parsed = parseJson(res.answer)
-  if (!parsed?.body) return null
+
+  const line = (v: unknown) => String(v ?? '').trim().slice(0, 240)
+  const parts = {
+    pattern: line(parsed?.pattern),
+    driver: line(parsed?.driver),
+    win: line(parsed?.win),
+  }
+  const hasParts = Boolean(parts.pattern && parts.driver && parts.win)
+  // body stays the readable fallback for anywhere that shows one paragraph
+  // (and for older rows written before the three-part format).
+  const body = parsed?.body
+    ? String(parsed.body)
+    : hasParts
+      ? `Pattern found: ${parts.pattern} Hidden driver: ${parts.driver} Quiet win: ${parts.win}`
+      : ''
+  if (!body) return null
 
   return {
-    title: String(parsed.title ?? 'Your week').slice(0, 90),
-    body: String(parsed.body),
-    patterns: normPatterns(parsed.patterns),
-    meta: { dataSufficient: true, moodCount: w.moodCount },
+    title: String(parsed?.title ?? 'Your week').slice(0, 90),
+    body,
+    patterns: normPatterns(parsed?.patterns),
+    meta: { dataSufficient: true, moodCount: w.moodCount, ...(hasParts ? { parts } : {}) },
   }
 }
 

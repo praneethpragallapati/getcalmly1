@@ -7,6 +7,7 @@ import {
   type Milestone,
   type MoodOverTimePoint,
   type MoodWeekPoint,
+  type InsightParts,
   type Pattern,
   type PlanTierName,
   type TodaySession,
@@ -498,6 +499,15 @@ export async function getDashboardData(): Promise<DashboardData> {
     // Overlay real AI insights when the scheduled jobs have produced them. The
     // Pattern cards live in AiInsight.meta.patterns (daily → detectedThisWeek on
     // Home, weekly → journalPatterns on the Journal tab); fall back to demo when absent.
+    // The three-part weekly insight (pattern / hidden driver / quiet win) lives
+    // in AiInsight.meta. Older rows predate it and simply read as null.
+    const partsOf = (meta: unknown): InsightParts | null => {
+      const p = (meta as { parts?: unknown })?.parts as Record<string, unknown> | undefined
+      if (!p) return null
+      const s3 = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
+      const parts = { pattern: s3(p.pattern), driver: s3(p.driver), win: s3(p.win) }
+      return parts.pattern && parts.driver && parts.win ? parts : null
+    }
     const patternsOf = (meta: unknown): Pattern[] => {
       const arr = (meta as { patterns?: unknown })?.patterns
       return Array.isArray(arr) ? (arr as Pattern[]) : []
@@ -508,7 +518,11 @@ export async function getDashboardData(): Promise<DashboardData> {
       if (p.length) data.detectedThisWeek = p
     }
     if (weeklyInsight) {
-      data.weeklyInsight = { title: weeklyInsight.title, body: weeklyInsight.body }
+      data.weeklyInsight = {
+        title: weeklyInsight.title,
+        body: weeklyInsight.body,
+        parts: partsOf(weeklyInsight.meta),
+      }
       const p = patternsOf(weeklyInsight.meta)
       if (p.length) data.journalPatterns = p
     }

@@ -44,7 +44,9 @@ export type DashSession = {
 
 export type TodaySession = DashSession & { startsIn: string; tags: string[]; sessionNo: number }
 
-export type DashInsight = { title: string; body: string }
+/** The three parts a weekly insight is written in. */
+export type InsightParts = { pattern: string; driver: string; win: string }
+export type DashInsight = { title: string; body: string; parts?: InsightParts | null }
 export type Pattern = { title: string; sub: string; tone: Tone }
 
 export type DashJournal = {
@@ -382,6 +384,11 @@ export const demoDashboard: DashboardData = {
   weeklyInsight: {
     title: 'This week: work was your main stressor',
     body: 'Three of your five entries mentioned work pressure, often paired with anxious mood. The entry where you set a boundary stood out as a turning point worth building on.',
+    parts: {
+      pattern: 'your anxiety runs highest on Sunday nights, right before your Monday stand-up.',
+      driver: 'nights under 6 hours of sleep double the self-criticism in your journal the next day.',
+      win: 'on weeks you journal 4+ days, your mood recovers almost twice as fast.',
+    },
   },
   milestones: [
     { label: 'First mood check-in', sub: 'Completed 3 Feb', done: true },
