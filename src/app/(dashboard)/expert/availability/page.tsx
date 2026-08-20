@@ -6,8 +6,11 @@ import {
   getAvailabilityExceptions,
   SLOT_GROUPS,
   SLOT_GROUP_KEYS,
+  NIGHT_SHIFT_NOTE,
   DAY_LABELS,
 } from '@/lib/expert'
+import { isNightSession } from '@/lib/earningsConfig'
+import { istWallClock, istParts } from '@/lib/tz'
 import { saveAvailability, blockDate, unblockDate } from '../actions'
 import { SectionTabs } from '@/components/ui/SectionTabs'
 import { EXPERT_SCHEDULE_TABS } from '@/data/sectionTabs'
@@ -18,25 +21,54 @@ function hourLabel(h: number): string {
   return `${display} ${ampm}`
 }
 
+/**
+ * Whether a slot starting at this hour is paid at the night rate. Asks the same
+ * function the earnings ledger uses, against a real instant at that IST hour, so
+ * the badge here can never drift from what a clinician is actually paid.
+ */
+function earnsNightBonus(h: number): boolean {
+  const t = istParts(new Date())
+  return isNightSession(istWallClock(t.year, t.month, t.day, h, 0))
+}
+
 /** The 1-hour slot checkboxes, grouped under the four named bands, pre-checked. */
 function HoursPicker({ selected }: { selected: number[] }) {
   const set = new Set(selected)
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
       {SLOT_GROUP_KEYS.map((key) => (
-        <div key={key} style={{ minWidth: 150 }}>
-          <div className="eyebrow" style={{ marginBottom: 6 }}>{SLOT_GROUPS[key].label}</div>
+        <div key={key} style={{ minWidth: 160 }}>
+          <div className="eyebrow" style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {SLOT_GROUPS[key].label}
+            {key === 'night' && (
+              <span
+                title={NIGHT_SHIFT_NOTE}
+                style={{
+                  fontSize: 9.5, fontWeight: 800, letterSpacing: '.04em', color: '#8A5A00',
+                  background: 'rgba(201,151,58,.18)', padding: '1px 6px', borderRadius: 20,
+                }}
+              >
+                + BONUS
+              </span>
+            )}
+          </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {SLOT_GROUPS[key].hours.map((h) => (
               <label
                 key={h}
                 style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, cursor: 'pointer' }}
+                title={earnsNightBonus(h) ? 'Night shift — paid at the night rate' : undefined}
               >
                 <input type="checkbox" name="hours" value={h} defaultChecked={set.has(h)} />
                 {hourLabel(h)}
               </label>
             ))}
           </div>
+          {key === 'night' && (
+            <p className="muted" style={{ fontSize: 11, lineHeight: 1.45, margin: '6px 0 0' }}>
+              {NIGHT_SHIFT_NOTE}
+            </p>
+          )}
         </div>
       ))}
     </div>

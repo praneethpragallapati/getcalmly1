@@ -186,7 +186,7 @@ export function EarningsView({
           {[
             ['2nd session', c.secondSessionBonus],
             ['3rd+ session', c.thirdOnwardsBonus],
-            ['Night slot', c.nightSessionBonus],
+            ['Night slot · 11 PM–6 AM', c.nightSessionBonus],
             ['Misc', c.miscBonus],
           ].map(([label, val]) => (
             <span key={label as string} style={{ fontSize: 12.5, color: '#6B7D8E', background: 'rgba(28,43,58,.05)', padding: '5px 11px', borderRadius: 20 }}>

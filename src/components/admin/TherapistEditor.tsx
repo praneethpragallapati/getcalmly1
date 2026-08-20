@@ -96,7 +96,7 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
             <Row>
               <Col><label style={label}>2nd session (₹)</label><input type="number" min={0} style={field} value={bonus2} onChange={(e) => setBonus2(e.target.value)} placeholder={feeHint(bonus2, c.globalBonuses.second) || undefined} /></Col>
               <Col><label style={label}>3rd onwards (₹)</label><input type="number" min={0} style={field} value={bonus3} onChange={(e) => setBonus3(e.target.value)} placeholder={feeHint(bonus3, c.globalBonuses.thirdOnwards) || undefined} /></Col>
-              <Col><label style={label}>Night session (₹)</label><input type="number" min={0} style={field} value={bonusNight} onChange={(e) => setBonusNight(e.target.value)} placeholder={feeHint(bonusNight, c.globalBonuses.night) || undefined} /></Col>
+              <Col><label style={label}>Night session · 11 PM–6 AM (₹)</label><input type="number" min={0} style={field} value={bonusNight} onChange={(e) => setBonusNight(e.target.value)} placeholder={feeHint(bonusNight, c.globalBonuses.night) || undefined} /></Col>
               <Col><label style={label}>Misc (₹)</label><input type="number" min={0} style={field} value={bonusMisc} onChange={(e) => setBonusMisc(e.target.value)} placeholder={feeHint(bonusMisc, c.globalBonuses.misc) || undefined} /></Col>
             </Row>
           </div>
