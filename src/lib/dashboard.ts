@@ -283,6 +283,30 @@ export async function getDashboardData(): Promise<DashboardData> {
     }
     data.moodWeek = week
 
+    // Last 6 calendar weeks, oldest→newest. Each point is that week's average
+    // across whatever was logged in it; a week with no check-ins stays at 0.
+    // Labelled by the week's start date so the axis reads as real dates.
+    const SIX = 6
+    const sixWeeks: MoodWeekPoint[] = []
+    const todaySod = startOfDay(new Date())
+    for (let w = SIX - 1; w >= 0; w--) {
+      const end = todaySod - w * 7 * 86_400_000 // start-of-day, w weeks back
+      const start = end - 6 * 86_400_000        // the 7-day window ending that day
+      const bucket = moods.filter((m) => {
+        const sod = startOfDay(m.createdAt)
+        return sod >= start && sod <= end
+      })
+      const avg = (sel: (m: (typeof moods)[number]) => number) =>
+        bucket.length ? Math.round(bucket.reduce((a, m) => a + sel(m), 0) / bucket.length) : 0
+      sixWeeks.push({
+        day: new Date(start).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+        mood: avg((m) => m.mood),
+        energy: avg((m) => m.energy),
+        calm: avg((m) => m.calm ?? 5),
+      })
+    }
+    data.moodSixWeeks = sixWeeks
+
     const scored = moods.slice(0, 14)
     data.avgMood = scored.length
       ? Math.round((scored.reduce((a, m) => a + m.mood, 0) / scored.length) * 10) / 10

@@ -107,6 +107,8 @@ export type DashboardData = {
   streakDays: number
   checkin: CheckinScores
   moodWeek: MoodWeekPoint[]
+  /** Last 6 calendar weeks, oldest→newest; each point is that week's average. */
+  moodSixWeeks: MoodWeekPoint[]
   avgMood: number
   moodOverTime: MoodOverTimePoint[]
   moodMonthChangePct: number | null
@@ -159,6 +161,7 @@ export function blankDashboard(): DashboardData {
     streakDays: 0,
     checkin: { mood: 0, energy: 0, calm: 0 },
     moodWeek: [],
+    moodSixWeeks: [],
     avgMood: 0,
     moodOverTime: [],
     moodMonthChangePct: null,
@@ -207,6 +210,14 @@ export const demoDashboard: DashboardData = {
     { day: 'Fri', mood: 7, energy: 6, calm: 5 },
     { day: 'Sat', mood: 8, energy: 7, calm: 7 },
     { day: 'Sun', mood: 7, energy: 6, calm: 6 },
+  ],
+  moodSixWeeks: [
+    { day: '7 Jul', mood: 4, energy: 4, calm: 3 },
+    { day: '14 Jul', mood: 5, energy: 4, calm: 4 },
+    { day: '21 Jul', mood: 5, energy: 5, calm: 4 },
+    { day: '28 Jul', mood: 6, energy: 5, calm: 5 },
+    { day: '4 Aug', mood: 6, energy: 6, calm: 5 },
+    { day: '11 Aug', mood: 7, energy: 6, calm: 6 },
   ],
   avgMood: 6.4,
   moodOverTime: [

@@ -186,7 +186,7 @@ export default async function AppHomePage() {
 
       {/* Reflective pair: how the week went, and what the AI made of it. */}
       <div className="home-split home-split-2" style={{ gap: 20 }}>
-        <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} />
+        <MoodWeekChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
         <div className="card">
           <div className="section-title" style={{ marginBottom: 10 }}>This week</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-charcoal)', marginBottom: 8 }}>
