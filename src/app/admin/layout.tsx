@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { LayoutDashboard, Inbox, Users, UserPlus, HeartPulse, CalendarClock, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart } from 'lucide-react'
+import { canAccess } from '@/lib/adminRoles'
+import { LayoutDashboard, Inbox, Users, UserPlus, HeartPulse, CalendarClock, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Wallet } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -63,6 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </SidebarLink>
         </NavGroup>
 
+        {canAccess(admin.adminType, 'people') && (
         <NavGroup heading="PEOPLE" storageKey="admin" hrefs={['/admin/therapists', '/admin/supervision', '/admin/patients', '/admin/create', '/admin/feedback']}>
           {/* Clinicians also covers Supervision (tabbed together). */}
           <SidebarLink href="/admin/therapists" match={['/admin/supervision']}>
@@ -83,15 +85,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </SidebarLink>
         </NavGroup>
 
+        )}
+
+        {canAccess(admin.adminType, 'money') && (
         <NavGroup heading="OPERATIONS" storageKey="admin" hrefs={['/admin/operations', '/admin/money', '/admin/revenue', '/admin/pricing', '/admin/referrals']}>
           <SidebarLink href="/admin/operations">
             <CalendarClock size={18} />
             <span>Operations</span>
           </SidebarLink>
-          {/* Money = revenue + clinician payouts. */}
+          {/* Money = the whole picture (in, out, ledger, projection).
+              Revenue & payouts stays as the detailed per-clinician breakdown. */}
+          <SidebarLink href="/admin/finance">
+            <Wallet size={18} />
+            <span>Money</span>
+          </SidebarLink>
           <SidebarLink href="/admin/revenue" match={['/admin/money']}>
             <TrendingUp size={18} />
-            <span>Money</span>
+            <span>Revenue &amp; payouts</span>
           </SidebarLink>
           {/* Pricing also covers Referrals (both commercial levers). */}
           <SidebarLink href="/admin/pricing" match={['/admin/referrals']}>
@@ -100,6 +110,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </SidebarLink>
         </NavGroup>
 
+        )}
+
+        {canAccess(admin.adminType, 'content') && (
         <NavGroup heading="PLATFORM" storageKey="admin" hrefs={['/admin/content', '/admin/perspectives', '/admin/guided', '/admin/config']}>
           {/* Content also covers Perspectives + Guided calm (tabbed together). */}
           <SidebarLink href="/admin/content" match={['/admin/perspectives', '/admin/guided']}>
@@ -111,6 +124,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <span>Configuration</span>
           </SidebarLink>
         </NavGroup>
+        )}
       </aside>
 
       <div className="app-main">

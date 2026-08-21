@@ -26,6 +26,7 @@ import {
   notifyCalmPlusGranted, notifyPackageAdded,
 } from '@/lib/goodNews'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { isAdminType } from '@/lib/adminRoles'
 import { normalizeCountry } from '@/lib/countries'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
@@ -167,7 +168,7 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
   }
 }
 
-export async function createAdmin(input: { name: string; email: string }): Promise<CreateResult> {
+export async function createAdmin(input: { name: string; email: string; adminType?: string | null }): Promise<CreateResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   const name = input.name?.trim()
   const email = input.email?.trim().toLowerCase()
@@ -176,9 +177,16 @@ export async function createAdmin(input: { name: string; email: string }): Promi
   try {
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) return { ok: false, error: 'An account with that email already exists.' }
+    // Unknown or absent type means full access, which is the historical
+    // behaviour — so a bad value can never silently narrow someone's access
+    // without anyone noticing, it just leaves them where admins already were.
+    const adminType = isAdminType(input.adminType) ? input.adminType : null
     const tempPassword = generateTempPassword()
     const created = await prisma.user.create({
-      data: { name, email, role: 'ADMIN', passwordHash: hashPassword(tempPassword), mustChangePassword: true },
+      data: {
+        name, email, role: 'ADMIN', adminType,
+        passwordHash: hashPassword(tempPassword), mustChangePassword: true,
+      },
     })
     await ensureRegistrationNo(created.id, 'ADMIN')
     return { ok: true, email, tempPassword }

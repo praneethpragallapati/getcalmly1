@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { COUNTRIES, hasStateList } from '@/lib/countries'
+import { ADMIN_TYPES } from '@/lib/adminRoles'
 import { IN_STATES } from '@/lib/inStates'
 import { Stethoscope, ShieldCheck, Copy, Check } from 'lucide-react'
 import { createTherapist, createAdmin, type CreateResult } from '@/app/admin/actions'
@@ -62,6 +63,7 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   // Admin fields
   const [adminName, setAdminName] = useState('')
   const [adminEmail, setAdminEmail] = useState('')
+  const [adminType, setAdminType] = useState<string>('SUPER')
 
   const numOrBlank = (v: string): number | '' => (v === '' ? '' : Number(v))
 
@@ -102,7 +104,7 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
             nightSessionBonus: numOrBlank(bonusNight),
             documentUrls: docs.map((d) => d.url),
           })
-        : await createAdmin({ name: adminName, email: adminEmail })
+        : await createAdmin({ name: adminName, email: adminEmail, adminType })
       setResult(res)
     })
   }
@@ -278,6 +280,17 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
           <Row>
             <Col><label style={label}>Full name</label><input style={field} value={adminName} onChange={(e) => setAdminName(e.target.value)} required placeholder="Platform Admin" /></Col>
             <Col><label style={label}>Email</label><input type="email" style={field} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} required placeholder="admin@getcalmly.com" /></Col>
+          </Row>
+          <Row>
+            <Col>
+              <label style={label}>Admin type</label>
+              <select style={{ ...field, background: '#fff' }} value={adminType} onChange={(e) => setAdminType(e.target.value)}>
+                {ADMIN_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+              <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+                {ADMIN_TYPES.find((t) => t.value === adminType)?.blurb}
+              </p>
+            </Col>
           </Row>
         </div>
       )}

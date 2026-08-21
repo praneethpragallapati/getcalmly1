@@ -12,7 +12,7 @@ import { authOptions } from '@/lib/auth'
  */
 export const getAuthSession = cache(() => getServerSession(authOptions))
 
-type SessionUser = { id?: string; role?: string; name?: string | null }
+type SessionUser = { id?: string; role?: string; name?: string | null; adminType?: string | null }
 
 /** The signed-in user's id, or null. Request-memoised. */
 export async function getUserId(): Promise<string | null> {

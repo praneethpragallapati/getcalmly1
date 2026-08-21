@@ -14,14 +14,22 @@ import { parseCompensationFields, type CompensationField } from '@/lib/compensat
 import { ensureSampleContent } from '@/lib/sampleContent'
 import { computePresence, ensureSessionPresenceSchema, getPresenceDetail, type PresenceDetail } from '@/lib/sessionLifecycle'
 
-export type AdminUser = { id: string; name: string | null; role: string }
+export type AdminUser = {
+  id: string
+  name: string | null
+  role: string
+  /** Which slice of the console this account may reach. null = full access. */
+  adminType: string | null
+}
 
 /** The signed-in admin, or null if not signed in / not an admin. */
 export async function getAdminSession(): Promise<AdminUser | null> {
   const session = await getServerSession(authOptions)
-  const user = session?.user as { id?: string; role?: string; name?: string | null } | undefined
+  const user = session?.user as {
+    id?: string; role?: string; name?: string | null; adminType?: string | null
+  } | undefined
   if (!user?.id || user.role !== 'ADMIN') return null
-  return { id: user.id, name: user.name ?? null, role: 'ADMIN' }
+  return { id: user.id, name: user.name ?? null, role: 'ADMIN', adminType: user.adminType ?? null }
 }
 
 // ── Overview KPIs ─────────────────────────────────────────────────────────────

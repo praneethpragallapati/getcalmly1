@@ -19,22 +19,28 @@ export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env
  * round-trip off the hot path of every authenticated request.
  */
 const ROLE_TTL_MS = 30_000
-const roleCache = new Map<string, { role: string; exp: number }>()
+const roleCache = new Map<string, { role: string; adminType: string | null; exp: number }>()
 
-async function freshRole(userId: string, fallback: string | undefined): Promise<string | undefined> {
+async function freshRole(
+  userId: string,
+  fallback: string | undefined,
+  fallbackAdminType?: string | null,
+): Promise<{ role: string | undefined; adminType: string | null }> {
   const now = Date.now()
   const hit = roleCache.get(userId)
-  if (hit && hit.exp > now) return hit.role
+  if (hit && hit.exp > now) return { role: hit.role, adminType: hit.adminType }
   try {
-    const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    // adminType rides along on the SAME round trip as the role — a second query
+    // per request to read one nullable string would not be worth it.
+    const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, adminType: true } })
     if (u?.role) {
-      roleCache.set(userId, { role: u.role, exp: now + ROLE_TTL_MS })
-      return u.role
+      roleCache.set(userId, { role: u.role, adminType: u.adminType ?? null, exp: now + ROLE_TTL_MS })
+      return { role: u.role, adminType: u.adminType ?? null }
     }
   } catch {
     /* keep fallback on a DB hiccup */
   }
-  return fallback
+  return { role: fallback, adminType: fallbackAdminType ?? null }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -133,18 +139,19 @@ export const authOptions: NextAuthOptions = {
         // NOT a user row — so we link by email to the existing account (or create
         // one). Without this, anything a Google-signed-in user buys or logs is
         // stored under a phantom id the admin (which lists real users) never sees.
-        let dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true } })
+        let dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true, adminType: true } })
         if (!dbUser && user.email) {
           const email = user.email.toLowerCase().trim()
           dbUser = await prisma.user.upsert({
             where: { email },
             update: {},
             create: { email, name: user.name ?? undefined, role: 'PATIENT' },
-            select: { id: true, role: true },
+            select: { id: true, role: true, adminType: true },
           })
         }
         token.uid = dbUser?.id ?? user.id
         token.role = dbUser?.role ?? 'PATIENT'
+        token.adminType = dbUser?.adminType ?? null
       }
       return token
     },
@@ -156,7 +163,10 @@ export const authOptions: NextAuthOptions = {
         // role change applies without a re-login — but cached for ROLE_TTL_MS so
         // we don't pay a DB round-trip on every request. Falls back to the
         // token's role on a DB hiccup so a blip never logs everyone out.
-        ;(session.user as { id?: string; role?: string }).role = await freshRole(id, token.role as string | undefined)
+        const fresh = await freshRole(id, token.role as string | undefined, token.adminType as string | null)
+        const su = session.user as { id?: string; role?: string; adminType?: string | null }
+        su.role = fresh.role
+        su.adminType = fresh.adminType
       }
       return session
     },

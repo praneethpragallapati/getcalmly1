@@ -194,6 +194,9 @@ model User {
   // Salted scrypt hash for email+password sign-in (scrypt$salt$hash). Null for
   // accounts that only use OAuth / OTP. Never the raw password.
   passwordHash  String?
+  /* Which slice of the admin console this account can reach. NULL = full
+     access, so existing admins are unaffected. See lib/adminRoles. */
+  adminType       String?
   role          Role      @default(PATIENT)
   // Set when an admin creates the account with a temporary password; forces a
   // password change on next sign-in.
@@ -1347,4 +1350,33 @@ model SessionPresenceSpan {
 
   @@index([appointmentId])
   @@index([appointmentId, role])
+}
+
+/// A money movement that isn't already derivable from the rest of the schema.
+///
+/// Customer revenue lives in Payment and therapist pay is computed from
+/// completed sessions — recording either here as well would let the two
+/// disagree. What has no home is money the founders put IN, and every
+/// non-session cost that goes OUT.
+///
+/// The bill is stored as a data URL in `billUrl`, the same way clinician
+/// onboarding documents are, so this needs no new storage. That caps a bill at
+/// a couple of megabytes and is meant to move to object storage later.
+model LedgerEntry {
+  id            String   @id @default(cuid())
+  direction     String   // "IN" | "OUT"
+  category      String   // see LEDGER_CATEGORIES in lib/ledger
+  amount        Int      // rupees, always positive; `direction` carries the sign
+  occurredAt    DateTime // when the money actually moved, not when it was typed
+  counterparty  String?  // who paid it, or who it was paid to
+  note          String?  @db.Text
+  billName      String?
+  billUrl       String?  @db.Text
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([occurredAt])
+  @@index([direction])
 }
