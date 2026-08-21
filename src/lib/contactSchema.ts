@@ -22,6 +22,13 @@ export async function ensureContactSchema(): Promise<void> {
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "postalCode" TEXT`,
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "occupation" TEXT`,
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "maritalStatus" TEXT`,
+    // These three were declared in schema.prisma but created by NO migration and
+    // covered by no self-heal — so every migrated database was missing them
+    // while a db-push'd one had them. That asymmetry is exactly why saving an
+    // emergency contact failed in production and passed locally.
+    `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyName" TEXT`,
+    `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyPhone" TEXT`,
+    `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyRelation" TEXT`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "dateOfBirth" TIMESTAMP(3)`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "country" TEXT NOT NULL DEFAULT 'IN'`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "state" TEXT`,

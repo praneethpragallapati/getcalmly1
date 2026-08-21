@@ -117,7 +117,9 @@ export async function saveMemberEssentials(
   const emergencyPhone = input.emergencyPhone?.trim().slice(0, 20) ?? ''
 
   try {
-    await ensureContactSchema().catch(() => {})
+    await ensureContactSchema().catch((e) => {
+      console.error('[saveMemberEssentials] ensureContactSchema failed', e)
+    })
     const existing = await prisma.user.findUnique({
       where: { id: userId },
       select: { phone: true, email: true },
@@ -157,9 +159,21 @@ export async function saveMemberEssentials(
     })
     return { ok: true }
   } catch (e) {
-    const msg = e instanceof Error && /Unique constraint/i.test(e.message)
-      ? 'That email is already used by another account.'
-      : 'Could not save your details.'
-    return { ok: false, error: msg }
+    // A blanket "could not save" hid a missing COLUMN here for as long as this
+    // form existed — the failure looked like the member's fault. Log the real
+    // reason so it is visible in the server logs, and name the two causes we
+    // can actually explain to the person in front of us.
+    console.error('[saveMemberEssentials] failed', e)
+    const message = e instanceof Error ? e.message : ''
+    if (/Unique constraint/i.test(message)) {
+      return { ok: false, error: 'That email is already used by another account.' }
+    }
+    if (/does not exist in the current database/i.test(message)) {
+      return {
+        ok: false,
+        error: 'We can\u2019t save this right now — the account database is mid-upgrade. Please try again shortly.',
+      }
+    }
+    return { ok: false, error: 'Could not save your details. Please try again, or contact support if it keeps happening.' }
   }
 }
