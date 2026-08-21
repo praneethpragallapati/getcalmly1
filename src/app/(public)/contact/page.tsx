@@ -1,6 +1,10 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ContactForm } from '@/components/site/ContactForm'
+import {
+  addressLines, primaryHelplines, supportEmail, supportHours,
+  supportHoursLines, supportPhone, supportPhoneTel,
+} from '@/config/site'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
@@ -27,8 +31,8 @@ const heading: React.CSSProperties = {
 }
 
 const channels: { label: string; value: string; href: string; note: string }[] = [
-  { label: 'Email us', value: 'getcalmly@gmail.com', href: 'mailto:getcalmly@gmail.com', note: 'For anything, care, billing or feedback.' },
-  { label: 'Call us', value: '+91 88845 18688', href: 'tel:+918884518688', note: 'Mon to Sat, 9:00 AM to 8:00 PM IST.' },
+  { label: 'Email us', value: supportEmail, href: `mailto:${supportEmail}`, note: 'For anything, care, billing or feedback.' },
+  { label: 'Call us', value: supportPhone, href: supportPhoneTel, note: `${supportHours}.` },
   { label: 'Join as an expert', value: 'Apply to our network', href: '/for-therapists', note: 'RCI-verified clinicians, we’d love to meet you.' },
 ]
 
@@ -87,13 +91,13 @@ export default function ContactPage() {
               <div>
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Write to us</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>
-                  316, 11th A Main, Classic Paradise Layout,<br />Begur, Bengaluru 560068, India
+                  {addressLines[0]}<br />{addressLines[1]}
                 </p>
               </div>
               <div>
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Support hours</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>
-                  Monday to Saturday<br />9:00 AM to 8:00 PM IST
+                  {supportHoursLines[0]}<br />{supportHoursLines[1]}
                 </p>
               </div>
             </div>
@@ -102,8 +106,18 @@ export default function ContactPage() {
             <div style={{ marginTop: 40, background: '#FDECEC', border: '1px solid #F3C9C9', borderRadius: 16, padding: '18px 22px' }}>
               <p style={{ fontSize: 14.5, color: '#9A3B3B', lineHeight: 1.7 }}>
                 <strong>In crisis?</strong> This form isn&apos;t monitored for emergencies. Call{' '}
-                <a href="tel:+919152987821" style={{ color: '#9A3B3B', textDecoration: 'underline', fontWeight: 700 }}>iCall 9152987821</a> or{' '}
-                <a href="tel:+917893078930" style={{ color: '#9A3B3B', textDecoration: 'underline', fontWeight: 700 }}>One Life 78930-78930</a> (24/7), or see our{' '}
+                {/* The blanket "(24/7)" that used to follow both numbers was wrong for
+                    iCall, which runs business hours. Each line states its own now. */}
+                {primaryHelplines.map((h, i) => (
+                  <span key={h.id}>
+                    {i > 0 && ' or '}
+                    <a href={`tel:${h.tel}`} style={{ color: '#9A3B3B', textDecoration: 'underline', fontWeight: 700 }}>
+                      {h.name} {h.number}
+                    </a>
+                    {` (${h.hours})`}
+                  </span>
+                ))}
+                , or see our{' '}
                 <Link href="/safety" style={{ color: '#9A3B3B', textDecoration: 'underline', fontWeight: 700 }}>Safety &amp; Ethics</Link> page.
               </p>
             </div>

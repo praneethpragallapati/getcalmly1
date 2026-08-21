@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { Download, ChevronDown, IndianRupee, CalendarDays, TrendingUp } from 'lucide-react'
 import type { Earnings, EarningLine } from '@/lib/expert'
 import { fmtIST } from '@/lib/tz'
+import { addressOneLine, legalName, supportEmail } from '@/config/site'
 
 const coral = '#C8553D'
 const charcoal = '#1C2B3A'
@@ -85,7 +86,7 @@ function printStatement(opts: {
         <div class="brand"><small>get</small>Calmly<span class="co">.</span></div>
         <div style="font-size:11px;color:#9AA6B2;margin-top:4px;">Mental healthcare, powered by experts</div>
       </div>
-      <div class="meta">GetCalmly Private Limited<br/>316, 11th A Main, Begur, Bengaluru 560068<br/>Generated ${esc(generated)}</div>
+      <div class="meta">${esc(legalName)}<br/>${esc(addressOneLine)}<br/>Generated ${esc(generated)}</div>
     </div>
     <h1>Earnings statement</h1>
     <div class="sub">${esc(periodLabel)}</div>
@@ -103,7 +104,7 @@ function printStatement(opts: {
         <td class="r">${inr(total)}</td>
       </tr></tfoot>
     </table>
-    <p class="note">This statement reflects completed sessions with a written clinical note. Amounts are computed from the platform pay structure (base fee per service + session-number bonus + night bonus + misc). For payout queries, contact getcalmly@gmail.com.</p>
+    <p class="note">This statement reflects completed sessions with a written clinical note. Amounts are computed from the platform pay structure (base fee per service + session-number bonus + night bonus + misc). For payout queries, contact ${esc(supportEmail)}.</p>
     <script>window.onload=function(){setTimeout(function(){window.print();},250);};</script>
   </body></html>`
 

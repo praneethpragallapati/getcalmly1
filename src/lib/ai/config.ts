@@ -4,15 +4,22 @@
  * carried over). When a key is absent the pipeline degrades gracefully to the
  * transparent rule-based behaviour, so the app never breaks without credentials.
  */
+import { pickHelplines, supportEmail } from '@/config/site'
+
 export const aiConfig = {
   openAiKey: process.env.OPENAI_API_KEY ?? '',
   anthropicKey: process.env.ANTHROPIC_API_KEY ?? '',
   // Shared secret that authenticates the scheduled insight cron route handlers.
   cronSecret: process.env.CRON_SECRET ?? '',
-  // India helpline + support contacts surfaced in crisis replies.
-  iCall: process.env.AI_ICALL_NUMBER ?? '9152987821',
-  teleManas: process.env.AI_TELEMANAS_NUMBER ?? '14416',
-  supportEmail: process.env.AI_SUPPORT_EMAIL ?? 'help@getcalmly.com',
+  // Helpline + support contacts surfaced in crisis replies. These come from
+  // src/config/site.ts, not from the environment: they are neither secret nor
+  // per-deployment, and the AI's crisis reply must never be able to quote a
+  // different number from the one on the safety page. They used to be three
+  // separate env vars whose defaults had already drifted — the support address
+  // here was help@getcalmly.com, which appears nowhere else in the product.
+  iCall: pickHelplines('icall')[0].number,
+  teleManas: pickHelplines('telemanas')[0].number,
+  supportEmail,
 }
 
 /** Whether at least one LLM provider is configured. */

@@ -1,5 +1,9 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import {
+  addressLines, contactEmail, socialLinks, supportHoursLines,
+  supportPhone, supportPhoneTel,
+} from '@/config/site'
 
 export const metadata: Metadata = {
   // The root template appends '| getCalmly', so the brand must not repeat here.
@@ -30,16 +34,9 @@ const values: { title: string; desc: string }[] = [
 ]
 
 const contacts: { label: string; value: string; href: string }[] = [
-  { label: 'Email us', value: 'connect@getcalmly.com', href: 'mailto:connect@getcalmly.com' },
-  { label: 'Call us', value: '+91 88845 18688', href: 'tel:+918884518688' },
-  { label: 'Partnerships', value: 'connect@getcalmly.com', href: 'mailto:connect@getcalmly.com' },
-]
-
-const socials: [string, string][] = [
-  ['Instagram', 'https://www.instagram.com/get.calmly'],
-  ['YouTube', 'https://youtube.com/@getcalmly'],
-  ['X (Twitter)', 'https://x.com/getCalmly'],
-  ['Facebook', 'https://www.facebook.com/share/1H2D79NEb3/'],
+  { label: 'Email us', value: contactEmail, href: `mailto:${contactEmail}` },
+  { label: 'Call us', value: supportPhone, href: supportPhoneTel },
+  { label: 'Partnerships', value: contactEmail, href: `mailto:${contactEmail}` },
 ]
 
 // The dark hero flips the requirement: the ink cut that clears AA on cream is
@@ -230,13 +227,13 @@ export default function AboutPage() {
               <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Visit / write to us</p>
               <p style={{ fontSize: 16, color: charcoal, fontWeight: 600, marginBottom: 4 }}>GetCalmly</p>
               <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>
-                316, 11th A Main, Classic Paradise Layout,<br />Begur, Bengaluru 560068, India
+                {addressLines[0]}<br />{addressLines[1]}
               </p>
             </div>
             <div>
               <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Support hours</p>
               <p style={{ fontSize: 16, color: '#5A6B7A', lineHeight: 1.7, fontWeight: 300 }}>
-                Monday to Saturday<br />9:00 AM to 8:00 PM IST
+                {supportHoursLines[0]}<br />{supportHoursLines[1]}
               </p>
             </div>
           </div>
@@ -244,11 +241,11 @@ export default function AboutPage() {
           <div style={{ marginTop: 48 }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 16 }}>Follow along</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {socials.map(([name, url]) => (
-                <a key={name} href={url} target="_blank" rel="noopener noreferrer" style={{
+              {socialLinks.map((s) => (
+                <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" style={{
                   padding: '9px 18px', borderRadius: 50, background: 'transparent',
                   border: `1.5px solid ${coral}33`, color: coral, fontSize: 14, fontWeight: 600, textDecoration: 'none',
-                }}>{name}</a>
+                }}>{s.label}</a>
               ))}
             </div>
           </div>

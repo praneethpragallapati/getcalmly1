@@ -20,6 +20,7 @@ import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
 import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { pickHelplines } from '@/config/site'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -1216,7 +1217,10 @@ function calmAiStandInReply(text: string): string {
   const t = text.toLowerCase()
   const crisis = ['suicid', 'kill myself', 'end my life', 'self harm', 'self-harm', 'hurt myself']
   if (crisis.some((k) => t.includes(k))) {
-    return "I'm really glad you told me, what you're feeling matters, and you don't have to carry it alone. I'm not able to help in an emergency, so please reach out right now to your expert or a helpline (in India, iCall: 9152987821, or Tele-MANAS: 14416). If you're in immediate danger, please call your local emergency number."
+    // Numbers come from the one helpline list, so this reply can never quote a
+    // number that differs from the safety page or the dashboard helpline panel.
+    const lines = pickHelplines('icall', 'telemanas').map((h) => `${h.name}: ${h.number}`).join(', or ')
+    return `I'm really glad you told me, what you're feeling matters, and you don't have to carry it alone. I'm not able to help in an emergency, so please reach out right now to your expert or a helpline (in India, ${lines}). If you're in immediate danger, please call your local emergency number.`
   }
   const opener = ['anxious', 'anxiety', 'panic', 'worried'].some((k) => t.includes(k))
     ? "It sounds like anxiety is sitting heavy with you right now. That's exhausting, and it makes sense that you'd want some relief."

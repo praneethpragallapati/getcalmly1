@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { supportEmail } from '@/config/site'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | GetCalmly',
@@ -88,7 +89,7 @@ const blocks: { title: string; body: React.ReactNode }[] = [
         Under the DPDP Act you have the right to access, correct, and erase your data, to withdraw consent, to
         nominate someone to exercise your rights, and to raise a grievance. To exercise any of these, contact our
         Data Protection Officer at{' '}
-        <a href="mailto:getcalmly@gmail.com" style={{ color: coral, fontWeight: 600 }}>getcalmly@gmail.com</a>.
+        <a href={`mailto:${supportEmail}`} style={{ color: coral, fontWeight: 600 }}>{supportEmail}</a>.
       </>
     ),
   },
@@ -203,8 +204,8 @@ export default function PrivacyPage() {
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', marginBottom: 32, lineHeight: 1.7 }}>
             Access, correct, or erase your data anytime, we&apos;re one email away.
           </p>
-          <a href="mailto:getcalmly@gmail.com" style={{ display: 'inline-block', padding: '15px 30px', borderRadius: 50, background: coral, color: '#fff', fontSize: 16, fontWeight: 700, textDecoration: 'none', boxShadow: `0 8px 24px ${coral}55` }}>
-            getcalmly@gmail.com
+          <a href={`mailto:${supportEmail}`} style={{ display: 'inline-block', padding: '15px 30px', borderRadius: 50, background: coral, color: '#fff', fontSize: 16, fontWeight: 700, textDecoration: 'none', boxShadow: `0 8px 24px ${coral}55` }}>
+            {supportEmail}
           </a>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,.5)', marginTop: 24 }}>
             See also our <Link href="/safety" style={{ color: 'rgba(255,255,255,.8)', textDecoration: 'underline' }}>Safety &amp; Ethics</Link> and{' '}

@@ -1,6 +1,5 @@
 import { getBlogPosts } from '@/lib/blog'
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+import { siteUrl as SITE_URL, address, contactEmail, legalName, supportPhone } from '@/config/site'
 
 // /llms.txt, an emerging convention that gives LLMs / answer engines a
 // concise, curated map of the site so they can cite it accurately.
@@ -26,8 +25,8 @@ export async function GET() {
 > peer-support community. The first session is ₹799.
 
 Slogan: Mental Healthcare, Powered by Experts, Personalized by AI.
-Company: GetCalmly Private Limited, Bengaluru, Karnataka, India.
-Contact: connect@getcalmly.com · +91 88845 18688.
+Company: ${legalName}, ${address.locality}, ${address.region}, ${address.country}.
+Contact: ${contactEmail} · ${supportPhone}.
 
 ## Key facts
 - Every therapist and psychiatrist is licensed and background-checked.

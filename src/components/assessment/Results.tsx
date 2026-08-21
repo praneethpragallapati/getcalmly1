@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { therapists } from '@/data/therapists'
 import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
+import { pickHelplines } from '@/config/site'
 
 type Result = {
   type: string
@@ -135,18 +136,12 @@ export default function Results() {
             <h3 className="crisis-title">You don&apos;t have to face this alone</h3>
             <p className="crisis-sub">If you are in crisis or thinking about harming yourself, please reach out right now:</p>
             <div className="crisis-lines">
-              <a href="tel:+919152987821" className="crisis-line">
-                <span className="cl-name">iCall (TISS)</span>
-                <span className="cl-num">9152987821</span>
-              </a>
-              <a href="tel:+917893078930" className="crisis-line">
-                <span className="cl-name">One Life</span>
-                <span className="cl-num">78930-78930</span>
-              </a>
-              <a href="tel:+912227546669" className="crisis-line">
-                <span className="cl-name">Asra (24/7)</span>
-                <span className="cl-num">+91-22-27546669</span>
-              </a>
+              {pickHelplines('icall', 'onelife', 'aasra').map((h) => (
+                <a key={h.id} href={`tel:${h.tel}`} className="crisis-line">
+                  <span className="cl-name">{h.name}</span>
+                  <span className="cl-num">{h.number}</span>
+                </a>
+              ))}
             </div>
           </div>
         )}

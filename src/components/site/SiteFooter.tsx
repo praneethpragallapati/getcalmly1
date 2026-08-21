@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
+import { addressLines, contactEmail, legalName, supportPhone, supportPhoneTel } from '@/config/site'
 
 export default function SiteFooter() {
   return (
@@ -12,16 +13,16 @@ export default function SiteFooter() {
             understands, all in one calm, trustworthy space.
           </p>
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <a href="tel:+918884518688" style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span>📞</span> +91 88845 18688
+            <a href={supportPhoneTel} style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>📞</span> {supportPhone}
             </a>
-            <a href="mailto:connect@getcalmly.com" style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span>✉️</span> connect@getcalmly.com
+            <a href={`mailto:${contactEmail}`} style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>✉️</span> {contactEmail}
             </a>
             <p style={{ color: 'rgba(255,255,255,.56)', fontSize: 12.5, lineHeight: 1.6, marginTop: 4 }}>
-              GetCalmly Private Limited<br />
-              316, 11th A Cross, Classic Layout,<br />
-              Begur, Bengaluru 560068, India
+              {legalName}<br />
+              {addressLines[0]}<br />
+              {addressLines[1]}
             </p>
           </div>
         </div>
@@ -50,7 +51,7 @@ export default function SiteFooter() {
         </div>
       </div>
       <div className="foot-bottom">
-        <p>© {new Date().getFullYear()} GetCalmly Private Limited. Made with care in India.</p>
+        <p>© {new Date().getFullYear()} {legalName}. Made with care in India.</p>
         <div className="foot-badges">
           <span className="fbadge">✓ Licensed clinicians</span>
           <span className="fbadge">🔒 DPDP Safe</span>

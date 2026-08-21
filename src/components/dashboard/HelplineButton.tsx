@@ -2,18 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { LifeBuoy, Phone, X } from 'lucide-react'
+import { dashboardHelplines as HELPLINES } from '@/config/site'
 
 /**
  * A discreet, always-available helpline access point pinned to the corner of the
  * dashboard. Collapsed it's a small pill (doesn't cover content); tapping it
- * opens a short list of 24/7 India helplines with tap-to-call links. Closes on
+ * opens a short list of India helplines with tap-to-call links. Closes on
  * outside click / Escape.
  */
-const HELPLINES = [
-  { name: 'KIRAN (Govt. mental health)', number: '1800-599-0019', tel: '18005990019' },
-  { name: 'iCall (TISS)', number: '9152987821', tel: '9152987821' },
-  { name: 'Vandrevala Foundation', number: '1860-2662-345', tel: '18602662345' },
-]
 
 export function HelplineButton() {
   const [open, setOpen] = useState(false)

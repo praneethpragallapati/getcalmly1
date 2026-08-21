@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { submitEnterpriseLead } from '@/app/(public)/actions'
+import { contactEmail } from '@/config/site'
 
 const charcoal = '#1C2B3A'
 // Brand coral is only AA-safe as large display text. Everything on this page
@@ -437,7 +438,7 @@ export default function EnterprisePage() {
               ))}
             </div>
             <p style={{ fontSize: 14.5, color: '#5A6A7A', marginTop: 32, fontWeight: 300 }}>
-              Prefer email? <a href="mailto:connect@getcalmly.com" style={{ color: coral, fontWeight: 600 }}>connect@getcalmly.com</a>
+              Prefer email? <a href={`mailto:${contactEmail}`} style={{ color: coral, fontWeight: 600 }}>{contactEmail}</a>
             </p>
           </div>
 

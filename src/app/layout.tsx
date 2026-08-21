@@ -1,7 +1,14 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+import {
+  siteUrl as SITE_URL,
+  legalName,
+  address,
+  streetAddress,
+  supportPhoneTel,
+  contactEmail,
+  socialLinks,
+} from '@/config/site'
 
 export const viewport: Viewport = {
   themeColor: '#C8553D',
@@ -51,7 +58,7 @@ const orgJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'MedicalOrganization',
   name: 'getCalmly',
-  legalName: 'GetCalmly Private Limited',
+  legalName,
   url: SITE_URL,
   logo: `${SITE_URL}/opengraph-image`,
   image: `${SITE_URL}/opengraph-image`,
@@ -62,26 +69,22 @@ const orgJsonLd = {
   areaServed: { '@type': 'Country', name: 'India' },
   address: {
     '@type': 'PostalAddress',
-    streetAddress: '316, 11th A Cross, Classic Layout, Begur',
-    addressLocality: 'Bengaluru',
-    addressRegion: 'Karnataka',
-    postalCode: '560068',
-    addressCountry: 'IN',
+    streetAddress,
+    addressLocality: address.locality,
+    addressRegion: address.region,
+    postalCode: address.postalCode,
+    addressCountry: address.countryCode,
   },
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+91-88845-18688',
-    email: 'connect@getcalmly.com',
+    // schema.org wants the dialable form, not the prettified one.
+    telephone: supportPhoneTel.replace(/^tel:/, ''),
+    email: contactEmail,
     contactType: 'customer support',
-    areaServed: 'IN',
+    areaServed: address.countryCode,
     availableLanguage: ['en', 'hi'],
   },
-  sameAs: [
-    'https://instagram.com/getcalmly',
-    'https://linkedin.com/company/getcalmly',
-    'https://x.com/getcalmly',
-    'https://youtube.com/@getcalmly',
-  ],
+  sameAs: socialLinks.map((s) => s.url),
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

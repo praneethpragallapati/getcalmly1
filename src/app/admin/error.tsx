@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { contactEmail } from '@/config/site'
 
 /**
  * Error boundary for the admin area. Instead of a raw "server error" crash, this
@@ -32,7 +33,7 @@ export default function AdminError({ error, reset }: { error: Error & { digest?:
           Reload
         </button>
         <a
-          href="mailto:connect@getcalmly.com?subject=Admin%20page%20error"
+          href={`mailto:${contactEmail}?subject=Admin%20page%20error`}
           style={{ padding: '10px 18px', borderRadius: 10, border: '1.5px solid #E2E8F0', color: '#1C2B3A', fontSize: 14, fontWeight: 700, textDecoration: 'none' }}
         >
           Contact support

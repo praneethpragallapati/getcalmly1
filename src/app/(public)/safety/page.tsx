@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { helplines, supportEmail } from '@/config/site'
 
 export const metadata: Metadata = {
   title: 'Safety & Ethics | GetCalmly',
@@ -22,14 +23,6 @@ const eyebrow: React.CSSProperties = {
 const heading: React.CSSProperties = {
   fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, letterSpacing: '-0.5px',
 }
-
-const helplines: [string, string, string][] = [
-  ['iCall (TISS)', '9152987821', '+919152987821'],
-  ['Asra (24/7)', '+91-22-27546669', '+912227546669'],
-  ['One Life (24/7)', '78930-78930', '+917893078930'],
-  ['CHILDLINE (children)', '1098', '1098'],
-  ["Women's Helpline", '1091', '1091'],
-]
 
 const badges = ['RCI-licensed clinical psychologists', 'NMC-registered psychiatrists', 'DPDP Act 2023 compliant', 'MHCA 2017 aligned']
 
@@ -88,7 +81,7 @@ const blocks: { n: string; title: string; body: React.ReactNode }[] = [
       <>
         We are committed to a fair and prompt grievance process. To raise a concern about a professional or
         your experience, contact us at{' '}
-        <a href="mailto:getcalmly@gmail.com" style={{ color: coral, fontWeight: 600 }}>getcalmly@gmail.com</a>{' '}
+        <a href={`mailto:${supportEmail}`} style={{ color: coral, fontWeight: 600 }}>{supportEmail}</a>{' '}
         and our team will respond confidentially.
       </>
     ),
@@ -159,10 +152,13 @@ export default function SafetyPage() {
                 proceed to the nearest emergency centre. <strong style={{ color: 'rgba(255,255,255,.9)' }}>This website is not intended for emergency intervention.</strong>
               </p>
               <div className="safety-help">
-                {helplines.map(([name, num, tel]) => (
-                  <a key={name} href={`tel:${tel}`} style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(200,85,61,.22)', borderRadius: 14, padding: '14px 16px', textDecoration: 'none' }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.72)' }}>{name}</span>
-                    <span style={{ fontSize: 17, fontWeight: 800, color: '#E8896F', letterSpacing: '.3px' }}>{num}</span>
+                {helplines.map((h) => (
+                  <a key={h.id} href={`tel:${h.tel}`} style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(200,85,61,.22)', borderRadius: 14, padding: '14px 16px', textDecoration: 'none' }}>
+                    <span style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,.72)' }}>{h.name}</span>
+                    <span style={{ fontSize: 17, fontWeight: 800, color: '#E8896F', letterSpacing: '.3px' }}>{h.number}</span>
+                    {/* Hours were previously glued into the name ("Asra (24/7)"), which
+                        left the business-hours lines looking like they were always open. */}
+                    <span style={{ fontSize: 11.5, color: 'rgba(255,255,255,.55)' }}>{h.hours}</span>
                   </a>
                 ))}
               </div>

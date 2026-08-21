@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { notify } from '@/lib/notifications'
 import { fmtIST } from '@/lib/tz'
+// Referral links previously fell back to a hardcoded vercel.app host that
+// differed from the one every other caller used. One definition now.
+import { siteUrl } from '@/config/site'
 
 /**
  * Referral program — data access + the reward engine's read side. The write side
@@ -137,11 +140,6 @@ export async function ensureReferralCode(userId: string): Promise<string | null>
   }
 }
 
-function siteUrl(): string {
-  const u = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
-  return u || 'https://getcalmly1.vercel.app'
-}
-
 export type ReferralInvite = { name: string; status: string; joinedLabel: string }
 
 export type PatientReferralView = {
@@ -200,7 +198,7 @@ export async function getPatientReferral(userId: string): Promise<PatientReferra
     return {
       ...base,
       code,
-      link: code ? `${siteUrl()}/register?ref=${code}` : null,
+      link: code ? `${siteUrl}/register?ref=${code}` : null,
       walletCreditRupees: user?.walletCreditRupees ?? 0,
       invites,
       invitedCount: referrals.length,

@@ -9,6 +9,7 @@ import type { ExpertSlot } from '@/lib/sessions'
 import { fmtIST } from '@/lib/tz'
 import { BookingCalendar, type BookedSession } from '@/components/dashboard/BookingCalendar'
 import { IST_LABEL } from '@/lib/bookingCalendar'
+import { contactEmail } from '@/config/site'
 
 type Clinician = { profileId: string; name: string; typeLabel: string }
 
@@ -139,7 +140,7 @@ export function BookSession({
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link href="/app/billing" className="btn btn-primary btn-sm">Renew package</Link>
-            <a className="btn btn-outline btn-sm" href="mailto:connect@getcalmly.com?subject=Renew%20my%20package" style={{ textDecoration: 'none' }}>Contact support</a>
+            <a className="btn btn-outline btn-sm" href={`mailto:${contactEmail}?subject=Renew%20my%20package`} style={{ textDecoration: 'none' }}>Contact support</a>
           </div>
         </div>
       ) : (

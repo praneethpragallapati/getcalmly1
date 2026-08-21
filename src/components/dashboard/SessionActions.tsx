@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation'
 import { CalendarClock, X, Check, LifeBuoy } from 'lucide-react'
 import { cancelMyAppointment, rescheduleMyAppointment } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
+import { contactEmail } from '@/config/site'
 
-const SUPPORT_EMAIL = 'connect@getcalmly.com'
-
-/** A "Contact support" link that opens the user's mail client to connect@getcalmly.com. */
+/** A "Contact support" link that opens the user's mail client. */
 function ContactSupport({ subject }: { subject?: string }) {
-  const href = `mailto:${SUPPORT_EMAIL}${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`
+  const href = `mailto:${contactEmail}${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`
   return (
     <a className="btn btn-outline btn-sm" href={href} style={{ textDecoration: 'none' }}>
       <LifeBuoy size={13} /> Contact support
