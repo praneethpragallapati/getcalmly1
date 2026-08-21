@@ -13,6 +13,7 @@ import { fmtIST, istParts } from '@/lib/tz'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { ensureSampleContent } from '@/lib/sampleContent'
 import { computePresence, ensureSessionPresenceSchema, getPresenceDetail, type PresenceDetail } from '@/lib/sessionLifecycle'
+import { ensureSessionNoteSchema } from '@/lib/sessionNoteSchema'
 
 export type AdminUser = {
   id: string
@@ -45,8 +46,26 @@ export type AdminOverview = {
   activeSubscriptions: number
 }
 
+/**
+ * Run a read, falling back to an empty shape rather than crashing the page.
+ *
+ * The bare `catch` this replaces logged nothing, so a missing COLUMN turned the
+ * entire admin Money page into zeros -- no error, no trace, and the numbers
+ * looked like a real answer. A blank page is still better than a 500 here, but
+ * the reason it went blank must be visible in the server logs.
+ */
 const safe = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
-  try { return await fn() } catch { return fallback }
+  try {
+    return await fn()
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    if (/does not exist in the current database|column|P2022|P2021/i.test(message)) {
+      console.error('[admin] read failed on a missing column or table — run pending migrations (npm run db:deploy). Showing empty values.', e)
+    } else {
+      console.error('[admin] read failed, showing empty values', e)
+    }
+    return fallback
+  }
 }
 
 export async function getAdminOverview(): Promise<AdminOverview> {
@@ -1094,6 +1113,9 @@ export type MoneyOverview = {
 
 export async function getMoneyOverview(): Promise<MoneyOverview> {
   return safe(async () => {
+    // Several reads below reach Appointment through `include`, which selects
+    // every column. Make sure the newest ones exist before asking for them.
+    await ensureSessionNoteSchema().catch(() => {})
     const now = new Date()
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const [payments, completed, activeSubscriptions, clinicians] = await Promise.all([
@@ -1151,6 +1173,7 @@ export type MasterPayout = {
 
 export async function getMasterPayout(): Promise<MasterPayout> {
   return safe(async () => {
+    await ensureSessionNoteSchema().catch(() => {})
     const clinicians = await prisma.therapistProfile.findMany({ select: { id: true, employmentType: true, user: { select: { name: true } } } })
 
     const day = new Map<string, PayoutBreakdownRow>()

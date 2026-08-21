@@ -1270,10 +1270,22 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
         secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
       },
     }),
+    // `select`, not `include`. `include` pulls EVERY scalar column on
+    // Appointment — 26 of them — to use three, so any column that exists in
+    // schema.prisma but not yet in the database makes this query throw. That is
+    // exactly what blanked the admin Money page to zero: the four columns
+    // migration 0040 adds were selected here, were absent, and the P2022 was
+    // swallowed by a catch upstream. Naming the three fields it reads means the
+    // query cannot break on a column it never asked for.
     prisma.appointment.findMany({
       where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: { not: null } },
       orderBy: { scheduledAt: 'asc' },
-      include: { patient: { select: { name: true, patientProfile: { select: { careMode: true } } } } },
+      select: {
+        id: true,
+        patientId: true,
+        scheduledAt: true,
+        patient: { select: { name: true, patientProfile: { select: { careMode: true } } } },
+      },
     }),
     getEarningsConfig(),
   ])
