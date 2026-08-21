@@ -1293,8 +1293,11 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
   // Apply this clinician's per-therapist overrides on top of the platform config.
   const config = effectiveEarningsConfig(globalConfig, profile)
 
-  const now = new Date()
-  const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  // IST, not the server clock. Vercel runs in UTC, so `now.getMonth()` is the
+  // UTC month: for the first 5h30m of every IST day the two disagree, and at a
+  // month boundary "this month" silently meant the previous one.
+  const nowIst = istParts(new Date())
+  const thisMonthKey = `${nowIst.year}-${String(nowIst.month + 1).padStart(2, '0')}`
 
   const seenPerPatient = new Map<string, number>()
   const lines: EarningLine[] = []
@@ -1311,15 +1314,23 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
     const nightBonus = night ? config.nightSessionBonus : 0
     const misc = config.miscBonus
     const d = r.scheduledAt
+    // The grouping KEYS must come from the same clock as the LABELS beside them.
+    // They didn't: keys used the server's getFullYear/getMonth/getDate (UTC on
+    // Vercel) while every label used fmtIST. A session at 1 Sep 02:00 IST is
+    // 31 Aug 20:30 UTC, so it was keyed to August and labelled "September" —
+    // the day view mis-filed every session before 05:30 IST onto the previous
+    // day, and month totals leaked across month ends.
+    const p = istParts(d)
+    const istMonthKey = `${p.year}-${String(p.month + 1).padStart(2, '0')}`
 
     lines.push({
       id: r.id,
-      dateIso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+      dateIso: `${istMonthKey}-${String(p.day).padStart(2, '0')}`,
       dayLabel: fmtIST(d, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
       timeLabel: fmtIST(d, { hour: 'numeric', minute: '2-digit' }),
-      monthKey: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+      monthKey: istMonthKey,
       monthLabel: fmtIST(d, { month: 'long', year: 'numeric' }),
-      year: d.getFullYear(),
+      year: p.year,
       patientName: r.patient.name ?? 'Patient',
       service,
       serviceLabel: SERVICE_LABEL[service],

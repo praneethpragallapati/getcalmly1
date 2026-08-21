@@ -50,6 +50,18 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
     URL.revokeObjectURL(url)
   }
 
+  const sum = (rs: PayoutBreakdownRow[]) => rs.reduce((a, r) => ({
+    sessions: a.sessions + r.sessions,
+    baseTotal: a.baseTotal + r.baseTotal,
+    secondTotal: a.secondTotal + r.secondTotal,
+    thirdPlusTotal: a.thirdPlusTotal + r.thirdPlusTotal,
+    nightTotal: a.nightTotal + r.nightTotal,
+    miscTotal: a.miscTotal + r.miscTotal,
+    total: a.total + r.total,
+  }), { sessions: 0, baseTotal: 0, secondTotal: 0, thirdPlusTotal: 0, nightTotal: 0, miscTotal: 0, total: 0 })
+  const totals = sum(rows)
+  const partTime = sum(rows.filter((r) => r.employmentType === 'PART_TIME'))
+
   const th: React.CSSProperties = { padding: '8px 8px', fontSize: 11.5, color: 'var(--c-gray-d)', fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap' }
   const thL: React.CSSProperties = { ...th, textAlign: 'left' }
   const td: React.CSSProperties = { padding: '9px 8px', fontSize: 13, textAlign: 'right', whiteSpace: 'nowrap' }
@@ -115,6 +127,34 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
                 </tr>
               ))}
             </tbody>
+            {/* Without a total there was no way to check the "Payouts owed this
+                month" card against this table: the card sums PART-TIME
+                clinicians only (full-timers are salaried), while every row here
+                is one clinician, so a card of 2,400 next to a row of 1,250 looks
+                like a contradiction when it is two clinicians. Both totals are
+                shown so the difference is legible instead of alarming. */}
+            <tfoot>
+              <tr style={{ borderTop: '2px solid var(--c-line)' }}>
+                <td style={{ ...tdL, fontWeight: 800, color: charcoal }} colSpan={2}>
+                  All clinicians · {rows.length} row{rows.length === 1 ? '' : 's'}
+                </td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.sessions}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{inr(totals.baseTotal)}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.secondTotal ? inr(totals.secondTotal) : '—'}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.thirdPlusTotal ? inr(totals.thirdPlusTotal) : '—'}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.nightTotal ? inr(totals.nightTotal) : '—'}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.miscTotal ? inr(totals.miscTotal) : '—'}</td>
+                <td style={{ ...td, fontWeight: 900, color: charcoal }}>{inr(totals.total)}</td>
+              </tr>
+              <tr>
+                <td style={{ ...tdL, paddingTop: 2 }} colSpan={7} className="muted">
+                  Of which part-time — what is actually owed out, and what the
+                  &ldquo;Payouts owed&rdquo; cards above count. Full-timers are salaried.
+                </td>
+                <td style={{ ...td, paddingTop: 2 }} className="muted">{partTime.sessions} sessions</td>
+                <td style={{ ...td, paddingTop: 2, fontWeight: 800, color: charcoal }}>{inr(partTime.total)}</td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       )}
