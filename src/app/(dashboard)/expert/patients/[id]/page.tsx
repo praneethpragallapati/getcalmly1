@@ -94,8 +94,9 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             <div>
               <div className="pattern-title">Supervisor view · read-only</div>
               <div className="pattern-sub">
-                You&apos;re viewing this patient as their therapist&apos;s supervisor. Notes, tasks, forms and
-                medication remain with the treating therapist.
+                You&apos;re viewing this patient as their therapist&apos;s supervisor, so you see everything
+                they see. Writing notes, assigning tasks and forms, and prescribing stay with the treating
+                clinician.
               </div>
             </div>
           </div>
@@ -205,14 +206,15 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      {ctx.isPsychiatrist && !supervisorView && (
+      {(ctx.isPsychiatrist || supervisorView) && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Pill size={16} /> Medication management
+            <Pill size={16} /> {supervisorView ? 'Medication' : 'Medication management'}
           </div>
           <p className="muted" style={{ marginBottom: 14 }}>
-            As a psychiatrist you can prescribe and manage this patient&apos;s medication. Changes appear on the
-            patient&apos;s Medications page immediately.
+            {supervisorView
+              ? 'What this patient is currently prescribed. Prescribing stays with the treating clinician.'
+              : 'As a psychiatrist you can prescribe and manage this patient\u2019s medication. Changes appear on the patient\u2019s Medications page immediately.'}
           </p>
 
           {p.medications.length === 0 && <p className="muted">No medications on record.</p>}
@@ -242,18 +244,20 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                     : 'Delivery: not yet ordered by patient'}
                 </div>
               </div>
-              <form action={toggleMedication}>
-                <input type="hidden" name="medicationId" value={m.id} />
-                <input type="hidden" name="patientId" value={p.patientId} />
-                <input type="hidden" name="active" value={m.active ? 'false' : 'true'} />
-                <button type="submit" className="btn btn-outline btn-sm">
-                  {m.active ? 'Discontinue' : 'Reactivate'}
-                </button>
-              </form>
+              {!supervisorView && ctx.isPsychiatrist && (
+                <form action={toggleMedication}>
+                  <input type="hidden" name="medicationId" value={m.id} />
+                  <input type="hidden" name="patientId" value={p.patientId} />
+                  <input type="hidden" name="active" value={m.active ? 'false' : 'true'} />
+                  <button type="submit" className="btn btn-outline btn-sm">
+                    {m.active ? 'Discontinue' : 'Reactivate'}
+                  </button>
+                </form>
+              )}
             </div>
           ))}
 
-          <PrescribeForm patientId={p.patientId} />
+          {!supervisorView && ctx.isPsychiatrist && <PrescribeForm patientId={p.patientId} />}
         </div>
       )}
 
@@ -324,9 +328,12 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         )}
       </div>
 
-      {!supervisorView && (
-        <AssignGuidedTrack patientId={p.patientId} tracks={guidedTracks} assignments={guidedAssignments} />
-      )}
+      <AssignGuidedTrack
+        patientId={p.patientId}
+        tracks={guidedTracks}
+        assignments={guidedAssignments}
+        readOnly={supervisorView}
+      />
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Session notes</div>

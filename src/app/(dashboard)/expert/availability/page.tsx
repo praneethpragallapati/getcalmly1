@@ -4,76 +4,13 @@ import {
   getTherapistContext,
   getAvailability,
   getAvailabilityExceptions,
-  SLOT_GROUPS,
-  SLOT_GROUP_KEYS,
-  NIGHT_SHIFT_NOTE,
   DAY_LABELS,
 } from '@/lib/expert'
-import { isNightSession } from '@/lib/earningsConfig'
-import { istWallClock, istParts } from '@/lib/tz'
 import { saveAvailability, blockDate, unblockDate } from '../actions'
+import { TimeBlockPicker, toBlocks, hourLabel } from '@/components/expert/TimeBlockPicker'
+import { BlockDateForm } from '@/components/expert/BlockDateForm'
 import { SectionTabs } from '@/components/ui/SectionTabs'
 import { EXPERT_SCHEDULE_TABS } from '@/data/sectionTabs'
-
-function hourLabel(h: number): string {
-  const ampm = h < 12 ? 'AM' : 'PM'
-  const display = h % 12 === 0 ? 12 : h % 12
-  return `${display} ${ampm}`
-}
-
-/**
- * Whether a slot starting at this hour is paid at the night rate. Asks the same
- * function the earnings ledger uses, against a real instant at that IST hour, so
- * the badge here can never drift from what a clinician is actually paid.
- */
-function earnsNightBonus(h: number): boolean {
-  const t = istParts(new Date())
-  return isNightSession(istWallClock(t.year, t.month, t.day, h, 0))
-}
-
-/** The 1-hour slot checkboxes, grouped under the four named bands, pre-checked. */
-function HoursPicker({ selected }: { selected: number[] }) {
-  const set = new Set(selected)
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
-      {SLOT_GROUP_KEYS.map((key) => (
-        <div key={key} style={{ minWidth: 160 }}>
-          <div className="eyebrow" style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {SLOT_GROUPS[key].label}
-            {key === 'night' && (
-              <span
-                title={NIGHT_SHIFT_NOTE}
-                style={{
-                  fontSize: 9.5, fontWeight: 800, letterSpacing: '.04em', color: '#8A5A00',
-                  background: 'rgba(201,151,58,.18)', padding: '1px 6px', borderRadius: 20,
-                }}
-              >
-                + BONUS
-              </span>
-            )}
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {SLOT_GROUPS[key].hours.map((h) => (
-              <label
-                key={h}
-                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, cursor: 'pointer' }}
-                title={earnsNightBonus(h) ? 'Night shift — paid at the night rate' : undefined}
-              >
-                <input type="checkbox" name="hours" value={h} defaultChecked={set.has(h)} />
-                {hourLabel(h)}
-              </label>
-            ))}
-          </div>
-          {key === 'night' && (
-            <p className="muted" style={{ fontSize: 11, lineHeight: 1.45, margin: '6px 0 0' }}>
-              {NIGHT_SHIFT_NOTE}
-            </p>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default async function AvailabilityPage() {
   const ctx = await getTherapistContext()
@@ -98,12 +35,12 @@ export default async function AvailabilityPage() {
       <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
         <div className="section-title" style={{ marginBottom: 4 }}>Set a weekly default</div>
         <p className="muted" style={{ marginBottom: 12 }}>
-          Pick the 1-hour slots you usually work. Saving applies them to every day of the week, fine-tune
-          individual days below.
+          Add the blocks of time you usually work — say 9 AM to 1 PM. Saving applies them to every day of
+          the week; fine-tune individual days below.
         </p>
         <form action={saveAvailability} className="stack" style={{ gap: 14 }}>
           <input type="hidden" name="applyAll" value="true" />
-          <HoursPicker selected={[]} />
+          <TimeBlockPicker name="hours" />
           <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start' }}>
             <Check size={14} /> Apply to all days
           </button>
@@ -117,12 +54,14 @@ export default async function AvailabilityPage() {
             <div className="section-title" style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
               <span>{DAY_LABELS[day.dayOfWeek]}</span>
               <span className="muted" style={{ fontSize: 13, fontWeight: 400 }}>
-                {day.hours.length ? `${day.hours.length} slot${day.hours.length > 1 ? 's' : ''}` : 'Closed'}
+                {day.hours.length
+                  ? toBlocks(day.hours).map((b) => `${hourLabel(b.from)}–${hourLabel(b.to)}`).join(', ')
+                  : 'Closed'}
               </span>
             </div>
             <form action={saveAvailability} className="stack" style={{ gap: 12 }}>
               <input type="hidden" name="dayOfWeek" value={day.dayOfWeek} />
-              <HoursPicker selected={day.hours} />
+              <TimeBlockPicker name="hours" initial={day.hours} />
               <button type="submit" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }}>
                 Save {DAY_LABELS[day.dayOfWeek]}
               </button>
@@ -133,34 +72,12 @@ export default async function AvailabilityPage() {
 
       {/* Date-specific time off */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 4 }}>Time off</div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Time off for a specific date</div>
         <p className="muted" style={{ marginBottom: 12 }}>
-          Block a specific date (holiday, leave) without changing your weekly pattern. Tick specific hours
-          to block only part of the day, leave them all unticked to block the whole day.
+          Take a date out without touching your weekly pattern — a whole day off, or just the hours you
+          can&apos;t make.
         </p>
-        <form action={blockDate} className="stack" style={{ gap: 12, marginBottom: 14 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input className="entry-input" type="date" name="date" required style={{ maxWidth: 200 }} />
-            <button type="submit" className="btn btn-primary btn-sm">
-              <CalendarOff size={14} /> Block
-            </button>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
-            {SLOT_GROUP_KEYS.map((key) => (
-              <div key={key} style={{ minWidth: 150 }}>
-                <div className="eyebrow" style={{ marginBottom: 6 }}>{SLOT_GROUPS[key].label}</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {SLOT_GROUPS[key].hours.map((h) => (
-                    <label key={h} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, cursor: 'pointer' }}>
-                      <input type="checkbox" name="hoursOff" value={h} />
-                      {hourLabel(h)}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </form>
+        <BlockDateForm action={blockDate} />
 
         {exceptions.length === 0 && <p className="muted">No upcoming days blocked.</p>}
         {exceptions.map((ex) => (

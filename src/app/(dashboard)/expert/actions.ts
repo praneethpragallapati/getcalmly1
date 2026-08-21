@@ -22,6 +22,7 @@ import {
 } from '@/lib/expert'
 import {
   sendForm, createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
+  getFormTemplate, updateFormTemplate, type CustomFormDetail,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, markAllRead } from '@/lib/notifications'
@@ -308,6 +309,22 @@ export async function createMyForm(input: CustomFormInput): Promise<{ ok: boolea
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await createFormTemplate(input, { id: ctx.userId, name: ctx.therapistName })
+  if (res.ok) revalidatePath('/expert/forms')
+  return res
+}
+
+/** Read one form in full — its questions, for viewing or loading into the builder. */
+export async function readMyForm(id: string): Promise<CustomFormDetail | null> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return null
+  return getFormTemplate(id, ctx.userId)
+}
+
+/** Edit a form this clinician built (their own only). */
+export async function editMyForm(id: string, input: CustomFormInput): Promise<{ ok: boolean; error?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const res = await updateFormTemplate(id, input, ctx.userId)
   if (res.ok) revalidatePath('/expert/forms')
   return res
 }

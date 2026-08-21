@@ -14,6 +14,7 @@ import { parseCompensationFields, type CompensationField } from '@/lib/compensat
 import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
 import {
   createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
+  getFormTemplate, updateFormTemplate, type CustomFormDetail,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, notifyMany, markAllRead } from '@/lib/notifications'
@@ -1162,6 +1163,20 @@ export async function createPlatformForm(input: CustomFormInput): Promise<AdminR
   const admin = await requireAdmin()
   if (!admin?.id) return { ok: false, error: 'Admin access required.' }
   const res = await createFormTemplate(input, { id: admin.id, name: admin.name })
+  if (res.ok) revalidatePath('/admin/config')
+  return { ok: res.ok, error: res.error }
+}
+
+/** Read one custom form in full (admin scope covers every custom form). */
+export async function readPlatformForm(id: string): Promise<CustomFormDetail | null> {
+  if (!(await requireAdmin())) return null
+  return getFormTemplate(id, null)
+}
+
+/** Edit any custom form (admin scope covers forms clinicians built too). */
+export async function editPlatformForm(id: string, input: CustomFormInput): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  const res = await updateFormTemplate(id, input, null)
   if (res.ok) revalidatePath('/admin/config')
   return { ok: res.ok, error: res.error }
 }

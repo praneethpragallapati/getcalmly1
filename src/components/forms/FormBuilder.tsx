@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { FilePlus2, Plus, Trash2, X } from 'lucide-react'
-import { createPlatformForm, removePlatformForm } from '@/app/admin/actions'
-import { createMyForm, removeMyForm } from '@/app/(dashboard)/expert/actions'
-import type { CustomFormRow } from '@/lib/forms'
+import { Eye, FilePlus2, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { createPlatformForm, removePlatformForm, readPlatformForm, editPlatformForm } from '@/app/admin/actions'
+import { createMyForm, removeMyForm, readMyForm, editMyForm } from '@/app/(dashboard)/expert/actions'
+import type { CustomFormRow, CustomFormDetail } from '@/lib/forms'
 
 const charcoal = '#1C2B3A'
 
@@ -58,6 +58,12 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
   const [fields, setFields] = useState<Draft[]>([blank()])
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<string | null>(null)
+  /** Set while editing an existing form; null means the builder creates a new one. */
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingSent, setEditingSent] = useState(0)
+  /** Which form is expanded for a read-only look at its questions. */
+  const [viewing, setViewing] = useState<CustomFormDetail | null>(null)
+  const [busyId, setBusyId] = useState<string | null>(null)
 
   const field: React.CSSProperties = {
     border: '1.5px solid #E2E8F0', borderRadius: 8, padding: '8px 10px', fontSize: 13.5,
@@ -69,7 +75,42 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
 
   const reset = () => {
     setTitle(''); setDescription(''); setKind('INFO'); setFields([blank()]); setError(null)
+    setEditingId(null); setEditingSent(0)
   }
+
+  /** Open a form read-only. Fetches on demand — the list only carries counts. */
+  const view = (id: string) => start(async () => {
+    setBusyId(id); setError(null)
+    const d = scope === 'admin' ? await readPlatformForm(id) : await readMyForm(id)
+    setBusyId(null)
+    if (!d) { setError('Could not open that form.'); return }
+    setViewing((cur) => (cur?.id === id ? null : d))
+  })
+
+  /** Load a form into the builder for editing. */
+  const edit = (id: string) => start(async () => {
+    setBusyId(id); setError(null); setDone(null)
+    const d = scope === 'admin' ? await readPlatformForm(id) : await readMyForm(id)
+    setBusyId(null)
+    if (!d) { setError('Could not open that form.'); return }
+    setViewing(null)
+    setEditingId(d.id)
+    setEditingSent(d.sentCount)
+    setTitle(d.title)
+    setDescription(d.description ?? '')
+    setKind(d.kind)
+    setFields(
+      d.fields.length
+        ? d.fields.map((f) => ({
+            label: f.label,
+            type: f.type,
+            required: Boolean(f.required),
+            options: (f.options ?? []).join(', '),
+          }))
+        : [blank()],
+    )
+    setOpen(true)
+  })
 
   const save = () => {
     setError(null); setDone(null)
@@ -88,10 +129,19 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
         })),
     }
     if (payload.fields.length === 0) { setError('Add at least one question.'); return }
+    // Renaming a question re-derives its key, so answers already collected under
+    // the old key stay with the old label. Worth a heads-up, not a block.
+    if (editingId && editingSent > 0 &&
+        !confirm(`This form has already been sent to ${editingSent} patient${editingSent === 1 ? '' : 's'}. Their existing answers are kept as they were filled in. Save changes?`)) {
+      return
+    }
+    const wasEditing = editingId
     start(async () => {
-      const res = scope === 'admin' ? await createPlatformForm(payload) : await createMyForm(payload)
+      const res = wasEditing
+        ? (scope === 'admin' ? await editPlatformForm(wasEditing, payload) : await editMyForm(wasEditing, payload))
+        : (scope === 'admin' ? await createPlatformForm(payload) : await createMyForm(payload))
       if (res.ok) {
-        setDone(`"${payload.title.trim()}" is ready to send.`)
+        setDone(wasEditing ? `"${payload.title.trim()}" updated.` : `"${payload.title.trim()}" is ready to send.`)
         reset()
         setOpen(false)
         router.refresh()
@@ -125,7 +175,7 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
                 : 'Forms you build here are yours to send, and can be used in your automatic rules.'}
             </p>
           </div>
-          <button onClick={() => { setOpen((o) => !o); setDone(null) }} className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+          <button onClick={() => { if (open) reset(); setOpen((o) => !o); setDone(null) }} className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
             {open ? <X size={14} /> : <Plus size={14} />} {open ? 'Cancel' : 'New form'}
           </button>
         </div>
@@ -146,6 +196,21 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
                   {f.active ? '' : ' · retired'}
                 </div>
               </div>
+              <button
+                onClick={() => view(f.id)}
+                disabled={pending}
+                aria-label={`View ${f.title}`}
+                aria-expanded={viewing?.id === f.id}
+                title="View questions"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-coral-d)', display: 'inline-flex' }}
+              >
+                <Eye size={15} />
+              </button>
+              {f.mine && f.active && (
+                <button onClick={() => edit(f.id)} disabled={pending} aria-label={`Edit ${f.title}`} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-coral-d)', display: 'inline-flex' }}>
+                  <Pencil size={15} />
+                </button>
+              )}
               {f.mine && f.active && (
                 <button onClick={() => remove(f.id)} disabled={pending} aria-label={`Remove ${f.title}`} title="Remove" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', display: 'inline-flex' }}>
                   <Trash2 size={15} />
@@ -153,6 +218,40 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
               )}
             </div>
           ))}
+          {busyId && <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Opening…</p>}
+
+          {/* Read-only preview of the questions, exactly as stored. */}
+          {viewing && (
+            <div style={{ borderTop: '1px solid rgba(28,43,58,.06)', marginTop: 4, paddingTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: charcoal }}>{viewing.title}</div>
+                <button onClick={() => setViewing(null)} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0 }}>
+                  Close
+                </button>
+              </div>
+              {viewing.description && (
+                <p className="muted" style={{ fontSize: 12.5, margin: '2px 0 0' }}>{viewing.description}</p>
+              )}
+              <p className="muted" style={{ fontSize: 12, margin: '6px 0 10px' }}>
+                {KIND_LABEL[viewing.kind] ?? viewing.kind} · sent to {viewing.sentCount} patient{viewing.sentCount === 1 ? '' : 's'}
+              </p>
+              <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {viewing.fields.map((q) => (
+                  <li key={q.key} style={{ fontSize: 13.5, color: charcoal }}>
+                    <span style={{ fontWeight: 600 }}>{q.label}</span>
+                    {q.required && <span style={{ color: 'var(--c-coral-d)' }}> *</span>}
+                    <span className="muted" style={{ fontSize: 12 }}>
+                      {' · '}{TYPE_LABEL.find((t) => t.value === q.type)?.label ?? q.type}
+                    </span>
+                    {q.options && q.options.length > 0 && (
+                      <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{q.options.join(' · ')}</div>
+                    )}
+                    {q.help && <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{q.help}</div>}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
       )}
 
@@ -222,9 +321,20 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button onClick={save} disabled={pending} className="btn btn-primary btn-sm">
-              {pending ? 'Saving…' : 'Save form'}
+              {pending ? 'Saving…' : editingId ? 'Save changes' : 'Save form'}
             </button>
-            <span className="muted" style={{ fontSize: 11.5 }}>You can send it as soon as it&apos;s saved.</span>
+            {editingId && (
+              <button type="button" onClick={() => { reset(); setOpen(false) }} disabled={pending} className="btn btn-outline btn-sm">
+                Cancel
+              </button>
+            )}
+            <span className="muted" style={{ fontSize: 11.5 }}>
+              {editingId
+                ? editingSent > 0
+                  ? `Already sent to ${editingSent} patient${editingSent === 1 ? '' : 's'} — their answers stay as filled in.`
+                  : 'Not sent to anyone yet.'
+                : 'You can send it as soon as it\u2019s saved.'}
+            </span>
           </div>
         </div>
       )}

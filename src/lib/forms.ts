@@ -108,24 +108,15 @@ function slugify(title: string): string {
 }
 
 /**
- * Build a new form. `createdById` scopes ownership: an admin's forms are
- * platform-wide, a clinician's are their own to manage. Both end up in the same
- * library, so a custom form is sendable and rule-usable exactly like a built-in.
+ * Normalise builder rows into stored fields. Shared by create and update so a
+ * form edited later is validated exactly as it was when first built.
  */
-export async function createFormTemplate(
-  input: CustomFormInput,
-  author: { id: string; name: string | null },
-): Promise<{ ok: boolean; error?: string; id?: string }> {
-  const title = input.title.trim().replace(/\s+/g, ' ').slice(0, 120)
-  if (!title) return { ok: false, error: 'Give the form a title.' }
-
-  const kind = (CUSTOM_FORM_KINDS as readonly string[]).includes(input.kind)
-    ? (input.kind as CustomFormKind)
-    : 'INFO'
-
+function normalizeFields(
+  rows: CustomFormInput['fields'],
+): { ok: true; fields: FormField[] } | { ok: false; error: string } {
   const taken = new Set<string>()
   const fields: FormField[] = []
-  for (const f of input.fields ?? []) {
+  for (const f of rows ?? []) {
     const label = String(f.label ?? '').trim().slice(0, 200)
     if (!label) continue // a blank row is just an unused slot in the builder
     const type = (FIELD_TYPES as string[]).includes(f.type) ? (f.type as FormField['type']) : 'text'
@@ -146,6 +137,28 @@ export async function createFormTemplate(
     if (fields.length >= 40) break
   }
   if (fields.length === 0) return { ok: false, error: 'Add at least one question.' }
+  return { ok: true, fields }
+}
+
+/**
+ * Build a new form. `createdById` scopes ownership: an admin's forms are
+ * platform-wide, a clinician's are their own to manage. Both end up in the same
+ * library, so a custom form is sendable and rule-usable exactly like a built-in.
+ */
+export async function createFormTemplate(
+  input: CustomFormInput,
+  author: { id: string; name: string | null },
+): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const title = input.title.trim().replace(/\s+/g, ' ').slice(0, 120)
+  if (!title) return { ok: false, error: 'Give the form a title.' }
+
+  const kind = (CUSTOM_FORM_KINDS as readonly string[]).includes(input.kind)
+    ? (input.kind as CustomFormKind)
+    : 'INFO'
+
+  const norm = normalizeFields(input.fields)
+  if (!norm.ok) return { ok: false, error: norm.error }
+  const fields = norm.fields
 
   try {
     await ensureCustomFormSchema()
@@ -202,6 +215,102 @@ export async function listCustomForms(ownerId: string | null): Promise<CustomFor
     }))
   } catch {
     return []
+  }
+}
+
+/** One custom form with its questions, for viewing or loading into the builder. */
+export type CustomFormDetail = {
+  id: string
+  title: string
+  description: string | null
+  kind: string
+  active: boolean
+  mine: boolean
+  /** How many patients have been sent this form — editing a used form is riskier. */
+  sentCount: number
+  fields: FormField[]
+}
+
+/**
+ * Read one custom form in full. `ownerId` null = admin (any form); a clinician
+ * may read any form in the shared library but only owns their own — `mine` is
+ * what gates editing in the UI, and the update below re-checks it server-side.
+ */
+export async function getFormTemplate(id: string, ownerId: string | null): Promise<CustomFormDetail | null> {
+  try {
+    await ensureCustomFormSchema()
+    const row = await prisma.formTemplate.findUnique({
+      where: { id },
+      select: {
+        id: true, title: true, description: true, kind: true, fields: true, active: true,
+        createdById: true, slug: true, _count: { select: { assignments: true } },
+      },
+    })
+    if (!row) return null
+    return {
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      kind: String(row.kind),
+      active: row.active,
+      mine: ownerId ? row.createdById === ownerId : !CODE_SLUGS.has(row.slug),
+      sentCount: row._count.assignments,
+      fields: Array.isArray(row.fields) ? (row.fields as unknown as FormField[]) : [],
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Edit a custom form in place.
+ *
+ * The slug is deliberately NOT regenerated on a title change: it is the stable
+ * handle that already-sent assignments and auto-send rules point at, and
+ * rewriting it would orphan them.
+ *
+ * Field keys are re-derived from the labels, which means renaming a question
+ * detaches it from answers already submitted under the old key. That is why a
+ * form which has been sent warns before saving rather than silently rewriting
+ * history; past responses keep whatever they were filled in with.
+ */
+export async function updateFormTemplate(
+  id: string,
+  input: CustomFormInput,
+  ownerId: string | null,
+): Promise<{ ok: boolean; error?: string }> {
+  const title = input.title.trim().replace(/\s+/g, ' ').slice(0, 120)
+  if (!title) return { ok: false, error: 'Give the form a title.' }
+
+  const norm = normalizeFields(input.fields)
+  if (!norm.ok) return { ok: false, error: norm.error }
+
+  const kind = (CUSTOM_FORM_KINDS as readonly string[]).includes(input.kind)
+    ? (input.kind as CustomFormKind)
+    : 'INFO'
+
+  try {
+    await ensureCustomFormSchema()
+    const row = await prisma.formTemplate.findUnique({
+      where: { id },
+      select: { slug: true, createdById: true },
+    })
+    if (!row) return { ok: false, error: 'That form no longer exists.' }
+    if (CODE_SLUGS.has(row.slug)) return { ok: false, error: 'Built-in forms cannot be edited.' }
+    if (ownerId && row.createdById !== ownerId) return { ok: false, error: 'That form belongs to someone else.' }
+
+    await prisma.formTemplate.update({
+      where: { id },
+      data: {
+        title,
+        description: input.description?.trim().slice(0, 500) || null,
+        kind,
+        fields: norm.fields as unknown as object,
+      },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save the form.' }
   }
 }
 
