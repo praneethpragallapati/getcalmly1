@@ -67,7 +67,7 @@ export type ActiveCall = {
   /** Appointment room key — also the identity of the call. */
   roomId: string
   meetingUrl: string
-  /** Shown on the mini tile, e.g. "Dr. Hom Pragallapati". */
+  /** Shown on the mini tile, e.g. "Dr. Ananya Sharma". */
   title: string
   /** Route back to the full room page. */
   href: string
