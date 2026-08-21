@@ -12,8 +12,15 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#C8553D',
     lang: 'en-IN',
     categories: ['health', 'medical', 'lifestyle'],
+    // An installed app needs real PNGs — a .ico alone left Android scaling a
+    // 48px image up to the launcher size. `maskable` is a separate file, not a
+    // flag on the others: Android crops maskable icons to the device's shape
+    // (often a circle), so its artwork is drawn smaller to survive the crop.
+    // Declaring a normal icon as maskable is what clips the edges off a logo.
     icons: [
-      { src: '/favicon.ico', sizes: 'any', type: 'image/x-icon' },
+      { src: '/brand/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/brand/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: '/brand/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   }
 }
