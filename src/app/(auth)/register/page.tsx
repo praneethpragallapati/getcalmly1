@@ -46,7 +46,6 @@ function RegisterForm() {
   const [tracks, setTracks] = useState<string[]>([])
   const [llmConsent, setLlmConsent] = useState(true)
   const [consents, setConsents] = useState({ retention: false, ai: false, liability: false, terms: false })
-  const [done, setDone] = useState(false)
   const router = useRouter()
   // Show the Google button only when the provider is configured.
   const [googleEnabled, setGoogleEnabled] = useState(false)
@@ -113,30 +112,6 @@ function RegisterForm() {
     setStep(2)
   }
 
-  if (done) {
-    const isPaid = careType === 'therapy' || careType === 'psychiatry' || careType === 'couples' || careType === 'app'
-    const nextHref = isPaid ? `/checkout?care=${careType}` : '/assess'
-    return (
-      <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
-        <div style={{ fontSize: 44, marginBottom: 16 }}>🎉</div>
-        <h1 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 34, color: '#1C2B3A', marginBottom: 12, lineHeight: 1.1 }}>
-          Account created.
-        </h1>
-        <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 28 }}>
-          {isPaid
-            ? 'One quick step left. Review exactly what you’re getting and confirm your plan, your first session is a flat ₹799.'
-            : 'Your account is ready. Next, we’ll match you with the right professional and book your first session.'}
-        </p>
-        <Link href={nextHref} style={{
-          display: 'inline-block', padding: '14px 28px', borderRadius: 50, background: '#C8553D',
-          color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
-          boxShadow: '0 6px 20px rgba(200,85,61,.3)',
-        }}>
-          {isPaid ? 'Continue to checkout →' : '✦ Find my match'}
-        </Link>
-      </div>
-    )
-  }
 
   return (
     <div style={{ width: '100%', maxWidth: 440 }}>
@@ -392,7 +367,16 @@ function RegisterForm() {
           </div>
 
           <button
-            onClick={() => canSubmit && setDone(true)}
+            // Sign-in is what actually creates the account (the OTP providers
+            // upsert the user), so this hands off to it instead of pretending.
+            // The mandatory details are then collected at /welcome.
+            onClick={() => {
+              if (!canSubmit) return
+              const q = new URLSearchParams()
+              if (contactMethod === 'email' && email.trim()) q.set('email', email.trim())
+              q.set('new', '1')
+              router.push(`/login?${q.toString()}`)
+            }}
             disabled={!canSubmit}
             style={{ ...primaryBtn, marginTop: 22, opacity: canSubmit ? 1 : 0.45, cursor: canSubmit ? 'pointer' : 'not-allowed' }}
           >
