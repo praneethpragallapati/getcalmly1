@@ -15,7 +15,7 @@ export function LogoutButton() {
         alignItems: 'center',
         gap: 8,
         border: '1px solid var(--c-line)',
-        color: 'var(--c-coral)',
+        color: 'var(--c-coral-d)',
         background: 'var(--c-white)',
         padding: '9px 16px',
         borderRadius: 11,

@@ -95,7 +95,7 @@ export function TagFilterBar({
           <summary
             style={{
               listStyle: 'none', cursor: 'pointer', fontSize: 12.5, fontWeight: 700,
-              color: 'var(--c-coral)', padding: '6px 12px', borderRadius: 999,
+              color: 'var(--c-coral-d)', padding: '6px 12px', borderRadius: 999,
               border: '1px solid var(--c-line, #efe7e2)', background: 'var(--c-white, #fff)',
             }}
           >

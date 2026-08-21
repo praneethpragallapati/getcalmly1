@@ -64,14 +64,14 @@ export function FormFiller({ assignmentId, fields, readOnly, initial }: Props) {
               />
               <span>
                 {f.label}
-                {f.required && <span style={{ color: 'var(--c-coral)' }}> *</span>}
+                {f.required && <span style={{ color: 'var(--c-coral-d)' }}> *</span>}
               </span>
             </label>
           ) : (
             <>
               <label className="muted" style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>
                 {f.label}
-                {f.required && <span style={{ color: 'var(--c-coral)' }}> *</span>}
+                {f.required && <span style={{ color: 'var(--c-coral-d)' }}> *</span>}
               </label>
               {f.type === 'textarea' ? (
                 <textarea
@@ -113,7 +113,7 @@ export function FormFiller({ assignmentId, fields, readOnly, initial }: Props) {
         </div>
       ))}
 
-      {error && <p style={{ color: 'var(--c-coral)', fontSize: 13, margin: 0 }}>{error}</p>}
+      {error && <p style={{ color: 'var(--c-coral-d)', fontSize: 13, margin: 0 }}>{error}</p>}
 
       {!readOnly && (
         <button className="btn btn-primary" onClick={handleSubmit} disabled={pending} style={{ alignSelf: 'flex-start' }}>

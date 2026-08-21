@@ -59,7 +59,7 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
           </button>
           <button className="btn btn-outline btn-sm" onClick={() => { setMode(null); setMsg(null) }}>Back</button>
         </div>
-        {msg && <span style={{ fontSize: 11, color: 'var(--c-coral)' }}>{msg}</span>}
+        {msg && <span className="accent-text" style={{ fontSize: 11 }}>{msg}</span>}
       </div>
     )
   }
@@ -69,11 +69,11 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
         <span style={{ fontSize: 12, fontWeight: 600 }}>Cancel this session?</span>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn btn-sm" disabled={pending} style={{ background: 'var(--c-coral)', color: '#fff' }}
+          <button className="btn btn-sm" disabled={pending} style={{ background: 'var(--c-coral-cta)', color: '#fff' }}
             onClick={() => run(() => cancelMyAppointment(id), 'Session cancelled')}>Yes, cancel</button>
           <button className="btn btn-outline btn-sm" onClick={() => { setMode(null); setMsg(null) }}>Keep</button>
         </div>
-        {msg && <span style={{ fontSize: 11, color: 'var(--c-coral)' }}>{msg}</span>}
+        {msg && <span className="accent-text" style={{ fontSize: 11 }}>{msg}</span>}
       </div>
     )
   }
@@ -88,10 +88,10 @@ export function SessionActions({ id, scheduledISO }: { id: string; scheduledISO?
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
         <button className="btn btn-outline btn-sm" onClick={() => (locked ? blocked('rescheduled') : setMode('reschedule'))}><CalendarClock size={13} /> Reschedule</button>
-        <button className="btn btn-outline btn-sm" onClick={() => (locked ? blocked('cancelled') : setMode('cancel'))} style={{ color: 'var(--c-coral)' }}><X size={13} /> Cancel</button>
+        <button className="btn btn-outline btn-sm accent-text" onClick={() => (locked ? blocked('cancelled') : setMode('cancel'))}><X size={13} /> Cancel</button>
         <ContactSupport subject="Help with my upcoming session" />
       </div>
-      {msg && <span style={{ fontSize: 11, color: 'var(--c-coral)', maxWidth: 320, textAlign: 'right' }}>{msg}</span>}
+      {msg && <span className="accent-text" style={{ fontSize: 11, maxWidth: 320, textAlign: 'right' }}>{msg}</span>}
     </div>
   )
 }

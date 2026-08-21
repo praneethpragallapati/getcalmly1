@@ -104,7 +104,7 @@ export function PrivacyControls({ initial }: { initial: PrivacyFlags }) {
 
       <div style={{ marginTop: 14, minHeight: 18 }}>
         {error ? (
-          <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>
+          <span style={{ fontSize: 12, color: 'var(--c-coral-d)' }}>{error}</span>
         ) : saved ? (
           <span style={{ fontSize: 12, color: 'var(--c-green)', display: 'inline-flex', gap: 5, alignItems: 'center' }}>
             <Check size={13} /> Saved {pending ? '…' : ''}

@@ -249,12 +249,12 @@ export default async function ExpertHomePage() {
       {/* ── Stat cards ── */}
       <div className="grid-4">
         <Link href="/expert/schedule" className="card" style={{ textDecoration: 'none' }}>
-          <CalendarClock size={18} style={{ color: 'var(--c-coral)' }} />
+          <CalendarClock size={18} style={{ color: 'var(--c-coral-d)' }} />
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 30, marginTop: 8 }}>{today.length}</div>
           <div className="muted">sessions today{next && isToday(next.scheduledAt) ? ` · next at ${timeLabel(next.scheduledAt)}` : ''}</div>
         </Link>
         <Link href="/expert/patients" className="card" style={{ textDecoration: 'none' }}>
-          <Users size={18} style={{ color: 'var(--c-coral)' }} />
+          <Users size={18} style={{ color: 'var(--c-coral-d)' }} />
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 30, marginTop: 8 }}>{caseload.length}</div>
           <div className="muted">active patients</div>
         </Link>
@@ -264,7 +264,7 @@ export default async function ExpertHomePage() {
           <div className="muted">{risk.length === 1 ? 'alert needs review' : 'alerts need review'}</div>
         </Link>
         <Link href="/expert/tasks" className="card" style={{ textDecoration: 'none' }}>
-          <ListTodo size={18} style={{ color: 'var(--c-coral)' }} />
+          <ListTodo size={18} style={{ color: 'var(--c-coral-d)' }} />
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 30, marginTop: 8 }}>{tasks.length}</div>
           <div className="muted">pending tasks</div>
         </Link>

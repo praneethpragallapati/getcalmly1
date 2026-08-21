@@ -145,7 +145,7 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
                 </div>
               </div>
               {p.openCrisisCount > 0 && (
-                <span className="pattern-sub" style={{ color: 'var(--c-coral)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span className="pattern-sub" style={{ color: 'var(--c-coral-d)', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <AlertTriangle size={13} /> {p.openCrisisCount} open
                 </span>
               )}

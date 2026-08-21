@@ -30,8 +30,11 @@ function ExpertAvatar({ name, src, onDark = false }: { name: string; src?: strin
 export function NextSessionCard({ d }: { d: DashboardData }) {
   const s = d.todaySession
   if (s) {
+    // No tint on the live card: it paints its own dark gradient, and a tint
+    // would have to be cancelled again in CSS — cancelling it is what once left
+    // the card's white text sitting on a cream background.
     return (
-      <div className="next-card next-card-live tint-coral">
+      <div className="next-card next-card-live">
         <div className="ns-top">
           <ExpertAvatar name={s.expert} src={s.expertImage} onDark />
           <div className="ns-id">

@@ -280,7 +280,7 @@ function TrackCard({
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
 
-      {error && <p style={{ color: 'var(--c-coral)', fontSize: 13, marginTop: 12 }}>{error}</p>}
+      {error && <p style={{ color: 'var(--c-coral-d)', fontSize: 13, marginTop: 12 }}>{error}</p>}
 
       <button
         className="btn btn-primary"
@@ -474,7 +474,7 @@ export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }:
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
 
-      {error && <p style={{ color: 'var(--c-coral)', fontSize: 13, marginTop: 12 }}>{error}</p>}
+      {error && <p style={{ color: 'var(--c-coral-d)', fontSize: 13, marginTop: 12 }}>{error}</p>}
 
       <button
         className="btn btn-primary"

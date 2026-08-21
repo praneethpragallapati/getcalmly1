@@ -49,7 +49,7 @@ export function NameEditor({ fullName, displayName }: { fullName: string; displa
           type="button"
           onClick={() => { setValue(fullName); setEditing(true) }}
           aria-label="Edit name"
-          style={{ background: 'none', border: 'none', color: 'var(--c-coral)', cursor: 'pointer', display: 'inline-flex', padding: 2 }}
+          style={{ background: 'none', border: 'none', color: 'var(--c-coral-d)', cursor: 'pointer', display: 'inline-flex', padding: 2 }}
         >
           <Pencil size={14} />
         </button>
@@ -90,7 +90,7 @@ export function NameEditor({ fullName, displayName }: { fullName: string; displa
           Cancel
         </button>
       </div>
-      {error && <span style={{ fontSize: 12.5, color: 'var(--c-coral)', fontWeight: 600 }}>{error}</span>}
+      {error && <span style={{ fontSize: 12.5, color: 'var(--c-coral-d)', fontWeight: 600 }}>{error}</span>}
     </div>
   )
 }

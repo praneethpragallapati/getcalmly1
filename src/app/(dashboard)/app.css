@@ -516,8 +516,21 @@
   outline: 2px solid var(--c-coral);
   outline-offset: 2px;
 }
+/* Accent-coloured text, surface-aware. Brand coral is 4.35:1 on white (under AA
+   at text sizes) and 2.7:1 on the dark cards, so neither surface can use the raw
+   hue — light surfaces take the ink cut, dark ones the light cut. */
+.accent-text {
+  color: var(--c-coral-d);
+}
+.next-card-live .accent-text,
+.hero .accent-text,
+.app-sidebar .accent-text {
+  color: var(--c-coral-l);
+}
+
 .btn-primary {
-  background: var(--c-coral);
+  /* White on brand coral is 4.35:1; the CTA cut clears AA in all three themes. */
+  background: var(--c-coral-cta);
   color: #fff;
 }
 .btn-primary:hover {
@@ -2736,6 +2749,11 @@
   border-color: rgba(255, 255, 255, 0.18);
   color: #e6ecf2;
 }
+/* Keep the destructive action tinted here too — the rule above is more specific
+   than .accent-text, so it needs restating at this depth. */
+.next-card-live .ns-actions .btn-outline.accent-text {
+  color: var(--c-coral-l);
+}
 .next-card-live .ns-actions .btn-outline:hover {
   border-color: rgba(255, 255, 255, 0.4);
   color: #fff;
@@ -2785,10 +2803,6 @@
 .calmly-app .tint-coral .section-title { color: var(--c-coral-d); }
 .calmly-app .tint-gold .section-title { color: var(--c-gold-ink); }
 .calmly-app .tint-green .section-title { color: var(--c-green-ink); }
-/* A live session already renders as a dark card — never wash that. */
-.calmly-app .next-card-live.tint-coral {
-  background-image: none;
-}
 /* The three-up row stacks on narrow screens; a full-bleed wash on a tall stacked
    card is heavy, so soften it there. */
 @media (max-width: 720px) {

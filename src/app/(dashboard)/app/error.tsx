@@ -22,7 +22,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
           height: 52,
           borderRadius: 14,
           background: 'rgba(200,85,61,.1)',
-          color: 'var(--c-coral)',
+          color: 'var(--c-coral-d)',
           marginBottom: 16,
         }}
       >

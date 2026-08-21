@@ -124,7 +124,7 @@ export function TherapistProfileEditor(props: Props) {
           <label className="field-label">Full name</label>
           <input className="field-input" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} />
           {shownPhoto && (
-            <button type="button" onClick={() => setPhoto(null)} style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--c-coral)', cursor: 'pointer', fontSize: 12.5, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 5, padding: 0 }}>
+            <button type="button" onClick={() => setPhoto(null)} style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--c-coral-d)', cursor: 'pointer', fontSize: 12.5, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 5, padding: 0 }}>
               <Trash2 size={13} /> Remove photo
             </button>
           )}

@@ -19,7 +19,7 @@ export function BlogsStrip({ posts, limit = 3 }: { posts: BlogPostView[]; limit?
           </h2>
           <p className="muted" style={{ marginTop: 4 }}>Evidence-based reads, written by professionals.</p>
         </div>
-        <Link href="/blog" style={{ color: 'var(--c-coral)', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>
+        <Link href="/blog" style={{ color: 'var(--c-coral-d)', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>
           View all articles →
         </Link>
       </div>

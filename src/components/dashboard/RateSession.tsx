@@ -97,7 +97,7 @@ export function RateSession({
       />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
         <button onClick={submit} disabled={pending} className="btn btn-primary" style={{ opacity: pending ? 0.6 : 1 }}>{pending ? 'Saving…' : 'Submit rating'}</button>
-        {error && <span style={{ fontSize: 13, color: 'var(--c-coral)' }}>{error}</span>}
+        {error && <span style={{ fontSize: 13, color: 'var(--c-coral-d)' }}>{error}</span>}
       </div>
     </div>
   )

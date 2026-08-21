@@ -225,7 +225,7 @@ export function MedicationManager({
               <button className="note-link" type="button" onClick={() => setOpen(false)} style={{ color: 'var(--c-gray)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                 <X size={14} /> Cancel
               </button>
-              {error && <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>}
+              {error && <span style={{ fontSize: 12, color: 'var(--c-coral-d)' }}>{error}</span>}
             </div>
           </div>
         )}
@@ -318,7 +318,7 @@ function DeliveryPanel({ medicationId, durationDays }: { medicationId: string; d
   return (
     <div style={{ padding: '0 0 12px 40px' }}>
       {!open ? (
-        <button className="note-link" type="button" onClick={() => setOpen(true)} style={{ color: 'var(--c-coral)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600 }}>
+        <button className="note-link" type="button" onClick={() => setOpen(true)} style={{ color: 'var(--c-coral-d)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600 }}>
           <Truck size={14} /> Order home delivery (₹{amount})
         </button>
       ) : (
@@ -340,7 +340,7 @@ function DeliveryPanel({ medicationId, durationDays }: { medicationId: string; d
             <button className="note-link" type="button" onClick={() => setOpen(false)} style={{ color: 'var(--c-gray)', cursor: 'pointer', fontSize: 13 }}>
               Cancel
             </button>
-            {error && <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>}
+            {error && <span style={{ fontSize: 12, color: 'var(--c-coral-d)' }}>{error}</span>}
           </div>
           <p className="muted" style={{ fontSize: 11, marginTop: 8 }}>
             🔒 Mock payment for now. Medicines will be fulfilled by our pharmacy partner (e.g. Tata 1mg) once that

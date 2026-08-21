@@ -25,7 +25,7 @@ export function SectionTabs({
   return (
     <div style={{ marginBottom: 18 }}>
       {eyebrow && (
-        <p className="muted" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--c-coral)', margin: '0 0 6px' }}>
+        <p className="muted" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--c-coral-d)', margin: '0 0 6px' }}>
           {eyebrow}
         </p>
       )}

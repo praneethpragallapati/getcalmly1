@@ -196,7 +196,7 @@ export function BookSession({
                 expertName ? `Request slot with ${expertName}` : 'Request selected slot'
               )}
             </button>
-            {error && <span style={{ fontSize: 12, color: 'var(--c-coral)' }}>{error}</span>}
+            {error && <span style={{ fontSize: 12, color: 'var(--c-coral-d)' }}>{error}</span>}
           </div>
         </>
       )}

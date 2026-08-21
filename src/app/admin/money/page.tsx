@@ -46,7 +46,7 @@ export default async function AdminMoneyPage() {
       <div className="grid-4">
         {cards.map((c) => (
           <div key={c.label} className="card">
-            <span style={{ color: 'var(--c-coral)' }}>{c.icon}</span>
+            <span style={{ color: 'var(--c-coral-d)' }}>{c.icon}</span>
             <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 26, marginTop: 8 }}>{c.value}</div>
             <div className="muted">{c.label}</div>
           </div>

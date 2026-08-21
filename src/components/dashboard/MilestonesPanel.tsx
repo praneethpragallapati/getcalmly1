@@ -125,7 +125,7 @@ function Toggle({ open, onClick, children }: { open: boolean; onClick: () => voi
       aria-expanded={open}
       style={{
         background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-        color: 'var(--c-coral)', fontWeight: 700, fontSize: 13,
+        color: 'var(--c-coral-d)', fontWeight: 700, fontSize: 13,
         display: 'inline-flex', alignItems: 'center', gap: 5,
       }}
     >
