@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { COUNTRIES, hasStateList } from '@/lib/countries'
+import { IN_STATES } from '@/lib/inStates'
 import { Stethoscope, ShieldCheck, Copy, Check } from 'lucide-react'
 import { createTherapist, createAdmin, type CreateResult } from '@/app/admin/actions'
 import type { TherapistPrefill } from '@/lib/admin'
@@ -43,6 +45,17 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   const [bonus3, setBonus3] = useState('')
   const [bonusNight, setBonusNight] = useState('')
   const [bonusMisc, setBonusMisc] = useState('')
+  // Personal + contact, matching what the clinician's own profile holds.
+  const [dob, setDob] = useState('')
+  const [country, setCountry] = useState('IN')
+  const [stateName, setStateName] = useState('')
+  const [city, setCity] = useState('')
+  const [addr1, setAddr1] = useState('')
+  const [addr2, setAddr2] = useState('')
+  const [pin, setPin] = useState('')
+  const [emName, setEmName] = useState('')
+  const [emPhone, setEmPhone] = useState('')
+  const [emRel, setEmRel] = useState('')
   const [docs, setDocs] = useState<{ name: string; url: string }[]>([])
   const [docError, setDocError] = useState('')
 
@@ -76,6 +89,10 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
             qualifications, languages, specializations, bio,
             gender, clinicianType,
             employmentType,
+            dateOfBirth: dob || null,
+            country, state: stateName || null, city: city || null,
+            addressLine1: addr1 || null, addressLine2: addr2 || null, postalCode: pin || null,
+            emergencyName: emName || null, emergencyPhone: emPhone || null, emergencyRelation: emRel || null,
             baseFeeIndividual: numOrBlank(feeInd),
             baseFeeCouples: numOrBlank(feeCpl),
             baseFeePsychiatry: numOrBlank(feePsy),
@@ -170,6 +187,47 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
           <div><label style={label}>Languages <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Hindi" /></div>
           <div><label style={label}>Qualifications <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={qualifications} onChange={(e) => setQualifications(e.target.value)} placeholder="M.Phil Clinical Psychology" /></div>
           <div><label style={label}>Bio</label><textarea rows={3} style={{ ...field, resize: 'vertical' }} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="How they work and who they help best." /></div>
+
+          {/* Personal & contact — the same set the clinician sees on their own
+              profile, so onboarding and profile hold one consistent record. */}
+          <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', paddingTop: 14, marginTop: 2 }}>
+            <div className="section-title" style={{ fontSize: 15, marginBottom: 2 }}>Personal &amp; contact</div>
+            <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>
+              Held for payroll, compliance and emergencies. Patients never see this. The clinician can update it themselves later.
+            </p>
+            <Row>
+              <Col><label style={label}>Date of birth</label><input type="date" style={field} value={dob} onChange={(e) => setDob(e.target.value)} /></Col>
+              <Col><label style={label}>Country</label>
+                <select style={{ ...field, background: '#fff' }} value={country} onChange={(e) => { setCountry(e.target.value); setStateName('') }}>
+                  {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
+              </Col>
+            </Row>
+            <Row>
+              <Col><label style={label}>State / region</label>
+                {hasStateList(country) ? (
+                  <select style={{ ...field, background: '#fff' }} value={stateName} onChange={(e) => setStateName(e.target.value)}>
+                    <option value="">Select…</option>
+                    {IN_STATES.map((st) => <option key={st} value={st}>{st}</option>)}
+                  </select>
+                ) : (
+                  <input style={field} value={stateName} onChange={(e) => setStateName(e.target.value)} placeholder="State / province" />
+                )}
+              </Col>
+              <Col><label style={label}>City</label><input style={field} value={city} onChange={(e) => setCity(e.target.value)} placeholder="Bengaluru" /></Col>
+            </Row>
+            <div style={{ marginTop: 14 }}><label style={label}>Address line 1</label><input style={field} value={addr1} onChange={(e) => setAddr1(e.target.value)} placeholder="Flat / house no., building, street" /></div>
+            <Row>
+              <Col><label style={label}>Address line 2</label><input style={field} value={addr2} onChange={(e) => setAddr2(e.target.value)} placeholder="Area, landmark" /></Col>
+              <Col><label style={label}>Postal code</label><input style={field} value={pin} onChange={(e) => setPin(e.target.value)} placeholder="560068" /></Col>
+            </Row>
+            <div style={{ marginTop: 14, fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#5F6E7D' }}>Emergency contact</div>
+            <Row>
+              <Col><label style={label}>Name</label><input style={field} value={emName} onChange={(e) => setEmName(e.target.value)} placeholder="Who to call" /></Col>
+              <Col><label style={label}>Phone</label><input style={field} value={emPhone} onChange={(e) => setEmPhone(e.target.value)} placeholder="+91 98765 43210" /></Col>
+            </Row>
+            <div style={{ marginTop: 14 }}><label style={label}>Relationship</label><input style={field} value={emRel} onChange={(e) => setEmRel(e.target.value)} placeholder="Spouse, parent, sibling…" /></div>
+          </div>
 
           <div style={{ borderTop: '1px solid rgba(28,43,58,.08)', paddingTop: 14, marginTop: 2 }}>
             <div className="section-title" style={{ fontSize: 15, marginBottom: 2 }}>Pay structure</div>

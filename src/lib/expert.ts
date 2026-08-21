@@ -1668,6 +1668,49 @@ export type SupervisionView = {
   supervisedBy: SupervisionRelationship[] // this therapist's own supervisors
 }
 
+/** Star-by-star breakdown of a clinician's own patient ratings. */
+export type RatingBreakdown = {
+  average: number
+  total: number
+  /** Count per star, index 0 = 1 star … index 4 = 5 stars. */
+  counts: [number, number, number, number, number]
+  recentComments: { rating: number; comment: string; when: Date }[]
+}
+
+/**
+ * A clinician's own rating, from the real SessionReview rows rather than the
+ * denormalised average, so the breakdown always adds up to the headline number.
+ */
+export async function getRatingBreakdown(therapistProfileId: string): Promise<RatingBreakdown> {
+  const empty: RatingBreakdown = { average: 0, total: 0, counts: [0, 0, 0, 0, 0], recentComments: [] }
+  try {
+    const rows = await prisma.sessionReview.findMany({
+      where: { therapistId: therapistProfileId },
+      select: { rating: true, comment: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+    })
+    if (rows.length === 0) return empty
+    const counts: [number, number, number, number, number] = [0, 0, 0, 0, 0]
+    let sum = 0
+    for (const r of rows) {
+      const star = Math.min(5, Math.max(1, Math.round(r.rating)))
+      counts[star - 1]++
+      sum += star
+    }
+    return {
+      average: sum / rows.length,
+      total: rows.length,
+      counts,
+      recentComments: rows
+        .filter((r) => (r.comment ?? '').trim())
+        .slice(0, 5)
+        .map((r) => ({ rating: r.rating, comment: (r.comment ?? '').trim(), when: r.createdAt })),
+    }
+  } catch {
+    return empty
+  }
+}
+
 export async function getSupervision(therapistProfileId: string): Promise<SupervisionView> {
   const links = await prisma.supervisionLink.findMany({
     where: { OR: [{ supervisorId: therapistProfileId }, { superviseeId: therapistProfileId }] },

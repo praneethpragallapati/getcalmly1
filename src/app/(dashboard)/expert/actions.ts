@@ -25,7 +25,7 @@ import {
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, markAllRead } from '@/lib/notifications'
-import { notifyBlogSubmission } from '@/lib/adminNotify'
+import { notifyBlogSubmission, notifyAdmins } from '@/lib/adminNotify'
 import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { normalizeTags } from '@/data/tags'
 import { normalizeCountry } from '@/lib/countries'
@@ -368,6 +368,9 @@ export type TherapistProfileInput = {
   qualifications?: string // comma-separated
   languages?: string // comma-separated
   specializations?: string // comma-separated
+  /** Council registration (RCI/NMC). Changing a verified one re-opens review. */
+  rciNumber?: string
+  yearsExp?: number
   photo?: string | null // data URL, '' / null to remove, omit to leave unchanged
   // Contact + location. Visible to the admin team, not to patients.
   phone?: string | null
@@ -385,9 +388,15 @@ export type TherapistProfileInput = {
 
 /**
  * A clinician editing their own public-facing profile: name, photo, bio,
- * qualifications, languages and specializations. Admin-managed fields
- * (verification, employment, RCI number, fees) are intentionally NOT editable
- * here, and the email/login identity never changes.
+ * qualifications, languages, specializations, council registration and years of
+ * experience. Employment terms and fees stay admin-managed, and the email/login
+ * identity never changes.
+ *
+ * Registration number is editable so a clinician can fill in or correct their
+ * own credential — but it is the thing verification attests to, so CHANGING an
+ * already-verified number clears the verified badge and tells the admin team to
+ * check it again. Otherwise a verified badge could be carried over to a number
+ * nobody has ever seen.
  */
 export async function updateTherapistProfile(input: TherapistProfileInput): Promise<ExpertActionResult> {
   const ctx = await getTherapistContext()
@@ -448,8 +457,41 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
     const emN = clean(input.emergencyName, 80); if (emN !== undefined) data.emergencyName = emN
     const emP = clean(input.emergencyPhone, 20); if (emP !== undefined) data.emergencyPhone = emP
     const emR = clean(input.emergencyRelation, 40); if (emR !== undefined) data.emergencyRelation = emR
+
+    if (input.yearsExp !== undefined) {
+      const y = Math.trunc(input.yearsExp)
+      if (!Number.isFinite(y) || y < 0 || y > 70) return { ok: false, error: 'Enter years of experience between 0 and 70.' }
+      data.yearsExp = y
+    }
+
+    // Registration number: normalised, and re-verified if it actually changes.
+    let reverify: { from: string; to: string } | null = null
+    if (input.rciNumber !== undefined) {
+      const reg = input.rciNumber.trim().replace(/\s+/g, ' ').toUpperCase().slice(0, 40)
+      if (!reg) return { ok: false, error: 'Enter your council registration number.' }
+      const current = await prisma.therapistProfile.findUnique({
+        where: { id: ctx.therapistProfileId },
+        select: { rciNumber: true, isVerified: true },
+      })
+      if (current && current.rciNumber !== reg) {
+        data.rciNumber = reg
+        if (current.isVerified) {
+          data.isVerified = false
+          reverify = { from: current.rciNumber, to: reg }
+        }
+      }
+    }
+
     if (Object.keys(data).length) {
       await prisma.therapistProfile.update({ where: { id: ctx.therapistProfileId }, data })
+    }
+    if (reverify) {
+      await notifyAdmins({
+        type: 'announcement',
+        title: 'Registration number changed — re-verify',
+        body: `${ctx.therapistName ?? 'A clinician'} changed their registration from ${reverify.from} to ${reverify.to}. Their verified badge has been removed until you confirm it.`,
+        href: '/admin/therapists',
+      }).catch(() => {})
     }
 
     revalidatePath('/expert/profile')
@@ -457,7 +499,7 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
     return { ok: true }
   } catch (e) {
     const msg = e instanceof Error && /Unique constraint/i.test(e.message)
-      ? 'That phone number is already in use.'
+      ? 'That phone number or registration number is already in use.'
       : 'Could not save your profile.'
     return { ok: false, error: msg }
   }

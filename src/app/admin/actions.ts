@@ -20,6 +20,8 @@ import { notify, notifyMany, markAllRead } from '@/lib/notifications'
 import { ensureBlogReviewSchema } from '@/lib/expert'
 import { ensurePollSchema } from '@/lib/polls'
 import { ensureRegistrationNo } from '@/lib/registration'
+import { ensureContactSchema } from '@/lib/contactSchema'
+import { normalizeCountry } from '@/lib/countries'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -46,6 +48,18 @@ export type CreateTherapistInput = {
   qualifications?: string; languages?: string; specializations?: string; bio?: string
   gender?: string; clinicianType?: string
   employmentType?: string
+  // The same personal/contact set the clinician's own profile holds, so
+  // onboarding captures a complete record rather than half of one.
+  dateOfBirth?: string | null
+  country?: string | null
+  state?: string | null
+  city?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  postalCode?: string | null
+  emergencyName?: string | null
+  emergencyPhone?: string | null
+  emergencyRelation?: string | null
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
   secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
   documentUrls?: string[]
@@ -84,10 +98,26 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
     const ov = (v: number | '' | undefined) => (v === '' || v === undefined ? null : posInt(v))
     const docs = (input.documentUrls ?? []).map((u) => u.trim()).filter(Boolean).slice(0, 12)
 
+    // The 0038 contact columns must exist before we write them.
+    await ensureContactSchema().catch(() => {})
+    const txt = (v: string | null | undefined, max: number): string | null => {
+      const t = (v ?? '').trim()
+      return t ? t.replace(/\s+/g, ' ').slice(0, max) : null
+    }
+    let dob: Date | null = null
+    if (input.dateOfBirth) {
+      const d = new Date(input.dateOfBirth)
+      if (Number.isNaN(d.getTime()) || d.getTime() > Date.now()) {
+        return { ok: false, error: 'Enter a valid date of birth.' }
+      }
+      dob = d
+    }
+
     const tempPassword = generateTempPassword()
     const created = await prisma.user.create({
       data: {
         name, email, role: 'THERAPIST', passwordHash: hashPassword(tempPassword), mustChangePassword: true,
+        phone: txt(input.phone, 20),
         therapistProfile: {
           create: {
             bio: input.bio?.trim() || 'Clinician on GetCalmly.',
@@ -108,6 +138,16 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
             miscBonus: ov(input.miscBonus),
             nightSessionBonus: ov(input.nightSessionBonus),
             documentUrls: docs,
+            dateOfBirth: dob,
+            country: normalizeCountry(input.country),
+            state: txt(input.state, 60),
+            city: txt(input.city, 60),
+            addressLine1: txt(input.addressLine1, 120),
+            addressLine2: txt(input.addressLine2, 120),
+            postalCode: txt(input.postalCode, 16),
+            emergencyName: txt(input.emergencyName, 80),
+            emergencyPhone: txt(input.emergencyPhone, 20),
+            emergencyRelation: txt(input.emergencyRelation, 40),
             isVerified: true,
             isActive: true,
           },

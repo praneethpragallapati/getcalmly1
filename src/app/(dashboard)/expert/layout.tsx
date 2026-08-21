@@ -92,7 +92,9 @@ export default async function ExpertLayout({ children }: { children: React.React
           </SidebarLink>
         </NavGroup>
 
-        <NavGroup heading="PRACTICE" storageKey="expert" hrefs={['/expert/community', '/expert/blogs', '/expert/perspectives', '/expert/forms', '/expert/profile', '/expert/earnings']}>
+        {/* Calm Club groups the community-facing surfaces, matching how the
+            patient sidebar files the same two. */}
+        <NavGroup heading="CALM CLUB" storageKey="expert" hrefs={['/expert/community', '/expert/blogs', '/expert/perspectives']}>
           <SidebarLink href="/expert/community">
             <MessagesSquare size={18} />
             <span>Real Talk</span>
@@ -102,6 +104,9 @@ export default async function ExpertLayout({ children }: { children: React.React
             <Video size={18} />
             <span>Perspectives</span>
           </SidebarLink>
+        </NavGroup>
+
+        <NavGroup heading="PRACTICE" storageKey="expert" hrefs={['/expert/forms', '/expert/profile', '/expert/earnings']}>
           <SidebarLink href="/expert/forms">
             <FileText size={18} />
             <span>Default forms</span>

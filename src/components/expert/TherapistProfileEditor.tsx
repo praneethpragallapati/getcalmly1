@@ -18,6 +18,10 @@ type Props = {
   qualifications: string[]
   languages: string[]
   specializations: string[]
+  rciNumber: string
+  council: string
+  yearsExp: number
+  isVerified: boolean
   photoUrl: string | null
   phone: string | null
   dateOfBirth: string | null // yyyy-mm-dd
@@ -50,6 +54,8 @@ export function TherapistProfileEditor(props: Props) {
   const [qualifications, setQualifications] = useState(props.qualifications.join(', '))
   const [languages, setLanguages] = useState(props.languages.join(', '))
   const [specializations, setSpecializations] = useState(props.specializations.join(', '))
+  const [rciNumber, setRciNumber] = useState(props.rciNumber)
+  const [yearsExp, setYearsExp] = useState(String(props.yearsExp))
   const [phone, setPhone] = useState(props.phone ?? '')
   const [dob, setDob] = useState(props.dateOfBirth ?? '')
   const [country, setCountry] = useState(props.country || 'IN')
@@ -79,11 +85,25 @@ export function TherapistProfileEditor(props: Props) {
     }
   }
 
+  // Warn BEFORE saving, not after: losing a verified badge is a surprise worth
+  // a confirmation, and the server clears it regardless of what we do here.
+  const regChanged = rciNumber.trim().toUpperCase() !== props.rciNumber.trim().toUpperCase()
+
   function save() {
     if (!name.trim()) return toast.error('Please enter your name.')
+    if (!rciNumber.trim()) return toast.error(`Please enter your ${props.council} registration number.`)
+    const years = Number(yearsExp)
+    if (!Number.isFinite(years) || years < 0 || years > 70) {
+      return toast.error('Enter years of experience between 0 and 70.')
+    }
+    if (regChanged && props.isVerified &&
+        !confirm('Changing your registration number removes your verified badge until an admin checks the new number. Continue?')) {
+      return
+    }
     start(async () => {
       const res = await updateTherapistProfile({
         name, bio, gender, qualifications, languages, specializations, photo,
+        rciNumber, yearsExp: years,
         phone, dateOfBirth: dob || null, country, state, city,
         addressLine1: addr1, addressLine2: addr2, postalCode: pin,
         emergencyName: emName, emergencyPhone: emPhone, emergencyRelation: emRel,
@@ -169,6 +189,35 @@ export function TherapistProfileEditor(props: Props) {
       <div style={{ marginTop: 16 }}>
         <label className="field-label">Specializations <span style={{ fontWeight: 500, color: 'var(--c-gray)' }}>(comma-separated)</span></label>
         <input className="field-input" value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, Depression, Trauma" />
+      </div>
+
+      <div className="field-grid" style={{ marginTop: 16 }}>
+        <div>
+          <label className="field-label">{props.council} registration number</label>
+          <input
+            className="field-input"
+            value={rciNumber}
+            maxLength={40}
+            onChange={(e) => setRciNumber(e.target.value)}
+            placeholder="e.g. A012345"
+          />
+          {regChanged && props.isVerified && (
+            <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+              Changing this removes your verified badge until an admin confirms the new number.
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="field-label">Years of experience</label>
+          <input
+            className="field-input"
+            type="number"
+            min={0}
+            max={70}
+            value={yearsExp}
+            onChange={(e) => setYearsExp(e.target.value)}
+          />
+        </div>
       </div>
 
       <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--c-line)' }}>

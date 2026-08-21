@@ -11,6 +11,10 @@ type Props = {
   qualifications: string[]
   languages: string[]
   specializations: string[]
+  rciNumber: string
+  council: string
+  yearsExp: number
+  isVerified: boolean
   photoUrl: string | null
   phone: string | null
   dateOfBirth: string | null
