@@ -5,6 +5,7 @@ import {
   getTherapistContext, getSessionsNeedingNote, getMyAssignedTasks, getRiskNotifications,
 } from '@/lib/expert'
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
+import { RateMember } from '@/components/expert/RateMember'
 import { MyTaskList } from '@/components/expert/MyTaskList'
 
 export const dynamic = 'force-dynamic'
@@ -78,7 +79,12 @@ export default async function ExpertTasksPage() {
                       Write the note
                     </summary>
                     <div style={{ marginTop: 10 }}>
-                      <SessionNoteForm appointmentId={n.appointmentId} patientId={n.patientId} />
+                      <SessionNoteForm
+                        appointmentId={n.appointmentId}
+                        patientId={n.patientId}
+                        initialDraft={n.draft}
+                      />
+                      <RateMember appointmentId={n.appointmentId} initial={n.memberRating} />
                     </div>
                   </details>
                 </div>

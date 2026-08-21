@@ -525,6 +525,10 @@ export type NoteDueRow = {
   dateLabel: string
   /** Whole days since the session ended — drives the "overdue" emphasis. */
   daysAgo: number
+  /** Autosaved work-in-progress note, so a half-written one can be resumed. */
+  draft: string
+  /** The clinician's own 1-5 rating of the member for this session, if given. */
+  memberRating: number | null
 }
 
 /**
@@ -541,7 +545,10 @@ export async function getSessionsNeedingNote(therapistProfileId: string): Promis
       where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: null },
       orderBy: { scheduledAt: 'asc' },
       take: 50,
-      select: { id: true, patientId: true, scheduledAt: true, patient: { select: { name: true } } },
+      select: {
+        id: true, patientId: true, scheduledAt: true, patient: { select: { name: true } },
+        summaryDraft: true, memberRating: true,
+      },
     })
     const now = Date.now()
     return rows.map((r) => ({
@@ -550,6 +557,8 @@ export async function getSessionsNeedingNote(therapistProfileId: string): Promis
       patientName: r.patient?.name ?? 'Patient',
       dateLabel: fmtIST(r.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
       daysAgo: Math.max(0, Math.floor((now - r.scheduledAt.getTime()) / 86_400_000)),
+      draft: r.summaryDraft ?? '',
+      memberRating: r.memberRating ?? null,
     }))
   } catch {
     return []

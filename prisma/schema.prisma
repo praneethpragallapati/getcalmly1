@@ -525,6 +525,15 @@ model Appointment {
   // Notes the patient prepares before the session, shared with the expert (#9).
   preSessionNote String?           @db.Text
   // Clinician's post-session summary the patient can read back later (#3).
+  /* Autosaved draft of the clinician's note. Separate from `summary` on
+     purpose: writing `summary` is what marks the session written-up (it gates
+     pay and clears "note due"), so an autosave must never land there. */
+  summaryDraft    String?   @db.Text
+  summaryDraftAt  DateTime?
+  /* The clinician's rating of the member for this session (1-5). Visible to
+     clinicians and admins only — never to the member. */
+  memberRating     Int?
+  memberRatingNote String?  @db.Text
   summary        String?           @db.Text
   // Presence tracking for the strict completion rule: a session counts as
   // COMPLETED only when BOTH sides joined, they were together for >= 30 min, and

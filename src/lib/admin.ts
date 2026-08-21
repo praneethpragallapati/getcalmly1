@@ -727,6 +727,10 @@ export type PatientSessionRow = {
    *  delta is meaningless and the dated label says what happened). */
   joinDelayMins: number | null
   rating: number | null // the patient's 1–5 rating of this call
+  /** The CLINICIAN's 1-5 rating of the member for this session. Clinicians and
+   *  admins only — never returned on a patient-facing query. */
+  memberRating: number | null
+  memberRatingNote: string | null
   hasSummary: boolean
   /** A clinical note is owed (paid sessions only — see AdminSessionRow). */
   needsNote: boolean
@@ -787,6 +791,8 @@ type ApptSnapshotRow = {
   summary: string | null; preSessionNote: string | null
   therapist: { rating: number; user: { name: string | null } | null } | null
   review: { rating: number } | null
+  memberRating: number | null
+  memberRatingNote: string | null
 }
 
 export async function getPatientActivity(userId: string): Promise<PatientActivity> {
@@ -817,6 +823,8 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
           // summary is selected only to derive hasSummary/needsNote below; it
           // is never placed on the returned object.
           summary: true, preSessionNote: true,
+          // The clinician's own read on the session. Clinicians and admins only.
+          memberRating: true, memberRatingNote: true,
           therapist: { select: { rating: true, user: { select: { name: true } } } },
           review: { select: { rating: true } },
         },
@@ -865,6 +873,8 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         hasSummary: Boolean(a.summary),
         needsNote: a.status === 'COMPLETED' && !a.summary,
         preSessionNote: a.preSessionNote ?? null,
+        memberRating: a.memberRating ?? null,
+        memberRatingNote: a.memberRatingNote ?? null,
         presence: presenceById.get(a.id) ?? {
           patient: { spans: [], totalMins: 0, rejoins: 0 },
           therapist: { spans: [], totalMins: 0, rejoins: 0 },

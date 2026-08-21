@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { completeSession } from '@/app/(dashboard)/expert/actions'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { completeSession, saveSessionNoteDraft } from '@/app/(dashboard)/expert/actions'
 
 /**
  * Structured clinical session note (SOAP-style: Subjective, Objective,
@@ -9,7 +9,15 @@ import { completeSession } from '@/app/(dashboard)/expert/actions'
  * blank box, so every note follows the same standard format. The fields are
  * composed into one formatted note saved to `summary` (a hidden input), which
  * keeps the patient-facing readback and everything downstream unchanged.
+ *
+ * The note autosaves as a DRAFT while it is being written. The draft is a
+ * separate column from `summary` on purpose: writing `summary` is what marks a
+ * session written-up, so autosaving into it would mark every half-finished note
+ * as complete. Nothing is submitted until the clinician presses the button.
  */
+
+/** How long to wait after the last keystroke before saving. */
+const AUTOSAVE_IDLE_MS = 1500
 const RISK_LEVELS = ['None', 'Low', 'Moderate', 'High'] as const
 
 function composeNote(f: {
@@ -29,16 +37,19 @@ export function SessionNoteForm({
   appointmentId,
   patientId,
   initialSummary = '',
+  initialDraft = '',
   submitLabel = 'Save & mark complete',
 }: {
   appointmentId: string
   patientId: string
   initialSummary?: string
+  /** An autosaved draft to pick back up, if this note was left half-written. */
+  initialDraft?: string
   submitLabel?: string
 }) {
   // If re-opening an old free-text note, seed it into the first field so nothing
   // is lost (already-structured notes just re-appear there for editing).
-  const [focus, setFocus] = useState(initialSummary)
+  const [focus, setFocus] = useState(initialSummary || initialDraft)
   const [observations, setObservations] = useState('')
   const [assessment, setAssessment] = useState('')
   const [risk, setRisk] = useState<string>('None')
@@ -51,6 +62,27 @@ export function SessionNoteForm({
     [focus, observations, assessment, risk, riskNotes, plan, nextFocus]
   )
   const canSubmit = focus.trim().length > 0 && plan.trim().length > 0
+
+  // Autosave: debounce on idle, and skip the very first render so simply
+  // opening a note doesn't write a draft identical to what's already stored.
+  const [savedAt, setSavedAt] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const lastSaved = useRef(composed)
+  const firstRun = useRef(true)
+
+  useEffect(() => {
+    if (firstRun.current) { firstRun.current = false; lastSaved.current = composed; return }
+    if (composed === lastSaved.current) return
+    const t = setTimeout(() => {
+      const snapshot = composed
+      setSaving(true)
+      void saveSessionNoteDraft(appointmentId, snapshot).then((r) => {
+        setSaving(false)
+        if (r.ok) { lastSaved.current = snapshot; setSavedAt(r.savedAt ?? new Date().toISOString()) }
+      })
+    }, AUTOSAVE_IDLE_MS)
+    return () => clearTimeout(t)
+  }, [composed, appointmentId])
 
   const field = (label: string, node: React.ReactNode, hint?: string) => (
     <label className="muted" style={{ fontSize: 12, display: 'block' }}>
@@ -96,9 +128,14 @@ export function SessionNoteForm({
         <input className="entry-input" value={nextFocus} onChange={(e) => setNextFocus(e.target.value)} placeholder="What to pick up next time" />
       ))}
 
-      <button type="submit" className="btn btn-primary btn-sm" disabled={!canSubmit} style={{ alignSelf: 'flex-start' }}>
-        {submitLabel}
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={!canSubmit}>
+          {submitLabel}
+        </button>
+        <span className="muted" style={{ fontSize: 11.5 }} aria-live="polite">
+          {saving ? 'Saving draft…' : savedAt ? 'Draft saved' : 'Drafts save automatically'}
+        </span>
+      </div>
       {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>Presenting concerns and a plan are required.</span>}
     </form>
   )

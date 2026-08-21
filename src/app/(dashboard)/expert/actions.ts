@@ -31,6 +31,7 @@ import { normalizeFrequency, normalizeTimesOfDay } from '@/lib/taskRecurrence'
 import { normalizeTags } from '@/data/tags'
 import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { ensureSessionNoteSchema } from '@/lib/sessionNoteSchema'
 
 export type ExpertActionResult = { ok: boolean; error?: string; slug?: string }
 
@@ -160,12 +161,84 @@ export async function completeSession(formData: FormData): Promise<void> {
   const summary = String(formData.get('summary') ?? '').trim()
   if (!id || !summary) return
   await writeSessionSummary(ctx.therapistProfileId, id, summary)
+  // The draft has served its purpose; leaving it behind would repopulate the
+  // form with stale text the next time the note is opened.
+  await ensureSessionNoteSchema().catch(() => {})
+  await prisma.appointment
+    .updateMany({ where: { id, therapistId: ctx.therapistProfileId }, data: { summaryDraft: null, summaryDraftAt: null } })
+    .catch(() => {})
   revalidatePath('/expert/schedule')
   revalidatePath('/expert/tasks')
   revalidatePath('/expert')
   if (patientId) revalidatePath(`/expert/patients/${patientId}`)
 }
 
+
+/**
+ * Autosave a work-in-progress session note.
+ *
+ * Writes `summaryDraft`, never `summary`: saving `summary` is what marks a
+ * session written-up — it clears the clinician's "note due" task and releases
+ * the session into their earnings — so an autosave landing there would mark
+ * every half-typed note as complete.
+ *
+ * Scoped to the clinician's own appointments, and silent by design: a failed
+ * autosave must never interrupt someone mid-sentence. The draft is cleared when
+ * the note is actually submitted.
+ */
+export async function saveSessionNoteDraft(
+  appointmentId: string,
+  draft: string,
+): Promise<{ ok: boolean; savedAt?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx || !appointmentId) return { ok: false }
+  try {
+    await ensureSessionNoteSchema()
+    const now = new Date()
+    const res = await prisma.appointment.updateMany({
+      where: { id: appointmentId, therapistId: ctx.therapistProfileId },
+      data: { summaryDraft: draft.slice(0, 20_000), summaryDraftAt: now },
+    })
+    if (res.count === 0) return { ok: false }
+    return { ok: true, savedAt: now.toISOString() }
+  } catch {
+    return { ok: false }
+  }
+}
+
+/**
+ * The clinician's rating of a member for one session (1-5, with an optional
+ * note).
+ *
+ * Read by clinicians and admins only. It is never returned on any patient-facing
+ * query — a member seeing how their clinician scored them would change what they
+ * bring to the room, which is the opposite of what the rating is for.
+ */
+export async function rateMember(input: {
+  appointmentId: string
+  rating: number
+  note?: string
+}): Promise<ExpertActionResult> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const rating = Math.round(input.rating)
+  if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+    return { ok: false, error: 'Pick a rating between 1 and 5.' }
+  }
+  try {
+    await ensureSessionNoteSchema()
+    const res = await prisma.appointment.updateMany({
+      where: { id: input.appointmentId, therapistId: ctx.therapistProfileId },
+      data: { memberRating: rating, memberRatingNote: input.note?.trim().slice(0, 1000) || null },
+    })
+    if (res.count === 0) return { ok: false, error: 'Session not found.' }
+    revalidatePath('/expert/schedule')
+    revalidatePath('/expert/tasks')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not save the rating.' }
+  }
+}
 
 // ── Availability ──────────────────────────────────────────────────────────────
 

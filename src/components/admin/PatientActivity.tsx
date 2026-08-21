@@ -111,6 +111,13 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
         )}
         <Field label="Scheduled" value={fmtDuration(s.scheduledMins)} />
         <Field label="Call rating" value={s.rating != null ? `★ ${s.rating}/5` : (s.isPast ? 'not rated' : '—')} muted={s.rating == null} />
+        {/* The clinician's read on the session. Visible here and to the
+            clinician; never to the member it describes. */}
+        <Field
+          label="Clinician's rating of member"
+          value={s.memberRating != null ? `★ ${s.memberRating}/5` : (s.isPast ? 'not rated' : '—')}
+          muted={s.memberRating == null}
+        />
       </div>
       {s.presence.hasSpans && (
         <div style={{ marginTop: 11, padding: '10px 12px', background: 'rgba(28,43,58,.03)', borderRadius: 10, border: '1px solid rgba(28,43,58,.08)' }}>
