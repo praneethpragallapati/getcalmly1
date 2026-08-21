@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
 import { canAccess } from '@/lib/adminRoles'
+import { ensureAdminTypeSchema } from '@/lib/adminTypeSchema'
 import { LayoutDashboard, Inbox, Users, UserPlus, HeartPulse, CalendarClock, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Wallet } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
@@ -29,6 +30,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Create the 0038 contact columns if the migration hasn't been run yet.
   // Flag-guarded, so this is one statement per process, not per request.
   await ensureContactSchema().catch(() => {})
+  // Create the sub-role column if the migration hasn't been run. Done HERE, not
+  // in the auth path: a failure on this line costs an admin their nav gating,
+  // whereas a failure during sign-in would cost everyone their login.
+  await ensureAdminTypeSchema().catch(() => {})
   // Give any account created before registration numbers existed one now,
   // in signup order. One pass per process.
   await backfillRegistrationNumbers()

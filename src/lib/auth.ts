@@ -29,16 +29,26 @@ async function freshRole(
   const now = Date.now()
   const hit = roleCache.get(userId)
   if (hit && hit.exp > now) return { role: hit.role, adminType: hit.adminType }
+  // adminType rides along on the SAME round trip as the role. But it is a newer
+  // column, so a database without it must not cost anyone their session: on
+  // failure we retry for the role ALONE and treat the sub-role as unset (which
+  // means full access — exactly what every admin had before sub-roles existed).
   try {
-    // adminType rides along on the SAME round trip as the role — a second query
-    // per request to read one nullable string would not be worth it.
     const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, adminType: true } })
     if (u?.role) {
       roleCache.set(userId, { role: u.role, adminType: u.adminType ?? null, exp: now + ROLE_TTL_MS })
       return { role: u.role, adminType: u.adminType ?? null }
     }
   } catch {
-    /* keep fallback on a DB hiccup */
+    try {
+      const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+      if (u?.role) {
+        roleCache.set(userId, { role: u.role, adminType: null, exp: now + ROLE_TTL_MS })
+        return { role: u.role, adminType: null }
+      }
+    } catch {
+      /* keep the fallback on a real DB hiccup */
+    }
   }
   return { role: fallback, adminType: fallbackAdminType ?? null }
 }
@@ -139,19 +149,22 @@ export const authOptions: NextAuthOptions = {
         // NOT a user row — so we link by email to the existing account (or create
         // one). Without this, anything a Google-signed-in user buys or logs is
         // stored under a phantom id the admin (which lists real users) never sees.
-        let dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true, adminType: true } })
+        // Deliberately does NOT select adminType. This query is the critical
+        // path for every sign-in, and selecting a column the database might not
+        // have yet (an unapplied migration) throws here and locks everyone out.
+        // adminType is resolved in the session callback, which fails soft.
+        let dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true } })
         if (!dbUser && user.email) {
           const email = user.email.toLowerCase().trim()
           dbUser = await prisma.user.upsert({
             where: { email },
             update: {},
             create: { email, name: user.name ?? undefined, role: 'PATIENT' },
-            select: { id: true, role: true, adminType: true },
+            select: { id: true, role: true },
           })
         }
         token.uid = dbUser?.id ?? user.id
         token.role = dbUser?.role ?? 'PATIENT'
-        token.adminType = dbUser?.adminType ?? null
       }
       return token
     },
