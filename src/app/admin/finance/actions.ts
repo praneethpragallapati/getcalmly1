@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { LEDGER_CATEGORIES } from '@/lib/ledger'
+import { LEDGER_CATEGORIES, ensureLedgerSchema } from '@/lib/ledger'
 import { canAccess } from '@/lib/adminRoles'
 
 type Res = { ok: boolean; error?: string }
@@ -52,6 +52,7 @@ export async function addLedgerEntry(input: {
   }
 
   try {
+    await ensureLedgerSchema()
     await prisma.ledgerEntry.create({
       data: {
         direction,
@@ -67,9 +68,18 @@ export async function addLedgerEntry(input: {
       },
     })
     revalidatePath('/admin/finance')
+    revalidatePath('/admin/money')
     return { ok: true }
-  } catch {
-    return { ok: false, error: 'Could not save that entry.' }
+  } catch (e) {
+    // A bare catch here turned a missing TABLE into "Could not save that entry"
+    // and hid it for as long as the ledger existed. Log the real reason, and
+    // name the one cause we can actually explain to the person in front of us.
+    console.error('[addLedgerEntry] failed', e)
+    const message = e instanceof Error ? e.message : ''
+    if (/does not exist in the current database/i.test(message)) {
+      return { ok: false, error: 'The ledger table is missing from this database. Run the pending migrations (npm run db:deploy), then try again.' }
+    }
+    return { ok: false, error: 'Could not save that entry. Please try again, and check the server logs if it keeps happening.' }
   }
 }
 
@@ -77,10 +87,13 @@ export async function deleteLedgerEntry(id: string): Promise<Res> {
   const admin = await requireFinanceAdmin()
   if (!admin) return { ok: false, error: 'Finance access required.' }
   try {
+    await ensureLedgerSchema()
     await prisma.ledgerEntry.delete({ where: { id } })
     revalidatePath('/admin/finance')
+    revalidatePath('/admin/money')
     return { ok: true }
-  } catch {
+  } catch (e) {
+    console.error('[deleteLedgerEntry] failed', e)
     return { ok: false, error: 'Could not remove that entry.' }
   }
 }

@@ -14,6 +14,46 @@ import { prisma } from '@/lib/prisma'
 import { istParts, fmtIST } from '@/lib/tz'
 import { MONTHS } from '@/lib/bookingCalendar'
 
+/**
+ * Create the ledger table if it isn't there yet, so the feature works on a
+ * database that hasn't had migration 0041 applied by hand.
+ *
+ * This exists because it didn't, and saving a pay-in failed with a bare "Could
+ * not save that entry" on every database that was migrated rather than pushed.
+ * Every other table added to this codebase carries one of these — referrals,
+ * polls, blog review, contact details, admin types — and the ledger shipped
+ * without one.
+ *
+ * Mirrors 0041 exactly and is `IF NOT EXISTS` throughout, so it is idempotent
+ * and a no-op once the migration is in place. The `ready` flag keeps it to one
+ * round trip per process rather than one per call.
+ */
+let ledgerSchemaReady = false
+export async function ensureLedgerSchema(): Promise<void> {
+  if (ledgerSchemaReady) return
+  const stmts = [
+    `CREATE TABLE IF NOT EXISTS "LedgerEntry" (
+      "id"            TEXT PRIMARY KEY,
+      "direction"     TEXT NOT NULL,
+      "category"      TEXT NOT NULL,
+      "amount"        INTEGER NOT NULL,
+      "occurredAt"    TIMESTAMP(3) NOT NULL,
+      "counterparty"  TEXT,
+      "note"          TEXT,
+      "billName"      TEXT,
+      "billUrl"       TEXT,
+      "createdById"   TEXT,
+      "createdByName" TEXT,
+      "createdAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE INDEX IF NOT EXISTS "LedgerEntry_occurredAt_idx" ON "LedgerEntry"("occurredAt")`,
+    `CREATE INDEX IF NOT EXISTS "LedgerEntry_direction_idx" ON "LedgerEntry"("direction")`,
+  ]
+  for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
+  ledgerSchemaReady = true
+}
+
 export type Direction = 'IN' | 'OUT'
 
 export type LedgerCategory = {
@@ -107,6 +147,7 @@ export function monthRange(from: string, to: string): string[] {
 
 export async function listLedger(limit = 500): Promise<LedgerRow[]> {
   try {
+    await ensureLedgerSchema()
     const rows = await prisma.ledgerEntry.findMany({
       orderBy: { occurredAt: 'desc' },
       take: limit,
@@ -146,6 +187,7 @@ export async function listLedger(limit = 500): Promise<LedgerRow[]> {
 /** One bill, fetched only when someone actually asks to see it. */
 export async function getLedgerBill(id: string): Promise<{ name: string; url: string } | null> {
   try {
+    await ensureLedgerSchema()
     const r = await prisma.ledgerEntry.findUnique({
       where: { id },
       select: { billName: true, billUrl: true },
@@ -233,6 +275,10 @@ export async function getMoneyReport(monthsBack = 12): Promise<MoneyReport> {
   }
 
   try {
+    // All three run in one Promise.all, so without this a missing LedgerEntry
+    // table rejects the whole batch — payments and sessions included — and the
+    // entire money page reads zero rather than just the ledger part of it.
+    await ensureLedgerSchema()
     const [payments, entries, sessions] = await Promise.all([
       prisma.payment.findMany({
         where: { createdAt: { gte: since } },

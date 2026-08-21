@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- getCalmly · Consolidated schema catch-up (migrations 0014 → 0017)
+-- getCalmly · Consolidated schema catch-up (migrations 0014 → 0042)
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Run this ONCE against your database to add every column the current app code
 -- expects. It is fully idempotent (ADD COLUMN IF NOT EXISTS / guarded
@@ -345,3 +345,39 @@ CREATE TABLE IF NOT EXISTS "RegistrationCounter" (
   "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "RegistrationCounter_pkey" PRIMARY KEY ("key")
 );
+
+-- 0040_note_drafts_and_member_ratings
+-- summaryDraft is deliberately separate from summary: writing `summary` marks a
+-- session written-up (it gates clinician pay), so an autosave must not land there.
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "summaryDraft" TEXT;
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "summaryDraftAt" TIMESTAMP(3);
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "memberRating" INTEGER;
+ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "memberRatingNote" TEXT;
+
+-- 0041_ledger_and_admin_types
+-- Without this table, saving a pay-in under Money fails.
+CREATE TABLE IF NOT EXISTS "LedgerEntry" (
+  "id"            TEXT PRIMARY KEY,
+  "direction"     TEXT NOT NULL,
+  "category"      TEXT NOT NULL,
+  "amount"        INTEGER NOT NULL,
+  "occurredAt"    TIMESTAMP(3) NOT NULL,
+  "counterparty"  TEXT,
+  "note"          TEXT,
+  "billName"      TEXT,
+  "billUrl"       TEXT,
+  "createdById"   TEXT,
+  "createdByName" TEXT,
+  "createdAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS "LedgerEntry_occurredAt_idx" ON "LedgerEntry"("occurredAt");
+CREATE INDEX IF NOT EXISTS "LedgerEntry_direction_idx" ON "LedgerEntry"("direction");
+
+-- Admin sub-role. NULL means full access, so existing admins keep what they have.
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "adminType" TEXT;
+
+-- 0042_patient_emergency_contact
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyName" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyPhone" TEXT;
+ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyRelation" TEXT;
