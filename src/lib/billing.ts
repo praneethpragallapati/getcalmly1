@@ -10,6 +10,7 @@ import { getPricingConfig } from '@/lib/pricingConfig'
 import { resolveReferralCheckout, finalizeReferralCheckout, resolveWalletPayment, spendWalletCredit } from '@/lib/referral'
 import { fmtIST } from '@/lib/tz'
 import { notifyPurchase } from '@/lib/adminNotify'
+import { notifySessionsChanged, notifyPackageAdded } from '@/lib/goodNews'
 
 export type { BuyableTrack } from '@/data/pricing'
 
@@ -183,6 +184,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
       },
     })
     const paymentId = await recordPayment({ userId: patientId, subscriptionId: existing.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
+    await notifySessionsChanged(patientId, sessionsTotal - existing.sessionsTotal, planName).catch(() => {})
     await finalizeReferralCheckout(patientId, rr, paymentId)
     return { ok: true, sessionsTotal, sessionsRemaining: Math.max(0, sessionsTotal - existing.sessionsUsed), walletApplied: rr.creditUsed, amountPaid: rr.finalAmount, paymentId, planName }
   }
@@ -206,6 +208,7 @@ export async function buyPackageFor(patientId: string, track: BuyableTrack, pack
       },
     })
     const paymentId = await recordPayment({ userId: patientId, subscriptionId: created.id, amount: rr.finalAmount, kind: 'package', trackSlug: track, planName })
+    await notifyPackageAdded(patientId, planName, sessionsToAdd).catch(() => {})
     await finalizeReferralCheckout(patientId, rr, paymentId)
     return { ok: true, sessionsTotal: sessionsToAdd, sessionsRemaining: sessionsToAdd, walletApplied: rr.creditUsed, amountPaid: rr.finalAmount, paymentId, planName }
   } catch (e) {

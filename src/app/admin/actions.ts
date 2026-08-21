@@ -21,6 +21,10 @@ import { notify, notifyMany, markAllRead } from '@/lib/notifications'
 import { ensureBlogReviewSchema } from '@/lib/expert'
 import { ensurePollSchema } from '@/lib/polls'
 import { ensureRegistrationNo } from '@/lib/registration'
+import {
+  notifySessionsChanged, notifyValidityExtended, notifyWalletChanged,
+  notifyCalmPlusGranted, notifyPackageAdded,
+} from '@/lib/goodNews'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { normalizeCountry } from '@/lib/countries'
 
@@ -523,6 +527,8 @@ export async function grantSessionsByType(input: { userId: string; trackSlug: st
         where: { id: existing.id },
         data: { sessionsTotal: nextTotal, ...(months > 0 ? { expiresAt: addMonths(base, months), renewsAt: addMonths(base, months) } : {}) },
       })
+      await notifySessionsChanged(input.userId, nextTotal - existing.sessionsTotal, existing.planName)
+      if (months > 0) await notifyValidityExtended(input.userId, months, addMonths(base, months), existing.planName)
     } else {
       if (delta <= 0) return { ok: false, error: 'No package of that type to remove sessions from.' }
       const expiresAt = months > 0 ? addMonths(now, months) : null
@@ -539,6 +545,7 @@ export async function grantSessionsByType(input: { userId: string; trackSlug: st
           renewsAt: expiresAt,
         },
       })
+      await notifyPackageAdded(input.userId, `${TRACK_PLAN_NAME[track] ?? track}`, delta)
     }
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist'); revalidatePath('/app/billing')
@@ -592,6 +599,7 @@ export async function grantCalmPlus(input: { userId: string; months: number }): 
         },
       })
     }
+    await notifyCalmPlusGranted(input.userId, months)
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app'); revalidatePath('/app/billing'); revalidatePath('/app/therapist')
     return { ok: true }
@@ -606,12 +614,13 @@ export async function extendValidity(input: { id: string; months: number }): Pro
   const months = Math.round(Number(input.months) || 0)
   if (!months) return { ok: false, error: 'Enter a number of months.' }
   try {
-    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { expiresAt: true } })
+    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { expiresAt: true, userId: true, planName: true } })
     if (!sub) return { ok: false, error: 'Package not found.' }
     const now = new Date()
     const base = sub.expiresAt && sub.expiresAt > now ? sub.expiresAt : now
     const expiresAt = addMonths(base, months)
     await prisma.subscription.update({ where: { id: input.id }, data: { expiresAt, renewsAt: expiresAt } })
+    await notifyValidityExtended(sub.userId, months, expiresAt, sub.planName)
     revalidatePath('/admin/patients'); revalidatePath('/app/therapist'); revalidatePath('/app/billing')
     return { ok: true }
   } catch {
@@ -684,10 +693,14 @@ export async function attachSubscriptionExpert(input: { id: string; therapistPro
 export async function adjustSessionsTotal(input: { id: string; delta: number }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
-    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { sessionsTotal: true, sessionsUsed: true } })
+    const sub = await prisma.subscription.findUnique({ where: { id: input.id }, select: { sessionsTotal: true, sessionsUsed: true, userId: true, planName: true } })
     if (!sub) return { ok: false, error: 'Package not found.' }
     const next = Math.max(sub.sessionsUsed, sub.sessionsTotal + Math.round(input.delta))
     await prisma.subscription.update({ where: { id: input.id }, data: { sessionsTotal: next } })
+    // Report the REAL change, not the requested one: the clamp above can absorb
+    // part of a decrease, and telling someone we removed sessions we didn't
+    // would be worse than saying nothing.
+    await notifySessionsChanged(sub.userId, next - sub.sessionsTotal, sub.planName)
     revalidatePath('/admin/patients')
     return { ok: true }
   } catch {
@@ -1276,12 +1289,7 @@ export async function adjustWalletCredit(input: { userId: string; amount: number
     await prisma.user.update({ where: { id: input.userId }, data: { walletCreditRupees: { increment: amount } } })
     // Never let a removal push the balance negative.
     await prisma.user.updateMany({ where: { id: input.userId, walletCreditRupees: { lt: 0 } }, data: { walletCreditRupees: 0 } })
-    await notify(input.userId, {
-      type: 'wallet',
-      title: amount > 0 ? `₹${amount.toLocaleString('en-IN')} added to your wallet` : `₹${Math.abs(amount).toLocaleString('en-IN')} removed from your wallet`,
-      body: 'Wallet credit is applied automatically as part-payment on your next purchase.',
-      href: '/app/billing',
-    })
+    await notifyWalletChanged(input.userId, amount)
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/billing'); revalidatePath('/app/refer')
     return { ok: true }
