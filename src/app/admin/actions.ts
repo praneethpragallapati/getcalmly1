@@ -26,6 +26,7 @@ import {
   notifyCalmPlusGranted, notifyPackageAdded,
 } from '@/lib/goodNews'
 import { ensureContactSchema } from '@/lib/contactSchema'
+import { istWallClock } from '@/lib/tz'
 import { isAdminType } from '@/lib/adminRoles'
 import { normalizeCountry } from '@/lib/countries'
 
@@ -516,18 +517,55 @@ function addMonths(from: Date, months: number): Date { const d = new Date(from);
  * otherwise it creates one. `sessions` may be negative to remove sessions
  * (never below the number already used).
  */
-export async function grantSessionsByType(input: { userId: string; trackSlug: string; sessions: number; validityMonths?: number }): Promise<AdminResult> {
+export async function grantSessionsByType(input: {
+  userId: string; trackSlug: string; sessions: number; validityMonths?: number
+  /**
+   * What the member actually paid, in rupees. Optional, and 0 means "no money
+   * changed hands" (a goodwill top-up, a correction, a comped session).
+   *
+   * This exists because granting sessions and recording the money were two
+   * unconnected things: the package showed up on the member's account but the
+   * payment appeared nowhere, so Money and Revenue both under-reported every
+   * sale that was collected outside the app — which, with no payment gateway
+   * wired up, is all of them.
+   */
+  amountReceived?: number
+  /** When it was received, yyyy-mm-dd. Defaults to today. */
+  receivedOn?: string
+}): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   const track = String(input.trackSlug || '').trim()
   const delta = Math.round(Number(input.sessions) || 0)
   const months = Math.max(0, Math.round(Number(input.validityMonths) || 0))
+  const amount = Math.max(0, Math.round(Number(input.amountReceived) || 0))
   if (!track) return { ok: false, error: 'Pick a package type.' }
+  // Taking money while removing sessions is always a mistake. Recording money
+  // against an unchanged package (delta 0) is not — that is how you backfill a
+  // sale whose sessions were already added.
+  if (amount > 0 && delta < 0) {
+    return { ok: false, error: 'You cannot record a payment while removing sessions.' }
+  }
+
+  // Bucketed by IST month in the money report, so pin an explicit date to IST
+  // midday — far enough from either boundary that no timezone rounding can slide
+  // it into the wrong month.
+  let receivedAt: Date | null = null
+  if (amount > 0 && input.receivedOn) {
+    const [y, m, d] = String(input.receivedOn).split('-').map(Number)
+    if (!y || !m || !d) return { ok: false, error: 'Enter the date received as yyyy-mm-dd.' }
+    receivedAt = istWallClock(y, m - 1, d, 12, 0)
+    if (Number.isNaN(receivedAt.getTime())) return { ok: false, error: 'Enter a valid date received.' }
+    if (receivedAt.getTime() > Date.now()) return { ok: false, error: 'The date received cannot be in the future.' }
+  }
   try {
     const existing = await prisma.subscription.findFirst({
       where: { userId: input.userId, status: 'ACTIVE', trackSlug: track },
       orderBy: { createdAt: 'desc' },
     })
     const now = new Date()
+    // Held so the payment below can be tied to the package it bought.
+    let subscriptionId: string
+    let planName: string
     if (existing) {
       const nextTotal = Math.max(existing.sessionsUsed, existing.sessionsTotal + delta)
       const base = existing.expiresAt && existing.expiresAt > now ? existing.expiresAt : now
@@ -535,12 +573,18 @@ export async function grantSessionsByType(input: { userId: string; trackSlug: st
         where: { id: existing.id },
         data: { sessionsTotal: nextTotal, ...(months > 0 ? { expiresAt: addMonths(base, months), renewsAt: addMonths(base, months) } : {}) },
       })
-      await notifySessionsChanged(input.userId, nextTotal - existing.sessionsTotal, existing.planName)
+      subscriptionId = existing.id
+      planName = existing.planName
+      // Silent when nothing changed — recording a payment against an unchanged
+      // package must not tell the member their session count moved.
+      if (nextTotal !== existing.sessionsTotal) {
+        await notifySessionsChanged(input.userId, nextTotal - existing.sessionsTotal, existing.planName)
+      }
       if (months > 0) await notifyValidityExtended(input.userId, months, addMonths(base, months), existing.planName)
     } else {
       if (delta <= 0) return { ok: false, error: 'No package of that type to remove sessions from.' }
       const expiresAt = months > 0 ? addMonths(now, months) : null
-      await prisma.subscription.create({
+      const created = await prisma.subscription.create({
         data: {
           userId: input.userId,
           category: TRACK_TO_CATEGORY[track] ?? 'INDIVIDUAL',
@@ -552,11 +596,44 @@ export async function grantSessionsByType(input: { userId: string; trackSlug: st
           expiresAt,
           renewsAt: expiresAt,
         },
+        select: { id: true, planName: true },
       })
+      subscriptionId = created.id
+      planName = created.planName
       await notifyPackageAdded(input.userId, `${TRACK_PLAN_NAME[track] ?? track}`, delta)
     }
+
+    // The money, if any was collected. A Payment row is what Money, Revenue and
+    // the member's own invoice list all read, so recording it here is what makes
+    // an off-app sale visible everywhere at once.
+    //
+    // Best-effort, deliberately: the sessions are already granted and that is
+    // what the member is owed. Losing the revenue row is a reporting gap the
+    // admin can correct; failing the whole action after the grant succeeded
+    // would leave them unsure whether to retry and risk granting twice.
+    if (amount > 0) {
+      try {
+        await prisma.payment.create({
+          data: {
+            userId: input.userId,
+            subscriptionId,
+            amount,
+            kind: 'package',
+            trackSlug: track,
+            planName,
+            ...(receivedAt ? { createdAt: receivedAt } : {}),
+          },
+        })
+      } catch (e) {
+        console.error('[grantSessionsByType] sessions granted but payment not recorded', e)
+        revalidatePath(`/admin/patients/${input.userId}`)
+        return { ok: false, error: 'Sessions were added, but the payment could not be recorded. Add it again with 0 sessions once the issue is fixed.' }
+      }
+    }
+
     revalidatePath(`/admin/patients/${input.userId}`)
     revalidatePath('/app/therapist'); revalidatePath('/app/billing')
+    revalidatePath('/admin/money'); revalidatePath('/admin/revenue')
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update the package.' }

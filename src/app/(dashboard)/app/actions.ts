@@ -11,7 +11,7 @@ import { markAllRead, notify } from '@/lib/notifications'
 import { ensurePollSchema } from '@/lib/polls'
 import { fmtIST } from '@/lib/tz'
 import { submitReview } from '@/lib/reviews'
-import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS } from '@/lib/expert'
+import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS, MIN_BOOKING_LEAD_HOURS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 import { normalizeTags } from '@/data/tags'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
@@ -347,7 +347,7 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
 
   const scheduledAt = new Date(slotIso)
   if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() + MIN_BOOKING_LEAD_MS) {
-    return { ok: false, persisted: false, error: 'Please pick a slot at least 6 hours from now.' }
+    return { ok: false, persisted: false, error: `Please pick a slot at least ${MIN_BOOKING_LEAD_HOURS} hours from now.` }
   }
 
   try {
@@ -580,7 +580,7 @@ export async function rescheduleMyAppointment(appointmentId: string, newSlotIso:
   if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
   const newAt = new Date(newSlotIso)
   if (Number.isNaN(newAt.getTime()) || newAt.getTime() < Date.now() + MIN_BOOKING_LEAD_MS) {
-    return { ok: false, persisted: false, error: 'Pick a new slot at least 6 hours from now.' }
+    return { ok: false, persisted: false, error: `Pick a new slot at least ${MIN_BOOKING_LEAD_HOURS} hours from now.` }
   }
   try {
     const appt = await prisma.appointment.findFirst({

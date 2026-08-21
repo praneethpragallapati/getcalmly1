@@ -1463,8 +1463,18 @@ function startOfUtcDay(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
 }
 
-// Minimum lead time before a slot can be booked (patient side).
-export const MIN_BOOKING_LEAD_MS = 6 * 60 * 60 * 1000
+/**
+ * Minimum lead time before a slot can be booked (patient side).
+ *
+ * One definition, used in three places that must agree: slot generation
+ * (getBookableSlots), the booking action and the reschedule action. If they
+ * disagreed, the calendar would offer a slot the server then refused.
+ *
+ * MIN_BOOKING_LEAD_HOURS is exported so user-facing copy quotes the real number
+ * rather than a hardcoded one that drifts when this changes.
+ */
+export const MIN_BOOKING_LEAD_HOURS = 4
+export const MIN_BOOKING_LEAD_MS = MIN_BOOKING_LEAD_HOURS * 60 * 60 * 1000
 
 /**
  * The therapist a patient is assigned to: the one on their appointments (most
@@ -1627,8 +1637,9 @@ export async function getBookableSlots(therapistProfileId: string, daysAhead = 2
   const takenMs = new Set(booked.map((b) => b.scheduledAt.getTime()))
 
   const slots: BookableSlot[] = []
-  // Patients must book at least 6 hours out, so a slot is never "already over"
-  // by the time an expert sees the request.
+  // Patients must book at least MIN_BOOKING_LEAD_HOURS out, so a slot is never
+  // "already over" by the time an expert sees the request. The loop starts at
+  // d = 0 — today — so same-day slots beyond that lead are bookable.
   const earliest = Date.now() + MIN_BOOKING_LEAD_MS
   // Build slots against the IST calendar so an hour of availability means that
   // hour in India (not the UTC server clock). Start from today's IST date.

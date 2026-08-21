@@ -7,6 +7,7 @@ import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSession
 import { useToast } from '@/components/ui/Toast'
 import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
+import { istParts } from '@/lib/tz'
 
 type TherapistOpt = { profileId: string; name: string; clinicianType: string | null; specializations: string[] }
 
@@ -219,7 +220,17 @@ function AssignCategory({ category, current, therapists, userId, field, pending,
   )
 }
 
-/** Add/remove sessions of a specific package type, with validity. Creates the package if none exists. */
+/**
+ * Today in IST as yyyy-mm-dd, for the date input. Built from istParts rather
+ * than toISOString, which would give the UTC date and be a day behind for the
+ * whole IST evening.
+ */
+function todayIST(): string {
+  const p = istParts(new Date())
+  return `${p.year}-${String(p.month + 1).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`
+}
+
+/** Add/remove sessions of a specific package type, with validity and the money received. */
 function GrantByType({ userId, field, pending, run }: {
   userId: string
   field: React.CSSProperties
@@ -229,6 +240,11 @@ function GrantByType({ userId, field, pending, run }: {
   const [track, setTrack] = useState('therapy')
   const [sessions, setSessions] = useState('4')
   const [months, setMonths] = useState('6')
+  // Blank, not 0: an empty box reads as "no money changed hands", and a
+  // prefilled amount is the kind of default that gets applied by accident.
+  const [amount, setAmount] = useState('')
+  const [receivedOn, setReceivedOn] = useState(todayIST())
+  const removing = Number(sessions) < 0
   return (
     <div style={{ border: '1px dashed #D8DEE6', borderRadius: 12, padding: '12px 14px', marginBottom: 14, background: 'rgba(28,43,58,.02)' }}>
       <div style={{ fontSize: 12.5, fontWeight: 700, color: charcoal, marginBottom: 8 }}>Add / remove sessions by package type</div>
@@ -241,12 +257,36 @@ function GrantByType({ userId, field, pending, run }: {
           <input type="number" value={sessions} onChange={(e) => setSessions(e.target.value)} style={{ ...field, width: 90 }} /></div>
         <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Validity (months)</div>
           <input type="number" min={0} value={months} onChange={(e) => setMonths(e.target.value)} style={{ ...field, width: 90 }} /></div>
+        {/* Money in, recorded where the package is recorded. Hidden while
+            removing sessions, where it could only ever be a mistake. */}
+        {!removing && (
+          <>
+            <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Amount received (₹)</div>
+              <input type="number" min={0} inputMode="numeric" placeholder="0" value={amount}
+                onChange={(e) => setAmount(e.target.value)} style={{ ...field, width: 120 }} /></div>
+            <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Received on</div>
+              <input type="date" value={receivedOn} max={todayIST()}
+                onChange={(e) => setReceivedOn(e.target.value)} style={{ ...field, width: 150 }} /></div>
+          </>
+        )}
         <button className="btn btn-primary" disabled={pending}
-          onClick={() => run(() => grantSessionsByType({ userId, trackSlug: track, sessions: Number(sessions), validityMonths: Number(months) }), 'Package updated.')}>
+          onClick={() => run(
+            () => grantSessionsByType({
+              userId, trackSlug: track, sessions: Number(sessions), validityMonths: Number(months),
+              amountReceived: removing ? 0 : Number(amount) || 0,
+              receivedOn: removing ? undefined : receivedOn,
+            }),
+            Number(amount) > 0 && !removing ? 'Package and payment recorded.' : 'Package updated.',
+          )}>
           Apply
         </button>
       </div>
-      <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>Positive adds sessions (and extends validity by the months given); negative removes. Creates the package if the patient has none of that type.</p>
+      <p className="muted" style={{ fontSize: 11, marginTop: 7 }}>
+        Positive adds sessions (and extends validity by the months given); negative removes. Creates the package if the patient has none of that type.
+      </p>
+      <p className="muted" style={{ fontSize: 11, marginTop: 4 }}>
+        <strong>Amount received</strong> is what the member actually paid you, however they paid — UPI, transfer, cash. It becomes their invoice and appears under Money and Revenue for the month it was received. Leave it blank for a free or goodwill top-up. To record a payment whose sessions you already added, set sessions to 0.
+      </p>
     </div>
   )
 }

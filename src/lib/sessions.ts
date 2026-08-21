@@ -240,7 +240,9 @@ function demoCalendar(): ExpertCalendar {
   const cursor = new Date()
   cursor.setHours(0, 0, 0, 0)
   let added = 0
-  for (let d = 1; d <= 21 && added < 12; d++) {
+  // From d = 0 (today), matching the real calendar — the `earliest` guard below
+  // is what enforces the lead, so the preview shows same-day slots too.
+  for (let d = 0; d <= 21 && added < 12; d++) {
     const day = new Date(cursor)
     day.setDate(day.getDate() + d)
     const dow = day.getDay()
@@ -271,7 +273,7 @@ function demoCalendar(): ExpertCalendar {
  * By default it's the patient's assigned clinician; pass `therapistIdOverride`
  * (validated by the caller via canPatientBookWith) to book with a specific
  * expert on the care team. What's shown and the booking action stay in sync.
- * Slots respect the 6-hour minimum lead and are marked taken when already booked.
+ * Slots respect MIN_BOOKING_LEAD_HOURS and are marked taken when already booked.
  */
 export async function getExpertCalendar(therapistIdOverride?: string): Promise<ExpertCalendar> {
   const userId = await getSessionUserId()
