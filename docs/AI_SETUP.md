@@ -20,11 +20,13 @@ not carried into the repo).
 | `OPENAI_API_KEY` | Classifier, synthesizer, daily/weekly insights (cost-routed cheap calls). |
 | `ANTHROPIC_API_KEY` | Calm AI chat replies + high-stake/crisis routing. |
 | `CRON_SECRET` | Authenticates the scheduled insight route handlers. |
-| `AI_ICALL_NUMBER` | _(optional)_ India iCall helpline shown in crisis replies. Default `9152987821`. |
-| `AI_TELEMANAS_NUMBER` | _(optional)_ Tele-MANAS helpline. Default `14416`. |
-| `AI_SUPPORT_EMAIL` | _(optional)_ Support email for app-support replies. Default `help@getcalmly.com`. |
 
 At least one of `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` is required for live AI.
+
+The helpline numbers and support address in crisis replies used to be three more
+env vars here (`AI_ICALL_NUMBER`, `AI_TELEMANAS_NUMBER`, `AI_SUPPORT_EMAIL`).
+They now come from `src/config/site.ts`, so the AI cannot quote a number that
+differs from the one on the safety page — their defaults had already drifted.
 
 ## Model routing
 

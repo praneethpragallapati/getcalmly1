@@ -231,23 +231,37 @@ All login flows redirect to **`/app`**. The JWT callback puts the user id on
 
 ## 8. Demo account & seeding
 
-`prisma/seed.ts` (`npm run db:seed`, idempotent) creates:
+`prisma/seed.ts` (`npm run db:seed`, idempotent) creates **1 admin, 5 clinicians
+and 9 patients** — accounts only. No appointments, packages, moods, journals,
+tasks or mappings; those are built from the admin dashboard.
 
-- **Therapist** `dr.ananya@getcalmly.com` + `TherapistProfile` (active, verified).
-- **Patient** `praneethpragallapati@gmail.com` / password **`Merind07!demo`**
-  (role PATIENT, scrypt-hashed) with a full dataset: `PatientProfile` (anxiety
-  track), `PrivacySettings`, an **active** Silver `Subscription`, 28 days of
-  `MoodEntry` (improving trend), 4 `JournalEntry`, 4 expert-assigned `Task`s
-  (one done, one open, one expired, one done), a `Medication`, 4 `Appointment`s
-  (two completed with summaries, one starting in 5 min → joinable today, one
-  upcoming), and a `ClinicalContext`.
+Every account is fictional and every address is under `example.com`, which RFC
+2606 reserves and no mail server delivers to. That is deliberate: a seeded
+account must not be able to receive an OTP or a notification meant for a real
+person, even if the seed is pointed at the wrong database.
 
-Verify with `npx tsx prisma/check-login.ts` (prints ✓/✗ for column existence,
-user presence, and password match).
+| Role | Email |
+| --- | --- |
+| Admin | `admin@example.com` |
+| Clinicians | `arjun.desai@`, `ananya.sharma@`, `rohan.verma@`, `meera.iyer@`, `kabir.rao@` `example.com` |
+| Patients | `rhea.kapoor@`, `aarav.patel@`, … `example.com` |
 
-> **Security:** the demo password is committed in `seed.ts` in plaintext. It's a
-> demo credential, but for anything beyond a demo move it behind a `DEMO_PASSWORD`
-> env var. Rotate any real secret ever shared in plaintext.
+The password for every seeded account is `SEED_PASSWORD`, defaulting to
+`DemoSeed@2026` for local development. Set `SEED_PASSWORD` for anything shared —
+it is a credential, so it belongs in the environment.
+
+`prisma/seed_users.sql` does the same job in plain SQL, for running in the
+Supabase SQL editor without a Node environment. It is **destructive**
+(`TRUNCATE … CASCADE`) — read its header before running it.
+
+Verify a login with `npx tsx prisma/check-login.ts <email> <password>` (prints
+✓/✗ for column existence, user presence, and password match).
+
+> **Security:** these files previously carried scrypt hashes of two real
+> people's real passwords, alongside their names and personal Gmail addresses,
+> and this guide printed one of those passwords in plaintext. A hash in a
+> repository is offline-crackable at leisure. If those credentials were ever
+> used anywhere real, rotate them.
 
 ---
 

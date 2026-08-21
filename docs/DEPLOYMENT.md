@@ -69,8 +69,9 @@ the recommended path to fix migration history later.
 npm run db:seed   # tsx prisma/seed.ts
 ```
 
-Seeds blog posts, community discussions, and a fully-populated **demo patient**
-(`praneethpragallapati@gmail.com`) plus the therapist they see. Idempotent.
+Seeds blog posts, community discussions, and fictional demo accounts (1 admin,
+5 clinicians, 9 patients, all under the reserved `example.com` domain).
+Idempotent. Set `SEED_PASSWORD` to control the shared demo password.
 
 ### Running migrations/seed without a local machine
 
