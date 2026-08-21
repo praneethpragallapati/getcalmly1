@@ -43,7 +43,7 @@ export default async function AdminOverviewPage() {
 
       <div className="grid-2">
         <div className="card">
-          <div className="section-title" style={{ marginBottom: 10 }}>Triage queue</div>
+          <div className="section-title" style={{ marginBottom: 10 }}>Submissions</div>
           <p className="muted" style={{ marginBottom: 14, lineHeight: 1.6 }}>
             Inbound that needs an admin: {k.pendingApplications} clinician application{k.pendingApplications === 1 ? '' : 's'},
             {' '}{k.newContacts} contact message{k.newContacts === 1 ? '' : 's'}, {k.newLeads} enterprise lead{k.newLeads === 1 ? '' : 's'}.

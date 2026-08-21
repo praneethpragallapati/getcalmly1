@@ -28,7 +28,7 @@ export default async function AdminClinicianDetailPage({ params }: { params: Pro
         <div>
           <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             {c.name}
-            <span style={{ fontSize: 13, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#6D5BD0', background: 'rgba(109,91,208,.1)', padding: '3px 9px', borderRadius: 7 }}>{c.registrationNo ?? expertCode(c.profileId)}</span>
+            <span title="Expert ID" style={{ fontSize: 13, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#6D5BD0', background: 'rgba(109,91,208,.1)', padding: '3px 9px', borderRadius: 7 }}>{c.registrationNo ?? expertCode(c.profileId)}</span>
           </div>
           <div className="page-meta">{c.designation} · {c.rciNumber} · {c.yearsExp} yrs · {c.email}</div>
         </div>
@@ -38,6 +38,7 @@ export default async function AdminClinicianDetailPage({ params }: { params: Pro
         contact={c.contact}
         name={c.name}
         title="Contact & address"
+        codeLabel="Expert ID"
         note="Everything on file for this clinician. Patients never see this."
       />
       <TherapistEditor c={c} />

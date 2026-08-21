@@ -19,8 +19,9 @@ export type MyTherapist = {
   yearsExp: number
   languages: string[]
   specializations: string[]
-  rating: number
-  reviews: number
+  /* rating/reviews are deliberately NOT on this type: it is the shape sent to
+     the PATIENT, and a patient must never see their clinician's score. Admin
+     views read the rating from their own queries. */
   rciVerified: boolean
   nmcVerified: boolean
   bio: string
@@ -36,8 +37,6 @@ const DEMO_THERAPIST: Omit<MyTherapist, 'nextSessionWhen' | 'nextSessionId'> = {
   yearsExp: 8,
   languages: ['Hindi', 'English'],
   specializations: ['Anxiety', 'Work stress', 'CBT'],
-  rating: 4.9,
-  reviews: 214,
   rciVerified: true,
   nmcVerified: false,
   bio: 'I work with adults navigating anxiety, burnout and life transitions. My approach blends CBT with mindfulness, practical tools you can use between our sessions, at a pace that feels right for you.',
@@ -86,8 +85,6 @@ export async function getMyTherapist(): Promise<MyTherapist> {
       yearsExp: t.yearsExp,
       languages: t.languages.length ? t.languages : DEMO_THERAPIST.languages,
       specializations: t.specializations.length ? t.specializations : DEMO_THERAPIST.specializations,
-      rating: t.rating || DEMO_THERAPIST.rating,
-      reviews: t.totalReviews,
       rciVerified: Boolean(t.rciNumber),
       nmcVerified: false,
       bio: t.bio || DEMO_THERAPIST.bio,
@@ -114,8 +111,9 @@ export type CareExpert = {
   yearsExp: number
   languages: string[]
   specializations: string[]
-  rating: number
-  reviews: number
+  /* rating/reviews are deliberately NOT on this type: it is the shape sent to
+     the PATIENT, and a patient must never see their clinician's score. Admin
+     views read the rating from their own queries. */
   rciVerified: boolean
   nmcVerified: boolean
   bio: string
@@ -185,8 +183,6 @@ function expertFromProfile(p: ProfileRow): CareExpert {
     yearsExp: p.yearsExp,
     languages: p.languages.length ? p.languages : ['English'],
     specializations: p.specializations,
-    rating: p.rating || 0,
-    reviews: p.totalReviews,
     rciVerified: hasReg && !psych,
     nmcVerified: hasReg && psych,
     bio: p.bio || '',

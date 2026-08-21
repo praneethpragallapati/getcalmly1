@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Minus, Plus, XCircle, Wallet } from 'lucide-react'
-import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, grantCalmPlus, extendValidity, adjustWalletCredit } from '@/app/admin/actions'
+import { reassignPatient, cancelSubscription, adjustSessionsTotal, adjustSessionsUsed, assignCategoryClinician, grantSessionsByType, grantCalmPlus, extendValidity, adjustWalletCredit, reconcileSubscriptionCounter } from '@/app/admin/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
@@ -133,10 +133,26 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
                         counter was adjusted by hand) — say so rather than showing a
                         bare "0 used" next to real sessions. */}
                     {s.countMismatch && (
-                      <div style={{ marginTop: 12, fontSize: 12.5, lineHeight: 1.5, color: '#8A3A36', background: 'rgba(192,80,75,.07)', border: '1px solid rgba(192,80,75,.18)', borderRadius: 9, padding: '8px 11px' }}>
-                        <b>Counter doesn&apos;t match the calendar.</b> {s.bookedAgainst} session{s.bookedAgainst === 1 ? ' is' : 's are'} booked
-                        against this package but it counts {s.sessionsUsed} used. Sessions created outside the booking
-                        flow don&apos;t claim a slot — use the stepper to line them up.
+                      <div style={{ marginTop: 12, fontSize: 12.5, lineHeight: 1.5, color: '#8A3A36', background: 'rgba(192,80,75,.07)', border: '1px solid rgba(192,80,75,.18)', borderRadius: 9, padding: '10px 12px' }}>
+                        <b>Counter doesn&apos;t match the calendar.</b>{' '}
+                        {s.bookedAgainst} session{s.bookedAgainst === 1 ? ' is' : 's are'} booked against this
+                        package, but it counts {s.sessionsUsed} used
+                        {s.bookedAgainst > s.sessionsUsed
+                          ? ' — so the patient has more sessions left than they should.'
+                          : ' — so the patient has fewer sessions left than they should.'}{' '}
+                        The calendar is the record; fixing sets the counter to {s.bookedAgainst}.
+                        <div style={{ marginTop: 8 }}>
+                          <button
+                            className="btn btn-outline btn-sm"
+                            disabled={pending}
+                            onClick={() => run(
+                              () => reconcileSubscriptionCounter({ id: s.id }),
+                              `Counter set to ${s.bookedAgainst}.`,
+                            )}
+                          >
+                            Set counter to {s.bookedAgainst}
+                          </button>
+                        </div>
                       </div>
                     )}
                     <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(28,43,58,.08)' }}>

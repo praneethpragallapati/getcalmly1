@@ -141,7 +141,7 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 14.5, fontWeight: 700, color: charcoal }}>{p.name}</span>
-                  <span style={idChip}>{p.registrationNo ?? patientCode(p.userId)}</span>
+                  <span title="Member ID" style={idChip}>{p.registrationNo ?? patientCode(p.userId)}</span>
                   {p.packageTypes.map((t) => (
                     <span key={t} style={{ fontSize: 10.5, fontWeight: 700, color: '#2C7A57', background: 'rgba(61,158,114,.1)', padding: '2px 8px', borderRadius: 20 }}>{trackLabel(t)}</span>
                   ))}

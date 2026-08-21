@@ -151,7 +151,7 @@ export default async function ExpertLayout({ children }: { children: React.React
                   </>
                 )
               })()}
-              <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.12)', padding: '2px 8px', borderRadius: 6 }}>{ctx.registrationNo ?? expertCode(ctx.therapistProfileId)}</span>
+              <span title="Expert ID" style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.12)', padding: '2px 8px', borderRadius: 6 }}>{ctx.registrationNo ?? expertCode(ctx.therapistProfileId)}</span>
             </div>
           </div>
           <div className="tb-actions">

@@ -14,13 +14,14 @@ export function PersonDetailsCard({
   name,
   title = 'Contact & personal details',
   note,
-  codeLabel = 'Registration no.',
+  codeLabel = 'Member ID',
 }: {
   contact: PersonContact
   name?: string
   title?: string
   note?: string
-  /** Overrides the label on `contact.code` (the platform registration number). */
+  /** Overrides the label on `contact.code` — the platform id, NOT a council
+   *  registration number. See ID_LABEL in lib/registration. */
   codeLabel?: string
 }) {
   const age = ageFrom(contact.dateOfBirth)

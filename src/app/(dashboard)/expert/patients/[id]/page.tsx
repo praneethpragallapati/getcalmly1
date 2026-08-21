@@ -119,7 +119,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           </p>
           <DetailGrid
             fields={[
-              { label: 'Registration no.', value: p.contact.code },
+              { label: 'Member ID', value: p.contact.code },
               { label: 'Email', value: p.contact.email },
               { label: 'Phone', value: p.contact.phone },
               { label: 'Date of birth', value: p.contact.dateOfBirth ? fmtIST(new Date(p.contact.dateOfBirth), { day: 'numeric', month: 'short', year: 'numeric' }) : null },

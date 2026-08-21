@@ -620,6 +620,44 @@ export async function extendValidity(input: { id: string; months: number }): Pro
 }
 
 /** Attach (or detach) the expert who delivers a specific package. */
+/**
+ * Set a package's used-counter to the number of sessions actually booked
+ * against it.
+ *
+ * The counter and the calendar can only disagree if something bypassed the
+ * booking path (which moves both together). Rather than making an admin work
+ * out the delta and click a stepper that many times, this reads the truth —
+ * non-cancelled appointments holding a slot on this package — and writes it.
+ */
+export async function reconcileSubscriptionCounter(input: { id: string }): Promise<AdminResult> {
+  if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
+  try {
+    const sub = await prisma.subscription.findUnique({
+      where: { id: input.id },
+      select: { id: true, userId: true, sessionsTotal: true, sessionsUsed: true },
+    })
+    if (!sub) return { ok: false, error: 'Package not found.' }
+
+    const booked = await prisma.appointment.count({
+      where: { consumedSubscriptionId: sub.id, status: { not: 'CANCELLED' } },
+    })
+    if (booked === sub.sessionsUsed) return { ok: true }
+    // Never let a reconcile push used past total — that would read as negative
+    // remaining. If it would, the pack itself needs more sessions first.
+    if (booked > sub.sessionsTotal) {
+      return {
+        ok: false,
+        error: `${booked} sessions are booked against this package but it only holds ${sub.sessionsTotal}. Raise the total first.`,
+      }
+    }
+    await prisma.subscription.update({ where: { id: sub.id }, data: { sessionsUsed: booked } })
+    revalidatePath('/admin/patients'); revalidatePath('/admin/money')
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Could not reconcile the counter.' }
+  }
+}
+
 export async function attachSubscriptionExpert(input: { id: string; therapistProfileId: string | null }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
@@ -885,18 +923,28 @@ export async function voidSession(input: { appointmentId: string; reason?: strin
       data: { status: 'CANCELLED', summary: null, notes: appt.notes ? `${appt.notes}\n${stamp}` : stamp, consumedSubscriptionId: null },
     })
     if (input.creditPatient) {
-      // Credit back the EXACT package the session drew from (not "most recent",
-      // which could refund a therapy pack for a voided psychiatry session), with
-      // an atomic guarded decrement. Legacy appointments without a consumed link
-      // fall back to the patient's most recent active package, best-effort.
+      // Credit back the EXACT package the session drew from, with an atomic
+      // guarded decrement.
+      //
+      // There is deliberately NO fallback to "the most recent active package".
+      // An appointment with no consumed link never claimed a slot on any
+      // package, so refunding one decrements a counter that was never
+      // incremented — the package's sessionsUsed drops below the number of
+      // appointments actually booked against it, and the patient silently gains
+      // a session on a pack that had nothing to do with the voided appointment.
+      // That is the "counter doesn't match the calendar" state; guessing here is
+      // what created it. Nothing to credit is reported, not invented.
       if (appt.consumedSubscriptionId) {
         await prisma.subscription.updateMany({
           where: { id: appt.consumedSubscriptionId, sessionsUsed: { gt: 0 } },
           data: { sessionsUsed: { decrement: 1 } },
         })
       } else {
-        const sub = await prisma.subscription.findFirst({ where: { userId: appt.patientId, status: 'ACTIVE', sessionsUsed: { gt: 0 } }, orderBy: { createdAt: 'desc' }, select: { id: true } })
-        if (sub) await prisma.subscription.updateMany({ where: { id: sub.id, sessionsUsed: { gt: 0 } }, data: { sessionsUsed: { decrement: 1 } } })
+        revalidatePath('/admin/therapists'); revalidatePath('/admin/operations'); revalidatePath('/admin/money')
+        return {
+          ok: true,
+          error: 'Session voided, but nothing was credited: it never claimed a slot on a package. Adjust the package counter directly if it should be refunded.',
+        }
       }
     }
     revalidatePath('/admin/therapists'); revalidatePath('/admin/operations'); revalidatePath('/admin/money')

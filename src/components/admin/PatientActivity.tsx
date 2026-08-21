@@ -1,4 +1,3 @@
-import { SessionNote } from '@/components/ui/SessionNote'
 import type { PatientActivity, PatientSessionRow, PatientProgress } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
@@ -130,11 +129,22 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
           <div style={{ fontSize: 13, color: '#3A4A5A', lineHeight: 1.5 }}>{s.preSessionNote}</div>
         </div>
       )}
-      {s.summary && (
-        <div style={{ marginTop: 9 }}>
-          <SessionNote note={s.summary} title="Session note (from clinician)" meta={s.clinicianName} />
-        </div>
-      )}
+      {/* Admins see WHETHER a note exists, never its contents. The note is the
+          clinical record between a patient and their clinician; what an admin
+          needs is whether the clinician has written it up (it gates their pay),
+          not what was said in the room. */}
+      <div style={{ marginTop: 9 }}>
+        <span
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 11.5, fontWeight: 700, padding: '3px 9px', borderRadius: 20,
+            color: s.hasSummary ? '#2C7A57' : '#8A6300',
+            background: s.hasSummary ? 'rgba(61,158,114,.12)' : 'rgba(201,151,58,.14)',
+          }}
+        >
+          {s.hasSummary ? '✓ Session note completed' : '• Session note pending'}
+        </span>
+      </div>
     </div>
   )
 }

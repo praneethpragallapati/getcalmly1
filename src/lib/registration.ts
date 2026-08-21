@@ -36,7 +36,20 @@ const ROLE_LETTER: Record<RegistrationRole, string> = {
 }
 
 /** What each letter means, for UI that explains the number. */
-export const REGISTRATION_LEGEND = 'GC-<role>-<year>-<sequence> · P patient, E expert, A admin'
+export const REGISTRATION_LEGEND = 'GC-<role>-<year>-<sequence> · P member, E expert, A admin'
+
+/**
+ * What to call this id in the UI, per role.
+ *
+ * "Registration number" is deliberately NOT one of these: that name belongs to
+ * the clinician's RCI/NMC council registration, and using it for both made the
+ * platform id look like a clinical credential.
+ */
+export const ID_LABEL: Record<RegistrationRole, string> = {
+  PATIENT: 'Member ID',
+  THERAPIST: 'Expert ID',
+  ADMIN: 'Admin ID',
+}
 
 /** Schema self-heal, matching the pattern used by the other migrations here. */
 let registrationSchemaReady = false

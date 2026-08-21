@@ -730,7 +730,12 @@ export type PatientSessionRow = {
   hasSummary: boolean
   /** A clinical note is owed (paid sessions only — see AdminSessionRow). */
   needsNote: boolean
-  summary: string | null // clinician's post-session note
+  /**
+   * Deliberately absent: the clinician's post-session note is NOT sent to the
+   * admin console. `hasSummary` / `needsNote` carry the only thing an admin
+   * needs — whether it has been written, which gates the clinician's pay.
+   * Hiding it in the UI alone would still ship the text in the payload.
+   */
   preSessionNote: string | null // what the patient wrote before the session
   /** Each side's individual time and their join/leave stretches (0035). */
   presence: PresenceDetail
@@ -809,6 +814,8 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         select: {
           id: true, scheduledAt: true, status: true, durationMins: true,
           patientJoinedAt: true, therapistJoinedAt: true, endedAt: true,
+          // summary is selected only to derive hasSummary/needsNote below; it
+          // is never placed on the returned object.
           summary: true, preSessionNote: true,
           therapist: { select: { rating: true, user: { select: { name: true } } } },
           review: { select: { rating: true } },
@@ -857,7 +864,6 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         rating: a.review?.rating ?? null,
         hasSummary: Boolean(a.summary),
         needsNote: a.status === 'COMPLETED' && !a.summary,
-        summary: a.summary ?? null,
         preSessionNote: a.preSessionNote ?? null,
         presence: presenceById.get(a.id) ?? {
           patient: { spans: [], totalMins: 0, rejoins: 0 },

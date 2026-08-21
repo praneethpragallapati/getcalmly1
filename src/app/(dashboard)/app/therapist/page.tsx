@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import {
-  Star, ShieldCheck, Languages, CalendarDays, Video, MessageCircle,
+import { ShieldCheck, Languages, CalendarDays, Video, MessageCircle,
   Sparkles, UserPlus, Clock, FileText,
 } from 'lucide-react'
 import { getMyCareTeam, type CareSlot } from '@/lib/therapist'
@@ -125,9 +124,11 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
           <div className="doc-name" style={{ fontSize: 20 }}>{t.name}</div>
           <div className="doc-sub" style={{ fontSize: 14 }}>{t.designation} · {t.yearsExp} yrs</div>
           <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
-            {t.reviews > 0 && (
-              <span className="ther-chip"><Star size={13} fill="currentColor" /> {t.rating} ({t.reviews})</span>
-            )}
+            {/* No rating chip: a patient must never see their own clinician's
+                score. It invites comparison shopping inside an active
+                therapeutic relationship, and a low number would land on the
+                person they are about to open up to. Ratings stay between the
+                clinician and the admin team. */}
             {t.rciVerified && <span className="ther-chip verified"><ShieldCheck size={13} /> RCI Verified</span>}
             {t.nmcVerified && <span className="ther-chip verified"><ShieldCheck size={13} /> NMC Verified</span>}
           </div>
