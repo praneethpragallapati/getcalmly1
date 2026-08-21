@@ -25,21 +25,31 @@ async function seedEarningsAndAdmin() {
 }
 
 // ── Clean account seed ───────────────────────────────────────────────────────
-// The ONLY accounts we create: 3 named logins + 4 clinicians + 8 patients. No
+// The ONLY accounts we create: 1 admin + 5 clinicians + 9 patients. No
 // appointments, packages, moods, journals, tasks or mappings — everything is
-// built from the admin dashboard. Idempotent (upsert), password getCalmly@2026.
-const SEED_PASSWORD = 'getCalmly@2026'
+// built from the admin dashboard. Idempotent (upsert).
+//
+// DEVELOPMENT AND DEMO ONLY. Every account is fictional and every address is
+// under example.com, which RFC 2606 reserves and no mail server will deliver
+// to — so a seeded account can never receive an OTP or a notification intended
+// for a real person, even if this is pointed at the wrong database. It used to
+// seed two real people at their personal Gmail addresses.
+//
+// SEED_PASSWORD is read from the environment so a shared demo deployment can
+// use something that isn't printed in a public repository. The fallback is for
+// local development only.
+const SEED_PASSWORD = process.env.SEED_PASSWORD ?? 'DemoSeed@2026'
 
 const SEED_CLINICIANS = [
-  { name: 'Dr. Hom Pragallapati', email: 'pragallapati.hom@gmail.com', gender: 'Male', type: 'Therapist', emp: 'PART_TIME', spec: ['Anxiety', 'CBT', 'Work stress'], qual: ['M.Phil Clinical Psychology (RCI)'], lang: ['English', 'Hindi', 'Telugu'], yrs: 9, fee: 1200, rci: 'A100001', bio: 'Works with adults on anxiety, burnout and life transitions, blending CBT with practical between-session tools.' },
-  { name: 'Dr. Ananya Sharma', email: 'ananya.sharma@getcalmly.in', gender: 'Female', type: 'Therapist', emp: 'FULL_TIME', spec: ['Anxiety', 'Trauma', 'CBT'], qual: ['M.Phil Clinical Psychology (RCI)'], lang: ['English', 'Hindi'], yrs: 8, fee: 1200, rci: 'A100002', bio: 'Trauma-informed clinical psychologist supporting adults through anxiety and difficult life change.' },
-  { name: 'Dr. Rohan Verma', email: 'rohan.verma@getcalmly.in', gender: 'Male', type: 'Therapist', emp: 'FULL_TIME', spec: ['Depression', 'Relationships', 'Grief'], qual: ['M.A. Psychology', 'M.Phil (RCI)'], lang: ['English', 'Hindi', 'Punjabi'], yrs: 11, fee: 1300, rci: 'A100003', bio: 'Helps people navigate depression, relationships and loss with warmth and structure.' },
-  { name: 'Dr. Meera Iyer', email: 'meera.iyer@getcalmly.in', gender: 'Female', type: 'Couples therapist', emp: 'FULL_TIME', spec: ['Couples', 'EFT', 'Communication'], qual: ['M.Sc Counselling Psychology'], lang: ['English', 'Tamil', 'Hindi'], yrs: 7, fee: 1500, rci: 'A100004', bio: 'Couples specialist using Emotionally Focused Therapy to help partners reconnect.' },
-  { name: 'Dr. Kabir Rao', email: 'kabir.rao@getcalmly.in', gender: 'Male', type: 'Psychiatrist', emp: 'FULL_TIME', spec: ['Psychiatry', 'Medication management', 'Adult ADHD'], qual: ['MBBS', 'MD Psychiatry (NMC)'], lang: ['English', 'Hindi', 'Kannada'], yrs: 12, fee: 1800, rci: 'N200001', bio: 'Consultant psychiatrist for diagnosis and medication, working alongside your therapist.' },
+  { name: 'Dr. Arjun Desai', email: 'arjun.desai@example.com', gender: 'Male', type: 'Therapist', emp: 'PART_TIME', spec: ['Anxiety', 'CBT', 'Work stress'], qual: ['M.Phil Clinical Psychology (RCI)'], lang: ['English', 'Hindi', 'Telugu'], yrs: 9, fee: 1200, rci: 'A100001', bio: 'Works with adults on anxiety, burnout and life transitions, blending CBT with practical between-session tools.' },
+  { name: 'Dr. Ananya Sharma', email: 'ananya.sharma@example.com', gender: 'Female', type: 'Therapist', emp: 'FULL_TIME', spec: ['Anxiety', 'Trauma', 'CBT'], qual: ['M.Phil Clinical Psychology (RCI)'], lang: ['English', 'Hindi'], yrs: 8, fee: 1200, rci: 'A100002', bio: 'Trauma-informed clinical psychologist supporting adults through anxiety and difficult life change.' },
+  { name: 'Dr. Rohan Verma', email: 'rohan.verma@example.com', gender: 'Male', type: 'Therapist', emp: 'FULL_TIME', spec: ['Depression', 'Relationships', 'Grief'], qual: ['M.A. Psychology', 'M.Phil (RCI)'], lang: ['English', 'Hindi', 'Punjabi'], yrs: 11, fee: 1300, rci: 'A100003', bio: 'Helps people navigate depression, relationships and loss with warmth and structure.' },
+  { name: 'Dr. Meera Iyer', email: 'meera.iyer@example.com', gender: 'Female', type: 'Couples therapist', emp: 'FULL_TIME', spec: ['Couples', 'EFT', 'Communication'], qual: ['M.Sc Counselling Psychology'], lang: ['English', 'Tamil', 'Hindi'], yrs: 7, fee: 1500, rci: 'A100004', bio: 'Couples specialist using Emotionally Focused Therapy to help partners reconnect.' },
+  { name: 'Dr. Kabir Rao', email: 'kabir.rao@example.com', gender: 'Male', type: 'Psychiatrist', emp: 'FULL_TIME', spec: ['Psychiatry', 'Medication management', 'Adult ADHD'], qual: ['MBBS', 'MD Psychiatry (NMC)'], lang: ['English', 'Hindi', 'Kannada'], yrs: 12, fee: 1800, rci: 'N200001', bio: 'Consultant psychiatrist for diagnosis and medication, working alongside your therapist.' },
 ]
 
 const SEED_PATIENTS = [
-  ['Praneeth Pragallapati', 'praneethpragallapati@gmail.com'],
+  ['Rhea Kapoor', 'rhea.kapoor@example.com'],
   ['Aarav Patel', 'aarav.patel@example.com'],
   ['Diya Nair', 'diya.nair@example.com'],
   ['Vikram Singh', 'vikram.singh@example.com'],
@@ -56,9 +66,9 @@ async function seedCleanAccounts() {
 
   // Admin
   await prisma.user.upsert({
-    where: { email: 'praneeth_admin@gmail.com' },
-    update: { role: 'ADMIN', name: 'Praneeth (Admin)', passwordHash: pw },
-    create: { email: 'praneeth_admin@gmail.com', name: 'Praneeth (Admin)', role: 'ADMIN', passwordHash: pw },
+    where: { email: 'admin@example.com' },
+    update: { role: 'ADMIN', name: 'Demo Admin', passwordHash: pw },
+    create: { email: 'admin@example.com', name: 'Demo Admin', role: 'ADMIN', passwordHash: pw },
   })
 
   // Clinicians (+ profile, no appointments/mappings)

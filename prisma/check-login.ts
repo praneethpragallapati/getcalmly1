@@ -3,10 +3,20 @@ import { verifyPassword, hashPassword } from '../src/lib/password'
 
 const prisma = new PrismaClient()
 
-const EMAIL = 'praneethpragallapati@gmail.com'
-const PASSWORD = 'Merind07!demo'
+// Diagnostic for "my password doesn't work". Takes the account to check as
+// arguments rather than carrying them in the file — it used to hardcode a real
+// person's address next to their password in plaintext.
+//
+//   npx tsx prisma/check-login.ts <email> <password>
+const [EMAIL, PASSWORD] = process.argv.slice(2)
 
 async function main() {
+  if (!EMAIL || !PASSWORD) {
+    console.log('Usage: npx tsx prisma/check-login.ts <email> <password>')
+    process.exitCode = 1
+    return
+  }
+
   // 1) Does the passwordHash column even exist? (migration 0006 applied?)
   try {
     await prisma.$queryRawUnsafe('SELECT "passwordHash" FROM "User" LIMIT 1')
@@ -32,7 +42,7 @@ async function main() {
   }
 
   const ok = verifyPassword(PASSWORD, user.passwordHash)
-  console.log(`  verifyPassword('${PASSWORD}'): ${ok ? '✓ MATCH' : '✗ NO MATCH'}`)
+  console.log(`  password verifies: ${ok ? '✓ MATCH' : '✗ NO MATCH'}`)
 
   // Sanity: a freshly hashed value of the same password should also verify.
   console.log(`  sanity (fresh hash verifies): ${verifyPassword(PASSWORD, hashPassword(PASSWORD))}`)
