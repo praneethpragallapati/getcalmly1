@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getSessionDetail } from '@/lib/sessions'
 import { getDashboardData } from '@/lib/dashboard'
 import { getHmsMeetingUrl } from '@/lib/hms'
-import { joinPhase, meetingBounds } from '@/lib/meetingWindow'
+import { joinPhase, meetingBounds, callHardEnd } from '@/lib/meetingWindow'
 import { HmsRoom } from '@/components/dashboard/HmsRoom'
 import { RoomWindowNotice } from '@/components/dashboard/RoomWindowNotice'
 
@@ -28,6 +28,9 @@ export default async function RoomPage({ params }: PageProps<'/app/sessions/[id]
 
   // Only mint the meeting URL when the room is actually joinable.
   const meetingUrl = blocked ? null : await getHmsMeetingUrl(s.roomId, dash.name, 'guest')
+  // Two-hour ceiling, anchored to the first join by either side so a reload
+  // cannot buy more time.
+  const hardEndISO = new Date(callHardEnd(s.firstJoinISO, Date.now())).toISOString()
 
   return (
     <>
@@ -56,7 +59,7 @@ export default async function RoomPage({ params }: PageProps<'/app/sessions/[id]
           backHref="/app/sessions"
         />
       ) : (
-        <HmsRoom roomId={s.roomId} meetingUrl={meetingUrl} backHref="/app/sessions" roomHref={`/app/sessions/${s.id}/room`} title={s.expert} />
+        <HmsRoom roomId={s.roomId} meetingUrl={meetingUrl} backHref="/app/sessions" roomHref={`/app/sessions/${s.id}/room`} title={s.expert} hardEndISO={hardEndISO} />
       )}
     </>
   )

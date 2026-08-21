@@ -14,6 +14,7 @@ import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionMinMinutes, resolveDueAppointments, computePresence, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
+import { earliestJoin } from '@/lib/meetingWindow'
 import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { trackLabelFor } from '@/lib/ai/tracks'
@@ -1007,6 +1008,8 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
 export type ExpertRoom = {
   roomId: string; patientName: string; therapistName: string; when: string
   scheduledISO: string; durationMins: number; status: string; joinedThisSide: boolean
+  /** Earliest join by EITHER side — the anchor for the 2-hour call cap. */
+  firstJoinISO: string | null
 }
 
 /**
@@ -1019,7 +1022,8 @@ export async function getExpertRoom(therapistProfileId: string, appointmentId: s
   const appt = await prisma.appointment.findFirst({
     where: { OR: [{ id: appointmentId }, { roomId: appointmentId }], therapistId: therapistProfileId },
     select: {
-      id: true, roomId: true, scheduledAt: true, durationMins: true, status: true, therapistJoinedAt: true,
+      id: true, roomId: true, scheduledAt: true, durationMins: true, status: true,
+      therapistJoinedAt: true, patientJoinedAt: true,
       patient: { select: { name: true } },
       therapist: { select: { user: { select: { name: true } } } },
     },
@@ -1034,6 +1038,7 @@ export async function getExpertRoom(therapistProfileId: string, appointmentId: s
     durationMins: appt.durationMins,
     status: appt.status,
     joinedThisSide: Boolean(appt.therapistJoinedAt),
+    firstJoinISO: earliestJoin(appt.patientJoinedAt, appt.therapistJoinedAt),
   }
 }
 

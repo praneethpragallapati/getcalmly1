@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { Video, FileText, Calendar, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import { getSessionsView, getExpertCalendar } from '@/lib/sessions'
 import { getMyCareTeam } from '@/lib/therapist'
-import { PatientCalendar } from '@/components/dashboard/PatientCalendar'
 import { BookSession } from '@/components/dashboard/BookSession'
 import { RateSession } from '@/components/dashboard/RateSession'
 import { SessionActions } from '@/components/dashboard/SessionActions'
@@ -10,7 +9,7 @@ import { LocalTime } from '@/components/dashboard/LocalTime'
 import { JoinButton } from '@/components/dashboard/JoinButton'
 import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
-import { istParts } from '@/lib/tz'
+import { fmtIST } from '@/lib/tz'
 import type { DashSession } from '@/data/dashboardDemo'
 
 // Always render fresh: this page settles elapsed sessions (no-shows / auto-
@@ -123,15 +122,16 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
   const bookUntilIso = selectedSlot?.validUntilIso ?? null
   const packExpired = Boolean(selectedSlot?.expired)
 
-  // Days in the current month that have a session, for the patient calendar.
-  // Read the date in IST so an evening-IST session lands on the right day.
-  // Cancelled sessions are excluded — a cancelled booking shouldn't leave a dot.
-  const nowIst = istParts(new Date())
-  const markedDays = [...view.upcoming, ...view.past]
-    .filter((s) => s.status !== 'CANCELLED')
-    .map((s) => (s.scheduledISO ? istParts(new Date(s.scheduledISO)) : null))
-    .filter((p): p is ReturnType<typeof istParts> => !!p && p.month === nowIst.month && p.year === nowIst.year)
-    .map((p) => p.day)
+  // The patient's own sessions, for the booking calendar to mark days with.
+  // Cancelled ones are excluded — a cancelled booking shouldn't leave a mark.
+  const mySessions = [...view.upcoming, ...view.past]
+    .filter((s) => s.status !== 'CANCELLED' && s.scheduledISO)
+    .map((s) => ({
+      iso: s.scheduledISO as string,
+      timeLabel: fmtIST(new Date(s.scheduledISO as string), { hour: 'numeric', minute: '2-digit' }),
+      expert: s.expert,
+      status: s.status,
+    }))
 
   return (
     <>
@@ -187,7 +187,6 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
         </div>
 
         <div className="stack">
-          <PatientCalendar markedDays={markedDays} />
           <BookSession
             slots={calendar.slots}
             therapistId={selectedId}
@@ -196,6 +195,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
             selectedId={selectedId}
             bookUntilIso={bookUntilIso}
             packExpired={packExpired}
+            mySessions={mySessions}
           />
         </div>
       </div>

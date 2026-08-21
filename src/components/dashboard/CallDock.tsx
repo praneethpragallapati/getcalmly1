@@ -13,8 +13,9 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
-import { Maximize2, Minimize2, PhoneOff, Video } from 'lucide-react'
+import { AlertTriangle, Maximize2, Minimize2, PhoneOff, Video } from 'lucide-react'
 import { markSessionJoined } from '@/app/(dashboard)/app/actions'
+import { CALL_WARN_MS } from '@/lib/meetingWindow'
 
 /**
  * Keeps a live session call alive while the member moves around the dashboard.
@@ -70,6 +71,8 @@ export type ActiveCall = {
   title: string
   /** Route back to the full room page. */
   href: string
+  /** Epoch ms at which the call is cut off. Server-derived; see callHardEnd. */
+  hardEndMs: number
 }
 
 type CallCtx = {
@@ -135,6 +138,8 @@ function CallHost({
   const router = useRouter()
   const hostRef = useRef<HTMLDivElement>(null)
   const [isFull, setIsFull] = useState(false)
+  /** Ticks once a second so the remaining time can be derived during render. */
+  const [now, setNow] = useState(() => Date.now())
   const docked = Boolean(anchor)
   const mounted = useSyncExternalStore(noopSubscribe, onClient, onServer)
 
@@ -149,6 +154,22 @@ function CallHost({
     document.addEventListener('visibilitychange', onVisible)
     return () => { clearInterval(iv); document.removeEventListener('visibilitychange', onVisible) }
   }, [call])
+
+  /**
+   * The two-hour ceiling. The clock runs whether the call is docked or
+   * minimised — a call cannot outlive its hard end by being tucked in a corner.
+   */
+  useEffect(() => {
+    if (!call) return
+    const iv = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(iv)
+  }, [call])
+
+  const msLeft = call ? call.hardEndMs - now : null
+
+  useEffect(() => {
+    if (msLeft !== null && msLeft <= 0) onEnd()
+  }, [msLeft, onEnd])
 
   // Paint the host over the anchor (docked) or in the corner (mini). Scroll is
   // listened for in the CAPTURE phase: scroll events do not bubble, but they do
@@ -246,6 +267,16 @@ function CallHost({
         allow="camera; microphone; fullscreen; autoplay"
         className="call-frame"
       />
+
+      {msLeft !== null && msLeft > 0 && msLeft <= CALL_WARN_MS && (
+        <div className="call-warning" role="status">
+          <AlertTriangle size={14} aria-hidden />
+          <span>
+            This call ends in {Math.max(1, Math.ceil(msLeft / 60_000))} minute
+            {Math.ceil(msLeft / 60_000) === 1 ? '' : 's'} — sessions are capped at 2 hours.
+          </span>
+        </div>
+      )}
 
       {docked ? (
         <button

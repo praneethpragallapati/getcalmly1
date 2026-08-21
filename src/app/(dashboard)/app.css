@@ -1254,10 +1254,62 @@
 }
 .cal-legend {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
   margin-top: 14px;
   font-size: 11px;
   color: var(--c-gray-d);
+}
+.dot-open {
+  background: var(--c-green-pale);
+  border: 1px solid var(--c-green);
+}
+
+/* Day cells are buttons now: a day is the thing you pick, and only days with
+   open times are pickable. */
+.cal-pick {
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid transparent;
+  background: none;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.cal-pick:disabled {
+  cursor: default;
+  color: var(--c-gray);
+  font-weight: 400;
+}
+.cal-pick.has-open {
+  background: var(--c-green-pale);
+  border-color: rgba(61, 158, 114, 0.28);
+}
+.cal-pick.has-open:hover {
+  border-color: var(--c-green);
+}
+.cal-pick.is-active {
+  background: var(--c-coral-cta);
+  border-color: transparent;
+  color: #fff;
+}
+.cal-pick:focus-visible {
+  outline: 2px solid var(--c-coral-d);
+  outline-offset: 2px;
+}
+/* How many times are open that day — the information the dots were missing. */
+.cal-open {
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-green-ink);
+}
+.cal-pick.is-active .cal-open {
+  color: rgba(255, 255, 255, 0.9);
+}
+.cal-pick.is-active .cal-dot {
+  background: #fff;
 }
 .cal-legend span {
   display: inline-flex;
@@ -1492,6 +1544,30 @@
   border-radius: 16px;
   background: #0b0f14;
 }
+/* The 2-hour cut-off warning. Sits at the top of the frame so it is visible
+   whether the call is docked or minimised. */
+.call-warning {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--c-coral-cta);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
+}
+.call-host.is-mini .call-warning {
+  font-size: 11px;
+  padding: 6px 8px;
+}
+
 /* Minimised tile: a title and the two controls that matter. */
 .call-mini-bar {
   position: absolute;

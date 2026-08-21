@@ -33,3 +33,28 @@ export function joinPhase(
   if (nowMs > end && !joinedAlready) return 'closed'
   return 'open'
 }
+
+/**
+ * The hard ceiling on a single call: two hours, no exceptions.
+ *
+ * Anchored to the FIRST join recorded for the session rather than to when this
+ * tab happened to open, so reloading the page — or rejoining after a drop —
+ * cannot buy more time. Before anyone has joined there is nothing to anchor to,
+ * so the clock starts now and is re-anchored on the next load, once the join has
+ * been written.
+ */
+export const MAX_CALL_MS = 2 * 60 * 60 * 1000
+/** How long before the cut-off the warning appears. */
+export const CALL_WARN_MS = 5 * 60 * 1000
+
+export function callHardEnd(firstJoinISO: string | null, nowMs: number): number {
+  const anchor = firstJoinISO ? Date.parse(firstJoinISO) : NaN
+  return (Number.isNaN(anchor) ? nowMs : anchor) + MAX_CALL_MS
+}
+
+/** The earlier of the two sides' first joins, or null if neither has joined. */
+export function earliestJoin(a: Date | null, b: Date | null): string | null {
+  const times = [a, b].filter((d): d is Date => d instanceof Date)
+  if (times.length === 0) return null
+  return new Date(Math.min(...times.map((d) => d.getTime()))).toISOString()
+}

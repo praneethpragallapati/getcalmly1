@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getTherapistContext, getExpertRoom } from '@/lib/expert'
 import { getHmsMeetingUrl } from '@/lib/hms'
-import { joinPhase, meetingBounds } from '@/lib/meetingWindow'
+import { joinPhase, meetingBounds, callHardEnd } from '@/lib/meetingWindow'
 import { HmsRoom } from '@/components/dashboard/HmsRoom'
 import { RoomWindowNotice } from '@/components/dashboard/RoomWindowNotice'
 
@@ -35,6 +35,9 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
 
   // Clinician joins as host; the patient joins the same room as guest.
   const meetingUrl = blocked ? null : await getHmsMeetingUrl(room.roomId, room.therapistName, 'host')
+  // Same two-hour ceiling as the patient side, from the same anchor, so both
+  // sides are cut at the same instant.
+  const hardEndISO = new Date(callHardEnd(room.firstJoinISO, Date.now())).toISOString()
 
   return (
     <>
@@ -63,7 +66,7 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
           backHref="/expert/schedule"
         />
       ) : (
-        <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" roomHref={`/expert/sessions/${id}/room`} title={room.patientName} />
+        <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" roomHref={`/expert/sessions/${id}/room`} title={room.patientName} hardEndISO={hardEndISO} />
       )}
     </>
   )

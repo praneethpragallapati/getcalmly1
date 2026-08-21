@@ -21,6 +21,7 @@ export function HmsRoom({
   backHref,
   roomHref,
   title,
+  hardEndISO,
 }: {
   roomId: string
   meetingUrl: string | null
@@ -30,6 +31,8 @@ export function HmsRoom({
   roomHref: string
   /** Who they're talking to — shown on the minimised tile. */
   title: string
+  /** ISO instant at which the call is cut off (2h cap), computed server-side. */
+  hardEndISO: string
 }) {
   const { start, end, setAnchor, call } = useCall()
   const slotRef = useRef<HTMLDivElement>(null)
@@ -37,8 +40,8 @@ export function HmsRoom({
 
   useEffect(() => {
     if (!meetingUrl) return
-    start({ roomId, meetingUrl, title, href: roomHref })
-  }, [roomId, meetingUrl, title, roomHref, start])
+    start({ roomId, meetingUrl, title, href: roomHref, hardEndMs: Date.parse(hardEndISO) })
+  }, [roomId, meetingUrl, title, roomHref, hardEndISO, start])
 
   // Register this page's slot while it's on screen; releasing it on unmount is
   // what tips the dock into its minimised state.
@@ -69,7 +72,7 @@ export function HmsRoom({
       <div className="call-foot">
         <p className="call-note">
           🔒 This is a private video room for your session. getCalmly never records or stores the call,
-          and screen sharing is turned off.
+          and screen sharing is turned off. Calls end automatically after 2 hours.
         </p>
         <label className="call-auto">
           <input type="checkbox" checked={autoFull} onChange={(e) => setAutoFull(e.target.checked)} />

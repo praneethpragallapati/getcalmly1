@@ -18,6 +18,16 @@ import { fmtIST } from '@/lib/tz'
 
 export type AccountPlan = {
   category: CareCategoryName
+  /**
+   * Which package this is: therapy / psychiatry / couples.
+   *
+   * `category` cannot answer this — therapy and psychiatry are BOTH stored as
+   * INDIVIDUAL, which is why a psychiatry package used to read as "Individual".
+   * trackSlug is the only field that tells them apart.
+   */
+  track: string | null
+  /** What to call this package in the UI, derived from track then category. */
+  careLabel: string
   planName: string
   tier: PlanTierName
   paidMonths: number
@@ -34,7 +44,14 @@ export type Account = {
   name: string
   fullName: string // the raw stored name ('' when unset), for the editable field
   email: string | null
+  /** The primary (most recent) package — kept for the sidebar and summaries. */
   plan: AccountPlan
+  /**
+   * EVERY active package. A patient may hold one per track at the same time
+   * (therapy + psychiatry + couples), and showing only the newest is why a
+   * bought psychiatry package appeared to be missing.
+   */
+  plans: AccountPlan[]
   privacy: PrivacyFlags
 }
 
@@ -42,6 +59,18 @@ const CATEGORY_LABEL: Record<string, CareCategoryName> = {
   INDIVIDUAL: 'Individual',
   COUPLE: 'Couple',
   KIDS: 'Kids',
+}
+
+/** The patient-facing name for a package, by track. */
+const TRACK_LABEL: Record<string, string> = {
+  therapy: 'Individual therapy',
+  psychiatry: 'Psychiatry',
+  couples: 'Couples therapy',
+}
+
+function careLabelFor(track: string | null, category: string): string {
+  if (track && TRACK_LABEL[track]) return TRACK_LABEL[track]
+  return CATEGORY_LABEL[category] ?? 'Individual'
 }
 
 function fmtDate(d: Date): string {
@@ -55,6 +84,8 @@ export async function getAccount(): Promise<Account> {
     email: null,
     plan: {
       category: demoDashboard.category,
+      track: null,
+      careLabel: demoDashboard.category,
       planName: demoDashboard.planName,
       tier: demoDashboard.tier,
       paidMonths: demoDashboard.paidMonths,
@@ -66,6 +97,7 @@ export async function getAccount(): Promise<Account> {
       startedOn: demoDashboard.startedOn,
       daysOnPlatform: demoDashboard.daysOnPlatform,
     },
+    plans: [],
     privacy: demoDashboard.privacy,
   }
 
@@ -92,6 +124,8 @@ export async function getAccount(): Promise<Account> {
   // actual account age. A subscription overwrites it below.
   account.plan = {
     category: 'Individual', // placeholder; the UI hides the category line when sessionsTotal is 0
+    track: null,
+    careLabel: 'Individual',
     planName: 'No active plan',
     tier: 'Starter',
     paidMonths: 0,
@@ -105,43 +139,46 @@ export async function getAccount(): Promise<Account> {
       ? Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
       : 0,
   }
+  account.plans = []
 
   try {
     // Independently resilient: a failing privacy read must not wipe the plan
     // (and vice-versa), so the sidebar never wrongly shows "No active plan".
-    const [sub, privacy] = await Promise.all([
-      prisma.subscription.findFirst({
+    const [subs, privacy] = await Promise.all([
+      prisma.subscription.findMany({
         where: { userId, status: 'ACTIVE' },
         orderBy: { createdAt: 'desc' },
         // Narrow select: don't pull columns a not-yet-applied migration adds.
         select: {
-          category: true, planName: true, paidMonths: true, sessionsTotal: true,
+          category: true, trackSlug: true, planName: true, paidMonths: true, sessionsTotal: true,
           sessionsUsed: true, minutesTotal: true, minutesUsed: true, renewsAt: true, startedAt: true,
         },
-      }).catch(() => null),
+      }).catch(() => [] as const),
       getPrivacy(userId).catch(() => account.privacy),
     ])
     account.privacy = privacy
 
-    if (sub) {
-      const startedAt = sub.startedAt
-      account.plan = {
-        category: CATEGORY_LABEL[sub.category] ?? 'Individual',
-        planName: sub.planName,
-        tier: tierForMonths(sub.paidMonths),
-        paidMonths: sub.paidMonths,
-        sessionsTotal: sub.sessionsTotal,
-        sessionsUsed: sub.sessionsUsed,
-        minutesTotal: sub.minutesTotal,
-        minutesUsed: sub.minutesUsed,
-        renewsOn: sub.renewsAt ? fmtDate(sub.renewsAt) : null,
-        startedOn: fmtDate(startedAt),
-        daysOnPlatform: Math.max(
-          1,
-          Math.floor((Date.now() - startedAt.getTime()) / (1000 * 60 * 60 * 24))
-        ),
-      }
-    }
+    account.plans = subs.map((sub) => ({
+      category: CATEGORY_LABEL[sub.category] ?? 'Individual',
+      track: sub.trackSlug ?? null,
+      careLabel: careLabelFor(sub.trackSlug ?? null, sub.category),
+      planName: sub.planName,
+      tier: tierForMonths(sub.paidMonths),
+      paidMonths: sub.paidMonths,
+      sessionsTotal: sub.sessionsTotal,
+      sessionsUsed: sub.sessionsUsed,
+      minutesTotal: sub.minutesTotal,
+      minutesUsed: sub.minutesUsed,
+      renewsOn: sub.renewsAt ? fmtDate(sub.renewsAt) : null,
+      startedOn: fmtDate(sub.startedAt),
+      daysOnPlatform: Math.max(
+        1,
+        Math.floor((Date.now() - sub.startedAt.getTime()) / (1000 * 60 * 60 * 24))
+      ),
+    }))
+    // The primary stays the most recent, so the sidebar and summaries are
+    // unchanged; the full list is what Settings renders.
+    if (account.plans.length > 0) account.plan = account.plans[0]
     return account
   } catch {
     // Subscription/privacy failed: return the personalized empty account, not demo.

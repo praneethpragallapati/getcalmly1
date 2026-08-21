@@ -7,6 +7,8 @@ import { requestSession } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { ExpertSlot } from '@/lib/sessions'
 import { fmtIST } from '@/lib/tz'
+import { BookingCalendar, type BookedSession } from '@/components/dashboard/BookingCalendar'
+import { IST_LABEL } from '@/lib/bookingCalendar'
 
 type Clinician = { profileId: string; name: string; typeLabel: string }
 
@@ -24,6 +26,7 @@ export function BookSession({
   selectedId,
   bookUntilIso,
   packExpired = false,
+  mySessions = [],
 }: {
   slots: ExpertSlot[]
   therapistId?: string
@@ -32,6 +35,8 @@ export function BookSession({
   selectedId?: string
   bookUntilIso?: string | null
   packExpired?: boolean
+  /** The patient's own sessions, so the month grid can mark the days they're on. */
+  mySessions?: BookedSession[]
 }) {
   // A slot is bookable only up to the package expiry (null = no expiry). This
   // mirrors the server's guard exactly (expiresAt >= scheduledAt), so the UI and
@@ -61,14 +66,6 @@ export function BookSession({
         toast.error(res.error ?? 'Could not request this slot.')
       }
     })
-  }
-
-  // Group slots by day for a tidier calendar column.
-  const byDay = new Map<string, ExpertSlot[]>()
-  for (const s of slots) {
-    const list = byDay.get(s.label) ?? []
-    list.push(s)
-    byDay.set(s.label, list)
   }
 
   const selectedType = clinicians.find((c) => c.profileId === selectedId)?.typeLabel
@@ -152,34 +149,23 @@ export function BookSession({
               Your package is valid until <b>{validUntilLabel}</b> — slots after that date can’t be booked.
             </p>
           )}
-          <div className="slot-cal">
-            {[...byDay.entries()].map(([day, daySlots]) => (
-              <div className="slot-day" key={day}>
-                <div className="slot-day-label">{day}</div>
-                <div className="slot-times">
-                  {daySlots.map((s) => {
-                    const isRequested = requested === s.iso
-                    const past = afterExpiry(s.iso)
-                    const disabled = s.taken || isRequested || past
-                    return (
-                      <button
-                        key={s.iso}
-                        type="button"
-                        disabled={disabled}
-                        title={past ? 'After your package validity' : undefined}
-                        onClick={() => setSelected(s.iso)}
-                        className={`slot-chip${selected === s.iso ? ' selected' : ''}${disabled ? ' taken' : ''}`}
-                      >
-                        {isRequested ? '✓ Requested' : s.taken ? 'Booked' : past ? 'Past validity' : s.time}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <BookingCalendar
+            slots={slots}
+            sessions={mySessions}
+            bookUntilIso={bookUntilIso}
+            selectedIso={selected}
+            onPick={setSelected}
+            disabled={pending}
+          />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
+            {selected && !requested && (
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-charcoal)' }}>
+                {fmtIST(new Date(selected), {
+                  weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
+                })} · {IST_LABEL}
+              </span>
+            )}
             <button
               className="btn btn-primary"
               type="button"

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS, designationOf } from '@/lib/expert'
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
+import { earliestJoin } from '@/lib/meetingWindow'
 import { fmtIST } from '@/lib/tz'
 
 /**
@@ -29,6 +30,8 @@ export type SessionDetail = {
   joinable: boolean
   /** Whether this patient has already joined the room once (drives re-entry). */
   joinedThisSide: boolean
+  /** Earliest join by EITHER side — the anchor for the 2-hour call cap. */
+  firstJoinISO: string | null
   /** The patient's own rating (1–5), or null if not yet rated. */
   myRating: number | null
   myReviewComment: string | null
@@ -166,6 +169,7 @@ function demoDetail(id: string): SessionDetail | null {
     joinedThisSide: false,
     myRating: null,
     myReviewComment: null,
+    firstJoinISO: null,
     reviewable: false, // demo/preview sessions aren't real, so not rateable
   }
 }
@@ -200,6 +204,7 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
       isPast,
       joinable: !isPast && joinableNow(r.scheduledAt, r.durationMins),
       joinedThisSide: Boolean(r.patientJoinedAt),
+      firstJoinISO: earliestJoin(r.patientJoinedAt, r.therapistJoinedAt),
       myRating: r.review?.rating ?? null,
       myReviewComment: r.review?.comment ?? null,
       reviewable: isPast && r.status !== 'CANCELLED',
