@@ -1,102 +1,53 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Maximize2, Minimize2 } from 'lucide-react'
-import { markSessionJoined } from '@/app/(dashboard)/app/actions'
-
-const AUTO_FS_KEY = 'gc-call-autofullscreen'
+import { useCall, useAutoFullscreenPref } from '@/components/dashboard/CallDock'
 
 /**
- * 100ms video, embedded via the prebuilt meeting URL (an iframe) so there's no
- * heavy client SDK to bundle. The URL is minted server-side with a role-scoped
- * room code; media + TURN are handled by 100ms. The call stays inside the app
- * chrome. When `meetingUrl` is null, 100ms isn't configured yet.
+ * The room page's slot for the call.
  *
- * Screen sharing is deliberately not permitted: the iframe's allow-list omits
- * display-capture, so the browser refuses any capture request from inside the
- * frame. This is a therapy room — there's nothing to present, and it removes a
- * way to accidentally expose the rest of someone's screen.
+ * This component does NOT own the iframe. The 100ms frame is mounted once by
+ * <CallProvider> in the dashboard layout, so it survives navigation between
+ * pages; all this does is register the call and hand the dock an element to
+ * paint itself over. That's why leaving this page minimises the call into a
+ * corner tile instead of hanging up.
+ *
+ * When `meetingUrl` is null, 100ms isn't configured yet.
  */
 export function HmsRoom({
   roomId,
   meetingUrl,
   backHref,
+  roomHref,
+  title,
 }: {
   roomId: string
   meetingUrl: string | null
+  /** Where the "go back" link points (the sessions list). */
   backHref: string
+  /** This room's own URL — where the minimised tile's "Return" goes back to. */
+  roomHref: string
+  /** Who they're talking to — shown on the minimised tile. */
+  title: string
 }) {
-  const shellRef = useRef<HTMLDivElement>(null)
-  const [isFull, setIsFull] = useState(false)
-  const [autoFull, setAutoFull] = useState(false)
+  const { start, end, setAnchor, call } = useCall()
+  const slotRef = useRef<HTMLDivElement>(null)
+  const [autoFull, setAutoFull] = useAutoFullscreenPref()
 
   useEffect(() => {
-    // Record this side's join, then keep a presence heartbeat while the call is
-    // open (every 20s). "Time together" is measured from these pings, so a call
-    // that ends early counts only the minutes actually spent — not the whole
-    // scheduled slot. Best-effort; a missed ping just shortens the measured time.
-    void markSessionJoined(roomId)
-    const iv = setInterval(() => { void markSessionJoined(roomId) }, 20_000)
-    const onVisible = () => { if (document.visibilityState === 'visible') void markSessionJoined(roomId) }
-    document.addEventListener('visibilitychange', onVisible)
-    return () => { clearInterval(iv); document.removeEventListener('visibilitychange', onVisible) }
-  }, [roomId])
+    if (!meetingUrl) return
+    start({ roomId, meetingUrl, title, href: roomHref })
+  }, [roomId, meetingUrl, title, roomHref, start])
 
-  // Follow the real fullscreen state, so Esc and the browser's own control keep
-  // our button honest.
+  // Register this page's slot while it's on screen; releasing it on unmount is
+  // what tips the dock into its minimised state.
   useEffect(() => {
-    const sync = () => setIsFull(Boolean(document.fullscreenElement))
-    document.addEventListener('fullscreenchange', sync)
-    return () => document.removeEventListener('fullscreenchange', sync)
-  }, [])
-
-  const enter = useCallback(async () => {
-    try { await shellRef.current?.requestFullscreen() } catch { /* denied — button stays */ }
-  }, [])
-
-  const toggle = useCallback(async () => {
-    if (document.fullscreenElement) {
-      try { await document.exitFullscreen() } catch { /* ignore */ }
-    } else {
-      await enter()
-    }
-  }, [enter])
-
-  // Auto-fullscreen, when the member has asked for it. Browsers only grant
-  // fullscreen from a user gesture, and arriving on this page isn't one — so try
-  // immediately, and if that's refused, arm a one-shot listener to try again on
-  // their first click or key press in the room.
-  useEffect(() => {
-    let want = false
-    try { want = localStorage.getItem(AUTO_FS_KEY) === '1' } catch { /* storage blocked */ }
-    setAutoFull(want)
-    if (!want || !meetingUrl) return
-
-    let armed = true
-    const attempt = () => {
-      if (!armed || document.fullscreenElement) return
-      void shellRef.current?.requestFullscreen().then(
-        () => { armed = false },
-        () => { /* still needs a gesture; the listeners below retry */ },
-      )
-    }
-    attempt()
-    const onGesture = () => { attempt(); if (!armed) cleanup() }
-    const cleanup = () => {
-      document.removeEventListener('pointerdown', onGesture)
-      document.removeEventListener('keydown', onGesture)
-    }
-    document.addEventListener('pointerdown', onGesture)
-    document.addEventListener('keydown', onGesture)
-    return () => { armed = false; cleanup() }
-  }, [meetingUrl])
-
-  const setAuto = (on: boolean) => {
-    setAutoFull(on)
-    try { localStorage.setItem(AUTO_FS_KEY, on ? '1' : '0') } catch { /* ignore */ }
-    if (on && !document.fullscreenElement) void enter()
-  }
+    if (!meetingUrl) return
+    const el = slotRef.current
+    setAnchor(el)
+    return () => setAnchor(null)
+  }, [meetingUrl, setAnchor])
 
   if (!meetingUrl) {
     return (
@@ -111,25 +62,9 @@ export function HmsRoom({
 
   return (
     <div className="call-room">
-      <div ref={shellRef} className={`call-shell${isFull ? ' is-full' : ''}`}>
-        <iframe
-          src={meetingUrl}
-          title="Session video"
-          // No display-capture: screen sharing is blocked at the browser level.
-          allow="camera; microphone; fullscreen; autoplay"
-          className="call-frame"
-        />
-        <button
-          type="button"
-          onClick={toggle}
-          className="call-fs-btn"
-          aria-label={isFull ? 'Exit fullscreen' : 'Enter fullscreen'}
-          title={isFull ? 'Exit fullscreen (Esc)' : 'Fullscreen'}
-        >
-          {isFull ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-          <span>{isFull ? 'Exit fullscreen' : 'Fullscreen'}</span>
-        </button>
-      </div>
+      {/* Reserves the space the docked frame is painted over. It stays empty on
+          purpose — the frame itself lives in the layout, above this. */}
+      <div ref={slotRef} className="call-slot" aria-hidden />
 
       <div className="call-foot">
         <p className="call-note">
@@ -137,9 +72,14 @@ export function HmsRoom({
           and screen sharing is turned off.
         </p>
         <label className="call-auto">
-          <input type="checkbox" checked={autoFull} onChange={(e) => setAuto(e.target.checked)} />
+          <input type="checkbox" checked={autoFull} onChange={(e) => setAutoFull(e.target.checked)} />
           Go fullscreen automatically
         </label>
+        {call?.roomId === roomId && (
+          <button type="button" className="call-leave" onClick={end}>
+            Leave call
+          </button>
+        )}
       </div>
     </div>
   )

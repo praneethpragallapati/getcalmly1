@@ -11,6 +11,7 @@ import { SidebarDrawerToggle } from '@/components/dashboard/SidebarDrawerToggle'
 import { NotificationBell } from '@/components/dashboard/NotificationBell'
 import { markExpertNotificationsRead } from '@/app/(dashboard)/expert/actions'
 import { ToastProvider } from '@/components/ui/Toast'
+import { CallProvider } from '@/components/dashboard/CallDock'
 import { getTherapistContext, getRiskNotifications, getExpertTaskCounts } from '@/lib/expert'
 import { getNotifications, getUnreadCount } from '@/lib/notifications'
 import { roleHome } from '@/lib/roleHome'
@@ -52,6 +53,8 @@ export default async function ExpertLayout({ children }: { children: React.React
 
   return (
     <ToastProvider>
+    {/* Above the routed content, so a live call survives navigation. */}
+    <CallProvider>
     <div className="calmly-app expert-theme">
       <SidebarDrawerToggle />
       <aside className="app-sidebar">
@@ -159,6 +162,7 @@ export default async function ExpertLayout({ children }: { children: React.React
         <main className="app-content">{children}</main>
       </div>
     </div>
+    </CallProvider>
     </ToastProvider>
   )
 }

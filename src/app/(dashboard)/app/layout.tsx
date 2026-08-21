@@ -9,6 +9,7 @@ import { AccountMenu } from '@/components/dashboard/AccountMenu'
 import { NotificationBell } from '@/components/dashboard/NotificationBell'
 import { HelplineButton } from '@/components/dashboard/HelplineButton'
 import { ToastProvider } from '@/components/ui/Toast'
+import { CallProvider } from '@/components/dashboard/CallDock'
 import { getSidebarSummary } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount, getNotifications } from '@/lib/notifications'
@@ -72,6 +73,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <ToastProvider>
+    {/* Above the routed content, so a live call survives navigation. */}
+    <CallProvider>
     <div className="calmly-app">
       <Sidebar
         name={d.name}
@@ -104,6 +107,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </div>
       <HelplineButton />
     </div>
+    </CallProvider>
     </ToastProvider>
   )
 }

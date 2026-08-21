@@ -63,7 +63,7 @@ export default async function ExpertRoomPage({ params }: { params: Promise<{ id:
           backHref="/expert/schedule"
         />
       ) : (
-        <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" />
+        <HmsRoom roomId={room.roomId} meetingUrl={meetingUrl} backHref="/expert/schedule" roomHref={`/expert/sessions/${id}/room`} title={room.patientName} />
       )}
     </>
   )

@@ -56,7 +56,7 @@ export default async function RoomPage({ params }: PageProps<'/app/sessions/[id]
           backHref="/app/sessions"
         />
       ) : (
-        <HmsRoom roomId={s.roomId} meetingUrl={meetingUrl} backHref="/app/sessions" />
+        <HmsRoom roomId={s.roomId} meetingUrl={meetingUrl} backHref="/app/sessions" roomHref={`/app/sessions/${s.id}/room`} title={s.expert} />
       )}
     </>
   )
