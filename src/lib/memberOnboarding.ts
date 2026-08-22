@@ -78,6 +78,12 @@ export async function getMemberEssentials(userId: string): Promise<MemberEssenti
   }
 }
 
+/** Include a field only when the member actually gave one, trimmed to its column width. */
+function opt(key: string, value: string | null | undefined, max: number): Record<string, string> {
+  const v = value?.trim()
+  return v ? { [key]: v.slice(0, max) } : {}
+}
+
 /** A stable per-member identifier for a profile row created on the fly. */
 function newPatientId(): string {
   return `GC-P-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`
@@ -87,6 +93,30 @@ function newPatientId(): string {
  * Save the essentials. Validates server-side against the SAME definition the
  * gate uses, so a member can't skip the form by posting a partial payload.
  */
+/**
+ * Everything the profile page holds, so signup can capture it once instead of
+ * asking again later. Only the fields in `missingEssentials` are required; the
+ * rest are collected because a member filling a form at signup is far cheaper
+ * than chasing them for an address six weeks in.
+ *
+ * preferredLanguage is the one with teeth: matchTherapistForTrack scores on it,
+ * so collecting it at signup measurably improves the first clinician match
+ * rather than just filling a database column.
+ */
+export type MemberExtras = {
+  phone?: string | null
+  gender?: string | null
+  preferredLanguage?: string | null
+  maritalStatus?: string | null
+  occupation?: string | null
+  country?: string | null
+  state?: string | null
+  city?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  postalCode?: string | null
+}
+
 export async function saveMemberEssentials(
   userId: string,
   input: {
@@ -96,7 +126,7 @@ export async function saveMemberEssentials(
     emergencyName: string
     emergencyPhone: string
     emergencyRelation?: string | null
-  },
+  } & MemberExtras,
 ): Promise<{ ok: boolean; error?: string }> {
   const name = input.name?.trim().replace(/\s+/g, ' ').slice(0, 80) ?? ''
   const email = input.email?.trim().toLowerCase() || null
@@ -136,27 +166,55 @@ export async function saveMemberEssentials(
       return { ok: false, error: `Still needed: ${gaps.map((g) => FIELD_LABEL[g]).join(', ')}.` }
     }
 
+    const phone = input.phone?.trim().slice(0, 20) || null
     await prisma.user.update({
       where: { id: userId },
-      data: { name, ...(email && !existing?.email ? { email } : {}) },
+      data: {
+        name,
+        ...(email && !existing?.email ? { email } : {}),
+        // Only fill a phone we don't already have — never overwrite the number
+        // an OTP sign-in proved they control.
+        ...(phone && !existing?.phone ? { phone } : {}),
+      },
     })
+    const core = {
+      dateOfBirth: dob,
+      emergencyName,
+      emergencyPhone,
+      ...(input.emergencyRelation?.trim() ? { emergencyRelation: input.emergencyRelation.trim().slice(0, 40) } : {}),
+    }
+    // The optional extras live on columns added by 0038. They are written in a
+    // SECOND statement on purpose: on a database missing those columns, folding
+    // them into the upsert below would take the required details down with them
+    // — and the required details are what gate entry to the dashboard.
+    const extras = {
+      ...opt('gender', input.gender, 30),
+      ...opt('preferredLanguage', input.preferredLanguage, 40),
+      ...opt('maritalStatus', input.maritalStatus, 30),
+      ...opt('occupation', input.occupation, 80),
+      ...opt('country', input.country, 2),
+      ...opt('state', input.state, 60),
+      ...opt('city', input.city, 60),
+      ...opt('addressLine1', input.addressLine1, 120),
+      ...opt('addressLine2', input.addressLine2, 120),
+      ...opt('postalCode', input.postalCode, 16),
+    }
+
     await prisma.patientProfile.upsert({
       where: { userId },
-      update: {
-        dateOfBirth: dob,
-        emergencyName,
-        emergencyPhone,
-        ...(input.emergencyRelation?.trim() ? { emergencyRelation: input.emergencyRelation.trim().slice(0, 40) } : {}),
-      },
-      create: {
-        userId,
-        patientId: newPatientId(),
-        dateOfBirth: dob,
-        emergencyName,
-        emergencyPhone,
-        ...(input.emergencyRelation?.trim() ? { emergencyRelation: input.emergencyRelation.trim().slice(0, 40) } : {}),
-      },
+      update: core,
+      create: { userId, patientId: newPatientId(), ...core },
     })
+
+    if (Object.keys(extras).length > 0) {
+      await prisma.patientProfile
+        .update({ where: { userId }, data: extras })
+        .catch((e) => {
+          // Not fatal: they are already through, and the profile page can take
+          // these later. Logged so a migration-drift deploy is diagnosable.
+          console.error('[saveMemberEssentials] optional profile fields not saved (migration 0038 applied?)', e)
+        })
+    }
     return { ok: true }
   } catch (e) {
     // A blanket "could not save" hid a missing COLUMN here for as long as this
