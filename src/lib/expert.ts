@@ -353,6 +353,20 @@ export async function ownsPatient(therapistProfileId: string, patientId: string)
 }
 
 /** Trend over the most recent check-ins: average of the older half vs the newer half. */
+/**
+ * How a mood trend reads to a human.
+ *
+ * The roster printed the raw enum, so a member with fewer than four check-ins
+ * showed as "Mood insufficient" — which reads as a judgement about the person
+ * rather than a statement about how much data there is.
+ */
+export const MOOD_TREND_LABEL: Record<string, string> = {
+  improving: 'improving',
+  declining: 'declining',
+  stable: 'steady',
+  insufficient: 'not enough check-ins yet',
+}
+
 export function moodTrendOf(moods: { mood: number; createdAt: Date }[]): MoodTrend {
   if (moods.length < 4) return 'insufficient'
   const sorted = [...moods].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())

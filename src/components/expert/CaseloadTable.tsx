@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, Search, TrendingDown, TrendingUp, Minus } from 'lucide-react'
-import type { CaseloadPatient, MoodTrend } from '@/lib/expert'
+import { MOOD_TREND_LABEL, type CaseloadPatient, type MoodTrend } from '@/lib/expert'
 import { trackLabel } from '@/lib/packageLabels'
 import { patientCode } from '@/lib/ids'
 
@@ -141,7 +141,13 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
                   <span style={{ fontSize: 10.5, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '1px 6px', borderRadius: 5 }}>{patientCode(p.patientId)}</span>
                 </div>
                 <div className="pattern-sub">
-                  {p.trackLabel} · Mood {p.moodTrend} · {p.sessionsCompleted} completed · {p.sessionsLeft} left{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo
+                  {/* "2 completed · 16 left" invited adding the two, and they do
+                      not add: the first counts sessions that actually happened
+                      with this clinician, the second is what remains on the
+                      package counter. Saying which is which stops the row
+                      looking like arithmetic that does not work. */}
+                  {p.trackLabel} · Mood {MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend} · {p.sessionsCompleted} held ·{' '}
+                  {p.sessionsLeft} left in package{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo
                 </div>
               </div>
               {p.openCrisisCount > 0 && (

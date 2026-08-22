@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText } from 'lucide-react'
 import {
   getTherapistContext, getExpertPatientProfile, getRiskNotifications,
-  superviseeOwningPatient,
+  superviseeOwningPatient, MOOD_TREND_LABEL,
 } from '@/lib/expert'
 import { patientCode } from '@/lib/ids'
 import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
@@ -19,12 +19,8 @@ import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/
 import { SessionNote } from '@/components/ui/SessionNote'
 import { fmtIST } from '@/lib/tz'
 
-const TREND_LABEL: Record<string, string> = {
-  improving: 'Improving',
-  declining: 'Declining',
-  stable: 'Stable',
-  insufficient: 'Not enough data yet',
-}
+/** Capitalise for use as a standalone metric value. */
+const sentence = (v: string) => v.charAt(0).toUpperCase() + v.slice(1)
 
 const FORM_KIND_LABEL: Record<string, string> = {
   INTAKE: 'Intake',
@@ -172,7 +168,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         <div className="section-title">At a glance</div>
         <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap', marginTop: 12 }}>
           <Metric label="Streak" value={`${p.streakDays} days`} icon={<Flame size={15} />} />
-          <Metric label="Mood trend" value={TREND_LABEL[p.moodTrend]} />
+          <Metric label="Mood trend" value={sentence(MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend)} />
           {/* This is the PACKAGE counter (sessionsUsed / sessionsTotal on their
               subscription), not a count of sessions that happened. The two can
               legitimately differ — a booking consumes one immediately, a voided
