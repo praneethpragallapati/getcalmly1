@@ -38,16 +38,23 @@ const blank = (): Draft => ({ label: '', type: 'text', required: false, options:
  * go — sent to a patient, or picked in an automatic rule. Used at both admin
  * (platform-wide) and expert (their own) scope; `scope` picks the server actions.
  *
- * `embedded` drops the card chrome and the list of existing forms, so the same
- * builder can sit inside a form picker — you create the form you need without
- * leaving the patient you were about to send it to. Saving refreshes the route,
- * which re-runs the server component that feeds the picker, so the new form
- * appears in the dropdown straight away.
+ * `embedded` drops the card chrome, so the same builder can sit inside a form
+ * picker — you create the form you need without leaving the patient you were
+ * about to send it to. Saving refreshes the route, which re-runs the server
+ * component that feeds the picker, so the new form appears in the dropdown
+ * straight away. Embedded callers pass the single form currently selected in
+ * that picker as `forms`, which is what puts view/edit/copy on the form you are
+ * about to send instead of only on the forms page.
+ *
+ * `onCopied` fires with the new form's id after "make my own copy", so a picker
+ * can move the selection onto the copy — otherwise you would edit the copy and
+ * then send the original.
  */
-export function FormBuilder({ scope, forms = [], embedded = false }: {
+export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
   scope: 'admin' | 'expert'
   forms?: CustomFormRow[]
   embedded?: boolean
+  onCopied?: (id: string) => void
 }) {
   const router = useRouter()
   const [pending, start] = useTransition()
@@ -163,6 +170,7 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
     setBusyId(null)
     if (!res.ok || !res.id) { setError(res.error ?? 'Could not copy that form.'); return }
     router.refresh()
+    onCopied?.(res.id)
     // Copying is only ever a prelude to changing something, so open it.
     edit(res.id)
   })
@@ -175,11 +183,7 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
 
   return (
     <div className={embedded ? undefined : 'card'}>
-      {embedded ? (
-        <button onClick={() => { setOpen((o) => !o); setDone(null) }} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-          {open ? <X size={13} /> : <FilePlus2 size={13} />} {open ? 'Cancel' : 'Need a different form? Build one'}
-        </button>
-      ) : (
+      {!embedded && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -197,10 +201,11 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
         </div>
       )}
 
-      {done && <p style={{ fontSize: 12.5, color: '#2C7A57', marginTop: 10 }}>{done}</p>}
+      {!embedded && done && <p style={{ fontSize: 12.5, color: '#2C7A57', marginTop: 10 }}>{done}</p>}
 
-      {/* Existing custom forms */}
-      {!embedded && forms.length > 0 && (
+      {/* Existing forms. Embedded, this is the one form the picker has selected,
+          so it can be looked at, edited or copied before it is sent. */}
+      {forms.length > 0 && (
         <div style={{ marginTop: 12 }}>
           {forms.map((f) => (
             <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: '1px solid rgba(28,43,58,.06)', opacity: f.active ? 1 : 0.55 }}>
@@ -283,6 +288,15 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
               </ol>
             </div>
           )}
+        </div>
+      )}
+
+      {embedded && (
+        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <button onClick={() => { if (open) reset(); setOpen((o) => !o); setDone(null) }} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            {open ? <X size={13} /> : <FilePlus2 size={13} />} {open ? 'Cancel' : 'Need a different form? Build one'}
+          </button>
+          {done && <span style={{ fontSize: 12.5, color: '#2C7A57' }}>{done}</span>}
         </div>
       )}
 

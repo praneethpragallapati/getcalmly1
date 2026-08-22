@@ -5,14 +5,36 @@ import { useRouter } from 'next/navigation'
 import { Send } from 'lucide-react'
 import { sendFormToPatient, createMyFormRule } from '@/app/(dashboard)/expert/actions'
 import { FormBuilder } from '@/components/forms/FormBuilder'
+import type { CustomFormRow } from '@/lib/forms'
 
-type Template = { id: string; title: string; kind?: string }
+const KIND_LABEL: Record<string, string> = {
+  INFO: 'Information', CONSENT: 'Consent', FEEDBACK: 'Feedback', INTAKE: 'Intake',
+}
+
+type Template = {
+  id: string
+  title: string
+  kind?: string
+  /** Questions it asks, shown on the selected form's row. */
+  fieldCount?: number
+  /** Ships with the product — a clinician copies it rather than rewriting it. */
+  builtIn?: boolean
+  /** Theirs to edit in place. */
+  mine?: boolean
+}
 
 /**
  * Send a form to one patient — either right now (one-off) or as an automatic
  * rule scoped to just this patient (once at session N, or every / even / odd
  * session). The recurring options create a patient-scoped FormAutoRule; "Send
  * now" dispatches immediately.
+ *
+ * Picking a form also opens it: the chosen form gets a row with view, edit and
+ * copy, so it can be adjusted before it goes out. Editing lived only on the
+ * forms page before, which meant "change this one question first" required
+ * leaving the patient — and, for a standard form, was not obviously possible at
+ * all. A clinician edits their own forms in place and takes a copy of a standard
+ * one; only an admin edits the shared library itself.
  */
 export function SendFormCard({ patientId, templates }: { patientId: string; templates: Template[] }) {
   const router = useRouter()
@@ -45,6 +67,22 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
 
   const field: React.CSSProperties = { }
 
+  // The picked form, in the shape the builder's row wants. A form is always
+  // `active` here — the library only offers active ones.
+  const picked = templates.find((t) => t.id === templateId)
+  const selected: CustomFormRow | null = picked
+    ? {
+        id: picked.id,
+        title: picked.title,
+        kind: picked.kind ?? 'INFO',
+        fieldCount: picked.fieldCount ?? 0,
+        active: true,
+        createdByName: null,
+        builtIn: Boolean(picked.builtIn),
+        mine: Boolean(picked.mine),
+      }
+    : null
+
   return (
     <div className="stack" style={{ gap: 10, marginTop: 14 }}>
       <div className="grid-2" style={{ gap: 10 }}>
@@ -52,7 +90,11 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
           Form
           <select className="entry-input" style={{ marginTop: 4 }} value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
             <option value="">Choose a form…</option>
-            {templates.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.kind ? `${t.title} (${KIND_LABEL[t.kind] ?? t.kind})` : t.title}
+              </option>
+            ))}
           </select>
         </label>
         <label className="muted" style={{ fontSize: 12 }}>
@@ -80,9 +122,22 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
         {err && <span className="muted" style={{ fontSize: 12.5, color: '#C0504B' }}>{err}</span>}
       </div>
       {when !== 'now' && <span className="muted" style={{ fontSize: 11.5 }}>Applies to this patient only, sent automatically after they book.</span>}
-      {/* Nothing in the library fits? Build the form here — it lands in the
-          dropdown above without leaving this patient. */}
-      <FormBuilder scope="expert" embedded />
+      {selected && (
+        <span className="muted" style={{ fontSize: 11.5 }}>
+          {selected.mine
+            ? 'This is your form — open the pencil to change it before sending.'
+            : 'This is a standard form, shared with every clinician. Take your own copy to change it for this patient.'}
+        </span>
+      )}
+      {/* The chosen form, so it can be read or changed without leaving the
+          patient — and, below it, a builder for when nothing in the library
+          fits. A new form lands in the dropdown above on save. */}
+      <FormBuilder
+        scope="expert"
+        embedded
+        forms={selected ? [selected] : []}
+        onCopied={(id) => setTemplateId(id)}
+      />
     </div>
   )
 }

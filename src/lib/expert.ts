@@ -113,6 +113,14 @@ export type ExpertPatientProfile = {
   sessionsDone: number
   sessionsTotal: number
   sessionsRemaining: number
+  /**
+   * How many live appointments are actually holding a slot on an active package
+   * — what `sessionsDone` would read if the counter were rebuilt from the
+   * calendar. Equal to `sessionsDone` in normal operation; a difference means
+   * the counter has drifted and an admin should reconcile it. Null when the
+   * count could not be read, so the UI can stay quiet rather than guess.
+   */
+  sessionsBookedOnPackage: number | null
   taskCompletionPct: number
   tasks: { id: string; title: string; type: string; frequencyLabel?: string; timesLabel?: string; dueLabel?: string; done: boolean; expired: boolean }[]
   medicationCompliancePct: number
@@ -735,12 +743,21 @@ export async function getExpertPatientProfile(
     }).catch(() => []),
     // ALL active packages — session totals must aggregate across care types
     // (a patient may hold therapy + psychiatry), not just the most recent one.
-    prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { sessionsUsed: true, sessionsTotal: true } }).catch(() => []),
+    prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { id: true, sessionsUsed: true, sessionsTotal: true } }).catch(() => []),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }).catch(() => 0),
     prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }).catch(() => 0),
     prisma.journalEntry.count({ where: { userId: patientId } }).catch(() => 0),
   ])
   if (!user) return null
+
+  // The counter rebuilt from the calendar: appointments still standing against
+  // an active package. Booking moves the counter and writes this link in one
+  // transaction, so the two agree unless something bypassed that path.
+  const sessionsBookedOnPackage = sub.length
+    ? await prisma.appointment
+        .count({ where: { consumedSubscriptionId: { in: sub.map((s) => s.id) }, status: { not: 'CANCELLED' } } })
+        .catch(() => null)
+    : 0
 
   const orders = await prisma.medicationOrder.findMany({
     where: { userId: patientId },
@@ -810,6 +827,7 @@ export async function getExpertPatientProfile(
     sessionsDone: sub.reduce((n, s) => n + s.sessionsUsed, 0),
     sessionsTotal: sub.reduce((n, s) => n + s.sessionsTotal, 0),
     sessionsRemaining: sub.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
+    sessionsBookedOnPackage,
     taskCompletionPct,
     tasks: tasks
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())

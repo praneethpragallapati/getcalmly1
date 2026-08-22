@@ -442,6 +442,12 @@ export type LibraryForm = {
   title: string
   description: string | null
   kind: string
+  /** How many questions it asks — shown next to the form when picking one. */
+  fieldCount: number
+  /** A form that ships with the product. Editable by an admin, copied by a clinician. */
+  builtIn: boolean
+  /** Who built it, or null for a built-in. Lets the caller work out `mine`. */
+  createdById: string | null
 }
 
 /** The forms a clinician can pick from when sending. INTAKE forms are excluded
@@ -452,7 +458,7 @@ export async function getFormLibrary(): Promise<LibraryForm[]> {
     const rows = await prisma.formTemplate.findMany({
       where: { active: true, kind: { not: 'INTAKE' } },
       orderBy: [{ kind: 'asc' }, { title: 'asc' }],
-      select: { id: true, slug: true, title: true, description: true, kind: true },
+      select: { id: true, slug: true, title: true, description: true, kind: true, fields: true, createdById: true },
     })
     return rows.map((r) => ({
       id: r.id,
@@ -460,6 +466,9 @@ export async function getFormLibrary(): Promise<LibraryForm[]> {
       title: r.title,
       description: r.description,
       kind: r.kind,
+      fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
+      builtIn: CODE_SLUGS.has(r.slug),
+      createdById: r.createdById ?? null,
     }))
   } catch {
     return []

@@ -68,6 +68,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   // and no pay riding on it — plus any session from any expert that already has
   // a note, so the clinician still sees the whole picture.
   const pastSessions = p.sessions.filter((s) => s.summary || (s.isOwn && s.payable))
+  /** Sessions that actually happened and were written up — any clinician's. */
+  const sessionsHeld = pastSessions.filter((s) => s.summary).length
 
   return (
     <div className="stack">
@@ -186,7 +188,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             value={`${p.sessionsDone}/${p.sessionsTotal} used`}
             sub={`${p.sessionsRemaining} remaining`}
           />
-          <Metric label="Sessions held" value={String(pastSessions.filter((x) => x.summary).length)} sub="with a written note" />
+          <Metric label="Sessions held" value={String(sessionsHeld)} sub="with a written note" />
           <Metric label="Task completion" value={`${p.taskCompletionPct}%`} />
           <Metric
             label="Medication"
@@ -195,6 +197,21 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           />
           <Metric label="High-risk chats" value={String(p.highStakeChatCount)} alert={p.highStakeChatCount > 0} />
         </div>
+
+        {/* The two session numbers come from different places — the package
+            counter moves when a session is BOOKED against a package, the held
+            count is sessions that actually happened and were written up — so
+            they can disagree for perfectly good reasons. When they do, say
+            which reason, instead of leaving it to be worked out. */}
+        {sessionsHeld !== p.sessionsDone && (
+          <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
+            {p.sessionsBookedOnPackage !== null && p.sessionsBookedOnPackage !== p.sessionsDone
+              ? `Package counter says ${p.sessionsDone} used, but ${p.sessionsBookedOnPackage} session${p.sessionsBookedOnPackage === 1 ? ' is' : 's are'} booked against it. The counter has drifted — an admin can fix it on the patient's admin page with "Set counter".`
+              : sessionsHeld > p.sessionsDone
+                ? `${sessionsHeld - p.sessionsDone} of these ${sessionsHeld - p.sessionsDone === 1 ? 'was' : 'were'} not paid for out of a current package — held before this package started, drawn from one that has since ended, or added outside the booking flow. The package counter only moves when a session is booked against it.`
+                : 'Some booked sessions have not been held or written up yet — the package counter moves at booking, not after the session.'}
+          </p>
+        )}
 
         <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(28,43,58,.08)' }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>
@@ -317,7 +334,16 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         {!supervisorView && (
           <SendFormCard
             patientId={p.patientId}
-            templates={formLibrary.map((t) => ({ id: t.id, title: `${t.title} (${FORM_KIND_LABEL[t.kind] ?? t.kind})` }))}
+            templates={formLibrary.map((t) => ({
+              id: t.id,
+              title: t.title,
+              kind: t.kind,
+              fieldCount: t.fieldCount,
+              builtIn: t.builtIn,
+              // Their own form is editable in place; anything else — a standard
+              // form, or a colleague's — is copied first.
+              mine: !t.builtIn && t.createdById === ctx.userId,
+            }))}
           />
         )}
       </div>
