@@ -55,6 +55,8 @@ export type CaseloadPatient = {
   email: string
   trackLabel: string
   lastMood: number | null
+  /** Mean of the same last-14 window `lastMood` is drawn from. */
+  avgMood: number | null
   moodTrend: MoodTrend
   openCrisisCount: number
   sessionsDone: number
@@ -459,6 +461,12 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
       email: u.email ?? '',
       trackLabel: trackLabelFor(u.patientProfile?.track?.[0], u.patientProfile?.trackLabel),
       lastMood: userMoods[0]?.mood ?? null,
+      // The average alongside the latest, because one reading is not a picture:
+      // a member at 7 today can still average 6.2 over the fortnight, and the
+      // dashboard showing only the 7 made that look like a contradiction.
+      avgMood: userMoods.length
+        ? Math.round((userMoods.reduce((a, m) => a + m.mood, 0) / userMoods.length) * 10) / 10
+        : null,
       moodTrend: moodTrendOf(userMoods),
       openCrisisCount: crisis.filter((c) => c.userId === u.id).length,
       sessionsDone: sub?.sessionsUsed ?? 0,

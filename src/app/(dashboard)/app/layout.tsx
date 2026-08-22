@@ -17,7 +17,7 @@ import { getSessionUser } from '@/lib/session'
 import { hasEffectiveCareTeam } from '@/lib/crisisReport'
 import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, istParts } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { getMemberEssentials, missingEssentials } from '@/lib/memberOnboarding'
 import { backfillRegistrationNumbers } from '@/lib/registration'
@@ -28,7 +28,9 @@ export const metadata: Metadata = {
 }
 
 function greetingFor(date: Date): string {
-  const h = date.getHours()
+  // IST, not the server clock. Vercel runs in UTC, so getHours() at 2pm IST
+  // returns 8 and everyone was greeted with "Good morning" all afternoon.
+  const h = istParts(date).hour
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
   return 'Good evening'

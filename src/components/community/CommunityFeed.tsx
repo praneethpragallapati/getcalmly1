@@ -649,8 +649,12 @@ export default function CommunityFeed({
           fontWeight: 600,
         }}
       >
+        {/* Not "Confidential". This is a shared space other members read, and
+            promising confidentiality here invites people to disclose more than
+            they would if they pictured the audience correctly. What is actually
+            true is that it is peer support and that they can post anonymously. */}
         Be kind &nbsp;·&nbsp; No medical advice &nbsp;·&nbsp; Your therapist is not here &nbsp;·&nbsp;
-        Confidential
+        Peer support
       </div>
 
       {/* ── Controls bar ─────────────────────────────────────────────────── */}
@@ -992,7 +996,8 @@ export default function CommunityFeed({
                 ['💚', 'Be kind', 'Lead with empathy, always.'],
                 ['⚕️', 'No medical advice', 'Share experiences, not prescriptions.'],
                 ['🧑‍⚕️', 'Your therapist is not here', 'This is peer support, not treatment.'],
-                ['🔒', 'Confidential', "What's shared here, stays here."],
+                ['👥', 'Peer support, not therapy', 'Other members can read what you post here.'],
+                ['🕶️', 'Post anonymously any time', 'Your name is hidden from other members when you choose it — we still keep it for moderation.'],
               ].map(([icon, head, sub]) => (
                 <li key={head} style={{ display: 'flex', gap: 10 }}>
                   <span style={{ fontSize: 16, lineHeight: 1.4 }}>{icon}</span>

@@ -17,7 +17,7 @@ import { getNotifications, getUnreadCount } from '@/lib/notifications'
 import { roleHome } from '@/lib/roleHome'
 import { expertCode } from '@/lib/ids'
 import { mustChangePassword } from '@/lib/accountSecurity'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, istParts } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { backfillRegistrationNumbers } from '@/lib/registration'
 
@@ -143,7 +143,8 @@ export default async function ExpertLayout({ children }: { children: React.React
             </div>
             <div className="tb-greeting" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               {(() => {
-                const h = new Date().getHours()
+                // IST, not the server clock — see the note in the member layout.
+                const h = istParts(new Date()).hour
                 const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
                 return (
                   <>

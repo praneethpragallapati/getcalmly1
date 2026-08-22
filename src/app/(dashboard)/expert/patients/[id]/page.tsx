@@ -173,7 +173,18 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap', marginTop: 12 }}>
           <Metric label="Streak" value={`${p.streakDays} days`} icon={<Flame size={15} />} />
           <Metric label="Mood trend" value={TREND_LABEL[p.moodTrend]} />
-          <Metric label="Sessions" value={`${p.sessionsDone}/${p.sessionsTotal}`} sub={`${p.sessionsRemaining} remaining`} />
+          {/* This is the PACKAGE counter (sessionsUsed / sessionsTotal on their
+              subscription), not a count of sessions that happened. The two can
+              legitimately differ — a booking consumes one immediately, a voided
+              session returns one — and labelling both "Sessions" made a package
+              reading 1/17 next to two written-up sessions look like a bug.
+              Completed sessions are shown separately, from the appointments. */}
+          <Metric
+            label="Package sessions"
+            value={`${p.sessionsDone}/${p.sessionsTotal} used`}
+            sub={`${p.sessionsRemaining} remaining`}
+          />
+          <Metric label="Sessions held" value={String(pastSessions.filter((x) => x.summary).length)} sub="with a written note" />
           <Metric label="Task completion" value={`${p.taskCompletionPct}%`} />
           <Metric
             label="Medication"
@@ -184,7 +195,18 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
 
         <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(28,43,58,.08)' }}>
-          <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>Mood, last 14 check-ins</div>
+          <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>
+            Mood, last 14 check-ins
+            {/* Height and colour are two readings of the same number, and neither
+                was explained: height is the score, colour is which band it falls
+                in. Without this the bars looked arbitrary. */}
+            <span style={{ marginLeft: 8 }}>
+              — height is the score out of 10; colour is the band:
+              <span style={{ color: 'var(--c-coral)', fontWeight: 700 }}> 1–4 low</span>,
+              <span style={{ color: 'var(--c-gold)', fontWeight: 700 }}> 5–6 middling</span>,
+              <span style={{ color: 'var(--c-green)', fontWeight: 700 }}> 7–10 good</span>
+            </span>
+          </div>
           {p.moodWeek.length === 0 ? (
             <p className="muted" style={{ fontSize: 13.5, margin: 0 }}>No mood check-ins yet.</p>
           ) : (

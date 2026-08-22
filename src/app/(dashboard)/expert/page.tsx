@@ -300,20 +300,36 @@ export default async function ExpertHomePage() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <div className="section-title">Patient mood overview</div>
-            <span className="muted" style={{ fontSize: 12 }}>latest check-in</span>
+            {/* Spelled out because "mood overview" reads like an average and is
+                not one — the big number is the most recent check-in. The average
+                sits beside it so the two can never look like a contradiction. */}
+            <span className="muted" style={{ fontSize: 12 }}>latest check-in · out of 10</span>
           </div>
           {moodRows.length === 0 && <p className="muted" style={{ marginTop: 12 }}>No mood check-ins yet.</p>}
           <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {moodRows.map((p) => (
               <Link key={p.patientId} href={`/expert/patients/${p.patientId}`} style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-charcoal)', width: 110, flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                {/* Bar length is the latest score out of 10; bar COLOUR is the
+                    trend, not the score. Those are two different facts and the
+                    legend below says so. */}
                 <span style={{ flex: 1, height: 7, borderRadius: 6, background: 'rgba(28,43,58,.07)', overflow: 'hidden' }}>
                   <span style={{ display: 'block', height: '100%', borderRadius: 6, width: `${(p.lastMood ?? 0) * 10}%`, background: trendColor(p.moodTrend) }} />
                 </span>
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15, width: 30, textAlign: 'right' }}>{p.lastMood?.toFixed(1)}</span>
+                <span className="muted" style={{ fontSize: 11.5, width: 56, textAlign: 'right', flexShrink: 0 }}>
+                  {p.avgMood != null ? `avg ${p.avgMood.toFixed(1)}` : ''}
+                </span>
               </Link>
             ))}
           </div>
+          {moodRows.length > 0 && (
+            <p className="muted" style={{ fontSize: 11.5, marginTop: 12, lineHeight: 1.6 }}>
+              Bar length = latest check-in out of 10. Bar colour = direction of travel
+              across their last 14 check-ins (improving / stable / declining), not the score.
+              <strong> avg</strong> is the mean of those same 14.
+            </p>
+          )}
         </div>
       </div>
 
