@@ -15,7 +15,7 @@ import { parseCompensationFields, type CompensationField } from '@/lib/compensat
 import { revokeReferral, revokeReferralForPayment, ensureReferralSchema } from '@/lib/referral'
 import {
   createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
-  getFormTemplate, updateFormTemplate, type CustomFormDetail,
+  getFormTemplate, updateFormTemplate, copyFormTemplate, type CustomFormDetail,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, notifyMany, markAllRead } from '@/lib/notifications'
@@ -1340,6 +1340,21 @@ export async function editPlatformForm(id: string, input: CustomFormInput): Prom
   const res = await updateFormTemplate(id, input, null)
   if (res.ok) revalidatePath('/admin/config')
   return { ok: res.ok, error: res.error }
+}
+
+/**
+ * Duplicate any form into a new one an admin owns.
+ *
+ * Useful for starting from an existing form rather than a blank page — an admin
+ * can already edit the standard forms in place, so this is convenience rather
+ * than the only route, which is what it is for a clinician.
+ */
+export async function copyPlatformForm(id: string): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const admin = await requireAdmin()
+  if (!admin?.id) return { ok: false, error: 'Admin access required.' }
+  const res = await copyFormTemplate(id, admin.id, admin.name)
+  if (res.ok) revalidatePath('/admin/config')
+  return res
 }
 
 /** Retire any custom form (admin scope covers forms clinicians built too). */

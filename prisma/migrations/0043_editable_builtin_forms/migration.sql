@@ -1,0 +1,11 @@
+-- Let the forms that ship with the product be edited.
+--
+-- ensureFormTemplates() upserts the in-code library on every call and overwrote
+-- title, description, kind and fields each time, so an edit to a built-in form
+-- would silently revert. That is why they were read-only — and why a clinician
+-- could build a new form but never adjust one of the standard ones before
+-- sending it.
+--
+-- customisedAt marks a built-in someone has edited. The seeding skips the
+-- update for those rows, so the edit stands.
+ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "customisedAt" TIMESTAMP(3);

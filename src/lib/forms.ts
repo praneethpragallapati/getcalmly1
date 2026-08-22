@@ -19,10 +19,22 @@ export type { FormField } from '@/data/forms'
  * separate seed run.
  */
 export async function ensureFormTemplates(): Promise<void> {
+  await ensureCustomFormSchema().catch(() => {})
+  // Which built-ins someone has edited. Their content is theirs now, so this
+  // seeding must not write over it — that overwrite is the entire reason
+  // built-in forms used to be read-only, and it is what this list lifts.
+  const customised = new Set(
+    (await prisma.formTemplate
+      .findMany({ where: { customisedAt: { not: null } }, select: { slug: true } })
+      .catch(() => [] as { slug: string }[])
+    ).map((r) => r.slug),
+  )
   for (const t of FORM_TEMPLATES) {
     await prisma.formTemplate.upsert({
       where: { slug: t.slug },
-      update: {
+      // An edited built-in keeps everything the editor set. It is still upserted
+      // so a deleted row comes back, but nothing already there is touched.
+      update: customised.has(t.slug) ? {} : {
         title: t.title,
         description: t.description,
         kind: t.kind,
@@ -59,6 +71,9 @@ export async function ensureCustomFormSchema(): Promise<void> {
   const stmts = [
     `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdById" TEXT`,
     `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdByName" TEXT`,
+    // Set when someone edits a built-in form. Its only job is to tell
+    // ensureFormTemplates to leave that row alone.
+    `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "customisedAt" TIMESTAMP(3)`,
     `CREATE INDEX IF NOT EXISTS "FormTemplate_createdById_idx" ON "FormTemplate"("createdById")`,
   ]
   for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
@@ -86,6 +101,8 @@ export type CustomFormRow = {
   fieldCount: number
   active: boolean
   createdByName: string | null
+  /** A form that ships with the product, as opposed to one someone built. */
+  builtIn: boolean
   mine: boolean
 }
 
@@ -196,23 +213,31 @@ export async function createFormTemplate(
 export async function listCustomForms(ownerId: string | null): Promise<CustomFormRow[]> {
   try {
     await ensureCustomFormSchema()
+    // Built-in forms are listed now, not filtered out. Hiding them was why a
+    // clinician could create a form but never adjust one of the standard ones —
+    // they simply were not on the page to open.
     const rows = await prisma.formTemplate.findMany({
-      where: {
-        slug: { notIn: [...CODE_SLUGS] },
-        ...(ownerId ? { createdById: ownerId } : {}),
-      },
+      where: ownerId
+        ? { OR: [{ createdById: ownerId }, { slug: { in: [...CODE_SLUGS] } }] }
+        : {},
       orderBy: { createdAt: 'desc' },
-      select: { id: true, title: true, kind: true, fields: true, active: true, createdById: true, createdByName: true },
+      select: { id: true, slug: true, title: true, kind: true, fields: true, active: true, createdById: true, createdByName: true },
     })
-    return rows.map((r) => ({
-      id: r.id,
-      title: r.title,
-      kind: String(r.kind),
-      fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
-      active: r.active,
-      createdByName: r.createdByName ?? null,
-      mine: ownerId ? r.createdById === ownerId : true,
-    }))
+    return rows.map((r) => {
+      const builtIn = CODE_SLUGS.has(r.slug)
+      return {
+        id: r.id,
+        title: r.title,
+        kind: String(r.kind),
+        fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
+        active: r.active,
+        createdByName: r.createdByName ?? null,
+        builtIn,
+        // An admin owns the shared library. A clinician owns only what they
+        // built — they copy a built-in rather than rewriting it for everyone.
+        mine: ownerId ? r.createdById === ownerId : true,
+      }
+    })
   } catch {
     return []
   }
@@ -226,6 +251,8 @@ export type CustomFormDetail = {
   kind: string
   active: boolean
   mine: boolean
+  /** A form that ships with the product. Editable by an admin, copied by a clinician. */
+  builtIn: boolean
   /** How many patients have been sent this form — editing a used form is riskier. */
   sentCount: number
   fields: FormField[]
@@ -253,7 +280,9 @@ export async function getFormTemplate(id: string, ownerId: string | null): Promi
       description: row.description,
       kind: String(row.kind),
       active: row.active,
-      mine: ownerId ? row.createdById === ownerId : !CODE_SLUGS.has(row.slug),
+      builtIn: CODE_SLUGS.has(row.slug),
+      // An admin owns the shared library, built-ins included.
+      mine: ownerId ? row.createdById === ownerId : true,
       sentCount: row._count.assignments,
       fields: Array.isArray(row.fields) ? (row.fields as unknown as FormField[]) : [],
     }
@@ -296,8 +325,18 @@ export async function updateFormTemplate(
       select: { slug: true, createdById: true },
     })
     if (!row) return { ok: false, error: 'That form no longer exists.' }
-    if (CODE_SLUGS.has(row.slug)) return { ok: false, error: 'Built-in forms cannot be edited.' }
-    if (ownerId && row.createdById !== ownerId) return { ok: false, error: 'That form belongs to someone else.' }
+
+    const builtIn = CODE_SLUGS.has(row.slug)
+    // A built-in belongs to the platform, so only an admin (ownerId null) edits
+    // it in place. A clinician copies it instead — see copyFormTemplate. One
+    // clinician quietly rewriting a shared consent form for every other
+    // clinician is not an edit anyone intended to allow.
+    if (builtIn && ownerId) {
+      return { ok: false, error: 'This is a standard form. Use “Make my own copy” to change it for your own use.' }
+    }
+    if (!builtIn && ownerId && row.createdById !== ownerId) {
+      return { ok: false, error: 'That form belongs to someone else.' }
+    }
 
     await prisma.formTemplate.update({
       where: { id },
@@ -306,11 +345,63 @@ export async function updateFormTemplate(
         description: input.description?.trim().slice(0, 500) || null,
         kind,
         fields: norm.fields as unknown as object,
+        // Stamped so ensureFormTemplates() stops re-seeding over this row. Only
+        // meaningful for built-ins; harmless on a custom form.
+        ...(builtIn ? { customisedAt: new Date() } : {}),
       },
     })
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not save the form.' }
+  }
+}
+
+/**
+ * Duplicate a form into one the caller owns, so it can be adjusted freely.
+ *
+ * This is how a clinician changes a standard form: they get their own copy,
+ * pre-filled with the original's questions, and the shared version is left
+ * exactly as it was for everyone else. It is also useful for starting a new
+ * form from an existing one rather than a blank page.
+ *
+ * Returns the new form's id so the caller can open it in the builder.
+ */
+export async function copyFormTemplate(
+  id: string,
+  ownerId: string | null,
+  ownerName: string | null,
+): Promise<{ ok: boolean; id?: string; error?: string }> {
+  try {
+    await ensureCustomFormSchema()
+    const row = await prisma.formTemplate.findUnique({
+      where: { id },
+      select: { title: true, description: true, kind: true, fields: true },
+    })
+    if (!row) return { ok: false, error: 'That form no longer exists.' }
+
+    // INTAKE forms are owned by the booking flow (auto-sent, category-matched),
+    // so a copy of one is filed as INFO rather than joining that rotation.
+    const kind = (CUSTOM_FORM_KINDS as readonly string[]).includes(String(row.kind))
+      ? (String(row.kind) as CustomFormKind)
+      : 'INFO'
+    const fields = Array.isArray(row.fields) ? (row.fields as unknown as FormField[]) : []
+
+    const created = await prisma.formTemplate.create({
+      data: {
+        slug: `copy-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+        title: `${row.title} (my copy)`.slice(0, 120),
+        description: row.description,
+        kind,
+        fields: fields as unknown as object,
+        createdById: ownerId,
+        createdByName: ownerName,
+      },
+      select: { id: true },
+    })
+    return { ok: true, id: created.id }
+  } catch (e) {
+    console.error('[copyFormTemplate] failed', e)
+    return { ok: false, error: 'Could not copy that form.' }
   }
 }
 

@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- getCalmly · Consolidated schema catch-up (migrations 0014 → 0042)
+-- getCalmly · Consolidated schema catch-up (migrations 0014 → 0043)
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Run this ONCE against your database to add every column the current app code
 -- expects. It is fully idempotent (ADD COLUMN IF NOT EXISTS / guarded
@@ -381,3 +381,7 @@ ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "adminType" TEXT;
 ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyName" TEXT;
 ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyPhone" TEXT;
 ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "emergencyRelation" TEXT;
+
+-- 0043_editable_builtin_forms
+-- Marks a built-in form someone has edited, so re-seeding leaves it alone.
+ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "customisedAt" TIMESTAMP(3);

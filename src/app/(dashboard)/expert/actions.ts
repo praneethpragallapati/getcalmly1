@@ -23,7 +23,7 @@ import {
 } from '@/lib/expert'
 import {
   sendForm, createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
-  getFormTemplate, updateFormTemplate, type CustomFormDetail,
+  getFormTemplate, updateFormTemplate, copyFormTemplate, type CustomFormDetail,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, markAllRead } from '@/lib/notifications'
@@ -481,6 +481,20 @@ export async function editMyForm(id: string, input: CustomFormInput): Promise<{ 
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await updateFormTemplate(id, input, ctx.userId)
+  if (res.ok) revalidatePath('/expert/forms')
+  return res
+}
+
+/**
+ * Copy a form into one this clinician owns, so they can adjust it.
+ *
+ * This is how a standard form gets changed for one clinician's use without
+ * rewriting it for everyone else.
+ */
+export async function copyFormForMe(id: string): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Please sign in.' }
+  const res = await copyFormTemplate(id, ctx.userId, ctx.therapistName ?? null)
   if (res.ok) revalidatePath('/expert/forms')
   return res
 }

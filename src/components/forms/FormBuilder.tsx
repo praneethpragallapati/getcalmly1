@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, FilePlus2, Pencil, Plus, Trash2, X } from 'lucide-react'
-import { createPlatformForm, removePlatformForm, readPlatformForm, editPlatformForm } from '@/app/admin/actions'
-import { createMyForm, removeMyForm, readMyForm, editMyForm } from '@/app/(dashboard)/expert/actions'
+import { Copy, Eye, FilePlus2, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { createPlatformForm, removePlatformForm, readPlatformForm, editPlatformForm, copyPlatformForm } from '@/app/admin/actions'
+import { createMyForm, removeMyForm, readMyForm, editMyForm, copyFormForMe } from '@/app/(dashboard)/expert/actions'
 import type { CustomFormRow, CustomFormDetail } from '@/lib/forms'
 
 const charcoal = '#1C2B3A'
@@ -151,6 +151,22 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
     })
   }
 
+  /**
+   * Duplicate a form into one this person owns, then open it in the builder.
+   *
+   * This is the route for changing a standard form: the copy is theirs to edit
+   * and send, and the shared original is left as it is for everyone else.
+   */
+  const copyForMe = (id: string) => start(async () => {
+    setBusyId(id); setError(null); setDone(null)
+    const res = scope === 'admin' ? await copyPlatformForm(id) : await copyFormForMe(id)
+    setBusyId(null)
+    if (!res.ok || !res.id) { setError(res.error ?? 'Could not copy that form.'); return }
+    router.refresh()
+    // Copying is only ever a prelude to changing something, so open it.
+    edit(res.id)
+  })
+
   const remove = (id: string) => start(async () => {
     const res = scope === 'admin' ? await removePlatformForm(id) : await removeMyForm(id)
     if (!res.ok) setError(res.error || 'Could not remove the form.')
@@ -192,6 +208,7 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
                 <div style={{ fontSize: 13.5, fontWeight: 700, color: charcoal }}>{f.title}</div>
                 <div className="muted" style={{ fontSize: 12 }}>
                   {KIND_LABEL[f.kind] ?? f.kind} · {f.fieldCount} question{f.fieldCount === 1 ? '' : 's'}
+                  {f.builtIn ? ' · standard form' : ''}
                   {f.createdByName && scope === 'admin' ? ` · by ${f.createdByName}` : ''}
                   {f.active ? '' : ' · retired'}
                 </div>
@@ -206,12 +223,26 @@ export function FormBuilder({ scope, forms = [], embedded = false }: {
               >
                 <Eye size={15} />
               </button>
+              {/* An admin edits a standard form in place — the shared library is
+                  theirs. A clinician gets a copy instead, so adjusting a consent
+                  form for one person cannot rewrite it for every colleague. */}
               {f.mine && f.active && (
                 <button onClick={() => edit(f.id)} disabled={pending} aria-label={`Edit ${f.title}`} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-coral-d)', display: 'inline-flex' }}>
                   <Pencil size={15} />
                 </button>
               )}
-              {f.mine && f.active && (
+              {f.active && (
+                <button
+                  onClick={() => copyForMe(f.id)}
+                  disabled={pending}
+                  aria-label={`Make my own copy of ${f.title}`}
+                  title={f.mine ? 'Duplicate' : 'Make my own copy to edit'}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-coral-d)', display: 'inline-flex' }}
+                >
+                  <Copy size={15} />
+                </button>
+              )}
+              {f.mine && f.active && !f.builtIn && (
                 <button onClick={() => remove(f.id)} disabled={pending} aria-label={`Remove ${f.title}`} title="Remove" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', display: 'inline-flex' }}>
                   <Trash2 size={15} />
                 </button>

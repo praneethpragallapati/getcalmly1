@@ -1121,6 +1121,10 @@ model FormTemplate {
   // from the in-code library (src/data/forms.ts) and is managed there.
   createdById String?
   createdByName String?
+  // Set when someone edits a form that ships with the product. Its only job is
+  // to stop ensureFormTemplates() re-seeding over the edit on the next call —
+  // that overwrite is why built-in forms used to be read-only.
+  customisedAt DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   assignments FormAssignment[]
