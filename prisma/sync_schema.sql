@@ -507,7 +507,8 @@ CREATE TABLE IF NOT EXISTS "FormAssignment" (
   "responses" jsonb,
   "note" text,
   "sentAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "completedAt" timestamp(3) without time zone
+  "completedAt" timestamp(3) without time zone,
+  "fields" jsonb
 );
 ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "id" text NOT NULL;
 ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "templateId" text NOT NULL;
@@ -518,6 +519,7 @@ ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "responses" jsonb;
 ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "note" text;
 ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "sentAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL;
 ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "completedAt" timestamp(3) without time zone;
+ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "fields" jsonb;
 
 CREATE TABLE IF NOT EXISTS "FormAutoRule" (
   "id" text NOT NULL,
@@ -553,6 +555,7 @@ CREATE TABLE IF NOT EXISTS "FormTemplate" (
   "createdById" text,
   "createdByName" text,
   "customisedAt" timestamp(3) without time zone,
+  "shared" boolean DEFAULT false NOT NULL,
   "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "updatedAt" timestamp(3) without time zone NOT NULL
 );
@@ -568,6 +571,7 @@ ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "active" boolean DEFAULT tru
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdById" text;
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdByName" text;
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "customisedAt" timestamp(3) without time zone;
+ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "shared" boolean DEFAULT false NOT NULL;
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL;
 ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "updatedAt" timestamp(3) without time zone NOT NULL;
 

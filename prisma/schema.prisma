@@ -1125,6 +1125,10 @@ model FormTemplate {
   // to stop ensureFormTemplates() re-seeding over the edit on the next call —
   // that overwrite is why built-in forms used to be read-only.
   customisedAt DateTime?
+  // In the library every clinician can send from. True for the forms that ship
+  // with the product and for anything an admin builds; false for a form a
+  // clinician built, which only they can see and send.
+  shared      Boolean          @default(false)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   assignments FormAssignment[]
@@ -1174,6 +1178,11 @@ model FormAssignment {
   status       FormStatus   @default(PENDING)
   // Patient's answers, keyed by field.key. Null until submitted.
   responses    Json?
+  // The questions as actually sent, when the clinician adjusted them in the
+  // preview before sending. Null means "whatever the template says" — the
+  // ordinary case. Kept here rather than as a new template so tweaking one
+  // consent form for one person doesn't leave a near-duplicate in the library.
+  fields       Json?
   note         String?      @db.Text
   sentAt       DateTime     @default(now())
   completedAt  DateTime?

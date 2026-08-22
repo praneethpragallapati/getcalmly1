@@ -55,7 +55,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   // getWeeklyProgress read (which said the same thing again) is gone.
   const [weeklySummary, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
     getPatientWeeklySummary(id),
-    getFormLibrary(),
+    getFormLibrary(ctx.userId),
     getPatientFormsForExpert(effectiveTherapistId, id),
     getRiskNotifications(effectiveTherapistId),
     getGuidedTrackOptions(),
@@ -331,16 +331,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         {!supervisorView && (
           <SendFormCard
             patientId={p.patientId}
-            templates={formLibrary.map((t) => ({
-              id: t.id,
-              title: t.title,
-              kind: t.kind,
-              fieldCount: t.fieldCount,
-              builtIn: t.builtIn,
-              // Their own form is editable in place; anything else — a standard
-              // form, or a colleague's — is copied first.
-              mine: !t.builtIn && t.createdById === ctx.userId,
-            }))}
+            templates={formLibrary.map((t) => ({ id: t.id, title: t.title, kind: t.kind }))}
           />
         )}
       </div>

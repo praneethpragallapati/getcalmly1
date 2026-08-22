@@ -42,6 +42,10 @@ export async function ensureFormTemplates(): Promise<void> {
         autoSend: t.autoSend ?? false,
         fields: t.fields,
         active: true,
+        // Shared by definition — these are the forms every clinician sends from.
+        // Set here as well as in the backfill because seeding runs AFTER the
+        // backfill on a fresh database, where there was nothing yet to backfill.
+        shared: true,
       },
       create: {
         slug: t.slug,
@@ -51,6 +55,7 @@ export async function ensureFormTemplates(): Promise<void> {
         category: t.category ?? null,
         autoSend: t.autoSend ?? false,
         fields: t.fields,
+        shared: true,
       },
     })
   }
@@ -74,6 +79,18 @@ export async function ensureCustomFormSchema(): Promise<void> {
     // Set when someone edits a built-in form. Its only job is to tell
     // ensureFormTemplates to leave that row alone.
     `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "customisedAt" TIMESTAMP(3)`,
+    // The shared library: forms every clinician can send from. Built-ins have no
+    // creator, and an admin's forms are shared by definition; a clinician's own
+    // form is theirs alone. Backfilled here because the column arrives after the
+    // rows do — without it every existing form would read as private and the
+    // library would look empty.
+    `ALTER TABLE "FormTemplate" ADD COLUMN IF NOT EXISTS "shared" BOOLEAN NOT NULL DEFAULT false`,
+    `UPDATE "FormTemplate" SET "shared" = true WHERE "createdById" IS NULL AND "shared" = false`,
+    `UPDATE "FormTemplate" t SET "shared" = true FROM "User" u
+       WHERE u.id = t."createdById" AND u.role = 'ADMIN' AND t."shared" = false`,
+    // The questions as actually sent, when a clinician adjusted them in the
+    // preview. Null = use the template's.
+    `ALTER TABLE "FormAssignment" ADD COLUMN IF NOT EXISTS "fields" JSONB`,
     `CREATE INDEX IF NOT EXISTS "FormTemplate_createdById_idx" ON "FormTemplate"("createdById")`,
   ]
   for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
@@ -101,8 +118,9 @@ export type CustomFormRow = {
   fieldCount: number
   active: boolean
   createdByName: string | null
-  /** A form that ships with the product, as opposed to one someone built. */
-  builtIn: boolean
+  /** In the library every clinician can send from. Only an admin creates these. */
+  shared: boolean
+  /** This person built it, so this person can edit it. */
   mine: boolean
 }
 
@@ -158,13 +176,13 @@ function normalizeFields(
 }
 
 /**
- * Build a new form. `createdById` scopes ownership: an admin's forms are
- * platform-wide, a clinician's are their own to manage. Both end up in the same
- * library, so a custom form is sendable and rule-usable exactly like a built-in.
+ * Build a new form. `shared` is what decides who ever sees it: an admin's forms
+ * join the library every clinician sends from, a clinician's are theirs alone.
+ * Either way it is sendable and rule-usable exactly like a built-in.
  */
 export async function createFormTemplate(
   input: CustomFormInput,
-  author: { id: string; name: string | null },
+  author: { id: string; name: string | null; shared?: boolean },
 ): Promise<{ ok: boolean; error?: string; id?: string }> {
   const title = input.title.trim().replace(/\s+/g, ' ').slice(0, 120)
   if (!title) return { ok: false, error: 'Give the form a title.' }
@@ -196,6 +214,7 @@ export async function createFormTemplate(
         fields: fields as unknown as object,
         createdById: author.id,
         createdByName: author.name ?? null,
+        shared: author.shared ?? false,
       },
       select: { id: true },
     })
@@ -206,38 +225,30 @@ export async function createFormTemplate(
 }
 
 /**
- * Forms built in the UI. Admin (`ownerId` null) sees every custom form; a
- * clinician sees their own. Built-in library forms are never listed here —
- * they're managed in code.
+ * The forms someone manages. An admin (`ownerId` null) manages the whole
+ * library. A clinician manages only what they built: the shared forms are
+ * listed too, so they can read them, but they are not theirs to rewrite —
+ * adjusting one for a single patient happens in the send preview instead.
  */
 export async function listCustomForms(ownerId: string | null): Promise<CustomFormRow[]> {
   try {
     await ensureCustomFormSchema()
-    // Built-in forms are listed now, not filtered out. Hiding them was why a
-    // clinician could create a form but never adjust one of the standard ones —
-    // they simply were not on the page to open.
     const rows = await prisma.formTemplate.findMany({
-      where: ownerId
-        ? { OR: [{ createdById: ownerId }, { slug: { in: [...CODE_SLUGS] } }] }
-        : {},
+      where: ownerId ? { OR: [{ createdById: ownerId }, { shared: true }] } : {},
       orderBy: { createdAt: 'desc' },
-      select: { id: true, slug: true, title: true, kind: true, fields: true, active: true, createdById: true, createdByName: true },
+      select: { id: true, title: true, kind: true, fields: true, active: true, shared: true, createdById: true, createdByName: true },
     })
-    return rows.map((r) => {
-      const builtIn = CODE_SLUGS.has(r.slug)
-      return {
-        id: r.id,
-        title: r.title,
-        kind: String(r.kind),
-        fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
-        active: r.active,
-        createdByName: r.createdByName ?? null,
-        builtIn,
-        // An admin owns the shared library. A clinician owns only what they
-        // built — they copy a built-in rather than rewriting it for everyone.
-        mine: ownerId ? r.createdById === ownerId : true,
-      }
-    })
+    return rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      kind: String(r.kind),
+      fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
+      active: r.active,
+      createdByName: r.createdByName ?? null,
+      shared: r.shared,
+      // An admin owns the whole library. A clinician owns only what they built.
+      mine: ownerId ? r.createdById === ownerId : true,
+    }))
   } catch {
     return []
   }
@@ -251,17 +262,17 @@ export type CustomFormDetail = {
   kind: string
   active: boolean
   mine: boolean
-  /** A form that ships with the product. Editable by an admin, copied by a clinician. */
-  builtIn: boolean
+  /** In the library every clinician can send from. Admin-managed. */
+  shared: boolean
   /** How many patients have been sent this form — editing a used form is riskier. */
   sentCount: number
   fields: FormField[]
 }
 
 /**
- * Read one custom form in full. `ownerId` null = admin (any form); a clinician
- * may read any form in the shared library but only owns their own — `mine` is
- * what gates editing in the UI, and the update below re-checks it server-side.
+ * Read one form in full. `ownerId` null = admin (any form); a clinician may read
+ * any form they can send but owns only their own — `mine` is what gates editing
+ * in the UI, and the update below re-checks it server-side.
  */
 export async function getFormTemplate(id: string, ownerId: string | null): Promise<CustomFormDetail | null> {
   try {
@@ -270,7 +281,7 @@ export async function getFormTemplate(id: string, ownerId: string | null): Promi
       where: { id },
       select: {
         id: true, title: true, description: true, kind: true, fields: true, active: true,
-        createdById: true, slug: true, _count: { select: { assignments: true } },
+        createdById: true, shared: true, _count: { select: { assignments: true } },
       },
     })
     if (!row) return null
@@ -280,8 +291,8 @@ export async function getFormTemplate(id: string, ownerId: string | null): Promi
       description: row.description,
       kind: String(row.kind),
       active: row.active,
-      builtIn: CODE_SLUGS.has(row.slug),
-      // An admin owns the shared library, built-ins included.
+      shared: row.shared,
+      // An admin owns the whole library, built-ins included.
       mine: ownerId ? row.createdById === ownerId : true,
       sentCount: row._count.assignments,
       fields: Array.isArray(row.fields) ? (row.fields as unknown as FormField[]) : [],
@@ -327,15 +338,16 @@ export async function updateFormTemplate(
     if (!row) return { ok: false, error: 'That form no longer exists.' }
 
     const builtIn = CODE_SLUGS.has(row.slug)
-    // A built-in belongs to the platform, so only an admin (ownerId null) edits
-    // it in place. A clinician copies it instead — see copyFormTemplate. One
-    // clinician quietly rewriting a shared consent form for every other
-    // clinician is not an edit anyone intended to allow.
-    if (builtIn && ownerId) {
-      return { ok: false, error: 'This is a standard form. Use “Make my own copy” to change it for your own use.' }
-    }
-    if (!builtIn && ownerId && row.createdById !== ownerId) {
-      return { ok: false, error: 'That form belongs to someone else.' }
+    // The shared library is the admin's (ownerId null). One clinician quietly
+    // rewriting a consent form for every other clinician is not an edit anyone
+    // intended to allow — and a clinician who needs this form worded differently
+    // for one patient changes it in the send preview, which touches only that
+    // patient's copy and leaves the library alone.
+    if (ownerId && row.createdById !== ownerId) {
+      return {
+        ok: false,
+        error: 'Only an admin can change a shared form. To adjust it for one patient, edit it in the preview before sending.',
+      }
     }
 
     await prisma.formTemplate.update({
@@ -353,55 +365,6 @@ export async function updateFormTemplate(
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not save the form.' }
-  }
-}
-
-/**
- * Duplicate a form into one the caller owns, so it can be adjusted freely.
- *
- * This is how a clinician changes a standard form: they get their own copy,
- * pre-filled with the original's questions, and the shared version is left
- * exactly as it was for everyone else. It is also useful for starting a new
- * form from an existing one rather than a blank page.
- *
- * Returns the new form's id so the caller can open it in the builder.
- */
-export async function copyFormTemplate(
-  id: string,
-  ownerId: string | null,
-  ownerName: string | null,
-): Promise<{ ok: boolean; id?: string; error?: string }> {
-  try {
-    await ensureCustomFormSchema()
-    const row = await prisma.formTemplate.findUnique({
-      where: { id },
-      select: { title: true, description: true, kind: true, fields: true },
-    })
-    if (!row) return { ok: false, error: 'That form no longer exists.' }
-
-    // INTAKE forms are owned by the booking flow (auto-sent, category-matched),
-    // so a copy of one is filed as INFO rather than joining that rotation.
-    const kind = (CUSTOM_FORM_KINDS as readonly string[]).includes(String(row.kind))
-      ? (String(row.kind) as CustomFormKind)
-      : 'INFO'
-    const fields = Array.isArray(row.fields) ? (row.fields as unknown as FormField[]) : []
-
-    const created = await prisma.formTemplate.create({
-      data: {
-        slug: `copy-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
-        title: `${row.title} (my copy)`.slice(0, 120),
-        description: row.description,
-        kind,
-        fields: fields as unknown as object,
-        createdById: ownerId,
-        createdByName: ownerName,
-      },
-      select: { id: true },
-    })
-    return { ok: true, id: created.id }
-  } catch (e) {
-    console.error('[copyFormTemplate] failed', e)
-    return { ok: false, error: 'Could not copy that form.' }
   }
 }
 
@@ -444,21 +407,29 @@ export type LibraryForm = {
   kind: string
   /** How many questions it asks — shown next to the form when picking one. */
   fieldCount: number
-  /** A form that ships with the product. Editable by an admin, copied by a clinician. */
-  builtIn: boolean
-  /** Who built it, or null for a built-in. Lets the caller work out `mine`. */
-  createdById: string | null
+  /** In the library every clinician can send from, as opposed to one they built. */
+  shared: boolean
 }
 
-/** The forms a clinician can pick from when sending. INTAKE forms are excluded
- * from the on-demand picker (they're auto-sent), leaving consent/info/feedback. */
-export async function getFormLibrary(): Promise<LibraryForm[]> {
+/**
+ * The forms someone can pick from when sending.
+ *
+ * `viewerId` scopes it: the shared library (built-ins and anything an admin
+ * built) plus that person's own forms — never a colleague's. Passing null is
+ * the admin view, which is everything. INTAKE forms are excluded from the
+ * on-demand picker (they're auto-sent), leaving consent/info/feedback.
+ */
+export async function getFormLibrary(viewerId?: string | null): Promise<LibraryForm[]> {
   try {
     await ensureFormTemplates()
     const rows = await prisma.formTemplate.findMany({
-      where: { active: true, kind: { not: 'INTAKE' } },
+      where: {
+        active: true,
+        kind: { not: 'INTAKE' },
+        ...(viewerId ? { OR: [{ shared: true }, { createdById: viewerId }] } : {}),
+      },
       orderBy: [{ kind: 'asc' }, { title: 'asc' }],
-      select: { id: true, slug: true, title: true, description: true, kind: true, fields: true, createdById: true },
+      select: { id: true, slug: true, title: true, description: true, kind: true, fields: true, shared: true },
     })
     return rows.map((r) => ({
       id: r.id,
@@ -467,8 +438,7 @@ export async function getFormLibrary(): Promise<LibraryForm[]> {
       description: r.description,
       kind: r.kind,
       fieldCount: Array.isArray(r.fields) ? (r.fields as unknown[]).length : 0,
-      builtIn: CODE_SLUGS.has(r.slug),
-      createdById: r.createdById ?? null,
+      shared: r.shared,
     }))
   } catch {
     return []
@@ -543,9 +513,16 @@ export type FormToFill = {
 
 /** Load one assigned form for the patient to fill (or review once completed). */
 export async function getFormToFill(patientId: string, assignmentId: string): Promise<FormToFill | null> {
+  await ensureCustomFormSchema().catch(() => {})
   const a = await prisma.formAssignment.findFirst({
     where: { id: assignmentId, patientId },
-    include: { template: true },
+    // Explicit select, not `include: { template: true }`: an include pulls every
+    // column on both rows, so the next column added to either model would break
+    // the one page a patient fills their form in on.
+    select: {
+      id: true, status: true, responses: true, fields: true,
+      template: { select: { title: true, description: true, kind: true, fields: true } },
+    },
   })
   if (!a) return null
   return {
@@ -554,7 +531,9 @@ export async function getFormToFill(patientId: string, assignmentId: string): Pr
     description: a.template.description,
     kind: a.template.kind,
     status: a.status,
-    fields: (a.template.fields as unknown as FormField[]) ?? [],
+    // The questions as sent. A clinician who adjusted them in the preview wrote
+    // them onto the assignment; everyone else gets the template's.
+    fields: ((a.fields ?? a.template.fields) as unknown as FormField[]) ?? [],
     responses: (a.responses as Record<string, string | boolean> | null) ?? null,
   }
 }
@@ -582,16 +561,31 @@ export async function sendForm(
   therapistProfileId: string,
   therapistName: string | null,
   patientId: string,
-  templateId: string
+  templateId: string,
+  /** Questions as edited in the preview. Omitted = send the form as it stands. */
+  editedFields?: CustomFormInput['fields'],
 ): Promise<boolean> {
   // Consistent with tasks and prescriptions: a therapist responsible for the
   // patient (by appointment OR admin assignment OR an attached package) can send
   // a form, not only one who already has an appointment with them.
   if (!(await ownsPatient(therapistProfileId, patientId))) return false
+  await ensureCustomFormSchema()
   const template = await prisma.formTemplate.findUnique({ where: { id: templateId }, select: { id: true, title: true } })
   if (!template) return false
+  // An edit made in the preview rides on this assignment and nowhere else: the
+  // patient gets the adjusted questions, the library form is untouched, and no
+  // near-duplicate is left behind for the next person to pick by mistake.
+  let fields: FormField[] | undefined
+  if (editedFields?.length) {
+    const norm = normalizeFields(editedFields)
+    if (!norm.ok) return false
+    fields = norm.fields
+  }
   await prisma.formAssignment.create({
-    data: { templateId, patientId, assignedBy: therapistName ?? 'Your care team' },
+    data: {
+      templateId, patientId, assignedBy: therapistName ?? 'Your care team',
+      ...(fields ? { fields: fields as unknown as object } : {}),
+    },
   })
   await notify(patientId, { type: 'form', title: 'New form to fill', body: template.title, href: '/app/forms' })
   return true

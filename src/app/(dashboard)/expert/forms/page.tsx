@@ -10,7 +10,7 @@ export default async function ExpertFormsPage() {
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
   const [templates, rules, caseload, myForms] = await Promise.all([
-    getFormLibrary(),
+    getFormLibrary(ctx.userId),
     listFormRules(ctx.therapistProfileId),
     getCaseload(ctx.therapistProfileId),
     listCustomForms(ctx.userId),
@@ -19,7 +19,7 @@ export default async function ExpertFormsPage() {
     <div className="stack">
       <div className="page-head">
         <div className="page-title">Default forms</div>
-        <div className="page-meta">Build your own forms, and auto-send any form after a booking — by patient, package type and session number</div>
+        <div className="page-meta">Build forms only you can send, and auto-send any form after a booking — by patient, package type and session number</div>
       </div>
       <FormBuilder scope="expert" forms={myForms} />
       <FormRulesManager

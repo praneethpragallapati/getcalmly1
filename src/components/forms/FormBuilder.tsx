@@ -2,59 +2,41 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, Eye, FilePlus2, Pencil, Plus, Trash2, X } from 'lucide-react'
-import { createPlatformForm, removePlatformForm, readPlatformForm, editPlatformForm, copyPlatformForm } from '@/app/admin/actions'
-import { createMyForm, removeMyForm, readMyForm, editMyForm, copyFormForMe } from '@/app/(dashboard)/expert/actions'
+import { Eye, FilePlus2, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { createPlatformForm, removePlatformForm, readPlatformForm, editPlatformForm } from '@/app/admin/actions'
+import { createMyForm, removeMyForm, readMyForm, editMyForm } from '@/app/(dashboard)/expert/actions'
+import {
+  FormFieldsEditor, FIELD_TYPE_LABEL, blankField, draftsToInput, fieldsToDrafts, type FieldDraft,
+} from '@/components/forms/FormFieldsEditor'
 import type { CustomFormRow, CustomFormDetail } from '@/lib/forms'
 
 const charcoal = '#1C2B3A'
-
-type Draft = {
-  label: string
-  type: string
-  required: boolean
-  /** Comma-separated, only read for `select`. */
-  options: string
-}
-
-const TYPE_LABEL: { value: string; label: string }[] = [
-  { value: 'text', label: 'Short answer' },
-  { value: 'textarea', label: 'Long answer' },
-  { value: 'select', label: 'Choose one (dropdown)' },
-  { value: 'checkbox', label: 'Tick box' },
-  { value: 'date', label: 'Date' },
-  { value: 'tel', label: 'Phone number' },
-  { value: 'email', label: 'Email' },
-]
 
 const KIND_LABEL: Record<string, string> = {
   INFO: 'Information', CONSENT: 'Consent', FEEDBACK: 'Feedback', INTAKE: 'Intake',
 }
 
-const blank = (): Draft => ({ label: '', type: 'text', required: false, options: '' })
-
 /**
- * Build a new form question by question, then use it anywhere a built-in form can
- * go — sent to a patient, or picked in an automatic rule. Used at both admin
- * (platform-wide) and expert (their own) scope; `scope` picks the server actions.
+ * Build a form question by question, then use it anywhere a standard form can go
+ * — sent to a patient, or picked in an automatic rule. Used at both admin and
+ * expert scope; `scope` picks the server actions and, with it, who sees the
+ * result: an admin's forms join the shared library every clinician sends from,
+ * a clinician's are their own.
  *
- * `embedded` drops the card chrome, so the same builder can sit inside a form
- * picker — you create the form you need without leaving the patient you were
- * about to send it to. Saving refreshes the route, which re-runs the server
- * component that feeds the picker, so the new form appears in the dropdown
- * straight away. Embedded callers pass the single form currently selected in
- * that picker as `forms`, which is what puts view/edit/copy on the form you are
- * about to send instead of only on the forms page.
+ * Editing follows the same line. A clinician edits the forms they built; the
+ * shared library is the admin's. Adjusting a shared form for one patient is not
+ * an edit of the library at all — it happens in the send preview, on that one
+ * patient's copy, which is why there is no "make your own copy" here leaving
+ * near-duplicates behind.
  *
- * `onCopied` fires with the new form's id after "make my own copy", so a picker
- * can move the selection onto the copy — otherwise you would edit the copy and
- * then send the original.
+ * `embedded` drops the card chrome and the list, so the same builder can sit
+ * inside a form picker. Saving refreshes the route, which re-runs the server
+ * component feeding the picker, so a new form shows up in the dropdown at once.
  */
-export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
+export function FormBuilder({ scope, forms = [], embedded = false }: {
   scope: 'admin' | 'expert'
   forms?: CustomFormRow[]
   embedded?: boolean
-  onCopied?: (id: string) => void
 }) {
   const router = useRouter()
   const [pending, start] = useTransition()
@@ -62,7 +44,7 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [kind, setKind] = useState('INFO')
-  const [fields, setFields] = useState<Draft[]>([blank()])
+  const [fields, setFields] = useState<FieldDraft[]>([blankField()])
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<string | null>(null)
   /** Set while editing an existing form; null means the builder creates a new one. */
@@ -77,11 +59,8 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
     fontFamily: 'inherit', color: charcoal, background: '#fff', width: '100%',
   }
 
-  const setField = (i: number, patch: Partial<Draft>) =>
-    setFields((f) => f.map((row, n) => (n === i ? { ...row, ...patch } : row)))
-
   const reset = () => {
-    setTitle(''); setDescription(''); setKind('INFO'); setFields([blank()]); setError(null)
+    setTitle(''); setDescription(''); setKind('INFO'); setFields([blankField()]); setError(null)
     setEditingId(null); setEditingSent(0)
   }
 
@@ -106,35 +85,14 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
     setTitle(d.title)
     setDescription(d.description ?? '')
     setKind(d.kind)
-    setFields(
-      d.fields.length
-        ? d.fields.map((f) => ({
-            label: f.label,
-            type: f.type,
-            required: Boolean(f.required),
-            options: (f.options ?? []).join(', '),
-          }))
-        : [blank()],
-    )
+    setFields(fieldsToDrafts(d.fields))
     setOpen(true)
   })
 
   const save = () => {
     setError(null); setDone(null)
     if (!title.trim()) { setError('Give the form a title.'); return }
-    const payload = {
-      title,
-      description,
-      kind,
-      fields: fields
-        .filter((f) => f.label.trim())
-        .map((f) => ({
-          label: f.label,
-          type: f.type,
-          required: f.required,
-          options: f.type === 'select' ? f.options.split(',').map((o) => o.trim()).filter(Boolean) : undefined,
-        })),
-    }
+    const payload = { title, description, kind, fields: draftsToInput(fields) }
     if (payload.fields.length === 0) { setError('Add at least one question.'); return }
     // Renaming a question re-derives its key, so answers already collected under
     // the old key stay with the old label. Worth a heads-up, not a block.
@@ -158,23 +116,6 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
     })
   }
 
-  /**
-   * Duplicate a form into one this person owns, then open it in the builder.
-   *
-   * This is the route for changing a standard form: the copy is theirs to edit
-   * and send, and the shared original is left as it is for everyone else.
-   */
-  const copyForMe = (id: string) => start(async () => {
-    setBusyId(id); setError(null); setDone(null)
-    const res = scope === 'admin' ? await copyPlatformForm(id) : await copyFormForMe(id)
-    setBusyId(null)
-    if (!res.ok || !res.id) { setError(res.error ?? 'Could not copy that form.'); return }
-    router.refresh()
-    onCopied?.(res.id)
-    // Copying is only ever a prelude to changing something, so open it.
-    edit(res.id)
-  })
-
   const remove = (id: string) => start(async () => {
     const res = scope === 'admin' ? await removePlatformForm(id) : await removeMyForm(id)
     if (!res.ok) setError(res.error || 'Could not remove the form.')
@@ -183,16 +124,20 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
 
   return (
     <div className={embedded ? undefined : 'card'}>
-      {!embedded && (
+      {embedded ? (
+        <button onClick={() => { if (open) reset(); setOpen((o) => !o); setDone(null) }} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+          {open ? <X size={13} /> : <FilePlus2 size={13} />} {open ? 'Cancel' : 'Need a different form? Build one'}
+        </button>
+      ) : (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <FilePlus2 size={16} /> Your own forms
+              <FilePlus2 size={16} /> {scope === 'admin' ? 'Forms' : 'Your own forms'}
             </div>
             <p className="muted" style={{ fontSize: 12.5, margin: 0 }}>
               {scope === 'admin'
-                ? 'Forms you build here join the library for every clinician to send.'
-                : 'Forms you build here are yours to send, and can be used in your automatic rules.'}
+                ? 'Forms you build here join the library every clinician can send.'
+                : 'Forms you build here are yours alone to send. The standard forms are managed by the admin — to change one for a single patient, edit it in the preview before sending.'}
             </p>
           </div>
           <button onClick={() => { if (open) reset(); setOpen((o) => !o); setDone(null) }} className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
@@ -201,11 +146,9 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
         </div>
       )}
 
-      {!embedded && done && <p style={{ fontSize: 12.5, color: '#2C7A57', marginTop: 10 }}>{done}</p>}
+      {done && <p style={{ fontSize: 12.5, color: '#2C7A57', marginTop: 10 }}>{done}</p>}
 
-      {/* Existing forms. Embedded, this is the one form the picker has selected,
-          so it can be looked at, edited or copied before it is sent. */}
-      {forms.length > 0 && (
+      {!embedded && forms.length > 0 && (
         <div style={{ marginTop: 12 }}>
           {forms.map((f) => (
             <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: '1px solid rgba(28,43,58,.06)', opacity: f.active ? 1 : 0.55 }}>
@@ -213,7 +156,7 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
                 <div style={{ fontSize: 13.5, fontWeight: 700, color: charcoal }}>{f.title}</div>
                 <div className="muted" style={{ fontSize: 12 }}>
                   {KIND_LABEL[f.kind] ?? f.kind} · {f.fieldCount} question{f.fieldCount === 1 ? '' : 's'}
-                  {f.builtIn ? ' · standard form' : ''}
+                  {f.shared && scope !== 'admin' ? ' · standard form' : ''}
                   {f.createdByName && scope === 'admin' ? ` · by ${f.createdByName}` : ''}
                   {f.active ? '' : ' · retired'}
                 </div>
@@ -228,26 +171,14 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
               >
                 <Eye size={15} />
               </button>
-              {/* An admin edits a standard form in place — the shared library is
-                  theirs. A clinician gets a copy instead, so adjusting a consent
-                  form for one person cannot rewrite it for every colleague. */}
+              {/* Edit and remove only what you own. For a clinician that is the
+                  forms they built; the shared library is the admin's. */}
               {f.mine && f.active && (
                 <button onClick={() => edit(f.id)} disabled={pending} aria-label={`Edit ${f.title}`} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-coral-d)', display: 'inline-flex' }}>
                   <Pencil size={15} />
                 </button>
               )}
-              {f.active && (
-                <button
-                  onClick={() => copyForMe(f.id)}
-                  disabled={pending}
-                  aria-label={`Make my own copy of ${f.title}`}
-                  title={f.mine ? 'Duplicate' : 'Make my own copy to edit'}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-coral-d)', display: 'inline-flex' }}
-                >
-                  <Copy size={15} />
-                </button>
-              )}
-              {f.mine && f.active && !f.builtIn && (
+              {f.mine && f.active && (
                 <button onClick={() => remove(f.id)} disabled={pending} aria-label={`Remove ${f.title}`} title="Remove" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', display: 'inline-flex' }}>
                   <Trash2 size={15} />
                 </button>
@@ -277,7 +208,7 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
                     <span style={{ fontWeight: 600 }}>{q.label}</span>
                     {q.required && <span style={{ color: 'var(--c-coral-d)' }}> *</span>}
                     <span className="muted" style={{ fontSize: 12 }}>
-                      {' · '}{TYPE_LABEL.find((t) => t.value === q.type)?.label ?? q.type}
+                      {' · '}{FIELD_TYPE_LABEL.find((t) => t.value === q.type)?.label ?? q.type}
                     </span>
                     {q.options && q.options.length > 0 && (
                       <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{q.options.join(' · ')}</div>
@@ -288,15 +219,6 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
               </ol>
             </div>
           )}
-        </div>
-      )}
-
-      {embedded && (
-        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <button onClick={() => { if (open) reset(); setOpen((o) => !o); setDone(null) }} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            {open ? <X size={13} /> : <FilePlus2 size={13} />} {open ? 'Cancel' : 'Need a different form? Build one'}
-          </button>
-          {done && <span style={{ fontSize: 12.5, color: '#2C7A57' }}>{done}</span>}
         </div>
       )}
 
@@ -324,44 +246,7 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
 
           <div>
             <div className="muted" style={{ fontSize: 11, marginBottom: 6 }}>Questions</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {fields.map((f, i) => (
-                <div key={i} style={{ border: '1px solid rgba(28,43,58,.09)', borderRadius: 10, padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span className="muted" style={{ fontSize: 12, fontWeight: 700, width: 16 }}>{i + 1}.</span>
-                    <input
-                      value={f.label}
-                      onChange={(e) => setField(i, { label: e.target.value })}
-                      placeholder="Question"
-                      style={{ ...field, flex: '2 1 220px', width: 'auto' }}
-                    />
-                    <select value={f.type} onChange={(e) => setField(i, { type: e.target.value })} style={{ ...field, flex: '1 1 160px', width: 'auto' }}>
-                      {TYPE_LABEL.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                    </select>
-                    <label className="muted" style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
-                      <input type="checkbox" checked={f.required} onChange={(e) => setField(i, { required: e.target.checked })} />
-                      Required
-                    </label>
-                    {fields.length > 1 && (
-                      <button onClick={() => setFields((rows) => rows.filter((_, n) => n !== i))} aria-label={`Remove question ${i + 1}`} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C0504B', display: 'inline-flex' }}>
-                        <Trash2 size={15} />
-                      </button>
-                    )}
-                  </div>
-                  {f.type === 'select' && (
-                    <input
-                      value={f.options}
-                      onChange={(e) => setField(i, { options: e.target.value })}
-                      placeholder="Choices, separated by commas — e.g. Never, Sometimes, Often"
-                      style={{ ...field, fontSize: 12.5 }}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <button onClick={() => setFields((f) => [...f, blank()])} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <Plus size={13} /> Add question
-            </button>
+            <FormFieldsEditor value={fields} onChange={setFields} />
           </div>
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -378,7 +263,7 @@ export function FormBuilder({ scope, forms = [], embedded = false, onCopied }: {
                 ? editingSent > 0
                   ? `Already sent to ${editingSent} patient${editingSent === 1 ? '' : 's'} — their answers stay as filled in.`
                   : 'Not sent to anyone yet.'
-                : 'You can send it as soon as it\u2019s saved.'}
+                : 'You can send it as soon as it’s saved.'}
             </span>
           </div>
         </div>

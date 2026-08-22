@@ -23,7 +23,7 @@ import {
 } from '@/lib/expert'
 import {
   sendForm, createFormRule, deleteFormRule, setFormRuleActive, createFormTemplate, deleteFormTemplate,
-  getFormTemplate, updateFormTemplate, copyFormTemplate, type CustomFormDetail,
+  getFormTemplate, updateFormTemplate, type CustomFormDetail,
   type FormRecurrence, type CustomFormInput,
 } from '@/lib/forms'
 import { notify, markAllRead } from '@/lib/notifications'
@@ -412,14 +412,30 @@ export async function prescribe(_prev: PrescribeState, formData: FormData): Prom
 // ── Forms ─────────────────────────────────────────────────────────────────────
 
 /** Send a library form (consent / info / feedback) to one of the therapist's patients. */
+/**
+ * Send a form to a patient, optionally with the questions as adjusted in the
+ * preview. The edit lands on this one assignment — the library form is left as
+ * it is for everyone else.
+ */
 export async function sendFormToPatient(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return bail('sendFormToPatient', 'no clinician session')
   const patientId = String(formData.get('patientId') ?? '')
   const templateId = String(formData.get('templateId') ?? '')
   if (!patientId || !templateId) return bail('sendFormToPatient', 'no patient or template id')
+  // Sent as JSON only when the clinician actually changed something.
+  let editedFields: CustomFormInput['fields'] | undefined
+  const raw = formData.get('fields')
+  if (typeof raw === 'string' && raw) {
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) editedFields = parsed
+    } catch {
+      return bail('sendFormToPatient', 'edited questions were not valid JSON', { patientId, templateId })
+    }
+  }
   try {
-    await sendForm(ctx.therapistProfileId, ctx.therapistName, patientId, templateId)
+    await sendForm(ctx.therapistProfileId, ctx.therapistName, patientId, templateId, editedFields)
   } catch (e) {
     return bailErr('sendFormToPatient', e, { patientId, templateId })
   }
@@ -481,20 +497,6 @@ export async function editMyForm(id: string, input: CustomFormInput): Promise<{ 
   const ctx = await getTherapistContext()
   if (!ctx) return { ok: false, error: 'Please sign in.' }
   const res = await updateFormTemplate(id, input, ctx.userId)
-  if (res.ok) revalidatePath('/expert/forms')
-  return res
-}
-
-/**
- * Copy a form into one this clinician owns, so they can adjust it.
- *
- * This is how a standard form gets changed for one clinician's use without
- * rewriting it for everyone else.
- */
-export async function copyFormForMe(id: string): Promise<{ ok: boolean; id?: string; error?: string }> {
-  const ctx = await getTherapistContext()
-  if (!ctx) return { ok: false, error: 'Please sign in.' }
-  const res = await copyFormTemplate(id, ctx.userId, ctx.therapistName ?? null)
   if (res.ok) revalidatePath('/expert/forms')
   return res
 }

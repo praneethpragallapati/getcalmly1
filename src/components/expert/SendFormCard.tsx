@@ -2,39 +2,33 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Send } from 'lucide-react'
-import { sendFormToPatient, createMyFormRule } from '@/app/(dashboard)/expert/actions'
+import { Pencil, Send, X } from 'lucide-react'
+import { sendFormToPatient, createMyFormRule, readMyForm } from '@/app/(dashboard)/expert/actions'
 import { FormBuilder } from '@/components/forms/FormBuilder'
-import type { CustomFormRow } from '@/lib/forms'
+import {
+  FormFieldsEditor, FIELD_TYPE_LABEL, draftsToInput, fieldsToDrafts, type FieldDraft,
+} from '@/components/forms/FormFieldsEditor'
+import type { CustomFormDetail } from '@/lib/forms'
+
+const charcoal = '#1C2B3A'
 
 const KIND_LABEL: Record<string, string> = {
   INFO: 'Information', CONSENT: 'Consent', FEEDBACK: 'Feedback', INTAKE: 'Intake',
 }
 
-type Template = {
-  id: string
-  title: string
-  kind?: string
-  /** Questions it asks, shown on the selected form's row. */
-  fieldCount?: number
-  /** Ships with the product — a clinician copies it rather than rewriting it. */
-  builtIn?: boolean
-  /** Theirs to edit in place. */
-  mine?: boolean
-}
+type Template = { id: string; title: string; kind?: string }
 
 /**
- * Send a form to one patient — either right now (one-off) or as an automatic
- * rule scoped to just this patient (once at session N, or every / even / odd
- * session). The recurring options create a patient-scoped FormAutoRule; "Send
- * now" dispatches immediately.
+ * Send a form to one patient — now, or as a rule that fires after they book.
  *
- * Picking a form also opens it: the chosen form gets a row with view, edit and
- * copy, so it can be adjusted before it goes out. Editing lived only on the
- * forms page before, which meant "change this one question first" required
- * leaving the patient — and, for a standard form, was not obviously possible at
- * all. A clinician edits their own forms in place and takes a copy of a standard
- * one; only an admin edits the shared library itself.
+ * Choosing a form opens it: the questions are shown before anything is sent, and
+ * "Edit before sending" makes them editable. That edit goes with THIS send only
+ * — the patient gets the adjusted questions and the shared form is untouched.
+ * The alternative, duplicating the form into a private copy first, meant a new
+ * near-identical form in the picker every time anyone reworded a question.
+ *
+ * An automatic rule sends the standard form, since the rule fires later and has
+ * no one sitting in front of it to adjust anything; the card says so.
  */
 export function SendFormCard({ patientId, templates }: { patientId: string; templates: Template[] }) {
   const router = useRouter()
@@ -44,51 +38,53 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
   const [sessionNumber, setSessionNumber] = useState('1')
   const [msg, setMsg] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  /** The chosen form's questions, loaded when it's picked. */
+  const [preview, setPreview] = useState<CustomFormDetail | null>(null)
+  const [loading, setLoading] = useState(false)
+  /** Non-null once "Edit before sending" is opened — the questions to send. */
+  const [draft, setDraft] = useState<FieldDraft[] | null>(null)
+
+  const choose = (id: string) => {
+    setTemplateId(id); setPreview(null); setDraft(null); setMsg(null); setErr(null)
+    if (!id) return
+    setLoading(true)
+    start(async () => {
+      const d = await readMyForm(id)
+      setLoading(false)
+      if (!d) { setErr('Could not open that form.'); return }
+      setPreview(d)
+    })
+  }
 
   const submit = () => {
     setMsg(null); setErr(null)
     if (!templateId) { setErr('Choose a form.'); return }
+    const edited = draft ? draftsToInput(draft) : null
+    if (edited && edited.length === 0) { setErr('The form needs at least one question.'); return }
     start(async () => {
       if (when === 'now') {
         const fd = new FormData()
         fd.set('patientId', patientId)
         fd.set('templateId', templateId)
+        if (edited) fd.set('fields', JSON.stringify(edited))
         await sendFormToPatient(fd)
-        setMsg('Form sent.')
+        setMsg(edited ? 'Edited form sent.' : 'Form sent.')
       } else {
         const res = await createMyFormRule({ templateId, trackSlug: 'any', recurrence: when, sessionNumber: Number(sessionNumber) || 1, patientId })
         if (res.ok) setMsg('Automatic rule saved for this patient.')
         else { setErr(res.error || 'Could not save the rule.'); return }
       }
-      setTemplateId('')
+      setTemplateId(''); setPreview(null); setDraft(null)
       router.refresh()
     })
   }
-
-  const field: React.CSSProperties = { }
-
-  // The picked form, in the shape the builder's row wants. A form is always
-  // `active` here — the library only offers active ones.
-  const picked = templates.find((t) => t.id === templateId)
-  const selected: CustomFormRow | null = picked
-    ? {
-        id: picked.id,
-        title: picked.title,
-        kind: picked.kind ?? 'INFO',
-        fieldCount: picked.fieldCount ?? 0,
-        active: true,
-        createdByName: null,
-        builtIn: Boolean(picked.builtIn),
-        mine: Boolean(picked.mine),
-      }
-    : null
 
   return (
     <div className="stack" style={{ gap: 10, marginTop: 14 }}>
       <div className="grid-2" style={{ gap: 10 }}>
         <label className="muted" style={{ fontSize: 12 }}>
           Form
-          <select className="entry-input" style={{ marginTop: 4 }} value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+          <select className="entry-input" style={{ marginTop: 4 }} value={templateId} onChange={(e) => choose(e.target.value)}>
             <option value="">Choose a form…</option>
             {templates.map((t) => (
               <option key={t.id} value={t.id}>
@@ -99,7 +95,7 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
         </label>
         <label className="muted" style={{ fontSize: 12 }}>
           When
-          <select className="entry-input" style={{ ...field, marginTop: 4 }} value={when} onChange={(e) => setWhen(e.target.value as typeof when)}>
+          <select className="entry-input" style={{ marginTop: 4 }} value={when} onChange={(e) => setWhen(e.target.value as typeof when)}>
             <option value="now">Send now (one-off)</option>
             <option value="ONCE">Automatically — once, at session…</option>
             <option value="EVERY">Automatically — every session</option>
@@ -114,6 +110,58 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
           <input className="entry-input" style={{ marginTop: 4 }} type="number" min={1} value={sessionNumber} onChange={(e) => setSessionNumber(e.target.value)} />
         </label>
       )}
+
+      {loading && <span className="muted" style={{ fontSize: 12 }}>Opening the form…</span>}
+
+      {/* Preview: what the patient will actually be asked. */}
+      {preview && (
+        <div style={{ border: '1px solid rgba(28,43,58,.09)', borderRadius: 10, padding: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: charcoal }}>{preview.title}</div>
+            {when === 'now' && (
+              draft
+                ? <button type="button" onClick={() => setDraft(null)} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                    <X size={13} /> Discard changes
+                  </button>
+                : <button type="button" onClick={() => setDraft(fieldsToDrafts(preview.fields))} className="link-action" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, padding: 0, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                    <Pencil size={13} /> Edit before sending
+                  </button>
+            )}
+          </div>
+          {preview.description && <p className="muted" style={{ fontSize: 12.5, margin: '2px 0 0' }}>{preview.description}</p>}
+
+          {draft ? (
+            <div style={{ marginTop: 10 }}>
+              <FormFieldsEditor value={draft} onChange={setDraft} />
+              <p className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>
+                These changes apply to this patient&rsquo;s copy only. {preview.shared ? 'The standard form stays as it is for everyone else.' : 'Your saved form stays as it is.'}
+              </p>
+            </div>
+          ) : (
+            <ol style={{ margin: '10px 0 0', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {preview.fields.map((q) => (
+                <li key={q.key} style={{ fontSize: 13, color: charcoal }}>
+                  {q.label}
+                  {q.required && <span style={{ color: 'var(--c-coral-d)' }}> *</span>}
+                  <span className="muted" style={{ fontSize: 12 }}>
+                    {' · '}{FIELD_TYPE_LABEL.find((t) => t.value === q.type)?.label ?? q.type}
+                  </span>
+                  {q.options && q.options.length > 0 && (
+                    <div className="muted" style={{ fontSize: 12 }}>{q.options.join(' · ')}</div>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
+
+          {when !== 'now' && (
+            <p className="muted" style={{ fontSize: 11.5, marginTop: 10, marginBottom: 0 }}>
+              An automatic rule sends this form as it stands — there is no one here to adjust it when it fires later.
+            </p>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <button type="button" onClick={submit} disabled={pending} className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <Send size={14} /> {when === 'now' ? 'Send form' : 'Save rule'}
@@ -122,22 +170,9 @@ export function SendFormCard({ patientId, templates }: { patientId: string; temp
         {err && <span className="muted" style={{ fontSize: 12.5, color: '#C0504B' }}>{err}</span>}
       </div>
       {when !== 'now' && <span className="muted" style={{ fontSize: 11.5 }}>Applies to this patient only, sent automatically after they book.</span>}
-      {selected && (
-        <span className="muted" style={{ fontSize: 11.5 }}>
-          {selected.mine
-            ? 'This is your form — open the pencil to change it before sending.'
-            : 'This is a standard form, shared with every clinician. Take your own copy to change it for this patient.'}
-        </span>
-      )}
-      {/* The chosen form, so it can be read or changed without leaving the
-          patient — and, below it, a builder for when nothing in the library
-          fits. A new form lands in the dropdown above on save. */}
-      <FormBuilder
-        scope="expert"
-        embedded
-        forms={selected ? [selected] : []}
-        onCopied={(id) => setTemplateId(id)}
-      />
+      {/* Nothing in the library fits? Build the form here — it lands in the
+          dropdown above without leaving this patient. */}
+      <FormBuilder scope="expert" embedded />
     </div>
   )
 }
