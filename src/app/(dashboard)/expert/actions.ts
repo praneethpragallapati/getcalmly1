@@ -97,14 +97,33 @@ type TaskTypeValue = (typeof TASK_TYPES)[number]
  * weekly progress summary both sides see. Scoped to a patient the therapist
  * actually has appointments with.
  */
-export async function assignTask(formData: FormData): Promise<void> {
+export type AssignTaskState = { ok: boolean; message: string } | null
+
+/**
+ * Assign a task to a patient.
+ *
+ * Returns a result instead of void. Every failure path here used to be a bare
+ * `return`: no context, no session, no title, or an ownership check that came
+ * back false. The form submitted, the page revalidated, and absolutely nothing
+ * happened — no task, no error, no clue. "We are not able to assign a task"
+ * with nothing on screen to explain it is the exact shape of that bug.
+ *
+ * The ownership check is the one worth naming separately. ownsPatient swallows
+ * a query failure and returns false, so a database missing a column it reads is
+ * indistinguishable from "this isn't your patient" — one is a bug to report, the
+ * other is a permission answer, and the clinician deserves to know which.
+ */
+export async function assignTask(_prev: AssignTaskState, formData: FormData): Promise<AssignTaskState> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return { ok: false, message: 'Your session has expired. Please sign in again.' }
 
   const patientId = String(formData.get('patientId') ?? '')
   const title = String(formData.get('title') ?? '').trim()
-  if (!patientId || !title) return
-  if (!(await ownsPatient(ctx.therapistProfileId, patientId))) return
+  if (!patientId) return { ok: false, message: 'Could not tell which patient this is for. Reload the page and try again.' }
+  if (!title) return { ok: false, message: 'Pick a task or type a custom one first.' }
+  if (!(await ownsPatient(ctx.therapistProfileId, patientId))) {
+    return { ok: false, message: 'We could not confirm this patient is on your caseload, so the task was not assigned. If they are yours, this is a fault on our side — please tell support.' }
+  }
 
   const typeRaw = String(formData.get('type') ?? 'REFLECTION')
   const type: TaskTypeValue = (TASK_TYPES as readonly string[]).includes(typeRaw)
@@ -116,24 +135,36 @@ export async function assignTask(formData: FormData): Promise<void> {
   const frequency = normalizeFrequency(String(formData.get('frequency') ?? ''))
   const timesOfDay = normalizeTimesOfDay(formData.getAll('timesOfDay').map(String))
 
-  await prisma.task.create({
-    data: {
-      userId: patientId,
-      type,
-      title,
-      description: description || null,
-      frequency: frequency === 'ONE_TIME' ? null : frequency,
-      timesOfDay,
-      dueDate: dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate : null,
-      assignedBy: ctx.therapistName ?? null,
-      assignedById: ctx.userId,
-    },
-  })
+  try {
+    await prisma.task.create({
+      data: {
+        userId: patientId,
+        type,
+        title,
+        description: description || null,
+        frequency: frequency === 'ONE_TIME' ? null : frequency,
+        timesOfDay,
+        dueDate: dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate : null,
+        assignedBy: ctx.therapistName ?? null,
+        assignedById: ctx.userId,
+      },
+    })
+  } catch (e) {
+    console.error('[assignTask] could not create the task', e)
+    const msg = e instanceof Error ? e.message : ''
+    if (/does not exist in the current database/i.test(msg)) {
+      return { ok: false, message: 'The tasks table is missing a column on this database. Run the pending migrations (npm run db:deploy), then try again.' }
+    }
+    return { ok: false, message: 'Could not assign that task. Please try again — if it keeps happening, check the server logs.' }
+  }
 
-  await notify(patientId, { type: 'task', title: 'New task assigned', body: title, href: '/app' })
+  // The task is saved; a failed notification must not report the assignment as
+  // failed and invite a retry that assigns it twice.
+  await notify(patientId, { type: 'task', title: 'New task assigned', body: title, href: '/app' }).catch(() => {})
 
   revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app')
+  return { ok: true, message: `Assigned “${title}”.` }
 }
 
 /**

@@ -658,8 +658,14 @@ export async function getExpertPatientProfile(
   // into the DB would otherwise make the generated SELECT throw and take the
   // whole page to the error boundary. Degrading a single query to empty keeps
   // the patient record rendering.
-  const [user, profile, addr, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
-    prisma.user.findUnique({ where: { id: patientId }, select: { name: true, email: true, phone: true, createdAt: true, registrationNo: true } }).catch(() => null),
+  const [user, reg, profile, addr, moods, appts, tasks, meds, allAppts, sub, crisisCount, highStakeCount, journalCount] = await Promise.all([
+    // registrationNo (0039) is deliberately NOT in this select. This is the one
+    // query whose failure returns null for the whole patient — `if (!user)
+    // return null` below — so the page 404s and the clinician cannot open the
+    // record at all. Bundling a newer column here is exactly the mistake the
+    // comment above warns about, two lines further down, for the 0038 columns.
+    prisma.user.findUnique({ where: { id: patientId }, select: { name: true, email: true, phone: true, createdAt: true } }).catch(() => null),
+    prisma.user.findUnique({ where: { id: patientId }, select: { registrationNo: true } }).catch(() => null),
     prisma.patientProfile.findUnique({
       where: { userId: patientId },
       select: {
@@ -734,7 +740,7 @@ export async function getExpertPatientProfile(
     patientId,
     name: user.name ?? 'Patient',
     contact: {
-      code: user.registrationNo ?? null,
+      code: reg?.registrationNo ?? null,
       email: user.email ?? null,
       phone: user.phone ?? null,
       dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.toISOString().slice(0, 10) : null,

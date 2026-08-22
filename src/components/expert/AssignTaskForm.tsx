@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { assignTask } from '@/app/(dashboard)/expert/actions'
+import { useActionState, useState } from 'react'
+import { assignTask, type AssignTaskState } from '@/app/(dashboard)/expert/actions'
 import { TASK_PRESETS, type TaskTypeKey } from '@/data/taskPresets'
 import { TASK_FREQUENCIES, FREQUENCY_LABEL, TASK_TIMES_OF_DAY } from '@/lib/taskRecurrence'
 
@@ -22,12 +22,15 @@ export function AssignTaskForm({ patientId }: { patientId: string }) {
   const [type, setType] = useState<TaskTypeKey>('REFLECTION')
   const [preset, setPreset] = useState('')
   const [custom, setCustom] = useState('')
+  // The action returns a result now, so a refused assignment says why instead of
+  // looking like a click that did nothing.
+  const [state, formAction, pending] = useActionState<AssignTaskState, FormData>(assignTask, null)
 
   const isCustom = preset === '__custom__'
   const title = isCustom ? custom : preset
 
   return (
-    <form action={assignTask} className="stack" style={{ gap: 10 }}>
+    <form action={formAction} className="stack" style={{ gap: 10 }}>
       <input type="hidden" name="patientId" value={patientId} />
       <input type="hidden" name="title" value={title} />
       <div className="grid-2" style={{ gap: 10 }}>
@@ -97,9 +100,19 @@ export function AssignTaskForm({ patientId }: { patientId: string }) {
           ))}
         </div>
       </div>
-      <button type="submit" className="btn btn-primary btn-sm" disabled={!title.trim()} style={{ alignSelf: 'flex-start' }}>
-        Assign task
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={!title.trim() || pending} style={{ alignSelf: 'flex-start' }}>
+          {pending ? 'Assigning…' : 'Assign task'}
+        </button>
+        {state && (
+          <span
+            role="status"
+            style={{ fontSize: 12.5, fontWeight: 600, color: state.ok ? '#1B7F4D' : '#B3261E', lineHeight: 1.45 }}
+          >
+            {state.message}
+          </span>
+        )}
+      </div>
     </form>
   )
 }
