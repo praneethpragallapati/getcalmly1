@@ -30,6 +30,7 @@ import { ensureContactSchema } from '@/lib/contactSchema'
 import { istWallClock } from '@/lib/tz'
 import { isAdminType } from '@/lib/adminRoles'
 import { normalizeCountry } from '@/lib/countries'
+import { reconcilePackageCounters } from '@/lib/packageCounters'
 
 async function requireAdmin(): Promise<{ id: string | null; name: string | null } | null> {
   const session = await getServerSession(authOptions)
@@ -716,36 +717,29 @@ export async function extendValidity(input: { id: string; months: number }): Pro
 
 /** Attach (or detach) the expert who delivers a specific package. */
 /**
- * Set a package's used-counter to the number of sessions actually booked
- * against it.
+ * Rebuild this patient's package counters from their appointments.
  *
- * The counter and the calendar can only disagree if something bypassed the
- * booking path (which moves both together). Rather than making an admin work
- * out the delta and click a stepper that many times, this reads the truth —
- * non-cancelled appointments holding a slot on this package — and writes it.
+ * Scoped to the whole patient rather than the one package the button sits on:
+ * a session that holds no slot has to be adopted by SOME package, and which one
+ * depends on its care type and date, so the repair only makes sense across all
+ * of them. `reconcilePackageCounters` is the same routine the patient, expert
+ * and admin pages already run on read — this is the manual trigger for it.
+ *
+ * It counts by the slot link, not by status: a no-show the patient was charged
+ * for keeps its link and keeps its slot, while a voided session already gave
+ * its link up. Counting "non-cancelled" instead, as this used to, handed back a
+ * session the patient had paid for.
  */
 export async function reconcileSubscriptionCounter(input: { id: string }): Promise<AdminResult> {
   if (!(await requireAdmin())) return { ok: false, error: 'Admin access required.' }
   try {
     const sub = await prisma.subscription.findUnique({
       where: { id: input.id },
-      select: { id: true, userId: true, sessionsTotal: true, sessionsUsed: true },
+      select: { userId: true },
     })
     if (!sub) return { ok: false, error: 'Package not found.' }
 
-    const booked = await prisma.appointment.count({
-      where: { consumedSubscriptionId: sub.id, status: { not: 'CANCELLED' } },
-    })
-    if (booked === sub.sessionsUsed) return { ok: true }
-    // Never let a reconcile push used past total — that would read as negative
-    // remaining. If it would, the pack itself needs more sessions first.
-    if (booked > sub.sessionsTotal) {
-      return {
-        ok: false,
-        error: `${booked} sessions are booked against this package but it only holds ${sub.sessionsTotal}. Raise the total first.`,
-      }
-    }
-    await prisma.subscription.update({ where: { id: sub.id }, data: { sessionsUsed: booked } })
+    await reconcilePackageCounters(sub.userId)
     revalidatePath('/admin/patients'); revalidatePath('/admin/money')
     return { ok: true }
   } catch {

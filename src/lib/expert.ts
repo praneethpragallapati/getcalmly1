@@ -14,6 +14,7 @@ import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionMinMinutes, resolveDueAppointments, computePresence, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
+import { reconcilePackageCounters } from '@/lib/packageCounters'
 import { earliestJoin } from '@/lib/meetingWindow'
 import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
@@ -113,14 +114,6 @@ export type ExpertPatientProfile = {
   sessionsDone: number
   sessionsTotal: number
   sessionsRemaining: number
-  /**
-   * How many live appointments are actually holding a slot on an active package
-   * — what `sessionsDone` would read if the counter were rebuilt from the
-   * calendar. Equal to `sessionsDone` in normal operation; a difference means
-   * the counter has drifted and an admin should reconcile it. Null when the
-   * count could not be read, so the UI can stay quiet rather than guess.
-   */
-  sessionsBookedOnPackage: number | null
   taskCompletionPct: number
   tasks: { id: string; title: string; type: string; frequencyLabel?: string; timesLabel?: string; dueLabel?: string; done: boolean; expired: boolean }[]
   medicationCompliancePct: number
@@ -683,6 +676,11 @@ export async function getExpertPatientProfile(
   }
   if (!owns) return null
 
+  // Rebuild the package counters from the appointments before reading them, so
+  // "1/17 used" can't sit next to two sessions that were plainly held. Writes
+  // only when the books don't already balance.
+  await reconcilePackageCounters(patientId)
+
   // Every query is narrow-selected (only the columns actually used below) and
   // fail-soft (.catch → empty). On prod, a Prisma schema column not yet migrated
   // into the DB would otherwise make the generated SELECT throw and take the
@@ -749,15 +747,6 @@ export async function getExpertPatientProfile(
     prisma.journalEntry.count({ where: { userId: patientId } }).catch(() => 0),
   ])
   if (!user) return null
-
-  // The counter rebuilt from the calendar: appointments still standing against
-  // an active package. Booking moves the counter and writes this link in one
-  // transaction, so the two agree unless something bypassed that path.
-  const sessionsBookedOnPackage = sub.length
-    ? await prisma.appointment
-        .count({ where: { consumedSubscriptionId: { in: sub.map((s) => s.id) }, status: { not: 'CANCELLED' } } })
-        .catch(() => null)
-    : 0
 
   const orders = await prisma.medicationOrder.findMany({
     where: { userId: patientId },
@@ -827,7 +816,6 @@ export async function getExpertPatientProfile(
     sessionsDone: sub.reduce((n, s) => n + s.sessionsUsed, 0),
     sessionsTotal: sub.reduce((n, s) => n + s.sessionsTotal, 0),
     sessionsRemaining: sub.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
-    sessionsBookedOnPackage,
     taskCompletionPct,
     tasks: tasks
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())

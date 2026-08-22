@@ -14,6 +14,7 @@ import { parseCompensationFields, type CompensationField } from '@/lib/compensat
 import { ensureSampleContent } from '@/lib/sampleContent'
 import { computePresence, ensureSessionPresenceSchema, getPresenceDetailsFor, type PresenceDetail } from '@/lib/sessionLifecycle'
 import { ensureSessionNoteSchema } from '@/lib/sessionNoteSchema'
+import { reconcilePackageCounters } from '@/lib/packageCounters'
 
 export type AdminUser = {
   id: string
@@ -647,6 +648,11 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
     // Per-care-type assignments (migration 0016) fetched defensively so a DB that
     // hasn't run 0016 still opens the patient page (instead of 404-ing) — the
     // category assignments just read as unset until the migration lands.
+    // Rebuild the package counters from the appointments first, so "sessions
+    // used" here, on the clinician's page and in the booking guard are one
+    // number rather than three. No-ops when they already agree.
+    await reconcilePackageCounters(userId)
+
     let catIds: { ind: string | null; cpl: string | null; psy: string | null } = { ind: null, cpl: null, psy: null }
     try {
       const pc = await prisma.patientProfile.findUnique({ where: { userId }, select: { assignedTherapistIndividualId: true, assignedTherapistCouplesId: true, assignedTherapistPsychiatryId: true } })

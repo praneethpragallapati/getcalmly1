@@ -68,8 +68,12 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   // and no pay riding on it — plus any session from any expert that already has
   // a note, so the clinician still sees the whole picture.
   const pastSessions = p.sessions.filter((s) => s.summary || (s.isOwn && s.payable))
-  /** Sessions that actually happened and were written up — any clinician's. */
-  const sessionsHeld = pastSessions.filter((s) => s.summary).length
+  // The three numbers the package counter is made of. "Held" is sessions that
+  // happened, not sessions written up — a session without a note still used one.
+  const sessionsCompleted = p.sessions.filter((s) => s.status === 'COMPLETED').length
+  const sessionsBookedAhead = p.sessions.filter((s) => s.status !== 'COMPLETED' && s.status !== 'CANCELLED').length
+  const sessionsWrittenUp = pastSessions.filter((s) => s.summary).length
+  const sessionsAccounted = sessionsCompleted + sessionsBookedAhead
 
   return (
     <div className="stack">
@@ -177,18 +181,16 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap', marginTop: 12 }}>
           <Metric label="Streak" value={`${p.streakDays} days`} icon={<Flame size={15} />} />
           <Metric label="Mood trend" value={sentence(MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend)} />
-          {/* This is the PACKAGE counter (sessionsUsed / sessionsTotal on their
-              subscription), not a count of sessions that happened. The two can
-              legitimately differ — a booking consumes one immediately, a voided
-              session returns one — and labelling both "Sessions" made a package
-              reading 1/17 next to two written-up sessions look like a bug.
-              Completed sessions are shown separately, from the appointments. */}
+          {/* A session is spoken for from the moment it is booked, so the package
+              counter reads "held + booked ahead". The counters are rebuilt from
+              the appointments before this page renders (reconcilePackageCounters),
+              so the sum below holds; the line under the row states it outright. */}
           <Metric
             label="Package sessions"
             value={`${p.sessionsDone}/${p.sessionsTotal} used`}
             sub={`${p.sessionsRemaining} remaining`}
           />
-          <Metric label="Sessions held" value={String(sessionsHeld)} sub="with a written note" />
+          <Metric label="Sessions held" value={String(sessionsCompleted)} sub={`${sessionsWrittenUp} written up`} />
           <Metric label="Task completion" value={`${p.taskCompletionPct}%`} />
           <Metric
             label="Medication"
@@ -198,20 +200,15 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           <Metric label="High-risk chats" value={String(p.highStakeChatCount)} alert={p.highStakeChatCount > 0} />
         </div>
 
-        {/* The two session numbers come from different places — the package
-            counter moves when a session is BOOKED against a package, the held
-            count is sessions that actually happened and were written up — so
-            they can disagree for perfectly good reasons. When they do, say
-            which reason, instead of leaving it to be worked out. */}
-        {sessionsHeld !== p.sessionsDone && (
-          <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
-            {p.sessionsBookedOnPackage !== null && p.sessionsBookedOnPackage !== p.sessionsDone
-              ? `Package counter says ${p.sessionsDone} used, but ${p.sessionsBookedOnPackage} session${p.sessionsBookedOnPackage === 1 ? ' is' : 's are'} booked against it. The counter has drifted — an admin can fix it on the patient's admin page with "Set counter".`
-              : sessionsHeld > p.sessionsDone
-                ? `${sessionsHeld - p.sessionsDone} of these ${sessionsHeld - p.sessionsDone === 1 ? 'was' : 'were'} not paid for out of a current package — held before this package started, drawn from one that has since ended, or added outside the booking flow. The package counter only moves when a session is booked against it.`
-                : 'Some booked sessions have not been held or written up yet — the package counter moves at booking, not after the session.'}
-          </p>
-        )}
+        {/* Spell the arithmetic out rather than leaving two numbers to be
+            reconciled by eye. In the normal case this is a statement of the sum;
+            when a session cannot be accounted for — a package with no room left
+            to adopt it — it says so, and points at the one button that fixes it. */}
+        <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
+          {sessionsAccounted === p.sessionsDone
+            ? `Package sessions used = ${sessionsCompleted} held + ${sessionsBookedAhead} booked ahead.`
+            : `Package sessions used says ${p.sessionsDone}, but this patient has ${sessionsCompleted} held and ${sessionsBookedAhead} booked ahead. A session is not drawing on any package — usually because every package of that type is already full. Raise the total on the right package, then use "Set counter" on the patient's admin page.`}
+        </p>
 
         <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(28,43,58,.08)' }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>

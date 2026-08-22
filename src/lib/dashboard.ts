@@ -17,6 +17,7 @@ import { prisma } from '@/lib/prisma'
 import { frequencyChip, isDoneForPeriod, timesOfDayChip } from '@/lib/taskRecurrence'
 import { getSessionUserId } from '@/lib/patient'
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
+import { reconcilePackageCounters } from '@/lib/packageCounters'
 import { getCommunityPostsCached } from '@/lib/community'
 import { patientCode } from '@/lib/ids'
 import { designationOf } from '@/lib/expert'
@@ -249,6 +250,13 @@ export async function getDashboardData(): Promise<DashboardData> {
       // Settlement runs in the same wave; its result is unused (see note above).
       resolveDueAppointments({ patientId: userId }),
     ])
+    // Then rebalance the package counters against the appointments, so the
+    // "sessions left" this page prints is the same number booking will enforce.
+    // Like settlement above, its effect lands on the next load rather than this
+    // one — deliberately, to keep the read wave concurrent. The sessions page
+    // and both clinician views reconcile before reading, so a correction is
+    // never more than one page away.
+    await reconcilePackageCounters(userId)
 
     data.name = firstNameFrom(user?.name, user?.email)
     if (user?.createdAt) {

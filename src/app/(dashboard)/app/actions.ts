@@ -18,6 +18,7 @@ import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/mat
 import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
+import { trackForClinician } from '@/lib/packageCounters'
 import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { pickHelplines } from '@/config/site'
@@ -519,15 +520,6 @@ export async function markSessionJoined(roomOrId: string): Promise<{ ok: boolean
 }
 
 const TRACK_LABEL: Record<string, string> = { therapy: 'individual therapy', couples: 'couples', psychiatry: 'psychiatry' }
-
-/** Map a clinician to the package track a session with them draws from. */
-function trackForClinician(clinicianType: string | null, specializations: string[]): 'therapy' | 'couples' | 'psychiatry' {
-  const ct = (clinicianType ?? '').toLowerCase()
-  const spec = specializations.join(' ').toLowerCase()
-  if (ct.includes('psych') || spec.includes('psychiatr') || spec.includes('medication')) return 'psychiatry'
-  if (ct.includes('couple') || spec.includes('couple')) return 'couples'
-  return 'therapy'
-}
 
 const CANCEL_LEAD_MS = 24 * 60 * 60 * 1000
 

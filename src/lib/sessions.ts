@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS, designationOf } from '@/lib/expert'
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
+import { reconcilePackageCounters } from '@/lib/packageCounters'
 import { earliestJoin } from '@/lib/meetingWindow'
 import { fmtIST } from '@/lib/tz'
 
@@ -87,6 +88,10 @@ export async function getSessionsView(): Promise<SessionsView> {
     // before reading, so a passed session drops out of "upcoming" and its wallet /
     // pay outcome is applied.
     await resolveDueAppointments({ patientId: userId })
+    // Settlement is what moves sessions in and out of a package, so rebalance
+    // the package counters right after it — otherwise a voided session's refund
+    // and the count on screen disagree until someone notices.
+    await reconcilePackageCounters(userId)
     const rows = await prisma.appointment.findMany({
       where: { patientId: userId },
       orderBy: { scheduledAt: 'asc' },
