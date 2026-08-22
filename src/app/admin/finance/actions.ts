@@ -77,7 +77,7 @@ export async function addLedgerEntry(input: {
     console.error('[addLedgerEntry] failed', e)
     const message = e instanceof Error ? e.message : ''
     if (/does not exist in the current database/i.test(message)) {
-      return { ok: false, error: 'The ledger table is missing from this database. Run the pending migrations (npm run db:deploy), then try again.' }
+      return { ok: false, error: 'The ledger table is missing from this database. Run prisma/sync_schema.sql against the database (Supabase → SQL Editor), then try again.' }
     }
     return { ok: false, error: 'Could not save that entry. Please try again, and check the server logs if it keeps happening.' }
   }

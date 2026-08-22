@@ -33,7 +33,7 @@ export function bailErr(action: string, e: unknown, meta?: Record<string, unknow
   const message = e instanceof Error ? e.message : String(e)
   const schema = /does not exist in the current database/i.test(message)
   console.error(
-    `[${action}] FAILED${detail}${schema ? ' — a column or table is missing; run the pending migrations' : ''}`,
+    `[${action}] FAILED${detail}${schema ? ' — a column or table is missing; run prisma/sync_schema.sql' : ''}`,
     e,
   )
   return undefined

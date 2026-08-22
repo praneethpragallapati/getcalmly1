@@ -158,7 +158,7 @@ export async function assignTask(_prev: AssignTaskState, formData: FormData): Pr
     console.error('[assignTask] could not create the task', e)
     const msg = e instanceof Error ? e.message : ''
     if (/does not exist in the current database/i.test(msg)) {
-      return { ok: false, message: 'The tasks table is missing a column on this database. Run the pending migrations (npm run db:deploy), then try again.' }
+      return { ok: false, message: 'The tasks table is missing a column on this database. Run prisma/sync_schema.sql against the database (Supabase → SQL Editor), then try again.' }
     }
     return { ok: false, message: 'Could not assign that task. Please try again — if it keeps happening, check the server logs.' }
   }

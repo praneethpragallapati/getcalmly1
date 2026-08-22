@@ -60,7 +60,7 @@ const safe = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
     if (/does not exist in the current database|column|P2022|P2021/i.test(message)) {
-      console.error('[admin] read failed on a missing column or table — run pending migrations (npm run db:deploy). Showing empty values.', e)
+      console.error('[admin] read failed on a missing column or table — run prisma/sync_schema.sql. Showing empty values.', e)
     } else {
       console.error('[admin] read failed, showing empty values', e)
     }
