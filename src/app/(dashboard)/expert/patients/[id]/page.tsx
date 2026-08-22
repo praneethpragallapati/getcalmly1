@@ -77,7 +77,13 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             {p.name}
             <span style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '2px 8px', borderRadius: 6 }}>{p.contact.code ?? patientCode(p.patientId)}</span>
           </div>
-          <div className="page-meta">{p.trackLabel}{p.diagnosis ? ` · ${p.diagnosis}` : ''}{p.therapyStatus ? ` · ${p.therapyStatus}` : ''}</div>
+          {/* Diagnosis and therapy status only — both clinician-entered. The
+              assessment's track label is not shown: it is a single intake answer
+              that never changes, and next to real clinical fields it looked like
+              one. */}
+          <div className="page-meta">
+            {[p.diagnosis, p.therapyStatus].filter(Boolean).join(' · ') || 'No diagnosis recorded'}
+          </div>
         </div>
       </div>
 

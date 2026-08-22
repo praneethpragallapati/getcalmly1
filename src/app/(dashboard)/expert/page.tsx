@@ -177,7 +177,7 @@ export default async function ExpertHomePage() {
                 Session #{nextProfile.sessionsDone + 1} with <span style={{ color: '#4ba8a2', fontWeight: 700 }}>{next.patientName}</span>
               </h2>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>
-                {nextProfile.trackLabel} · {next.durationMins} min · Google Meet
+                {next.durationMins} min · Google Meet
               </p>
               {briefRows.length > 0 && (
                 <div style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, padding: '14px 16px', marginBottom: 18 }}>

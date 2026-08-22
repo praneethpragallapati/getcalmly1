@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { UserPlus, MessageSquare } from 'lucide-react'
 import {
-  getTherapistContext, getSupervision, getSuperviseeCaseloads, type SupervisionRelationship,
+  getTherapistContext, getSupervision, getSuperviseeCaseloads, MOOD_TREND_LABEL,
+  type SupervisionRelationship,
 } from '@/lib/expert'
 import { postSupervisionNote } from '../actions'
 
@@ -89,7 +90,7 @@ export default async function SupervisionPage() {
                   <div style={{ flex: 1 }}>
                     <div className="pattern-title">{p.name}</div>
                     <div className="pattern-sub">
-                      {p.trackLabel} · Mood {p.moodTrend} · Sessions {p.sessionsDone}/{p.sessionsTotal}
+                      Mood {MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend} · Sessions {p.sessionsDone}/{p.sessionsTotal}
                       {p.openCrisisCount > 0 ? ` · ⚠ ${p.openCrisisCount} open alert(s)` : ''}
                     </div>
                   </div>

@@ -146,7 +146,13 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
                       with this clinician, the second is what remains on the
                       package counter. Saying which is which stops the row
                       looking like arithmetic that does not work. */}
-                  {p.trackLabel} · Mood {MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend} · {p.sessionsCompleted} held ·{' '}
+                  {/* The assessment-derived care track ("Low mood") used to lead
+                      this line. It is a one-off answer from the intake
+                      questionnaire, never updated after, and sitting beside a
+                      live mood trend it read as a current clinical judgement.
+                      Dropped from the clinician-facing rows; the field is still
+                      stored and still feeds matching. */}
+                  Mood {MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend} · {p.sessionsCompleted} held ·{' '}
                   {p.sessionsLeft} left in package{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo
                 </div>
               </div>
