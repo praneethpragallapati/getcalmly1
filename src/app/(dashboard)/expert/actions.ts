@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { bail, bailErr } from '@/lib/actionLog'
 import { prisma } from '@/lib/prisma'
 import {
   getTherapistContext,
@@ -69,10 +70,14 @@ export async function updateBlog(slug: string, input: CreateBlogInput): Promise<
 
 export async function resolveAlert(formData: FormData): Promise<void> {
   const alertId = String(formData.get('alertId') ?? '')
-  if (!alertId) return
+  if (!alertId) return bail('resolveAlert', 'no alert id in the form')
   const ctx = await getTherapistContext()
-  if (!ctx) return
-  await resolveCrisisAlert(ctx.therapistProfileId, alertId)
+  if (!ctx) return bail('resolveAlert', 'no clinician session')
+  try {
+    await resolveCrisisAlert(ctx.therapistProfileId, alertId)
+  } catch (e) {
+    return bailErr('resolveAlert', e, { alertId })
+  }
   revalidatePath('/expert/risk')
   revalidatePath('/expert')
   const patientId = String(formData.get('patientId') ?? '')
@@ -174,11 +179,15 @@ export async function assignTask(_prev: AssignTaskState, formData: FormData): Pr
  */
 export async function requestCancellation(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('requestCancellation', 'no clinician session')
   const id = String(formData.get('appointmentId') ?? '')
   const reason = String(formData.get('reason') ?? '')
-  if (!id) return
-  await requestAppointmentCancellation(ctx.therapistProfileId, id, reason)
+  if (!id) return bail('requestCancellation', 'no appointment id in the form')
+  try {
+    await requestAppointmentCancellation(ctx.therapistProfileId, id, reason)
+  } catch (e) {
+    return bailErr('requestCancellation', e, { appointmentId: id })
+  }
   revalidatePath('/expert/schedule')
   revalidatePath('/expert')
 }
@@ -186,12 +195,17 @@ export async function requestCancellation(formData: FormData): Promise<void> {
 /** Mark a session complete and save the therapist's written summary. */
 export async function completeSession(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('completeSession', 'no clinician session')
   const id = String(formData.get('appointmentId') ?? '')
   const patientId = String(formData.get('patientId') ?? '')
   const summary = String(formData.get('summary') ?? '').trim()
-  if (!id || !summary) return
-  await writeSessionSummary(ctx.therapistProfileId, id, summary)
+  if (!id || !summary) return bail('completeSession', 'no appointment id or empty summary')
+  try {
+    await writeSessionSummary(ctx.therapistProfileId, id, summary)
+  } catch (e) {
+    // This one gates the clinician's pay, so losing it silently is expensive.
+    return bailErr('completeSession', e, { appointmentId: id })
+  }
   // The draft has served its purpose; leaving it behind would repopulate the
   // form with stale text the next time the note is opened.
   await ensureSessionNoteSchema().catch(() => {})
@@ -284,14 +298,18 @@ function parseHours(formData: FormData): number[] {
 /** Save the weekly template: either one weekday, or all days when applyAll is set. */
 export async function saveAvailability(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('saveAvailability', 'no clinician session')
   const hours = parseHours(formData)
-  if (String(formData.get('applyAll') ?? '') === 'true') {
-    await setAllDaysAvailability(ctx.therapistProfileId, hours)
-  } else {
-    const day = parseInt(String(formData.get('dayOfWeek') ?? ''), 10)
-    if (Number.isNaN(day)) return
-    await setDayAvailability(ctx.therapistProfileId, day, hours)
+  try {
+    if (String(formData.get('applyAll') ?? '') === 'true') {
+      await setAllDaysAvailability(ctx.therapistProfileId, hours)
+    } else {
+      const day = parseInt(String(formData.get('dayOfWeek') ?? ''), 10)
+      if (Number.isNaN(day)) return bail('saveAvailability', 'day of week was not a number')
+      await setDayAvailability(ctx.therapistProfileId, day, hours)
+    }
+  } catch (e) {
+    return bailErr('saveAvailability', e)
   }
   revalidatePath('/expert/availability')
 }
@@ -299,27 +317,35 @@ export async function saveAvailability(formData: FormData): Promise<void> {
 /** Block a specific date, the whole day, or just the selected hours. */
 export async function blockDate(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('blockDate', 'no clinician session')
   const dateRaw = String(formData.get('date') ?? '')
-  if (!dateRaw) return
+  if (!dateRaw) return bail('blockDate', 'no date in the form')
   const hoursOff = formData
     .getAll('hoursOff')
     .map((h) => Number(h))
     .filter((h) => Number.isInteger(h) && h >= 0 && h <= 23)
-  await addAvailabilityException(
-    ctx.therapistProfileId,
-    new Date(dateRaw),
-    hoursOff.length ? { fullDayOff: false, hoursOff } : { fullDayOff: true },
-  )
+  try {
+    await addAvailabilityException(
+      ctx.therapistProfileId,
+      new Date(dateRaw),
+      hoursOff.length ? { fullDayOff: false, hoursOff } : { fullDayOff: true },
+    )
+  } catch (e) {
+    return bailErr('blockDate', e, { date: dateRaw })
+  }
   revalidatePath('/expert/availability')
 }
 
 export async function unblockDate(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('unblockDate', 'no clinician session')
   const id = String(formData.get('exceptionId') ?? '')
-  if (!id) return
-  await removeAvailabilityException(ctx.therapistProfileId, id)
+  if (!id) return bail('unblockDate', 'no exception id in the form')
+  try {
+    await removeAvailabilityException(ctx.therapistProfileId, id)
+  } catch (e) {
+    return bailErr('unblockDate', e, { exceptionId: id })
+  }
   revalidatePath('/expert/availability')
 }
 
@@ -327,38 +353,60 @@ export async function unblockDate(formData: FormData): Promise<void> {
 
 export async function postSupervisionNote(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('postSupervisionNote', 'no clinician session')
   const linkId = String(formData.get('linkId') ?? '')
   const content = String(formData.get('content') ?? '')
   const patientId = String(formData.get('patientId') ?? '') || undefined
-  if (!linkId || !content.trim()) return
-  await addSupervisionNote(ctx.therapistProfileId, linkId, content, patientId)
+  if (!linkId || !content.trim()) return bail('postSupervisionNote', 'no link id or empty note')
+  try {
+    await addSupervisionNote(ctx.therapistProfileId, linkId, content, patientId)
+  } catch (e) {
+    return bailErr('postSupervisionNote', e, { linkId })
+  }
   revalidatePath('/expert/supervision')
 }
 
 // ── Medication (psychiatrist) ────────────────────────────────────────────────
 
-export async function prescribe(formData: FormData): Promise<void> {
+export type PrescribeState = { ok: boolean; message: string } | null
+
+/**
+ * Prescribe a medication. Returns a result, not void: a prescription that
+ * silently fails to save is the kind of thing a clinician only discovers when
+ * the patient says they never got it.
+ */
+export async function prescribe(_prev: PrescribeState, formData: FormData): Promise<PrescribeState> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return { ok: false, message: 'Your session has expired. Please sign in again.' }
   const patientId = String(formData.get('patientId') ?? '')
   const name = String(formData.get('name') ?? '').trim()
-  if (!patientId || !name) return
+  if (!patientId) return { ok: false, message: 'Could not tell which patient this is for. Reload and try again.' }
+  if (!name) return { ok: false, message: 'Pick or type a medicine name first.' }
   const times = String(formData.get('times') ?? '')
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean)
   const durationRaw = parseInt(String(formData.get('durationDays') ?? ''), 10)
-  await prescribeMedication(ctx.therapistProfileId, ctx.therapistName, patientId, {
-    name,
-    dosage: String(formData.get('dosage') ?? ''),
-    frequency: String(formData.get('frequency') ?? ''),
-    times,
-    durationDays: Number.isNaN(durationRaw) ? null : durationRaw,
-    notes: String(formData.get('notes') ?? ''),
-  })
+  try {
+    await prescribeMedication(ctx.therapistProfileId, ctx.therapistName, patientId, {
+      name,
+      dosage: String(formData.get('dosage') ?? ''),
+      frequency: String(formData.get('frequency') ?? ''),
+      times,
+      durationDays: Number.isNaN(durationRaw) ? null : durationRaw,
+      notes: String(formData.get('notes') ?? ''),
+    })
+  } catch (e) {
+    bailErr('prescribe', e, { patientId, name })
+    const msg = e instanceof Error ? e.message : ''
+    if (/does not exist in the current database/i.test(msg)) {
+      return { ok: false, message: 'The medications table is missing a column on this database. Run the pending migrations, then try again.' }
+    }
+    return { ok: false, message: 'Could not save that prescription. Please try again — if it keeps happening, check the server logs.' }
+  }
   revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app/medications')
+  return { ok: true, message: `Prescribed ${name}.` }
 }
 
 // ── Forms ─────────────────────────────────────────────────────────────────────
@@ -366,11 +414,15 @@ export async function prescribe(formData: FormData): Promise<void> {
 /** Send a library form (consent / info / feedback) to one of the therapist's patients. */
 export async function sendFormToPatient(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('sendFormToPatient', 'no clinician session')
   const patientId = String(formData.get('patientId') ?? '')
   const templateId = String(formData.get('templateId') ?? '')
-  if (!patientId || !templateId) return
-  await sendForm(ctx.therapistProfileId, ctx.therapistName, patientId, templateId)
+  if (!patientId || !templateId) return bail('sendFormToPatient', 'no patient or template id')
+  try {
+    await sendForm(ctx.therapistProfileId, ctx.therapistName, patientId, templateId)
+  } catch (e) {
+    return bailErr('sendFormToPatient', e, { patientId, templateId })
+  }
   revalidatePath(`/expert/patients/${patientId}`)
 }
 
@@ -447,7 +499,7 @@ export async function removeMyForm(id: string): Promise<{ ok: boolean; error?: s
 /** Clear the clinician's notification badge (opening the bell marks all read). */
 export async function markExpertNotificationsRead(): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('markExpertNotificationsRead', 'no clinician session')
   try {
     await markAllRead(ctx.userId)
     revalidatePath('/expert/notifications')
@@ -459,12 +511,16 @@ export async function markExpertNotificationsRead(): Promise<void> {
 
 export async function toggleMedication(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
-  if (!ctx) return
+  if (!ctx) return bail('toggleMedication', 'no clinician session')
   const medicationId = String(formData.get('medicationId') ?? '')
   const patientId = String(formData.get('patientId') ?? '')
   const active = String(formData.get('active') ?? '') === 'true'
-  if (!medicationId) return
-  await setMedicationActive(ctx.therapistProfileId, medicationId, active)
+  if (!medicationId) return bail('toggleMedication', 'no medication id in the form')
+  try {
+    await setMedicationActive(ctx.therapistProfileId, medicationId, active)
+  } catch (e) {
+    return bailErr('toggleMedication', e, { medicationId })
+  }
   if (patientId) revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app/medications')
 }

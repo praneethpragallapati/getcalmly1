@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { bail, bailErr } from '@/lib/actionLog'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -876,22 +877,30 @@ export async function savePricingConfig(values: PricingValues): Promise<AdminRes
 
 export async function assignSupervisionAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin()
-  if (!admin) return
+  if (!admin) return bail('assignSupervisionAction', 'not signed in as an admin')
   const supervisorId = String(formData.get('supervisorId') ?? '')
   const superviseeId = String(formData.get('superviseeId') ?? '')
-  const { adminAssignSupervision } = await import('@/lib/expert')
-  await adminAssignSupervision(supervisorId, superviseeId)
+  try {
+    const { adminAssignSupervision } = await import('@/lib/expert')
+    await adminAssignSupervision(supervisorId, superviseeId)
+  } catch (e) {
+    return bailErr('assignSupervisionAction', e, { supervisorId, superviseeId })
+  }
   revalidatePath('/admin/supervision')
   revalidatePath('/expert/supervision')
 }
 
 export async function removeSupervisionAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin()
-  if (!admin) return
+  if (!admin) return bail('removeSupervisionAction', 'not signed in as an admin')
   const linkId = String(formData.get('linkId') ?? '')
-  if (!linkId) return
-  const { adminRemoveSupervision } = await import('@/lib/expert')
-  await adminRemoveSupervision(linkId)
+  if (!linkId) return bail('removeSupervisionAction', 'no link id in the form')
+  try {
+    const { adminRemoveSupervision } = await import('@/lib/expert')
+    await adminRemoveSupervision(linkId)
+  } catch (e) {
+    return bailErr('removeSupervisionAction', e, { linkId })
+  }
   revalidatePath('/admin/supervision')
   revalidatePath('/expert/supervision')
 }
@@ -901,12 +910,18 @@ export async function removeSupervisionAction(formData: FormData): Promise<void>
 
 export async function setEmploymentTypeAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin()
-  if (!admin) return
+  if (!admin) return bail('setEmploymentTypeAction', 'not signed in as an admin')
   const profileId = String(formData.get('profileId') ?? '')
   const employmentType = String(formData.get('employmentType') ?? '')
-  if (employmentType !== 'FULL_TIME' && employmentType !== 'PART_TIME') return
-  const { adminSetEmploymentType } = await import('@/lib/expert')
-  await adminSetEmploymentType(profileId, employmentType)
+  if (employmentType !== 'FULL_TIME' && employmentType !== 'PART_TIME') {
+    return bail('setEmploymentTypeAction', 'employment type was not FULL_TIME or PART_TIME', { employmentType })
+  }
+  try {
+    const { adminSetEmploymentType } = await import('@/lib/expert')
+    await adminSetEmploymentType(profileId, employmentType)
+  } catch (e) {
+    return bailErr('setEmploymentTypeAction', e, { profileId })
+  }
   revalidatePath('/admin/therapists')
   revalidatePath('/expert/profile')
   revalidatePath('/expert/earnings')
@@ -1406,16 +1421,20 @@ export async function broadcastAnnouncement(input: { audience: 'ALL' | 'PATIENT'
 /** Assign a task to a therapist. `profileId` is only used to revalidate the page. */
 export async function assignTherapistTask(formData: FormData): Promise<void> {
   const admin = await requireAdmin()
-  if (!admin) return
+  if (!admin) return bail('assignTherapistTask', 'not signed in as an admin')
 
   const therapistUserId = String(formData.get('therapistUserId') ?? '')
   const profileId = String(formData.get('profileId') ?? '')
   const title = String(formData.get('title') ?? '').trim()
-  if (!therapistUserId || !title) return
+  if (!therapistUserId || !title) return bail('assignTherapistTask', 'no clinician id or empty title')
 
   // Only ever target an actual clinician account.
-  const target = await prisma.user.findUnique({ where: { id: therapistUserId }, select: { role: true } })
-  if (!target || target.role !== 'THERAPIST') return
+  const target = await prisma.user
+    .findUnique({ where: { id: therapistUserId }, select: { role: true } })
+    .catch((e) => bailErr('assignTherapistTask', e, { therapistUserId }) ?? null)
+  if (!target || target.role !== 'THERAPIST') {
+    return bail('assignTherapistTask', 'target is not a clinician account', { therapistUserId })
+  }
 
   const description = String(formData.get('description') ?? '').trim()
   const dueRaw = String(formData.get('dueDate') ?? '').trim()
@@ -1454,13 +1473,17 @@ export async function assignTherapistTask(formData: FormData): Promise<void> {
 /** Remove a task an admin assigned to a therapist. */
 export async function deleteTherapistTask(formData: FormData): Promise<void> {
   const admin = await requireAdmin()
-  if (!admin) return
+  if (!admin) return bail('deleteTherapistTask', 'not signed in as an admin')
   const taskId = String(formData.get('taskId') ?? '')
   const profileId = String(formData.get('profileId') ?? '')
-  if (!taskId || !admin.id) return
+  if (!taskId || !admin.id) return bail('deleteTherapistTask', 'no task id, or no admin id on the session')
   // Only delete admin-assigned tasks (assignedById set to a real admin), never a
   // therapist's patient-facing ones.
-  await prisma.task.deleteMany({ where: { id: taskId, assignedById: admin.id } })
+  try {
+    await prisma.task.deleteMany({ where: { id: taskId, assignedById: admin.id } })
+  } catch (e) {
+    return bailErr('deleteTherapistTask', e, { taskId })
+  }
   if (profileId) revalidatePath(`/admin/therapists/${profileId}`)
   revalidatePath('/expert')
   revalidatePath('/expert/tasks')

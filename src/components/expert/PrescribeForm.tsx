@@ -1,9 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useActionState, useMemo, useState } from 'react'
 import { Pill } from 'lucide-react'
 import { MEDICINES, FREQUENCY_OPTIONS } from '@/data/medicines'
-import { prescribe } from '@/app/(dashboard)/expert/actions'
+import { prescribe, type PrescribeState } from '@/app/(dashboard)/expert/actions'
 
 /**
  * Prescribe form with a medicine dropdown (grouped by drug class) instead of a
@@ -15,6 +15,7 @@ import { prescribe } from '@/app/(dashboard)/expert/actions'
 export function PrescribeForm({ patientId }: { patientId: string }) {
   const [selected, setSelected] = useState('')
   const [custom, setCustom] = useState('')
+  const [state, formAction, pending] = useActionState<PrescribeState, FormData>(prescribe, null)
 
   const byClass = useMemo(() => {
     const groups = new Map<string, typeof MEDICINES>()
@@ -31,7 +32,7 @@ export function PrescribeForm({ patientId }: { patientId: string }) {
   const strengths = MEDICINES.find((m) => m.name === selected)?.strengths ?? []
 
   return (
-    <form action={prescribe} className="stack" style={{ gap: 10, marginTop: 14 }}>
+    <form action={formAction} className="stack" style={{ gap: 10, marginTop: 14 }}>
       <input type="hidden" name="patientId" value={patientId} />
       <input type="hidden" name="name" value={name} />
 
@@ -97,9 +98,16 @@ export function PrescribeForm({ patientId }: { patientId: string }) {
       )}
 
       <input className="entry-input" name="notes" placeholder="Notes (optional)" />
-      <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start' }} disabled={!name}>
-        <Pill size={14} /> Prescribe medication
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <button type="submit" className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start' }} disabled={!name || pending}>
+          <Pill size={14} /> {pending ? 'Prescribing…' : 'Prescribe medication'}
+        </button>
+        {state && (
+          <span role="status" style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.45, color: state.ok ? '#1B7F4D' : '#B3261E' }}>
+            {state.message}
+          </span>
+        )}
+      </div>
     </form>
   )
 }
