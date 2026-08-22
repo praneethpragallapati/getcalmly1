@@ -985,7 +985,7 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
     return {
       id: r.id,
       patientId: r.patientId,
-      patientName: r.patient.name ?? 'Patient',
+      patientName: r.patient?.name ?? 'Patient',
       scheduledAt: r.scheduledAt,
       durationMins: r.durationMins,
       status: r.status,
@@ -1260,15 +1260,77 @@ function serviceTypeOf(isPsychiatrist: boolean, careMode: string | null | undefi
   return 'individual'
 }
 
+/** The clinician fields the pay computation needs. */
+type EarningsProfile = {
+  specializations: string[]
+  baseFeeIndividual: number | null; baseFeeCouples: number | null; baseFeePsychiatry: number | null
+  secondSessionBonus: number | null; thirdOnwardsBonus: number | null
+  miscBonus: number | null; nightSessionBonus: number | null
+}
+/** One completed, written-up session, as the pay computation needs it. */
+type EarningsAppt = {
+  id: string
+  patientId: string
+  scheduledAt: Date
+  patient: { name: string | null; patientProfile: { careMode: string } | null } | null
+}
+
+const EARNINGS_PROFILE_SELECT = {
+  specializations: true,
+  baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
+  secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
+} as const
+
+const EARNINGS_APPT_SELECT = {
+  id: true,
+  patientId: true,
+  scheduledAt: true,
+  patient: { select: { name: true, patientProfile: { select: { careMode: true } } } },
+} as const
+
+/**
+ * Earnings for MANY clinicians in a fixed number of queries.
+ *
+ * getTherapistEarnings costs three queries, and the admin Money page looped it
+ * per clinician from BOTH getMoneyOverview and getMasterPayout — so every
+ * clinician's earnings were computed twice per page load, at 6 queries each,
+ * one of which (the singleton earnings config) was refetched every single time.
+ * This fetches all profiles in one query, all sessions in one query, the config
+ * once, and computes the rest in memory.
+ */
+export async function getEarningsForMany(profileIds: string[]): Promise<Map<string, Earnings>> {
+  const out = new Map<string, Earnings>()
+  if (profileIds.length === 0) return out
+  const [profiles, appts, globalConfig] = await Promise.all([
+    prisma.therapistProfile.findMany({
+      where: { id: { in: profileIds } },
+      select: { id: true, ...EARNINGS_PROFILE_SELECT },
+    }),
+    prisma.appointment.findMany({
+      where: { therapistId: { in: profileIds }, status: 'COMPLETED', summary: { not: null } },
+      orderBy: { scheduledAt: 'asc' },
+      select: { therapistId: true, ...EARNINGS_APPT_SELECT },
+    }),
+    getEarningsConfig(),
+  ])
+  const profileById = new Map(profiles.map((p) => [p.id, p]))
+  const apptsById = new Map<string, EarningsAppt[]>()
+  for (const a of appts) {
+    const list = apptsById.get(a.therapistId) ?? []
+    list.push(a)
+    apptsById.set(a.therapistId, list)
+  }
+  for (const id of profileIds) {
+    out.set(id, computeEarnings(profileById.get(id) ?? null, apptsById.get(id) ?? [], globalConfig))
+  }
+  return out
+}
+
 export async function getTherapistEarnings(therapistProfileId: string): Promise<Earnings> {
   const [profile, rows, globalConfig] = await Promise.all([
     prisma.therapistProfile.findUnique({
       where: { id: therapistProfileId },
-      select: {
-        specializations: true,
-        baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
-        secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
-      },
+      select: EARNINGS_PROFILE_SELECT,
     }),
     // `select`, not `include`. `include` pulls EVERY scalar column on
     // Appointment — 26 of them — to use three, so any column that exists in
@@ -1280,15 +1342,19 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
     prisma.appointment.findMany({
       where: { therapistId: therapistProfileId, status: 'COMPLETED', summary: { not: null } },
       orderBy: { scheduledAt: 'asc' },
-      select: {
-        id: true,
-        patientId: true,
-        scheduledAt: true,
-        patient: { select: { name: true, patientProfile: { select: { careMode: true } } } },
-      },
+      select: EARNINGS_APPT_SELECT,
     }),
     getEarningsConfig(),
   ])
+  return computeEarnings(profile, rows, globalConfig)
+}
+
+/** The pay computation itself — no I/O, so it can serve one clinician or many. */
+function computeEarnings(
+  profile: EarningsProfile | null,
+  rows: EarningsAppt[],
+  globalConfig: Awaited<ReturnType<typeof getEarningsConfig>>,
+): Earnings {
   const isPsych = looksPsychiatric(profile?.specializations ?? [])
   // Apply this clinician's per-therapist overrides on top of the platform config.
   const config = effectiveEarningsConfig(globalConfig, profile)
@@ -1307,7 +1373,7 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
   for (const r of rows) {
     const ordinal = (seenPerPatient.get(r.patientId) ?? 0) + 1
     seenPerPatient.set(r.patientId, ordinal)
-    const service = serviceTypeOf(isPsych, r.patient.patientProfile?.careMode)
+    const service = serviceTypeOf(isPsych, r.patient?.patientProfile?.careMode)
     const night = isNightSession(r.scheduledAt)
     const base = baseFeeFor(config, service)
     const numberBonus = numberBonusFor(config, ordinal)
@@ -1331,7 +1397,7 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
       monthKey: istMonthKey,
       monthLabel: fmtIST(d, { month: 'long', year: 'numeric' }),
       year: p.year,
-      patientName: r.patient.name ?? 'Patient',
+      patientName: r.patient?.name ?? 'Patient',
       service,
       serviceLabel: SERVICE_LABEL[service],
       sessionNumber: ordinal,

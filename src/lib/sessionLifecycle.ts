@@ -170,6 +170,81 @@ export async function getPresenceDetail(appointmentId: string): Promise<Presence
   }
 }
 
+/**
+ * Presence detail for MANY sessions in ONE query.
+ *
+ * getPresenceDetail runs a query per session. The admin patient page loads up
+ * to 200 sessions and called it once each, so opening one member fired up to
+ * 200 round trips before the page could render. This asks for every span in a
+ * single `IN` and groups them in memory.
+ *
+ * It also ensures the spans table exists first. Without that, a database that
+ * hasn't had migration 0035 applied throws, every session comes back
+ * `hasSpans: false`, and the attendance breakdown silently vanishes from the UI
+ * — which is exactly how it disappeared.
+ */
+export async function getPresenceDetailsFor(
+  appointmentIds: string[],
+): Promise<Map<string, PresenceDetail>> {
+  const out = new Map<string, PresenceDetail>()
+  const empty = (): PresenceDetail => ({
+    patient: { spans: [], totalMins: 0, rejoins: 0 },
+    therapist: { spans: [], totalMins: 0, rejoins: 0 },
+    togetherMins: 0,
+    hasSpans: false,
+  })
+  for (const id of appointmentIds) out.set(id, empty())
+  if (appointmentIds.length === 0) return out
+
+  try {
+    await ensureSessionPresenceSchema()
+    const rows = await prisma.sessionPresenceSpan.findMany({
+      where: { appointmentId: { in: appointmentIds } },
+      orderBy: { joinedAt: 'asc' },
+      select: { appointmentId: true, role: true, joinedAt: true, lastSeenAt: true },
+    })
+
+    const byAppt = new Map<string, typeof rows>()
+    for (const r of rows) {
+      const list = byAppt.get(r.appointmentId) ?? []
+      list.push(r)
+      byAppt.set(r.appointmentId, list)
+    }
+
+    for (const [id, mine] of byAppt) {
+      if (mine.length === 0) continue
+      const firstDay = istDayKey(mine[0].joinedAt)
+      const stamp = (d: Date) =>
+        istDayKey(d) === firstDay
+          ? fmtIST(d, { hour: 'numeric', minute: '2-digit' })
+          : fmtIST(d, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+      const build = (role: PresenceRole) => {
+        const side = mine.filter((r) => r.role === role)
+        const spans = side.map((r) => ({
+          joinedLabel: stamp(r.joinedAt),
+          leftLabel: stamp(r.lastSeenAt),
+          minutes: Math.max(0, Math.round((r.lastSeenAt.getTime() - r.joinedAt.getTime()) / 60_000)),
+        }))
+        return { spans, totalMins: spans.reduce((t, sp) => t + sp.minutes, 0), rejoins: Math.max(0, side.length - 1) }
+      }
+      const toIv = (role: PresenceRole) =>
+        mine.filter((r) => r.role === role).map((r) => ({ s: r.joinedAt.getTime(), e: r.lastSeenAt.getTime() }))
+      let togetherMs = 0
+      for (const a of toIv('PATIENT')) for (const b of toIv('THERAPIST')) togetherMs += overlapMs(a, b)
+
+      out.set(id, {
+        patient: build('PATIENT'),
+        therapist: build('THERAPIST'),
+        togetherMins: Math.round(togetherMs / 60_000),
+        hasSpans: true,
+      })
+    }
+  } catch {
+    // Every id already maps to an empty detail, so the page still renders.
+  }
+  return out
+}
+
 type PresenceRow = {
   patientJoinedAt: Date | null
   therapistJoinedAt: Date | null

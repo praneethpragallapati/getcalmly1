@@ -6,13 +6,13 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { designationOf, getTherapistEarnings, ensureBlogReviewSchema, type EarningLine, type PersonContact } from '@/lib/expert'
+import { designationOf, getTherapistEarnings, getEarningsForMany, ensureBlogReviewSchema, type EarningLine, type PersonContact } from '@/lib/expert'
 import { getEarningsConfig } from '@/lib/earningsConfig'
 import { frequencyChip, timesOfDayChip, isDoneForPeriod } from '@/lib/taskRecurrence'
 import { fmtIST, istParts } from '@/lib/tz'
 import { parseCompensationFields, type CompensationField } from '@/lib/compensation'
 import { ensureSampleContent } from '@/lib/sampleContent'
-import { computePresence, ensureSessionPresenceSchema, getPresenceDetail, type PresenceDetail } from '@/lib/sessionLifecycle'
+import { computePresence, ensureSessionPresenceSchema, getPresenceDetailsFor, type PresenceDetail } from '@/lib/sessionLifecycle'
 import { ensureSessionNoteSchema } from '@/lib/sessionNoteSchema'
 
 export type AdminUser = {
@@ -742,7 +742,13 @@ export type PatientSessionRow = {
   status: string
   isPast: boolean
   patientJoinedLabel: string | null
+  /** When the patient was last seen in the room — their "out". */
+  patientLeftLabel: string | null
+  /** Minutes the patient was in the room, from Appointment's own timestamps. */
+  patientMins: number | null
   therapistJoinedLabel: string | null
+  therapistLeftLabel: string | null
+  therapistMins: number | null
   endedLabel: string | null
   // Minutes both parties were together in the room (max(join) → endedAt), or
   // null when the session never had both sides present with an end time.
@@ -815,11 +821,26 @@ const sameDayJoin = (joined: Date | null | undefined, scheduledAt: Date): boolea
 type ApptSnapshotRow = {
   id: string; scheduledAt: Date; status: string; durationMins: number
   patientJoinedAt: Date | null; therapistJoinedAt: Date | null; endedAt: Date | null
+  patientLastSeenAt: Date | null; therapistLastSeenAt: Date | null
   summary: string | null; preSessionNote: string | null
   therapist: { rating: number; user: { name: string | null } | null } | null
   review: { rating: number } | null
   memberRating: number | null
   memberRatingNote: string | null
+}
+
+/**
+ * One side's time in the room from Appointment's own join/lastSeen stamps.
+ *
+ * This is the fallback for sessions with no span rows — either they predate
+ * migration 0035 or the spans table isn't there yet. Coarser than spans (it
+ * cannot see a rejoin) but it always yields an in, an out and a duration, which
+ * is what the admin actually asked to see.
+ */
+function sideMins(joined: Date | null, lastSeen: Date | null): number | null {
+  if (!joined) return null
+  const end = lastSeen ?? joined
+  return Math.max(0, Math.round((end.getTime() - joined.getTime()) / 60_000))
 }
 
 export async function getPatientActivity(userId: string): Promise<PatientActivity> {
@@ -847,6 +868,10 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         select: {
           id: true, scheduledAt: true, status: true, durationMins: true,
           patientJoinedAt: true, therapistJoinedAt: true, endedAt: true,
+          // The "out" side of each attendance. Without these there was a join
+          // time and no leave time, so a session could only ever show half the
+          // picture when span rows were unavailable.
+          patientLastSeenAt: true, therapistLastSeenAt: true,
           // summary is selected only to derive hasSummary/needsNote below; it
           // is never placed on the returned object.
           summary: true, preSessionNote: true,
@@ -865,13 +890,10 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
       prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }).catch(() => null),
     ])
 
-    // Presence spans for these sessions, fetched in one wave (one query per
-    // session, run together) so the detail view can show each side's own time.
-    const presenceById = new Map<string, PresenceDetail>(
-      await Promise.all(
-        appts.map(async (a) => [a.id, await getPresenceDetail(a.id)] as const),
-      ),
-    )
+    // ONE query for every session's spans. This was a query per session against
+    // a list capped at 200, so opening a member with a long history fired up to
+    // 200 sequential-ish round trips before the page could render.
+    const presenceById = await getPresenceDetailsFor(appts.map((a) => a.id))
 
     const sessions: PatientSessionRow[] = appts.map((a) => {
       const bothJoined = Boolean(a.patientJoinedAt && a.therapistJoinedAt)
@@ -888,7 +910,11 @@ export async function getPatientActivity(userId: string): Promise<PatientActivit
         status: a.status,
         isPast: a.scheduledAt.getTime() < now,
         patientJoinedLabel: timeLabel(a.patientJoinedAt),
+        patientLeftLabel: timeLabel(a.patientLastSeenAt),
+        patientMins: sideMins(a.patientJoinedAt, a.patientLastSeenAt),
         therapistJoinedLabel: timeLabel(a.therapistJoinedAt),
+        therapistLeftLabel: timeLabel(a.therapistLastSeenAt),
+        therapistMins: sideMins(a.therapistJoinedAt, a.therapistLastSeenAt),
         endedLabel: timeLabel(a.endedAt),
         durationMins,
         scheduledMins: a.durationMins,
@@ -1134,10 +1160,12 @@ export async function getMoneyOverview(): Promise<MoneyOverview> {
     const revenueThisMonth = fromPackages
       ? payments.filter((p) => p.createdAt >= monthStart).reduce((s, p) => s + p.amount, 0)
       : completed.filter((a) => a.scheduledAt >= monthStart).reduce((s, a) => s + a.fee, 0)
-    const payouts = await Promise.all(clinicians.map(async (t) => {
-      const e = await getTherapistEarnings(t.id)
-      return { profileId: t.id, name: t.user?.name ?? 'Clinician', employmentType: (t.employmentType as string) ?? 'FULL_TIME', sessions: e.totalSessions, totalEarned: e.totalEarned, thisMonth: e.thisMonthTotal }
-    }))
+    // One batched fetch instead of three queries per clinician.
+    const earnings = await getEarningsForMany(clinicians.map((t) => t.id))
+    const payouts = clinicians.map((t) => {
+      const e = earnings.get(t.id)
+      return { profileId: t.id, name: t.user?.name ?? 'Clinician', employmentType: (t.employmentType as string) ?? 'FULL_TIME', sessions: e?.totalSessions ?? 0, totalEarned: e?.totalEarned ?? 0, thisMonth: e?.thisMonthTotal ?? 0 }
+    })
     return { revenueAllTime, revenueThisMonth, completedSessions: completed.length, activeSubscriptions, fromPackages, payouts: payouts.sort((a, b) => b.totalEarned - a.totalEarned) }
   }, { revenueAllTime: 0, revenueThisMonth: 0, completedSessions: 0, activeSubscriptions: 0, fromPackages: false, payouts: [] })
 }
@@ -1186,10 +1214,11 @@ export async function getMasterPayout(): Promise<MasterPayout> {
       nightCount: 0, nightTotal: 0, miscTotal: 0, total: 0,
     })
 
-    await Promise.all(clinicians.map(async (c) => {
+    const earnings = await getEarningsForMany(clinicians.map((c) => c.id))
+    clinicians.forEach((c) => {
       const meta = { id: c.id, name: c.user?.name ?? 'Clinician', employmentType: (c.employmentType as string) ?? 'FULL_TIME' }
-      const e = await getTherapistEarnings(c.id)
-      for (const l of e.lines) {
+      const e = earnings.get(c.id)
+      for (const l of e?.lines ?? []) {
         const targets: [Map<string, PayoutBreakdownRow>, string, string][] = [
           [day, `${l.dateIso}|${c.id}`, l.dayLabel],
           [month, `${l.monthKey}|${c.id}`, l.monthLabel],
@@ -1207,7 +1236,7 @@ export async function getMasterPayout(): Promise<MasterPayout> {
           map.set(key, row)
         }
       }
-    }))
+    })
 
     // Sort: most recent period first, then biggest payout.
     const sortRows = (rows: PayoutBreakdownRow[]) =>

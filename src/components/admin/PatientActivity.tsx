@@ -86,9 +86,19 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
         <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '.03em', color: STATUS_COLOR[s.status] ?? charcoal, textTransform: 'uppercase' }}>{s.status.toLowerCase()}</span>
       </div>
       <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', marginTop: 11 }}>
-        <Field label="Patient joined" value={s.patientJoinedLabel ?? 'did not join'} muted={!s.patientJoinedLabel} />
+        {/* In and out for each side, then each side's own time and the time
+            they actually overlapped.
+
+            Span rows (migration 0035) give the exact picture including rejoins.
+            When there are none — an older session, or a database without that
+            table — these fall back to Appointment's own joined/lastSeen stamps
+            so an in, an out and a duration are always shown. Previously the
+            individual totals appeared ONLY when spans existed, so on a database
+            without them the whole breakdown silently disappeared. */}
+        <Field label="Patient in" value={s.patientJoinedLabel ?? 'did not join'} muted={!s.patientJoinedLabel} />
+        <Field label="Patient out" value={s.patientLeftLabel ?? '—'} muted={!s.patientLeftLabel} />
         <Field
-          label="Clinician joined"
+          label="Clinician in"
           value={
             s.therapistJoinedLabel
               ? <>{s.therapistJoinedLabel}{s.joinDelayMins != null && <DelayChip mins={s.joinDelayMins} />}</>
@@ -96,19 +106,28 @@ function SessionCard({ s }: { s: PatientSessionRow }) {
           }
           muted={!s.therapistJoinedLabel}
         />
+        <Field label="Clinician out" value={s.therapistLeftLabel ?? '—'} muted={!s.therapistLeftLabel} />
         <Field label="Ended" value={s.endedLabel ?? '—'} muted={!s.endedLabel} />
+        <Field
+          label="Patient total"
+          value={s.presence.hasSpans
+            ? fmtDuration(s.presence.patient.totalMins)
+            : (s.patientMins != null ? fmtDuration(s.patientMins) : '—')}
+          muted={!s.presence.hasSpans && s.patientMins == null}
+        />
+        <Field
+          label="Clinician total"
+          value={s.presence.hasSpans
+            ? fmtDuration(s.presence.therapist.totalMins)
+            : (s.therapistMins != null ? fmtDuration(s.therapistMins) : '—')}
+          muted={!s.presence.hasSpans && s.therapistMins == null}
+        />
         <Field
           label="Together"
           value={s.presence.hasSpans
             ? fmtDuration(s.presence.togetherMins)
             : (s.durationMins != null ? fmtDuration(s.durationMins) : (s.bothJoined ? 'in progress' : '—'))}
         />
-        {s.presence.hasSpans && (
-          <>
-            <Field label="Patient total" value={fmtDuration(s.presence.patient.totalMins)} />
-            <Field label="Clinician total" value={fmtDuration(s.presence.therapist.totalMins)} />
-          </>
-        )}
         <Field label="Scheduled" value={fmtDuration(s.scheduledMins)} />
         <Field label="Call rating" value={s.rating != null ? `★ ${s.rating}/5` : (s.isPast ? 'not rated' : '—')} muted={s.rating == null} />
         {/* The clinician's read on the session. Visible here and to the
