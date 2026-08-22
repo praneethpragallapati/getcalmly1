@@ -73,7 +73,7 @@ export function HelplineButton() {
       setResult(r)
     } catch {
       setResult({
-        ok: false, recorded: false, careTeam: [], emergencyContact: { status: 'none' },
+        ok: false, recorded: false, careTeam: [], hasCareTeam: false, emergencyContact: { status: 'none' },
         error: 'We could not reach our servers. Please call a helpline above right now.',
       })
     }
@@ -213,10 +213,13 @@ export function HelplineButton() {
                     </div>
                   </div>
                   <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: 'var(--c-gray-d, #5A6B7A)', lineHeight: 1.7 }}>
+                    {/* Members with no clinician yet must not be told "your care
+                        team" has been notified — there isn't one. Ops is the
+                        responder in that case, and the copy says exactly that. */}
                     <li>
                       {result.careTeam.length > 0
                         ? `${result.careTeam.join(' and ')} ${result.careTeam.length === 1 ? 'has' : 'have'} been notified.`
-                        : 'Our support team has been notified and will reach out.'}
+                        : 'You don’t have a clinician assigned yet, so our support team has been alerted and will reach out.'}
                     </li>
                     {/* Never claim the contact was reached when they weren't. */}
                     {result.emergencyContact.status === 'sent' && (

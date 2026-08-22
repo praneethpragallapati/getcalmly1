@@ -41,6 +41,12 @@ export type CrisisReportResult = {
   recorded: boolean
   /** Clinicians who were notified, by name, so the member knows who is coming. */
   careTeam: string[]
+  /**
+   * Whether this member has a care team at all. False for someone with no
+   * clinician yet — no appointment, no assignment, no active package. They still
+   * raise a valid alert; it is admins who respond to it.
+   */
+  hasCareTeam: boolean
   /** Emergency contact outcome — never claim a message was sent when it wasn't. */
   emergencyContact:
     | { status: 'sent'; name: string | null }
@@ -64,7 +70,7 @@ export async function reportCrisis(
   note?: string | null,
 ): Promise<CrisisReportResult> {
   const failed: CrisisReportResult = {
-    ok: false, recorded: false, careTeam: [], emergencyContact: { status: 'none' },
+    ok: false, recorded: false, careTeam: [], hasCareTeam: false, emergencyContact: { status: 'none' },
     error: 'We could not raise the alert. Please call a helpline now — the numbers are on this panel.',
   }
 
@@ -86,6 +92,7 @@ export async function reportCrisis(
       })
       .catch(() => null)
 
+    const pkg = await packageStatus(userId)
     const memberName = user.name?.trim() || user.email || 'A member'
     const when = fmtIST(new Date(), { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
     const trimmedNote = note?.trim().slice(0, 500) || null
@@ -99,6 +106,9 @@ export async function reportCrisis(
       contact?.emergencyPhone
         ? `Emergency contact: ${contact.emergencyName ?? 'unnamed'}${contact.emergencyRelation ? ` (${contact.emergencyRelation})` : ''} ${contact.emergencyPhone}.`
         : 'No emergency contact on file.',
+      // Whether they can actually be booked in, so whoever picks this up knows
+      // before they promise the member a session.
+      pkg,
     ].filter(Boolean).join(' ')
 
     let alertId: string | null = null
@@ -144,8 +154,18 @@ export async function reportCrisis(
       }),
     )
 
-    await notifyCrisisAlert(memberName, `${SEVERITY_LABEL[severity]} — raised by the member${trimmedNote ? ` — “${trimmedNote}”` : ''}`, userId)
-      .catch(() => {})
+    // Admins are always told. When the member has no clinician, they are not a
+    // second pair of eyes — they are the only ones, so the notification says so
+    // rather than reading like a copy of something a therapist is handling.
+    const adminBody = [
+      SEVERITY_LABEL[severity],
+      'raised by the member',
+      clinicians.length > 0
+        ? `care team notified: ${clinicians.map((c) => c.name ?? 'clinician').join(', ')}`
+        : 'NO CARE TEAM — nobody clinical has been alerted, ops must respond',
+      trimmedNote ? `“${trimmedNote}”` : null,
+    ].filter(Boolean).join(' · ')
+    await notifyCrisisAlert(memberName, adminBody, userId).catch(() => {})
 
     let emergencyContact: CrisisReportResult['emergencyContact'] = { status: 'none' }
     if (contact?.emergencyPhone) {
@@ -176,15 +196,38 @@ export async function reportCrisis(
       }
     }
 
-    return { ok: true, recorded: true, careTeam, emergencyContact }
+    return { ok: true, recorded: true, careTeam, hasCareTeam: clinicians.length > 0, emergencyContact }
   } catch (e) {
     console.error('[reportCrisis] failed', e)
     return failed
   }
 }
 
-/** Every clinician currently attached to this member, across care types. */
-async function assignedClinicianUserIds(userId: string): Promise<string[]> {
+/**
+ * This member's care team — the SAME three signals patientIdsFor uses to build a
+ * clinician's caseload, just inverted.
+ *
+ * They have to match. patientIdsFor counts an appointment, an admin assignment
+ * OR an active package; this originally read only the four assignment columns.
+ * A clinician who had seen the member but was never formally assigned would
+ * therefore find the alert sitting in their alert box (which reads
+ * patientIdsFor) while never receiving the notification that told them to look.
+ * One definition, so what a clinician is told and what a clinician can see
+ * cannot disagree.
+ *
+ * Each source is queried defensively: a member in crisis must not lose their
+ * whole care team because one column needs a migration.
+ */
+async function careTeamProfileIds(userId: string): Promise<string[]> {
+  const ids = new Set<string>()
+  try {
+    const appts = await prisma.appointment.findMany({
+      where: { patientId: userId }, select: { therapistId: true }, distinct: ['therapistId'],
+    })
+    appts.forEach((a) => a.therapistId && ids.add(a.therapistId))
+  } catch (e) {
+    console.error('[careTeamProfileIds] appointments query failed', e)
+  }
   try {
     const p = await prisma.patientProfile.findUnique({
       where: { userId },
@@ -195,18 +238,67 @@ async function assignedClinicianUserIds(userId: string): Promise<string[]> {
         assignedTherapistPsychiatryId: true,
       },
     })
-    const profileIds = [
-      p?.assignedTherapistId, p?.assignedTherapistIndividualId,
-      p?.assignedTherapistCouplesId, p?.assignedTherapistPsychiatryId,
-    ].filter((v): v is string => Boolean(v))
-    if (profileIds.length === 0) return []
+    for (const v of [p?.assignedTherapistId, p?.assignedTherapistIndividualId, p?.assignedTherapistCouplesId, p?.assignedTherapistPsychiatryId]) {
+      if (v) ids.add(v)
+    }
+  } catch (e) {
+    console.error('[careTeamProfileIds] assignment columns failed (migration 0016?)', e)
+  }
+  try {
+    const subs = await prisma.subscription.findMany({
+      where: { userId, status: 'ACTIVE' }, select: { therapistId: true },
+    })
+    subs.forEach((s) => s.therapistId && ids.add(s.therapistId))
+  } catch (e) {
+    console.error('[careTeamProfileIds] subscription query failed', e)
+  }
+  return [...ids]
+}
+
+/** Care-team clinicians as user ids, for notifying. */
+async function assignedClinicianUserIds(userId: string): Promise<string[]> {
+  const profileIds = await careTeamProfileIds(userId)
+  if (profileIds.length === 0) return []
+  try {
     const profiles = await prisma.therapistProfile.findMany({
-      where: { id: { in: [...new Set(profileIds)] } },
+      where: { id: { in: profileIds } },
       select: { userId: true },
     })
     return [...new Set(profiles.map((t) => t.userId))]
   } catch {
     return []
+  }
+}
+
+/**
+ * Whether the member currently holds a usable package, and of what kind.
+ *
+ * Used for CONTEXT, not as a gate. `status: 'ACTIVE'` alone is not the same as
+ * usable — a package can be ACTIVE and past its expiry, or ACTIVE with every
+ * session consumed — so validity is computed the same way the member's own
+ * billing page computes it.
+ *
+ * Deliberately NOT used to decide whether the care team is told. A lapsed
+ * package is a billing state; someone in crisis is a clinical one. Withholding
+ * the alert from the clinician who knows them because a renewal is overdue is
+ * the wrong failure. The state is put in front of the clinician instead, so they
+ * know what they are picking up.
+ */
+async function packageStatus(userId: string): Promise<string> {
+  try {
+    const subs = await prisma.subscription.findMany({
+      where: { userId, status: 'ACTIVE' },
+      select: { planName: true, trackSlug: true, sessionsTotal: true, sessionsUsed: true, expiresAt: true },
+    })
+    if (subs.length === 0) return 'No active package.'
+    const now = Date.now()
+    const usable = subs.filter(
+      (s) => s.sessionsTotal - s.sessionsUsed > 0 && (!s.expiresAt || s.expiresAt.getTime() > now),
+    )
+    if (usable.length === 0) return 'Package on file but NOT usable (expired or fully used).'
+    return `Active package: ${usable.map((s) => `${s.planName ?? s.trackSlug} (${s.sessionsTotal - s.sessionsUsed} left)`).join(', ')}.`
+  } catch {
+    return 'Package status unavailable.'
   }
 }
 

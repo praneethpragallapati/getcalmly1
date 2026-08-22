@@ -1289,7 +1289,7 @@ export async function raiseCrisisAlert(input: {
   const userId = await getSessionUserId()
   if (!userId) {
     return {
-      ok: false, recorded: false, careTeam: [], emergencyContact: { status: 'none' },
+      ok: false, recorded: false, careTeam: [], hasCareTeam: false, emergencyContact: { status: 'none' },
       error: 'Please sign in again, then try once more. If you need help right now, call a helpline from this panel.',
     }
   }
@@ -1297,7 +1297,7 @@ export async function raiseCrisisAlert(input: {
   const gate = rateLimit(`crisis:${userId}`, 3, 60_000)
   if (!gate.ok) {
     return {
-      ok: false, recorded: false, careTeam: [], emergencyContact: { status: 'none' },
+      ok: false, recorded: false, careTeam: [], hasCareTeam: false, emergencyContact: { status: 'none' },
       error: 'Your alert is already on its way to your care team. If you need someone right now, call a helpline from this panel.',
     }
   }
