@@ -70,6 +70,47 @@ export async function resendOtp(mobile: string, retrytype: 'text' | 'voice' = 't
   return { ok, message: data?.message ?? (ok ? 'OTP resent' : 'Failed to resend OTP'), raw: data }
 }
 
+/**
+ * Send a crisis alert SMS to a member's emergency contact.
+ *
+ * Uses the Flow API rather than the OTP endpoint: this is a transactional
+ * message with named variables, not a code. India's DLT rules mean the text is
+ * fixed by the approved template — `vars` fills its placeholders, it does not
+ * carry free-form wording.
+ *
+ * Returns `configured: false` rather than throwing when MSG91_CRISIS_TEMPLATE_ID
+ * or the auth key is unset. That distinction matters: the caller must be able to
+ * tell the member "we could not reach your emergency contact" instead of
+ * claiming an alert was sent that never left the building.
+ */
+export async function sendCrisisSms(
+  mobile: string,
+  vars: Record<string, string>,
+): Promise<Msg91Result & { configured: boolean }> {
+  const templateId = process.env.MSG91_CRISIS_TEMPLATE_ID
+  if (!templateId || !process.env.MSG91_AUTH_KEY) {
+    return { ok: false, configured: false, message: 'Crisis SMS is not configured (MSG91_CRISIS_TEMPLATE_ID).' }
+  }
+  try {
+    const res = await guardedFetch('msg91', `${BASE}/flow`, {
+      method: 'POST',
+      headers: { authkey: authKey(), 'Content-Type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({
+        template_id: templateId,
+        // MSG91 takes one recipients array; each entry is a number plus its
+        // template variables.
+        recipients: [{ mobiles: mobile, ...vars }],
+      }),
+      cache: 'no-store',
+    }, SMS_GUARD)
+    const data = await res.json().catch(() => ({}))
+    const ok = res.ok && data?.type !== 'error'
+    return { ok, configured: true, message: data?.message ?? (ok ? 'Alert sent' : 'Failed to send alert'), raw: data }
+  } catch (e) {
+    return { ok: false, configured: true, message: e instanceof Error ? e.message : 'Failed to send alert' }
+  }
+}
+
 // Normalise a country dial code + local number into MSG91's "919876543210" form.
 export function toMsg91Mobile(dialCode: string, localNumber: string): string {
   const cc = dialCode.replace(/[^\d]/g, '')

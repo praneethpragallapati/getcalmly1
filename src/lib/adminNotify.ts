@@ -81,13 +81,21 @@ export const notifyCancellationRequest = (clinician: string, patient: string, wh
     href: '/admin/operations',
   })
 
-/** A patient tripped the crisis detector — the most urgent thing here. */
-export const notifyCrisisAlert = (patient: string, detail?: string | null) =>
+/**
+ * A crisis alert — the most urgent thing here. Raised either by the AI detector
+ * or by the member pressing the crisis button themselves.
+ *
+ * `patientId` links straight to that member's profile, which is where their
+ * phone number and their emergency contact's are. It used to point at
+ * /admin/operations, leaving whoever opened the notification to go and find the
+ * person by hand — the wrong amount of friction for this particular alert.
+ */
+export const notifyCrisisAlert = (patient: string, detail?: string | null, patientId?: string) =>
   notifyAdmins({
     type: 'announcement',
     title: `Crisis alert · ${patient}`,
     body: detail ?? 'A patient message was flagged as high risk.',
-    href: '/admin/operations',
+    href: patientId ? `/admin/patients/${patientId}` : '/admin/operations',
   })
 
 /** A clinician submitted (or edited) a blog post awaiting review. */

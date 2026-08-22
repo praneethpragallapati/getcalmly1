@@ -842,7 +842,12 @@ async function computeRiskNotifications(therapistProfileId: string): Promise<Ris
     kind: 'crisis',
     patientId: a.userId,
     patientName: a.patientName ?? nameOf(a.userId),
-    message: a.label === 'CRISIS' ? 'Crisis-flagged chat message' : 'Distress-flagged chat message',
+    // A member pressing the crisis button is a different, louder thing from the
+    // AI classifier flagging a sentence, and the clinician needs to see which is
+    // which at a glance.
+    message: a.label === 'SELF_REPORTED'
+      ? 'RAISED A CRISIS ALERT THEMSELVES'
+      : a.label === 'CRISIS' ? 'Crisis-flagged chat message' : 'Distress-flagged chat message',
     detail: a.handoffNote,
     createdAt: a.createdAt,
     resolved: a.resolved,

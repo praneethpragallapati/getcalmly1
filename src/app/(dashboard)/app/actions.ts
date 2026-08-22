@@ -21,6 +21,7 @@ import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } 
 import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { pickHelplines } from '@/config/site'
+import { reportCrisis, type CrisisSeverity, type CrisisReportResult } from '@/lib/crisisReport'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -1270,4 +1271,39 @@ export async function sendCalmAiMessage(
   } catch {
     return { ok: false, error: 'Could not send your message.' }
   }
+}
+
+
+/**
+ * The member pressed the crisis button and confirmed.
+ *
+ * Rate-limited, but deliberately loosely: someone in crisis pressing twice
+ * because they were not sure it worked must not be silently blocked. The window
+ * only stops a stuck client from firing repeatedly, and even when it trips the
+ * member is told to call a helpline rather than left with a dead button.
+ */
+export async function raiseCrisisAlert(input: {
+  severity: CrisisSeverity
+  note?: string | null
+}): Promise<CrisisReportResult> {
+  const userId = await getSessionUserId()
+  if (!userId) {
+    return {
+      ok: false, recorded: false, careTeam: [], emergencyContact: { status: 'none' },
+      error: 'Please sign in again, then try once more. If you need help right now, call a helpline from this panel.',
+    }
+  }
+
+  const gate = rateLimit(`crisis:${userId}`, 3, 60_000)
+  if (!gate.ok) {
+    return {
+      ok: false, recorded: false, careTeam: [], emergencyContact: { status: 'none' },
+      error: 'Your alert is already on its way to your care team. If you need someone right now, call a helpline from this panel.',
+    }
+  }
+
+  const severity: CrisisSeverity = input.severity === 'URGENT' ? 'URGENT' : 'SUPPORT'
+  const result = await reportCrisis(userId, severity, input.note)
+  revalidatePath('/app')
+  return result
 }

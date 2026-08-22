@@ -169,3 +169,10 @@ export const dashboardHelplines = pickHelplines('kiran', 'icall', 'vandrevala')
 
 /** The pair used in one-line "in crisis?" prompts, where space is tight. */
 export const primaryHelplines = pickHelplines('icall', 'onelife')
+
+/**
+ * Emergency services for the country this deployment serves. Kept next to the
+ * helplines and for the same reason: a placeholder here is a real hazard, so it
+ * is a constant with a working value rather than a variable someone can forget.
+ */
+export const emergencyNumber = '112'
