@@ -92,7 +92,25 @@ export async function reportCrisis(
       })
       .catch(() => null)
 
-    const pkg = await packageStatus(userId)
+    // ── The gate ─────────────────────────────────────────────────────────────
+    // Validity is what makes an assignment live. Without it the clinician is
+    // effectively de-assigned, so there is nobody clinical to alert — and we do
+    // not text someone's family on behalf of a member no clinician is holding.
+    // The member is shown helplines instead, which the panel already does; the
+    // UI hides the alert button entirely so this branch is a backstop against a
+    // stale page rather than the normal path.
+    const pkg = await packageValidity(userId)
+    const careTeamIds = pkg.valid ? await assignedClinicianUserIds(userId) : []
+    if (careTeamIds.length === 0) {
+      return {
+        ok: false, recorded: false, careTeam: [], hasCareTeam: false,
+        emergencyContact: { status: 'none' },
+        error: pkg.valid
+          ? 'You don’t have a clinician assigned yet. Please call one of the helplines above — they are open now and answer immediately.'
+          : 'Your plan doesn’t have any sessions left, so there’s no clinician assigned to alert. Please call one of the helplines above — they are open now and answer immediately.',
+      }
+    }
+
     const memberName = user.name?.trim() || user.email || 'A member'
     const when = fmtIST(new Date(), { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
     const trimmedNote = note?.trim().slice(0, 500) || null
@@ -106,9 +124,9 @@ export async function reportCrisis(
       contact?.emergencyPhone
         ? `Emergency contact: ${contact.emergencyName ?? 'unnamed'}${contact.emergencyRelation ? ` (${contact.emergencyRelation})` : ''} ${contact.emergencyPhone}.`
         : 'No emergency contact on file.',
-      // Whether they can actually be booked in, so whoever picks this up knows
+      // What they can actually be booked into, so whoever picks this up knows
       // before they promise the member a session.
-      pkg,
+      pkg.label,
     ].filter(Boolean).join(' ')
 
     let alertId: string | null = null
@@ -135,10 +153,9 @@ export async function reportCrisis(
 
     // ── 2. Care team, admins, emergency contact — independently. ─────────────
     const careTeam: string[] = []
-    const clinicianIds = await assignedClinicianUserIds(userId)
-    const clinicians = clinicianIds.length
-      ? await prisma.user.findMany({ where: { id: { in: clinicianIds } }, select: { id: true, name: true } }).catch(() => [])
-      : []
+    const clinicians = await prisma.user
+      .findMany({ where: { id: { in: careTeamIds } }, select: { id: true, name: true } })
+      .catch(() => [] as { id: string; name: string | null }[])
 
     await Promise.allSettled(
       clinicians.map(async (c) => {
@@ -160,9 +177,7 @@ export async function reportCrisis(
     const adminBody = [
       SEVERITY_LABEL[severity],
       'raised by the member',
-      clinicians.length > 0
-        ? `care team notified: ${clinicians.map((c) => c.name ?? 'clinician').join(', ')}`
-        : 'NO CARE TEAM — nobody clinical has been alerted, ops must respond',
+      `care team notified: ${clinicians.map((c) => c.name ?? 'clinician').join(', ')}`,
       trimmedNote ? `“${trimmedNote}”` : null,
     ].filter(Boolean).join(' · ')
     await notifyCrisisAlert(memberName, adminBody, userId).catch(() => {})
@@ -271,35 +286,63 @@ async function assignedClinicianUserIds(userId: string): Promise<string[]> {
 }
 
 /**
- * Whether the member currently holds a usable package, and of what kind.
+ * Whether the member currently holds a package with validity left, and a label
+ * describing it.
  *
- * Used for CONTEXT, not as a gate. `status: 'ACTIVE'` alone is not the same as
- * usable — a package can be ACTIVE and past its expiry, or ACTIVE with every
- * session consumed — so validity is computed the same way the member's own
- * billing page computes it.
+ * `status: 'ACTIVE'` alone is NOT the same as usable. A package can be ACTIVE
+ * and past its expiry date, or ACTIVE with every session already consumed, so
+ * validity is computed the way the member's own billing page computes it:
+ * sessions remaining AND not expired.
  *
- * Deliberately NOT used to decide whether the care team is told. A lapsed
- * package is a billing state; someone in crisis is a clinical one. Withholding
- * the alert from the clinician who knows them because a renewal is overdue is
- * the wrong failure. The state is put in front of the clinician instead, so they
- * know what they are picking up.
+ * This is the gate. A member without validity has no effective care team, so
+ * there is nobody clinical to alert — see hasEffectiveCareTeam below.
  */
-async function packageStatus(userId: string): Promise<string> {
+export async function packageValidity(userId: string): Promise<{ valid: boolean; label: string }> {
   try {
     const subs = await prisma.subscription.findMany({
       where: { userId, status: 'ACTIVE' },
       select: { planName: true, trackSlug: true, sessionsTotal: true, sessionsUsed: true, expiresAt: true },
     })
-    if (subs.length === 0) return 'No active package.'
+    if (subs.length === 0) return { valid: false, label: 'No active package.' }
     const now = Date.now()
     const usable = subs.filter(
       (s) => s.sessionsTotal - s.sessionsUsed > 0 && (!s.expiresAt || s.expiresAt.getTime() > now),
     )
-    if (usable.length === 0) return 'Package on file but NOT usable (expired or fully used).'
-    return `Active package: ${usable.map((s) => `${s.planName ?? s.trackSlug} (${s.sessionsTotal - s.sessionsUsed} left)`).join(', ')}.`
+    if (usable.length === 0) {
+      return { valid: false, label: 'Package on file but NOT usable (expired or fully used).' }
+    }
+    return {
+      valid: true,
+      label: `Active package: ${usable.map((s) => `${s.planName ?? s.trackSlug} (${s.sessionsTotal - s.sessionsUsed} left)`).join(', ')}.`,
+    }
   } catch {
-    return 'Package status unavailable.'
+    // Unknown reads as "no validity": better to show helplines than to promise
+    // an alert to a care team we cannot confirm exists.
+    return { valid: false, label: 'Package status unavailable.' }
   }
+}
+
+/**
+ * Whether this member has a care team that can actually be alerted right now.
+ *
+ * Two conditions, both required: a clinician on record, AND a package with
+ * validity left. Validity is what makes an assignment live — when it lapses the
+ * clinician is effectively de-assigned, so there is nobody to notify.
+ *
+ * WHY DE-ASSIGNMENT IS EFFECTIVE RATHER THAN DESTRUCTIVE
+ * ------------------------------------------------------
+ * The assignment columns are deliberately NOT cleared when validity lapses.
+ * Clearing them would throw away the one record of who this member was seeing,
+ * and buying again would then re-match them from scratch — quite possibly to a
+ * different clinician, which is exactly the continuity break we want to avoid.
+ * Leaving the column intact and gating on validity gives both behaviours for
+ * free: no care team while lapsed, the same clinician back the moment they buy.
+ */
+export async function hasEffectiveCareTeam(userId: string): Promise<boolean> {
+  const { valid } = await packageValidity(userId)
+  if (!valid) return false
+  const ids = await careTeamProfileIds(userId)
+  return ids.length > 0
 }
 
 /** The helplines shown alongside the confirmation, so the panel and the copy agree. */

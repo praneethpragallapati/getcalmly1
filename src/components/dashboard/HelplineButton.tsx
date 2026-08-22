@@ -8,11 +8,24 @@ import type { CrisisReportResult } from '@/lib/crisisReport'
 
 /**
  * The always-available crisis access point, pinned to the corner of the
- * dashboard. Collapsed it's a small pill; open it offers two things:
+ * dashboard. Collapsed it's a small pill; open it offers:
  *
- *   1. Helplines to call right now — the fastest route to a human, and always
- *      the first thing on screen.
- *   2. Telling their own care team they are in crisis.
+ *   1. Helplines to call right now — the fastest route to a human, always the
+ *      first thing on screen, and shown to EVERYONE regardless of plan.
+ *   2. Telling their own care team they are in crisis — only when there is a
+ *      care team to tell.
+ *
+ * WHY THE ALERT IS CONDITIONAL
+ * ---------------------------
+ * A clinician assignment is only live while the member's package has validity
+ * left; when it lapses they are effectively de-assigned. With nobody holding
+ * them there is nobody to alert, and texting their family on behalf of a member
+ * no clinician is watching would raise an alarm that no one is coming to answer.
+ * So the button is not offered — helplines are, and those are staffed.
+ *
+ * `canAlertCareTeam` is decided on the server in the dashboard layout. The
+ * server action re-checks it: this prop controls what is offered, never what is
+ * permitted.
  *
  * WHY THE CONFIRM STEP EXISTS
  * ---------------------------
@@ -32,7 +45,7 @@ type Severity = 'SUPPORT' | 'URGENT'
 const CORAL = 'var(--c-coral, #C8553D)'
 const RED = '#B3261E'
 
-export function HelplineButton() {
+export function HelplineButton({ canAlertCareTeam = false }: { canAlertCareTeam?: boolean }) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>('menu')
   const [severity, setSeverity] = useState<Severity>('SUPPORT')
@@ -117,19 +130,26 @@ export function HelplineButton() {
 
           {step === 'menu' && (
             <div style={{ padding: '8px 14px 14px', borderTop: '1px solid rgba(28,43,58,.06)', marginTop: 6 }}>
-              <p style={{ fontSize: 11.5, color: 'var(--c-gray, #8E9EAE)', lineHeight: 1.55, marginBottom: 10 }}>
+              <p style={{ fontSize: 11.5, color: 'var(--c-gray, #8E9EAE)', lineHeight: 1.55, marginBottom: canAlertCareTeam ? 10 : 0 }}>
                 In immediate danger? Call emergency services ({emergencyNumber}).
               </p>
-              <button onClick={() => setStep('confirm')} style={{
-                width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                padding: '11px 14px', borderRadius: 11, border: `1.5px solid ${RED}33`, background: '#FDF2F1',
-                color: RED, fontSize: 13.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-              }}>
-                <ShieldAlert size={15} /> Tell my care team I&apos;m in crisis
-              </button>
-              <p style={{ fontSize: 11, color: 'var(--c-gray, #8E9EAE)', lineHeight: 1.5, marginTop: 8, textAlign: 'center' }}>
-                We&apos;ll show you exactly who gets contacted before anything is sent.
-              </p>
+              {/* No care team, no button. Someone without a clinician is not
+                  offered an alert that would only be refused — the helplines
+                  above are the answer, and they are staffed. */}
+              {canAlertCareTeam && (
+                <>
+                  <button onClick={() => setStep('confirm')} style={{
+                    width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '11px 14px', borderRadius: 11, border: `1.5px solid ${RED}33`, background: '#FDF2F1',
+                    color: RED, fontSize: 13.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                  }}>
+                    <ShieldAlert size={15} /> Tell my care team I&apos;m in crisis
+                  </button>
+                  <p style={{ fontSize: 11, color: 'var(--c-gray, #8E9EAE)', lineHeight: 1.5, marginTop: 8, textAlign: 'center' }}>
+                    We&apos;ll show you exactly who gets contacted before anything is sent.
+                  </p>
+                </>
+              )}
             </div>
           )}
 

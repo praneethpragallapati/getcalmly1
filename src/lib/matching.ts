@@ -115,6 +115,15 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack): 
   const eligible = candidates.filter((c) => clinicianMatchesTrack(c.clinicianType, c.specializations, track))
   if (eligible.length === 0) return null
 
+  // CONTINUITY FIRST. Scoring alone has no memory, so a member whose package
+  // lapsed and who then bought again could be handed a different clinician than
+  // the one they had been telling their story to. In therapy that is not a
+  // neutral reshuffle — it is starting over. If they already have someone for
+  // this track and that person is still active, verified and eligible, they keep
+  // them, whatever the score says.
+  const previous = await previousTherapistForTrack(userId, track)
+  if (previous && eligible.some((c) => c.id === previous)) return previous
+
   let best: Candidate | null = null
   let bestScore = -Infinity
   for (const c of eligible) {
@@ -166,4 +175,40 @@ export async function matchAndAssignForTrack(userId: string, track: CareTrack): 
   }
 
   return therapistId
+}
+
+/**
+ * The clinician this member already has for `track`, if any.
+ *
+ * Two sources, most authoritative first: the per-care-type assignment column,
+ * then the most recent appointment for that track. The assignment column is
+ * never cleared when a package lapses precisely so this lookup still works —
+ * see hasEffectiveCareTeam in lib/crisisReport, which gates on validity instead
+ * of erasing the record.
+ *
+ * Read defensively: no memory is a reason to fall back to scoring, never a
+ * reason to fail the purchase that called us.
+ */
+async function previousTherapistForTrack(userId: string, track: CareTrack): Promise<string | null> {
+  try {
+    const col = ASSIGN_COLUMN[track]
+    const profile = await prisma.patientProfile.findUnique({
+      where: { userId },
+      select: { [col]: true } as Record<string, true>,
+    })
+    const assigned = (profile as Record<string, unknown> | null)?.[col]
+    if (typeof assigned === 'string' && assigned) return assigned
+  } catch (e) {
+    console.error('[previousTherapistForTrack] assignment column unreadable (migration 0016?)', e)
+  }
+  try {
+    const last = await prisma.appointment.findFirst({
+      where: { patientId: userId, therapist: { is: {} } },
+      orderBy: { scheduledAt: 'desc' },
+      select: { therapistId: true },
+    })
+    return last?.therapistId ?? null
+  } catch {
+    return null
+  }
 }

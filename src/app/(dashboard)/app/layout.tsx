@@ -14,6 +14,7 @@ import { getSidebarSummary } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount, getNotifications } from '@/lib/notifications'
 import { getSessionUser } from '@/lib/session'
+import { hasEffectiveCareTeam } from '@/lib/crisisReport'
 import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
 import { fmtIST } from '@/lib/tz'
@@ -63,12 +64,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // hit. Its result is unused by the render.
   const refCode = userId ? (await cookies()).get('gc_ref')?.value : undefined
 
-  const [d, unread, notes, guidedTracks] = await Promise.all([
+  const [d, unread, notes, guidedTracks, canAlert] = await Promise.all([
     getSidebarSummary(),
     userId ? getUnreadCount(userId) : Promise.resolve(0),
     userId ? getNotifications(userId) : Promise.resolve([]),
     // Guided calm only earns a nav slot once there's something to play.
     getGuidedTracksForPatient(userId).catch(() => []),
+    // In the same wave as everything else — the crisis panel must never be the
+    // reason a page load is slower.
+    userId ? hasEffectiveCareTeam(userId).catch(() => false) : Promise.resolve(false),
     refCode && userId ? attributeReferral(userId, decodeURIComponent(refCode)) : Promise.resolve(),
   ])
   const now = new Date()
@@ -113,7 +117,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         <main className="app-content">{children}</main>
       </div>
-      <HelplineButton />
+      {/* Whether the alert option is offered at all is decided here, on the
+          server: a member with no clinician holding them has nobody to alert, so
+          the panel shows helplines only rather than a button that would refuse. */}
+      <HelplineButton canAlertCareTeam={canAlert} />
     </div>
     </CallProvider>
     </ToastProvider>
