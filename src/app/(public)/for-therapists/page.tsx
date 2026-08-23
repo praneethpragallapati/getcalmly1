@@ -14,7 +14,7 @@ const benefits = [
   { icon: '📋', t: 'Pre-session briefs', d: 'Walk into every session already caught up: mood trends, journal themes, last session\'s homework, and PHQ-9/GAD-7 history, summarised.' },
   { icon: '🔔', t: 'Between-session safety net', d: 'Severity-tiered alerts surface the clients who need attention now, so nothing slips through the gaps between appointments.' },
   { icon: '👥', t: 'Built-in supervision', d: 'Supervise associates or get supervised. Track cases under supervision, share notes, and keep growing clinically, all in one place.' },
-  { icon: '🗓️', t: 'Calendar that runs itself', d: 'Two-way Google Calendar sync, recurring availability, and one-tap Google Meet. Set your hours and let it handle the rest.' },
+  { icon: '🗓️', t: 'Calendar that runs itself', d: 'Recurring availability, automatic slot generation, and a one-tap join into the session room. Set your hours and let it handle the rest.' },
   { icon: '💳', t: 'Transparent, on-time payouts', d: 'Razorpay-backed payments, clear fees, and reliable settlements with a live earnings summary. You focus on care; we handle billing.' },
   { icon: '🔒', t: 'Compliance from day one', d: 'DPDP-aligned data handling, encrypted records, consent management, and alignment with NIMHANS teletherapy guidelines, built in from the start.' },
 ]
@@ -52,7 +52,7 @@ export default function ForTherapistsPage() {
           {[
             ['~70%', 'less time on notes & admin'],
             ['0', 'rupees on marketing or lead-gen'],
-            ['100%', 'sessions on secure Google Meet'],
+            ['100%', 'sessions on secure in-app video'],
           ].map(([n, d]) => (
             <div key={d}>
               <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 38, color: '#2F7D5A', lineHeight: 1 }}>{n}</p>
@@ -103,7 +103,7 @@ export default function ForTherapistsPage() {
             ['01', 'Apply', 'Tell us about your practice, qualifications, and specialisations, and upload your registration and certificates.'],
             ['02', 'Verify', 'We verify your RCI / NMC registration and review your documents. Quality is non-negotiable for us.'],
             ['03', 'Interview', 'A short conversation with our clinical team to get to know you and your approach.'],
-            ['04', 'Go live', 'Set your availability, connect Google Calendar, and start receiving matched clients.'],
+            ['04', 'Go live', 'Set your availability and start receiving matched clients.'],
           ].map(([n, t, d]) => (
             <div key={n} style={{ display: 'flex', gap: 20, alignItems: 'flex-start', padding: '20px 0', borderBottom: '1px solid #EEF0F3' }}>
               <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#2F7D5A', lineHeight: 1, flexShrink: 0, width: 46 }}>{n}</span>

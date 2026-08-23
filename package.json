@@ -13,7 +13,8 @@
     "hms:lock": "tsx scripts/hms-lock-template.ts",
     "env:check": "node scripts/check-env.mjs",
     "check:counters": "tsx scripts/check-package-counters.mts",
-    "check:scope": "tsx scripts/check-care-scope.mts"
+    "check:scope": "tsx scripts/check-care-scope.mts",
+    "check:sessionno": "tsx scripts/check-session-numbering.mts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

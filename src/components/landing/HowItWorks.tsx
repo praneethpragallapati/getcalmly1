@@ -15,7 +15,7 @@ const steps = [
     num: '03',
     icon: '🌱',
     title: 'Begin Your Journey',
-    desc: 'Book your first session via secure Google Meet. Reschedule anytime. Track your progress with mood journals and session notes.',
+    desc: 'Book your first session and join it in getCalmly\u2019s own secure video room. Reschedule anytime. Track your progress with mood journals and session notes.',
   },
 ]
 

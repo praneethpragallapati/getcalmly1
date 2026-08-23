@@ -164,7 +164,7 @@ export default function EnterprisePage() {
                 label: 'Hospitals',
                 headline: 'A complete mental health layer for your patients, delivered as SaaS.',
                 body: 'Offer structured, AI-assisted mental health care under your own brand. Our platform handles matching, scheduling, clinical notes and the patient app, so your clinicians focus on care while you extend your services.',
-                points: ['White-label portals', 'Clinical notes & referral flows', 'Google Meet + calendar sync', 'DPDP-ready, NIMHANS-aligned care'],
+                points: ['White-label portals', 'Clinical notes & referral flows', 'Secure in-app video sessions', 'DPDP-ready, NIMHANS-aligned care'],
               },
             ].map((s, i) => (
               <div key={s.label} style={{

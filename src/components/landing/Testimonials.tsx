@@ -11,7 +11,7 @@ const testimonials = [
     location: 'Bangalore',
     avatar: 'AK',
     color: '#3D9E72',
-    quote: 'The pre-assessment was spot-on. My matched therapist specializes in exactly what I needed, work burnout and imposter syndrome. The sessions via Google Meet are seamless, and the pricing is very reasonable.',
+    quote: 'The pre-assessment was spot-on. My matched therapist specializes in exactly what I needed, work burnout and imposter syndrome. The video sessions are seamless, and the pricing is very reasonable.',
   },
   {
     name: 'Meera S.',

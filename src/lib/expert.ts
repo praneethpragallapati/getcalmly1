@@ -1023,6 +1023,14 @@ export type ScheduleAppointment = {
   meetLink: string | null
   hasSummary: boolean
   isPast: boolean
+  /**
+   * Which session this is between these two — 1 for their first, counting only
+   * sessions that were not cancelled, in date order. Null for a cancelled one,
+   * which takes no number at all. Counted from the appointments rather than
+   * from the package counter: the counter includes this session the moment it
+   * is booked, so "used + 1" called an upcoming third session the fourth.
+   */
+  sessionNo: number | null
   /** Whether this session counts towards the clinician's pay — see `payableStatus`. */
   payable: boolean
   /** A clinical note is owed: the session was delivered and paid, but unwritten. */
@@ -1107,6 +1115,18 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
   }
   const journalCountBy = new Map<string, number>(journals.map((j) => [j.userId, j._count._all]))
 
+  // Session numbers, per patient, in date order. `rows` is already ascending, so
+  // one pass gives each appointment its place in the sequence. Cancelled ones are
+  // skipped rather than numbered, matching what the patient is shown.
+  const sessionNoById = new Map<string, number>()
+  const seenPerPatient = new Map<string, number>()
+  for (const r of rows) {
+    if (r.status === 'CANCELLED') continue
+    const n = (seenPerPatient.get(r.patientId) ?? 0) + 1
+    seenPerPatient.set(r.patientId, n)
+    sessionNoById.set(r.id, n)
+  }
+
   const now = Date.now()
   return rows.map((r) => {
     const ts = taskStat.get(r.patientId) ?? { open: 0, total: 0 }
@@ -1123,6 +1143,7 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
       roomId: r.roomId,
       meetLink: r.meetLink,
       hasSummary,
+      sessionNo: sessionNoById.get(r.id) ?? null,
       payable: isPayableSession(r.status),
       needsNote: sessionNeedsNote({ status: r.status, hasSummary }),
       // "Past" only once the whole session window has elapsed (or it's completed)

@@ -64,7 +64,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
             <div class="ps-card">
               <div class="ps-badge">Today's session</div>
               <div class="ps-card-title">Dr. Ananya Sharma · 3:00 PM</div>
-              <div class="ps-card-sub">Clinical Psychologist · Google Meet</div>
+              <div class="ps-card-sub">Clinical Psychologist · Secure video</div>
             </div>
             <div class="ps-card">
               <div class="ps-badge">Your week so far</div>

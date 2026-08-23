@@ -177,10 +177,17 @@ export default async function ExpertHomePage() {
                 ● Up next · {isToday(next.scheduledAt) ? `${timeLabel(next.scheduledAt)} today` : fmtIST(next.scheduledAt, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}
               </span>
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: 34, lineHeight: 1.05, margin: '14px 0 6px' }}>
-                Session #{nextProfile.sessionsDone + 1} with <span style={{ color: '#4ba8a2', fontWeight: 700 }}>{next.patientName}</span>
+                {/* Numbered from the appointments themselves (sessionNo), not
+                    from the package counter: a booked session is already counted
+                    as used, so "used + 1" numbered an upcoming third session the
+                    fourth. This matches what the patient is shown. */}
+                {next.sessionNo ? `Session #${next.sessionNo} with ` : 'Session with '}
+                <span style={{ color: '#4ba8a2', fontWeight: 700 }}>{next.patientName}</span>
               </h2>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>
-                {next.durationMins} min · Google Meet
+                {/* Sessions run in getCalmly's own video room (100ms), not on any
+                    external meeting provider — see HmsRoom / CallDock. */}
+                {next.durationMins} min · getCalmly video room
               </p>
               {briefRows.length > 0 && (
                 <div style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, padding: '14px 16px', marginBottom: 18 }}>
