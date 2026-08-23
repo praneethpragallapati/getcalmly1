@@ -533,7 +533,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             Ready to talk to someone?
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 15, marginBottom: 28, lineHeight: 1.6 }}>
-            Our RCI-verified clinicians are here. A free first session is all it takes to find your match.
+            Our RCI-verified clinicians are here. A short assessment is all it takes to find your match.
           </p>
           <Link
             href="/assess"

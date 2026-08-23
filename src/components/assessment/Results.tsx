@@ -63,7 +63,25 @@ const severityConfig = {
 // subscription is needed, only a hydration-safe read of sessionStorage.
 const noSubscription = () => () => {}
 
-export default function Results() {
+type FirstSession = { therapy: number; psychiatry: number; couples: number }
+
+/**
+ * What a first session actually costs with this clinician.
+ *
+ * The card used to print the clinician's standard `sessionFee` — "From ₹999" —
+ * directly above a call to action quoting ₹799, so the same page gave two
+ * different answers to "what do I pay to start?". The first session is priced
+ * per care type, so it is read from the pricing config and chosen by the care
+ * type this clinician would be seen under, with the standard fee shown after it
+ * as what follows rather than as the entry price.
+ */
+function firstSessionFee(designation: string, type: string, prices: FirstSession): number {
+  if (designation.includes('Psychiatrist')) return prices.psychiatry
+  if (type === 'couple') return prices.couples
+  return prices.therapy
+}
+
+export default function Results({ firstSession }: { firstSession: FirstSession }) {
   const raw = useSyncExternalStore(
     noSubscription,
     () => sessionStorage.getItem('assess_result'),
@@ -182,24 +200,36 @@ export default function Results() {
                   <span>{t.languages.slice(0, 2).join(', ')}</span>
                 </div>
                 <div className="rm-footer">
-                  <span className="rm-fee">From ₹{t.sessionFee}<span className="rm-fee-sub">/session</span></span>
-                  <Link href="/login" className="rm-btn">Book session</Link>
+                  <span className="rm-fee">
+                    ₹{firstSessionFee(t.designation, result.type, firstSession)}
+                    <span className="rm-fee-sub">first session, then ₹{t.sessionFee}</span>
+                  </span>
+                  <Link href="/register" className="rm-btn">Book session</Link>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA — for the person who is not ready to book.
+            It used to offer "a free first session ... no card, no commitment"
+            under an eyebrow reading "from ₹799". There is no free session: the
+            first one is priced like any other, so the button promised something
+            the checkout would immediately contradict. What is genuinely free is
+            an account, so that is what it offers. */}
         <div className="results-cta">
           <div className="rcta-inner">
             <div className="rcta-left">
-              <p className="rcta-eyebrow">Your first session, from ₹799</p>
-              <h3 className="rcta-title">Not sure yet?</h3>
-              <p className="rcta-sub">Start with a free first session with your matched professional. No card, no commitment, just a conversation.</p>
+              <p className="rcta-eyebrow">No card needed to sign up</p>
+              <h3 className="rcta-title">Not ready to book?</h3>
+              <p className="rcta-sub">
+                Create your account and book a session whenever it suits you — your matched
+                professionals will be waiting. Mood check-ins, journalling and the member
+                community are open to you in the meantime, at no cost.
+              </p>
             </div>
             <div className="rcta-actions">
-              <Link href="/login" className="rcta-btn-primary">✦ Book a free session</Link>
+              <Link href="/register" className="rcta-btn-primary">✦ Create your account</Link>
             </div>
           </div>
         </div>

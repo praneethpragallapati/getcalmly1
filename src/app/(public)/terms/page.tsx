@@ -27,7 +27,7 @@ function P({ children }: { children: React.ReactNode }) {
 }
 
 export default async function TermsPage() {
-  const { therapyPacks, psychiatryPacks } = await getPricingConfig()
+  const { therapyPacks, psychiatryPacks, firstSession } = await getPricingConfig()
   return (
     <div style={{ background: '#FFFCFA' }}>
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '76px 24px 52px', textAlign: 'center' }}>
@@ -59,14 +59,19 @@ export default async function TermsPage() {
             </ul>
           </div>
           <P>
-            Your free first session is never charged. Refunds are processed within 7–10 working days. Pack validity (1 to 6 months depending on the pack) applies from the date of purchase; unused sessions after the validity period are not carried forward but remain eligible for the same refund treatment.
+            Refunds are processed within 7–10 working days. Pack validity (1 to 6 months depending on the pack) applies from the date of purchase; unused sessions after the validity period are not carried forward but remain eligible for the same refund treatment.
           </P>
           <P>
             <strong>Calm+</strong> includes a 7-day free trial. Cancel during the trial and you are not charged. After the trial, Calm+ is billed for the chosen validity and is non-refundable for time already elapsed, but you can cancel renewal anytime.
           </P>
 
           <H>Your first session</H>
-          <P>Your first therapy session is free, with no card required. There is no obligation to continue, and we will only ask for payment if you choose to book further sessions.</P>
+          <P>
+            Your first session is offered at a reduced introductory rate — {inr(firstSession.therapy)} for therapy,
+            {' '}{inr(firstSession.psychiatry)} for psychiatry and {inr(firstSession.couples)} for couples — and is paid for
+            like any other session. There is no obligation to continue afterwards, and you are never charged for
+            further sessions unless you choose to book them.
+          </P>
 
           <H>Use of AI features</H>
           <P>
