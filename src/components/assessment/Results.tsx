@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { therapists } from '@/data/therapists'
 import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
-import { pickHelplines } from '@/config/site'
 
 type Result = {
   type: string
@@ -15,30 +14,48 @@ type Result = {
   answers: Record<string, string | string[]>
 }
 
+/**
+ * How a result is worded.
+ *
+ * This is a screening questionnaire on a public page, not a triage. Someone
+ * reading it is deciding whether to book a first session, and the two ways to
+ * lose them are opposite: frighten them, or sound so breezy that nothing seems
+ * worth doing. The old wording did the first — "significant distress", a red
+ * panel, "we strongly recommend ... soon", and a list of crisis helplines under
+ * a heading about harming yourself. Someone who has just answered honestly
+ * about a hard few weeks was being told, in effect, that they are an emergency.
+ *
+ * So: plain language for where things are, a clear reason to talk to someone,
+ * and no alarm. Nothing here is softened to the point of shrugging — the
+ * heaviest result still says plainly that this is worth proper support.
+ *
+ * The clinical severity itself is NOT softened. It is stored on the profile and
+ * reaches the clinician exactly as scored; only the words on this page changed.
+ */
 const severityConfig = {
   Minimal: {
-    bg: '#E5F4EE', color: '#1A7F7A', border: 'rgba(26,127,122,.2)',
+    bg: '#E9F3EE', color: '#2C6E58', border: 'rgba(44,110,88,.18)',
     icon: '🌱',
-    label: 'Minimal',
-    desc: 'Your responses suggest minimal distress. A few sessions or self-help tools may help you stay well and build resilience.',
+    label: 'Mostly steady',
+    desc: 'Your answers point to things being broadly okay. A few sessions can be a good place to work on something specific, or just to have somewhere to think out loud.',
   },
   Mild: {
-    bg: '#FFF8E7', color: '#C9973A', border: 'rgba(201,151,58,.2)',
+    bg: '#F5F1E8', color: '#8A6D3B', border: 'rgba(138,109,59,.18)',
     icon: '🌤️',
-    label: 'Mild',
-    desc: 'Your responses suggest mild difficulties. Talking to a counsellor can help you build coping strategies before things build up.',
+    label: 'Some strain',
+    desc: 'Your answers point to a few things weighing on you. These are usually easier to shift with someone alongside you than on your own.',
   },
   Moderate: {
-    bg: '#FFF0EC', color: '#C8553D', border: 'rgba(200,85,61,.2)',
+    bg: '#F3EDE9', color: '#8C5A44', border: 'rgba(140,90,68,.18)',
     icon: '⛅',
-    label: 'Moderate',
-    desc: 'Your responses suggest moderate difficulties. We recommend regular sessions with a clinical psychologist who can work with you systematically.',
+    label: 'A fair amount going on',
+    desc: 'Your answers point to a fair amount to work through. Regular sessions with a clinical psychologist give that a proper structure rather than leaving it to chance.',
   },
   Severe: {
-    bg: '#FDECEC', color: '#C0392B', border: 'rgba(192,57,43,.2)',
-    icon: '🌧️',
-    label: 'Severe',
-    desc: 'Your responses suggest significant distress. We strongly recommend speaking with a professional soon. If you are in crisis, please use the helplines below.',
+    bg: '#ECEFF3', color: '#41556B', border: 'rgba(65,85,107,.2)',
+    icon: '🌥️',
+    label: 'A lot going on',
+    desc: 'Your answers point to a lot going on at the moment. This is worth proper support — a clinical psychologist can help you make sense of it and work through it at a pace that suits you.',
   },
 }
 
@@ -62,12 +79,13 @@ export default function Results() {
   useEffect(() => {
     if (!result || savedRef.current) return
     savedRef.current = true
-    const language = typeof result.answers.language === 'string' ? result.answers.language : null
     const genderPref = typeof result.answers.gender === 'string' ? result.answers.gender : null
     void saveAssessmentResult({
       type: result.type,
       tags: result.tags ?? [],
-      language,
+      // Language is collected once at signup and lives on the profile; the
+      // assessment no longer asks, and null leaves the saved value alone.
+      language: null,
       genderPref,
       severity: result.severity,
       riskFlag: result.riskFlag,
@@ -88,10 +106,9 @@ export default function Results() {
   }
 
   const cfg = severityConfig[result.severity]
-  const lang = typeof result.answers.language === 'string' ? result.answers.language : null
   const genderPref = typeof result.answers.gender === 'string' ? result.answers.gender : null
   const support = typeof window !== 'undefined' ? sessionStorage.getItem('assess_support') : null
-  const matched = matchTherapists(result, lang, support, genderPref)
+  const matched = matchTherapists(result, support, genderPref)
 
   return (
     <div className="assess-shell results-shell">
@@ -123,34 +140,22 @@ export default function Results() {
                   <span key={c} className="rcc-tag">{c}</span>
                 ))}
               </div>
-              {lang && (
-                <p className="rcc-lang">Preferred session language: <strong>{lang}</strong></p>
-              )}
             </div>
           )}
         </div>
 
-        {/* Crisis block */}
-        {result.riskFlag && (
-          <div className="results-crisis">
-            <h3 className="crisis-title">You don&apos;t have to face this alone</h3>
-            <p className="crisis-sub">If you are in crisis or thinking about harming yourself, please reach out right now:</p>
-            <div className="crisis-lines">
-              {pickHelplines('icall', 'onelife', 'aasra').map((h) => (
-                <a key={h.id} href={`tel:${h.tel}`} className="crisis-line">
-                  <span className="cl-name">{h.name}</span>
-                  <span className="cl-num">{h.number}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* No crisis panel here by design. The red block, the heading about
+            harming yourself and the helpline list used to appear the moment the
+            risk flag was set, which turned an honest answer into an emergency
+            on screen. The flag itself still travels: it is saved with the
+            assessment and reaches the clinician, who is the right person to act
+            on it. */}
 
         {/* Therapist matches */}
         <div className="results-matches">
           <div className="rm-header">
             <h2 className="rm-title">Your matched professionals</h2>
-            <p className="rm-sub">Matched by your concerns{lang ? ` and ${lang} language preference` : ''}. We find the right fit, you don&apos;t browse.</p>
+            <p className="rm-sub">Matched by your concerns. We find the right fit, you don&apos;t browse.</p>
           </div>
           <div className="rm-grid">
             {matched.map((t, i) => (
@@ -206,11 +211,15 @@ export default function Results() {
 
 /**
  * Rank professionals by how many of their tags overlap with the patient's
- * derived tags. Care type strongly gates the right specialism, language
- * preference is a soft boost, and a tiny random term breaks ties so equally
- * good matches don't always appear in the same order. Top 3 are returned.
+ * derived tags. Care type strongly gates the right specialism, and a tiny
+ * random term breaks ties so equally good matches don't always appear in the
+ * same order. Top 3 are returned.
+ *
+ * Language is not a factor here: the assessment stopped asking for it, since it
+ * is collected at signup. Server-side matching for a signed-in patient still
+ * uses their saved preference (see lib/matching.ts).
  */
-function matchTherapists(result: Result, lang: string | null, support: string | null, genderPref: string | null) {
+function matchTherapists(result: Result, support: string | null, genderPref: string | null) {
   const patientTags = new Set(result.tags ?? [])
   if (result.type === 'psychiatry') ['medication', 'psychiatry'].forEach((t) => patientTags.add(t))
   if (result.type === 'couple') ['couples', 'relationships'].forEach((t) => patientTags.add(t))
@@ -229,8 +238,6 @@ function matchTherapists(result: Result, lang: string | null, support: string | 
     else if (isPsych) s -= 2 // 'both' / 'not sure', slight preference for therapists
     if (result.type === 'couple') s += t.designation.includes('Couples') ? 6 : 0
     if (result.type === 'child') s += t.designation.includes('Child') ? 6 : 0
-    // Language preference
-    if (lang && t.languages.includes(lang)) s += 2
     // Gender preference, strong boost for a match, soft penalty otherwise
     if (wantGender) s += t.gender === wantGender ? 4 : -3
     // Rating breaks ties between otherwise equally-good matches (kept small so it

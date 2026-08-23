@@ -19,7 +19,6 @@ type Question = {
 
 const SCALE = ['Very Low', 'Low', 'Moderate', 'High', 'Very High']
 
-const LANGS = ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other']
 
 const adultQuestions: Question[] = [
   {
@@ -151,20 +150,6 @@ const adultQuestions: Question[] = [
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
   },
-  {
-    id: 'language',
-    text: 'Which language feels most comfortable for sessions?',
-    type: 'single',
-    layout: 'chips',
-    options: LANGS,
-  },
-  {
-    id: 'time',
-    text: 'When would you prefer your sessions?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Morning (8am–12pm)', 'Afternoon (12pm–5pm)', 'Evening (5pm–9pm)', 'Flexible'],
-  },
 ]
 
 const childQuestions: Question[] = [
@@ -224,13 +209,6 @@ const childQuestions: Question[] = [
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
   },
-  {
-    id: 'language',
-    text: 'Preferred language for sessions?',
-    type: 'single',
-    layout: 'chips',
-    options: LANGS,
-  },
 ]
 
 const coupleQuestions: Question[] = [
@@ -280,13 +258,6 @@ const coupleQuestions: Question[] = [
     type: 'single',
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
-  },
-  {
-    id: 'language',
-    text: 'Preferred language for sessions?',
-    type: 'single',
-    layout: 'chips',
-    options: LANGS,
   },
 ]
 
@@ -338,13 +309,6 @@ const psychiatryQuestions: Question[] = [
     type: 'single',
     layout: 'grid',
     options: ['No preference', 'Prefer a woman', 'Prefer a man'],
-  },
-  {
-    id: 'language',
-    text: 'Preferred language for your consultation?',
-    type: 'single',
-    layout: 'chips',
-    options: LANGS,
   },
 ]
 
@@ -427,11 +391,12 @@ export default function AssessmentForm({
 
     // In-app: persist to the patient's profile and match, then go to Care Team.
     if (onComplete) {
-      const language = typeof answers.language === 'string' ? answers.language : null
+      // Language is no longer asked here — it is collected once at signup and
+      // lives on the profile, so the assessment has no business restating it.
       const genderPref = typeof answers.gender === 'string' ? answers.gender : null
       setSaving(true)
       setSaveErr(null)
-      void onComplete({ type, tags, language, genderPref, severity, riskFlag }).then((res) => {
+      void onComplete({ type, tags, language: null, genderPref, severity, riskFlag }).then((res) => {
         if (res.ok) router.push('/app/therapist')
         else { setSaving(false); setSaveErr(res.error ?? 'Could not save your assessment.') }
       })

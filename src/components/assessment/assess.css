@@ -651,61 +651,6 @@
   padding: 5px 14px;
   border-radius: 20px;
 }
-.rcc-lang {
-  font-size: 12px;
-  color: #8E9EAE;
-  margin-top: 4px;
-}
-.results-crisis {
-  background: #FDECEC;
-  border: 1.5px solid rgba(192,57,43,.2);
-  border-radius: 20px;
-  padding: 24px;
-}
-.crisis-title {
-  font-family: 'Big Shoulders Display', sans-serif;
-  font-weight: 900;
-  font-size: 22px;
-  color: #C0392B;
-  margin-bottom: 8px;
-  letter-spacing: -.3px;
-}
-.crisis-sub {
-  font-size: 14px;
-  color: #7A2820;
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
-.crisis-lines {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.crisis-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(192,57,43,.1);
-  border: 1px solid rgba(192,57,43,.2);
-  border-radius: 10px;
-  padding: 8px 14px;
-  text-decoration: none;
-  transition: all .2s;
-}
-.crisis-line:hover {
-  background: rgba(192,57,43,.18);
-}
-.cl-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: #7A2820;
-}
-.cl-num {
-  font-size: 14px;
-  font-weight: 700;
-  color: #C0392B;
-}
-
 /* Therapist matches */
 .results-matches {
   display: flex;
@@ -983,8 +928,7 @@
   .rm-fee { font-size: 16px; }
   .rm-btn { padding: 9px 18px; font-size: 13px; }
 
-  /* Crisis + CTA */
-  .results-crisis { padding: 18px; border-radius: 16px; }
+  /* CTA */
   .results-cta { padding: 24px 20px; border-radius: 18px; }
   .rcta-inner { flex-direction: column; align-items: flex-start; gap: 18px; }
   .rcta-title { font-size: 26px; }
