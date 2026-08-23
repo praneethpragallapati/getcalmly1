@@ -152,8 +152,15 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
                       live mood trend it read as a current clinical judgement.
                       Dropped from the clinician-facing rows; the field is still
                       stored and still feeds matching. */}
+                  {/* Sessions left are named by care type when this clinician
+                      covers more than one for the patient — "3 left in package"
+                      hides whether it is the couples package or the individual
+                      one, which are not interchangeable. */}
                   Mood {MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend} · {p.sessionsCompleted} held ·{' '}
-                  {p.sessionsLeft} left in package{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo
+                  {p.packageLines.length > 1
+                    ? p.packageLines.map((l) => `${l.remaining} ${l.label.toLowerCase()}`).join(' · ') + ' left'
+                    : `${p.sessionsLeft} left in package`}
+                  {p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo
                 </div>
               </div>
               {p.openCrisisCount > 0 && (

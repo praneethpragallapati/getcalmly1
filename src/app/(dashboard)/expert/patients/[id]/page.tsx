@@ -68,12 +68,13 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   // and no pay riding on it — plus any session from any expert that already has
   // a note, so the clinician still sees the whole picture.
   const pastSessions = p.sessions.filter((s) => s.summary || (s.isOwn && s.payable))
-  // The three numbers the package counter is made of. "Held" is sessions that
-  // happened, not sessions written up — a session without a note still used one.
+  // Sessions this patient has had with anyone. The per-care-type held and booked
+  // figures come scoped from the profile (p.packages); this one is deliberately
+  // the whole picture, and says so on the page when the two differ. "Held" is
+  // sessions that happened, not sessions written up — one without a note still
+  // used a session.
   const sessionsCompleted = p.sessions.filter((s) => s.status === 'COMPLETED').length
-  const sessionsBookedAhead = p.sessions.filter((s) => s.status !== 'COMPLETED' && s.status !== 'CANCELLED').length
   const sessionsWrittenUp = pastSessions.filter((s) => s.summary).length
-  const sessionsAccounted = sessionsCompleted + sessionsBookedAhead
 
   return (
     <div className="stack">
@@ -181,15 +182,19 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         <div style={{ display: 'flex', gap: 26, flexWrap: 'wrap', marginTop: 12 }}>
           <Metric label="Streak" value={`${p.streakDays} days`} icon={<Flame size={15} />} />
           <Metric label="Mood trend" value={sentence(MOOD_TREND_LABEL[p.moodTrend] ?? p.moodTrend)} />
-          {/* A session is spoken for from the moment it is booked, so the package
-              counter reads "held + booked ahead". The counters are rebuilt from
-              the appointments before this page renders (reconcilePackageCounters),
-              so the sum below holds; the line under the row states it outright. */}
-          <Metric
-            label="Package sessions"
-            value={`${p.sessionsDone}/${p.sessionsTotal} used`}
-            sub={`${p.sessionsRemaining} remaining`}
-          />
+          {/* One line per care type this clinician covers for this patient — a
+              psychiatrist has no use for a therapy balance, and someone who does
+              both individual and couples needs them apart, not added up. A
+              session is spoken for from the moment it is booked, so each counter
+              reads "held + booked ahead"; the lines beneath state that sum. */}
+          {p.packages.map((pkg) => (
+            <Metric
+              key={pkg.track}
+              label={p.packages.length > 1 ? `${pkg.label} sessions` : 'Package sessions'}
+              value={pkg.total > 0 ? `${pkg.used}/${pkg.total} used` : 'none bought'}
+              sub={pkg.total > 0 ? `${pkg.remaining} remaining` : 'no package of this type'}
+            />
+          ))}
           <Metric label="Sessions held" value={String(sessionsCompleted)} sub={`${sessionsWrittenUp} written up`} />
           <Metric label="Task completion" value={`${p.taskCompletionPct}%`} />
           <Metric
@@ -200,15 +205,22 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           <Metric label="High-risk chats" value={String(p.highStakeChatCount)} alert={p.highStakeChatCount > 0} />
         </div>
 
-        {/* Spell the arithmetic out rather than leaving two numbers to be
-            reconciled by eye. In the normal case this is a statement of the sum;
-            when a session cannot be accounted for — a package with no room left
-            to adopt it — it says so, and points at the one button that fixes it. */}
-        <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
-          {sessionsAccounted === p.sessionsDone
-            ? `Package sessions used = ${sessionsCompleted} held + ${sessionsBookedAhead} booked ahead.`
-            : `Package sessions used says ${p.sessionsDone}, but this patient has ${sessionsCompleted} held and ${sessionsBookedAhead} booked ahead. A session is not drawing on any package — usually because every package of that type is already full. Raise the total on the right package, then use "Set counter" on the patient's admin page.`}
-        </p>
+        {/* Spell the arithmetic out per care type, rather than leaving numbers to
+            be reconciled by eye. Normally this is a statement of the sum; when a
+            session cannot be accounted for — a package with no room left to
+            adopt it — it says so and points at the button that fixes it. */}
+        {p.packages.filter((pkg) => pkg.total > 0).map((pkg) => (
+          <p key={pkg.track} className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
+            {pkg.held + pkg.bookedAhead === pkg.used
+              ? `${pkg.label}: ${pkg.used} of ${pkg.total} used = ${pkg.held} held + ${pkg.bookedAhead} booked ahead.`
+              : `${pkg.label}: the counter says ${pkg.used} used, but there are ${pkg.held} held and ${pkg.bookedAhead} booked ahead. A session is not drawing on any package — usually because every package of that type is already full. Raise the total on that package, then use "Set counter" on the patient's admin page.`}
+          </p>
+        ))}
+        {sessionsCompleted > p.packages.reduce((n, pkg) => n + pkg.held, 0) && (
+          <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
+            &ldquo;Sessions held&rdquo; counts every session this patient has had, including care types you don&rsquo;t deliver.
+          </p>
+        )}
 
         <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(28,43,58,.08)' }}>
           <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>

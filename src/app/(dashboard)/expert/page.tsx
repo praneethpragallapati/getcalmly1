@@ -134,11 +134,14 @@ export default async function ExpertHomePage() {
         ? 'none yet'
         : `${nextProfile.journalCount} so far`,
     })
-    // Sessions so far
-    if (nextProfile.sessionsTotal > 0) {
+    // Sessions so far, per care type this clinician covers for them — a
+    // psychiatrist's brief should not carry a therapy balance, and a clinician
+    // who does both needs them apart rather than added up.
+    for (const pkg of nextProfile.packages) {
+      if (pkg.total === 0) continue
       briefRows.push({
-        label: 'Sessions',
-        value: `${nextProfile.sessionsDone} of ${nextProfile.sessionsTotal} used · ${nextProfile.sessionsRemaining} remaining`,
+        label: nextProfile.packages.length > 1 ? `${pkg.label} sessions` : 'Sessions',
+        value: `${pkg.used} of ${pkg.total} used · ${pkg.remaining} remaining`,
       })
     }
     // Crisis alerts

@@ -12,7 +12,9 @@
 import { cache } from 'react'
 import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
-import { isPsychiatrist } from '@/lib/clinicianScope'
+import { isPsychiatrist, type CareTrack } from '@/lib/clinicianScope'
+import { tracksForClinicianOnPatients, tracksForClinicianOnPatient } from '@/lib/careScope'
+import { trackLabel } from '@/lib/packageLabels'
 import { sessionMinMinutes, resolveDueAppointments, computePresence, ensureSessionPresenceSchema } from '@/lib/sessionLifecycle'
 import { reconcilePackageCounters } from '@/lib/packageCounters'
 import { earliestJoin } from '@/lib/meetingWindow'
@@ -60,12 +62,16 @@ export type CaseloadPatient = {
   avgMood: number | null
   moodTrend: MoodTrend
   openCrisisCount: number
+  // Every session figure below is scoped to the care types THIS clinician covers
+  // for that patient: a psychiatrist's row never carries a therapy balance.
   sessionsDone: number
   sessionsTotal: number
+  /** One entry per care type they cover, so two are shown apart, not summed. */
+  packageLines: { track: CareTrack; label: string; total: number; used: number; remaining: number }[]
   // Facets for filtering the caseload.
   sessionsCompleted: number // COMPLETED appointments with this clinician
-  sessionsLeft: number // remaining sessions across active packages
-  packageTypes: string[] // active subscription trackSlugs
+  sessionsLeft: number // remaining sessions across the packages they cover
+  packageTypes: string[] // trackSlugs of those packages
   language: string | null
   state: string | null
   monthsHere: number // whole months since they joined
@@ -97,6 +103,20 @@ export type PersonContact = {
   joinedLabel: string | null
 }
 
+/** One care type's package position, as one clinician needs to read it. */
+export type PackageLine = {
+  track: CareTrack
+  /** "Individual therapy", "Couples", "Psychiatry". */
+  label: string
+  total: number
+  used: number
+  remaining: number
+  /** Sessions of this type already held (COMPLETED and drawing on the package). */
+  held: number
+  /** Booked, not yet held. `used` is these two plus any charged no-show. */
+  bookedAhead: number
+}
+
 export type ExpertPatientProfile = {
   patientId: string
   name: string
@@ -111,6 +131,14 @@ export type ExpertPatientProfile = {
   /** The patient's sessions across all experts involved. `isOwn` sessions are
    *  editable by the viewer; others render read-only, labelled by author. */
   sessions: { id: string; dateLabel: string; status: string; isPast: boolean; payable: boolean; summary: string | null; author: string; isOwn: boolean }[]
+  /**
+   * Packages, one line per care type THIS clinician covers for this patient —
+   * so a psychiatrist is not shown a therapy balance they will never draw on,
+   * and someone who does both individual and couples sees the two apart rather
+   * than added together. See tracksForClinicianOnPatient.
+   */
+  packages: PackageLine[]
+  /** Totals across the lines above — this clinician's slice, not the patient's whole balance. */
   sessionsDone: number
   sessionsTotal: number
   sessionsRemaining: number
@@ -460,15 +488,22 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
   ])
 
   const doneByPatient = new Map(completed.map((c) => [c.patientId, c._count._all]))
+
+  // Scope every session figure to the care types this clinician covers for that
+  // patient. A psychiatrist reading "16 left" off someone's therapy package is
+  // reading a number they can never draw on — see tracksForClinicianOnPatients.
+  const myTracks = await tracksForClinicianOnPatients(therapistProfileId, patientIds)
+  const mine = (userId: string, trackSlug: string) => myTracks.get(userId)?.has(trackSlug as CareTrack) ?? false
   const tracksByUser = new Map<string, Set<string>>()
   for (const s of subs) {
+    if (!mine(s.userId, s.trackSlug)) continue
     const set = tracksByUser.get(s.userId) ?? new Set<string>()
     set.add(s.trackSlug); tracksByUser.set(s.userId, set)
   }
 
   return users.map((u) => {
     const userMoods = moods.filter((m) => m.userId === u.id).slice(0, 14)
-    const sub = subs.find((s) => s.userId === u.id)
+    const mySubs = subs.filter((s) => s.userId === u.id && mine(u.id, s.trackSlug))
     const tracks = tracksByUser.get(u.id)
     return {
       patientId: u.id,
@@ -484,10 +519,20 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
         : null,
       moodTrend: moodTrendOf(userMoods),
       openCrisisCount: crisis.filter((c) => c.userId === u.id).length,
-      sessionsDone: sub?.sessionsUsed ?? 0,
-      sessionsTotal: sub?.sessionsTotal ?? 0,
+      sessionsDone: mySubs.reduce((n, s) => n + s.sessionsUsed, 0),
+      sessionsTotal: mySubs.reduce((n, s) => n + s.sessionsTotal, 0),
+      packageLines: [...new Set(mySubs.map((s) => s.trackSlug))].map((slug) => {
+        const of = mySubs.filter((s) => s.trackSlug === slug)
+        return {
+          track: slug as CareTrack,
+          label: trackLabel(slug),
+          total: of.reduce((n, s) => n + s.sessionsTotal, 0),
+          used: of.reduce((n, s) => n + s.sessionsUsed, 0),
+          remaining: of.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
+        }
+      }).sort((a, b) => b.total - a.total || a.label.localeCompare(b.label)),
       sessionsCompleted: doneByPatient.get(u.id) ?? 0,
-      sessionsLeft: subs.filter((s) => s.userId === u.id).reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
+      sessionsLeft: mySubs.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
       packageTypes: tracks ? [...tracks] : [],
       language: u.patientProfile?.preferredLanguage ?? null,
       state: u.patientProfile?.state ?? null,
@@ -741,12 +786,54 @@ export async function getExpertPatientProfile(
     }).catch(() => []),
     // ALL active packages — session totals must aggregate across care types
     // (a patient may hold therapy + psychiatry), not just the most recent one.
-    prisma.subscription.findMany({ where: { userId: patientId, status: 'ACTIVE' }, select: { id: true, sessionsUsed: true, sessionsTotal: true } }).catch(() => []),
+    // trackSlug too: the clinician's view is scoped to the care types they
+    // actually cover for this patient, so the package's own type is needed.
+    prisma.subscription.findMany({
+      where: { userId: patientId, status: 'ACTIVE' },
+      select: { id: true, sessionsUsed: true, sessionsTotal: true, trackSlug: true },
+    }).catch(() => []),
     prisma.crisisAlert.count({ where: { userId: patientId, resolved: false } }).catch(() => 0),
     prisma.calmAiMessage.count({ where: { userId: patientId, highStake: true } }).catch(() => 0),
     prisma.journalEntry.count({ where: { userId: patientId } }).catch(() => 0),
   ])
   if (!user) return null
+
+  // ── This clinician's slice of the packages ─────────────────────────────────
+  // Scoped to the care types they cover for this patient, one line each. The
+  // per-line held/booked counts come from a groupBy rather than the capped
+  // `allAppts` read above: mixing a capped count with an uncapped counter is
+  // exactly how "1/17 used" ended up next to two sessions that had been held.
+  const myTracks = await tracksForClinicianOnPatient(therapistProfileId, patientId)
+  const apptsBySub = await prisma.appointment
+    .groupBy({
+      by: ['consumedSubscriptionId', 'status'],
+      where: { patientId, consumedSubscriptionId: { in: sub.map((s) => s.id) } },
+      _count: { _all: true },
+    })
+    .catch(() => [] as { consumedSubscriptionId: string | null; status: string; _count: { _all: number } }[])
+
+  const packages: PackageLine[] = [...myTracks]
+    .map((track) => {
+      const mine = sub.filter((s) => s.trackSlug === track)
+      const ids = new Set(mine.map((s) => s.id))
+      const rows = apptsBySub.filter((r) => r.consumedSubscriptionId && ids.has(r.consumedSubscriptionId))
+      const countOf = (pred: (status: string) => boolean) =>
+        rows.filter((r) => pred(String(r.status))).reduce((n, r) => n + r._count._all, 0)
+      return {
+        track,
+        label: trackLabel(track),
+        total: mine.reduce((n, s) => n + s.sessionsTotal, 0),
+        used: mine.reduce((n, s) => n + s.sessionsUsed, 0),
+        remaining: mine.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
+        held: countOf((st) => st === 'COMPLETED'),
+        bookedAhead: countOf((st) => st !== 'COMPLETED' && st !== 'CANCELLED'),
+      }
+    })
+    // Care types this clinician covers but the patient has never bought are
+    // noise on the page, unless they have bought nothing at all — in which case
+    // the empty line is the point.
+    .filter((line, _i, all) => line.total > 0 || all.every((l) => l.total === 0))
+    .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label))
 
   const orders = await prisma.medicationOrder.findMany({
     where: { userId: patientId },
@@ -813,9 +900,13 @@ export async function getExpertPatientProfile(
       author: a.therapist?.user?.name ?? 'Clinician',
       isOwn: a.therapistId === therapistProfileId,
     })),
-    sessionsDone: sub.reduce((n, s) => n + s.sessionsUsed, 0),
-    sessionsTotal: sub.reduce((n, s) => n + s.sessionsTotal, 0),
-    sessionsRemaining: sub.reduce((n, s) => n + Math.max(0, s.sessionsTotal - s.sessionsUsed), 0),
+    packages,
+    // The totals are of the lines above — this clinician's slice. Summing the
+    // patient's whole balance here would put a psychiatry package back into a
+    // therapist's "sessions remaining", which is the thing being fixed.
+    sessionsDone: packages.reduce((n, l) => n + l.used, 0),
+    sessionsTotal: packages.reduce((n, l) => n + l.total, 0),
+    sessionsRemaining: packages.reduce((n, l) => n + l.remaining, 0),
     taskCompletionPct,
     tasks: tasks
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
