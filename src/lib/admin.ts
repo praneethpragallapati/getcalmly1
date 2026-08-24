@@ -502,6 +502,14 @@ export type PatientRow = {
   sessionsCompleted: number
   sessionsLeft: number // remaining sessions across active packages
   packageTypes: string[] // active subscription trackSlugs (e.g. ['therapy','calmplus'])
+  /**
+   * Every package this patient holds, one line per care type — including ones
+   * that have expired. Admin is the view that has to reconcile the whole
+   * picture, so an aggregate "14 left" beside a Psychiatry and an Individual
+   * therapy chip left it unclear which package the 14 belonged to, or whether
+   * the other was being counted at all.
+   */
+  packageLines: { track: string; label: string; total: number; used: number; remaining: number; active: boolean }[]
   language: string | null
   gender: string | null
   state: string | null
@@ -524,10 +532,14 @@ export async function getPatients(): Promise<PatientRow[]> {
       select: { id: true, name: true, email: true, createdAt: true, registrationNo: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
       orderBy: { createdAt: 'desc' }, take: 300,
     })
-    const [subs, completed] = await Promise.all([
-      prisma.subscription.findMany({ where: { status: 'ACTIVE' }, select: { userId: true, trackSlug: true, sessionsTotal: true, sessionsUsed: true } }),
+    // Every package, not only the live ones: the per-care-type breakdown below
+    // has to show an expired psychiatry pack rather than silently dropping it.
+    // The aggregate figures still count ACTIVE only — that is what is bookable.
+    const [allSubs, completed] = await Promise.all([
+      prisma.subscription.findMany({ select: { userId: true, trackSlug: true, sessionsTotal: true, sessionsUsed: true, status: true } }),
       prisma.appointment.groupBy({ by: ['patientId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
     ])
+    const subs = allSubs.filter((s) => s.status === 'ACTIVE')
     // Defensive: skip silently if the `state` column isn't present yet.
     const stateByUser = new Map<string, string | null>()
     try {
@@ -554,6 +566,22 @@ export async function getPatients(): Promise<PatientRow[]> {
       leftByUser.set(s.userId, (leftByUser.get(s.userId) ?? 0) + Math.max(0, s.sessionsTotal - s.sessionsUsed))
     }
     const doneByUser = new Map(completed.map((c) => [c.patientId, c._count._all]))
+    // One line per care type, every package included, biggest first.
+    const linesByUser = new Map<string, PatientRow['packageLines']>()
+    for (const s of allSubs) {
+      const lines = linesByUser.get(s.userId) ?? []
+      const existing = lines.find((l) => l.track === s.trackSlug)
+      const target = existing ?? { track: s.trackSlug, label: trackLabel(s.trackSlug), total: 0, used: 0, remaining: 0, active: false }
+      target.total += s.sessionsTotal
+      target.used += s.sessionsUsed
+      target.remaining += Math.max(0, s.sessionsTotal - s.sessionsUsed)
+      target.active = target.active || s.status === 'ACTIVE'
+      if (!existing) lines.push(target)
+      linesByUser.set(s.userId, lines)
+    }
+    for (const lines of linesByUser.values()) {
+      lines.sort((a, b) => Number(b.active) - Number(a.active) || b.total - a.total || a.label.localeCompare(b.label))
+    }
     return users.map((u) => {
       const tracks = tracksByUser.get(u.id)
       return {
@@ -563,6 +591,7 @@ export async function getPatients(): Promise<PatientRow[]> {
         sessionsCompleted: doneByUser.get(u.id) ?? 0,
         sessionsLeft: leftByUser.get(u.id) ?? 0,
         packageTypes: tracks ? [...tracks] : [],
+        packageLines: linesByUser.get(u.id) ?? [],
         language: u.patientProfile?.preferredLanguage ?? null,
         gender: u.patientProfile?.gender ?? null,
         state: stateByUser.get(u.id) ?? null,

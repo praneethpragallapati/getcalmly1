@@ -249,16 +249,20 @@ export default function FeaturesPage() {
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: coral, textTransform: 'uppercase', marginBottom: 12 }}>See it in action</p>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4.5vw, 42px)', color: charcoal, letterSpacing: '-1px' }}>
-              Built for both sides of care
+              Your space, end to end
             </h2>
             <p style={{ fontSize: 15.5, color: '#5A6A7A', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.65 }}>
-              A calm, intelligent space for you, and the clinical tools your professional needs to give you their best.
+              Mood, journal, sessions and Calm AI, together in one calm, intelligent place.
             </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 24 }}>
+            {/* The clinician portal used to be shown here beside the member's
+                dashboard. This page is read by someone deciding whether to get
+                help — a tour of the professional's tools is a different
+                audience, and has its own page at /for-therapists. */}
             {[
-              ['Your space', 'Mood, sessions, journal and Calm AI, all in one place.', '/mockups/patient-dashboard.png'],
-              ["Your therapist's view", 'Pre-session briefs, mood trends and structured notes.', '/mockups/doctor-dashboard.png'],
+              ['Your dashboard', 'Mood, sessions, journal and Calm AI, all in one place.', '/mockups/patient-dashboard.png'],
+              ['Your day to day', 'Check in, journal and pick up where your last session left off.', '/mockups/patient-home-1.png'],
             ].map(([label, sub, src]) => (
               <div key={label}>
                 <div style={{ borderRadius: 16, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 18px 44px rgba(28,43,58,.12)' }}>
@@ -314,12 +318,15 @@ export default function FeaturesPage() {
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div style={{ width: 270, background: '#0F1C28', borderRadius: 44, padding: 10, border: '1.5px solid rgba(255,255,255,.12)', boxShadow: '0 30px 60px rgba(0,0,0,.4)' }}>
               <div style={{ width: 250, height: 541, borderRadius: 36, overflow: 'hidden', background: '#FFF8F5', position: 'relative' }}>
-                <iframe
-                  src="/mockups/app-mock.html?screen=journal&tab=insights"
-                  title="GetCalmly app, journal insights"
+                {/* A screenshot of the real dashboard, captured from the running
+                    app, rather than the hand-built HTML mock this used to frame.
+                    The mock had drifted from the product it was advertising. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/mockups/patient-home-1.png"
+                  alt="The getCalmly app, home screen"
                   loading="lazy"
-                  scrolling="no"
-                  style={{ display: 'block', width: 375, height: 812, border: 'none', transform: 'scale(0.6667)', transformOrigin: 'top left' }}
+                  style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
                 />
               </div>
             </div>

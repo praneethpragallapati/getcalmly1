@@ -211,15 +211,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <!-- ── DASHBOARD PREVIEW ── -->
 <section class="preview-section" id="preview">
   <div class="sec-label reveal">See it in action</div>
-  <h2 class="sec-h2 reveal">Built for both sides<br>of the <span>care equation.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:40px;">getCalmly gives patients a calm, intelligent space, and gives therapists the clinical tools they need to deliver better care. See both.</p>
+  <h2 class="sec-h2 reveal">Everything your mind needs,<br>in <span>one calm space.</span></h2>
+  <p class="sec-p reveal" style="margin-bottom:40px;">Mood, journal, sessions and Calm AI, together in a dashboard built to feel as steady as the name promises.</p>
 
-  <div class="preview-tabs reveal">
-    <div class="ptab active" onclick="switchTab('patient',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><circle cx="12" cy="8.5" r="3.2"/><path d="M5.5 19c0-3.2 2.9-5.5 6.5-5.5s6.5 2.3 6.5 5.5"/></svg> Patient view</div>
-    <div class="ptab" onclick="switchTab('doctor',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><circle cx="12" cy="8" r="3"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M12 14v3M10.5 15.5h3"/></svg> Therapist view</div>
-  </div>
-
-  <!-- PATIENT PANE -->
+  <!-- The therapist view used to sit beside this one behind a tab. The home page
+       speaks to the person deciding whether to get help; a clinician portal tour
+       is a different audience's page, and it lives on /for-therapists. -->
   <div class="preview-pane active" id="pane-patient">
     <div class="reveal dash-mock-wrap">
       <div style="border-radius:16px;overflow:hidden;border:1.5px solid rgba(0,0,0,.08);box-shadow:var(--sh-lg);">
@@ -232,8 +229,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
     </div>
     <div class="reveal d2">
-      <div class="sec-label" style="margin-bottom:12px;">Patient experience</div>
-      <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Everything your mind needs, in one calm space.</h3>
+      <div class="sec-label" style="margin-bottom:12px;">Your dashboard</div>
+      <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Your week, in one place.</h3>
       <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Track your mood daily. Journal freely. Get AI-powered insights. Book and attend sessions, all from one dashboard designed to feel as calm as getCalmly's name promises.</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
         <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -253,39 +250,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
   </div>
 
-  <!-- DOCTOR PANE -->
-  <div class="preview-pane" id="pane-doctor">
-    <div class="reveal dash-mock-wrap">
-      <div style="border-radius:16px;overflow:hidden;border:1.5px solid rgba(0,0,0,.08);box-shadow:var(--sh-lg);">
-        <div style="background:#EEF0F3;padding:9px 12px;display:flex;gap:6px;align-items:center;">
-          <span style="width:9px;height:9px;border-radius:50%;background:#E2856F;"></span>
-          <span style="width:9px;height:9px;border-radius:50%;background:#E8C16A;"></span>
-          <span style="width:9px;height:9px;border-radius:50%;background:#8FCBA3;"></span>
-        </div>
-        <img src="/mockups/doctor-dashboard.png" alt="getCalmly therapist dashboard" loading="lazy" style="display:block;width:100%;height:auto;">
-      </div>
-    </div>
-    <div class="reveal d2">
-      <div class="sec-label" style="margin-bottom:12px;color:#1A7F7A;">Therapist experience</div>
-      <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Clinical tools that let you focus on what matters.</h3>
-      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Every therapist on getCalmly gets a powerful portal, patient mood history, AI-generated pre-session briefs, structured session notes, and referral tracking. Less admin. Better care.</p>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">AI pre-session briefs</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Patient mood, journal themes and flags, summarised before each session.</div></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Risk flagging & mood alerts</div><div style="font-size:13px;color:var(--gray);font-weight:300;">AI monitors patient patterns between sessions and alerts you when needed.</div></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:#E5F4EE;color:#1A7F7A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Hospital-ready reporting</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Structured notes, referral letters and progress reports, exportable instantly.</div></div>
-        </div>
-      </div>
-      <a href="/for-therapists" class="btn-hero outline" style="border-color:rgba(61,158,114,.45);color:#2F7D5A;display:inline-flex;" onmouseover="this.style.background='rgba(61,158,114,.06)'" onmouseout="this.style.background='transparent'">Join our expert team →</a>
-    </div>
-  </div>
 </section>
 
 <!-- ── ASSESSMENT BREAK ── -->

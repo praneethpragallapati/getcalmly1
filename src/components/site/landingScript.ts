@@ -91,7 +91,10 @@ export const LANDING_SCRIPT = `
       void heroRot.offsetWidth;
       heroRot.textContent=heroPhrases[hpi];
       heroRot.classList.add('swap');
-    },2600);
+      // 4.5s, matching the AI-insight card in the phone beside it: three items
+      // on a 13.5s cycle, 4.5s each (.gc-cyc-item in landing.css). The two are
+      // read together, and at 2.6s the headline was visibly racing the phone.
+    },4500);
   }
 
   // Magnetic buttons

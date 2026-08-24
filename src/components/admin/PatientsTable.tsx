@@ -150,9 +150,20 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
                   {p.email}{p.therapistName ? ` · ${p.therapistName}` : ''}{p.language ? ` · ${p.language}` : ''}{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo here
                 </div>
               </div>
+              {/* Every package, named. The aggregate alone ("14 left") sat beside
+                  a Psychiatry chip and an Individual therapy chip without saying
+                  which one it counted, or whether it counted both. Admin is the
+                  view that has to reconcile the whole picture, so it gets the
+                  breakdown; an expired package is shown too, marked. */}
               <span className="muted" style={{ fontSize: 12.5, whiteSpace: 'nowrap', textAlign: 'right' }}>
                 {p.sessionsCompleted} done · {p.sessionsLeft} left<br />
-                <span style={{ fontSize: 11 }}>{p.activePlans} active plan{p.activePlans === 1 ? '' : 's'}</span>
+                {p.packageLines.length > 0 ? (
+                  <span style={{ fontSize: 11 }}>
+                    {p.packageLines.map((l) => `${l.label} ${l.used}/${l.total}${l.active ? '' : ' (ended)'}`).join(' · ')}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 11 }}>no package</span>
+                )}
               </span>
               <ChevronRight size={16} style={{ color: '#8E9EAE', flexShrink: 0 }} />
             </Link>
