@@ -33,6 +33,14 @@ export type DashSession = {
   scheduledISO?: string // machine-readable start, when known (real appointments)
   durationMins: number
   status: 'UPCOMING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+  /**
+   * A session that ended as a CANCELLED row but was still CHARGED — a no-show
+   * that wasn't cancelled in time, where neither side joined. The slot was used
+   * and NOT returned to the package. Kept apart from a plain cancellation, which
+   * IS refunded, so the two never share the word "Cancelled" — that word reads
+   * as "you'll get this back", which is the opposite of what happened here.
+   */
+  chargedNoShow?: boolean
   sessionNo?: number
   tags?: string[]
   hasSummary?: boolean

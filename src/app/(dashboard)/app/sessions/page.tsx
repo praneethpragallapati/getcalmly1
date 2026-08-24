@@ -43,9 +43,19 @@ function SessionRow({ s }: { s: DashSession }) {
         </div>
         <div className="sess-actions">
           {cancelled ? (
-            <span className="sess-status" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--c-coral, #C0504B)', fontWeight: 600 }}>
-              <XCircle size={14} /> Cancelled
-            </span>
+            // A charged no-show and a refunded cancellation are opposite outcomes,
+            // so they must not share a label. "Cancelled" alone reads as "you'll
+            // get this session back" — true for a refund, false and misleading for
+            // a no-show that consumed the slot.
+            s.chargedNoShow ? (
+              <span className="sess-status" title="This session wasn't cancelled at least 24 hours ahead and no one joined, so it was charged and used from your package — not returned." style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--c-coral, #C0504B)', fontWeight: 600 }}>
+                <XCircle size={14} /> Missed · charged
+              </span>
+            ) : (
+              <span className="sess-status" title="This session was cancelled and returned to your package." style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--c-gray-d, #6B7D8E)', fontWeight: 600 }}>
+                <XCircle size={14} /> Cancelled · returned
+              </span>
+            )
           ) : past ? (
             <>
               <span className="sess-status done">

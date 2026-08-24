@@ -111,6 +111,11 @@ export async function getSessionsView(): Promise<SessionsView> {
       // "Cancelled", so both the patient and the expert keep a record of it. It
       // doesn't consume a session number and can't be joined or rated.
       const cancelled = r.status === 'CANCELLED'
+      // A CANCELLED row that still holds its package slot was never refunded —
+      // it is a no-show the patient was charged for. Every genuine cancellation
+      // (patient, admin, reassignment, or a settled void) clears the link, so a
+      // link that survives is the one reliable mark of "charged, not returned".
+      const chargedNoShow = cancelled && r.consumedSubscriptionId != null
       if (!cancelled) n++
       // Past once the whole session window has elapsed (or it was cancelled). It
       // stays joinable during the session, then drops off after it ends.
@@ -123,6 +128,7 @@ export async function getSessionsView(): Promise<SessionsView> {
         scheduledISO: r.scheduledAt.toISOString(),
         durationMins: r.durationMins,
         status: cancelled ? 'CANCELLED' : isPast ? 'COMPLETED' : 'UPCOMING',
+        chargedNoShow,
         sessionNo: cancelled ? undefined : n,
         hasSummary: Boolean(r.summary),
         myRating: r.review?.rating ?? null,
