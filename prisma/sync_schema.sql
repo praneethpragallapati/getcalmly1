@@ -1563,6 +1563,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS "AiProfile_userId_key" ON "AiProfile" ("userId
 CREATE INDEX IF NOT EXISTS "Appointment_patientId_idx" ON "Appointment" ("patientId");
 CREATE INDEX IF NOT EXISTS "Appointment_patientId_status_scheduledAt_idx" ON "Appointment" ("patientId", status, "scheduledAt");
 CREATE INDEX IF NOT EXISTS "Appointment_therapistId_status_scheduledAt_idx" ON "Appointment" ("therapistId", status, "scheduledAt");
+-- No double-booking: at most one LIVE session per clinician per instant, and per
+-- member per instant (partial unique indexes; cancelled rows fall outside the
+-- filter so a freed slot rebooks). Not expressible in schema.prisma. Guarded so
+-- existing duplicate live appointments report rather than abort the whole script.
+DO $$ BEGIN
+  CREATE UNIQUE INDEX IF NOT EXISTS "Appointment_therapist_slot_active_key" ON "Appointment" ("therapistId", "scheduledAt") WHERE "status" <> 'CANCELLED';
+EXCEPTION WHEN unique_violation THEN RAISE NOTICE 'therapist slot-uniqueness not applied: duplicate live appointments — dedupe then re-run';
+END $$;
+DO $$ BEGIN
+  CREATE UNIQUE INDEX IF NOT EXISTS "Appointment_patient_slot_active_key" ON "Appointment" ("patientId", "scheduledAt") WHERE "status" <> 'CANCELLED';
+EXCEPTION WHEN unique_violation THEN RAISE NOTICE 'member slot-uniqueness not applied: duplicate live appointments — dedupe then re-run';
+END $$;
 CREATE INDEX IF NOT EXISTS "AssessmentScore_userId_recordedAt_idx" ON "AssessmentScore" ("userId", "recordedAt");
 CREATE UNIQUE INDEX IF NOT EXISTS "AvailabilityException_therapistId_date_key" ON "AvailabilityException" ("therapistId", date);
 CREATE INDEX IF NOT EXISTS "BlogPost_publishedAt_idx" ON "BlogPost" ("publishedAt");

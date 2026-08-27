@@ -19,6 +19,7 @@ import { rateLimit } from '@/lib/rateLimit'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
 import { trackForClinician } from '@/lib/packageCounters'
+import { ensureBookingConstraints, isSlotConflict } from '@/lib/bookingConstraints'
 import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { pickHelplines } from '@/config/site'
@@ -395,6 +396,20 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     // Which package type this booking draws from, from the clinician's kind.
     const track = trackForClinician(therapist.clinicianType, therapist.specializations)
 
+    // No double-booking. The slot must be free for this clinician, and the
+    // member must not already be booked at this time with ANYONE. Cancelled
+    // sessions don't hold a slot, so a freed slot is bookable again. These are
+    // the friendly-message checks for the ordinary case; the true race is
+    // decided by the partial unique indexes (ensureBookingConstraints), which is
+    // why the create below is wrapped for a conflict too.
+    await ensureBookingConstraints()
+    const [slotTaken, selfBusy] = await Promise.all([
+      prisma.appointment.findFirst({ where: { therapistId: therapist.id, scheduledAt, status: { not: 'CANCELLED' } }, select: { id: true } }),
+      prisma.appointment.findFirst({ where: { patientId: userId, scheduledAt, status: { not: 'CANCELLED' } }, select: { id: true } }),
+    ])
+    if (slotTaken) return { ok: false, persisted: false, error: 'That time was just taken. Please pick another slot.' }
+    if (selfBusy) return { ok: false, persisted: false, error: 'You already have a session booked at that time.' }
+
     // Count appointments BEFORE this booking so we can auto-send the intake form
     // only on the patient's very first session (#default forms by session number).
     const priorAppointments = await prisma.appointment.count({ where: { patientId: userId } })
@@ -411,30 +426,40 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     })
 
     let claimedId: string | null = null
-    for (const c of candidates) {
-      const claimed = await prisma.$transaction(async (tx) => {
-        const rows = await tx.$queryRaw<{ id: string }[]>`
-          UPDATE "Subscription" SET "sessionsUsed" = "sessionsUsed" + 1
-          WHERE id = ${c.id} AND status = 'ACTIVE'
-            AND "sessionsUsed" < "sessionsTotal"
-            AND ("expiresAt" IS NULL OR "expiresAt" >= ${scheduledAt})
-          RETURNING id`
-        if (rows.length === 0) return null
-        await tx.appointment.create({
-          data: {
-            patientId: userId,
-            therapistId: therapist.id,
-            scheduledAt,
-            durationMins: sessionDurationMins(isPsychiatrist(therapist.clinicianType, therapist.specializations)),
-            status: 'CONFIRMED',
-            fee: therapist.sessionFee,
-            roomId: crypto.randomUUID(),
-            consumedSubscriptionId: c.id,
-          },
+    try {
+      for (const c of candidates) {
+        const claimed = await prisma.$transaction(async (tx) => {
+          const rows = await tx.$queryRaw<{ id: string }[]>`
+            UPDATE "Subscription" SET "sessionsUsed" = "sessionsUsed" + 1
+            WHERE id = ${c.id} AND status = 'ACTIVE'
+              AND "sessionsUsed" < "sessionsTotal"
+              AND ("expiresAt" IS NULL OR "expiresAt" >= ${scheduledAt})
+            RETURNING id`
+          if (rows.length === 0) return null
+          // If a concurrent booking took the slot between the pre-check and here,
+          // the partial unique index rejects this create; the transaction rolls
+          // back, so the session credit above is returned automatically.
+          await tx.appointment.create({
+            data: {
+              patientId: userId,
+              therapistId: therapist.id,
+              scheduledAt,
+              durationMins: sessionDurationMins(isPsychiatrist(therapist.clinicianType, therapist.specializations)),
+              status: 'CONFIRMED',
+              fee: therapist.sessionFee,
+              roomId: crypto.randomUUID(),
+              consumedSubscriptionId: c.id,
+            },
+          })
+          return c.id
         })
-        return c.id
-      })
-      if (claimed) { claimedId = claimed; break }
+        if (claimed) { claimedId = claimed; break }
+      }
+    } catch (e) {
+      if (isSlotConflict(e)) {
+        return { ok: false, persisted: false, error: 'That time was just taken. Please pick another slot.' }
+      }
+      throw e
     }
 
     if (!claimedId) {
@@ -578,7 +603,7 @@ export async function rescheduleMyAppointment(appointmentId: string, newSlotIso:
   try {
     const appt = await prisma.appointment.findFirst({
       where: { id: appointmentId, patientId: userId },
-      select: { id: true, scheduledAt: true, status: true, consumedSubscriptionId: true },
+      select: { id: true, scheduledAt: true, status: true, consumedSubscriptionId: true, therapistId: true },
     })
     if (!appt) return { ok: false, persisted: false, error: 'Session not found.' }
     if (appt.status === 'CANCELLED' || appt.status === 'COMPLETED') {
@@ -594,11 +619,28 @@ export async function rescheduleMyAppointment(appointmentId: string, newSlotIso:
         return { ok: false, persisted: false, error: 'That date is past your package validity. Pick an earlier slot or extend the package.' }
       }
     }
+    // The new slot must be free — a reschedule is a fresh booking, so it can't
+    // land on a time the clinician already has, or one the member is already
+    // booked at elsewhere. This session is excluded from both checks so moving it
+    // never collides with itself. The partial unique index is the race backstop.
+    await ensureBookingConstraints()
+    const [slotTaken, selfBusy] = await Promise.all([
+      prisma.appointment.findFirst({ where: { therapistId: appt.therapistId, scheduledAt: newAt, status: { not: 'CANCELLED' }, NOT: { id: appt.id } }, select: { id: true } }),
+      prisma.appointment.findFirst({ where: { patientId: userId, scheduledAt: newAt, status: { not: 'CANCELLED' }, NOT: { id: appt.id } }, select: { id: true } }),
+    ])
+    if (slotTaken) return { ok: false, persisted: false, error: 'That time is taken. Please pick another slot.' }
+    if (selfBusy) return { ok: false, persisted: false, error: 'You already have a session booked at that time.' }
     // Moving the time invalidates any prior confirmation, so mark it RESCHEDULED
     // (the same state the expert-side reschedule uses) rather than silently
     // dropping a CONFIRMED booking to a fresh-looking PENDING. It stays visible
-    // as upcoming and signals both sides that the new slot needs re-confirmation.
-    await prisma.appointment.update({ where: { id: appt.id }, data: { scheduledAt: newAt, status: 'RESCHEDULED' } })
+    // as upcoming — it is treated as a confirmed session, no separate re-confirm
+    // step (a reschedule is a fresh booking, and new bookings confirm at once).
+    try {
+      await prisma.appointment.update({ where: { id: appt.id }, data: { scheduledAt: newAt, status: 'RESCHEDULED' } })
+    } catch (e) {
+      if (isSlotConflict(e)) return { ok: false, persisted: false, error: 'That time is taken. Please pick another slot.' }
+      throw e
+    }
     await notify(userId, {
       type: 'reschedule',
       title: 'Session rescheduled',
