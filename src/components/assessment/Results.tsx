@@ -55,7 +55,7 @@ const severityConfig = {
     bg: '#ECEFF3', color: '#41556B', border: 'rgba(65,85,107,.2)',
     icon: '🌥️',
     label: 'A lot going on',
-    desc: 'Your answers point to a lot going on at the moment. This is worth proper support — a clinical psychologist can help you make sense of it and work through it at a pace that suits you.',
+    desc: 'Your answers point to a lot going on at the moment. This is worth proper support. A clinical psychologist can help you make sense of it and work through it at a pace that suits you.',
   },
 }
 
@@ -223,7 +223,7 @@ export default function Results({ firstSession }: { firstSession: FirstSession }
               <p className="rcta-eyebrow">No card needed to sign up</p>
               <h3 className="rcta-title">Not ready to book?</h3>
               <p className="rcta-sub">
-                Create your account and book a session whenever it suits you — your matched
+                Create your account and book a session whenever it suits you. Your matched
                 professionals will be waiting. Mood check-ins, journalling and the member
                 community are open to you in the meantime, at no cost.
               </p>
