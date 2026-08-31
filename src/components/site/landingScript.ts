@@ -108,22 +108,6 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // How-it-works journey: hover/click sync. The section stays still; pointing at
-  // (or tapping) a step cross-fades the right-hand card to match.
-  var chSteps=[].slice.call(document.querySelectorAll('.how-step'));
-  var chCards=[].slice.call(document.querySelectorAll('.chap-card'));
-  if(chSteps.length && chCards.length && !reduce){
-    function chGo(i){
-      chSteps.forEach(function(s,j){ s.classList.toggle('chap-on', j===i); });
-      chCards.forEach(function(c,j){ c.classList.toggle('chap-show', j===i); });
-    }
-    chSteps.forEach(function(s,i){
-      s.addEventListener('mouseenter',function(){ chGo(i); });
-      s.addEventListener('click',function(){ chGo(i); });
-    });
-    chGo(0);
-  }
-
   // Testimonials auto-scroll marquee: duplicate cards for a seamless loop
   var track=document.getElementById('testi-track');
   if(track){

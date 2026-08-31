@@ -120,7 +120,7 @@ export default function TherapistApplyPage() {
       {/* Form */}
       <form onSubmit={handleSubmit} style={{ maxWidth: 720, margin: '0 auto', padding: '48px 24px 80px' }}>
         <Section n="1" title="About you">
-          <div><label style={labelStyle}>Full name (as on registration)</label><input name="fullName" required style={inputStyle} placeholder="Dr. Ananya Sharma" /></div>
+          <div><label style={labelStyle}>Full name (as on registration)</label><input name="fullName" required style={inputStyle} placeholder="Dr. Riya Lokesh" /></div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 220px' }}><label style={labelStyle}>Email</label><input name="email" type="email" required style={inputStyle} placeholder="you@example.com" /></div>
             <div style={{ flex: '1 1 220px' }}>

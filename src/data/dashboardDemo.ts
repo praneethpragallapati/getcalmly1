@@ -241,7 +241,7 @@ export const demoDashboard: DashboardData = {
   moodMonthChangePct: 18,
   dailyInsight: {
     title: 'Mondays tend to feel heavier for you, and that’s okay.',
-    body: 'Your data shows a gentle mood dip each Monday morning. Before your session with Dr. Ananya at 3 PM today, a short breathing exercise has helped you arrive calmer in the past. You’ve been consistent, and that matters more than how you feel right now.',
+    body: 'Your data shows a gentle mood dip each Monday morning. Before your session with Dr. Riya Lokesh at 3 PM today, a short breathing exercise has helped you arrive calmer in the past. You’ve been consistent, and that matters more than how you feel right now.',
   },
   detectedThisWeek: [
     { title: 'Work anxiety peaking Sundays', sub: '6 of 12 entries mention work', tone: 'coral' },
@@ -255,7 +255,7 @@ export const demoDashboard: DashboardData = {
       title: '4-7-8 breathing, twice today',
       detail: 'Once after waking, once before bed',
       done: true,
-      assignedBy: 'Dr. Ananya Sharma',
+      assignedBy: 'Dr. Riya Lokesh',
     },
     {
       id: 't2',
@@ -263,19 +263,19 @@ export const demoDashboard: DashboardData = {
       title: 'Name one thing that went well',
       detail: 'Add it to your journal',
       done: false,
-      assignedBy: 'Dr. Ananya Sharma',
+      assignedBy: 'Dr. Riya Lokesh',
     },
     {
       id: 't3',
       type: 'VIDEO',
       title: 'Watch: Grounding when anxious (6 min)',
       done: false,
-      assignedBy: 'Dr. Ananya Sharma',
+      assignedBy: 'Dr. Riya Lokesh',
     },
   ],
   todaySession: {
     id: 's1',
-    expert: 'Dr. Ananya Sharma',
+    expert: 'Dr. Riya Lokesh',
     expertRole: 'Clinical Psychologist · RCI Verified · 8 yrs',
     when: 'Monday, 2 March · 3:00 PM',
     durationMins: 50,
@@ -311,7 +311,7 @@ export const demoDashboard: DashboardData = {
   upcoming: [
     {
       id: 's1',
-      expert: 'Dr. Ananya Sharma',
+      expert: 'Dr. Riya Lokesh',
       expertRole: 'Clinical Psychologist',
       when: 'Monday, 9 March · 3:00 PM',
       durationMins: 50,
@@ -319,7 +319,7 @@ export const demoDashboard: DashboardData = {
     },
     {
       id: 's2',
-      expert: 'Dr. Ananya Sharma',
+      expert: 'Dr. Riya Lokesh',
       expertRole: 'Clinical Psychologist',
       when: 'Monday, 16 March · 3:00 PM',
       durationMins: 50,
@@ -329,7 +329,7 @@ export const demoDashboard: DashboardData = {
   past: [
     {
       id: 's3',
-      expert: 'Dr. Ananya Sharma',
+      expert: 'Dr. Riya Lokesh',
       expertRole: 'Clinical Psychologist',
       when: 'Monday, 24 Feb · 3:00 PM',
       durationMins: 50,
@@ -339,7 +339,7 @@ export const demoDashboard: DashboardData = {
     },
     {
       id: 's4',
-      expert: 'Dr. Ananya Sharma',
+      expert: 'Dr. Riya Lokesh',
       expertRole: 'Clinical Psychologist',
       when: 'Monday, 17 Feb · 3:00 PM',
       durationMins: 50,
@@ -381,7 +381,7 @@ export const demoDashboard: DashboardData = {
       title: 'After the session, feeling lighter',
       date: 'Mon, 24 Feb',
       preview:
-        'Dr. Ananya helped me reframe something I’ve been carrying for months. She asked me: what would I say to a friend who was in exactly my situation? And I realised I’d never speak to a friend the way I speak to myself…',
+        'Dr. Riya Lokesh helped me reframe something I’ve been carrying for months. She asked me: what would I say to a friend who was in exactly my situation? And I realised I’d never speak to a friend the way I speak to myself…',
       moodTag: 'Good',
       topicTags: ['Post-session'],
     },
@@ -416,7 +416,7 @@ export const demoDashboard: DashboardData = {
       dosage: '50 mg',
       frequency: 'Once daily',
       times: ['Morning'],
-      prescribedBy: 'Dr. Rohan Mehta',
+      prescribedBy: 'Dr. Riya Lokesh',
       active: true,
     },
   ],

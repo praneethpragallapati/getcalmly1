@@ -30,7 +30,7 @@ export type MyTherapist = {
 }
 
 const DEMO_THERAPIST: Omit<MyTherapist, 'nextSessionWhen' | 'nextSessionId'> = {
-  name: 'Dr. Ananya Sharma',
+  name: 'Dr. Riya Lokesh',
   initials: 'AS',
   designation: 'Clinical Psychologist',
   qualifications: 'M.Phil Clinical Psychology (RCI)',

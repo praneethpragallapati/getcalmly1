@@ -158,7 +158,7 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
       {kind === 'therapist' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Row>
-            <Col><label style={label}>Full name</label><input style={field} value={name} onChange={(e) => setName(e.target.value)} required placeholder="Dr. Ananya Sharma" /></Col>
+            <Col><label style={label}>Full name</label><input style={field} value={name} onChange={(e) => setName(e.target.value)} required placeholder="Dr. Riya Lokesh" /></Col>
             <Col><label style={label}>Email</label><input type="email" style={field} value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="clinician@example.com" /></Col>
           </Row>
           <Row>

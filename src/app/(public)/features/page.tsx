@@ -22,7 +22,7 @@ function MatchMock() {
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 12 }}>
         <div style={{ width: 46, height: 46, borderRadius: 12, background: 'rgba(26,127,122,.12)', color: '#1A7F7A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>AS</div>
         <div>
-          <p style={{ fontSize: 14, fontWeight: 800, color: charcoal }}>Dr. Ananya Sharma</p>
+          <p style={{ fontSize: 14, fontWeight: 800, color: charcoal }}>Dr. Riya Lokesh</p>
           <p style={{ fontSize: 12, color: '#5A6A7A' }}>Clinical Psychologist · 8 yrs · CBT</p>
         </div>
       </div>
@@ -47,7 +47,7 @@ function ChatMock() {
           <div className="cl-typing" style={{ position: 'absolute', top: 0, left: 0, background: '#F5F7FA', borderRadius: '12px 12px 12px 2px', padding: '12px 14px', display: 'flex', gap: 4 }}>
             <span /><span /><span />
           </div>
-          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>It&apos;s Sunday night, the spot where your anxiety usually peaks, and Thursday&apos;s journal hinted this week felt heavier. The 4-7-8 breathing that worked on the 12th, or should I note this for Dr. Ananya&apos;s session on Tuesday?</div>
+          <div className="cl-m2" style={{ background: '#F5F7FA', color: '#3A4A5A', fontSize: 12.5, padding: '9px 12px', borderRadius: '12px 12px 12px 2px', lineHeight: 1.5 }}>It&apos;s Sunday night, the spot where your anxiety usually peaks, and Thursday&apos;s journal hinted this week felt heavier. The 4-7-8 breathing that worked on the 12th, or should I note this for Dr. Riya Lokesh&apos;s session on Tuesday?</div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
@@ -95,7 +95,7 @@ function InsightMock() {
           <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Quiet win:</strong> on weeks you journal 4+ days, your mood recovers almost twice as fast.</p>
         </div>
         <div style={{ marginTop: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(200,85,61,.07)', fontSize: 12, color: '#9A4332', fontWeight: 600 }}>
-          Recommended: a 7 PM Sunday wind-down this week · added to Dr. Ananya&apos;s brief
+          Recommended: a 7 PM Sunday wind-down this week · added to Dr. Riya Lokesh&apos;s brief
         </div>
       </div>
       <p style={{ marginTop: 12, fontSize: 11, color: '#5F6E7D' }}>Learned from six weeks of your mood, sleep, journal &amp; sessions</p>
@@ -121,7 +121,7 @@ function JournalMock() {
 function BriefMock() {
   return (
     <div style={mockCard}>
-      <p style={mockLabel}>Pre-session brief · for Dr. Ananya</p>
+      <p style={mockLabel}>Pre-session brief · for Dr. Riya Lokesh</p>
       <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 12 }}>
         {[
           ['Mood', 'Up since last session, dipped midweek'],

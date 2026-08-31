@@ -273,7 +273,7 @@ function demoCalendar(): ExpertCalendar {
     }
   }
   return {
-    expert: demoDashboard.todaySession?.expert ?? 'Dr. Ananya Sharma',
+    expert: demoDashboard.todaySession?.expert ?? 'Dr. Riya Lokesh',
     expertRole: 'Clinical Psychologist',
     slots,
   }

@@ -21,7 +21,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
-        <a href="#how" class="btn-hero outline">See how it works</a>
+        <a href="#preview" class="btn-hero outline">See it in action</a>
       </div>
       <div class="hero-trust">
         <span class="ht">Free, confidential assessment</span>
@@ -63,7 +63,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
             </div>
             <div class="ps-card">
               <div class="ps-badge">Today's session</div>
-              <div class="ps-card-title">Dr. Ananya Sharma · 3:00 PM</div>
+              <div class="ps-card-title">Dr. Riya Lokesh · 3:00 PM</div>
               <div class="ps-card-sub">Clinical Psychologist · Secure video</div>
             </div>
             <div class="ps-card">
@@ -80,7 +80,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <!-- Floating badges -->
       <div class="phone-float float-1">
         <div class="float-dot" style="background:var(--green);"></div>
-        Dr. Ananya is online
+        Dr. Riya Lokesh is online
       </div>
       <div class="phone-float float-2">
         <div class="float-dot" style="background:var(--coral);"></div>
@@ -90,101 +90,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
   </div>
   <div class="scroll-cue"><div class="sc-line"></div>Scroll</div>
-</section>
-
-<!-- ── HOW IT WORKS ── -->
-<section class="how-section" id="how">
-  <div class="sec-label reveal">How it works</div>
-  <h2 class="sec-h2 reveal">This might sound familiar.<br><span>Here's how it changes.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:48px;">For a lot of us, "I'm fine" is a reflex, not the truth. Here's what shifts the night you finally stop saying it.</p>
-  <div class="how-layout">
-    <div class="how-steps">
-      <div class="how-step"><div class="hs-n">01</div><div><div class="hs-t">The night you stop saying "I'm fine"</div><div class="hs-d">11 PM, thumb hovering over the close button. Twelve honest questions later, no login, no judgement, you finally have a name for what you've been carrying, and a therapist who fits.</div><div class="hs-bar"><span></span></div></div></div>
-      <div class="how-step"><div class="hs-n">02</div><div><div class="hs-t">The first session feels like being seen</div><div class="hs-d">Not a stranger reading a script. Your therapist has already read your week before "hello". By the third session, you're saying things out loud you've never told anyone.</div><div class="hs-bar"><span></span></div></div></div>
-      <div class="how-step"><div class="hs-n">03</div><div><div class="hs-t">The same face, every single week</div><div class="hs-d">No re-explaining, no starting over. Your therapist and your whole history stay with you, so every session picks up exactly where the last one ended.</div><div class="hs-bar"><span></span></div></div></div>
-      <div class="how-step"><div class="hs-n">04</div><div><div class="hs-t">3 AM finally has someone in it</div><div class="hs-d">The hardest nights don't wait for appointments. getCalmly's AI already knows your last session, your mood dip, your journal, so it meets you right there, then hands the context straight back to your therapist.</div><div class="hs-bar"><span></span></div></div></div>
-      <div class="how-step"><div class="hs-n">05</div><div><div class="hs-t">You feel better, and you see why.</div><div class="hs-d">Sleep steadies. Mood climbs. And for the first time, the pattern is on a screen in front of you, not a weight you carry alone. That's what makes it last.</div><div class="hs-bar"><span></span></div></div></div>
-    </div>
-    <div class="how-visual reveal d1">
-      <div class="chap-stack">
-      <!-- 01 · Assessment -->
-      <div class="chap-card">
-      <div class="how-card">
-        <div class="hc-badge">Assessment · just now</div>
-        <div class="hc-title">Twelve gentle questions. No login.</div>
-        <div class="hc-sub">A name for what you've been carrying, and a match who can help.</div>
-        <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(200,85,61,.15);color:var(--coral-l);font-weight:700;">Anxiety</span>
-          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.72);font-weight:600;">Work stress</span>
-          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.72);font-weight:600;">Sleep</span>
-        </div>
-      </div>
-      </div>
-      <!-- 02 · Therapist match card (no portrait, monogram only) -->
-      <div class="chap-card">
-      <div class="how-card" style="padding:0;overflow:hidden;background:transparent;border:none;box-shadow:none;">
-        <div class="therapist-match-card">
-          <div class="tmc-label">✦ Your match · Based on your assessment</div>
-          <div class="tmc-head">
-            <div class="tmc-mono">AS</div>
-            <div>
-              <div class="tmc-badge">Clinical Psychologist</div>
-              <div class="tmc-name">Dr. Ananya Sharma</div>
-              <div class="tmc-meta">8 years · CBT · Anxiety &amp; Work Stress</div>
-            </div>
-          </div>
-          <div class="tmc-body">
-            <div class="tmc-tags">
-              <span class="tmc-tag">Anxiety</span>
-              <span class="tmc-tag">CBT</span>
-              <span class="tmc-tag">Burnout</span>
-              <span class="tmc-tag">Relationships</span>
-            </div>
-            <div class="tmc-footer">
-              <div class="tmc-rating">⭐ 4.9 <span>(340 sessions)</span></div>
-              <div class="tmc-avail">● Available Thu</div>
-            </div>
-            <a href="/assess" class="tmc-btn">Book your first session →</a>
-          </div>
-        </div>
-      </div>
-      </div>
-      <!-- 03 · Weekly continuity -->
-      <div class="chap-card">
-      <div class="how-card">
-        <div class="hc-badge">Your therapist · every week</div>
-        <div class="hc-title">Never starting over.</div>
-        <div class="hc-sub">Same face, every session. Your history and your patterns already in the room before you say hello, so each conversation picks up exactly where the last one ended.</div>
-      </div>
-      </div>
-      <!-- 04 · Journal entry card -->
-      <div class="chap-card">
-      <div class="how-card">
-        <div class="hc-badge">Your journal · Thursday, 8:42 PM</div>
-        <div class="hc-title">Today was hard but I didn't spiral. That's new.</div>
-        <div class="hc-sub">getCalmly detected 3 themes: <span style="color:var(--coral-l);font-weight:600;">self-compassion · boundary-setting · resilience</span></div>
-        <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(200,85,61,.15);color:var(--coral-l);font-weight:700;">Growth moment ✦</span>
-          <span style="font-size:9px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.72);font-weight:600;">Shared with Dr. Ananya</span>
-        </div>
-      </div>
-      </div>
-      <!-- 05 · Week 8 result card -->
-      <div class="chap-card">
-      <div class="how-card">
-        <div class="hc-badge">Week 8 · Your progress</div>
-        <div class="hc-title">Sleep: 3 nights at 7+ hours. Mood up 18%.</div>
-        <div class="hc-sub" style="margin-bottom:10px;">Calm AI flagged the pattern before you'd have noticed it yourself.</div>
-        <div class="hc-metrics">
-          <div class="hc-m"><span class="hc-mn" style="color:#7FD4A8;">+18%</span><span class="hc-ml">Mood trend</span></div>
-          <div class="hc-m"><span class="hc-mn" style="color:var(--coral-l);">7.5h</span><span class="hc-ml">Avg sleep</span></div>
-          <div class="hc-m"><span class="hc-mn" style="color:#B8B4D4;">21</span><span class="hc-ml">Journals</span></div>
-        </div>
-      </div>
-      </div>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- ── FEATURES ── -->
@@ -309,8 +214,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <h2 class="sec-h2 reveal">Don't take our word for it.<br><span>Take theirs.</span></h2>
   <div class="testi-marquee reveal">
   <div class="t3-grid" id="testi-track">
-    <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Ananya helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say, it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">S</div><div><div class="testi-nm">Sana R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
-    <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Rohan read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
+    <div class="testi-card reveal" style="border-color:rgba(200,85,61,.15);"><div class="stars">★★★★★</div><div class="testi-q">I'd been carrying something heavy for so long I forgot it was there. Dr. Riya Lokesh helped me put it down. And when I reached out to Calm AI at midnight not knowing what to say, it already knew exactly where I was.</div><div class="testi-auth"><div class="testi-av">S</div><div><div class="testi-nm">Sana R., 28</div><div class="testi-dt">Software engineer · 4 months in</div></div></div></div>
+    <div class="testi-card reveal d1"><div class="stars">★★★★★</div><div class="testi-q">I didn't believe app-based therapy could be real. Then Dr. Riya Lokesh read my journal brief before our second session and opened with exactly the right question. That was it for me.</div><div class="testi-auth"><div class="testi-av" style="background:var(--green-pale);color:var(--green);">K</div><div><div class="testi-nm">Karan M., 34</div><div class="testi-dt">Finance · 7 months in</div></div></div></div>
     <div class="testi-card reveal d2"><div class="stars">★★★★★</div><div class="testi-q">Week 3, getCalmly flagged that my anxiety spiked every Sunday. I knew something was off on Sundays. I just didn't know that's what it was. Seeing it in data made it real, and fixable.</div><div class="testi-auth"><div class="testi-av" style="background:#EEF0FB;color:#7B7FCC;">A</div><div><div class="testi-nm">Aditya S., 26</div><div class="testi-dt">Design student · 2 months in</div></div></div></div>
     <div class="testi-card reveal d3"><div class="stars">★★★★★</div><div class="testi-q">The first honest hour I'd had in years. I stopped performing "fine" for everyone, and for once someone actually stayed with me through it.</div><div class="testi-auth"><div class="testi-av" style="background:var(--coral-pale);color:var(--coral);">N</div><div><div class="testi-nm">Neha T., 31</div><div class="testi-dt">Teacher · 5 months in</div></div></div></div>
   </div>
