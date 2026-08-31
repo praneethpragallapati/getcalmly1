@@ -37,16 +37,23 @@ const CLASSIFY_SYSTEM =
   'SESSION_REFLECT  - questions about therapy sessions or therapist advice\n' +
   'VENT_MILD        - mild frustration or everyday stress\n' +
   'VENT_DISTRESS    - significant sadness, hopelessness, emotional pain (not crisis)\n' +
-  'CRISIS           - self-harm, suicide, wanting to die, safety risk\n' +
+  'CRISIS           - the PATIENT is unsafe: suicidal thoughts, self-harm, wanting to die,\n' +
+  '                   a plan or means to hurt themselves, OR a stated intent to physically\n' +
+  '                   harm/kill another person. Risk to someone\'s BODY, not their feelings.\n' +
   'ADVICE_SEEK      - wants coping tips, exercises, suggestions\n' +
-  'RELATIONSHIP     - partner, family, friends, loneliness, social conflict\n' +
+  'RELATIONSHIP     - partner, family, friends, loneliness, social conflict, anger at someone\n' +
   'MEDICAL_QUESTION - medication, diagnosis, clinical questions\n' +
   'GENERIC_WELLNESS - sleep, exercise, nutrition, habits, general wellbeing\n' +
   'APP_SUPPORT      - billing, subscription, account, technical issues\n' +
   'BLOCKED          - completely off-topic (coding, recipes, travel, etc.)\n\n' +
   'INTENTS: vent | seek_advice | seek_info | just_talking | crisis\n' +
   'INTENSITY: low | medium | high | crisis\n\n' +
-  'Short follow-ups (yes/ok/sure/not really) inherit the prior label from context.\n' +
+  'NOT a crisis: anger, revenge, jealousy, or wanting to confront / embarrass / humiliate /\n' +
+  'expose someone. That is RELATIONSHIP (or VENT_DISTRESS if they are in deep pain). Reserve\n' +
+  "CRISIS for genuine risk to a person's physical safety.\n" +
+  'Short or uncertain follow-ups (yes / ok / sure / not really / "I\'m not sure that\'s right" /\n' +
+  '"but why") continue the SAME topic — keep the prior label from context. Do NOT switch to\n' +
+  'SESSION_REFLECT, GREETING or MOOD_CHECKIN just because the message is short.\n' +
   'Return ONLY valid JSON. Example:\n' +
   '{"label": "VENT_MILD", "intent": "vent", "intensity": "low"}'
 
@@ -66,6 +73,130 @@ const CRISIS_KEYWORDS = [
   'self-harm',
   'hurt myself',
 ]
+
+// ── Deterministic crisis correction ───────────────────────────────────────────
+// Explicit danger to the patient's own body. If any of these appear the turn is
+// ALWAYS treated as CRISIS — a weak classifier missing a real one is the costly
+// failure. If the model *says* CRISIS but none of these (nor VIOLENCE) appear, the
+// "crisis" is almost always anger/venting and must not trip a therapist alert.
+const SELF_HARM_SIGNALS = [
+  ...CRISIS_KEYWORDS,
+  'killing myself',
+  'take my life',
+  'wanna die',
+  'want to end it',
+  "don't want to be here",
+  "don't want to live",
+  'better off dead',
+  'no reason to live',
+  'cut myself',
+  'harm myself',
+  'overdose',
+]
+// Stated intent to physically harm another person — a genuine safety event.
+const VIOLENCE_TO_OTHERS_SIGNALS = [
+  'kill him',
+  'kill her',
+  'kill them',
+  'hurt him',
+  'hurt her',
+  'hurt them',
+  'beat him',
+  'beat her',
+  'beat them',
+  'attack him',
+  'attack her',
+  'attack them',
+  'stab',
+  'shoot him',
+  'shoot her',
+  'shoot them',
+]
+// Outward social hostility — anger, revenge, humiliation — with NO danger signal.
+// This is the false-crisis pattern from the field report ("confront and humiliate
+// him in front of everyone"): a relationship vent, not a safety event.
+const OUTWARD_HOSTILITY_SIGNALS = [
+  'humiliate',
+  'embarrass',
+  'confront',
+  'expose him',
+  'expose her',
+  'expose them',
+  'get back at',
+  'revenge',
+  'make him pay',
+  'make her pay',
+  'teach him a lesson',
+  'teach her a lesson',
+  'ruin him',
+  'ruin her',
+  'shame him',
+  'shame her',
+  'in front of everyone',
+]
+const hasSignal = (text: string, list: string[]) => list.some((k) => text.includes(k))
+
+/**
+ * Deterministic correction layered on top of the classifier's label, so crisis
+ * routing (and the therapist alert it triggers) does not depend on a weak model:
+ *  1. Escalate — explicit self-harm or violence-to-others is ALWAYS CRISIS, even
+ *     if the classifier missed it.
+ *  2. De-escalate false positives — when the model labels CRISIS but the message
+ *     carries no danger signal, non-crisis intensity, no active clinical risk, and
+ *     reads as outward anger (confront / humiliate / revenge), it is a relationship
+ *     vent. Downgrading to RELATIONSHIP gives an appropriate reply AND avoids a
+ *     needless "crisis flagged — therapist alerted" on a non-crisis.
+ */
+function refineCrisisLabel(
+  question: string,
+  label: string,
+  intensity: string,
+  ctx: PatientContext
+): { label: string; intensity: string } {
+  const t = question.toLowerCase()
+  if (hasSignal(t, SELF_HARM_SIGNALS) || hasSignal(t, VIOLENCE_TO_OTHERS_SIGNALS)) {
+    return { label: 'CRISIS', intensity: 'crisis' }
+  }
+  if (label === 'CRISIS' && intensity !== 'crisis') {
+    const activeClinicalRisk = ctx.risk.passiveSiHistory || ctx.risk.safetyPlanActive
+    if (!activeClinicalRisk && hasSignal(t, OUTWARD_HOSTILITY_SIGNALS)) {
+      return { label: 'RELATIONSHIP', intensity }
+    }
+  }
+  return { label, intensity }
+}
+
+// ── Free-member package nudge ─────────────────────────────────────────────────
+// The in-app "Buy a package" page (real counsellor sessions). Surfaced to free
+// members only, only when a counsellor would genuinely help, and at most once per
+// PACKAGE_NUDGE_COOLDOWN assistant turns — never on a crisis turn, never pushy.
+const PACKAGE_URL = 'getcalmly.com/app/billing'
+const PACKAGE_NUDGE_COOLDOWN = 12
+
+function maybeAppendPackageNudge(
+  reply: string,
+  label: string,
+  intensity: string,
+  ctx: PatientContext
+): string {
+  if (ctx.membership !== 'free') return reply
+  if (label === 'CRISIS') return reply // safety turns never sell
+  const necessary =
+    label === 'VENT_DISTRESS' ||
+    label === 'MEDICAL_QUESTION' ||
+    ((label === 'RELATIONSHIP' || label === 'ADVICE_SEEK') && (intensity === 'high' || intensity === 'crisis'))
+  if (!necessary) return reply
+  const recentlyNudged = ctx.chat
+    .filter((c) => c.role === 'assistant')
+    .slice(-PACKAGE_NUDGE_COOLDOWN)
+    .some((c) => c.content.includes('app/billing'))
+  if (recentlyNudged) return reply
+  return (
+    reply +
+    `\n\nAnd if talking this through with a real counsellor would help, you can book a session ` +
+    `package whenever you're ready: ${PACKAGE_URL} — no pressure at all.`
+  )
+}
 
 // ── Natural-language helpers (no raw scores reach the model) ──────────────────
 const SCORE_WORDS: Record<number, string> = {
@@ -237,8 +368,22 @@ function dedupe(turns: ChatTurn[], threshold = 0.92): ChatTurn[] {
   return out
 }
 
+const FOLLOW_UP_OPENER =
+  /^(but|and|so|because|why|actually|although|though|ok|okay|yeah|yes|no|nope|maybe|i guess|i think|i'?m not sure|not sure|what about|that|it)\b/i
+
+// A short or hedging line ("I'm not sure that's the right thing to do though") is a
+// continuation, not a fresh topic. It needs the prior turns even for labels that
+// normally send none — otherwise the reply loses the thread (screenshot 2).
+function isShortFollowUp(text: string): boolean {
+  const trimmed = text.trim()
+  return trimmed.split(/\s+/).length <= 12 || FOLLOW_UP_OPENER.test(trimmed)
+}
+
 function buildMessages(label: string, question: string, ctx: PatientContext): ChatTurn[] {
-  const budget = LABEL_HISTORY_TURNS[label] ?? 6
+  let budget = LABEL_HISTORY_TURNS[label] ?? 6
+  if (budget === 0 && label !== 'GREETING' && ctx.chat.length > 0 && isShortFollowUp(question)) {
+    budget = 4
+  }
   if (budget === 0) return [{ role: 'user', content: question }]
   const history: ChatTurn[] = ctx.chat
     .filter((c) => c.role === 'user' || c.role === 'assistant')
@@ -268,8 +413,12 @@ async function classify(
     .slice(-4)
     .map((c) => `${c.role === 'user' ? 'Patient' : 'Bot'}: ${c.content.slice(0, 60)}`)
     .join(' | ')
-  const priorLabel = ctx.chat.filter((c) => c.role === 'assistant').slice(-1)[0] ? '' : ''
-  const msg = `${priorLabel}Recent conversation: ${recent || 'Start of conversation'}\nNew message: ${question}`
+  // Prior label from the most recent classified turn, so short follow-ups inherit
+  // the running topic instead of being re-routed (e.g. "I'm not sure that's right"
+  // must not jump to SESSION_REFLECT). Was previously always '' — a port bug.
+  const priorLabel = [...ctx.chat].reverse().find((c) => c.label)?.label ?? ''
+  const hint = priorLabel ? `Prior label: ${priorLabel}. ` : ''
+  const msg = `${hint}Recent conversation: ${recent || 'Start of conversation'}\nNew message: ${question}`
   const res = await callModel(CLASSIFIER_MODEL, CLASSIFY_SYSTEM, [{ role: 'user', content: msg }], {
     temperature: 0,
     maxTokens: 30,
@@ -381,9 +530,11 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
   }
 
   const cls = await classify(question, ctx)
-  let { label } = cls
+  // Deterministic safety net + false-positive guard on top of the classifier.
+  const refined = refineCrisisLabel(question, cls.label, cls.intensity, ctx)
+  let { label } = refined
   const { intent } = cls
-  let { intensity } = cls
+  let { intensity } = refined
 
   const deescalated = checkDeescalation(ctx, label)
   if (deescalated) {
@@ -426,6 +577,9 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
     answer = isHs
       ? `I'm here with you. Please reach out to ${ctx.therapistName ?? 'a professional'} or call iCall at ${ICALL} — you don't have to handle this alone.`
       : 'Something went wrong on my end. Please try again in a moment.'
+  } else {
+    // Gentle, rate-limited package nudge for free members — never on the fallback.
+    answer = maybeAppendPackageNudge(answer, label, intensity, ctx)
   }
 
   const modelUsed = MODELS[modelKey]
