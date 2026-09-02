@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   // The root template appends '| getCalmly', so the brand must not repeat here.
   title: 'Our Story',
   description:
-    'GetCalmly bridges India’s mental health treatment gap with RCI-licensed, vernacular-first, culturally-aware therapy, amplified by thoughtful AI. Meet the team and the principles behind the care.',
+    'GetCalmly bridges India’s mental health treatment gap with RCI-verified, vernacular-first, culturally-aware therapy, amplified by thoughtful AI. Meet the team and the principles behind the care.',
   alternates: { canonical: '/about' },
 }
 
@@ -23,13 +23,13 @@ const cream = '#FFFCFA'
 const stats: [string, string][] = [
   ['60%+', 'treatment gap in India'],
   ['0.75', 'psychiatrists per 100,000 people'],
-  ['100%', 'RCI & NMC verified clinicians'],
+  ['100%', 'RCI & NMC-verified clinicians'],
 ]
 
 const values: { title: string; desc: string }[] = [
   { title: 'Privacy first', desc: 'DPDP-compliant, encrypted, and confidential by design. What you share stays yours.' },
   { title: 'Culturally attuned', desc: 'Care that understands your context, matched to fit rather than one-size-fits-all.' },
-  { title: 'Clinically credible', desc: 'Only RCI-licensed clinical psychologists and NMC-registered psychiatrists. No exceptions.' },
+  { title: 'Clinically credible', desc: 'Only RCI-verified clinical psychologists and NMC-verified psychiatrists. No exceptions.' },
   { title: 'Accessible & affordable', desc: 'Quality care within your budget, from your couch or in person.' },
 ]
 
@@ -82,8 +82,8 @@ export default function AboutPage() {
             </h1>
           </div>
           <p style={{ fontSize: 19, color: 'rgba(255,255,255,.74)', lineHeight: 1.8, fontWeight: 300, marginBottom: 6 }}>
-            GetCalmly connects people across India with the right licensed professional, matched by your needs,
-            context, language and budget rather than symptoms alone. Care from licensed experts, made
+            GetCalmly connects people across India with the right verified professional, matched by your needs,
+            context, language and budget rather than symptoms alone. Care from verified experts, made
             easier to reach and easier to stay with.
           </p>
         </div>
@@ -164,7 +164,7 @@ export default function AboutPage() {
           </div>
           <div>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22, marginTop: 0 }}>
-              We&apos;ve built a strictly vetted network of RCI-licensed professionals, and a match that pairs
+              We&apos;ve built a strictly vetted network of RCI-verified professionals, and a match that pairs
               you on cultural fit and your needs rather than diagnosis alone. A hybrid safety protocol keeps
               care safe, not just digital.
             </p>

@@ -36,7 +36,7 @@ const services: Record<ServiceSlug, {
       'I get through the day, but I barely feel anything.',
       'Everyone leans on me. I have no one to lean on.',
     ],
-    why: 'Our therapists are licensed clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 50 minutes, online, and completely confidential.',
+    why: 'Our therapists are RCI-verified clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 50 minutes, online, and completely confidential.',
     items: [
       { name: 'Anxiety & Overthinking', desc: 'Racing thoughts, constant worry, the sense that something is about to go wrong. We help you slow it down.' },
       { name: 'Depression', desc: 'When the flatness won\'t lift and motivation disappears. When you feel disconnected from your own life.' },

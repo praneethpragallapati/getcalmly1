@@ -127,7 +127,7 @@ export const couplesFeatures = [
 ]
 
 export const psychiatryFeatures = [
-  'Consultations with an NMC-registered psychiatrist',
+  'Consultations with an NMC-verified psychiatrist',
   'Full Calm+ app included — AI companion, journaling & mood tracker',
   'Medication support and a built-in tracker',
   'Digital prescriptions after your consultation',

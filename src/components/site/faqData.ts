@@ -8,7 +8,7 @@ export type FaqItem = { q: string; a: string }
 export const FAQ_ITEMS: FaqItem[] = [
   {
     q: 'Is online therapy effective?',
-    a: 'Yes. For most common concerns like anxiety, depression, stress and burnout, online therapy is as effective as in-person care, backed by extensive clinical research. At getCalmly every session is with a licensed professional over secure video, and your therapist tracks your progress between sessions using your mood data and journal.',
+    a: 'Yes. For most common concerns like anxiety, depression, stress and burnout, online therapy is as effective as in-person care, backed by extensive clinical research. At getCalmly every session is with a verified professional over secure video, and your therapist tracks your progress between sessions using your mood data and journal.',
   },
   {
     q: 'Are getCalmly’s therapists and psychiatrists qualified?',

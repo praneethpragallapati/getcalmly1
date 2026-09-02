@@ -196,7 +196,7 @@ function PrivacyMock() {
 }
 
 const detailed = [
-  { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a licensed professional who fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
+  { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a verified professional who fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
   { eyebrow: 'Calm AI', title: 'A companion that remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday, so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
   { eyebrow: 'AI insights & recommendations', title: 'Intelligence that connects dots you can\'t see', body: 'Every mood check-in, journal line, sleep log and session note feeds one quiet engine. It cross-references all of it to surface the patterns underneath, then turns them into precise, gentle recommendations: a wind-down before your hardest night, a topic worth raising on Tuesday, a nudge before the dip instead of after it.', visual: <InsightMock /> },
   { eyebrow: 'Mood & insights', title: 'Tracking that acts on what you log', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
@@ -218,7 +218,7 @@ export default function FeaturesPage() {
             Human care.<br /><span style={{ color: '#E8896F' }}>Amplified by AI.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.75, maxWidth: 600, margin: '0 auto', fontWeight: 300 }}>
-            Real therapy with licensed professionals sits at the heart of everything. The technology around it makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
+            Real therapy with verified professionals sits at the heart of everything. The technology around it makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
             <Link href="/assess" style={ctaPrimary}>✦ Book a session</Link>

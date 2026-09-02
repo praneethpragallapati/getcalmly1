@@ -485,7 +485,7 @@ export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }:
         {pending ? 'Processing…' : `Book my first session · ${inr(price)}`}
       </button>
       <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 10 }}>
-        50 minutes with a licensed professional · reschedule anytime
+        50 minutes with a verified professional · reschedule anytime
       </p>
     </div>
   )

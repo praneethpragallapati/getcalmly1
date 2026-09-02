@@ -62,7 +62,7 @@ const plans: Record<PlanKey, {
     accent: '#1A7F7A',
     benefits: [
       'Your first consultation at a flat ₹999',
-      'An NMC-registered psychiatrist for evaluation and care',
+      'An NMC-verified psychiatrist for evaluation and care',
       'Medication support with a built-in tracker',
       'Digital prescriptions after your consultation',
       'Everything in Calm+: unlimited AI, insights, journaling',

@@ -15,7 +15,7 @@ const options = [
     key: 'medication',
     icon: '💊',
     title: 'Medication',
-    desc: 'Psychiatric evaluation and medication management with an NMC-registered psychiatrist',
+    desc: 'Psychiatric evaluation and medication management with an NMC-verified psychiatrist',
     color: '#1A7F7A',
     pale: '#E5F4EE',
   },

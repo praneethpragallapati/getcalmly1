@@ -281,7 +281,7 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
               href="/register?care=therapy"
             />
             <CareCard
-              name="Psychiatry" subtitle="Evaluation and medication care with an NMC-registered psychiatrist."
+              name="Psychiatry" subtitle="Evaluation and medication care with an NMC-verified psychiatrist."
               accent={teal} packs={pricing.psychiatryPacks} features={psychiatryFeatures} base={pricing.psychiatryBase} delay="pr-d2"
               firstSession={pricing.firstSession.psychiatry}
               href="/register?care=psychiatry"

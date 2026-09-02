@@ -5,7 +5,7 @@ import { getBlogPosts } from '@/lib/blog'
 export const metadata: Metadata = {
   title: 'Mental Health Blog',
   description:
-    'Evidence-based writing on anxiety, sleep, grief, work stress and relationships, from RCI-verified therapists and NMC-registered psychiatrists practising in India.',
+    'Evidence-based writing on anxiety, sleep, grief, work stress and relationships, from RCI-verified therapists and NMC-verified psychiatrists practising in India.',
   alternates: { canonical: '/blog' },
 }
 

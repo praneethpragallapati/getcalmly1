@@ -18,7 +18,7 @@ export default function Hero() {
               Truly Understands You
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-lg">
-              Connect with RCI-licensed therapists in your language, at your budget.
+              Connect with RCI-verified therapists in your language, at your budget.
               Start your journey to wellbeing today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-10">

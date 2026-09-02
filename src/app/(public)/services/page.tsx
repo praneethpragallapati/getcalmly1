@@ -20,7 +20,7 @@ const branches = [
     tagline: "You've been the strong one long enough. This hour is yours.",
     desc: 'Whether it\'s anxiety that won\'t quiet down, a sadness you can\'t explain, or stress that\'s seeping into everything, a therapist gives you a private space to work through it. One conversation at a time.',
     items: ['Anxiety & Overthinking', 'Depression', 'Stress & Burnout', 'Trauma & Grief', 'OCD', 'Anger', 'Sleep Issues', 'Life Transitions'],
-    expert: 'A licensed clinical psychologist, matched to you',
+    expert: 'An RCI-verified clinical psychologist, matched to you',
     app: 'Calm+ app for mood tracking & journaling between sessions',
   },
   {

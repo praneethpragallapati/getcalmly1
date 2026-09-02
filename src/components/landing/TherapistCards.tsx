@@ -44,7 +44,7 @@ export default function TherapistCards() {
           >
             Meet Our Therapists
           </h2>
-          <p className="text-gray-600">RCI-licensed professionals dedicated to your wellbeing</p>
+          <p className="text-gray-600">RCI-verified professionals dedicated to your wellbeing</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {therapists.map((t) => (

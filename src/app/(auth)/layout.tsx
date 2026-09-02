@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const trust = [
   { icon: '🔒', text: 'End-to-end encrypted sessions' },
-  { icon: '🧑‍⚕️', text: 'RCI & NMC verified professionals only' },
+  { icon: '🧑‍⚕️', text: 'RCI & NMC-verified professionals only' },
   { icon: '🇮🇳', text: 'DPDP Act 2023 compliant' },
   { icon: '💬', text: 'Care that speaks your language' },
 ]

@@ -45,7 +45,7 @@ const blocks: { title: string; body: React.ReactNode }[] = [
     title: 'How we use your data',
     body: (
       <>
-        To match you with an RCI-verified clinical psychologist or NMC-registered psychiatrist, to power your
+        To match you with an RCI-verified clinical psychologist or NMC-verified psychiatrist, to power your
         Calm AI insights and mood tracking, to prepare pre-session briefs for your clinician, and to operate and
         improve the service. We do not sell your data, and we do not use your private journal or session content
         for advertising.

@@ -50,9 +50,11 @@ export const legalName = 'GetCalmly Private Limited'
 
 /**
  * Care, billing, privacy and grievance enquiries — the address a member writes
- * to, and the one named as the Data Protection Officer contact.
+ * to, and the one named as the Data Protection Officer contact. Standardised to
+ * the getcalmly.com domain (was a gmail.com address) so every contact point on
+ * the site uses one professional inbox.
  */
-export const supportEmail = 'getcalmly@gmail.com'
+export const supportEmail = 'connect@getcalmly.com'
 
 /** General, partnership and enterprise enquiries. */
 export const contactEmail = 'connect@getcalmly.com'
