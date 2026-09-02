@@ -92,6 +92,21 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="scroll-cue"><div class="sc-line"></div>Scroll</div>
 </section>
 
+<!-- ── HOW IT WORKS ── -->
+<section class="hiw-section" id="how-it-works">
+  <div class="hiw-head">
+    <div class="sec-label reveal">How it works</div>
+    <h2 class="sec-h2 reveal">Four steps to<br><span>feeling like you again.</span></h2>
+    <p class="sec-p reveal">No endless browsing. We match you, you book, and your care stays with you from the very first session.</p>
+  </div>
+  <div class="hiw-grid">
+    <div class="hiw-step reveal"><div class="hiw-line"></div><span class="hiw-n">1</span><h3>Take the free assessment</h3><p>A few honest questions about how things have been. In five minutes, get a clearer sense of the support that may fit.</p><span class="hiw-tag">Free · 5 min</span></div>
+    <div class="hiw-step reveal d1"><div class="hiw-line"></div><span class="hiw-n">2</span><h3>Meet your match, book your session</h3><p>We pair you with a certified clinician suited to your needs. Choose a time and book your first session from ₹799.</p><span class="hiw-tag">From ₹799</span></div>
+    <div class="hiw-step reveal d2"><div class="hiw-line"></div><span class="hiw-n">3</span><h3>The intelligence between your sessions</h3><p>Calm AI finds patterns in your journey, spots emerging shifts in how you feel, and offers timely, personalised support when your clinician isn&apos;t there.</p><span class="hiw-tag">Context-aware AI</span></div>
+    <div class="hiw-step reveal d3"><span class="hiw-n">4</span><h3>See how far you&apos;ve come</h3><p>Your mood, journals and care insights come together over time, revealing patterns and progress you can track week by week.</p><span class="hiw-tag">Measurable progress</span></div>
+  </div>
+</section>
+
 <!-- ── FEATURES ── -->
 <section class="features-section" id="features">
   <div class="feat-header">
