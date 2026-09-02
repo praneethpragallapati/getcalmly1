@@ -210,11 +210,9 @@
 
 /* ── HOW IT WORKS (hiw) — four-step card row under the hero ── */
 .lp-page .hiw-section{background:var(--white);}
-.lp-page .hiw-head{max-width:660px;margin:0 auto 52px;text-align:center;}
-.lp-page .hiw-head .sec-label{justify-content:center;}
-.lp-page .hiw-head .sec-h2{transform:none;text-align:center;margin-left:auto;margin-right:auto;}
-.lp-page .hiw-head .sec-p{margin:14px auto 0;max-width:540px;}
-.lp-page .hiw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1180px;margin:0 auto;}
+.lp-page .hiw-head{max-width:640px;margin:0 0 48px;}
+.lp-page .hiw-head .sec-p{margin-top:14px;}
+.lp-page .hiw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .lp-page .hiw-step{position:relative;background:var(--white);border:1px solid var(--line-card);
   border-radius:20px;padding:28px 24px;box-shadow:var(--sh-card);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;}
 .lp-page .hiw-step:hover{transform:translateY(-4px);box-shadow:var(--sh-card-h);}
