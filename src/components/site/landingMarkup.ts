@@ -8,7 +8,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
     <!-- LEFT: headline + CTA -->
     <div class="hero-left">
-      <div class="hero-pill"><span class="pill-dot"></span>From ₹799 a session</div>
+      <div class="hero-pill"><span class="pill-dot"></span>First session from ₹799</div>
       <h1 class="hero-h1">
         <span class="rl"><span class="light">You don't have to carry</span></span>
         <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
@@ -101,7 +101,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
   <div class="hiw-grid">
     <div class="hiw-step reveal"><div class="hiw-line"></div><span class="hiw-n">1</span><h3>Take the free assessment</h3><p>A few honest questions about how things have been. In five minutes, get a clearer sense of the support that may fit.</p><span class="hiw-tag">Free · 5 min</span></div>
-    <div class="hiw-step reveal d1"><div class="hiw-line"></div><span class="hiw-n">2</span><h3>Meet your match, book your session</h3><p>We pair you with a verified clinician suited to your needs. Choose a time and book your session from ₹799.</p><span class="hiw-tag">From ₹799</span></div>
+    <div class="hiw-step reveal d1"><div class="hiw-line"></div><span class="hiw-n">2</span><h3>Meet your match, book your session</h3><p>We pair you with a verified clinician suited to your needs. Choose a time and book your first session from ₹799.</p><span class="hiw-tag">First session from ₹799</span></div>
     <div class="hiw-step reveal d2"><div class="hiw-line"></div><span class="hiw-n">3</span><h3>The intelligence between your sessions</h3><p>Calm AI finds patterns in your journey, spots emerging shifts in how you feel, and offers timely, personalised support when your clinician isn&apos;t there.</p><span class="hiw-tag">Context-aware AI</span></div>
     <div class="hiw-step reveal d3"><span class="hiw-n">4</span><h3>See how far you&apos;ve come</h3><p>Your mood, journals and care insights come together over time, revealing patterns and progress you can track week by week.</p><span class="hiw-tag">Measurable progress</span></div>
   </div>
@@ -173,7 +173,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
 <!-- ── APP ── -->
 <section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:96px 6% 80px;overflow:hidden;">
-  <div class="app-grid" style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
+  <div class="app-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
       <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
       <h2 class="sec-h2" style="color:#fff;margin-bottom:16px;">Your care,<br><span style="color:var(--coral-l);">in your pocket.</span></h2>

@@ -264,7 +264,7 @@ export default function FeaturesPage() {
             {[
               ['Your dashboard', 'Mood, journal, sessions and Calm AI, together in one calm, intelligent place.', '/mockups/patient-dashboard.png'],
             ].map(([label, sub, src]) => (
-              <div key={label} style={{ maxWidth: 760, width: '100%' }}>
+              <div key={label} style={{ maxWidth: 820, width: '100%', textAlign: 'center' }}>
                 <div style={{ borderRadius: 16, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 18px 44px rgba(28,43,58,.12)' }}>
                   <div style={{ background: '#EEF0F3', padding: '9px 12px', display: 'flex', gap: 6, alignItems: 'center' }}>
                     <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#E2856F' }} />
