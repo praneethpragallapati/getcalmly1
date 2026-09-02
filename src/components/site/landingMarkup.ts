@@ -8,7 +8,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
     <!-- LEFT: headline + CTA -->
     <div class="hero-left">
-      <div class="hero-pill"><span class="pill-dot"></span>Your first session, just ₹799</div>
+      <div class="hero-pill"><span class="pill-dot"></span>From ₹799 a session</div>
       <h1 class="hero-h1">
         <span class="rl"><span class="light">You don't have to carry</span></span>
         <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
@@ -21,7 +21,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
-        <a href="#preview" class="btn-hero outline">See it in action</a>
+        <a href="#how-it-works" class="btn-hero outline">How it works</a>
       </div>
       <div class="hero-trust">
         <span class="ht">Free, confidential assessment</span>
@@ -101,7 +101,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
   <div class="hiw-grid">
     <div class="hiw-step reveal"><div class="hiw-line"></div><span class="hiw-n">1</span><h3>Take the free assessment</h3><p>A few honest questions about how things have been. In five minutes, get a clearer sense of the support that may fit.</p><span class="hiw-tag">Free · 5 min</span></div>
-    <div class="hiw-step reveal d1"><div class="hiw-line"></div><span class="hiw-n">2</span><h3>Meet your match, book your session</h3><p>We pair you with a certified clinician suited to your needs. Choose a time and book your first session from ₹799.</p><span class="hiw-tag">From ₹799</span></div>
+    <div class="hiw-step reveal d1"><div class="hiw-line"></div><span class="hiw-n">2</span><h3>Meet your match, book your session</h3><p>We pair you with a verified clinician suited to your needs. Choose a time and book your session from ₹799.</p><span class="hiw-tag">From ₹799</span></div>
     <div class="hiw-step reveal d2"><div class="hiw-line"></div><span class="hiw-n">3</span><h3>The intelligence between your sessions</h3><p>Calm AI finds patterns in your journey, spots emerging shifts in how you feel, and offers timely, personalised support when your clinician isn&apos;t there.</p><span class="hiw-tag">Context-aware AI</span></div>
     <div class="hiw-step reveal d3"><span class="hiw-n">4</span><h3>See how far you&apos;ve come</h3><p>Your mood, journals and care insights come together over time, revealing patterns and progress you can track week by week.</p><span class="hiw-tag">Measurable progress</span></div>
   </div>
@@ -120,57 +120,13 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="feat-card dk reveal"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#E8896F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="8"/><circle cx="12" cy="4.3" r="1.1" fill="#E8896F" stroke="none"/><rect x="6.5" y="8" width="11" height="9" rx="3"/><line x1="9.7" y1="11.8" x2="9.7" y2="13.4"/><line x1="14.3" y1="11.8" x2="14.3" y2="13.4"/><line x1="4" y1="11.5" x2="4" y2="13.5" opacity=".6"/><line x1="20" y1="11.5" x2="20" y2="13.5" opacity=".6"/></svg></span><div class="feat-t">The world's first context-aware AI companion</div><div class="feat-d">It doesn't push. But when you message at midnight, it already knows your last sessions, your mood dip that week, your journal. No other platform does this. That's what turns a chat into something useful.</div><span class="feat-badge fb-dk">World's first</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,16 9,11 13,14 20,6"/><circle cx="20" cy="6" r="1.6" fill="#C8553D" stroke="none"/><line x1="4" y1="20" x2="20" y2="20" opacity=".4"/></svg></span><div class="feat-t">Mood, energy and sleep, tracked together</div><div class="feat-d">You won't spot your own patterns. We will. Mood, energy and sleep tracked daily, the connections surfaced weekly, for you and for your therapist.</div><span class="feat-badge fb-c">Science-backed</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h11a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></span><div class="feat-t">A journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for the themes underneath, the self-criticism, the boundaries, the quiet wins. You choose what your therapist sees, and switch off anything you'd rather keep to yourself.</div><span class="feat-badge fb-c">You're in control</span></div>
-    <div class="feat-card reveal"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.5v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10v-5L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg></span><div class="feat-t">Real experts, verified for real</div><div class="feat-d">Every therapist and psychiatrist on getCalmly is licensed and background-checked before they ever meet you. Credentials we verify ourselves, not five stars a stranger left online.</div><span class="feat-badge fb-g">Verified, not vibes</span></div>
+    <div class="feat-card reveal"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.5v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10v-5L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg></span><div class="feat-t">Real experts, verified for real</div><div class="feat-d">Every psychologist is RCI-registered and every psychiatrist NMC-registered, and we verify it ourselves before they ever meet you. Credentials we check, not five stars a stranger left online.</div><span class="feat-badge fb-g">Verified, not vibes</span></div>
     <div class="feat-card reveal d1"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S4 15 4 9.5C4 6.5 6.5 5 9 6.2 10.2 6.8 11.6 8 12 8s1.8-1.2 3-1.8C17.5 5 20 6.5 20 9.5 20 15 12 20 12 20Z"/><line x1="12" y1="10.4" x2="12" y2="14"/><line x1="10.2" y1="12.2" x2="13.8" y2="12.2"/></svg></span><div class="feat-t">You'll never outgrow getCalmly</div><div class="feat-d">If talking isn't enough on its own, our own psychiatrists step in for medical support, no starting over, no new waitlist. And if a hard moment ever turns into a real crisis, a built-in safety protocol and a real human step in right away. One place, one history, whatever it takes.</div><span class="feat-badge fb-c">Whatever it takes</span></div>
     <div class="feat-card reveal d2"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.4"/><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M15 19c0-1.7.8-3.2 2-4"/></svg></span><div class="feat-t">A community, not a comment section</div><div class="feat-d">Someone typed "I actually laughed today" after three months in the dark. 142 people felt it. Human moderation keeps it safe, and crisis support is built in.</div><span class="feat-badge fb-g">Safe &amp; moderated</span></div>
   </div>
 </section>
 
 
-
-<!-- ── DASHBOARD PREVIEW ── -->
-<section class="preview-section" id="preview">
-  <div class="sec-label reveal">See it in action</div>
-  <h2 class="sec-h2 reveal">Everything your mind needs,<br>in <span>one calm space.</span></h2>
-  <p class="sec-p reveal" style="margin-bottom:40px;">Mood, journal, sessions and Calm AI, together in a dashboard built to feel as steady as the name promises.</p>
-
-  <!-- The therapist view used to sit beside this one behind a tab. The home page
-       speaks to the person deciding whether to get help; a clinician portal tour
-       is a different audience's page, and it lives on /for-therapists. -->
-  <div class="preview-pane active" id="pane-patient">
-    <div class="reveal dash-mock-wrap">
-      <div style="border-radius:16px;overflow:hidden;border:1.5px solid rgba(0,0,0,.08);box-shadow:var(--sh-lg);">
-        <div style="background:#EEF0F3;padding:9px 12px;display:flex;gap:6px;align-items:center;">
-          <span style="width:9px;height:9px;border-radius:50%;background:#E2856F;"></span>
-          <span style="width:9px;height:9px;border-radius:50%;background:#E8C16A;"></span>
-          <span style="width:9px;height:9px;border-radius:50%;background:#8FCBA3;"></span>
-        </div>
-        <img src="/mockups/patient-dashboard.png" alt="getCalmly patient dashboard" loading="lazy" style="display:block;width:100%;height:auto;">
-      </div>
-    </div>
-    <div class="reveal d2">
-      <div class="sec-label" style="margin-bottom:12px;">Your dashboard</div>
-      <h3 style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);color:var(--charcoal);letter-spacing:-1px;transform:scaleX(.9);transform-origin:left;margin-bottom:14px;line-height:1.05;">Your week, in one place.</h3>
-      <p style="font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.75;margin-bottom:28px;">Track your mood daily. Journal freely. Get AI-powered insights. Book and attend sessions, all from one dashboard designed to feel as calm as getCalmly's name promises.</p>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">3-dimensional mood tracking</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Mood, energy and sleep, tracked daily, visualised clearly.</div></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">AI insights from your own patterns</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Calm AI reads your journal and mood data to surface what matters.</div></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:var(--coral-pale);color:var(--coral);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
-          <div><div style="font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:2px;">Sessions that know your history</div><div style="font-size:13px;color:var(--gray);font-weight:300;">Your therapist sees your week before you even say hello.</div></div>
-        </div>
-      </div>
-      <a href="/assess" class="btn-hero fill">✦ Book your first session</a>
-    </div>
-  </div>
-
-</section>
 
 <!-- ── ASSESSMENT BREAK ── -->
 <section class="assess-break">
@@ -197,28 +153,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <a class="assess-big-btn" href="/assess"><span>✦</span> Take the free assessment</a>
         <div class="assess-note">Free &amp; completely confidential · Book a session right after</div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── COMMUNITY ── -->
-<section class="comm-section" id="community">
-  <div class="comm-layout">
-    <div class="comm-right reveal">
-      <div class="sec-label">Community</div>
-      <h2 class="sec-h2">You're not alone<br>in <span>any of this.</span></h2>
-      <p class="sec-p">One safe, moderated feed of people who truly get it, where verified clinicians join the conversation. Post anonymously, tag your topic, and the replies that actually help rise to the top.</p>
-      <div class="comm-groups">
-        <div class="cg"><div class="cg-icon" style="background:var(--coral-pale);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M12 3l7 2.5v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10v-5L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg></div><div><div class="cg-t">Clinicians reply, not just peers</div><div class="cg-s">Verified therapists &amp; psychiatrists weigh in on threads</div></div><div class="cg-ct">Verified</div></div>
-        <div class="cg"><div class="cg-icon" style="background:var(--gold-pale);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9973A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="m20.6 13.4-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6Z"/><circle cx="7.5" cy="7.5" r="1.2" fill="#C9973A"/></svg></div><div><div class="cg-t">Tag your topic, find your people</div><div class="cg-s">#anxiety · #sleep · #postpartum · #burnout</div></div><div class="cg-ct">Topics</div></div>
-        <div class="cg"><div class="cg-icon" style="background:var(--green-pale);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3D9E72" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="m18 15-6-6-6 6"/><line x1="12" y1="9" x2="12" y2="20" opacity=".45"/></svg></div><div><div class="cg-t">Upvotes surface what helped</div><div class="cg-s">Human-moderated, with crisis support built in</div></div><div class="cg-ct">Moderated</div></div>
-      </div>
-      <a href="/community" class="btn-primary">Join the community →</a>
-    </div>
-    <div class="comm-posts reveal d1">
-      <div class="comm-post"><div class="cp-top"><div class="cp-av">M</div><div><div class="cp-nm">Meera K. <span style="font-size:9px;font-weight:800;color:var(--gold-ink);background:var(--gold-pale);padding:2px 7px;border-radius:20px;margin-left:4px;">Paid Member</span></div><div class="cp-grp">8 months in · 2 hours ago</div></div></div><div style="font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:5px;">The 10pm worst-case spiral. Anyone else get this?</div><div class="cp-text">Every night around 10 my head jumps straight to the worst version of everything. I tried journaling but honestly it just made me spiral more. What&apos;s actually helped you? Genuinely asking.</div><div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;"><span style="font-size:10px;font-weight:600;color:var(--coral-d);background:var(--coral-pale);padding:2px 8px;border-radius:20px;">#anxiety</span><span style="font-size:10px;font-weight:600;color:var(--coral-d);background:var(--coral-pale);padding:2px 8px;border-radius:20px;">#sleep</span></div><div class="cp-acts"><span class="cp-act liked"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="m18 15-6-6-6 6"/></svg> 47 upvotes</span><span class="cp-act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5F6E7D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M5 6h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"/></svg> 18 replies</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--coral-pale);color:var(--coral);">S</div><div><div class="cp-nm">Dr. Shruti A. <span style="font-size:9px;font-weight:800;color:#fff;background:var(--coral-cta);padding:2px 7px;border-radius:20px;margin-left:4px;">Therapist ✓</span></div><div class="cp-grp">Clinician · Yesterday</div></div></div><div style="font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:5px;">A small thing for the late-night spiral</div><div class="cp-text">If your thoughts race at night, try naming five things you can actually see in the room, out loud. Sounds too simple to work, but it pulls you back out of your head. Happy to share the longer version if you want, just reply.</div><div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;"><span style="font-size:10px;font-weight:600;color:var(--coral-d);background:var(--coral-pale);padding:2px 8px;border-radius:20px;">#sleep</span><span style="font-size:10px;font-weight:600;color:var(--coral-d);background:var(--coral-pale);padding:2px 8px;border-radius:20px;">#grounding</span></div><div class="cp-acts"><span class="cp-act liked"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="m18 15-6-6-6 6"/></svg> 126 upvotes</span><span class="cp-act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5F6E7D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M5 6h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"/></svg> 9 replies</span></div></div>
-      <div class="comm-post"><div class="cp-top"><div class="cp-av" style="background:var(--green-pale);color:var(--green);">A</div><div><div class="cp-nm">Arjun S. <span style="font-size:9px;font-weight:800;color:var(--charcoal);background:rgba(28,43,58,.07);padding:2px 7px;border-radius:20px;margin-left:4px;">Member</span></div><div class="cp-grp">3 days ago</div></div></div><div style="font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:5px;">First time actually admitting this</div><div class="cp-text">I&apos;ve told everyone I&apos;m fine for about two years. I&apos;m not. Typing this with my heart going, but I&apos;m just tired of carrying it on my own. Thanks for being somewhere I could finally say it.</div><div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;"><span style="font-size:10px;font-weight:600;color:var(--coral-d);background:var(--coral-pale);padding:2px 8px;border-radius:20px;">#burnout</span><span style="font-size:10px;font-weight:600;color:var(--coral-d);background:var(--coral-pale);padding:2px 8px;border-radius:20px;">#work</span></div><div class="cp-acts"><span class="cp-act liked"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="m18 15-6-6-6 6"/></svg> 58 upvotes</span><span class="cp-act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5F6E7D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block"><path d="M5 6h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"/></svg> 7 replies</span></div></div>
     </div>
   </div>
 </section>

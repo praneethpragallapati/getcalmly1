@@ -255,16 +255,16 @@ export default function FeaturesPage() {
               Mood, journal, sessions and Calm AI, together in one calm, intelligent place.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 24 }}>
-            {/* The clinician portal used to be shown here beside the member's
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {/* The clinician portal and a phone mockup used to sit beside this
                 dashboard. This page is read by someone deciding whether to get
-                help — a tour of the professional's tools is a different
-                audience, and has its own page at /for-therapists. */}
+                help; the web dashboard alone carries the point, so it stands on
+                its own here, scaled up. The clinician tour has its own page at
+                /for-therapists. */}
             {[
-              ['Your dashboard', 'Mood, sessions, journal and Calm AI, all in one place.', '/mockups/patient-dashboard.png'],
-              ['Your day to day', 'Check in, journal and pick up where your last session left off.', '/mockups/patient-home-1.png'],
+              ['Your dashboard', 'Mood, journal, sessions and Calm AI, together in one calm, intelligent place.', '/mockups/patient-dashboard.png'],
             ].map(([label, sub, src]) => (
-              <div key={label}>
+              <div key={label} style={{ maxWidth: 760, width: '100%' }}>
                 <div style={{ borderRadius: 16, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 18px 44px rgba(28,43,58,.12)' }}>
                   <div style={{ background: '#EEF0F3', padding: '9px 12px', display: 'flex', gap: 6, alignItems: 'center' }}>
                     <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#E2856F' }} />
