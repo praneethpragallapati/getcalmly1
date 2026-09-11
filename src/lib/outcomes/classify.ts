@@ -6,6 +6,9 @@
  */
 import { INSTRUMENTS, bandFor, who5Percent, type BandTone } from './instruments'
 
+// Re-exported so consumers can pull the tone type from here alongside verdicts.
+export type { BandTone } from './instruments'
+
 /** Rules version, stamped on derived verdicts for provenance. */
 export const CLASSIFIER_VERSION = 'rules-1'
 
