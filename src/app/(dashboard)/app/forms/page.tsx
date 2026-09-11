@@ -1,7 +1,9 @@
 import Link from 'next/link'
-import { FileText, Check, ChevronRight } from 'lucide-react'
+import { FileText, Check, ChevronRight, Activity } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
 import { getMyForms } from '@/lib/forms'
+import { dueInstruments } from '@/lib/outcomes/pulse'
+import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 
 const KIND_LABEL: Record<string, string> = {
   INTAKE: 'Intake',
@@ -13,6 +15,7 @@ const KIND_LABEL: Record<string, string> = {
 export default async function FormsPage() {
   const userId = await getSessionUserId()
   const forms = userId ? await getMyForms(userId) : []
+  const due = userId ? await dueInstruments(userId).catch(() => []) : []
   const pending = forms.filter((f) => f.status === 'PENDING')
   const completed = forms.filter((f) => f.status === 'COMPLETED')
 
@@ -26,6 +29,16 @@ export default async function FormsPage() {
       </div>
 
       <div className="stack" style={{ maxWidth: 720 }}>
+        {due.length > 0 && (
+          <Link href="/app/pulse" className="card pattern" style={{ textDecoration: 'none', borderColor: 'rgba(200,85,61,.25)' }}>
+            <span className="pattern-ic t-coral"><Activity size={16} /></span>
+            <div style={{ flex: 1 }}>
+              <div className="pattern-title">{due.length} Pulse {due.length === 1 ? 'check' : 'checks'} due</div>
+              <div className="pattern-sub">{due.map((idn) => INSTRUMENTS[idn]?.short.replace(/\s*\(.*\)/, '')).filter(Boolean).join(' · ')}</div>
+            </div>
+            <ChevronRight size={18} className="muted" />
+          </Link>
+        )}
         <div className="card">
           <div className="section-title" style={{ marginBottom: 12 }}>To complete</div>
           {pending.length === 0 && <p className="muted">Nothing waiting on you right now.</p>}

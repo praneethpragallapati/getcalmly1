@@ -9,7 +9,7 @@ import { getFormLibrary, getPatientFormsForExpert } from '@/lib/forms'
 import { toggleMedication, resolveAlert } from '../../actions'
 import { AssignTaskForm } from '@/components/expert/AssignTaskForm'
 import { PrescribeForm } from '@/components/expert/PrescribeForm'
-import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
+import Link from 'next/link'
 import { SendFormCard } from '@/components/expert/SendFormCard'
 import { AssignGuidedTrack } from '@/components/expert/AssignGuidedTrack'
 import { getGuidedTrackOptions, getGuidedAssignmentsFor } from '@/lib/guided'
@@ -419,19 +419,11 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
                   </div>
                 )}
                 {editable ? (
-                  <details style={{ maxWidth: 560, marginTop: 8 }}>
-                    <summary className="link-action" style={{ cursor: 'pointer', fontSize: 12.5, fontWeight: 700 }}>
-                      {s.summary ? 'Edit this note' : 'Write the note'}
-                    </summary>
-                    <div style={{ marginTop: 10 }}>
-                      <SessionNoteForm
-                        appointmentId={s.id}
-                        patientId={p.patientId}
-                        initialSummary={s.summary ?? ''}
-                        submitLabel={s.summary ? 'Update note' : 'Save & mark complete'}
-                      />
-                    </div>
-                  </details>
+                  <div style={{ marginTop: 8 }}>
+                    <Link href={`/expert/notes/${s.id}`} className="btn btn-outline btn-sm">
+                      {s.summary ? 'Edit note (full screen)' : 'Write the note'}
+                    </Link>
+                  </div>
                 ) : (
                   !s.summary && <div className="pattern-sub" style={{ fontStyle: 'italic', opacity: 0.7 }}>No note written yet.</div>
                 )}

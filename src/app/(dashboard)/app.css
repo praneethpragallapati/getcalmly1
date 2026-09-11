@@ -3196,3 +3196,15 @@
 }
 .calmly-app .oc-tab:hover { border-color: var(--c-coral-l); }
 .calmly-app .oc-tab.sel { border-color: var(--c-coral); background: var(--c-coral-pale); color: var(--c-coral-d); }
+
+/* Full-screen session note editor + Session Notes tab */
+.calmly-app .notes-grid { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 18px; align-items: start; }
+.calmly-app .notes-side { display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 900px){ .calmly-app .notes-grid { grid-template-columns: 1fr; } }
+.calmly-app .task-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-top: 1px solid var(--c-line); padding-top: 6px; }
+.calmly-app .task-row-t { font-size: 13px; font-weight: 600; color: var(--c-charcoal); }
+.calmly-app .note-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-decoration: none; }
+.calmly-app .note-row-t { font-size: 14px; font-weight: 700; color: var(--c-charcoal); }
+.calmly-app .note-flag { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.calmly-app .note-flag.due { background: var(--c-coral-pale); color: var(--c-coral-d); }
+.calmly-app .note-flag.done { background: var(--c-green-pale); color: var(--c-green-ink); }

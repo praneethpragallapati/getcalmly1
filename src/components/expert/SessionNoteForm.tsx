@@ -40,6 +40,7 @@ export function SessionNoteForm({
   initialSummary = '',
   initialDraft = '',
   submitLabel = 'Save & mark complete',
+  large = false,
 }: {
   appointmentId: string
   patientId: string
@@ -47,7 +48,11 @@ export function SessionNoteForm({
   /** An autosaved draft to pick back up, if this note was left half-written. */
   initialDraft?: string
   submitLabel?: string
+  /** Full-screen editor: taller text areas with much more room to write. */
+  large?: boolean
 }) {
+  // Roomy heights for the full-screen editor; compact inline otherwise.
+  const H = large ? { focus: 150, mid: 120, plan: 120 } : { focus: 64, mid: 56, plan: 56 }
   // If re-opening an old free-text note, seed it into the first field so nothing
   // is lost (already-structured notes just re-appear there for editing).
   const [focus, setFocus] = useState(initialSummary || initialDraft)
@@ -113,15 +118,15 @@ export function SessionNoteForm({
       <input type="hidden" name="gas" value={gas} />
 
       {field('Presenting concerns & session focus', (
-        <textarea className="entry-input" style={{ minHeight: 64 }} value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="What the patient brought in; what this session focused on…" />
+        <textarea className="entry-input" style={{ minHeight: H.focus }} value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="What the patient brought in; what this session focused on…" />
       ), 'Subjective')}
 
       {field('Observations / mental status', (
-        <textarea className="entry-input" style={{ minHeight: 56 }} value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Affect, mood, engagement, appearance…" />
+        <textarea className="entry-input" style={{ minHeight: H.mid }} value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Affect, mood, engagement, appearance…" />
       ), 'Objective')}
 
       {field('Clinical impression & progress', (
-        <textarea className="entry-input" style={{ minHeight: 56 }} value={assessment} onChange={(e) => setAssessment(e.target.value)} placeholder="Your assessment and how the patient is progressing…" />
+        <textarea className="entry-input" style={{ minHeight: H.mid }} value={assessment} onChange={(e) => setAssessment(e.target.value)} placeholder="Your assessment and how the patient is progressing…" />
       ), 'Assessment')}
 
       <div className="grid-2" style={{ gap: 10 }}>
@@ -136,7 +141,7 @@ export function SessionNoteForm({
       </div>
 
       {field('Plan & homework', (
-        <textarea className="entry-input" style={{ minHeight: 56 }} value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="Techniques used, referrals… Assign structured homework as Tasks below." />
+        <textarea className="entry-input" style={{ minHeight: H.plan }} value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="Techniques used, referrals… Assign structured homework as Tasks below." />
       ), 'optional')}
 
       {field('Focus for next session', (

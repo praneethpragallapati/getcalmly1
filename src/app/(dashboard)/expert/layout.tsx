@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, FileText, Video, ListTodo } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, FileText, Video, ListTodo, NotebookPen } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -61,7 +61,7 @@ export default async function ExpertLayout({ children }: { children: React.React
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/expert" tint="green" />
         </div>
-        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/tasks', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
+        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/notes', '/expert/tasks', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
           <SidebarLink href="/expert" exact>
             <Home size={18} />
             <span>Dashboard</span>
@@ -75,6 +75,10 @@ export default async function ExpertLayout({ children }: { children: React.React
             <ListTodo size={18} />
             <span>Tasks</span>
             {taskCounts.total > 0 && <span className="sb-badge">{taskCounts.total}</span>}
+          </SidebarLink>
+          <SidebarLink href="/expert/notes">
+            <NotebookPen size={18} />
+            <span>Session notes</span>
           </SidebarLink>
           {/* Schedule also covers Availability (tabbed together). */}
           <SidebarLink href="/expert/schedule" match={['/expert/availability']}>

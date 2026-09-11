@@ -21,6 +21,7 @@
  * when a score is recorded against a session.
  */
 import { prisma } from '@/lib/prisma'
+import { notify } from '@/lib/notifications'
 import { ensureOutcomesSchema } from './schema'
 import { INSTRUMENTS } from './instruments'
 
@@ -82,6 +83,14 @@ export async function seedDefaultAssignments(patientId: string, therapistId: str
         ON CONFLICT ("patientId","instrumentId") DO NOTHING`
     } catch { /* best-effort */ }
   }
+  // Let the patient know their check-ins are ready, so it also lands in the
+  // notifications list, not only on the Pulse page.
+  await notify(patientId, {
+    type: 'form',
+    title: 'Your check-ins are ready',
+    body: 'Take your first Pulse to start tracking how you are doing over time.',
+    href: '/app/pulse',
+  }).catch(() => {})
 }
 
 export async function upsertAssignment(a: Omit<PulseAssignment, 'id' | 'active'> & { active?: boolean }): Promise<void> {
