@@ -8,6 +8,7 @@ import { dueInstruments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 import { moodTier, type BandTone } from '@/lib/outcomes/classify'
 import { OutcomeChart } from '@/components/outcomes/OutcomeChart'
+import { OutcomeTabs } from '@/components/outcomes/OutcomeTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,11 +65,11 @@ function StatusCard({ p }: { p: InstrumentProgress }) {
   )
 }
 
-/** One measure's detail: chart (2+ points) or baseline card (1 point). */
-function MeasureBlock({ p }: { p: InstrumentProgress }) {
+/** One measure's detail, without a card wrapper (the tab container provides it). */
+function MeasurePanel({ p }: { p: InstrumentProgress }) {
   const inst = INSTRUMENTS[p.instrumentId]
   return (
-    <div className="card">
+    <>
       <div className="prov-row">
         <span className="section-title">{inst.short}</span>
         <span className="prov-badge">{PROV_LABEL[p.source] ?? 'Recorded'}</span>
@@ -82,7 +83,7 @@ function MeasureBlock({ p }: { p: InstrumentProgress }) {
       )}
       <p className="measure-verdict">{p.verdict.narrative}</p>
       <p className="muted measure-legend">{inst.blurb} {inst.denotes}</p>
-    </div>
+    </>
   )
 }
 
@@ -152,11 +153,14 @@ export default async function ProgressPage() {
           </div>
         )}
 
-        {/* Your Pulse (self-report trajectories) */}
+        {/* Your Pulse (self-report trajectories) — one at a time behind tabs */}
         {promBlocks.length > 0 && (
           <>
             <div className="section-title" style={{ marginTop: 4 }}>Your Pulse</div>
-            {promBlocks.map((p) => <MeasureBlock key={p.instrumentId} p={p} />)}
+            <OutcomeTabs
+              tabs={promBlocks.map((p) => ({ id: p.instrumentId, label: INSTRUMENTS[p.instrumentId].short.replace(/\s*\(.*\)/, '') }))}
+              panels={promBlocks.map((p) => <MeasurePanel key={p.instrumentId} p={p} />)}
+            />
           </>
         )}
 

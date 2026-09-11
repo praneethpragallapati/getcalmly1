@@ -70,7 +70,9 @@ export function SessionNoteForm({
     () => composeNote({ focus, observations, assessment, risk, riskNotes, plan, nextFocus }),
     [focus, observations, assessment, risk, riskNotes, plan, nextFocus]
   )
-  const canSubmit = focus.trim().length > 0 && plan.trim().length > 0 && sessionProgress !== ''
+  // Mandatory: the note itself (presenting concerns) and the session outcome.
+  // Homework / plan is optional and can also be assigned as tasks separately.
+  const canSubmit = focus.trim().length > 0 && sessionProgress !== ''
 
   // Autosave: debounce on idle, and skip the very first render so simply
   // opening a note doesn't write a draft identical to what's already stored.
@@ -133,9 +135,9 @@ export function SessionNoteForm({
         ))}
       </div>
 
-      {field('Plan — interventions & homework', (
-        <textarea className="entry-input" style={{ minHeight: 56 }} value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="Techniques used, tasks assigned, referrals…" />
-      ), 'Plan')}
+      {field('Plan & homework', (
+        <textarea className="entry-input" style={{ minHeight: 56 }} value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="Techniques used, referrals… Assign structured homework as Tasks below." />
+      ), 'optional')}
 
       {field('Focus for next session', (
         <input className="entry-input" value={nextFocus} onChange={(e) => setNextFocus(e.target.value)} placeholder="What to pick up next time" />
@@ -183,7 +185,7 @@ export function SessionNoteForm({
           {saving ? 'Saving draft…' : savedAt ? 'Draft saved' : 'Drafts save automatically'}
         </span>
       </div>
-      {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>Presenting concerns, a plan, and this session&apos;s progress are required.</span>}
+      {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>The note (presenting concerns) and this session&apos;s progress are required. Homework is optional.</span>}
     </form>
   )
 }
