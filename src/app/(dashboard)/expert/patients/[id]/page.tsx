@@ -15,6 +15,7 @@ import { AssignGuidedTrack } from '@/components/expert/AssignGuidedTrack'
 import { getGuidedTrackOptions, getGuidedAssignmentsFor } from '@/lib/guided'
 import { getPatientWeeklySummary } from '@/lib/patientSummary'
 import { WeeklySummaryCard } from '@/components/expert/WeeklySummaryCard'
+import { ClinicianOutcomePanel } from '@/components/outcomes/ClinicianOutcomePanel'
 import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
 import { SessionNote } from '@/components/ui/SessionNote'
 import { fmtIST } from '@/lib/tz'
@@ -115,6 +116,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
       {/* The patient's week, from session notes, mood check-ins and task
           adherence. Not an AI brief — every figure comes off the record. */}
       {weeklySummary && <WeeklySummaryCard summary={weeklySummary} />}
+
+      <ClinicianOutcomePanel userId={id} />
 
       {/* Reference, not clinical work — collapsed so the care sections stay
           near the top. */}

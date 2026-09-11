@@ -21,6 +21,7 @@ import {
   Menu,
   Video,
   Waves,
+  Activity,
   X,
 } from 'lucide-react'
 
@@ -46,6 +47,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       // My Care Team also covers Medications (tabbed together).
       { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope, match: ['/app/medications'] },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
+      { href: '/app/pulse', label: 'Pulse', icon: Activity },
       { href: '/app/forms', label: 'Forms', icon: FileText },
     ],
   },

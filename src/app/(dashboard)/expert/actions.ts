@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { bail, bailErr } from '@/lib/actionLog'
 import { prisma } from '@/lib/prisma'
+import { recordScore } from '@/lib/outcomes/store'
 import {
   getTherapistContext,
   resolveCrisisAlert,
@@ -205,6 +206,29 @@ export async function completeSession(formData: FormData): Promise<void> {
   } catch (e) {
     // This one gates the clinician's pay, so losing it silently is expensive.
     return bailErr('completeSession', e, { appointmentId: id })
+  }
+  // Record the per-session clinician assessment(s) submitted with the note. A
+  // session counts for pay only once it has BOTH a note and at least one
+  // assessment, so these are captured in the same submit. Best-effort: the note
+  // is already saved, so a failure here must not throw.
+  if (patientId) {
+    const num = (k: string): number | null => {
+      const v = formData.get(k)
+      if (v == null || v === '') return null
+      const n = Number(v)
+      return Number.isFinite(n) ? n : null
+    }
+    const rec: Array<[string, number | null, number, number]> = [
+      ['SESSIONPROG', num('sessionProgress'), 0, 2],
+      ['CGI', num('cgi'), 1, 7],
+      ['CSSRS', num('cssrs'), 0, 6],
+      ['GAS', num('gas'), 0, 10],
+    ]
+    for (const [scale, v, lo, hi] of rec) {
+      if (v != null && v >= lo && v <= hi) {
+        await recordScore({ userId: patientId, scale, score: v, source: 'clinician', sessionId: id }).catch(() => {})
+      }
+    }
   }
   // The draft has served its purpose; leaving it behind would repopulate the
   // form with stale text the next time the note is opened.

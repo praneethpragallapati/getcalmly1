@@ -37,6 +37,7 @@ import {
   type EarningsConfigValues,
   type ServiceType,
 } from '@/lib/earningsConfig'
+import { sessionsWithClinicianAssessment, OUTCOMES_LAUNCH } from '@/lib/outcomes/store'
 import { STATUS_LABEL } from '@/lib/orders'
 
 export type MoodTrend = 'improving' | 'stable' | 'declining' | 'insufficient'
@@ -1022,6 +1023,8 @@ export type ScheduleAppointment = {
   roomId: string | null
   meetLink: string | null
   hasSummary: boolean
+  /** Whether a clinician assessment (outcome rating) has been recorded for this session. */
+  hasAssessment: boolean
   isPast: boolean
   /**
    * Which session this is between these two — 1 for their first, counting only
@@ -1065,12 +1068,14 @@ export function isPayableSession(status: string): boolean {
 }
 
 /**
- * A session note is owed only where the clinician is being paid. There is
- * nothing to write up for a session that never happened, and asking for notes on
- * cancelled and voided sessions buried the ones that actually matter.
+ * A session's write-up is owed only where the clinician is being paid. A payable
+ * session now needs BOTH a written note AND at least one clinician-recorded
+ * assessment (a per-session outcome rating, CGI, etc.) before it counts — so it
+ * is "owed" until both are present. There is nothing to write up for a session
+ * that never happened, so cancelled/voided sessions are never chased.
  */
-export function sessionNeedsNote(a: { status: string; hasSummary: boolean }): boolean {
-  return isPayableSession(a.status) && !a.hasSummary
+export function sessionNeedsNote(a: { status: string; hasSummary: boolean; hasAssessment?: boolean }): boolean {
+  return isPayableSession(a.status) && (!a.hasSummary || !a.hasAssessment)
 }
 
 /** Every appointment on this therapist's calendar, most recent first. */
@@ -1128,10 +1133,18 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
   }
 
   const now = Date.now()
+  // Which completed sessions already carry a clinician assessment (the second
+  // half of the pay gate). Sessions held before the outcomes launch are
+  // grandfathered on the note alone, so the gate never un-pays old work.
+  const completedIds = rows.filter((r) => r.status === 'COMPLETED').map((r) => r.id)
+  const assessed = await sessionsWithClinicianAssessment(completedIds)
+  const hasAssess = (r: { id: string; scheduledAt: Date }) =>
+    assessed.has(r.id) || r.scheduledAt.getTime() < OUTCOMES_LAUNCH.getTime()
   return rows.map((r) => {
     const ts = taskStat.get(r.patientId) ?? { open: 0, total: 0 }
     const ms = medStat.get(r.patientId) ?? { active: 0, total: 0 }
     const hasSummary = Boolean(r.summary)
+    const hasAssessment = hasAssess(r)
     return {
       id: r.id,
       patientId: r.patientId,
@@ -1143,9 +1156,10 @@ export async function getTherapistSchedule(therapistProfileId: string): Promise<
       roomId: r.roomId,
       meetLink: r.meetLink,
       hasSummary,
+      hasAssessment,
       sessionNo: sessionNoById.get(r.id) ?? null,
-      payable: isPayableSession(r.status),
-      needsNote: sessionNeedsNote({ status: r.status, hasSummary }),
+      payable: isPayableSession(r.status) && hasSummary && hasAssessment,
+      needsNote: sessionNeedsNote({ status: r.status, hasSummary, hasAssessment }),
       // "Past" only once the whole session window has elapsed (or it's completed)
       // — NOT the instant the start time is reached. Otherwise a session flips to
       // "write notes" at its start and the clinician loses the Join button while
@@ -1465,8 +1479,13 @@ export async function getEarningsForMany(profileIds: string[]): Promise<Map<stri
     getEarningsConfig(),
   ])
   const profileById = new Map(profiles.map((p) => [p.id, p]))
+  // Pay gate: a completed, noted session counts only once it also has at least
+  // one clinician assessment. Sessions before the outcomes launch are
+  // grandfathered on the note alone.
+  const assessed = await sessionsWithClinicianAssessment(appts.map((a) => a.id))
+  const payable = appts.filter((a) => assessed.has(a.id) || a.scheduledAt.getTime() < OUTCOMES_LAUNCH.getTime())
   const apptsById = new Map<string, EarningsAppt[]>()
-  for (const a of appts) {
+  for (const a of payable) {
     const list = apptsById.get(a.therapistId) ?? []
     list.push(a)
     apptsById.set(a.therapistId, list)
@@ -1497,7 +1516,10 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
     }),
     getEarningsConfig(),
   ])
-  return computeEarnings(profile, rows, globalConfig)
+  // Pay gate: note + at least one clinician assessment (pre-launch grandfathered).
+  const assessed = await sessionsWithClinicianAssessment(rows.map((r) => r.id))
+  const payable = rows.filter((r) => assessed.has(r.id) || r.scheduledAt.getTime() < OUTCOMES_LAUNCH.getTime())
+  return computeEarnings(profile, payable, globalConfig)
 }
 
 /** The pay computation itself — no I/O, so it can serve one clinician or many. */

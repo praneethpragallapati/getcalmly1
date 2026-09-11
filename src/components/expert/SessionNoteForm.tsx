@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { completeSession, saveSessionNoteDraft } from '@/app/(dashboard)/expert/actions'
+import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 
 /**
  * Structured clinical session note (SOAP-style: Subjective, Objective,
@@ -57,11 +58,19 @@ export function SessionNoteForm({
   const [plan, setPlan] = useState('')
   const [nextFocus, setNextFocus] = useState('')
 
+  // Per-session clinician assessment (ClinRO). Progress is required so a
+  // completed note always carries at least one assessment (the pay gate); CGI,
+  // safety and goal ratings are optional and prompted where relevant.
+  const [sessionProgress, setSessionProgress] = useState('')
+  const [cgi, setCgi] = useState('')
+  const [cssrs, setCssrs] = useState('')
+  const [gas, setGas] = useState('')
+
   const composed = useMemo(
     () => composeNote({ focus, observations, assessment, risk, riskNotes, plan, nextFocus }),
     [focus, observations, assessment, risk, riskNotes, plan, nextFocus]
   )
-  const canSubmit = focus.trim().length > 0 && plan.trim().length > 0
+  const canSubmit = focus.trim().length > 0 && plan.trim().length > 0 && sessionProgress !== ''
 
   // Autosave: debounce on idle, and skip the very first render so simply
   // opening a note doesn't write a draft identical to what's already stored.
@@ -96,6 +105,10 @@ export function SessionNoteForm({
       <input type="hidden" name="appointmentId" value={appointmentId} />
       <input type="hidden" name="patientId" value={patientId} />
       <input type="hidden" name="summary" value={composed} />
+      <input type="hidden" name="sessionProgress" value={sessionProgress} />
+      <input type="hidden" name="cgi" value={cgi} />
+      <input type="hidden" name="cssrs" value={cssrs} />
+      <input type="hidden" name="gas" value={gas} />
 
       {field('Presenting concerns & session focus', (
         <textarea className="entry-input" style={{ minHeight: 64 }} value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="What the patient brought in; what this session focused on…" />
@@ -128,6 +141,40 @@ export function SessionNoteForm({
         <input className="entry-input" value={nextFocus} onChange={(e) => setNextFocus(e.target.value)} placeholder="What to pick up next time" />
       ))}
 
+      <div className="so-block">
+        <div className="so-title">Session outcome</div>
+        <p className="muted" style={{ fontSize: 11.5, margin: '2px 0 10px' }}>
+          Recorded with the note. Progress is required; a session counts once it has both a note and an assessment.
+        </p>
+        {field('Progress this session', (
+          <div className="so-seg">
+            {[['2', 'Better'], ['1', 'Same'], ['0', 'Worse']].map(([v, l]) => (
+              <button type="button" key={v} className={`so-seg-btn${sessionProgress === v ? ' sel' : ''}`} onClick={() => setSessionProgress(v)}>{l}</button>
+            ))}
+          </div>
+        ), 'required')}
+        <div className="grid-2" style={{ gap: 10 }}>
+          {field('Clinician impression (CGI)', (
+            <select className="entry-input" value={cgi} onChange={(e) => setCgi(e.target.value)}>
+              <option value="">Not rated</option>
+              {INSTRUMENTS.CGI.choices.map((c) => <option key={c.value} value={c.value}>{c.value} · {c.label}</option>)}
+            </select>
+          ), 'sessions 4 & 8')}
+          {field('Goal progress (0-10)', (
+            <select className="entry-input" value={gas} onChange={(e) => setGas(e.target.value)}>
+              <option value="">Not rated</option>
+              {Array.from({ length: 11 }, (_, i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+          ))}
+        </div>
+        {field('Safety screen (C-SSRS)', (
+          <select className="entry-input" value={cssrs} onChange={(e) => setCssrs(e.target.value)}>
+            <option value="">Not indicated</option>
+            {INSTRUMENTS.CSSRS.choices.map((c) => <option key={c.value} value={c.value}>{c.value} · {c.label}</option>)}
+          </select>
+        ), 'if any ideation is disclosed')}
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <button type="submit" className="btn btn-primary btn-sm" disabled={!canSubmit}>
           {submitLabel}
@@ -136,7 +183,7 @@ export function SessionNoteForm({
           {saving ? 'Saving draft…' : savedAt ? 'Draft saved' : 'Drafts save automatically'}
         </span>
       </div>
-      {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>Presenting concerns and a plan are required.</span>}
+      {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>Presenting concerns, a plan, and this session&apos;s progress are required.</span>}
     </form>
   )
 }

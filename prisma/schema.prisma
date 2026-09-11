@@ -898,12 +898,39 @@ model AssessmentScore {
   id         String   @id @default(cuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scale      String // "GAD-7", "PHQ-9", ...
+  scale      String // "GAD7", "PHQ9", "K10", "WHO5", "CGI", "CSSRS", ...
   score      Int
-  label      String? // "Moderate", "Mild", ...
+  label      String? // severity band, e.g. "Moderate"
+  // Provenance (added for outcome measurement). Self-healed at runtime by
+  // ensureOutcomesSchema so these work before the migration is applied.
+  source     String? // "patient" | "clinician" | "derived"
+  sessionId  String? // the Appointment this was recorded against, if any
+  band       String? // severity band label
+  riskTier   String? // for C-SSRS: "low" | "moderate" | "high"
+  version    String? // classifier/rules version for derived scores
   recordedAt DateTime @default(now())
 
   @@index([userId, recordedAt])
+  @@index([sessionId])
+}
+
+/**
+ * A patient's scheduled self-report measures ("Pulse"). Mirrors FormAutoRule's
+ * cadence vocabulary. Self-healed at runtime by ensureOutcomesSchema.
+ */
+model PulseAssignment {
+  id            String   @id @default(cuid())
+  patientId     String
+  instrumentId  String // AssessmentScore.scale id, e.g. "PHQ9"
+  recurrence    String   @default("EVERY") // EVERY | EVEN | ODD | ONCE | EVERY_N | BIWEEKLY | WEEKLY
+  sessionNumber Int? // for ONCE / EVERY_N
+  weekday       Int? // for WEEKLY (0-6)
+  therapistId   String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@unique([patientId, instrumentId])
+  @@index([patientId])
 }
 
 // A crisis hand-off record. When the chat pipeline routes a turn as high-stake it
