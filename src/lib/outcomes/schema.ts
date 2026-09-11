@@ -31,6 +31,7 @@ export async function ensureOutcomesSchema(): Promise<void> {
       "active" BOOLEAN NOT NULL DEFAULT true,
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT "PulseAssignment_pkey" PRIMARY KEY ("id"))`)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "PulseAssignment" ADD COLUMN IF NOT EXISTS "expiresAt" TIMESTAMP(3)`)
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "PulseAssignment_patientId_idx" ON "PulseAssignment"("patientId")`)
     await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "PulseAssignment_patient_instrument_key" ON "PulseAssignment"("patientId", "instrumentId")`)
     ready = true

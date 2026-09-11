@@ -16,6 +16,8 @@ import { getGuidedTrackOptions, getGuidedAssignmentsFor } from '@/lib/guided'
 import { getPatientWeeklySummary } from '@/lib/patientSummary'
 import { WeeklySummaryCard } from '@/components/expert/WeeklySummaryCard'
 import { ClinicianOutcomePanel } from '@/components/outcomes/ClinicianOutcomePanel'
+import { PulseAssignForm } from '@/components/expert/PulseAssignForm'
+import { getAssignments } from '@/lib/outcomes/pulse'
 import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
 import { SessionNote } from '@/components/ui/SessionNote'
 import { fmtIST } from '@/lib/tz'
@@ -63,6 +65,13 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
     getGuidedAssignmentsFor(id),
   ])
   const patientAlerts = allRisk.filter((r) => r.patientId === id)
+
+  // Pulse checks currently assigned to this patient (for the assign card).
+  const pulseAssigned = (await getAssignments(id)).map((a) => ({
+    instrumentId: a.instrumentId,
+    recurrence: a.recurrence,
+    expiresAt: a.expiresAt ? a.expiresAt.toISOString() : null,
+  }))
 
   // Sessions a note can be written/edited for. Own delivered (paid) sessions —
   // cancelled and voided ones are left out, since there's no session to write up
@@ -118,6 +127,16 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
       {weeklySummary && <WeeklySummaryCard summary={weeklySummary} />}
 
       <ClinicianOutcomePanel userId={id} />
+
+      {!supervisorView && (
+        <section className="card" style={{ marginTop: 16 }}>
+          <div className="section-title">Pulse checks</div>
+          <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>
+            Assign the self-report checks this patient can fill (PHQ-9, GAD-7, GAS, K10, WHO-5), with a frequency and optional expiry. Patients can only fill what you assign.
+          </p>
+          <PulseAssignForm patientId={id} assigned={pulseAssigned} />
+        </section>
+      )}
 
       {/* Reference, not clinical work — collapsed so the care sections stay
           near the top. */}

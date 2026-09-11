@@ -922,9 +922,10 @@ model PulseAssignment {
   id            String   @id @default(cuid())
   patientId     String
   instrumentId  String // AssessmentScore.scale id, e.g. "PHQ9"
-  recurrence    String   @default("EVERY") // EVERY | EVEN | ODD | ONCE | EVERY_N | BIWEEKLY | WEEKLY
-  sessionNumber Int? // for ONCE / EVERY_N
-  weekday       Int? // for WEEKLY (0-6)
+  recurrence    String   @default("WEEKLY") // DAILY | WEEKLY | FORTNIGHTLY | MONTHLY | EVERY | EVEN | ODD
+  sessionNumber Int? // legacy, unused
+  weekday       Int? // legacy, unused
+  expiresAt     DateTime? // after this, the check is no longer assigned
   therapistId   String?
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())

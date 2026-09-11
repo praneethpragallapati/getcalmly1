@@ -1,6 +1,5 @@
 import { getSessionUserId } from '@/lib/patient'
-import { getAssignedTherapistId } from '@/lib/expert'
-import { dueInstruments, getAssignments, seedDefaultAssignments } from '@/lib/outcomes/pulse'
+import { dueInstruments, getAssignments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS, type Instrument } from '@/lib/outcomes/instruments'
 import { PulseRunner, type PulseDef } from '@/components/outcomes/PulseRunner'
 
@@ -24,9 +23,7 @@ export default async function PulsePage() {
     )
   }
 
-  const therapistId = await getAssignedTherapistId(userId).catch(() => null)
-  await seedDefaultAssignments(userId, therapistId ?? null)
-
+  // Only what a therapist has assigned is fillable — nothing is auto-assigned.
   const due = await dueInstruments(userId)
   const assignedIds = (await getAssignments(userId)).map((a) => a.instrumentId)
   const fillableIds = Array.from(new Set([...due, ...assignedIds])).filter(
@@ -40,7 +37,9 @@ export default async function PulsePage() {
         <h1 className="page-title">Pulse</h1>
         <span className="page-meta">Quick, private check-ins that track how you are really doing over time.</span>
       </div>
-      <PulseRunner due={due} defs={defs} />
+      {defs.length === 0
+        ? <div className="card"><p className="muted">No check-ins have been set up yet. Your therapist assigns these, and they will appear here when they do.</p></div>
+        : <PulseRunner due={due} defs={defs} />}
     </>
   )
 }
