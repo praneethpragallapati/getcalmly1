@@ -4,7 +4,6 @@ import { Flame, TrendingUp, CalendarCheck, ListChecks, Activity, Download, BookO
 import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getOutcomeState, type InstrumentProgress } from '@/lib/outcomes/store'
-import { dueInstruments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 import { type BandTone } from '@/lib/outcomes/classify'
 import { OutcomeChart } from '@/components/outcomes/OutcomeChart'
@@ -117,10 +116,9 @@ export default async function ProgressPage() {
     )
   }
 
-  const [weekly, outcomes, due, weeks, totals] = await Promise.all([
+  const [weekly, outcomes, weeks, totals] = await Promise.all([
     getWeeklyProgress(userId),
     getOutcomeState(userId),
-    dueInstruments(userId),
     getWeeklyPatterns(userId),
     getLifetimeTotals(userId),
   ])
@@ -148,17 +146,6 @@ export default async function ProgressPage() {
       </div>
 
       <div className="stack">
-        {/* Pulse due */}
-        {due.length > 0 && (
-          <Link href="/app/pulse" className="card pulse-due">
-            <div>
-              <div className="pulse-card-t">You have {due.length} Pulse {due.length === 1 ? 'check' : 'checks'} due</div>
-              <p className="muted">A couple of minutes keeps your progress accurate and up to date.</p>
-            </div>
-            <span className="btn btn-primary">Take now</span>
-          </Link>
-        )}
-
         {/* Summary band */}
         {summary.length > 0 ? (
           <>

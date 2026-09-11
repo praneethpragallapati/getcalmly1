@@ -2,12 +2,6 @@ import Link from 'next/link'
 import {
   Sparkles,
   PenLine,
-  Video,
-  FileText,
-  Flame,
-  TrendingUp,
-  NotebookPen,
-  CalendarCheck,
   Pill,
   Heart,
   MessageCircle,
@@ -25,19 +19,22 @@ import { NextSessionCard } from '@/components/dashboard/NextSessionCard'
 import { MilestonesMini } from '@/components/dashboard/MilestonesMini'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { HomePolls } from '@/components/dashboard/HomePolls'
-import { LocalTime } from '@/components/dashboard/LocalTime'
+import { HomeCheckins } from '@/components/dashboard/HomeCheckins'
 import { dueInstruments } from '@/lib/outcomes/pulse'
+import { getMyForms } from '@/lib/forms'
 
 export default async function AppHomePage() {
   const userId = await getSessionUserId()
-  const [d, meds, orders, polls, milestones, pulseDue] = await Promise.all([
+  const [d, meds, orders, polls, milestones, pulseDue, myForms] = await Promise.all([
     getDashboardData(),
     getMedications(),
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
     getCommunityPolls(userId),
     userId ? getMilestones(userId) : Promise.resolve([]),
     userId ? dueInstruments(userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
+    userId ? getMyForms(userId).catch(() => []) : Promise.resolve([]),
   ])
+  const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
 
@@ -137,15 +134,7 @@ export default async function AppHomePage() {
 
 
 
-      {pulseDue.length > 0 && (
-        <Link href="/app/pulse" className="card pulse-due" style={{ textDecoration: 'none' }}>
-          <div>
-            <div className="pulse-card-t">You have {pulseDue.length} Pulse {pulseDue.length === 1 ? 'check' : 'checks'} due</div>
-            <p className="muted">A couple of minutes keeps your progress accurate and up to date.</p>
-          </div>
-          <span className="btn btn-primary">Take now</span>
-        </Link>
-      )}
+      <HomeCheckins pulseDue={pulseDue} forms={pendingForms} />
 
       {polls.length > 0 && <HomePolls polls={polls} canVote={Boolean(userId)} />}
 
