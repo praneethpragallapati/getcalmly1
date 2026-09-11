@@ -14,7 +14,7 @@ const BAND_FILL: Record<BandTone, string> = {
   bad: 'var(--c-coral-pale)',
 }
 
-const W = 320, H = 150, padL = 26, padR = 10, padT = 10, padB = 22
+const W = 300, H = 116, padL = 26, padR = 10, padT = 10, padB = 22
 
 function short(iso: string): string {
   const d = new Date(iso)

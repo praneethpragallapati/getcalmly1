@@ -1,15 +1,30 @@
 import type { WeekPoint } from '@/lib/progressPatterns'
+import type { BandTone } from '@/lib/outcomes/instruments'
 
 /**
- * A simple weekly line chart (no severity bands) for the behavioural patterns:
- * mood average, check-ins per week, task adherence. One value per week over
- * time; null weeks are skipped and the line connects the weeks that have data.
+ * A weekly line chart for the behavioural patterns (mood average, check-ins,
+ * task adherence). One value per week over time; null weeks are skipped and the
+ * line connects the weeks that have data. Optional coloured zone bands shade the
+ * background so a glance shows which zone the values sit in, the same way the
+ * symptom trackers do.
  */
-const W = 320, H = 140, padL = 24, padR = 10, padT = 12, padB = 22
+export type Zone = { min: number; max: number; tone: BandTone }
+
+const W = 300, H = 116, padL = 26, padR = 12, padT = 12, padB = 22
+
+const BAND_FILL: Record<BandTone, string> = {
+  good: 'var(--c-green-pale)',
+  mild: 'var(--c-gold-pale)',
+  warn: 'rgba(201,151,58,.20)',
+  bad: 'var(--c-coral-pale)',
+}
 
 export function WeeklyChart({
-  points, min, max, suffix = '',
-}: { points: { label: string; value: number | null }[]; min: number; max: number; suffix?: string }) {
+  points, min, max, suffix = '', zones,
+}: {
+  points: { label: string; value: number | null }[]
+  min: number; max: number; suffix?: string; zones?: Zone[]
+}) {
   const withVal = points.map((p, i) => ({ ...p, i })).filter((p) => p.value != null) as { label: string; value: number; i: number }[]
   if (withVal.length < 2) return null
   const span = max - min || 1
@@ -25,6 +40,12 @@ export function WeeklyChart({
   return (
     <div className="oc-chart">
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Weekly trend">
+        {/* zone bands */}
+        {(zones ?? []).map((z, zi) => {
+          const yTop = y(Math.min(z.max, max))
+          const yBot = y(Math.max(z.min, min))
+          return <rect key={zi} x={padL} y={yTop} width={plotW} height={Math.max(0, yBot - yTop)} fill={BAND_FILL[z.tone]} />
+        })}
         <line x1={padL} x2={W - padR} y1={y(min)} y2={y(min)} stroke="var(--c-line)" strokeWidth="1" />
         <text x={padL - 4} y={y(max) + 3} textAnchor="end" fontSize="8" fill="var(--c-gray)">{max}{suffix}</text>
         <text x={padL - 4} y={y(min) + 3} textAnchor="end" fontSize="8" fill="var(--c-gray)">{min}{suffix}</text>

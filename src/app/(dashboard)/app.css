@@ -3208,3 +3208,14 @@
 .calmly-app .note-flag { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
 .calmly-app .note-flag.due { background: var(--c-coral-pale); color: var(--c-coral-d); }
 .calmly-app .note-flag.done { background: var(--c-green-pale); color: var(--c-green-ink); }
+
+/* Progress tab: two-column pairs (Pulse | GAS, Patterns | Consistency) */
+.calmly-app .pg-two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .calmly-app .pg-two { grid-template-columns: 1fr; } }
+/* Compact "this week" consistency tiles inside the paired card */
+.calmly-app .pg-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+.calmly-app .pg-mini { display: flex; flex-direction: column; gap: 3px; }
+.calmly-app .pg-mini-ic { width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px; }
+.calmly-app .pg-mini .n { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.05; color: var(--c-charcoal); }
+.calmly-app .pg-mini .n span { font-size: 13px; font-weight: 600; color: var(--c-gray); }
+.calmly-app .pg-mini .l { font-size: 11.5px; color: var(--c-gray); }

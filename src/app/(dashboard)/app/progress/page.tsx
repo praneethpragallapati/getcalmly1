@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Flame, TrendingUp, CalendarCheck, ListChecks, Activity } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Flame, TrendingUp, CalendarCheck, ListChecks, Activity, Download, BookOpen, CheckCircle2, HeartPulse, Users } from 'lucide-react'
 import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getOutcomeState, type InstrumentProgress } from '@/lib/outcomes/store'
@@ -9,7 +10,8 @@ import { type BandTone } from '@/lib/outcomes/classify'
 import { OutcomeChart } from '@/components/outcomes/OutcomeChart'
 import { OutcomeTabs } from '@/components/outcomes/OutcomeTabs'
 import { getWeeklyPatterns } from '@/lib/progressPatterns'
-import { WeeklyChart, toPoints } from '@/components/outcomes/WeeklyChart'
+import { WeeklyChart, toPoints, type Zone } from '@/components/outcomes/WeeklyChart'
+import { getLifetimeTotals } from '@/lib/progressTotals'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,14 +20,27 @@ const PRIORITY = ['PHQ9', 'GAD7', 'K10', 'WHO5', 'GAS', 'CGI', 'CSSRS']
 const TONE_CLASS: Record<BandTone, string> = { good: 't-green', mild: 't-gold', warn: 't-gold', bad: 't-coral' }
 const PROV_LABEL: Record<string, string> = { patient: 'Self-reported', clinician: 'Clinician-rated', derived: 'From your data' }
 
+/** Zone bands for the weekly-pattern charts, so a glance shows the zone. */
+const MOOD_ZONES: Zone[] = [
+  { min: 0, max: 3, tone: 'bad' },
+  { min: 3, max: 5, tone: 'warn' },
+  { min: 5, max: 7, tone: 'mild' },
+  { min: 7, max: 10, tone: 'good' },
+]
+const ADHERENCE_ZONES: Zone[] = [
+  { min: 0, max: 40, tone: 'bad' },
+  { min: 40, max: 70, tone: 'warn' },
+  { min: 70, max: 100, tone: 'good' },
+]
+
 function byPriority(a: InstrumentProgress, b: InstrumentProgress) {
   return PRIORITY.indexOf(a.instrumentId) - PRIORITY.indexOf(b.instrumentId)
 }
 
 /** One weekly-pattern chart panel (used inside the tabbed patterns box). */
-function WeeklyPanel({ title, sub, prov, points, min, max, suffix }: {
+function WeeklyPanel({ title, sub, prov, points, min, max, suffix, zones }: {
   title: string; sub: string; prov: string
-  points: { label: string; value: number | null }[]; min: number; max: number; suffix?: string
+  points: { label: string; value: number | null }[]; min: number; max: number; suffix?: string; zones?: Zone[]
 }) {
   const enough = points.filter((p) => p.value != null).length >= 2
   return (
@@ -35,7 +50,7 @@ function WeeklyPanel({ title, sub, prov, points, min, max, suffix }: {
         <span className="prov-badge">{prov}</span>
       </div>
       {enough
-        ? <WeeklyChart points={points} min={min} max={max} suffix={suffix} />
+        ? <WeeklyChart points={points} min={min} max={max} suffix={suffix} zones={zones} />
         : <p className="muted" style={{ marginTop: 4 }}>A couple of weeks of data will show this trend.</p>}
       <p className="muted measure-legend">{sub}</p>
     </>
@@ -79,6 +94,17 @@ function MeasurePanel({ p }: { p: InstrumentProgress }) {
   )
 }
 
+/** A lifetime-total tile for the activity strip. */
+function TotalCard({ icon, tint, n, label }: { icon: ReactNode; tint: string; n: number; label: string }) {
+  return (
+    <div className="card stat-card">
+      <span className={`stat-ic ${tint}`}>{icon}</span>
+      <div className="stat-n">{n}</div>
+      <div className="stat-l">{label}</div>
+    </div>
+  )
+}
+
 export default async function ProgressPage() {
   const d = await getDashboardData()
   const userId = await getSessionUserId()
@@ -91,11 +117,12 @@ export default async function ProgressPage() {
     )
   }
 
-  const [weekly, outcomes, due, weeks] = await Promise.all([
+  const [weekly, outcomes, due, weeks, totals] = await Promise.all([
     getWeeklyProgress(userId),
     getOutcomeState(userId),
     dueInstruments(userId),
     getWeeklyPatterns(userId),
+    getLifetimeTotals(userId),
   ])
   const maxCheckins = Math.max(7, ...weeks.map((w) => w.checkins))
 
@@ -112,7 +139,12 @@ export default async function ProgressPage() {
     <>
       <div className="page-head">
         <h1 className="page-title">My Progress</h1>
-        <span className="page-meta">Started {d.startedOn} · {d.daysOnPlatform} days on getCalmly</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span className="page-meta">Started {d.startedOn} · {d.daysOnPlatform} days on getCalmly</span>
+          <a href="/app/progress/pdf" className="btn btn-outline btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Download size={15} /> Download PDF
+          </a>
+        </div>
       </div>
 
       <div className="stack">
@@ -148,67 +180,84 @@ export default async function ProgressPage() {
           </div>
         )}
 
-        {/* Your Pulse (self-report trajectories) — one at a time behind tabs */}
-        {promBlocks.length > 0 && (
+        {/* Lifetime activity totals */}
+        <div className="section-title" style={{ marginTop: 4 }}>Your journey so far</div>
+        <div className="grid-4">
+          <TotalCard icon={<BookOpen size={20} />} tint="t-purple" n={totals.journals} label="Journals written" />
+          <TotalCard icon={<CheckCircle2 size={20} />} tint="t-green" n={totals.tasksCompleted} label="Tasks completed" />
+          <TotalCard icon={<HeartPulse size={20} />} tint="t-coral" n={totals.checkins} label="Mood check-ins" />
+          <TotalCard icon={<Users size={20} />} tint="t-gold" n={totals.sessions} label="Sessions completed" />
+        </div>
+
+        {/* Pulse (symptom trajectories) and GAS, side by side */}
+        {(promBlocks.length > 0 || gasBlock) && (
           <>
             <div className="section-title" style={{ marginTop: 4 }}>Your Pulse</div>
-            <OutcomeTabs
-              tabs={promBlocks.map((p) => ({ id: p.instrumentId, label: INSTRUMENTS[p.instrumentId].short.replace(/\s*\(.*\)/, '') }))}
-              panels={promBlocks.map((p) => <MeasurePanel key={p.instrumentId} p={p} />)}
-            />
-          </>
-        )}
-
-        {/* GAS — Goal Attainment Scale, shown on its own below Pulse */}
-        {gasBlock && (
-          <>
-            <div className="section-title" style={{ marginTop: 4 }}>GAS (Goal Attainment Scale)</div>
-            <div className="card">
-              <MeasurePanel p={gasBlock} />
+            <div className="pg-two">
+              {promBlocks.length > 0 ? (
+                <OutcomeTabs
+                  tabs={promBlocks.map((p) => ({ id: p.instrumentId, label: INSTRUMENTS[p.instrumentId].short.replace(/\s*\(.*\)/, '') }))}
+                  panels={promBlocks.map((p) => <MeasurePanel key={p.instrumentId} p={p} />)}
+                />
+              ) : <div />}
+              {gasBlock && (
+                <div className="card">
+                  <MeasurePanel p={gasBlock} />
+                </div>
+              )}
             </div>
           </>
         )}
 
-        {/* Weekly patterns — one at a time behind tabs, averaged from the start */}
-        {weeks.length > 0 && (
-          <>
-            <div className="section-title" style={{ marginTop: 4 }}>Your patterns</div>
+        {/* Patterns and Consistency, side by side */}
+        <div className="section-title" style={{ marginTop: 4 }}>Patterns and consistency</div>
+        <div className="pg-two">
+          {weeks.length > 0 ? (
             <OutcomeTabs
               tabs={[{ id: 'mood', label: 'Mood' }, { id: 'checkins', label: 'Check-ins' }, { id: 'tasks', label: 'Task adherence' }]}
               panels={[
                 <WeeklyPanel key="mood" title="Weekly mood average" prov="Self-reported"
-                  sub="Your daily mood, averaged by week. Higher is better, out of 10." points={toPoints(weeks, 'moodAvg')} min={0} max={10} />,
+                  sub="Your daily mood, averaged by week. Higher is better, out of 10." points={toPoints(weeks, 'moodAvg')} min={0} max={10} zones={MOOD_ZONES} />,
                 <WeeklyPanel key="checkins" title="Mood check-ins per week" prov="From your activity"
                   sub="How many days you checked in each week." points={toPoints(weeks, 'checkins')} min={0} max={maxCheckins} />,
                 <WeeklyPanel key="tasks" title="Task adherence" prov="From your activity"
-                  sub="Tasks completed vs assigned each week." points={toPoints(weeks, 'adherence')} min={0} max={100} suffix="%" />,
+                  sub="Tasks completed vs assigned each week." points={toPoints(weeks, 'adherence')} min={0} max={100} suffix="%" zones={ADHERENCE_ZONES} />,
               ]}
             />
-          </>
-        )}
+          ) : (
+            <div className="card">
+              <div className="section-title" style={{ fontSize: 18, marginBottom: 6 }}>Your patterns</div>
+              <p className="muted">A couple of weeks of check-ins and tasks will show your weekly trends here.</p>
+            </div>
+          )}
 
-        {/* Consistency — this week's snapshot */}
-        <div className="section-title" style={{ marginTop: 4 }}>Consistency</div>
-        <div className="grid-4">
-          <div className="card stat-card">
-            <span className="stat-ic t-purple"><TrendingUp size={20} /></span>
-            <div className="stat-n">{weekly?.moodAvg != null ? weekly.moodAvg.toFixed(1) : '—'}{weekly?.moodAvg != null && <span> /10</span>}</div>
-            <div className="stat-l">Avg mood this week</div>
-          </div>
-          <div className="card stat-card">
-            <span className="stat-ic t-green"><CalendarCheck size={20} /></span>
-            <div className="stat-n">{weekly?.moodCheckins ?? 0}</div>
-            <div className="stat-l">Check-ins this week</div>
-          </div>
-          <div className="card stat-card">
-            <span className="stat-ic t-gold"><ListChecks size={20} /></span>
-            <div className="stat-n">{weekly?.completionPct ?? 0}<span>%</span></div>
-            <div className="stat-l">Task adherence this week</div>
-          </div>
-          <div className="card stat-card">
-            <span className="stat-ic t-coral"><Flame size={20} /></span>
-            <div className="stat-n">{d.streakDays}<span> days</span></div>
-            <div className="stat-l">Current streak</div>
+          <div className="card">
+            <div className="prov-row">
+              <span className="section-title" style={{ fontSize: 18 }}>This week</span>
+              <span className="prov-badge">Consistency</span>
+            </div>
+            <div className="pg-mini-grid">
+              <div className="pg-mini">
+                <span className="pg-mini-ic t-purple"><TrendingUp size={16} /></span>
+                <div className="n">{weekly?.moodAvg != null ? weekly.moodAvg.toFixed(1) : '—'}{weekly?.moodAvg != null && <span> /10</span>}</div>
+                <div className="l">Avg mood</div>
+              </div>
+              <div className="pg-mini">
+                <span className="pg-mini-ic t-green"><CalendarCheck size={16} /></span>
+                <div className="n">{weekly?.moodCheckins ?? 0}</div>
+                <div className="l">Check-ins</div>
+              </div>
+              <div className="pg-mini">
+                <span className="pg-mini-ic t-gold"><ListChecks size={16} /></span>
+                <div className="n">{weekly?.completionPct ?? 0}<span>%</span></div>
+                <div className="l">Task adherence</div>
+              </div>
+              <div className="pg-mini">
+                <span className="pg-mini-ic t-coral"><Flame size={16} /></span>
+                <div className="n">{d.streakDays}<span> days</span></div>
+                <div className="l">Current streak</div>
+              </div>
+            </div>
           </div>
         </div>
 
