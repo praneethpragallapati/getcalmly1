@@ -17,7 +17,9 @@ export type BandTone = 'good' | 'mild' | 'warn' | 'bad'
 
 export type Band = { min: number; max: number; label: string; tone: BandTone }
 export type Choice = { value: number; label: string }
-export type Item = { key: string; text: string }
+/** An item may carry its own choice set (e.g. GAS, where each question has
+ *  different options); otherwise the instrument's shared `choices` apply. */
+export type Item = { key: string; text: string; choices?: Choice[] }
 
 export type Instrument = {
   /** Value stored in AssessmentScore.scale. */
@@ -215,24 +217,66 @@ export const INSTRUMENTS: Record<string, Instrument> = {
 
   GAS: {
     id: 'GAS',
-    name: 'Goal Attainment',
-    short: 'Goal progress',
+    name: 'Goal Attainment Scale',
+    short: 'Goals & alliance (GAS)',
     type: 'PROM',
     direction: 'higher_better',
     min: 0,
-    max: 10,
-    choices: [],
-    items: [],
-    bands: [
-      { min: 0, max: 2, label: 'Moving backward', tone: 'bad' },
-      { min: 3, max: 4, label: 'Not moving yet', tone: 'warn' },
-      { min: 5, max: 6, label: 'Slow progress', tone: 'mild' },
-      { min: 7, max: 8, label: 'On the right track', tone: 'good' },
-      { min: 9, max: 10, label: 'Almost there', tone: 'good' },
+    max: 100,
+    choices: [], // each item carries its own options
+    items: [
+      {
+        key: 'progress',
+        text: 'Overall, how are you doing compared with when therapy began?',
+        choices: [
+          { value: 25, label: 'Feeling better' },
+          { value: 17, label: 'Slightly better' },
+          { value: 8, label: 'About the same' },
+          { value: 0, label: 'More distressed' },
+        ],
+      },
+      {
+        key: 'alliance',
+        text: 'How well aligned do you feel with your therapist and therapy approach?',
+        choices: [
+          { value: 25, label: 'Aligned' },
+          { value: 17, label: 'Somewhat aligned' },
+          { value: 8, label: 'Not aligned' },
+          { value: 0, label: 'Uncomfortable' },
+        ],
+      },
+      {
+        key: 'proceed',
+        text: 'How would you like to proceed with your care?',
+        choices: [
+          { value: 25, label: 'Proceed as is' },
+          { value: 17, label: 'Change approach' },
+          { value: 8, label: 'Change therapist' },
+          { value: 0, label: 'Pause for now' },
+        ],
+      },
+      {
+        key: 'attainment',
+        text: 'How close do you feel you are to achieving what you hoped to accomplish in therapy?',
+        choices: [
+          { value: 25, label: 'There' },
+          { value: 17, label: 'On the right track' },
+          { value: 8, label: 'Slow progress' },
+          { value: 0, label: 'Moving backward' },
+        ],
+      },
     ],
+    bands: [
+      { min: 0, max: 25, label: 'Struggling', tone: 'bad' },
+      { min: 26, max: 50, label: 'Early', tone: 'warn' },
+      { min: 51, max: 75, label: 'Progressing', tone: 'mild' },
+      { min: 76, max: 100, label: 'On track', tone: 'good' },
+    ],
+    clinicalCutoff: 76,
+    reliableChange: 20,
     chartable: true,
-    blurb: 'How close you feel to what you hoped to achieve in therapy, rated 0 to 10.',
-    denotes: 'Higher is better. It tracks progress toward your own goals, not symptoms.',
+    blurb: 'Four questions on your progress, alliance and goals since therapy began.',
+    denotes: 'Higher is better, out of 100. It tracks how therapy is going for you, not symptoms.',
   },
 
   CGI: {
@@ -293,7 +337,7 @@ export const INSTRUMENTS: Record<string, Instrument> = {
 }
 
 /** Instrument ids the patient self-reports through a Pulse form. */
-export const PROM_FORM_IDS = ['PHQ9', 'GAD7', 'K10', 'WHO5'] as const
+export const PROM_FORM_IDS = ['PHQ9', 'GAD7', 'K10', 'WHO5', 'GAS'] as const
 
 /** Look up an instrument by its stored scale id. */
 export function instrument(id: string): Instrument | null {

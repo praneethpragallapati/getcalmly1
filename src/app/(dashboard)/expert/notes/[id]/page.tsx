@@ -60,8 +60,8 @@ export default async function NoteEditorPage({ params }: { params: Promise<{ id:
         <aside className="notes-side">
           <ClinicianOutcomePanel userId={appt.patientId} />
           <div className="card">
-            <div className="section-title">Homework (tasks)</div>
-            <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>Assign homework using the tasks feature. Optional.</p>
+            <div className="section-title">Tasks</div>
+            <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>Assign tasks for the patient to work on between sessions. Optional.</p>
             <AssignTaskForm patientId={appt.patientId} />
             {tasks.length > 0 && (
               <div style={{ marginTop: 16 }}>

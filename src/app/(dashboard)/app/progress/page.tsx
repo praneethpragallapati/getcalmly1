@@ -107,10 +107,13 @@ export default async function ProgressPage() {
   ])
   const moodSeries = [...moodRows].reverse()
 
-  const withData = outcomes.filter((o) => o.verdict.current != null)
+  // CGI and C-SSRS are clinician-only and never shown to the patient.
+  const PATIENT_HIDDEN = new Set(['CGI', 'CSSRS'])
+  const withData = outcomes.filter((o) => o.verdict.current != null && !PATIENT_HIDDEN.has(o.instrumentId))
   const summary = [...withData].sort(byPriority)
-  const promBlocks = withData.filter((o) => INSTRUMENTS[o.instrumentId]?.chartable && o.instrumentId !== 'CSSRS').sort(byPriority)
-  const clinician = withData.filter((o) => o.instrumentId === 'CGI' || o.instrumentId === 'CSSRS').sort(byPriority)
+  // Symptom trajectories go in the tabbed Pulse card; GAS gets its own card.
+  const promBlocks = withData.filter((o) => INSTRUMENTS[o.instrumentId]?.chartable && o.instrumentId !== 'GAS').sort(byPriority)
+  const gasBlock = withData.find((o) => o.instrumentId === 'GAS')
   const lead = summary[0]
 
   return (
@@ -164,20 +167,13 @@ export default async function ProgressPage() {
           </>
         )}
 
-        {/* From your therapist */}
-        {clinician.length > 0 && (
+        {/* GAS — Goal Attainment Scale, shown on its own below Pulse */}
+        {gasBlock && (
           <>
-            <div className="section-title" style={{ marginTop: 4 }}>From your therapist</div>
-            {clinician.map((p) => (
-              <div key={p.instrumentId} className="card">
-                <div className="prov-row">
-                  <span className="section-title">{INSTRUMENTS[p.instrumentId].short}</span>
-                  <span className="prov-badge">Clinician-rated</span>
-                </div>
-                <p className="measure-verdict">{p.verdict.narrative}</p>
-                <p className="muted measure-legend">{INSTRUMENTS[p.instrumentId].blurb}</p>
-              </div>
-            ))}
+            <div className="section-title" style={{ marginTop: 4 }}>GAS (Goal Attainment Scale)</div>
+            <div className="card">
+              <MeasurePanel p={gasBlock} />
+            </div>
           </>
         )}
 

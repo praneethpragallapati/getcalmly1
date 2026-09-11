@@ -42,6 +42,7 @@ const DEFAULTS: Array<{ instrumentId: string; recurrence: Recurrence; sessionNum
   { instrumentId: 'PHQ9', recurrence: 'EVERY_N', sessionNumber: 4 },
   { instrumentId: 'GAD7', recurrence: 'EVERY_N', sessionNumber: 4 },
   { instrumentId: 'WHO5', recurrence: 'BIWEEKLY', sessionNumber: null },
+  { instrumentId: 'GAS', recurrence: 'BIWEEKLY', sessionNumber: null },
 ]
 
 /** How many days before a recurrence is "due" again. */

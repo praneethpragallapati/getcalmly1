@@ -8,16 +8,10 @@ export const dynamic = 'force-dynamic'
 
 /** Turn a catalog instrument into the client-safe shape the runner needs. */
 function toDef(inst: Instrument): PulseDef {
-  if (inst.id === 'GAS') {
-    return {
-      id: inst.id, short: inst.short, blurb: inst.blurb, denotes: inst.denotes,
-      items: [{ key: 'goal', text: 'How close do you feel to achieving what you hoped to accomplish in therapy?' }],
-      choices: Array.from({ length: 11 }, (_, v) => ({ value: v, label: String(v) })),
-    }
-  }
   return {
     id: inst.id, short: inst.short, blurb: inst.blurb, denotes: inst.denotes,
-    items: inst.items, choices: inst.choices,
+    items: inst.items.map((it) => ({ key: it.key, text: it.text, choices: it.choices })),
+    choices: inst.choices,
   }
 }
 
@@ -36,7 +30,7 @@ export default async function PulsePage() {
   const due = await dueInstruments(userId)
   const assignedIds = (await getAssignments(userId)).map((a) => a.instrumentId)
   const fillableIds = Array.from(new Set([...due, ...assignedIds])).filter(
-    (id) => INSTRUMENTS[id] && (INSTRUMENTS[id].items.length > 0 || id === 'GAS'),
+    (id) => INSTRUMENTS[id] && INSTRUMENTS[id].items.length > 0,
   )
   const defs = fillableIds.map((id) => toDef(INSTRUMENTS[id]))
 

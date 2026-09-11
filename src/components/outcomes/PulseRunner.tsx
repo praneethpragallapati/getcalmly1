@@ -3,13 +3,15 @@
 import { useState } from 'react'
 import { submitPulse } from '@/app/(dashboard)/app/pulse/actions'
 
+type Choice = { value: number; label: string }
 export type PulseDef = {
   id: string
   short: string
   blurb: string
   denotes: string
-  items: { key: string; text: string }[]
-  choices: { value: number; label: string }[]
+  /** Items may carry their own choices (GAS); otherwise `choices` applies. */
+  items: { key: string; text: string; choices?: Choice[] }[]
+  choices: Choice[]
 }
 
 type Phase = { mode: 'list' } | { mode: 'run'; id: string; step: number } | { mode: 'done'; short: string; band: string | null }
@@ -58,6 +60,7 @@ export function PulseRunner({ due, defs }: { due: string[]; defs: PulseDef[] }) 
     const def = byId.get(phase.id)
     if (!def) return null
     const item = def.items[phase.step]
+    const opts = item.choices ?? def.choices
     const pctDone = Math.round((phase.step / def.items.length) * 100)
     return (
       <div className="stack">
@@ -68,9 +71,9 @@ export function PulseRunner({ due, defs }: { due: string[]; defs: PulseDef[] }) 
           </div>
           <div className="pulse-bar"><span style={{ width: `${pctDone}%` }} /></div>
           <p className="pulse-q">{item.text}</p>
-          {def.id !== 'GAS' && <p className="muted" style={{ fontSize: 12.5, marginTop: -4, marginBottom: 12 }}>Over the last two weeks, how often?</p>}
-          <div className={def.choices.length > 6 ? 'pulse-opts pulse-opts-grid' : 'pulse-opts'}>
-            {def.choices.map((c) => (
+          {(def.id === 'PHQ9' || def.id === 'GAD7') && <p className="muted" style={{ fontSize: 12.5, marginTop: -4, marginBottom: 12 }}>Over the last two weeks, how often?</p>}
+          <div className={opts.length > 6 ? 'pulse-opts pulse-opts-grid' : 'pulse-opts'}>
+            {opts.map((c) => (
               <button
                 key={c.value}
                 type="button"

@@ -218,11 +218,11 @@ export async function completeSession(formData: FormData): Promise<void> {
       const n = Number(v)
       return Number.isFinite(n) ? n : null
     }
+    // Clinician-only assessments (never shown to the patient): CGI is the
+    // required one; C-SSRS is recorded only if ideation was disclosed.
     const rec: Array<[string, number | null, number, number]> = [
-      ['SESSIONPROG', num('sessionProgress'), 0, 2],
       ['CGI', num('cgi'), 1, 7],
       ['CSSRS', num('cssrs'), 0, 6],
-      ['GAS', num('gas'), 0, 10],
     ]
     for (const [scale, v, lo, hi] of rec) {
       if (v != null && v >= lo && v <= hi) {
