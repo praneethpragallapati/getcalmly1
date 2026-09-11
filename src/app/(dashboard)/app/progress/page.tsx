@@ -1,14 +1,15 @@
 import Link from 'next/link'
-import { Flame, TrendingUp, CalendarCheck, NotebookPen, Activity } from 'lucide-react'
-import { prisma } from '@/lib/prisma'
+import { Flame, TrendingUp, CalendarCheck, ListChecks, Activity } from 'lucide-react'
 import { getDashboardData, getWeeklyProgress } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getOutcomeState, type InstrumentProgress } from '@/lib/outcomes/store'
 import { dueInstruments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS } from '@/lib/outcomes/instruments'
-import { moodTier, type BandTone } from '@/lib/outcomes/classify'
+import { type BandTone } from '@/lib/outcomes/classify'
 import { OutcomeChart } from '@/components/outcomes/OutcomeChart'
 import { OutcomeTabs } from '@/components/outcomes/OutcomeTabs'
+import { getWeeklyPatterns } from '@/lib/progressPatterns'
+import { WeeklyChart, toPoints } from '@/components/outcomes/WeeklyChart'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,32 +22,23 @@ function byPriority(a: InstrumentProgress, b: InstrumentProgress) {
   return PRIORITY.indexOf(a.instrumentId) - PRIORITY.indexOf(b.instrumentId)
 }
 
-/** A compact mood sparkline (daily 1-10) with the current action tier. */
-function MoodStrip({ series }: { series: { mood: number; createdAt: Date }[] }) {
-  if (series.length === 0) return null
-  const w = 240, h = 40, pad = 3
-  const xs = (i: number) => pad + (series.length === 1 ? (w - 2 * pad) / 2 : (i / (series.length - 1)) * (w - 2 * pad))
-  const ys = (v: number) => pad + (1 - v / 10) * (h - 2 * pad)
-  const pts = series.map((p, i) => `${xs(i).toFixed(1)},${ys(p.mood).toFixed(1)}`).join(' ')
-  const latest = series[series.length - 1].mood
-  const tier = moodTier(latest)
+/** One weekly-pattern chart panel (used inside the tabbed patterns box). */
+function WeeklyPanel({ title, sub, prov, points, min, max, suffix }: {
+  title: string; sub: string; prov: string
+  points: { label: string; value: number | null }[]; min: number; max: number; suffix?: string
+}) {
+  const enough = points.filter((p) => p.value != null).length >= 2
   return (
-    <div className="card">
+    <>
       <div className="prov-row">
-        <span className="section-title">Daily mood</span>
-        <span className="prov-badge">Self-reported</span>
+        <span className="section-title">{title}</span>
+        <span className="prov-badge">{prov}</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginTop: 6 }}>
-        <div>
-          <div className="stat-n" style={{ fontSize: 30 }}>{latest}<span> /10</span></div>
-          <div className={`stat-badge ${TONE_CLASS[tier.tone]}`}>{tier.label}</div>
-        </div>
-        <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ flex: 1, minWidth: 160, maxWidth: 300 }} aria-label="Mood over recent check-ins">
-          <polyline points={pts} fill="none" stroke="var(--c-coral)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </svg>
-      </div>
-      <p className="muted" style={{ fontSize: 12.5, marginTop: 8 }}>{tier.action} A daily snapshot of how you feel, not a clinical score.</p>
-    </div>
+      {enough
+        ? <WeeklyChart points={points} min={min} max={max} suffix={suffix} />
+        : <p className="muted" style={{ marginTop: 4 }}>A couple of weeks of data will show this trend.</p>}
+      <p className="muted measure-legend">{sub}</p>
+    </>
   )
 }
 
@@ -99,13 +91,13 @@ export default async function ProgressPage() {
     )
   }
 
-  const [weekly, outcomes, due, moodRows] = await Promise.all([
+  const [weekly, outcomes, due, weeks] = await Promise.all([
     getWeeklyProgress(userId),
     getOutcomeState(userId),
     dueInstruments(userId),
-    prisma.moodEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 30, select: { mood: true, createdAt: true } }).catch(() => []),
+    getWeeklyPatterns(userId),
   ])
-  const moodSeries = [...moodRows].reverse()
+  const maxCheckins = Math.max(7, ...weeks.map((w) => w.checkins))
 
   // CGI and C-SSRS are clinician-only and never shown to the patient.
   const PATIENT_HIDDEN = new Set(['CGI', 'CSSRS'])
@@ -177,39 +169,46 @@ export default async function ProgressPage() {
           </>
         )}
 
-        {/* Daily patterns */}
-        <div className="section-title" style={{ marginTop: 4 }}>Your daily patterns</div>
-        <MoodStrip series={moodSeries} />
-        {weekly && (
-          <div className="card">
-            <div className="prov-row"><span className="section-title">This week</span><span className="prov-badge">From your activity</span></div>
-            <div className="muted">Tasks from your expert: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.tasksCompleted}/{weekly.tasksAssigned}</b> completed ({weekly.completionPct}%)</div>
-            <div className="muted">Mood check-ins: <b style={{ color: 'var(--c-charcoal)' }}>{weekly.moodCheckins}</b>{weekly.moodAvg !== null ? ` · avg ${weekly.moodAvg}/10` : ''}</div>
-          </div>
+        {/* Weekly patterns — one at a time behind tabs, averaged from the start */}
+        {weeks.length > 0 && (
+          <>
+            <div className="section-title" style={{ marginTop: 4 }}>Your patterns</div>
+            <OutcomeTabs
+              tabs={[{ id: 'mood', label: 'Mood' }, { id: 'checkins', label: 'Check-ins' }, { id: 'tasks', label: 'Task adherence' }]}
+              panels={[
+                <WeeklyPanel key="mood" title="Weekly mood average" prov="Self-reported"
+                  sub="Your daily mood, averaged by week. Higher is better, out of 10." points={toPoints(weeks, 'moodAvg')} min={0} max={10} />,
+                <WeeklyPanel key="checkins" title="Mood check-ins per week" prov="From your activity"
+                  sub="How many days you checked in each week." points={toPoints(weeks, 'checkins')} min={0} max={maxCheckins} />,
+                <WeeklyPanel key="tasks" title="Task adherence" prov="From your activity"
+                  sub="Tasks completed vs assigned each week." points={toPoints(weeks, 'adherence')} min={0} max={100} suffix="%" />,
+              ]}
+            />
+          </>
         )}
 
-        {/* Consistency (engagement, not clinical outcome) */}
+        {/* Consistency — this week's snapshot */}
         <div className="section-title" style={{ marginTop: 4 }}>Consistency</div>
         <div className="grid-4">
+          <div className="card stat-card">
+            <span className="stat-ic t-purple"><TrendingUp size={20} /></span>
+            <div className="stat-n">{weekly?.moodAvg != null ? weekly.moodAvg.toFixed(1) : '—'}{weekly?.moodAvg != null && <span> /10</span>}</div>
+            <div className="stat-l">Avg mood this week</div>
+          </div>
+          <div className="card stat-card">
+            <span className="stat-ic t-green"><CalendarCheck size={20} /></span>
+            <div className="stat-n">{weekly?.moodCheckins ?? 0}</div>
+            <div className="stat-l">Check-ins this week</div>
+          </div>
+          <div className="card stat-card">
+            <span className="stat-ic t-gold"><ListChecks size={20} /></span>
+            <div className="stat-n">{weekly?.completionPct ?? 0}<span>%</span></div>
+            <div className="stat-l">Task adherence this week</div>
+          </div>
           <div className="card stat-card">
             <span className="stat-ic t-coral"><Flame size={20} /></span>
             <div className="stat-n">{d.streakDays}<span> days</span></div>
             <div className="stat-l">Current streak</div>
-          </div>
-          <div className="card stat-card">
-            <span className="stat-ic t-purple"><TrendingUp size={20} /></span>
-            <div className="stat-n">{d.avgMood > 0 ? d.avgMood.toFixed(1) : '—'}{d.avgMood > 0 && <span> /10</span>}</div>
-            <div className="stat-l">Avg mood score</div>
-          </div>
-          <div className="card stat-card">
-            <span className="stat-ic t-green"><CalendarCheck size={20} /></span>
-            <div className="stat-n">{d.sessionsDone}</div>
-            <div className="stat-l">Therapy sessions</div>
-          </div>
-          <div className="card stat-card">
-            <span className="stat-ic t-gold"><NotebookPen size={20} /></span>
-            <div className="stat-n">{d.journalCount}</div>
-            <div className="stat-l">Journal entries</div>
           </div>
         </div>
 
