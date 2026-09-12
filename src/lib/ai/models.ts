@@ -42,14 +42,22 @@ export const COST_TABLE: Record<string, [number, number]> = {
 }
 
 // ── Routing knobs (change models here) ───────────────────────────────────────
+// Policy: everything runs on the cheap nano model EXCEPT the two things where a
+// stronger model earns its cost — a high-stake (CRISIS / VENT_DISTRESS) chat
+// turn, and the weekly insight. Both route to Sonnet.
 export const CLASSIFIER_MODEL: ModelKey = 'nano'
-export const PAID_ROUTINE: ModelKey = 'haiku'
+export const PAID_ROUTINE: ModelKey = 'nano'
 export const PAID_HIGHSTAKE: ModelKey = 'sonnet'
 export const FREE_ROUTINE: ModelKey = 'nano'
-export const FREE_HIGHSTAKE: ModelKey = 'haiku'
+export const FREE_HIGHSTAKE: ModelKey = 'sonnet'
 // Models used by the non-chat jobs.
 export const SYNTH_MODEL: ModelKey = 'nano'
+/** Clinician Copilot (progress-since-last-session) runs on nano. */
+export const COPILOT_MODEL: ModelKey = 'nano'
+/** Daily insight runs on nano; the weekly insight uses Sonnet. */
 export const INSIGHT_MODEL: ModelKey = 'nano'
+export const DAILY_MODEL: ModelKey = 'nano'
+export const WEEKLY_MODEL: ModelKey = 'sonnet'
 
 /** Routine + high-stake model for a membership ("paid" | "free"). */
 export function modelsForMembership(membership: string): { routine: ModelKey; highStake: ModelKey } {

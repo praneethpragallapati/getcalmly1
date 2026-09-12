@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/cron/weekly-insights",
-      "schedule": "30 2 * * 0"
+      "schedule": "30 14 * * 0"
     }
   ]
 }

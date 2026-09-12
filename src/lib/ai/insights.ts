@@ -11,7 +11,7 @@ import { prisma } from '@/lib/prisma'
 import type { InsightKind } from '@prisma/client'
 import { hasLlm } from './config'
 import { callModel } from './clients'
-import { INSIGHT_MODEL } from './models'
+import { DAILY_MODEL, WEEKLY_MODEL } from './models'
 import { buildPatientContext, type PatientContext } from './context'
 import { trackFallback } from './tracks'
 
@@ -147,7 +147,7 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
     '(coral=concern, green=positive, gold=improvement, purple=observation), drawn from their mood/journal data, no scores}. ' +
     'Never use em dashes (—) in any text; use a comma, period, or colon instead.'
 
-  const res = await callModel(INSIGHT_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
+  const res = await callModel(DAILY_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
     temperature: 0.6,
     maxTokens: 300,
     jsonMode: true,
@@ -246,7 +246,7 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
     'Each must say something DIFFERENT — never restate one in another.\n' +
     '"patterns": up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": coral|green|gold|purple}] drawn from journals/mood, no scores.'
 
-  const res = await callModel(INSIGHT_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
+  const res = await callModel(WEEKLY_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
     temperature: 0.6,
     maxTokens: 420,
     jsonMode: true,

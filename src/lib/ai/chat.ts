@@ -203,6 +203,27 @@ function assessmentBlock(
   return parts.length ? parts.join('\n') + '\n' : ''
 }
 
+// Gentle, rate-limited "book a session package" nudge for FREE members only,
+// ported from the v6 notebook. Only when a real counsellor would genuinely help,
+// never on a crisis turn, and never twice within a short window.
+const PACKAGE_NUDGE_COOLDOWN = 12
+const NUDGE_MARK = 'book a session package'
+const NUDGE_TEXT =
+  '\n\nAnd if talking this through with a real counsellor would help, you can ' +
+  'book a session package in the app whenever you are ready, no pressure at all.'
+
+function maybePackageNudge(reply: string, label: string, intensity: string, ctx: PatientContext, history: ChatTurn[]): string {
+  if (ctx.membership === 'paid') return reply
+  if (label === 'CRISIS') return reply
+  const necessary =
+    label === 'VENT_DISTRESS' || label === 'MEDICAL_QUESTION' ||
+    ((label === 'RELATIONSHIP' || label === 'ADVICE_SEEK') && (intensity === 'high' || intensity === 'crisis'))
+  if (!necessary) return reply
+  const recentAssistant = history.filter((h) => h.role === 'assistant').slice(-PACKAGE_NUDGE_COOLDOWN)
+  if (recentAssistant.some((h) => h.content.includes(NUDGE_MARK))) return reply
+  return reply + NUDGE_TEXT
+}
+
 function counsellorLine(ctx: PatientContext): string {
   if (ctx.membership === 'paid' && ctx.therapistName) {
     return `If professional support is needed, warmly encourage them to connect with their counsellor ${ctx.therapistName} through the GetCalmly app.`
@@ -508,6 +529,9 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
     answer = isCrisis
       ? `I'm here with you. Please reach out to ${ctx.therapistName ?? 'a professional'} or call iCall at ${ICALL}, you don't have to handle this alone.`
       : 'Something went wrong on my end. Please try again in a moment.'
+  } else {
+    // Never nudge on the fallback line — only on a real reply.
+    answer = maybePackageNudge(answer, label, intensity, ctx, history)
   }
 
   const modelUsed = MODELS[modelKey]
