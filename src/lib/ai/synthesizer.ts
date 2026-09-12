@@ -7,6 +7,7 @@
  */
 import { callModel } from './clients'
 import { SYNTH_MODEL } from './models'
+import { recordAiUsage } from './usage'
 import type { PatientContext } from './context'
 
 export type SourceType = 'session_note' | 'journal' | 'chat_log' | 'general'
@@ -45,19 +46,20 @@ const PROMPTS: Record<SourceType, string> = {
 const MAX_TOKENS: Record<SourceType, number> = { session_note: 320, journal: 160, chat_log: 180, general: 180 }
 
 /** Compress one block of raw text. Returns null on empty input or failure. */
-export async function synthesize(rawText: string, sourceType: SourceType): Promise<string | null> {
+export async function synthesize(rawText: string, sourceType: SourceType, userId?: string): Promise<string | null> {
   const text = rawText.trim()
   if (!text) return null
   const res = await callModel(SYNTH_MODEL, PROMPTS[sourceType], [{ role: 'user', content: text.slice(0, 12000) }], {
     temperature: 0,
     maxTokens: MAX_TOKENS[sourceType],
   })
+  await recordAiUsage('synth', SYNTH_MODEL, res.inp, res.out, userId)
   return res.answer
 }
 
 /** Convenience: synthesize a single session note into the structured summary. */
-export function synthesizeSessionNote(rawText: string): Promise<string | null> {
-  return synthesize(rawText, 'session_note')
+export function synthesizeSessionNote(rawText: string, userId?: string): Promise<string | null> {
+  return synthesize(rawText, 'session_note', userId)
 }
 
 export type SynthResult = { summary: string | null; sessionSummary: string | null; journalDigest: string | null }
@@ -73,11 +75,11 @@ export async function synthesizeProfile(ctx: PatientContext): Promise<SynthResul
 
   if (ctx.allowed.sessions && ctx.sessions.length) {
     const combined = ctx.sessions.map((s) => `[${s.date}] ${s.note}`).join('\n\n')
-    sessionSummary = await synthesize(combined, 'session_note')
+    sessionSummary = await synthesize(combined, 'session_note', ctx.userId)
   }
   if (ctx.allowed.journals && ctx.journals.length) {
     const combined = ctx.journals.map((j) => `[${j.date}] ${j.entry}`).join('\n\n')
-    journalDigest = await synthesize(combined, 'journal')
+    journalDigest = await synthesize(combined, 'journal', ctx.userId)
   }
 
   const parts = [

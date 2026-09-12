@@ -12,6 +12,7 @@ import type { InsightKind } from '@prisma/client'
 import { hasLlm } from './config'
 import { callModel } from './clients'
 import { DAILY_MODEL, WEEKLY_MODEL } from './models'
+import { recordAiUsage } from './usage'
 import { buildPatientContext, type PatientContext } from './context'
 import { trackFallback } from './tracks'
 
@@ -163,6 +164,7 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
     maxTokens: 300,
     jsonMode: true,
   })
+  await recordAiUsage('daily', DAILY_MODEL, res.inp, res.out, userId)
   if (!res.answer) return null
   const parsed = parseJson(res.answer)
   if (!parsed?.body) return null
@@ -298,6 +300,7 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
     maxTokens: 420,
     jsonMode: true,
   })
+  await recordAiUsage('weekly', WEEKLY_MODEL, res.inp, res.out, userId)
   if (!res.answer) return null
   const parsed = parseJson(res.answer)
 

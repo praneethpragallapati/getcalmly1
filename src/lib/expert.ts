@@ -1305,7 +1305,7 @@ export async function writeSessionSummary(
   // applied. Best-effort: a synthesis failure must never fail saving the note.
   try {
     await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "aiSummary" TEXT`)
-    const digest = await synthesizeSessionNote(summary)
+    const digest = await synthesizeSessionNote(summary, appt.patientId)
     if (digest) {
       await prisma.$executeRaw`UPDATE "Appointment" SET "aiSummary" = ${digest} WHERE "id" = ${appointmentId}`
     }

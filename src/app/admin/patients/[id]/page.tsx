@@ -9,6 +9,7 @@ import { patientCode } from '@/lib/ids'
 import { PersonDetailsCard } from '@/components/ui/PersonDetailsCard'
 import { PatientTimeline } from '@/components/admin/PatientTimeline'
 import { getPatientTimeline } from '@/lib/patientTimeline'
+import { getPatientUsage } from '@/lib/ai/usage'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,8 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
     getPatientDetail(id), getPatientActivity(id), getPatientTimeline(id),
   ])
   if (!p) notFound()
+  const usage = await getPatientUsage(p.userId)
+  const usd = (n: number) => '$' + (n < 1 ? n.toFixed(4) : n.toFixed(2))
 
   return (
     <div className="stack">
@@ -39,6 +42,18 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
         note="Everything on file for this patient."
       />
       <PatientAdmin p={p} />
+
+      <div className="card">
+        <div className="section-title" style={{ fontSize: 18, marginBottom: 4 }}>AI usage & cost</div>
+        <p className="muted" style={{ marginTop: 0 }}>This patient&apos;s token consumption and estimated spend across their AI features.</p>
+        <div className="grid-4" style={{ marginTop: 12 }}>
+          <div className="card stat-card"><div className="stat-l" style={{ marginTop: 0 }}>Avg cost / day</div><div className="stat-n" style={{ fontSize: 24 }}>{usd(usage.avgCostPerDay)}</div><div className="stat-l">{usage.avgTokensPerDay.toLocaleString('en-IN', { maximumFractionDigits: 0 })} tokens / day</div></div>
+          <div className="card stat-card"><div className="stat-l" style={{ marginTop: 0 }}>Last 30 days</div><div className="stat-n" style={{ fontSize: 24 }}>{usd(usage.last30.cost)}</div><div className="stat-l">{usage.last30.tokens.toLocaleString('en-IN')} tokens</div></div>
+          <div className="card stat-card"><div className="stat-l" style={{ marginTop: 0 }}>All time</div><div className="stat-n" style={{ fontSize: 24 }}>{usd(usage.total.cost)}</div><div className="stat-l">{usage.total.tokens.toLocaleString('en-IN')} tokens</div></div>
+          <div className="card stat-card"><div className="stat-l" style={{ marginTop: 0 }}>Calls (all time)</div><div className="stat-n" style={{ fontSize: 24 }}>{usage.total.calls.toLocaleString('en-IN')}</div><div className="stat-l">{usage.firstDay ? `since ${usage.firstDay}` : 'no AI usage yet'}</div></div>
+        </div>
+      </div>
+
       <PatientTimeline events={timeline} />
       <PatientActivitySections activity={activity} />
       <DeleteAccount kind="patient" userId={p.userId} name={p.name} />

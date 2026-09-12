@@ -13,6 +13,7 @@ import { prisma } from '@/lib/prisma'
 import { callModel } from './clients'
 import { COPILOT_MODEL } from './models'
 import { hasLlm } from './config'
+import { recordAiUsage } from './usage'
 import { fmtIST } from '@/lib/tz'
 
 export type CopilotBrief = { ok: boolean; brief?: string; firstSession?: boolean; error?: string }
@@ -102,6 +103,7 @@ export async function generateClinicianCopilot(patientId: string): Promise<Copil
   const res = await callModel(COPILOT_MODEL, 'You write concise, factual clinical briefs.', [{ role: 'user', content: prompt }], {
     temperature: 0.3, maxTokens: 380,
   })
+  await recordAiUsage('copilot', COPILOT_MODEL, res.inp, res.out, patientId)
   if (!res.answer) return { ok: false, error: 'The model did not return a brief. Check AI health.' }
   return { ok: true, brief: res.answer, firstSession }
 }

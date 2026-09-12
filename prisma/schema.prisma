@@ -1429,3 +1429,21 @@ model LedgerEntry {
   @@index([occurredAt])
   @@index([direction])
 }
+
+/// Per-call AI token/cost usage, for the admin analytics and per-patient view.
+model AiUsage {
+  id           String   @id @default(cuid())
+  userId       String?
+  userType     String? // "free" | "paid" | "couples" | "unknown"
+  feature      String // "chat_classify" | "chat_reply" | "daily" | "weekly" | "synth" | "copilot"
+  model        String
+  provider     String?
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  costUsd      Float    @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([userType, createdAt])
+}

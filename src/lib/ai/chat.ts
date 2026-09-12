@@ -25,6 +25,7 @@ import {
   VALID_LABELS,
 } from './models'
 import { notifyCrisisAlert } from '@/lib/adminNotify'
+import { recordAiUsage } from './usage'
 
 const ICALL = aiConfig.iCall
 
@@ -374,6 +375,7 @@ async function classify(
   question: string,
   history: ChatTurn[],
   priorLabel: string,
+  userId: string,
 ): Promise<{ label: string; intent: string; intensity: string }> {
   if (!aiConfig.openAiKey) return heuristicClassify(question)
   const recent = history
@@ -387,6 +389,7 @@ async function classify(
     maxTokens: 30,
     jsonMode: true,
   })
+  await recordAiUsage('chat_classify', CLASSIFIER_MODEL, res.inp, res.out, userId)
   if (!res.answer) return heuristicClassify(question)
   try {
     const p = JSON.parse(res.answer)
@@ -505,7 +508,7 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
   const userLabels = chrono.filter((r) => r.role === 'USER' && r.label).map((r) => r.label as string)
   const priorLabel = userLabels[userLabels.length - 1] ?? ''
 
-  const cls = await classify(question, history, priorLabel)
+  const cls = await classify(question, history, priorLabel, userId)
   let { label } = cls
   const { intent } = cls
   let { intensity } = cls
@@ -555,6 +558,7 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
     temperature: LABEL_TEMPERATURE[label] ?? 0.7,
     maxTokens: LABEL_MAX_TOKENS[label] ?? 120,
   })
+  await recordAiUsage('chat_reply', modelKey, res.inp, res.out, userId)
 
   let answer = res.answer
   if (!answer) {

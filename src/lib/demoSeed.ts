@@ -230,7 +230,7 @@ export async function seedDemoActivity(userId: string, weeks = 4): Promise<{ moo
     ]
     for (const s of SESSIONS) {
       const when = new Date(); when.setDate(when.getDate() - s.daysAgo); when.setHours(16, 0, 0, 0)
-      const ai = await synthesizeSessionNote(s.note).catch(() => null)
+      const ai = await synthesizeSessionNote(s.note, userId).catch(() => null)
       await prisma.appointment.create({
         data: {
           patientId: userId, therapistId: therapist.id, scheduledAt: when, durationMins: 50,
