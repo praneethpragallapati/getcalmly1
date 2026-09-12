@@ -43,6 +43,7 @@ export type Privacy = {
   collectJournals: boolean
   collectForms: boolean
   collectPulse: boolean
+  collectProfile: boolean
   feedToLlm: boolean
 }
 
@@ -53,6 +54,7 @@ const PRIVACY_DEFAULT: Privacy = {
   collectJournals: true,
   collectForms: true,
   collectPulse: true,
+  collectProfile: true,
   feedToLlm: true,
 }
 
@@ -65,6 +67,7 @@ export async function ensurePrivacySchema(): Promise<void> {
   try {
     await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectForms" BOOLEAN NOT NULL DEFAULT true`)
     await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectPulse" BOOLEAN NOT NULL DEFAULT true`)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectProfile" BOOLEAN NOT NULL DEFAULT true`)
     privacySchemaReady = true
   } catch {
     /* best-effort; reads fall back to permissive defaults */
@@ -89,6 +92,7 @@ export async function getPrivacy(userId: string): Promise<Privacy> {
         collectJournals: row.collectJournals,
         collectForms: row.collectForms,
         collectPulse: row.collectPulse,
+        collectProfile: row.collectProfile,
         feedToLlm: row.feedToLlm,
       }
     }

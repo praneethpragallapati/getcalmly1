@@ -725,6 +725,7 @@ export type PrivacyInput = {
   collectChats: boolean
   collectForms: boolean
   collectPulse: boolean
+  collectProfile: boolean
   feedToLlm: boolean
 }
 

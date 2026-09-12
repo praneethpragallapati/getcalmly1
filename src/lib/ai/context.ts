@@ -39,6 +39,17 @@ export type PatientContext = {
   therapyStatus?: string
   therapistName?: string
   therapistEmail?: string
+  // Personal & contact details (gated under collectProfile). Undefined when off.
+  personal?: {
+    gender?: string
+    age?: number
+    location?: string
+    preferredLanguage?: string
+    occupation?: string
+    maritalStatus?: string
+    emergencyName?: string
+    emergencyRelation?: string
+  }
   // Raw, privacy-gated histories (empty when the category is disallowed).
   mood: MoodPoint[]
   journals: JournalPoint[]
@@ -61,7 +72,14 @@ export type PatientContext = {
     safetyPlanActive: boolean
     safetyPlanContact?: string
   }
-  allowed: { mood: boolean; journals: boolean; sessions: boolean; chats: boolean; forms: boolean; pulse: boolean }
+  allowed: { mood: boolean; journals: boolean; sessions: boolean; chats: boolean; forms: boolean; pulse: boolean; profile: boolean }
+}
+
+function ageFrom(dob: Date | null | undefined): number | undefined {
+  if (!dob) return undefined
+  const diff = Date.now() - dob.getTime()
+  const yrs = Math.floor(diff / (365.25 * 864e5))
+  return yrs > 0 && yrs < 120 ? yrs : undefined
 }
 
 /** A compact "label: value" digest of a completed form's answers. */
@@ -93,6 +111,7 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
     chats: mayFeedToAi(privacy, 'collectChats'),
     forms: mayFeedToAi(privacy, 'collectForms'),
     pulse: mayFeedToAi(privacy, 'collectPulse'),
+    profile: mayFeedToAi(privacy, 'collectProfile'),
   }
 
   const [user, profile, sub, latestAppt] = await Promise.all([
@@ -103,6 +122,9 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
       select: {
         diagnosis: true, track: true, subTrack: true, trackLabel: true,
         currentSituation: true, therapyStatus: true,
+        gender: true, dateOfBirth: true, city: true, state: true, country: true,
+        preferredLanguage: true, occupation: true, maritalStatus: true,
+        emergencyName: true, emergencyRelation: true,
       },
     }),
     prisma.subscription.findFirst({
@@ -174,6 +196,16 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
     therapyStatus: profile?.therapyStatus ?? undefined,
     therapistName: therapist?.name ?? undefined,
     therapistEmail: therapist?.email ?? undefined,
+    personal: allowed.profile && profile ? {
+      gender: profile.gender ?? undefined,
+      age: ageFrom(profile.dateOfBirth),
+      location: [profile.city, profile.state, profile.country].filter(Boolean).join(', ') || undefined,
+      preferredLanguage: profile.preferredLanguage ?? undefined,
+      occupation: profile.occupation ?? undefined,
+      maritalStatus: profile.maritalStatus ?? undefined,
+      emergencyName: profile.emergencyName ?? undefined,
+      emergencyRelation: profile.emergencyRelation ?? undefined,
+    } : undefined,
     mood: moodRows.map((m) => ({ date: isoDate(m.createdAt), score: m.mood, note: m.note ?? undefined })),
     journals: journalRows.map((j) => ({ date: isoDate(j.createdAt), entry: j.content })),
     sessions: apptRows.map((a) => ({

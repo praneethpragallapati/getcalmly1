@@ -96,6 +96,7 @@ export type PrivacyFlags = {
   collectJournals: boolean
   collectForms: boolean
   collectPulse: boolean
+  collectProfile: boolean
   feedToLlm: boolean
 }
 
@@ -429,6 +430,7 @@ export const demoDashboard: DashboardData = {
     collectJournals: true,
     collectForms: true,
     collectPulse: true,
+    collectProfile: true,
     feedToLlm: true,
   },
 }

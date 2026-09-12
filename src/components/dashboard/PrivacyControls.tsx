@@ -12,6 +12,7 @@ const CATEGORIES: { key: keyof Omit<PrivacyInput, 'feedToLlm'>; label: string; d
   { key: 'collectForms', label: 'Forms', desc: 'Answers to intake and other forms your care team sends' },
   { key: 'collectSessions', label: 'Session notes', desc: 'Pre-session notes & summaries' },
   { key: 'collectChats', label: 'Calm AI chats', desc: 'Your conversations with Calm AI' },
+  { key: 'collectProfile', label: 'Personal & contact details', desc: 'Your therapist, emergency contact, location and language' },
 ]
 
 function Toggle({
@@ -50,6 +51,7 @@ export function PrivacyControls({ initial }: { initial: PrivacyFlags }) {
     collectChats: initial.collectChats,
     collectForms: initial.collectForms,
     collectPulse: initial.collectPulse,
+    collectProfile: initial.collectProfile,
     feedToLlm: initial.feedToLlm,
   })
   const [saved, setSaved] = useState(false)

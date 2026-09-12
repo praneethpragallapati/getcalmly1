@@ -238,6 +238,21 @@ const NON_NEG =
   '- Be specific and human. Avoid hollow openers like "I hear you" or "That must be hard".\n' +
   '- Never use em dashes (—). Use a comma, period, or colon instead.'
 
+/** Who this person is — therapist, where they are, emergency contact, language.
+ *  Lets replies stay personal without the model guessing. */
+function personalBlock(ctx: PatientContext): string {
+  const p = ctx.personal
+  const lines: string[] = []
+  if (ctx.therapistName) lines.push(`Their therapist is ${ctx.therapistName}.`)
+  if (p?.location) lines.push(`They are based in ${p.location}.`)
+  if (p?.preferredLanguage) lines.push(`Preferred language: ${p.preferredLanguage}.`)
+  if (p?.occupation) lines.push(`Occupation: ${p.occupation}.`)
+  if (p?.age) lines.push(`Age: ${p.age}.`)
+  if (p?.emergencyName) lines.push(`Emergency contact on file: ${p.emergencyName}${p.emergencyRelation ? ` (${p.emergencyRelation})` : ''}.`)
+  if (!lines.length) return ''
+  return 'ABOUT THEM (use naturally, do not recite as a list):\n' + lines.join(' ') + '\n'
+}
+
 /** Pulse bands + recent forms in words, so any label can reference them. */
 function extraSignals(ctx: PatientContext): string {
   const parts: string[] = []
@@ -260,6 +275,7 @@ function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): str
     `Emotional state: ${emotionalState(ctx)}\n` +
     (moodSpike ? `ALERT: ${moodSpike}\n` : '') +
     '\n' +
+    personalBlock(ctx) +
     assessmentBlock(ctx) +
     extraSignals(ctx) +
     '\n'
