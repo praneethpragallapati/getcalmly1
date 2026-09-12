@@ -939,6 +939,26 @@
   margin-top: 10px;
   flex-wrap: wrap;
 }
+/* A journal row that links to its full entry. Preview is clamped to a few lines
+   so the list stays scannable; the full text lives on the entry page. */
+.calmly-app a.entry-link { display: block; text-decoration: none; color: inherit; }
+.calmly-app a.entry-link:hover .entry-title { color: var(--c-coral-d); }
+.calmly-app .entry-preview.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Full journal entry: readable measure, preserves the writer's line breaks. */
+.calmly-app .journal-body {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--c-charcoal);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 62ch;
+}
 
 .comm-item {
   display: flex;

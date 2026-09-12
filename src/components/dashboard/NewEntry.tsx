@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { PenLine, Check } from 'lucide-react'
 import { createJournalEntry } from '@/app/(dashboard)/app/actions'
+import { JOURNAL_MAX_CHARS, JOURNAL_READ_LABEL } from '@/lib/journal'
 
 const MOODS = ['Calm', 'Good', 'Okay', 'Low', 'Anxious']
 
@@ -63,9 +64,13 @@ export function NewEntry() {
             className="entry-input"
             placeholder="What's on your mind?"
             rows={6}
+            maxLength={JOURNAL_MAX_CHARS}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => setContent(e.target.value.slice(0, JOURNAL_MAX_CHARS))}
           />
+          <div style={{ fontSize: 11.5, color: content.length >= JOURNAL_MAX_CHARS ? '#e8896f' : '#8493a1', textAlign: 'right' }}>
+            {content.length.toLocaleString('en-IN')} / {JOURNAL_MAX_CHARS.toLocaleString('en-IN')} · {JOURNAL_READ_LABEL}
+          </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {MOODS.map((m) => (
               <button

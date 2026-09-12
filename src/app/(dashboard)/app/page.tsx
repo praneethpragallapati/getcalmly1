@@ -69,10 +69,12 @@ export default async function AppHomePage() {
           <div className="hero-side-label">WEEKLY INSIGHT</div>
           {d.weeklyInsight?.parts ? (
             // Three distinct reads: what recurs, what's underneath it, what's working.
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <InsightPart label="Pattern found" text={d.weeklyInsight.parts.pattern} tone="#e8896f" />
-              <InsightPart label="Hidden driver" text={d.weeklyInsight.parts.driver} tone="#9184e0" />
-              <InsightPart label="Quiet win" text={d.weeklyInsight.parts.win} tone="#6fc79b" />
+            // One quiet accent for all three labels — the bold uppercase labels and
+            // spacing separate them; three colours here just read as noise.
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <InsightPart label="Pattern found" text={d.weeklyInsight.parts.pattern} />
+              <InsightPart label="Hidden driver" text={d.weeklyInsight.parts.driver} />
+              <InsightPart label="Quiet win" text={d.weeklyInsight.parts.win} />
             </div>
           ) : (
             <>
@@ -153,13 +155,13 @@ export default async function AppHomePage() {
             </p>
           ) : (
             d.journals.slice(0, 3).map((j) => (
-              <div className="entry" key={j.id}>
+              <Link href={`/app/journal/${j.id}`} className="entry entry-link" key={j.id}>
                 <div className="entry-head">
                   <span className="entry-title">{j.title}</span>
                   <span className="entry-date">{j.date}</span>
                 </div>
-                <div className="entry-preview">{j.preview.slice(0, 110)}…</div>
-              </div>
+                <div className="entry-preview clamp">{j.preview}</div>
+              </Link>
             ))
           )}
         </div>
@@ -218,11 +220,11 @@ export default async function AppHomePage() {
   )
 }
 
-/** One labelled line of the weekly insight: a coloured label, then the finding. */
-function InsightPart({ label, text, tone }: { label: string; text: string; tone: string }) {
+/** One labelled line of the weekly insight: a quiet label, then the finding. */
+function InsightPart({ label, text }: { label: string; text: string }) {
   return (
     <div>
-      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.9px', textTransform: 'uppercase', color: tone, marginBottom: 3 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.9px', textTransform: 'uppercase', color: '#e8896f', marginBottom: 3 }}>
         {label}
       </div>
       <p style={{ fontSize: 13, color: '#c9d3dd', lineHeight: 1.55, margin: 0 }}>{text}</p>

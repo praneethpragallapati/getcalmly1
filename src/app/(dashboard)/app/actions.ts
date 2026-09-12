@@ -24,6 +24,7 @@ import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { pickHelplines } from '@/config/site'
 import { reportCrisis, type CrisisSeverity, type CrisisReportResult } from '@/lib/crisisReport'
+import { JOURNAL_MAX_CHARS, JOURNAL_READ_LABEL } from '@/lib/journal'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -284,6 +285,9 @@ export async function createJournalEntry(input: {
 }): Promise<ActionResult> {
   const content = input.content?.trim()
   if (!content) return { ok: false, persisted: false, error: 'Write something first.' }
+  if (content.length > JOURNAL_MAX_CHARS) {
+    return { ok: false, persisted: false, error: `Keep an entry under ${JOURNAL_MAX_CHARS.toLocaleString('en-IN')} characters (${JOURNAL_READ_LABEL}).` }
+  }
 
   const userId = await getSessionUserId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
@@ -292,7 +296,7 @@ export async function createJournalEntry(input: {
     await prisma.journalEntry.create({
       data: {
         userId,
-        title: input.title?.trim() || null,
+        title: input.title?.trim().slice(0, 120) || null,
         content,
         moodTag: input.moodTag || null,
         topicTags: input.topicTags ?? [],
