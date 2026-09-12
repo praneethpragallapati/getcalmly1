@@ -76,6 +76,53 @@ const CRISIS_KEYWORDS = [
   'hurt somebody',
 ]
 
+// Deterministic safety net + false-positive guard, ported from the v6 notebook.
+// These run on top of the LLM classifier so a real danger signal is never missed
+// and an angry vent does not trip a therapist alert.
+const SELF_HARM_SIGNALS = [
+  'suicid', 'kill myself', 'killing myself', 'end my life', 'end it all', 'want to die', 'wanna die',
+  'take my life', "don't want to be here", "don't want to live", 'better off dead', 'no reason to live',
+  'self harm', 'self-harm', 'harm myself', 'hurt myself', 'cut myself', 'overdose',
+]
+const VIOLENCE_TO_OTHERS_SIGNALS = [
+  'kill him', 'kill her', 'kill them', 'kill someone', 'hurt him', 'hurt her', 'hurt them', 'hurt someone',
+  'beat him', 'beat her', 'beat them', 'attack him', 'attack her', 'attack them', 'stab', 'shoot him', 'shoot her', 'shoot them',
+]
+const OUTWARD_HOSTILITY_SIGNALS = [
+  'humiliate', 'embarrass', 'confront', 'expose him', 'expose her', 'expose them', 'get back at', 'revenge',
+  'make him pay', 'make her pay', 'teach him a lesson', 'teach her a lesson', 'ruin him', 'ruin her',
+  'shame him', 'shame her', 'in front of everyone',
+]
+const hasSignal = (t: string, list: string[]) => list.some((k) => t.includes(k))
+
+/**
+ * 1) Explicit self-harm/violence -> always CRISIS (never miss a real one).
+ * 2) A CRISIS label with no danger signal + outward anger + no active clinical
+ *    risk -> RELATIONSHIP, so a vent does not trip a therapist alert.
+ */
+function refineCrisisLabel(question: string, label: string, intensity: string, ctx: PatientContext): { label: string; intensity: string } {
+  const t = (question || '').toLowerCase()
+  if (hasSignal(t, SELF_HARM_SIGNALS) || hasSignal(t, VIOLENCE_TO_OTHERS_SIGNALS)) {
+    return { label: 'CRISIS', intensity: 'crisis' }
+  }
+  if (label === 'CRISIS' && intensity !== 'crisis') {
+    const activeRisk = ctx.risk.passiveSiHistory || ctx.risk.safetyPlanActive
+    if (!activeRisk && hasSignal(t, OUTWARD_HOSTILITY_SIGNALS)) {
+      return { label: 'RELATIONSHIP', intensity }
+    }
+  }
+  return { label, intensity }
+}
+
+// Short follow-ups ("no", "I am not", "but why", "ok") carry no content on their
+// own — they only make sense against the prior turns, so they get history even
+// when their label normally wouldn't.
+const FOLLOWUP_OPENER = /^(but|and|so|because|why|actually|although|though|ok|okay|yeah|yes|no|nope|maybe|i guess|i think|i'?m not sure|not sure|what about|that|it)\b/i
+function isShortFollowup(q: string): boolean {
+  const s = q.trim()
+  return s.split(/\s+/).length <= 6 || FOLLOWUP_OPENER.test(s)
+}
+
 // ── Natural-language helpers (no raw scores reach the model) ──────────────────
 const SCORE_WORDS: Record<number, string> = {
   1: 'very low',
@@ -247,13 +294,14 @@ function dedupe(turns: ChatTurn[], threshold = 0.92): ChatTurn[] {
   return out
 }
 
-function buildMessages(label: string, question: string, ctx: PatientContext): ChatTurn[] {
-  const budget = LABEL_HISTORY_TURNS[label] ?? 6
+function buildMessages(label: string, question: string, history: ChatTurn[]): ChatTurn[] {
+  let budget = LABEL_HISTORY_TURNS[label] ?? 6
+  // A short follow-up needs its context back even for a zero-history label.
+  if (budget === 0 && label !== 'GREETING' && isShortFollowup(question) && history.length > 0) {
+    budget = 4
+  }
   if (budget === 0) return [{ role: 'user', content: question }]
-  const history: ChatTurn[] = ctx.chat
-    .filter((c) => c.role === 'user' || c.role === 'assistant')
-    .map((c) => ({ role: c.role, content: c.content.slice(0, 350) }))
-  const trimmed = dedupe(history.slice(-budget))
+  const trimmed = dedupe(history.slice(-budget).map((h) => ({ role: h.role, content: h.content.slice(0, 350) })))
   return [...trimmed, { role: 'user', content: question }]
 }
 
@@ -271,15 +319,16 @@ function heuristicClassify(text: string): { label: string; intent: string; inten
 
 async function classify(
   question: string,
-  ctx: PatientContext
+  history: ChatTurn[],
+  priorLabel: string,
 ): Promise<{ label: string; intent: string; intensity: string }> {
   if (!aiConfig.openAiKey) return heuristicClassify(question)
-  const recent = ctx.chat
+  const recent = history
     .slice(-4)
     .map((c) => `${c.role === 'user' ? 'Patient' : 'Bot'}: ${c.content.slice(0, 60)}`)
     .join(' | ')
-  const priorLabel = ctx.chat.filter((c) => c.role === 'assistant').slice(-1)[0] ? '' : ''
-  const msg = `${priorLabel}Recent conversation: ${recent || 'Start of conversation'}\nNew message: ${question}`
+  const hint = priorLabel ? `Prior label: ${priorLabel}. ` : ''
+  const msg = `${hint}Recent conversation: ${recent || 'Start of conversation'}\nNew message: ${question}`
   const res = await callModel(CLASSIFIER_MODEL, CLASSIFY_SYSTEM, [{ role: 'user', content: msg }], {
     temperature: 0,
     maxTokens: 30,
@@ -315,9 +364,8 @@ function detectMoodSpike(ctx: PatientContext): string {
 
 // De-escalation derived from stored labels: after CRISIS_DEESCALATE_AFTER calm
 // turns following a high-stake turn, drop back to normal routing.
-function checkDeescalation(ctx: PatientContext, label: string): boolean {
+function checkDeescalation(userLabels: string[], label: string): boolean {
   if (HIGH_STAKE_LABELS.has(label)) return false
-  const userLabels = ctx.chat.filter((c) => c.role === 'user' && c.label != null).map((c) => c.label as string)
   if (!userLabels.length) return false
   const lastHighIdx = userLabels.map((l) => HIGH_STAKE_LABELS.has(l)).lastIndexOf(true)
   if (lastHighIdx === -1) return false
@@ -392,12 +440,29 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
     return { reply: SUBSCRIBE_MSG, label: 'LIMIT', intent: '--', intensity: '--', highStake: false, model: 'limit', deescalated: false, spike: false }
   }
 
-  const cls = await classify(question, ctx)
+  // The live conversation's own recent turns — loaded directly (not through the
+  // privacy-gated context), because a chat that cannot see what was just said
+  // cannot hold a thread. The collectChats switch governs feeding chat into
+  // OTHER features, not the chat's own short-term memory.
+  const recentRows = await prisma.calmAiMessage
+    .findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 16, select: { role: true, content: true, label: true } })
+    .catch(() => [] as { role: 'USER' | 'ASSISTANT'; content: string; label: string | null }[])
+  const chrono = recentRows.slice().reverse()
+  const history: ChatTurn[] = chrono.map((r) => ({ role: r.role === 'ASSISTANT' ? 'assistant' : 'user', content: r.content }))
+  const userLabels = chrono.filter((r) => r.role === 'USER' && r.label).map((r) => r.label as string)
+  const priorLabel = userLabels[userLabels.length - 1] ?? ''
+
+  const cls = await classify(question, history, priorLabel)
   let { label } = cls
   const { intent } = cls
   let { intensity } = cls
 
-  const deescalated = checkDeescalation(ctx, label)
+  // Deterministic safety net + false-positive guard on top of the classifier.
+  const refined = refineCrisisLabel(question, label, intensity, ctx)
+  label = refined.label
+  intensity = refined.intensity
+
+  const deescalated = checkDeescalation(userLabels, label)
   if (deescalated) {
     label = 'VENT_MILD'
     intensity = 'low'
@@ -429,7 +494,7 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
 
   const moodSpike = detectMoodSpike(ctx)
   const system = buildPrompt(label, ctx, moodSpike)
-  const messages = buildMessages(label, question, ctx)
+  const messages = buildMessages(label, question, history)
   const { routine, highStake } = modelsForMembership(ctx.membership)
   const modelKey = isHs ? highStake : routine
 
