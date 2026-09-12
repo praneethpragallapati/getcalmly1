@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
-import { getSessionUserId, getSessionPatientId } from '@/lib/patient'
+import { getSessionUserId, getSessionPatientId, ensurePrivacySchema } from '@/lib/patient'
 import { rebuildAiProfile, runChat } from '@/lib/ai'
 import { buyPackageFor, buyFirstSessionFor, buyCalmPlusFor, hasPartnerOnRecord, savePartnerFor, type BuyableTrack, type BuyResult } from '@/lib/billing'
 import { autoSendIntakeForm, submitForm, runBookingFormRules } from '@/lib/forms'
@@ -723,6 +723,8 @@ export type PrivacyInput = {
   collectJournals: boolean
   collectSessions: boolean
   collectChats: boolean
+  collectForms: boolean
+  collectPulse: boolean
   feedToLlm: boolean
 }
 
@@ -731,6 +733,7 @@ export async function updatePrivacy(input: PrivacyInput): Promise<ActionResult> 
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
   try {
+    await ensurePrivacySchema()
     await prisma.privacySettings.upsert({
       where: { userId },
       create: { userId, ...input },

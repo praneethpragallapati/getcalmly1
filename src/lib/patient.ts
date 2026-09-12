@@ -41,6 +41,8 @@ export type Privacy = {
   collectChats: boolean
   collectMood: boolean
   collectJournals: boolean
+  collectForms: boolean
+  collectPulse: boolean
   feedToLlm: boolean
 }
 
@@ -49,7 +51,24 @@ const PRIVACY_DEFAULT: Privacy = {
   collectChats: true,
   collectMood: true,
   collectJournals: true,
+  collectForms: true,
+  collectPulse: true,
   feedToLlm: true,
+}
+
+// The forms/pulse switches arrived after the base table; create them on demand so
+// this works on a database that hasn't had the migration applied. One ALTER per
+// process (flag-guarded), mirroring the other self-healing schema helpers.
+let privacySchemaReady = false
+export async function ensurePrivacySchema(): Promise<void> {
+  if (privacySchemaReady) return
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectForms" BOOLEAN NOT NULL DEFAULT true`)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectPulse" BOOLEAN NOT NULL DEFAULT true`)
+    privacySchemaReady = true
+  } catch {
+    /* best-effort; reads fall back to permissive defaults */
+  }
 }
 
 /**
@@ -60,6 +79,7 @@ const PRIVACY_DEFAULT: Privacy = {
  */
 export async function getPrivacy(userId: string): Promise<Privacy> {
   try {
+    await ensurePrivacySchema()
     const row = await prisma.privacySettings.findUnique({ where: { userId } })
     if (row) {
       return {
@@ -67,6 +87,8 @@ export async function getPrivacy(userId: string): Promise<Privacy> {
         collectChats: row.collectChats,
         collectMood: row.collectMood,
         collectJournals: row.collectJournals,
+        collectForms: row.collectForms,
+        collectPulse: row.collectPulse,
         feedToLlm: row.feedToLlm,
       }
     }

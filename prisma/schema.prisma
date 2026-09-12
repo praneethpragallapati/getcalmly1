@@ -805,6 +805,9 @@ model PrivacySettings {
   collectChats    Boolean  @default(true)
   collectMood     Boolean  @default(true)
   collectJournals Boolean  @default(true)
+  // Assigned forms (intake/consent/feedback responses) and Pulse self-reports.
+  collectForms    Boolean  @default(true)
+  collectPulse    Boolean  @default(true)
   // Master switch: even collected data is excluded from LLM inputs when false.
   feedToLlm       Boolean  @default(true)
   updatedAt       DateTime @updatedAt

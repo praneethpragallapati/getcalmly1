@@ -94,6 +94,8 @@ export type PrivacyFlags = {
   collectChats: boolean
   collectMood: boolean
   collectJournals: boolean
+  collectForms: boolean
+  collectPulse: boolean
   feedToLlm: boolean
 }
 
@@ -425,6 +427,8 @@ export const demoDashboard: DashboardData = {
     collectChats: true,
     collectMood: true,
     collectJournals: true,
+    collectForms: true,
+    collectPulse: true,
     feedToLlm: true,
   },
 }

@@ -134,17 +134,28 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
     ? `PATIENT CONTEXT (read before writing): ${ctx.currentSituation}\nNever suggest partner/relationship actions if they are separated, divorced, widowed, or not in a relationship.\n`
     : ''
 
+  // Extra signals so the day-ahead note is grounded in everything we hold.
+  const pulse = pulseColour(ctx)
+  const forms = formsColour(ctx, 2)
+  const sess = ctx.membership === 'paid' ? latestSessionSummary(ctx) : ''
+  const extra =
+    (pulse ? `RECENT PULSE CHECK-INS (words only): ${pulse}\n` : '') +
+    (forms ? `RECENT FORMS: ${forms}\n` : '') +
+    (sess ? `LATEST SESSION SUMMARY: ${sess}\n` : '')
+
   const prompt =
-    `You are writing a daily check-in for ${ctx.firstName} on the '${ctx.trackLabel}' therapy track.\n` +
+    `You are writing a short "day ahead" check-in for ${ctx.firstName} on the '${ctx.trackLabel}' therapy track.\n` +
     sit +
     `Mood pattern source: ${patternInstruction}\n` +
+    extra +
     (b.suggSource === 'personal'
-      ? `Suggestion must be drawn from this personal history: ${b.suggestion}. Name the actual technique; reference their own experience.\n`
+      ? `What has helped before (draw the suggestion from this): ${b.suggestion}. Name the actual technique; reference their own experience.\n`
       : `Use exactly this suggestion: "${b.suggestion}".\n`) +
     'Return ONLY a JSON object: {"title": short headline (max 8 words, warm, no scores), ' +
-    '"body": exactly two sentences, sentence 1 the mood pattern, sentence 2 the suggestion, second person, no numbers, ' +
+    '"body": two or three sentences: what to expect today given the pattern above, then what has helped before, then one small thing to try today. ' +
+    'If there is not enough data to say what to expect, say that honestly and encourage logging. Second person, no numbers. ' +
     '"patterns": up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": one of coral|green|gold|purple}] ' +
-    '(coral=concern, green=positive, gold=improvement, purple=observation), drawn from their mood/journal data, no scores}. ' +
+    '(coral=concern, green=positive, gold=improvement, purple=observation), drawn from their data, no scores}. ' +
     'Never use em dashes (—) in any text; use a comma, period, or colon instead.'
 
   const res = await callModel(DAILY_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
@@ -162,6 +173,36 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
     patterns: normPatterns(parsed.patterns),
     meta: { suggSource: b.suggSource, dataSufficient: b.dataSufficient },
   }
+}
+
+// ── Shared: extra data sources in natural language (no raw numbers) ───────────
+
+/** Latest Pulse band per scale, e.g. "Depression (PHQ-9): Mild". Words, not numbers. */
+function pulseColour(ctx: PatientContext): string {
+  if (!ctx.pulse.length) return ''
+  const latest = new Map<string, { label?: string }>()
+  for (const s of ctx.pulse) latest.set(s.scale, { label: s.label }) // asc order, last wins
+  const parts = [...latest.entries()]
+    .map(([scale, s]) => (s.label ? `${INSTRUMENT_LABEL[scale] ?? scale}: ${s.label}` : null))
+    .filter(Boolean)
+  return parts.join(', ')
+}
+
+/** Recent completed forms with a short answer digest. */
+function formsColour(ctx: PatientContext, n = 3): string {
+  if (!ctx.forms.length) return ''
+  return ctx.forms.slice(0, n).map((f) => `${f.title}${f.summary ? ` (${f.summary.slice(0, 140)})` : ''}`).join(' | ')
+}
+
+/** The most recent synthesized session summary, if any. */
+function latestSessionSummary(ctx: PatientContext): string {
+  const s = ctx.sessions.find((x) => x.note)
+  return s ? s.note.slice(0, 220) : ''
+}
+
+const INSTRUMENT_LABEL: Record<string, string> = {
+  PHQ9: 'Depression (PHQ-9)', GAD7: 'Anxiety (GAD-7)', K10: 'Distress (K10)',
+  WHO5: 'Wellbeing (WHO-5)', GAS: 'Goals & alliance (GAS)',
 }
 
 // ── Weekly ──────────────────────────────────────────────────────────────────
@@ -223,8 +264,14 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
   const sit = ctx.currentSituation
     ? `PATIENT CONTEXT (read before writing): ${ctx.currentSituation}\nDo not suggest partner/relationship activities if they are separated, divorced, widowed, or not in a relationship.\n`
     : ''
+  const pulse = pulseColour(ctx)
+  const forms = formsColour(ctx)
+  const sessSummary = ctx.membership === 'paid' ? latestSessionSummary(ctx) : ''
   const colour =
     (w.journalColour ? `JOURNAL NOTES (supporting colour only):\n${w.journalColour}\n` : '') +
+    (pulse ? `PULSE CHECK-INS (self-reported bands, words only):\n${pulse}\n` : '') +
+    (forms ? `FORMS COMPLETED (supporting colour):\n${forms}\n` : '') +
+    (sessSummary ? `LATEST SESSION SUMMARY (supporting colour):\n${sessSummary}\n` : '') +
     (ctx.membership === 'paid' && w.sessionColour ? `SESSION NOTES (supporting colour only):\n${w.sessionColour}\n` : '')
 
   const prompt =

@@ -23,6 +23,7 @@ export type ChatPoint = {
   label?: string
 }
 export type ScorePoint = { date: string; scale: string; score: number; label?: string }
+export type FormPoint = { date: string; title: string; summary: string }
 
 export type PatientContext = {
   userId: string
@@ -45,6 +46,10 @@ export type PatientContext = {
   chat: ChatPoint[]
   // Expert-authored clinical context (gated under collectSessions).
   scores: ScorePoint[]
+  // Patient-reported Pulse scores (gated under collectPulse) and completed forms
+  // (gated under collectForms).
+  pulse: ScorePoint[]
+  forms: FormPoint[]
   scale?: string
   trend?: string
   whatHasHelped: string[]
@@ -56,7 +61,25 @@ export type PatientContext = {
     safetyPlanActive: boolean
     safetyPlanContact?: string
   }
-  allowed: { mood: boolean; journals: boolean; sessions: boolean; chats: boolean }
+  allowed: { mood: boolean; journals: boolean; sessions: boolean; chats: boolean; forms: boolean; pulse: boolean }
+}
+
+/** A compact "label: value" digest of a completed form's answers. */
+function summariseFormResponses(
+  responses: unknown,
+  fields: unknown,
+): string {
+  const resp = (responses && typeof responses === 'object') ? responses as Record<string, unknown> : {}
+  const flds = Array.isArray(fields) ? fields as { key?: string; label?: string }[] : []
+  const labelFor = (k: string) => flds.find((f) => f.key === k)?.label ?? k
+  const parts: string[] = []
+  for (const [k, v] of Object.entries(resp)) {
+    if (v == null || v === '') continue
+    const val = typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v)
+    parts.push(`${labelFor(k)}: ${val.slice(0, 80)}`)
+    if (parts.length >= 8) break
+  }
+  return parts.join('; ')
 }
 
 const isoDate = (d: Date) => d.toISOString().slice(0, 10)
@@ -68,6 +91,8 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
     journals: mayFeedToAi(privacy, 'collectJournals'),
     sessions: mayFeedToAi(privacy, 'collectSessions'),
     chats: mayFeedToAi(privacy, 'collectChats'),
+    forms: mayFeedToAi(privacy, 'collectForms'),
+    pulse: mayFeedToAi(privacy, 'collectPulse'),
   }
 
   const [user, profile, sub, latestAppt] = await Promise.all([
@@ -94,7 +119,7 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
   if (!user) return null
 
   // Privacy-gated raw histories.
-  const [moodRows, journalRows, apptRows, chatRows, clinical, scoreRows] = await Promise.all([
+  const [moodRows, journalRows, apptRows, chatRows, clinical, scoreRows, pulseRows, formRows] = await Promise.all([
     allowed.mood
       ? prisma.moodEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 60 })
       : Promise.resolve([]),
@@ -116,6 +141,19 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
       : Promise.resolve(null),
     allowed.sessions
       ? prisma.assessmentScore.findMany({ where: { userId }, orderBy: { recordedAt: 'asc' }, take: 24 })
+      : Promise.resolve([]),
+    // Pulse self-reports (PHQ-9, GAD-7, GAS, K10, WHO-5) — patient-reported.
+    allowed.pulse
+      ? prisma.assessmentScore.findMany({ where: { userId, source: 'patient' }, orderBy: { recordedAt: 'asc' }, take: 30 }).catch(() => [])
+      : Promise.resolve([]),
+    // Completed forms the care team assigned (intake / consent / feedback).
+    allowed.forms
+      ? prisma.formAssignment.findMany({
+          where: { patientId: userId, status: 'COMPLETED' },
+          orderBy: { completedAt: 'desc' },
+          take: 6,
+          select: { completedAt: true, sentAt: true, responses: true, fields: true, template: { select: { title: true, fields: true } } },
+        }).catch(() => [])
       : Promise.resolve([]),
   ])
 
@@ -157,6 +195,17 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
       scale: s.scale,
       score: s.score,
       label: s.label ?? undefined,
+    })),
+    pulse: pulseRows.map((s) => ({
+      date: isoDate(s.recordedAt),
+      scale: s.scale,
+      score: s.score,
+      label: s.label ?? s.band ?? undefined,
+    })),
+    forms: formRows.map((f) => ({
+      date: isoDate(f.completedAt ?? f.sentAt),
+      title: f.template.title,
+      summary: summariseFormResponses(f.responses, f.fields ?? f.template.fields),
     })),
     scale: clinical?.scale ?? undefined,
     trend: clinical?.trend ?? undefined,

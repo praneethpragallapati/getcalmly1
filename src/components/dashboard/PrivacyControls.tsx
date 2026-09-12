@@ -8,6 +8,8 @@ import type { PrivacyFlags } from '@/data/dashboardDemo'
 const CATEGORIES: { key: keyof Omit<PrivacyInput, 'feedToLlm'>; label: string; desc: string }[] = [
   { key: 'collectMood', label: 'Mood check-ins', desc: 'Daily mood, energy & calm scores' },
   { key: 'collectJournals', label: 'Journal entries', desc: 'What you write in your journal' },
+  { key: 'collectPulse', label: 'Pulse check-ins', desc: 'Your PHQ-9, GAD-7, GAS and other check-in scores' },
+  { key: 'collectForms', label: 'Forms', desc: 'Answers to intake and other forms your care team sends' },
   { key: 'collectSessions', label: 'Session notes', desc: 'Pre-session notes & summaries' },
   { key: 'collectChats', label: 'Calm AI chats', desc: 'Your conversations with Calm AI' },
 ]
@@ -46,6 +48,8 @@ export function PrivacyControls({ initial }: { initial: PrivacyFlags }) {
     collectJournals: initial.collectJournals,
     collectSessions: initial.collectSessions,
     collectChats: initial.collectChats,
+    collectForms: initial.collectForms,
+    collectPulse: initial.collectPulse,
     feedToLlm: initial.feedToLlm,
   })
   const [saved, setSaved] = useState(false)

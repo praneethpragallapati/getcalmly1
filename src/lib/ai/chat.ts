@@ -238,6 +238,21 @@ const NON_NEG =
   '- Be specific and human. Avoid hollow openers like "I hear you" or "That must be hard".\n' +
   '- Never use em dashes (—). Use a comma, period, or colon instead.'
 
+/** Pulse bands + recent forms in words, so any label can reference them. */
+function extraSignals(ctx: PatientContext): string {
+  const parts: string[] = []
+  if (ctx.pulse.length) {
+    const latest = new Map<string, string | undefined>()
+    for (const s of ctx.pulse) latest.set(s.scale, s.label)
+    const p = [...latest.entries()].filter(([, l]) => l).map(([sc, l]) => `${sc}: ${l}`).join(', ')
+    if (p) parts.push('Recent check-in bands: ' + p)
+  }
+  if (ctx.forms.length) {
+    parts.push('Recent forms: ' + ctx.forms.slice(0, 2).map((f) => f.title).join(', '))
+  }
+  return parts.length ? parts.join('\n') + '\n' : ''
+}
+
 function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): string {
   const base =
     `You are Calmly, a warm mental wellness companion for ${ctx.firstName} on GetCalmly.\n` +
@@ -246,6 +261,7 @@ function buildPrompt(label: string, ctx: PatientContext, moodSpike: string): str
     (moodSpike ? `ALERT: ${moodSpike}\n` : '') +
     '\n' +
     assessmentBlock(ctx) +
+    extraSignals(ctx) +
     '\n'
 
   if (label === 'GREETING') {
