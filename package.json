@@ -11,6 +11,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "hms:lock": "tsx scripts/hms-lock-template.ts",
+    "seed:demo": "tsx scripts/seed-demo-activity.ts",
     "env:check": "node scripts/check-env.mjs",
     "check:counters": "tsx scripts/check-package-counters.mts",
     "check:scope": "tsx scripts/check-care-scope.mts",

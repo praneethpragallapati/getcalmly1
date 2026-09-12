@@ -204,11 +204,19 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
   const w = weeklyBlocks(ctx)
 
   if (!w.dataSufficient) {
+    // Not enough logged this week to find real patterns. We still return the same
+    // three sections the full insight uses, so the card's shape is consistent —
+    // here they gently explain what each section will hold once there's data.
+    const parts = {
+      pattern: `A few days of check-ins will reveal the pattern that repeats across your week, ${ctx.firstName}.`,
+      driver: 'Add a short note with each check-in, and I can point to what is quietly shaping your mood.',
+      win: 'You came to look at your progress today. That is the first step, and it counts.',
+    }
     return {
       title: 'Building your weekly picture',
       body: `There isn't enough mood data from this week to give you a proper picture yet, ${ctx.firstName}. The more days you log, even a quick note, the more I can reflect back. Try logging today and the next few days.`,
       patterns: [],
-      meta: { dataSufficient: false, moodCount: w.moodCount },
+      meta: { dataSufficient: false, moodCount: w.moodCount, parts },
     }
   }
 
