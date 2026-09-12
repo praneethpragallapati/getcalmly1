@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
 import { getJournalEntry } from '@/lib/journal'
+import { JournalEntryView } from '@/components/dashboard/JournalEntryView'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,15 +28,7 @@ export default async function JournalEntryPage({ params }: { params: Promise<{ i
       </div>
 
       <div className="card" style={{ maxWidth: 680 }}>
-        {(entry.moodTag || entry.topicTags.length > 0) && (
-          <div className="entry-tags" style={{ marginTop: 0, marginBottom: 16 }}>
-            {entry.moodTag && <span className="tag">{entry.moodTag}</span>}
-            {entry.topicTags.map((t) => (
-              <span className="tag t-purple" key={t}>{t}</span>
-            ))}
-          </div>
-        )}
-        <div className="journal-body">{entry.content}</div>
+        <JournalEntryView entry={entry} />
       </div>
     </>
   )

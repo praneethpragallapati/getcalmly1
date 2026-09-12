@@ -6,6 +6,7 @@ import { aiConfig, hasLlm } from '@/lib/ai/config'
 import { callModel } from '@/lib/ai/clients'
 import { MODELS, PROVIDERS, INSIGHT_MODEL, PAID_ROUTINE, type ModelKey } from '@/lib/ai/models'
 import { storeInsight } from '@/lib/ai/insights'
+import { seedDemoActivity } from '@/lib/demoSeed'
 
 async function isAdmin(): Promise<boolean> {
   const u = await getSessionUser()
@@ -90,5 +91,34 @@ export async function generateInsightsNow(email: string): Promise<GenerateReport
     return { ok: true, daily, weekly }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Generation failed.' }
+  }
+}
+
+export type SeedReport = { ok: boolean; error?: string; mood?: number; journals?: number; daily?: boolean; weekly?: boolean }
+
+/**
+ * Seed ~4 weeks of demo mood + journal activity and profile context for one
+ * patient, then regenerate their insights — so the daily/weekly cards have
+ * consistent material. Admin-only; the seeded rows are tagged and removable.
+ */
+export async function seedDemoAndGenerate(email: string): Promise<SeedReport> {
+  if (!(await isAdmin())) return { ok: false, error: 'Not authorized.' }
+  const clean = (email ?? '').trim().toLowerCase()
+  if (!clean) return { ok: false, error: 'Enter a patient email.' }
+
+  const user = await prisma.user.findUnique({ where: { email: clean }, select: { id: true, role: true } })
+  if (!user) return { ok: false, error: 'No user with that email.' }
+  if (user.role !== 'PATIENT') return { ok: false, error: 'That account is not a patient.' }
+
+  try {
+    const seeded = await seedDemoActivity(user.id, 4)
+    if (!hasLlm()) {
+      return { ok: true, mood: seeded.mood, journals: seeded.journals, daily: false, weekly: false }
+    }
+    const daily = await storeInsight(user.id, 'DAILY')
+    const weekly = await storeInsight(user.id, 'WEEKLY')
+    return { ok: true, mood: seeded.mood, journals: seeded.journals, daily, weekly }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Seeding failed.' }
   }
 }

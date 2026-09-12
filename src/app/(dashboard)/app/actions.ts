@@ -311,6 +311,59 @@ export async function createJournalEntry(input: {
   }
 }
 
+/** Edit one of the patient's own journal entries. Ownership-gated; same length
+ *  cap as creation. */
+export async function updateJournalEntry(input: {
+  id: string
+  title?: string
+  content: string
+  moodTag?: string | null
+}): Promise<ActionResult> {
+  const content = input.content?.trim()
+  if (!content) return { ok: false, persisted: false, error: 'Write something first.' }
+  if (content.length > JOURNAL_MAX_CHARS) {
+    return { ok: false, persisted: false, error: `Keep an entry under ${JOURNAL_MAX_CHARS.toLocaleString('en-IN')} characters (${JOURNAL_READ_LABEL}).` }
+  }
+
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
+
+  try {
+    const result = await prisma.journalEntry.updateMany({
+      where: { id: input.id, userId }, // ownership gate
+      data: {
+        title: input.title?.trim().slice(0, 120) || null,
+        content,
+        moodTag: input.moodTag?.trim() || null,
+      },
+    })
+    if (result.count === 0) return { ok: false, persisted: false, error: 'That entry no longer exists.' }
+    await rebuildAiProfile(userId).catch(() => {})
+    revalidatePath('/app')
+    revalidatePath('/app/journal')
+    revalidatePath(`/app/journal/${input.id}`)
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not save your changes.' }
+  }
+}
+
+/** Delete one of the patient's own journal entries. Ownership-gated. */
+export async function deleteJournalEntry(id: string): Promise<ActionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
+  try {
+    const result = await prisma.journalEntry.deleteMany({ where: { id, userId } }) // ownership gate
+    if (result.count === 0) return { ok: false, persisted: false, error: 'That entry no longer exists.' }
+    await rebuildAiProfile(userId).catch(() => {})
+    revalidatePath('/app')
+    revalidatePath('/app/journal')
+    return { ok: true, persisted: true }
+  } catch {
+    return { ok: false, persisted: false, error: 'Could not delete this entry.' }
+  }
+}
+
 /**
  * Save the note a patient prepares before a session, shared with the expert (#9).
  * Authorization: the update is scoped to an appointment the signed-in patient

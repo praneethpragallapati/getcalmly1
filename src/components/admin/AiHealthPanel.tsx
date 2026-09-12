@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Activity, PlayCircle, Sparkles } from 'lucide-react'
-import { runAiProbe, generateInsightsNow, type AiProbeReport, type GenerateReport } from '@/app/admin/ai-health/actions'
+import { Activity, PlayCircle, Sparkles, Database } from 'lucide-react'
+import { runAiProbe, generateInsightsNow, seedDemoAndGenerate, type AiProbeReport, type GenerateReport, type SeedReport } from '@/app/admin/ai-health/actions'
 
 function Pill({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   return (
@@ -30,6 +30,9 @@ export function AiHealthPanel() {
   const [email, setEmail] = useState('')
   const [probing, startProbe] = useTransition()
   const [generating, startGen] = useTransition()
+  const [seedEmail, setSeedEmail] = useState('')
+  const [seed, setSeed] = useState<SeedReport | null>(null)
+  const [seeding, startSeed] = useTransition()
 
   return (
     <div className="stack" style={{ gap: 16 }}>
@@ -116,6 +119,43 @@ export function AiHealthPanel() {
               </div>
             ) : (
               <p style={{ color: 'var(--c-coral-d)', fontWeight: 600, margin: 0 }}>{gen.error}</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Seed demo activity + refresh (test accounts) */}
+      <div className="card">
+        <div className="prov-row">
+          <span className="section-title" style={{ fontSize: 18 }}>Seed demo activity</span>
+          <span className="prov-badge">Test accounts only</span>
+        </div>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Adds ~4 weeks of realistic mood check-ins, journal entries and profile context for this patient, then regenerates their insights — so the cards have consistent material. Seeded rows are tagged and removable.
+        </p>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            className="entry-input" style={{ maxWidth: 280 }} type="email"
+            placeholder="patient@email.com" value={seedEmail} onChange={(e) => setSeedEmail(e.target.value)}
+          />
+          <button
+            className="btn btn-primary" disabled={seeding || !seedEmail.trim()}
+            onClick={() => startSeed(async () => setSeed(await seedDemoAndGenerate(seedEmail)))}
+          >
+            <Database size={16} /> {seeding ? 'Seeding…' : 'Seed + refresh'}
+          </button>
+        </div>
+        {seed && (
+          <div style={{ marginTop: 12 }}>
+            {seed.ok ? (
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                <Pill ok>{seed.mood} check-ins</Pill>
+                <Pill ok>{seed.journals} journals</Pill>
+                <Pill ok={Boolean(seed.daily)}>Daily {seed.daily ? 'generated' : 'pending'}</Pill>
+                <Pill ok={Boolean(seed.weekly)}>Weekly {seed.weekly ? 'generated' : 'pending'}</Pill>
+              </div>
+            ) : (
+              <p style={{ color: 'var(--c-coral-d)', fontWeight: 600, margin: 0 }}>{seed.error}</p>
             )}
           </div>
         )}

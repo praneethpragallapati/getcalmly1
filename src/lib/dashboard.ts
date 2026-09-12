@@ -357,7 +357,10 @@ export async function getDashboardData(): Promise<DashboardData> {
         id: j.id,
         title: j.title ?? 'Untitled entry',
         date: fmtIST(j.createdAt, { day: 'numeric', month: 'short' }),
-        preview: j.content,
+        // List views show a short preview only; the full entry lives on its own
+        // page. Truncated server-side so the whole entry never reaches a list,
+        // regardless of any CSS clamp.
+        preview: j.content.length > 200 ? `${j.content.slice(0, 200).trimEnd()}…` : j.content,
         moodTag: j.moodTag ?? undefined,
         topicTags: j.topicTags,
       }))
