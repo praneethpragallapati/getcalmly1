@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
 import { canAccess } from '@/lib/adminRoles'
 import { ensureAdminTypeSchema } from '@/lib/adminTypeSchema'
-import { LayoutDashboard, Inbox, Users, UserPlus, HeartPulse, CalendarClock, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Wallet } from 'lucide-react'
+import { LayoutDashboard, Inbox, Users, UserPlus, HeartPulse, CalendarClock, TrendingUp, Newspaper, Settings, Tags, MessageSquareHeart, Wallet, Activity } from 'lucide-react'
 import '../(dashboard)/app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -118,7 +118,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         )}
 
         {canAccess(admin.adminType, 'content') && (
-        <NavGroup heading="PLATFORM" storageKey="admin" hrefs={['/admin/content', '/admin/perspectives', '/admin/guided', '/admin/config']}>
+        <NavGroup heading="PLATFORM" storageKey="admin" hrefs={['/admin/content', '/admin/perspectives', '/admin/guided', '/admin/config', '/admin/ai-health']}>
           {/* Content also covers Perspectives + Guided calm (tabbed together). */}
           <SidebarLink href="/admin/content" match={['/admin/perspectives', '/admin/guided']}>
             <Newspaper size={18} />
@@ -127,6 +127,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/config">
             <Settings size={18} />
             <span>Configuration</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/ai-health">
+            <Activity size={18} />
+            <span>AI health</span>
           </SidebarLink>
         </NavGroup>
         )}
