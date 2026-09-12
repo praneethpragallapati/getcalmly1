@@ -4,7 +4,7 @@ import { getSessionUser } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { aiConfig, hasLlm } from '@/lib/ai/config'
 import { callModel } from '@/lib/ai/clients'
-import { MODELS, PROVIDERS, INSIGHT_MODEL, PAID_ROUTINE, type ModelKey } from '@/lib/ai/models'
+import { MODELS, PROVIDERS, INSIGHT_MODEL, PAID_ROUTINE, WEEKLY_MODEL, type ModelKey } from '@/lib/ai/models'
 import { storeInsight } from '@/lib/ai/insights'
 import { seedDemoActivity } from '@/lib/demoSeed'
 
@@ -40,11 +40,15 @@ export async function runAiProbe(): Promise<AiProbeReport> {
   if (!(await isAdmin())) return { ok: false, error: 'Not authorized.' }
 
   const targets: [string, ModelKey][] = [
-    ['Insights / classifier', INSIGHT_MODEL],
-    ['Calm AI chat (paid routine)', PAID_ROUTINE],
+    ['Daily insight / classifier / routine chat', INSIGHT_MODEL],
+    ['Routine chat', PAID_ROUTINE],
+    ['High-stake chat + weekly insight', WEEKLY_MODEL],
   ]
+  // De-duplicate when several roles map to the same model key.
+  const seen = new Set<ModelKey>()
+  const uniqueTargets = targets.filter(([, k]) => (seen.has(k) ? false : (seen.add(k), true)))
   const probes: ProbeResult[] = []
-  for (const [label, key] of targets) {
+  for (const [label, key] of uniqueTargets) {
     const r = await callModel(
       key,
       'You output only valid JSON.',
