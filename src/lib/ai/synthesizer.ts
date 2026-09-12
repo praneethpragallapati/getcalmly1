@@ -12,17 +12,21 @@ import type { PatientContext } from './context'
 export type SourceType = 'session_note' | 'journal' | 'chat_log' | 'general'
 
 const PROMPTS: Record<SourceType, string> = {
+  // Deliberately detailed: a session note must keep every clinically important
+  // fact, so this is a structured summary (120-160 words), not a one-liner.
   session_note:
     'Compress this therapy session note into a structured clinical summary.\n' +
-    'Use short sentences (max 10 words each), not just keywords, not full paragraphs.\n' +
-    'Output format (use exactly these headings):\n' +
-    'Date: [date]\nScores: [PHQ/GAD scores if present, else NONE]\n' +
-    'Themes: [2-3 sentences on key emotional/clinical themes]\n' +
-    'Treatment: [1 sentence on current approach or technique]\n' +
-    'Homework: [what was assigned, or NONE]\n' +
-    'Risk: [any SI, self-harm, or safety flags, NONE if absent]\n' +
-    'Plan: [next step in one sentence]\n' +
-    'Max 90 words total. Short sentences. Clinical but readable.',
+    'Use short sentences (max 12 words each), not just keywords and not full paragraphs.\n' +
+    'Keep every clinically important detail. Do not over-compress or drop key facts.\n' +
+    'Output format (use exactly these headings, one per line):\n' +
+    'Date: [date if present, else NONE]\n' +
+    'Scores: [PHQ-9 / GAD-7 / CGI / C-SSRS or other scores if present, else NONE]\n' +
+    'Themes: [2 to 3 short sentences on the key emotional and clinical themes]\n' +
+    'Treatment: [1 to 2 sentences on the current approach or technique]\n' +
+    'Tasks: [what was assigned to the patient, or NONE]\n' +
+    'Risk: [any suicidal ideation, self-harm, or safety flags, or NONE]\n' +
+    'Plan: [the next step, in one or two sentences]\n' +
+    'Aim for 120 to 160 words total. Clinical but readable. Never use em dashes.',
   journal:
     'Compress this journal entry into a warm narrative summary an AI wellness companion can reference. ' +
     'Write in second person (you/your). Capture: emotional state, key events or thoughts, any progress or struggles. ' +
@@ -37,15 +41,23 @@ const PROMPTS: Record<SourceType, string> = {
     'Max 60 words. One flowing paragraph.',
 }
 
+// Session notes get more room so detail survives; the narrative modes stay tight.
+const MAX_TOKENS: Record<SourceType, number> = { session_note: 320, journal: 160, chat_log: 180, general: 180 }
+
 /** Compress one block of raw text. Returns null on empty input or failure. */
 export async function synthesize(rawText: string, sourceType: SourceType): Promise<string | null> {
   const text = rawText.trim()
   if (!text) return null
-  const res = await callModel(SYNTH_MODEL, PROMPTS[sourceType], [{ role: 'user', content: text }], {
+  const res = await callModel(SYNTH_MODEL, PROMPTS[sourceType], [{ role: 'user', content: text.slice(0, 12000) }], {
     temperature: 0,
-    maxTokens: 180,
+    maxTokens: MAX_TOKENS[sourceType],
   })
   return res.answer
+}
+
+/** Convenience: synthesize a single session note into the structured summary. */
+export function synthesizeSessionNote(rawText: string): Promise<string | null> {
+  return synthesize(rawText, 'session_note')
 }
 
 export type SynthResult = { summary: string | null; sessionSummary: string | null; journalDigest: string | null }

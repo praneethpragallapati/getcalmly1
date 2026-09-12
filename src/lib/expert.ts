@@ -26,6 +26,7 @@ import { parseCompensationFields, type CompensationField } from '@/lib/compensat
 import { callModel } from '@/lib/ai/clients'
 import { SYNTH_MODEL } from '@/lib/ai/models'
 import { hasLlm } from '@/lib/ai/config'
+import { synthesizeSessionNote } from '@/lib/ai/synthesizer'
 import {
   getEarningsConfig,
   effectiveEarningsConfig,
@@ -1298,6 +1299,19 @@ export async function writeSessionSummary(
       status: eligible ? 'COMPLETED' : appt.status,
     },
   })
+
+  // Synthesize the note into a compact clinical summary for the AI layer. The
+  // aiSummary column is self-healed here so this works before the migration is
+  // applied. Best-effort: a synthesis failure must never fail saving the note.
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "aiSummary" TEXT`)
+    const digest = await synthesizeSessionNote(summary)
+    if (digest) {
+      await prisma.$executeRaw`UPDATE "Appointment" SET "aiSummary" = ${digest} WHERE "id" = ${appointmentId}`
+    }
+  } catch {
+    /* best-effort */
+  }
   return true
 }
 

@@ -162,7 +162,7 @@ export function AiHealthPanel() {
       </div>
 
       <p className="muted" style={{ fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Activity size={13} /> Insights also regenerate automatically each morning (01:30 UTC) and weekly (Sunday 02:30 UTC) via the scheduled jobs.
+        <Activity size={13} /> Insights also regenerate automatically each morning (07:00 IST) and weekly (Sunday 20:00 IST) via the scheduled jobs.
       </p>
     </div>
   )

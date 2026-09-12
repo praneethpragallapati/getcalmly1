@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { bail, bailErr } from '@/lib/actionLog'
 import { prisma } from '@/lib/prisma'
 import { recordScore } from '@/lib/outcomes/store'
+import { generateClinicianCopilot } from '@/lib/ai/copilot'
 import {
   getTherapistContext,
   resolveCrisisAlert,
@@ -719,5 +720,22 @@ export async function updateTherapistProfile(input: TherapistProfileInput): Prom
       ? 'That phone number or registration number is already in use.'
       : 'Could not save your profile.'
     return { ok: false, error: msg }
+  }
+}
+
+/**
+ * Clinician Copilot: generate the progress-since-last-session brief for a patient
+ * the clinician owns. Read-only; runs on demand from the patient profile.
+ */
+export async function generateCopilotBrief(
+  patientId: string,
+): Promise<{ ok: boolean; brief?: string; firstSession?: boolean; error?: string }> {
+  const ctx = await getTherapistContext()
+  if (!ctx) return { ok: false, error: 'Not signed in as a clinician.' }
+  if (!(await ownsPatient(ctx.therapistProfileId, patientId))) return { ok: false, error: 'Not your patient.' }
+  try {
+    return await generateClinicianCopilot(patientId)
+  } catch {
+    return { ok: false, error: 'Could not generate the brief.' }
   }
 }

@@ -179,7 +179,8 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
     sessions: apptRows.map((a) => ({
       date: isoDate(a.scheduledAt),
       durationMin: a.durationMins,
-      note: a.summary ?? a.preSessionNote ?? '',
+      // Prefer the synthesized clinical summary; fall back to the raw note.
+      note: a.aiSummary ?? a.summary ?? a.preSessionNote ?? '',
     })),
     chat: chatRows
       .reverse()

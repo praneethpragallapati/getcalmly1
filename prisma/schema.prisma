@@ -538,6 +538,9 @@ model Appointment {
   memberRating     Int?
   memberRatingNote String?  @db.Text
   summary        String?           @db.Text
+  // AI-synthesized clinical summary of `summary`, produced when the note is
+  // saved. Compressed but detailed; fed to the insight jobs and the Copilot.
+  aiSummary      String?           @db.Text
   // Presence tracking for the strict completion rule: a session counts as
   // COMPLETED only when BOTH sides joined, they were together for >= 30 min, and
   // a clinical note is written. Timestamps are set the first time each side
