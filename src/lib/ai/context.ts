@@ -153,7 +153,10 @@ export async function buildPatientContext(userId: string): Promise<PatientContex
           where: { patientId: userId, OR: [{ summary: { not: null } }, { preSessionNote: { not: null } }] },
           orderBy: { scheduledAt: 'desc' },
           take: 6,
-        })
+          // Explicit select + catch: a not-yet-healed aiSummary column must never
+          // crash the whole context build (and with it the chat).
+          select: { scheduledAt: true, durationMins: true, summary: true, preSessionNote: true, aiSummary: true },
+        }).catch(() => [] as { scheduledAt: Date; durationMins: number; summary: string | null; preSessionNote: string | null; aiSummary: string | null }[])
       : Promise.resolve([]),
     allowed.chats
       ? prisma.calmAiMessage.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 40 })

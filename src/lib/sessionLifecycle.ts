@@ -45,6 +45,10 @@ export async function ensureSessionPresenceSchema(): Promise<void> {
   if (presenceSchemaReady) return
   await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "patientLastSeenAt" TIMESTAMP(3)`)
   await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "therapistLastSeenAt" TIMESTAMP(3)`)
+  // AI-synthesized session summary. Healed here (this runs before the dashboard's
+  // due-appointment sweep and every session flow) so no full-row Appointment read
+  // hits a missing column before a session note self-heals it.
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "aiSummary" TEXT`)
   await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "SessionPresenceSpan" (
     "id" TEXT NOT NULL, "appointmentId" TEXT NOT NULL, "role" TEXT NOT NULL, "userId" TEXT NOT NULL,
     "joinedAt" TIMESTAMP(3) NOT NULL, "lastSeenAt" TIMESTAMP(3) NOT NULL,

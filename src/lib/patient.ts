@@ -68,6 +68,9 @@ export async function ensurePrivacySchema(): Promise<void> {
     await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectForms" BOOLEAN NOT NULL DEFAULT true`)
     await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectPulse" BOOLEAN NOT NULL DEFAULT true`)
     await prisma.$executeRawUnsafe(`ALTER TABLE "PrivacySettings" ADD COLUMN IF NOT EXISTS "collectProfile" BOOLEAN NOT NULL DEFAULT true`)
+    // The AI layer selects Appointment.aiSummary; create it here too so a chat or
+    // insight build never hits a missing column before a session note self-heals it.
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "aiSummary" TEXT`)
     privacySchemaReady = true
   } catch {
     /* best-effort; reads fall back to permissive defaults */
