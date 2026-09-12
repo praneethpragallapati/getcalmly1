@@ -11,9 +11,9 @@
  */
 import { prisma } from '@/lib/prisma'
 import { callModel } from './clients'
-import { COPILOT_MODEL } from './models'
 import { hasLlm } from './config'
 import { recordAiUsage } from './usage'
+import { getAiConfig, configTypeFor } from './settings'
 import { fmtIST } from '@/lib/tz'
 
 export type CopilotBrief = { ok: boolean; brief?: string; firstSession?: boolean; error?: string }
@@ -25,6 +25,8 @@ const SCALE_LABEL: Record<string, string> = {
 
 export async function generateClinicianCopilot(patientId: string): Promise<CopilotBrief> {
   if (!hasLlm()) return { ok: false, error: 'No AI model is configured.' }
+  const [cfg, type] = await Promise.all([getAiConfig(), configTypeFor(patientId)])
+  if (!cfg.features[type].copilot) return { ok: false, error: 'The Copilot is turned off for this plan.' }
 
   const [user, completed, scoreRows, moods, journalCount] = await Promise.all([
     prisma.user.findUnique({ where: { id: patientId }, select: { name: true, patientProfile: { select: { trackLabel: true, diagnosis: true, currentSituation: true } } } }).catch(() => null),
@@ -100,10 +102,10 @@ export async function generateClinicianCopilot(patientId: string): Promise<Copil
     'Be factual and clinical. Numbers and scores are fine (the reader is the clinician). ' +
     'Do not invent anything not supported by the data above. Keep it under 200 words. Never use em dashes.'
 
-  const res = await callModel(COPILOT_MODEL, 'You write concise, factual clinical briefs.', [{ role: 'user', content: prompt }], {
+  const res = await callModel(cfg.models.copilot, 'You write concise, factual clinical briefs.', [{ role: 'user', content: prompt }], {
     temperature: 0.3, maxTokens: 380,
   })
-  await recordAiUsage('copilot', COPILOT_MODEL, res.inp, res.out, patientId)
+  await recordAiUsage('copilot', cfg.models.copilot, res.inp, res.out, patientId)
   if (!res.answer) return { ok: false, error: 'The model did not return a brief. Check AI health.' }
   return { ok: true, brief: res.answer, firstSession }
 }

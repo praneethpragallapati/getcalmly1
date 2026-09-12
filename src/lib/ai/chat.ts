@@ -7,11 +7,10 @@
  * falls back to the transparent rule-based reply (see app/actions.ts).
  */
 import { prisma } from '@/lib/prisma'
-import { aiConfig, FREE_DAILY_LIMIT } from './config'
+import { aiConfig } from './config'
 import { callModel, type ChatTurn } from './clients'
 import { buildPatientContext, type PatientContext } from './context'
 import {
-  CLASSIFIER_MODEL,
   CRISIS_DEESCALATE_AFTER,
   HIGH_STAKE_LABELS,
   INTENSITY_SCORE,
@@ -19,13 +18,14 @@ import {
   LABEL_MAX_TOKENS,
   LABEL_TEMPERATURE,
   MODELS,
-  modelsForMembership,
   VALID_INTENSITY,
   VALID_INTENTS,
   VALID_LABELS,
 } from './models'
 import { notifyCrisisAlert } from '@/lib/adminNotify'
-import { recordAiUsage } from './usage'
+import { recordAiUsage, monthlyTokensFor } from './usage'
+import { getAiConfig, configTypeFor } from './settings'
+import type { ModelKey } from './models'
 
 const ICALL = aiConfig.iCall
 
@@ -376,6 +376,7 @@ async function classify(
   history: ChatTurn[],
   priorLabel: string,
   userId: string,
+  classifierModel: ModelKey,
 ): Promise<{ label: string; intent: string; intensity: string }> {
   if (!aiConfig.openAiKey) return heuristicClassify(question)
   const recent = history
@@ -384,12 +385,12 @@ async function classify(
     .join(' | ')
   const hint = priorLabel ? `Prior label: ${priorLabel}. ` : ''
   const msg = `${hint}Recent conversation: ${recent || 'Start of conversation'}\nNew message: ${question}`
-  const res = await callModel(CLASSIFIER_MODEL, CLASSIFY_SYSTEM, [{ role: 'user', content: msg }], {
+  const res = await callModel(classifierModel, CLASSIFY_SYSTEM, [{ role: 'user', content: msg }], {
     temperature: 0,
     maxTokens: 30,
     jsonMode: true,
   })
-  await recordAiUsage('chat_classify', CLASSIFIER_MODEL, res.inp, res.out, userId)
+  await recordAiUsage('chat_classify', classifierModel, res.inp, res.out, userId)
   if (!res.answer) return heuristicClassify(question)
   try {
     const p = JSON.parse(res.answer)
@@ -429,14 +430,15 @@ function checkDeescalation(userLabels: string[], label: string): boolean {
   return calmSince >= CRISIS_DEESCALATE_AFTER - 1
 }
 
-async function freeLimitReached(ctx: PatientContext): Promise<boolean> {
-  if (ctx.membership === 'paid') return false
+/** Daily chat cap for this user's type (0 = unlimited). Admin-configurable. */
+async function dailyLimitReached(userId: string, perDay: number): Promise<boolean> {
+  if (perDay <= 0) return false
   const start = new Date()
   start.setHours(0, 0, 0, 0)
   const count = await prisma.calmAiMessage.count({
-    where: { userId: ctx.userId, role: 'USER', createdAt: { gte: start } },
+    where: { userId, role: 'USER', createdAt: { gte: start } },
   })
-  return count >= FREE_DAILY_LIMIT
+  return count >= perDay
 }
 
 async function saveCrisisAlert(ctx: PatientContext, question: string, answer: string, label: string) {
@@ -488,7 +490,25 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
   const ctx = await buildPatientContext(userId)
   if (!ctx) return null
 
-  if (await freeLimitReached(ctx)) {
+  const cfg = await getAiConfig()
+  const userType = await configTypeFor(userId)
+
+  // Feature gate: chatbot can be switched off per user type by an admin.
+  if (!cfg.features[userType].chatbot) {
+    const msg = 'Calm AI chat is not available on your plan right now.'
+    return { reply: msg, label: 'DISABLED', intent: '--', intensity: '--', highStake: false, model: 'disabled', deescalated: false, spike: false }
+  }
+
+  // Monthly token cap per user type (0 = unlimited).
+  const cap = cfg.limits.monthlyTokenCap[userType]
+  if (cap > 0 && (await monthlyTokensFor(userId)) >= cap) {
+    const msg = "You've reached this month's usage limit for Calm AI. It resets at the start of next month."
+    await prisma.calmAiMessage.create({ data: { userId, role: 'USER', content: question } })
+    await prisma.calmAiMessage.create({ data: { userId, role: 'ASSISTANT', content: msg, label: 'LIMIT', model: 'limit' } })
+    return { reply: msg, label: 'LIMIT', intent: '--', intensity: '--', highStake: false, model: 'limit', deescalated: false, spike: false }
+  }
+
+  if (await dailyLimitReached(userId, cfg.limits.chatsPerDay[userType])) {
     await prisma.calmAiMessage.create({ data: { userId, role: 'USER', content: question } })
     await prisma.calmAiMessage.create({
       data: { userId, role: 'ASSISTANT', content: SUBSCRIBE_MSG, label: 'LIMIT', model: 'limit' },
@@ -508,7 +528,7 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
   const userLabels = chrono.filter((r) => r.role === 'USER' && r.label).map((r) => r.label as string)
   const priorLabel = userLabels[userLabels.length - 1] ?? ''
 
-  const cls = await classify(question, history, priorLabel, userId)
+  const cls = await classify(question, history, priorLabel, userId, cfg.models.classifier)
   let { label } = cls
   const { intent } = cls
   let { intensity } = cls
@@ -551,8 +571,8 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
   const moodSpike = detectMoodSpike(ctx)
   const system = buildPrompt(label, ctx, moodSpike)
   const messages = buildMessages(label, question, history)
-  const { routine, highStake } = modelsForMembership(ctx.membership)
-  const modelKey = isHs ? highStake : routine
+  const reply = cfg.models.chatReply[userType]
+  const modelKey = isHs ? reply.highStake : reply.routine
 
   const res = await callModel(modelKey, system, messages, {
     temperature: LABEL_TEMPERATURE[label] ?? 0.7,

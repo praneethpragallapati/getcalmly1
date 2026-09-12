@@ -11,8 +11,8 @@ import { prisma } from '@/lib/prisma'
 import type { InsightKind } from '@prisma/client'
 import { hasLlm } from './config'
 import { callModel } from './clients'
-import { DAILY_MODEL, WEEKLY_MODEL } from './models'
 import { recordAiUsage } from './usage'
+import { getAiConfig, configTypeFor } from './settings'
 import { buildPatientContext, type PatientContext } from './context'
 import { trackFallback } from './tracks'
 
@@ -123,6 +123,8 @@ function dailyContextBlocks(ctx: PatientContext) {
 
 export async function generateDailyInsight(userId: string): Promise<InsightPayload | null> {
   if (!hasLlm()) return null
+  const [cfg, type] = await Promise.all([getAiConfig(), configTypeFor(userId)])
+  if (!cfg.features[type].daily) return null
   const ctx = await buildPatientContext(userId)
   if (!ctx) return null
   const b = dailyContextBlocks(ctx)
@@ -159,12 +161,12 @@ export async function generateDailyInsight(userId: string): Promise<InsightPaylo
     '(coral=concern, green=positive, gold=improvement, purple=observation), drawn from their data, no scores}. ' +
     'Never use em dashes (—) in any text; use a comma, period, or colon instead.'
 
-  const res = await callModel(DAILY_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
+  const res = await callModel(cfg.models.daily, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
     temperature: 0.6,
     maxTokens: 300,
     jsonMode: true,
   })
-  await recordAiUsage('daily', DAILY_MODEL, res.inp, res.out, userId)
+  await recordAiUsage('daily', cfg.models.daily, res.inp, res.out, userId)
   if (!res.answer) return null
   const parsed = parseJson(res.answer)
   if (!parsed?.body) return null
@@ -242,6 +244,8 @@ function weeklyBlocks(ctx: PatientContext, days = 7) {
 
 export async function generateWeeklyInsight(userId: string): Promise<InsightPayload | null> {
   if (!hasLlm()) return null
+  const [cfg, type] = await Promise.all([getAiConfig(), configTypeFor(userId)])
+  if (!cfg.features[type].weekly) return null
   const ctx = await buildPatientContext(userId)
   if (!ctx) return null
   const w = weeklyBlocks(ctx)
@@ -295,12 +299,12 @@ export async function generateWeeklyInsight(userId: string): Promise<InsightPayl
     'Each must say something DIFFERENT — never restate one in another.\n' +
     '"patterns": up to 3 items [{"title": <=6 words, "sub": short evidence <=8 words, "tone": coral|green|gold|purple}] drawn from journals/mood, no scores.'
 
-  const res = await callModel(WEEKLY_MODEL, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
+  const res = await callModel(cfg.models.weekly, 'You output only valid JSON.', [{ role: 'user', content: prompt }], {
     temperature: 0.6,
     maxTokens: 420,
     jsonMode: true,
   })
-  await recordAiUsage('weekly', WEEKLY_MODEL, res.inp, res.out, userId)
+  await recordAiUsage('weekly', cfg.models.weekly, res.inp, res.out, userId)
   if (!res.answer) return null
   const parsed = parseJson(res.answer)
 

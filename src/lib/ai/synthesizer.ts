@@ -6,8 +6,8 @@
  * instead of raw records. All inputs are already privacy-gated by buildPatientContext.
  */
 import { callModel } from './clients'
-import { SYNTH_MODEL } from './models'
 import { recordAiUsage } from './usage'
+import { getAiConfig } from './settings'
 import type { PatientContext } from './context'
 
 export type SourceType = 'session_note' | 'journal' | 'chat_log' | 'general'
@@ -49,11 +49,12 @@ const MAX_TOKENS: Record<SourceType, number> = { session_note: 320, journal: 160
 export async function synthesize(rawText: string, sourceType: SourceType, userId?: string): Promise<string | null> {
   const text = rawText.trim()
   if (!text) return null
-  const res = await callModel(SYNTH_MODEL, PROMPTS[sourceType], [{ role: 'user', content: text.slice(0, 12000) }], {
+  const model = (await getAiConfig()).models.synthesizer
+  const res = await callModel(model, PROMPTS[sourceType], [{ role: 'user', content: text.slice(0, 12000) }], {
     temperature: 0,
     maxTokens: MAX_TOKENS[sourceType],
   })
-  await recordAiUsage('synth', SYNTH_MODEL, res.inp, res.out, userId)
+  await recordAiUsage('synth', model, res.inp, res.out, userId)
   return res.answer
 }
 

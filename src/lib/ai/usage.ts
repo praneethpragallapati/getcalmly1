@@ -112,6 +112,19 @@ export async function getUsageOverview(): Promise<UsageOverview> {
   return { day, week, month, year, byType, byFeature, daily, avgCostPerDay30: month.cost / 30 }
 }
 
+/** Tokens this user has consumed in the current calendar month (for the cap). */
+export async function monthlyTokensFor(userId: string): Promise<number> {
+  try {
+    await ensureUsageSchema()
+    const rows = await prisma.$queryRaw<{ tokens: bigint | null }[]>`
+      SELECT SUM("inputTokens"+"outputTokens") AS tokens FROM "AiUsage"
+      WHERE "userId" = ${userId} AND "createdAt" >= date_trunc('month', NOW())`
+    return Number(rows[0]?.tokens ?? 0)
+  } catch {
+    return 0
+  }
+}
+
 export type PatientUsage = { total: Totals; last30: Totals; avgCostPerDay: number; avgTokensPerDay: number; firstDay: string | null }
 
 /** One patient's token/cost consumption, with a per-day average. */

@@ -118,7 +118,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         )}
 
         {canAccess(admin.adminType, 'content') && (
-        <NavGroup heading="PLATFORM" storageKey="admin" hrefs={['/admin/content', '/admin/perspectives', '/admin/guided', '/admin/config', '/admin/ai-health', '/admin/ai-usage']}>
+        <NavGroup heading="PLATFORM" storageKey="admin" hrefs={['/admin/content', '/admin/perspectives', '/admin/guided', '/admin/config', '/admin/ai-health', '/admin/ai-usage', '/admin/ai-settings']}>
           {/* Content also covers Perspectives + Guided calm (tabbed together). */}
           <SidebarLink href="/admin/content" match={['/admin/perspectives', '/admin/guided']}>
             <Newspaper size={18} />
@@ -135,6 +135,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarLink href="/admin/ai-usage">
             <TrendingUp size={18} />
             <span>AI usage</span>
+          </SidebarLink>
+          <SidebarLink href="/admin/ai-settings">
+            <Settings size={18} />
+            <span>AI settings</span>
           </SidebarLink>
         </NavGroup>
         )}
