@@ -123,52 +123,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      {/* The patient's week, from session notes, mood check-ins and task
-          adherence. Not an AI brief — every figure comes off the record. */}
-      {weeklySummary && <WeeklySummaryCard summary={weeklySummary} />}
-
-      {!supervisorView && <ClinicianCopilot patientId={id} />}
-
-      <ClinicianOutcomePanel userId={id} />
-
-      {!supervisorView && (
-        <section className="card" style={{ marginTop: 16 }}>
-          <div className="section-title">Pulse checks</div>
-          <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>
-            Assign the self-report checks this patient can fill (PHQ-9, GAD-7, GAS, K10, WHO-5), with a frequency and optional expiry. Patients can only fill what you assign.
-          </p>
-          <PulseAssignForm patientId={id} assigned={pulseAssigned} />
-        </section>
-      )}
-
-      {/* Reference, not clinical work — collapsed so the care sections stay
-          near the top. */}
-      <details className="card" style={{ padding: 0 }}>
-        <summary style={{ cursor: 'pointer', padding: '16px 20px', fontWeight: 700, fontSize: 15, color: 'var(--c-charcoal)' }}>
-          Contact &amp; personal details
-        </summary>
-        <div style={{ padding: '0 20px 18px' }}>
-          <p className="muted" style={{ fontSize: 12.5, margin: '0 0 4px' }}>
-            How to reach this patient and their emergency contact between sessions.
-          </p>
-          <DetailGrid
-            fields={[
-              { label: 'Member ID', value: p.contact.code },
-              { label: 'Email', value: p.contact.email },
-              { label: 'Phone', value: p.contact.phone },
-              { label: 'Date of birth', value: p.contact.dateOfBirth ? fmtIST(new Date(p.contact.dateOfBirth), { day: 'numeric', month: 'short', year: 'numeric' }) : null },
-              { label: 'Gender', value: p.contact.gender },
-              { label: 'Marital status', value: p.contact.maritalStatus },
-              { label: 'Occupation', value: p.contact.occupation },
-              { label: 'Preferred language', value: p.contact.preferredLanguage },
-              { label: 'Address', value: formatAddress(p.contact) },
-              { label: 'Emergency contact', value: formatEmergencyContact(p.contact) },
-              { label: 'Member since', value: p.contact.joinedLabel },
-            ]}
-          />
-        </div>
-      </details>
-
+      {/* ── Safety first: anything that needs a clinician's attention ── */}
       {(patientAlerts.length > 0 || p.moodTrend === 'declining') && (
         <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
           <div className="pattern" style={{ padding: 0 }}>
@@ -199,6 +154,9 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           </div>
         </div>
       )}
+
+      {/* ── Overview: the snapshot a clinician scans before a session ── */}
+      <GroupHeader>Overview</GroupHeader>
 
       {/* At a glance — the numbers a clinician scans before a session, in one
           card rather than six. */}
@@ -281,6 +239,103 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
+      {/* This week \u2014 engagement snapshot straight off the record. */}
+      {weeklySummary && <WeeklySummaryCard summary={weeklySummary} />}
+
+      {/* \u2500\u2500 Clinical picture: the AI brief, then the measures \u2500\u2500 */}
+      <GroupHeader>Clinical picture</GroupHeader>
+
+      {!supervisorView && <ClinicianCopilot patientId={id} />}
+
+      <ClinicianOutcomePanel userId={id} />
+
+      {/* \u2500\u2500 Care plan: what you assign, send and prescribe \u2500\u2500 */}
+      <GroupHeader>Care plan</GroupHeader>
+
+      <div className="grid-2" style={{ alignItems: 'start' }}>
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 12 }}>Assigned tasks ({p.taskCompletionPct}% done)</div>
+          {p.tasks.length === 0 && <p className="muted">No tasks assigned yet.</p>}
+          {p.tasks.map((t) => (
+            <div key={t.id} className="pattern">
+              <span className={`pattern-ic ${t.done ? 't-green' : t.expired ? 't-coral' : 't-purple'}`}>
+                {t.done ? <Check size={16} /> : <Flame size={16} />}
+              </span>
+              <div>
+                <div className="pattern-title">{t.title}</div>
+                <div className="pattern-sub">
+                  {t.type}
+                  {t.frequencyLabel ? ` \u00b7 ${t.frequencyLabel}` : ''}
+                  {t.timesLabel ? ` \u00b7 ${t.timesLabel}` : ''}
+                  {t.dueLabel ? ` \u00b7 ${t.done ? 'done' : t.expired ? `expired ${t.dueLabel}` : `until ${t.dueLabel}`}` : ''}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {!supervisorView && (
+          <div className="card">
+            <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
+            <AssignTaskForm patientId={p.patientId} />
+          </div>
+        )}
+      </div>
+
+      {!supervisorView && (
+        <section className="card">
+          <div className="section-title">Pulse checks</div>
+          <p className="muted" style={{ fontSize: 12, marginBottom: 10 }}>
+            Assign the self-report checks this patient can fill (PHQ-9, GAD-7, GAS, K10, WHO-5), with a frequency and optional expiry. Patients can only fill what you assign.
+          </p>
+          <PulseAssignForm patientId={id} assigned={pulseAssigned} />
+        </section>
+      )}
+
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <FileText size={16} /> Forms
+        </div>
+        <p className="muted" style={{ marginBottom: 14 }}>
+          Send a consent or information form from the library. The patient fills it in from their dashboard and
+          you&apos;ll see it marked complete here.
+        </p>
+
+        {sentForms.length === 0 && <p className="muted">No forms sent yet.</p>}
+        {sentForms.map((f) => (
+          <div key={f.id} className="pattern">
+            <span className={`pattern-ic ${f.status === 'COMPLETED' ? 't-green' : 't-gold'}`}>
+              {f.status === 'COMPLETED' ? <Check size={16} /> : <FileText size={16} />}
+            </span>
+            <div style={{ flex: 1 }}>
+              <div className="pattern-title">
+                {f.title} <span className="muted" style={{ fontWeight: 400 }}>\u00b7 {FORM_KIND_LABEL[f.kind] ?? f.kind}</span>
+              </div>
+              <div className="pattern-sub">
+                {[
+                  `sent ${f.sentLabel}${f.assignedBy ? ` by ${f.assignedBy}` : ''}`,
+                  f.status === 'COMPLETED' ? `completed ${f.completedLabel}` : 'awaiting completion',
+                ].join(' \u00b7 ')}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {!supervisorView && (
+          <SendFormCard
+            patientId={p.patientId}
+            templates={formLibrary.map((t) => ({ id: t.id, title: t.title, kind: t.kind }))}
+          />
+        )}
+      </div>
+
+      <AssignGuidedTrack
+        patientId={p.patientId}
+        tracks={guidedTracks}
+        assignments={guidedAssignments}
+        readOnly={supervisorView}
+      />
+
       {(ctx.isPsychiatrist || supervisorView) && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -336,79 +391,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <FileText size={16} /> Forms
-        </div>
-        <p className="muted" style={{ marginBottom: 14 }}>
-          Send a consent or information form from the library. The patient fills it in from their dashboard and
-          you&apos;ll see it marked complete here.
-        </p>
-
-        {sentForms.length === 0 && <p className="muted">No forms sent yet.</p>}
-        {sentForms.map((f) => (
-          <div key={f.id} className="pattern">
-            <span className={`pattern-ic ${f.status === 'COMPLETED' ? 't-green' : 't-gold'}`}>
-              {f.status === 'COMPLETED' ? <Check size={16} /> : <FileText size={16} />}
-            </span>
-            <div style={{ flex: 1 }}>
-              <div className="pattern-title">
-                {f.title} <span className="muted" style={{ fontWeight: 400 }}>· {FORM_KIND_LABEL[f.kind] ?? f.kind}</span>
-              </div>
-              <div className="pattern-sub">
-                {[
-                  `sent ${f.sentLabel}${f.assignedBy ? ` by ${f.assignedBy}` : ''}`,
-                  f.status === 'COMPLETED' ? `completed ${f.completedLabel}` : 'awaiting completion',
-                ].join(' · ')}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {!supervisorView && (
-          <SendFormCard
-            patientId={p.patientId}
-            templates={formLibrary.map((t) => ({ id: t.id, title: t.title, kind: t.kind }))}
-          />
-        )}
-      </div>
-
-      <div className="grid-2" style={{ alignItems: 'start' }}>
-        <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Assigned tasks ({p.taskCompletionPct}% done)</div>
-          {p.tasks.length === 0 && <p className="muted">No tasks assigned yet.</p>}
-          {p.tasks.map((t) => (
-            <div key={t.id} className="pattern">
-              <span className={`pattern-ic ${t.done ? 't-green' : t.expired ? 't-coral' : 't-purple'}`}>
-                {t.done ? <Check size={16} /> : <Flame size={16} />}
-              </span>
-              <div>
-                <div className="pattern-title">{t.title}</div>
-                <div className="pattern-sub">
-                  {t.type}
-                  {t.frequencyLabel ? ` · ${t.frequencyLabel}` : ''}
-                  {t.timesLabel ? ` · ${t.timesLabel}` : ''}
-                  {t.dueLabel ? ` · ${t.done ? 'done' : t.expired ? `expired ${t.dueLabel}` : `until ${t.dueLabel}`}` : ''}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {!supervisorView && (
-          <div className="card">
-            <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
-            <AssignTaskForm patientId={p.patientId} />
-          </div>
-        )}
-      </div>
-
-      <AssignGuidedTrack
-        patientId={p.patientId}
-        tracks={guidedTracks}
-        assignments={guidedAssignments}
-        readOnly={supervisorView}
-      />
+      {/* ── Records: the written record and reference details ── */}
+      <GroupHeader>Records</GroupHeader>
 
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Session notes</div>
@@ -454,6 +438,45 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
           )
         })}
       </div>
+
+      {/* Reference, not clinical work — collapsed at the very bottom. */}
+      <details className="card" style={{ padding: 0 }}>
+        <summary style={{ cursor: 'pointer', padding: '16px 20px', fontWeight: 700, fontSize: 15, color: 'var(--c-charcoal)' }}>
+          Contact &amp; personal details
+        </summary>
+        <div style={{ padding: '0 20px 18px' }}>
+          <p className="muted" style={{ fontSize: 12.5, margin: '0 0 4px' }}>
+            How to reach this patient and their emergency contact between sessions.
+          </p>
+          <DetailGrid
+            fields={[
+              { label: 'Member ID', value: p.contact.code },
+              { label: 'Email', value: p.contact.email },
+              { label: 'Phone', value: p.contact.phone },
+              { label: 'Date of birth', value: p.contact.dateOfBirth ? fmtIST(new Date(p.contact.dateOfBirth), { day: 'numeric', month: 'short', year: 'numeric' }) : null },
+              { label: 'Gender', value: p.contact.gender },
+              { label: 'Marital status', value: p.contact.maritalStatus },
+              { label: 'Occupation', value: p.contact.occupation },
+              { label: 'Preferred language', value: p.contact.preferredLanguage },
+              { label: 'Address', value: formatAddress(p.contact) },
+              { label: 'Emergency contact', value: formatEmergencyContact(p.contact) },
+              { label: 'Member since', value: p.contact.joinedLabel },
+            ]}
+          />
+        </div>
+      </details>
+    </div>
+  )
+}
+
+/** A quiet zone label between groups of cards, so the page reads in sections. */
+function GroupHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      fontSize: 12, fontWeight: 800, letterSpacing: '.09em', textTransform: 'uppercase',
+      color: 'var(--c-gray)', marginTop: 6, marginBottom: -6,
+    }}>
+      {children}
     </div>
   )
 }
