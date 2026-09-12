@@ -38,7 +38,7 @@ const CLASSIFY_SYSTEM =
   'SESSION_REFLECT  - questions about therapy sessions or therapist advice\n' +
   'VENT_MILD        - mild frustration or everyday stress\n' +
   'VENT_DISTRESS    - significant sadness, hopelessness, emotional pain (not crisis)\n' +
-  'CRISIS           - self-harm, suicide, wanting to die, safety risk\n' +
+  'CRISIS           - self-harm, suicide, wanting to die, OR intent/threat to harm another person; an immediate safety risk\n' +
   'ADVICE_SEEK      - wants coping tips, exercises, suggestions\n' +
   'RELATIONSHIP     - partner, family, friends, loneliness, social conflict\n' +
   'MEDICAL_QUESTION - medication, diagnosis, clinical questions\n' +
@@ -58,6 +58,7 @@ const SUBSCRIBE_MSG =
   "You've reached today's free message limit. I'll be right here tomorrow, and GetCalmly Premium members can talk any time, with full access to their journal and session context. Upgrade at getcalmly.com/subscribe."
 
 const CRISIS_KEYWORDS = [
+  // Self-harm / suicide
   'suicid',
   'kill myself',
   'end my life',
@@ -66,6 +67,13 @@ const CRISIS_KEYWORDS = [
   'self harm',
   'self-harm',
   'hurt myself',
+  // Harm to others
+  'kill him',
+  'kill her',
+  'kill them',
+  'hurt someone',
+  'harm someone',
+  'hurt somebody',
 ]
 
 // ── Natural-language helpers (no raw scores reach the model) ──────────────────
@@ -395,6 +403,11 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
     intensity = 'low'
   }
   const isHs = HIGH_STAKE_LABELS.has(label)
+  // Who gets a hand-off. Distress (sadness/hopelessness) still routes to the
+  // stronger model for a better reply, but it must NOT interrupt the care team:
+  // only an actual safety event — self-harm, suicide, or a threat to harm
+  // someone else — notifies the clinician and admins.
+  const isCrisis = label === 'CRISIS'
 
   const persistTurn = async (reply: string, modelUsed: string) => {
     await prisma.calmAiMessage.create({
@@ -427,14 +440,15 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
 
   let answer = res.answer
   if (!answer) {
-    answer = isHs
+    answer = isCrisis
       ? `I'm here with you. Please reach out to ${ctx.therapistName ?? 'a professional'} or call iCall at ${ICALL}, you don't have to handle this alone.`
       : 'Something went wrong on my end. Please try again in a moment.'
   }
 
   const modelUsed = MODELS[modelKey]
   await persistTurn(answer, modelUsed)
-  if (isHs) {
+  // Only a real safety event hands off to the care team; distress alone does not.
+  if (isCrisis) {
     try {
       await saveCrisisAlert(ctx, question, answer, label)
     } catch {
