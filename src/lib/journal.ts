@@ -11,6 +11,8 @@ import { prisma } from '@/lib/prisma'
 import { fmtIST } from '@/lib/tz'
 
 export const JOURNAL_MAX_CHARS = 6000
+/** A journal title is a heading, not a sentence — keep it short. */
+export const JOURNAL_TITLE_MAX = 80
 /** Shown next to the composer's character counter. */
 export const JOURNAL_READ_LABEL = 'about a 5 minute read'
 

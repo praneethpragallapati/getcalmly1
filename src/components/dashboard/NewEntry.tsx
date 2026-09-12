@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { PenLine, Check } from 'lucide-react'
 import { createJournalEntry } from '@/app/(dashboard)/app/actions'
-import { JOURNAL_MAX_CHARS, JOURNAL_READ_LABEL } from '@/lib/journal'
+import { JOURNAL_MAX_CHARS, JOURNAL_TITLE_MAX, JOURNAL_READ_LABEL } from '@/lib/journal'
 
 const MOODS = ['Calm', 'Good', 'Okay', 'Low', 'Anxious']
 
@@ -54,12 +54,21 @@ export function NewEntry() {
         </button>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <input
-            className="entry-input"
-            placeholder="Give it a title (optional)"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <div>
+            <input
+              className="entry-input"
+              placeholder="Give it a title (optional)"
+              maxLength={JOURNAL_TITLE_MAX}
+              value={title}
+              onChange={(e) => setTitle(e.target.value.slice(0, JOURNAL_TITLE_MAX))}
+              style={{ width: '100%' }}
+            />
+            {title.length >= JOURNAL_TITLE_MAX - 15 && (
+              <div style={{ fontSize: 11.5, color: title.length >= JOURNAL_TITLE_MAX ? '#e8896f' : '#8493a1', textAlign: 'right', marginTop: 2 }}>
+                {title.length} / {JOURNAL_TITLE_MAX}
+              </div>
+            )}
+          </div>
           <textarea
             className="entry-input"
             placeholder="What's on your mind?"

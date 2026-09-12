@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { updateJournalEntry, deleteJournalEntry } from '@/app/(dashboard)/app/actions'
-import { JOURNAL_MAX_CHARS, JOURNAL_READ_LABEL, type JournalDetail } from '@/lib/journal'
+import { JOURNAL_MAX_CHARS, JOURNAL_TITLE_MAX, JOURNAL_READ_LABEL, type JournalDetail } from '@/lib/journal'
 
 const MOODS = ['Calm', 'Good', 'Okay', 'Low', 'Anxious']
 
@@ -43,7 +43,15 @@ export function JournalEntryView({ entry }: { entry: JournalDetail }) {
   if (editing) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <input className="entry-input" placeholder="Give it a title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input
+          className="entry-input" placeholder="Give it a title (optional)" maxLength={JOURNAL_TITLE_MAX}
+          value={title} onChange={(e) => setTitle(e.target.value.slice(0, JOURNAL_TITLE_MAX))}
+        />
+        {title.length >= JOURNAL_TITLE_MAX - 15 && (
+          <div style={{ fontSize: 11.5, color: title.length >= JOURNAL_TITLE_MAX ? 'var(--c-coral-d)' : 'var(--c-gray)', textAlign: 'right' }}>
+            {title.length} / {JOURNAL_TITLE_MAX}
+          </div>
+        )}
         <textarea
           className="entry-input" rows={12} maxLength={JOURNAL_MAX_CHARS}
           value={content} onChange={(e) => setContent(e.target.value.slice(0, JOURNAL_MAX_CHARS))}

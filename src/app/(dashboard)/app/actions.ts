@@ -24,7 +24,7 @@ import { normalizeCountry } from '@/lib/countries'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { pickHelplines } from '@/config/site'
 import { reportCrisis, type CrisisSeverity, type CrisisReportResult } from '@/lib/crisisReport'
-import { JOURNAL_MAX_CHARS, JOURNAL_READ_LABEL } from '@/lib/journal'
+import { JOURNAL_MAX_CHARS, JOURNAL_TITLE_MAX, JOURNAL_READ_LABEL } from '@/lib/journal'
 
 // Assessment concern tag → a short human label for the primary concern.
 const TAG_LABEL: Record<string, string> = {
@@ -296,7 +296,7 @@ export async function createJournalEntry(input: {
     await prisma.journalEntry.create({
       data: {
         userId,
-        title: input.title?.trim().slice(0, 120) || null,
+        title: input.title?.trim().slice(0, JOURNAL_TITLE_MAX) || null,
         content,
         moodTag: input.moodTag || null,
         topicTags: input.topicTags ?? [],
@@ -332,7 +332,7 @@ export async function updateJournalEntry(input: {
     const result = await prisma.journalEntry.updateMany({
       where: { id: input.id, userId }, // ownership gate
       data: {
-        title: input.title?.trim().slice(0, 120) || null,
+        title: input.title?.trim().slice(0, JOURNAL_TITLE_MAX) || null,
         content,
         moodTag: input.moodTag?.trim() || null,
       },
