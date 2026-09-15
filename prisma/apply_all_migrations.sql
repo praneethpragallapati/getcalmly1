@@ -42,6 +42,23 @@ ALTER TABLE "Appointment" ADD COLUMN IF NOT EXISTS "consumedSubscriptionId" TEXT
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "gender" TEXT;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "clinicianType" TEXT;
 
+-- Earnings / onboarding columns from the EARLY migrations (0008, 0010, 0012).
+-- This consolidated file was written as a 0014→0043 catch-up, which assumed the
+-- database had already run 0001–0013. A database created by `prisma db push` or
+-- one migrated only part-way is missing these, and then the expert portal (which
+-- reads employmentType) and the clinician seed both break. Add them here too so
+-- this file lives up to its promise of adding EVERY column the app expects.
+DO $$ BEGIN CREATE TYPE "EmploymentType" AS ENUM ('FULL_TIME', 'PART_TIME'); EXCEPTION WHEN duplicate_object THEN null; END $$;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "employmentType" "EmploymentType" NOT NULL DEFAULT 'FULL_TIME';
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "documentUrls" TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "baseFeeIndividual" INTEGER;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "baseFeeCouples" INTEGER;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "baseFeePsychiatry" INTEGER;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "secondSessionBonus" INTEGER;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "thirdOnwardsBonus" INTEGER;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "miscBonus" INTEGER;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "nightSessionBonus" INTEGER;
+
 -- 0018 · One ACTIVE package per (userId, trackSlug). Merge any existing
 -- duplicate ACTIVE rows first (fold sessions into the newest, cancel the rest),
 -- then add a PARTIAL unique index that only constrains ACTIVE rows.

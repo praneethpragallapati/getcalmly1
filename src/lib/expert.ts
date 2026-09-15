@@ -208,18 +208,25 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
     if (!userId) return null
     // Narrow select (never a full-row lookup): the therapist portal must load
     // even on a deployment whose DB is missing a newer column, so we never pull
-    // columns this function doesn't need. compensationFields is fetched
-    // defensively below so a not-yet-migrated column can't lock a clinician out.
+    // columns this function doesn't need. employmentType and compensationFields
+    // are fetched defensively below so a not-yet-migrated column can't lock a
+    // clinician out — this query gates the WHOLE expert layout, so a throw here
+    // reads as "bounced back to /login" for every clinician.
     const profile = await prisma.therapistProfile.findUnique({
       where: { userId },
-      select: { id: true, isActive: true, specializations: true, employmentType: true, user: { select: { name: true, registrationNo: true } } },
+      select: { id: true, isActive: true, specializations: true, user: { select: { name: true, registrationNo: true } } },
     })
     if (!profile || !profile.isActive) return null
     let compensationFields: CompensationField[] = []
+    let employmentType: EmploymentType = 'FULL_TIME'
     try {
-      const comp = await prisma.therapistProfile.findUnique({ where: { userId }, select: { compensationFields: true } })
-      compensationFields = parseCompensationFields(comp?.compensationFields)
-    } catch { /* compensationFields column not migrated yet */ }
+      const extra = await prisma.therapistProfile.findUnique({
+        where: { userId },
+        select: { compensationFields: true, employmentType: true },
+      })
+      compensationFields = parseCompensationFields(extra?.compensationFields)
+      if (extra?.employmentType) employmentType = extra.employmentType as EmploymentType
+    } catch { /* compensationFields / employmentType columns not migrated yet — default to salaried full-time */ }
     return {
       userId,
       therapistProfileId: profile.id,
@@ -227,7 +234,7 @@ export const getTherapistContext = cache(async (): Promise<TherapistContext | nu
       registrationNo: profile.user?.registrationNo ?? null,
       specializations: profile.specializations,
       isPsychiatrist: looksPsychiatric(profile.specializations),
-      employmentType: (profile.employmentType as EmploymentType) ?? 'FULL_TIME',
+      employmentType,
       designation: designationOf(profile.specializations),
       compensationFields,
     }
