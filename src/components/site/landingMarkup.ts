@@ -92,7 +92,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
   </div>
 
-  <div class="tr-card c reveal">
+  <div class="tr-card c">
     <span class="tr-num c">03</span>
     <div class="tr-c-grid">
       <div class="tr-c-text">
