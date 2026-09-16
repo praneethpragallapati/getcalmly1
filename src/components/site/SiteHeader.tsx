@@ -41,7 +41,7 @@ export default function SiteHeader() {
         {/* Services, hover mega-menu, no standalone tab */}
         <li className="nav-item">
           <span className="nav-trigger">
-            Services
+            How we help
             <svg className="nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
           </span>
           <div className="nav-mega-wrap">
@@ -137,7 +137,7 @@ export default function SiteHeader() {
           <Link href="/" onClick={() => setOpen(false)} style={mobLink}>Home</Link>
 
           {/* Services group, expanded inline on mobile */}
-          <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>Services</p>
+          <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>How we help</p>
           {SERVICES.map((s) => {
             const Icon = SERVICE_ICONS[s.slug]
             return (
