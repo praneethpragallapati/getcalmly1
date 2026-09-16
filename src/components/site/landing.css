@@ -31,7 +31,8 @@
 .lp-page::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   opacity:.5;}
-.lp-page nav{position:fixed;top:0;left:0;right:0;z-index:500;height:84px;padding:0 6%;
+.lp-page nav{position:fixed;top:0;left:0;right:0;z-index:500;height:84px;
+  padding:0 max(6%, calc((100% - 1120px) / 2));
   display:flex;align-items:center;justify-content:space-between;
   background:rgba(255,255,255,.82);backdrop-filter:blur(24px) saturate(1.4);
   border-bottom:1px solid transparent;transition:all .3s;}
@@ -65,9 +66,9 @@
 .lp-page .nav-mega-t{display:block;font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:2px;}
 .lp-page .nav-mega-d{display:block;font-size:12px;color:var(--charcoal-l);line-height:1.4;}
 .lp-page .nav-actions{display:flex;gap:10px;align-items:center;}
-.lp-page .btn-ghost{padding:8px 20px;border-radius:30px;font-size:14px;font-weight:600;color:var(--charcoal);border:1.5px solid rgba(28,43,58,.14);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .2s;}
+.lp-page .btn-ghost{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 20px;border-radius:30px;font-size:14px;font-weight:600;color:var(--charcoal);border:1.5px solid rgba(28,43,58,.14);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .2s;}
 .lp-page .btn-ghost:hover{border-color:var(--coral);color:var(--coral-ink);}
-.lp-page .btn-primary{padding:9px 22px;border-radius:30px;font-size:14px;font-weight:600;color:var(--white);background:var(--coral-cta);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;box-shadow:0 4px 18px rgba(200,85,61,.3);transition:all .22s;}
+.lp-page .btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 22px;border-radius:30px;font-size:14px;font-weight:600;color:var(--white);background:var(--coral-cta);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;box-shadow:0 4px 18px rgba(200,85,61,.3);transition:all .22s;}
 .lp-page .btn-primary:hover{background:var(--coral-d);box-shadow:0 6px 24px rgba(200,85,61,.42);transform:translateY(-1px);}
 .lp-page .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1);}
 .lp-page .reveal.in{opacity:1;transform:translateY(0);}
@@ -88,16 +89,19 @@
 .lp-page .d2{transition-delay:.2s;}
 .lp-page .d3{transition-delay:.3s;}
 .lp-page .d4{transition-delay:.4s;}
-.lp-page section{padding:96px 6%;}
+/* Vertical rhythm ~72px; horizontal padding caps the content column at ~1120px
+   on wide screens while keeping a 6% gutter on narrower ones (no wrapper div
+   needed). Full-bleed section backgrounds stay edge-to-edge; only content centres. */
+.lp-page section{padding:72px max(6%, calc((100% - 1120px) / 2));}
 .lp-page .dash-swipe-hint{display:none;}
 .lp-page .sec-label{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;
   letter-spacing:2.5px;text-transform:uppercase;color:var(--coral-ink);margin-bottom:16px;}
 .lp-page .sec-label::after{content:'';width:28px;height:1.5px;background:var(--coral);opacity:.5;}
 .lp-page .sec-h2{font-family:'Big Shoulders Display',sans-serif;font-weight:300;
-  font-size:clamp(38px,4.8vw,62px);line-height:1.02;letter-spacing:-1px;
+  font-size:clamp(34px,4.2vw,46px);line-height:1.05;letter-spacing:-.5px;
   color:var(--charcoal);margin-bottom:16px;transform:scaleX(.9);transform-origin:left;}
 .lp-page .sec-h2 span{color:var(--coral);font-weight:900;}
-.lp-page .sec-p{font-size:17px;font-weight:300;color:var(--charcoal-l);line-height:1.85;max-width:480px;}
+.lp-page .sec-p{font-size:18px;font-weight:400;color:var(--charcoal-l);line-height:1.55;max-width:34em;}
 /* The hero gradient carries the whole palette rather than one hue at two
    opacities: coral falling from the top, gold low-right, green low-left, over a
    warm-to-cream vertical base. Every layer stays light enough that #111A25
@@ -119,7 +123,7 @@
     linear-gradient(180deg,rgba(30,20,13,.72) 0%,rgba(30,20,13,.32) 11%,transparent 22%),
     linear-gradient(0deg,rgba(30,20,13,.28) 0%,transparent 34%);}
 .lp-page .hero .orb{display:none;}
-.lp-page .hero-layout{display:block;max-width:1200px;width:100%;position:relative;z-index:2;}
+.lp-page .hero-layout{display:block;max-width:1120px;width:100%;position:relative;z-index:2;}
 .lp-page .orb{position:absolute;border-radius:50%;pointer-events:none;}
 .lp-page .orb-1{width:520px;height:520px;top:-110px;right:6%;background:radial-gradient(circle,rgba(193,74,48,.18) 0%,transparent 66%);}
 .lp-page .orb-2{width:360px;height:360px;bottom:-90px;left:-50px;background:radial-gradient(circle,rgba(61,158,114,.15) 0%,transparent 66%);}
@@ -132,17 +136,12 @@
 .lp-page .pill-dot{width:6px;height:6px;background:#C8553D;border-radius:50%;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 .lp-page .hero-h1{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
-  font-size:clamp(36px,4.7vw,62px);line-height:1.0;letter-spacing:-1.2px;
+  font-size:clamp(36px,5vw,52px);line-height:1.02;letter-spacing:-1px;
   color:#fff;margin-bottom:0;transform:scaleX(.9);transform-origin:left;
   animation:rise .7s .08s ease both;}
-/* Kinetic second line: its own row so the swapping phrase never reflows the
-   left column, and the fixed phone track never shifts. Descenders have room. */
-.lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.04em;max-width:100%;}
-/* The rotating headline phrase in burnt coral — the bright accent against the
-   dark photo scrim. */
-.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#C8553D;will-change:transform,opacity;}
-.lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
-@keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* Second headline line: a single, static burnt-coral accent (no rotation) —
+   the offer reads without motion. */
+.lp-page .hero-h1 .hero-accent{font-weight:900;color:#C8553D;display:block;}
 /* Story beats under the sub-copy */
 .lp-page .hero-beats{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;max-width:520px;animation:rise .7s .22s ease both;}
 .lp-page .hero-beat{display:flex;gap:9px;align-items:flex-start;background:var(--white);border:1px solid rgba(28,43,58,.08);
@@ -159,8 +158,8 @@
   -webkit-text-fill-color:transparent;color:transparent;
   animation:shimmer 5s linear infinite;}
 @keyframes shimmer{to{background-position:220% center}}
-.lp-page .hero-sub{font-size:18px;font-weight:400;color:rgba(255,255,255,.9);line-height:1.8;
-  max-width:460px;margin-top:26px;animation:rise .7s .18s ease both;}
+.lp-page .hero-sub{font-size:18px;font-weight:400;color:rgba(255,255,255,.92);line-height:1.55;
+  max-width:32em;margin-top:22px;animation:rise .7s .18s ease both;}
 .lp-page .hero-actions{display:flex;gap:12px;align-items:center;margin-top:32px;flex-wrap:wrap;animation:rise .7s .26s ease both;}
 .lp-page .btn-hero{padding:15px 32px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;
   font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:none;
@@ -365,7 +364,7 @@
 .lp-page .assess-break{background:
   radial-gradient(ellipse 70% 60% at 85% 8%,rgba(200,85,61,.30),transparent 55%),
   radial-gradient(ellipse 50% 55% at 3% 60%,rgba(200,85,61,.12),transparent 60%),
-  #141E29;padding:152px 6%;position:relative;overflow:hidden;}
+  #141E29;padding:96px max(6%, calc((100% - 1120px) / 2));position:relative;overflow:hidden;}
 .lp-page .assess-break::before{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse 65% 80% at 50% 50%,rgba(200,85,61,.1) 0%,transparent 60%);}
 .lp-page .assess-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;}
@@ -451,7 +450,7 @@
   radial-gradient(ellipse 65% 50% at 50% 0%,rgba(201,151,58,.10),transparent 60%),
   radial-gradient(ellipse 45% 45% at 100% 100%,rgba(200,85,61,.05),transparent 60%),
   var(--bg-warm);}
-.lp-page .t3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:52px;}
+.lp-page .t3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:0;}
 .lp-page .testi-card{background:var(--white);border-radius:22px;padding:28px;border:1.5px solid var(--border);}
 .lp-page .stars{color:var(--gold-ink);font-size:12px;margin-bottom:14px;letter-spacing:3px;}
 .lp-page .testi-q{font-size:15px;font-weight:300;font-style:italic;color:var(--charcoal);line-height:1.65;margin-bottom:20px;
@@ -729,7 +728,7 @@
 }
 @media(max-width:600px){
 .lp-page{ -webkit-text-size-adjust:100%; }
-.lp-page section{padding:52px 5%;}
+.lp-page section{padding:40px 5%;}
 /* The five cards in .how-visual are a visual companion to the five steps beside
    them. Stacked on a phone they land BELOW the steps, so the same five ideas are
    read twice — about 1,200px of restatement. The steps carry the message on
@@ -746,7 +745,7 @@
 .lp-page .hero{padding:104px 7% 64px;min-height:100vh;}
 .lp-page .hero-layout{gap:40px;}
 .lp-page .hero-left{max-width:100%;}
-.lp-page .hero-h1{font-size:clamp(38px,11vw,52px);letter-spacing:-1px;}
+.lp-page .hero-h1{font-size:clamp(32px,9vw,40px);letter-spacing:-.6px;}
 .lp-page .hero-h1 .light{white-space:normal;}
 .lp-page .hero-sub{font-size:16px;margin-top:20px;}
 .lp-page .hero-beats{gap:8px;margin-top:20px;}
@@ -843,15 +842,10 @@
   border:1.5px solid rgba(200,85,61,.3);}
 @keyframes gcBreatheRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.28);opacity:.25}}
 
-/* Testimonials — auto-scrolling marquee (like a stock ticker) */
-.lp-page .testi-marquee{margin-top:52px;overflow:hidden;position:relative;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);}
-.lp-page .t3-grid{display:flex !important;gap:20px;width:max-content;
-  animation:testiScroll 46s linear infinite;}
-.lp-page .testi-marquee:hover .t3-grid{animation-play-state:paused;}
-.lp-page .t3-grid .testi-card{flex:0 0 400px;}
-@keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* Testimonials — a static, readable grid (no auto-scroll ticker). The base
+   .t3-grid (3 columns, responsive down to 1) governs; the wrapper is a plain
+   block so nothing is clipped or moving. */
+.lp-page .testi-marquee{margin-top:40px;}
 
 /* Priya journey — hover/click sync. The section is still; pointing at a
    step brightens it and cross-fades the right-hand card to match. */
@@ -925,9 +919,7 @@
 
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
-  .lp-page .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
-  .lp-page .hero-rot-word.swap{animation:none !important;}
   .lp-page .reveal,.lp-page .reveal-l,.lp-page .reveal-r{opacity:1 !important;transform:none !important;transition:none !important;}
   .lp-page .preview-pane.active{animation:none !important;}
   .lp-page .btn-hero{transition:none !important;}
@@ -950,11 +942,11 @@
 .lp-page .tr-head{max-width:680px;margin:0 0 48px;}
 .lp-page .tr-sub{font-size:19px;font-weight:600;color:var(--charcoal);margin-top:14px;max-width:560px;}
 .lp-page .tr-intro{font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.8;margin-top:14px;max-width:560px;}
-.lp-page .tr-row1{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px;margin:0 auto;}
+.lp-page .tr-row1{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1120px;margin:0 auto;}
 .lp-page .tr-card{position:relative;border-radius:22px;padding:38px 34px 32px;border:1px solid rgba(28,43,58,.06);box-shadow:0 1px 2px rgba(28,43,58,.03),0 18px 44px -28px rgba(28,43,58,.18);}
 .lp-page .tr-card.a{background:#F6F4F1;}
 .lp-page .tr-card.b{background:#F1F3F8;}
-.lp-page .tr-card.c{background:#FDF1EC;max-width:1200px;margin:24px auto 0;}
+.lp-page .tr-card.c{background:#FDF1EC;max-width:1120px;margin:24px auto 0;}
 .lp-page .tr-num{position:absolute;top:22px;left:28px;font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--charcoal-l);opacity:.7;}
 .lp-page .tr-num.c{color:var(--coral-ink);opacity:1;}
 .lp-page .tr-card-head{display:flex;align-items:center;gap:16px;margin:14px 0 16px;}

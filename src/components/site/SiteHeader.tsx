@@ -96,7 +96,9 @@ export default function SiteHeader() {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: 4,
+            width: 44,
+            height: 44,
+            padding: 10,
             color: 'var(--charcoal)',
             lineHeight: 0,
           }}

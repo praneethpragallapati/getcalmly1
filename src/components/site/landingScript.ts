@@ -71,32 +71,6 @@ export const LANDING_SCRIPT = `
   var h1=document.querySelector('.hero-h1');
   if(h1){ requestAnimationFrame(function(){ h1.classList.add('reveal-in'); }); }
 
-  // Hero kinetic line: swap the second line's phrase in place. The line has a
-  // fixed row + the grid track is minmax(0,1fr), so nothing around it (or the
-  // phone) reflows when the phrase changes.
-  var heroRot=document.getElementById('heroRot');
-  if(heroRot && !reduce){
-    var heroPhrases=[
-      'the mask you wear at work.',
-      'the \\u201cI\\u2019m fine\\u201d you keep saying.',
-      'the panic before the meeting.',
-      'the worry that won\\u2019t switch off.',
-      'the guilt that follows you home.',
-      'the heaviness of every morning.'
-    ];
-    var hpi=0;
-    setInterval(function(){
-      hpi=(hpi+1)%heroPhrases.length;
-      heroRot.classList.remove('swap');
-      void heroRot.offsetWidth;
-      heroRot.textContent=heroPhrases[hpi];
-      heroRot.classList.add('swap');
-      // 4.5s, matching the AI-insight card in the phone beside it: three items
-      // on a 13.5s cycle, 4.5s each (.gc-cyc-item in landing.css). The two are
-      // read together, and at 2.6s the headline was visibly racing the phone.
-    },4500);
-  }
-
   // Magnetic buttons
   if(!reduce){
     document.querySelectorAll('.btn-hero, .assess-big-btn').forEach(function(b){
@@ -108,14 +82,10 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // Testimonials auto-scroll marquee: duplicate cards for a seamless loop
+  // Testimonials: a static, readable grid (no auto-scroll). Just reveal them.
   var track=document.getElementById('testi-track');
   if(track){
     track.querySelectorAll('.testi-card').forEach(function(c){ c.classList.add('in'); });
-    if(!reduce){
-      var originals=[].slice.call(track.children);
-      originals.forEach(function(c){ var cl=c.cloneNode(true); cl.setAttribute('aria-hidden','true'); track.appendChild(cl); });
-    }
   }
 })();
 `;

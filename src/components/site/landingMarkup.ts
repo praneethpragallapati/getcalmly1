@@ -11,9 +11,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="hero-pill"><span class="pill-dot"></span>First session from ₹799</div>
       <h1 class="hero-h1">
         <span class="rl"><span class="light">You don't have to carry</span></span>
-        <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
+        <span class="rl"><span class="hero-accent">it alone.</span></span>
       </h1>
-      <p class="hero-sub">getCalmly matches you with the right therapist or psychiatrist, understands your patterns with a context-aware mental health AI, and stays with you from your very first session.</p>
+      <p class="hero-sub">Talk to RCI-verified therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
       <div class="hero-beats">
         <div class="hero-beat"><span class="hb-ic" style="background:#C8553D">◑</span><span class="hb-tx"><b>Matched to you</b>The right expert, not just anyone.</span></div>
         <div class="hero-beat"><span class="hb-ic" style="background:#C9973A">✦</span><span class="hb-tx"><b>AI that learns you</b>Private, context-aware insight.</span></div>
@@ -172,7 +172,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 </section>
 
 <!-- ── APP ── -->
-<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:96px 6% 80px;overflow:hidden;">
+<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:72px max(6%, calc((100% - 1120px) / 2)) 64px;overflow:hidden;">
   <div class="app-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
       <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
