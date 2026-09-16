@@ -109,25 +109,82 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
 </section>
 
-<!-- ── FEATURES ── -->
-<section class="features-section" id="features">
-  <div class="feat-header">
-    <div>
-      <div class="sec-label reveal">One connected system</div>
-      <h2 class="sec-h2 reveal">Your therapist and your AI<br><span>share the same brain.</span></h2>
-      <p class="sec-p reveal" style="margin-top:14px;">Your sessions, your mood and your journal all feed one shared context. So the AI at 3 AM and your therapist on Thursday work from the same picture of you, and it only gets sharper the longer you stay.</p>
+<!-- ── CARE YOU CAN TRUST ── -->
+<section class="trust-section" id="features">
+  <div class="tr-head">
+    <div class="tr-eyebrow reveal">Why getCalmly</div>
+    <h2 class="sec-h2 reveal">Care you can trust</h2>
+    <p class="tr-sub reveal">Real people. Real care. Technology that makes it better.</p>
+    <p class="tr-intro reveal">Your care starts with qualified mental health professionals. getCalmly brings together clinical expertise and advanced technology to create a more personal and connected experience.</p>
+  </div>
+
+  <div class="tr-row1">
+    <div class="tr-card a reveal">
+      <span class="tr-num">01</span>
+      <div class="tr-card-head">
+        <span class="tr-ic g"><svg viewBox="0 0 24 24" fill="none" stroke="#276B4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="16.6" cy="9.5" r="2.1"/><path d="M15.2 20a4.6 4.6 0 0 1 5.8-4.2"/></svg></span>
+        <h3 class="tr-title">Qualified professionals</h3>
+      </div>
+      <p class="tr-lead">RCI &amp; NMC verified. Vetted through extensive checks.</p>
+      <p class="tr-body">Our psychologists and psychiatrists go through an extensive verification and vetting process before joining getCalmly. Your care is always centred around qualified professionals who take the time to understand you.</p>
+      <div class="tr-creds">
+        <div class="tr-cred"><span class="tr-cred-ic g"><svg viewBox="0 0 24 24" fill="none" stroke="#276B4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5A2.2 2.2 0 0 0 7.3 7.2 2.2 2.2 0 0 0 6 11a2.3 2.3 0 0 0 1 4.2A2 2 0 0 0 11 15V6.3A1.3 1.3 0 0 0 9.5 5Z"/><path d="M14.5 5A2.2 2.2 0 0 1 16.7 7.2 2.2 2.2 0 0 1 18 11a2.3 2.3 0 0 1-1 4.2A2 2 0 0 1 13 15"/></svg></span><span class="tr-cred-tx"><b>RCI</b><small>Registered Clinical Psychologist</small></span></div>
+        <div class="tr-cred"><span class="tr-cred-ic s"><svg viewBox="0 0 24 24" fill="none" stroke="#3E4C7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.3-3 7.7-7 9.4-4-1.7-7-5.1-7-9.4V5.4L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg></span><span class="tr-cred-tx"><b>NMC</b><small>Nursing &amp; Midwifery Council</small></span></div>
+      </div>
+    </div>
+
+    <div class="tr-card b reveal d1">
+      <span class="tr-num">02</span>
+      <div class="tr-card-head">
+        <span class="tr-ic s"><svg viewBox="0 0 24 24" fill="none" stroke="#3E4C7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V5.4L12 3Z"/><rect x="9.5" y="11" width="5" height="4" rx="1"/><path d="M10.4 11V9.8a1.6 1.6 0 0 1 3.2 0V11"/></svg></span>
+        <h3 class="tr-title">Private &amp; confidential</h3>
+      </div>
+      <p class="tr-lead">Your thoughts are yours. Your data should be too.</p>
+      <p class="tr-body">Your conversations and personal information are deeply personal. getCalmly uses strong data security and privacy practices to protect your information and give you a safe space to seek support.</p>
+      <div class="tr-badges">
+        <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>End-to-end<br>encryption</span></div>
+        <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><line x1="7.5" y1="7.5" x2="7.6" y2="7.5"/><line x1="7.5" y1="16.5" x2="7.6" y2="16.5"/></svg><span>Secure<br>infrastructure</span></div>
+        <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V5.4L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg><span>Strict access<br>controls</span></div>
+        <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7Z"/><line x1="9.5" y1="12" x2="14.5" y2="12"/><line x1="9.5" y1="15.5" x2="13.5" y2="15.5"/></svg><span>GDPR<br>compliant</span></div>
+      </div>
     </div>
   </div>
-  <div class="feat-grid">
-    <div class="feat-card dk reveal"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#E8896F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="8"/><circle cx="12" cy="4.3" r="1.1" fill="#E8896F" stroke="none"/><rect x="6.5" y="8" width="11" height="9" rx="3"/><line x1="9.7" y1="11.8" x2="9.7" y2="13.4"/><line x1="14.3" y1="11.8" x2="14.3" y2="13.4"/><line x1="4" y1="11.5" x2="4" y2="13.5" opacity=".6"/><line x1="20" y1="11.5" x2="20" y2="13.5" opacity=".6"/></svg></span><div class="feat-t">The world's first context-aware AI companion</div><div class="feat-d">It doesn't push. But when you message at midnight, it already knows your last sessions, your mood dip that week, your journal. No other platform does this. That's what turns a chat into something useful.</div><span class="feat-badge fb-dk">World's first</span></div>
-    <div class="feat-card reveal d1"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,16 9,11 13,14 20,6"/><circle cx="20" cy="6" r="1.6" fill="#C8553D" stroke="none"/><line x1="4" y1="20" x2="20" y2="20" opacity=".4"/></svg></span><div class="feat-t">Mood, energy and sleep, tracked together</div><div class="feat-d">You won't spot your own patterns. We will. Mood, energy and sleep tracked daily, the connections surfaced weekly, for you and for your therapist.</div><span class="feat-badge fb-c">Science-backed</span></div>
-    <div class="feat-card reveal d2"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h11a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><line x1="8" y1="9" x2="14" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></span><div class="feat-t">A journal that reads between the lines</div><div class="feat-d">Write whatever comes. getCalmly reads for the themes underneath, the self-criticism, the boundaries, the quiet wins. You choose what your therapist sees, and switch off anything you'd rather keep to yourself.</div><span class="feat-badge fb-c">You're in control</span></div>
-    <div class="feat-card reveal"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.5v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10v-5L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg></span><div class="feat-t">Real experts, verified for real</div><div class="feat-d">Every psychologist is RCI-verified and every psychiatrist NMC-verified, checked by us before they ever meet you. Credentials we confirm ourselves, not five stars a stranger left online.</div><span class="feat-badge fb-g">Verified, not vibes</span></div>
-    <div class="feat-card reveal d1"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S4 15 4 9.5C4 6.5 6.5 5 9 6.2 10.2 6.8 11.6 8 12 8s1.8-1.2 3-1.8C17.5 5 20 6.5 20 9.5 20 15 12 20 12 20Z"/><line x1="12" y1="10.4" x2="12" y2="14"/><line x1="10.2" y1="12.2" x2="13.8" y2="12.2"/></svg></span><div class="feat-t">You'll never outgrow getCalmly</div><div class="feat-d">If talking isn't enough on its own, our own psychiatrists step in for medical support, no starting over, no new waitlist. And if a hard moment ever turns into a real crisis, a built-in safety protocol and a real human step in right away. One place, one history, whatever it takes.</div><span class="feat-badge fb-c">Whatever it takes</span></div>
-    <div class="feat-card reveal d2"><span class="feat-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#A8432D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.4"/><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M15 19c0-1.7.8-3.2 2-4"/></svg></span><div class="feat-t">A community, not a comment section</div><div class="feat-d">Someone typed "I actually laughed today" after three months in the dark. 142 people felt it. Human moderation keeps it safe, and crisis support is built in.</div><span class="feat-badge fb-g">Safe &amp; moderated</span></div>
-  </div>
-</section>
 
+  <div class="tr-card c reveal">
+    <span class="tr-num c">03</span>
+    <div class="tr-c-grid">
+      <div class="tr-c-text">
+        <div class="tr-card-head">
+          <span class="tr-ic c"><svg viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4A2.4 2.4 0 0 0 7.1 6.4 2.4 2.4 0 0 0 5.6 11a2.5 2.5 0 0 0 1 4.6A2.2 2.2 0 0 0 11 15.5V5.4A1.4 1.4 0 0 0 9.5 4Z"/><path d="M14.5 4A2.4 2.4 0 0 1 16.9 6.4 2.4 2.4 0 0 1 18.4 11a2.5 2.5 0 0 1-1 4.6A2.2 2.2 0 0 1 13 15.5"/></svg></span>
+          <h3 class="tr-title">Advanced AI</h3>
+        </div>
+        <p class="tr-lead coral">It remembers the context, not just the conversation.</p>
+        <p class="tr-body">getCalmly connects the information you choose to share across conversations, reflections and your care journey. It can identify patterns, spot changes over time and bring together insights that help deliver more relevant support when your therapist isn&apos;t around.</p>
+      </div>
+
+      <div class="ai-diagram">
+        <svg class="ai-lines" viewBox="0 0 680 360" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#E3A692" stroke-width="1.4" stroke-dasharray="2 6" stroke-linecap="round"><path d="M186 66 C 252 66 250 180 302 180"/><path d="M186 123 C 252 123 262 180 302 180"/><path d="M186 180 L 302 180"/><path d="M186 237 C 252 237 262 180 302 180"/><path d="M186 294 C 252 294 250 180 302 180"/><path d="M356 180 C 398 180 400 150 432 150"/><path d="M356 180 C 398 180 400 210 432 210"/></g></svg>
+        <div class="ai-chips">
+          <span class="ai-chip"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v9H8l-4 3.5V5.5Z"/></svg>Conversations</span>
+          <span class="ai-chip"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4C11 5 6 10 5 19c6-1 12-4 14-11"/><path d="M8.5 15.5c2-2.2 5-3.4 8-3.9"/></svg>Reflections</span>
+          <span class="ai-chip"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M6 6l1.4 1.4M16.6 16.6L18 18M18 6l-1.4 1.4M7.4 16.6L6 18"/></svg>Mood &amp; wellbeing</span>
+          <span class="ai-chip"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><line x1="4" y1="9.5" x2="20" y2="9.5"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg>Life events</span>
+          <span class="ai-chip"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1.2" fill="#5A6A7A" stroke="none"/></svg>Goals</span>
+        </div>
+        <div class="ai-core"><span class="ai-brain"><svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4A2.4 2.4 0 0 0 7.1 6.4 2.4 2.4 0 0 0 5.6 11a2.5 2.5 0 0 0 1 4.6A2.2 2.2 0 0 0 11 15.5V5.4A1.4 1.4 0 0 0 9.5 4Z"/><path d="M14.5 4A2.4 2.4 0 0 1 16.9 6.4 2.4 2.4 0 0 1 18.4 11a2.5 2.5 0 0 1-1 4.6A2.2 2.2 0 0 1 13 15.5"/></svg></span></div>
+        <div class="ai-benefits">
+          <div class="ai-ben-h">Deeper context.<br>More relevant support.</div>
+          <div class="ai-ben"><span class="ai-ck">✓</span>Spotting patterns</div>
+          <div class="ai-ben"><span class="ai-ck">✓</span>Connecting the dots</div>
+          <div class="ai-ben"><span class="ai-ck">✓</span>Personalised insights</div>
+          <div class="ai-ben"><span class="ai-ck">✓</span>Timely support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tr-foot reveal">Human expertise at the centre. Technology working around it.</div>
+</section>
 
 
 <!-- ── ASSESSMENT BREAK ── -->

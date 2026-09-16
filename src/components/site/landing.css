@@ -903,3 +903,71 @@
   .lp-page .chap-stack{height:auto !important;}
   .lp-page .chap-card{position:relative !important;opacity:1 !important;transform:none !important;margin-bottom:14px;}
 }
+
+/* ── CARE YOU CAN TRUST (replaces the old features grid) ───────────────────── */
+.lp-page .trust-section{background:#FBF8F5;}
+.lp-page .tr-head{max-width:780px;margin:0 auto 46px;text-align:center;}
+.lp-page .tr-eyebrow{font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--green-ink);margin-bottom:14px;}
+.lp-page .trust-section .sec-h2{transform:none;margin:0 auto;}
+.lp-page .tr-sub{font-size:19px;font-weight:600;color:var(--charcoal);margin-top:8px;}
+.lp-page .tr-intro{font-size:16px;color:var(--charcoal-l);line-height:1.7;margin-top:16px;}
+.lp-page .tr-row1{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px;margin:0 auto;}
+.lp-page .tr-card{position:relative;border-radius:22px;padding:38px 34px 32px;border:1px solid rgba(28,43,58,.06);box-shadow:0 1px 2px rgba(28,43,58,.03),0 18px 44px -28px rgba(28,43,58,.18);}
+.lp-page .tr-card.a{background:#F6F4F1;}
+.lp-page .tr-card.b{background:#F1F3F8;}
+.lp-page .tr-card.c{background:#FDF1EC;max-width:1200px;margin:24px auto 0;}
+.lp-page .tr-num{position:absolute;top:22px;left:28px;font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--charcoal-l);opacity:.7;}
+.lp-page .tr-num.c{color:var(--coral-ink);opacity:1;}
+.lp-page .tr-card-head{display:flex;align-items:center;gap:16px;margin:14px 0 16px;}
+.lp-page .tr-ic{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;}
+.lp-page .tr-ic svg{width:28px;height:28px;}
+.lp-page .tr-ic.g{background:#E5F4EE;} .lp-page .tr-ic.s{background:#E9ECF6;} .lp-page .tr-ic.c{background:#FCE0D7;}
+.lp-page .tr-title{font-family:'DM Sans',sans-serif;font-weight:700;font-size:23px;color:var(--charcoal);letter-spacing:-.3px;line-height:1.2;}
+.lp-page .tr-lead{font-size:16px;font-weight:700;color:var(--charcoal);line-height:1.45;margin-bottom:12px;}
+.lp-page .tr-lead.coral{color:var(--coral-ink);}
+.lp-page .tr-body{font-size:14.5px;color:var(--charcoal-l);line-height:1.7;}
+/* card 1 credential chips */
+.lp-page .tr-creds{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
+.lp-page .tr-cred{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid rgba(28,43,58,.07);border-radius:12px;padding:11px 13px;}
+.lp-page .tr-cred-ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;}
+.lp-page .tr-cred-ic svg{width:20px;height:20px;}
+.lp-page .tr-cred-ic.g{background:#E9F3EE;} .lp-page .tr-cred-ic.s{background:#EAECF5;}
+.lp-page .tr-cred-tx{display:flex;flex-direction:column;line-height:1.25;}
+.lp-page .tr-cred-tx b{font-size:13px;font-weight:800;color:var(--charcoal);}
+.lp-page .tr-cred-tx small{font-size:10.5px;color:var(--charcoal-l);}
+/* card 2 security badges */
+.lp-page .tr-badges{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px;}
+.lp-page .tr-badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;font-size:11.5px;font-weight:500;color:var(--charcoal-l);line-height:1.35;}
+.lp-page .tr-badge svg{width:23px;height:23px;stroke:var(--charcoal-l);}
+/* card 3 diagram */
+.lp-page .tr-c-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,1.12fr);gap:40px;align-items:center;}
+.lp-page .ai-diagram{position:relative;display:grid;grid-template-columns:168px 1fr 232px;align-items:center;min-height:340px;}
+.lp-page .ai-lines{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.lp-page .ai-chips{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;}
+.lp-page .ai-chip{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid rgba(28,43,58,.08);box-shadow:0 6px 16px -10px rgba(28,43,58,.35);border-radius:12px;padding:11px 14px;font-size:13px;font-weight:600;color:var(--charcoal);}
+.lp-page .ai-chip svg{width:17px;height:17px;flex-shrink:0;}
+.lp-page .ai-core{position:relative;z-index:1;display:grid;place-items:center;}
+.lp-page .ai-brain{width:98px;height:98px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 34% 28%,#EC9077,#C8553D 78%);box-shadow:0 18px 44px -14px rgba(200,85,61,.65);}
+.lp-page .ai-brain svg{width:46px;height:46px;}
+.lp-page .ai-benefits{position:relative;z-index:1;background:#fff;border:1px solid rgba(28,43,58,.08);border-radius:16px;padding:20px 22px;box-shadow:0 12px 32px -16px rgba(28,43,58,.3);}
+.lp-page .ai-ben-h{font-weight:700;font-size:14px;color:var(--charcoal);line-height:1.3;margin-bottom:13px;}
+.lp-page .ai-ben{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--charcoal-l);padding:5px 0;}
+.lp-page .ai-ck{width:19px;height:19px;border-radius:50%;background:#E5F4EE;color:#276B4B;display:grid;place-items:center;font-size:11px;font-weight:900;flex-shrink:0;}
+/* footer strip */
+.lp-page .tr-foot{text-align:center;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal-l);margin-top:38px;}
+.lp-page .tr-foot::before,.lp-page .tr-foot::after{content:'';display:inline-block;width:42px;height:1px;background:rgba(28,43,58,.22);vertical-align:middle;margin:0 14px;}
+@media(max-width:1000px){
+  .lp-page .tr-c-grid{grid-template-columns:1fr;gap:26px;}
+  .lp-page .ai-diagram{grid-template-columns:1fr;min-height:0;gap:20px;}
+  .lp-page .ai-lines{display:none;}
+  .lp-page .ai-chips{flex-direction:row;flex-wrap:wrap;justify-content:center;}
+  .lp-page .ai-benefits{max-width:440px;margin:0 auto;width:100%;}
+}
+@media(max-width:760px){
+  .lp-page .tr-row1{grid-template-columns:1fr;}
+  .lp-page .tr-badges{grid-template-columns:1fr 1fr;}
+  .lp-page .tr-creds{grid-template-columns:1fr;}
+  .lp-page .tr-sub{font-size:16.5px;}
+  .lp-page .tr-intro{font-size:15px;}
+  .lp-page .tr-card{padding:30px 22px 26px;}
+}
