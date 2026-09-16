@@ -921,7 +921,7 @@
 .lp-page .tr-card-head{display:flex;align-items:center;gap:16px;margin:14px 0 16px;}
 .lp-page .tr-ic{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;}
 .lp-page .tr-ic svg{width:28px;height:28px;}
-.lp-page .tr-ic.g{background:#E5F4EE;} .lp-page .tr-ic.s{background:#E9ECF6;} .lp-page .tr-ic.c{background:#FCE0D7;}
+.lp-page .tr-ic.g{background:#E5F4EE;} .lp-page .tr-ic.s{background:#ECEEF2;} .lp-page .tr-ic.c{background:#FCE0D7;}
 .lp-page .tr-title{font-family:'DM Sans',sans-serif;font-weight:700;font-size:23px;color:var(--charcoal);letter-spacing:-.3px;line-height:1.2;}
 .lp-page .tr-lead{font-size:16px;font-weight:700;color:var(--charcoal);line-height:1.45;margin-bottom:12px;}
 .lp-page .tr-lead.coral{color:var(--coral-ink);}
@@ -931,7 +931,7 @@
 .lp-page .tr-cred{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid rgba(28,43,58,.07);border-radius:12px;padding:11px 13px;}
 .lp-page .tr-cred-ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;}
 .lp-page .tr-cred-ic svg{width:20px;height:20px;}
-.lp-page .tr-cred-ic.g{background:#E9F3EE;} .lp-page .tr-cred-ic.s{background:#EAECF5;}
+.lp-page .tr-cred-ic.g{background:#E9F3EE;} .lp-page .tr-cred-ic.s{background:#EAECF5;} .lp-page .tr-cred-ic.n{background:#EEF0F3;}
 .lp-page .tr-cred-tx{display:flex;flex-direction:column;line-height:1.25;}
 .lp-page .tr-cred-tx b{font-size:13px;font-weight:800;color:var(--charcoal);}
 .lp-page .tr-cred-tx small{font-size:10.5px;color:var(--charcoal-l);}
@@ -958,10 +958,16 @@
 .lp-page .tr-foot::before,.lp-page .tr-foot::after{content:'';display:inline-block;width:42px;height:1px;background:rgba(28,43,58,.22);vertical-align:middle;margin:0 14px;}
 @media(max-width:1000px){
   .lp-page .tr-c-grid{grid-template-columns:1fr;gap:26px;}
-  .lp-page .ai-diagram{grid-template-columns:1fr;min-height:0;gap:20px;}
+  /* Top-down version of the diagram: chips → brain → benefits, joined by
+     dotted connectors, so it still reads as one flow on narrow screens. */
+  .lp-page .ai-diagram{display:flex;flex-direction:column;align-items:center;min-height:0;gap:18px;}
   .lp-page .ai-lines{display:none;}
-  .lp-page .ai-chips{flex-direction:row;flex-wrap:wrap;justify-content:center;}
-  .lp-page .ai-benefits{max-width:440px;margin:0 auto;width:100%;}
+  .lp-page .ai-chips{width:100%;max-width:320px;}
+  .lp-page .ai-core{position:relative;}
+  .lp-page .ai-core::before,.lp-page .ai-core::after{content:'';position:absolute;left:50%;transform:translateX(-50%);border-left:2px dotted #E3A692;height:18px;}
+  .lp-page .ai-core::before{top:-18px;}
+  .lp-page .ai-core::after{bottom:-18px;}
+  .lp-page .ai-benefits{max-width:360px;margin:0 auto;width:100%;}
 }
 @media(max-width:760px){
   .lp-page .tr-row1{grid-template-columns:1fr;}

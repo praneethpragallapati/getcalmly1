@@ -128,15 +128,15 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <p class="tr-lead">RCI &amp; NMC verified. Vetted through extensive checks.</p>
       <p class="tr-body">Our psychologists and psychiatrists go through an extensive verification and vetting process before joining getCalmly. Your care is always centred around qualified professionals who take the time to understand you.</p>
       <div class="tr-creds">
-        <div class="tr-cred"><span class="tr-cred-ic g"><svg viewBox="0 0 24 24" fill="none" stroke="#276B4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5A2.2 2.2 0 0 0 7.3 7.2 2.2 2.2 0 0 0 6 11a2.3 2.3 0 0 0 1 4.2A2 2 0 0 0 11 15V6.3A1.3 1.3 0 0 0 9.5 5Z"/><path d="M14.5 5A2.2 2.2 0 0 1 16.7 7.2 2.2 2.2 0 0 1 18 11a2.3 2.3 0 0 1-1 4.2A2 2 0 0 1 13 15"/></svg></span><span class="tr-cred-tx"><b>RCI</b><small>Registered Clinical Psychologist</small></span></div>
-        <div class="tr-cred"><span class="tr-cred-ic s"><svg viewBox="0 0 24 24" fill="none" stroke="#3E4C7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.3-3 7.7-7 9.4-4-1.7-7-5.1-7-9.4V5.4L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg></span><span class="tr-cred-tx"><b>NMC</b><small>Nursing &amp; Midwifery Council</small></span></div>
+        <div class="tr-cred"><span class="tr-cred-ic n"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5A2.2 2.2 0 0 0 7.3 7.2 2.2 2.2 0 0 0 6 11a2.3 2.3 0 0 0 1 4.2A2 2 0 0 0 11 15V6.3A1.3 1.3 0 0 0 9.5 5Z"/><path d="M14.5 5A2.2 2.2 0 0 1 16.7 7.2 2.2 2.2 0 0 1 18 11a2.3 2.3 0 0 1-1 4.2A2 2 0 0 1 13 15"/></svg></span><span class="tr-cred-tx"><b>RCI</b><small>Registered Clinical Psychologist</small></span></div>
+        <div class="tr-cred"><span class="tr-cred-ic n"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v4.5a4 4 0 0 0 8 0V3"/><path d="M10 15.2V16a5 5 0 0 0 5 5 4 4 0 0 0 4-4v-1.2"/><circle cx="19" cy="12.5" r="2.1"/></svg></span><span class="tr-cred-tx"><b>NMC</b><small>Registered Psychiatrist</small></span></div>
       </div>
     </div>
 
     <div class="tr-card b reveal d1">
       <span class="tr-num">02</span>
       <div class="tr-card-head">
-        <span class="tr-ic s"><svg viewBox="0 0 24 24" fill="none" stroke="#3E4C7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V5.4L12 3Z"/><rect x="9.5" y="11" width="5" height="4" rx="1"/><path d="M10.4 11V9.8a1.6 1.6 0 0 1 3.2 0V11"/></svg></span>
+        <span class="tr-ic s"><svg viewBox="0 0 24 24" fill="none" stroke="#2E3E50" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V5.4L12 3Z"/><rect x="9.5" y="11" width="5" height="4" rx="1"/><path d="M10.4 11V9.8a1.6 1.6 0 0 1 3.2 0V11"/></svg></span>
         <h3 class="tr-title">Private &amp; confidential</h3>
       </div>
       <p class="tr-lead">Your thoughts are yours. Your data should be too.</p>
@@ -183,7 +183,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     </div>
   </div>
 
-  <div class="tr-foot reveal">Human expertise at the centre. Technology working around it.</div>
 </section>
 
 
