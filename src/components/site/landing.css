@@ -40,14 +40,14 @@
 .lp-page .logo .get{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:14px;color:var(--charcoal-l);padding-bottom:10px;letter-spacing:.5px;}
 .lp-page .logo .calm{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:58px;color:var(--coral);letter-spacing:-2px;line-height:1;display:inline-block;transform:scaleX(.63);transform-origin:left bottom;width:228px;}
 .lp-page .nav-links{display:flex;gap:28px;list-style:none;}
-.lp-page .nav-links a{font-size:14px;font-weight:500;color:var(--charcoal-l);text-decoration:none;letter-spacing:.1px;transition:color .2s;position:relative;}
+.lp-page .nav-links a{font-family:'Big Shoulders Display',sans-serif;font-size:18px;font-weight:300;color:var(--charcoal-l);text-decoration:none;letter-spacing:.4px;transition:color .2s;position:relative;}
 .lp-page .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1.5px;background:var(--coral);transition:width .25s;}
 .lp-page .nav-links a:hover{color:var(--coral-ink);}
 .lp-page .nav-links a:hover::after{width:100%;}
 
 /* Services hover mega-menu */
 .lp-page .nav-links .nav-item{position:relative;display:flex;align-items:center;}
-.lp-page .nav-trigger{font-size:14px;font-weight:500;color:var(--charcoal-l);cursor:pointer;letter-spacing:.1px;transition:color .2s;display:inline-flex;align-items:center;gap:5px;}
+.lp-page .nav-trigger{font-family:'Big Shoulders Display',sans-serif;font-size:18px;font-weight:300;color:var(--charcoal-l);cursor:pointer;letter-spacing:.4px;transition:color .2s;display:inline-flex;align-items:center;gap:5px;}
 .lp-page .nav-item:hover .nav-trigger{color:var(--coral-ink);}
 .lp-page .nav-caret{transition:transform .25s;opacity:.6;}
 .lp-page .nav-item:hover .nav-caret{transform:rotate(180deg);}
