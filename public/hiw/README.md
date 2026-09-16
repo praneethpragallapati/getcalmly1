@@ -1,21 +1,12 @@
-# "How it works" step photos
+# "How it works" step images
 
-Drop four licensed photos here so they appear on the home page's four-step
-section. Until a file exists, each card shows a soft tinted placeholder.
+Currently shipped:
+- step-1.svg — designed phone mockup: free assessment with sample questions
+- step-2.jpg — photo: waving on a video call (Pexels, free license)
+- step-3.svg — designed phone mockup: "Calm AI" insight module
+- step-4.jpg — photo: calm, content woman "found her peace" (Pexels, free license)
 
-Filenames (exact):
-- step-1.jpg  — Take the free assessment
-- step-2.jpg  — Meet your match, book your session
-- step-3.jpg  — The intelligence between your sessions
-- step-4.jpg  — See how far you've come
-
-Recommended: ~1200×825 px, 16:11, warm/natural light, real people (not stock-y
-posed). JPG or WebP (if WebP, update the paths in
-src/components/site/landingMarkup.ts to step-1.webp etc.).
-
-Suggested search terms on a licensed source (e.g. iStock, Getty, Shutterstock;
-or free-licensed Unsplash/Pexels):
-- step 1: "young Indian woman thoughtful with phone at home, warm light"
-- step 2: "video call therapy session laptop, candid, natural"
-- step 3: "person journaling with phone, calm morning, lifestyle"
-- step 4: "smiling relaxed person at home, hopeful, natural light"
+Steps 1 & 3 are hand-built SVG UI mockups (crisp, editable text). Steps 2 & 4
+are free-license Pexels photos, cropped to 16:10. To swap a photo, replace the
+.jpg (keep 16:10, ~1200x750). To change a mockup's copy, edit the .svg text.
+The card pulls each via the --img CSS var in landingMarkup.ts.
