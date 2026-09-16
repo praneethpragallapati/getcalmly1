@@ -82,10 +82,15 @@ export const LANDING_SCRIPT = `
     });
   }
 
-  // Testimonials: a static, readable grid (no auto-scroll). Just reveal them.
+  // Testimonials marquee: reveal the cards, then duplicate them once so the
+  // right-to-left scroll loops seamlessly. Skipped under reduced-motion.
   var track=document.getElementById('testi-track');
   if(track){
     track.querySelectorAll('.testi-card').forEach(function(c){ c.classList.add('in'); });
+    if(!reduce){
+      var originals=[].slice.call(track.children);
+      originals.forEach(function(c){ var cl=c.cloneNode(true); cl.setAttribute('aria-hidden','true'); track.appendChild(cl); });
+    }
   }
 })();
 `;

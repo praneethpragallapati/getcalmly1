@@ -100,7 +100,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <span class="tr-ic c"><svg viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4A2.4 2.4 0 0 0 7.1 6.4 2.4 2.4 0 0 0 5.6 11a2.5 2.5 0 0 0 1 4.6A2.2 2.2 0 0 0 11 15.5V5.4A1.4 1.4 0 0 0 9.5 4Z"/><path d="M14.5 4A2.4 2.4 0 0 1 16.9 6.4 2.4 2.4 0 0 1 18.4 11a2.5 2.5 0 0 1-1 4.6A2.2 2.2 0 0 1 13 15.5"/></svg></span>
           <h3 class="tr-title">Intelligent support</h3>
         </div>
-        <p class="tr-lead coral">It remembers the context, not just the conversation.</p>
+        <p class="tr-lead">It remembers the context, not just the conversation.</p>
         <p class="tr-body">getCalmly connects the information you choose to share across conversations, reflections and your care journey. It can identify patterns, spot changes over time and bring together insights that help deliver more relevant support when your therapist isn&apos;t around.</p>
       </div>
 
@@ -172,7 +172,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 </section>
 
 <!-- ── APP ── -->
-<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:72px max(6%, calc((100% - 1120px) / 2)) 64px;overflow:hidden;">
+<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:72px max(6%, calc((100% - 1200px) / 2)) 64px;overflow:hidden;">
   <div class="app-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
       <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>

@@ -32,7 +32,7 @@
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   opacity:.5;}
 .lp-page nav{position:fixed;top:0;left:0;right:0;z-index:500;height:84px;
-  padding:0 max(6%, calc((100% - 1120px) / 2));
+  padding:0 max(6%, calc((100% - 1200px) / 2));
   display:flex;align-items:center;justify-content:space-between;
   background:rgba(255,255,255,.82);backdrop-filter:blur(24px) saturate(1.4);
   border-bottom:1px solid transparent;transition:all .3s;}
@@ -89,10 +89,14 @@
 .lp-page .d2{transition-delay:.2s;}
 .lp-page .d3{transition-delay:.3s;}
 .lp-page .d4{transition-delay:.4s;}
-/* Vertical rhythm ~72px; horizontal padding caps the content column at ~1120px
+/* Vertical rhythm ~72px; horizontal padding caps the content column at ~1200px
    on wide screens while keeping a 6% gutter on narrower ones (no wrapper div
    needed). Full-bleed section backgrounds stay edge-to-edge; only content centres. */
-.lp-page section{padding:72px max(6%, calc((100% - 1120px) / 2));}
+.lp-page section{padding:72px max(6%, calc((100% - 1200px) / 2));}
+/* The pricing page (.pr-page) ships its own section spacing (padding:40px 24px,
+   max-width:1200) — this override keeps the homepage base rule above from
+   clobbering it and squeezing the plan cards into a thin centre strip. */
+.lp-page .pr-page section{padding:40px 24px;}
 .lp-page .dash-swipe-hint{display:none;}
 .lp-page .sec-label{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;
   letter-spacing:2.5px;text-transform:uppercase;color:var(--coral-ink);margin-bottom:16px;}
@@ -119,11 +123,11 @@
 .lp-page .hero-media{position:absolute;inset:0;z-index:0;background:url('/hero.jpg') center right/cover;}
 .lp-page .hero-veil{position:absolute;inset:0;z-index:0;
   background:
-    linear-gradient(94deg,rgba(38,25,17,.92) 0%,rgba(38,25,17,.74) 30%,rgba(38,25,17,.34) 55%,rgba(38,25,17,.06) 78%,transparent 100%),
-    linear-gradient(180deg,rgba(30,20,13,.72) 0%,rgba(30,20,13,.32) 11%,transparent 22%),
-    linear-gradient(0deg,rgba(30,20,13,.28) 0%,transparent 34%);}
+    linear-gradient(94deg,rgba(38,25,17,.8) 0%,rgba(38,25,17,.58) 30%,rgba(38,25,17,.24) 55%,rgba(38,25,17,.04) 78%,transparent 100%),
+    linear-gradient(180deg,rgba(30,20,13,.62) 0%,rgba(30,20,13,.26) 12%,transparent 24%),
+    linear-gradient(0deg,rgba(30,20,13,.22) 0%,transparent 34%);}
 .lp-page .hero .orb{display:none;}
-.lp-page .hero-layout{display:block;max-width:1120px;width:100%;position:relative;z-index:2;}
+.lp-page .hero-layout{display:block;max-width:1200px;width:100%;position:relative;z-index:2;}
 .lp-page .orb{position:absolute;border-radius:50%;pointer-events:none;}
 .lp-page .orb-1{width:520px;height:520px;top:-110px;right:6%;background:radial-gradient(circle,rgba(193,74,48,.18) 0%,transparent 66%);}
 .lp-page .orb-2{width:360px;height:360px;bottom:-90px;left:-50px;background:radial-gradient(circle,rgba(61,158,114,.15) 0%,transparent 66%);}
@@ -272,8 +276,10 @@
   background-size:cover,cover,30px 30px;background-position:center,center,center;background-repeat:no-repeat,no-repeat,no-repeat;}
 .lp-page .hiw-n{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;
   background:var(--coral-pale);color:var(--coral-ink);font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:20px;}
+/* Reserve space for the tallest title (3 lines) so the bold lead below starts
+   at the same level across all four cards. Released when they stack 1-per-row. */
 .lp-page .hiw-step h3{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:27px;color:var(--coral);
-  margin-top:16px;line-height:1.04;letter-spacing:-.2px;}
+  margin-top:16px;line-height:1.04;letter-spacing:-.2px;min-height:84px;}
 .lp-page .hiw-step .hiw-lead{font-size:15px;font-weight:700;color:var(--charcoal);line-height:1.4;margin-top:18px;}
 .lp-page .hiw-step p{font-size:14px;font-weight:400;color:var(--charcoal-l);line-height:1.65;margin-top:10px;}
 .lp-page .hiw-tag{display:inline-block;margin-top:16px;font-size:11px;font-weight:700;letter-spacing:.3px;
@@ -286,6 +292,7 @@
 }
 @media(max-width:520px){
   .lp-page .hiw-grid{grid-template-columns:1fr;}
+  .lp-page .hiw-step h3{min-height:0;}
 }
 
 .lp-page .how-section{background:var(--white);}
@@ -364,7 +371,7 @@
 .lp-page .assess-break{background:
   radial-gradient(ellipse 70% 60% at 85% 8%,rgba(200,85,61,.30),transparent 55%),
   radial-gradient(ellipse 50% 55% at 3% 60%,rgba(200,85,61,.12),transparent 60%),
-  #141E29;padding:96px max(6%, calc((100% - 1120px) / 2));position:relative;overflow:hidden;}
+  #141E29;padding:96px max(6%, calc((100% - 1200px) / 2));position:relative;overflow:hidden;}
 .lp-page .assess-break::before{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse 65% 80% at 50% 50%,rgba(200,85,61,.1) 0%,transparent 60%);}
 .lp-page .assess-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;}
@@ -842,10 +849,17 @@
   border:1.5px solid rgba(200,85,61,.3);}
 @keyframes gcBreatheRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.28);opacity:.25}}
 
-/* Testimonials — a static, readable grid (no auto-scroll ticker). The base
-   .t3-grid (3 columns, responsive down to 1) governs; the wrapper is a plain
-   block so nothing is clipped or moving. */
-.lp-page .testi-marquee{margin-top:40px;}
+/* Testimonials — continuous marquee travelling right-to-left. Cards are cloned
+   in JS so the -50% loop is seamless; hover pauses it, and reduced-motion turns
+   it back into a static wrapped grid (see the reduced-motion block below). */
+.lp-page .testi-marquee{margin-top:40px;overflow:hidden;position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);}
+.lp-page .testi-marquee .t3-grid{display:flex;grid-template-columns:none;gap:20px;width:max-content;margin-top:0;
+  animation:testiScroll 48s linear infinite;}
+.lp-page .testi-marquee:hover .t3-grid{animation-play-state:paused;}
+.lp-page .testi-marquee .testi-card{flex:0 0 380px;}
+@keyframes testiScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* Priya journey — hover/click sync. The section is still; pointing at a
    step brightens it and cross-fades the right-hand card to match. */
@@ -920,6 +934,7 @@
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
+  .lp-page .testi-marquee .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .reveal,.lp-page .reveal-l,.lp-page .reveal-r{opacity:1 !important;transform:none !important;transition:none !important;}
   .lp-page .preview-pane.active{animation:none !important;}
   .lp-page .btn-hero{transition:none !important;}
@@ -942,20 +957,24 @@
 .lp-page .tr-head{max-width:680px;margin:0 0 48px;}
 .lp-page .tr-sub{font-size:19px;font-weight:600;color:var(--charcoal);margin-top:14px;max-width:560px;}
 .lp-page .tr-intro{font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.8;margin-top:14px;max-width:560px;}
-.lp-page .tr-row1{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1120px;margin:0 auto;}
+.lp-page .tr-row1{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px;margin:0 auto;}
 .lp-page .tr-card{position:relative;border-radius:22px;padding:38px 34px 32px;border:1px solid rgba(28,43,58,.06);box-shadow:0 1px 2px rgba(28,43,58,.03),0 18px 44px -28px rgba(28,43,58,.18);}
 .lp-page .tr-card.a{background:#F6F4F1;}
 .lp-page .tr-card.b{background:#F1F3F8;}
-.lp-page .tr-card.c{background:#FDF1EC;max-width:1120px;margin:24px auto 0;}
-.lp-page .tr-num{position:absolute;top:22px;left:28px;font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--charcoal-l);opacity:.7;}
-.lp-page .tr-num.c{color:var(--coral-ink);opacity:1;}
+.lp-page .tr-card.c{background:#FDF1EC;max-width:1200px;margin:24px auto 0;}
+/* Number badge matches the How-it-works step badges: coral-pale rounded chip,
+   Big Shoulders numeral, same on all three cards. */
+.lp-page .tr-num{position:absolute;top:20px;right:22px;display:inline-flex;align-items:center;justify-content:center;
+  min-width:38px;height:34px;padding:0 9px;border-radius:11px;background:var(--coral-pale);border:1px solid rgba(200,85,61,.16);
+  color:var(--coral-ink);font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:19px;letter-spacing:0;opacity:1;}
 .lp-page .tr-card-head{display:flex;align-items:center;gap:16px;margin:14px 0 16px;}
 .lp-page .tr-ic{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;}
 .lp-page .tr-ic svg{width:28px;height:28px;}
 .lp-page .tr-ic.g{background:#E5F4EE;} .lp-page .tr-ic.s{background:#ECEEF2;} .lp-page .tr-ic.c{background:#FCE0D7;}
-.lp-page .tr-title{font-family:'DM Sans',sans-serif;font-weight:700;font-size:23px;color:var(--charcoal);letter-spacing:-.3px;line-height:1.2;}
+/* Card headings: burnt-coral Big Shoulders slim, matching the How-it-works
+   step headings in the previous section. */
+.lp-page .tr-title{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:27px;color:var(--coral);letter-spacing:-.2px;line-height:1.04;}
 .lp-page .tr-lead{font-size:16px;font-weight:700;color:var(--charcoal);line-height:1.45;margin-bottom:12px;}
-.lp-page .tr-lead.coral{color:var(--coral-ink);}
 .lp-page .tr-body{font-size:14.5px;color:var(--charcoal-l);line-height:1.7;}
 /* card 1 credential chips */
 .lp-page .tr-creds{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
@@ -984,6 +1003,31 @@
 .lp-page .ai-ben-h{font-weight:700;font-size:14px;color:var(--charcoal);line-height:1.3;margin-bottom:13px;}
 .lp-page .ai-ben{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--charcoal-l);padding:5px 0;}
 .lp-page .ai-ck{width:19px;height:19px;border-radius:50%;background:#E5F4EE;color:#276B4B;display:grid;place-items:center;font-size:11px;font-weight:900;flex-shrink:0;}
+/* Living diagram: data flows along the connectors into the brain, the brain
+   pulses, the input chips light up in sequence, and each benefit ticks in.
+   Motion is a deliberate aid to understanding the mechanism here — it's held
+   back entirely for anyone who prefers reduced motion. */
+@media (prefers-reduced-motion: no-preference){
+  .lp-page .ai-lines path{stroke-dasharray:3 7;animation:aiFlow 1.3s linear infinite;}
+  @keyframes aiFlow{to{stroke-dashoffset:-20;}}
+  .lp-page .ai-brain{animation:aiBrain 3.4s ease-in-out infinite;}
+  @keyframes aiBrain{0%,100%{transform:scale(1);box-shadow:0 18px 44px -14px rgba(200,85,61,.6);}
+    50%{transform:scale(1.05);box-shadow:0 22px 54px -12px rgba(200,85,61,.82);}}
+  .lp-page .ai-chip{animation:aiChip 5s ease-in-out infinite;}
+  .lp-page .ai-chip:nth-child(1){animation-delay:0s;}
+  .lp-page .ai-chip:nth-child(2){animation-delay:.4s;}
+  .lp-page .ai-chip:nth-child(3){animation-delay:.8s;}
+  .lp-page .ai-chip:nth-child(4){animation-delay:1.2s;}
+  .lp-page .ai-chip:nth-child(5){animation-delay:1.6s;}
+  @keyframes aiChip{0%,66%,100%{border-color:rgba(28,43,58,.08);box-shadow:0 6px 16px -10px rgba(28,43,58,.35);transform:translateX(0);}
+    12%{border-color:rgba(200,85,61,.45);box-shadow:0 8px 20px -8px rgba(200,85,61,.4);transform:translateX(2px);}}
+  .lp-page .ai-ben{animation:aiBen 5s ease-in-out infinite;}
+  .lp-page .ai-ben:nth-child(2){animation-delay:2.2s;}
+  .lp-page .ai-ben:nth-child(3){animation-delay:2.5s;}
+  .lp-page .ai-ben:nth-child(4){animation-delay:2.8s;}
+  .lp-page .ai-ben:nth-child(5){animation-delay:3.1s;}
+  @keyframes aiBen{0%,40%,100%{color:var(--charcoal-l);}18%{color:var(--charcoal);}}
+}
 /* footer strip */
 .lp-page .tr-foot{text-align:center;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal-l);margin-top:38px;}
 .lp-page .tr-foot::before,.lp-page .tr-foot::after{content:'';display:inline-block;width:42px;height:1px;background:rgba(28,43,58,.22);vertical-align:middle;margin:0 14px;}
