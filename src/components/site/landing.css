@@ -241,7 +241,8 @@
   background:var(--coral-pale);color:var(--coral-ink);font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:20px;}
 .lp-page .hiw-step h3{font-family:'DM Sans',sans-serif;font-weight:700;font-size:18px;color:var(--charcoal);
   margin-top:20px;line-height:1.25;letter-spacing:0;}
-.lp-page .hiw-step p{font-size:14px;font-weight:300;color:var(--charcoal-l);line-height:1.65;margin-top:10px;}
+.lp-page .hiw-step .hiw-lead{font-size:15px;font-weight:700;color:var(--charcoal);line-height:1.4;margin-top:18px;}
+.lp-page .hiw-step p{font-size:14px;font-weight:400;color:var(--charcoal-l);line-height:1.65;margin-top:10px;}
 .lp-page .hiw-tag{display:inline-block;margin-top:16px;font-size:11px;font-weight:700;letter-spacing:.3px;
   color:var(--green-ink);background:var(--green-pale);padding:5px 12px;border-radius:20px;}
 /* Connector dashes are hidden now that each card leads with a photo. */
