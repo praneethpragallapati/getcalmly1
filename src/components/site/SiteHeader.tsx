@@ -33,7 +33,8 @@ export default function SiteHeader() {
 
   return (
     <nav id="nav">
-      <Logo size={40} href="/" tagline={false} />
+      <span className="logo-dark"><Logo size={40} href="/" tagline={false} /></span>
+      <span className="logo-light"><Logo size={40} href="/" tagline={false} onDark /></span>
 
       <ul className="nav-links">
         <li><Link href="/">Home</Link></li>

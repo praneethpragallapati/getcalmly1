@@ -2,8 +2,8 @@
 // therapists, enterprise & modal removed; CTAs routed to /assess).
 export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="hero" id="home">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+  <div class="hero-media"></div>
+  <div class="hero-veil"></div>
   <div class="hero-layout">
 
     <!-- LEFT: headline + CTA -->
@@ -27,64 +27,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <span class="ht">Free, confidential assessment</span>
         <span class="ht">RCI &amp; NMC-verified clinicians</span>
         <span class="ht">Care from home, in-app</span>
-      </div>
-    </div>
-
-    <!-- RIGHT: phone mockup -->
-    <div class="hero-phone">
-      <div class="phone-frame">
-        <div class="phone-notch"></div>
-        <div class="phone-screen">
-          <div class="ps-statusbar">
-            <span>9:41</span>
-            <span>●●●</span>
-          </div>
-          <div class="ps-header">
-            <div class="ps-greeting">Good morning</div>
-            <span class="ps-name">welcome back</span>
-          </div>
-          <div class="ps-body">
-            <div class="ps-card">
-              <div class="ps-badge">AI Insight · just now</div>
-              <div class="gc-cyc-track">
-                <div class="gc-cyc-item">
-                  <div class="ps-card-title">Mondays tend to weigh on you, and that's okay.</div>
-                  <div class="ps-card-sub">A 5-min breathing exercise before your first call may help. Tap to try it.</div>
-                </div>
-                <div class="gc-cyc-item">
-                  <div class="ps-card-title">Your sleep improved 3 nights running.</div>
-                  <div class="ps-card-sub">Mood tends to follow your rest, keep protecting that wind-down hour.</div>
-                </div>
-                <div class="gc-cyc-item">
-                  <div class="ps-card-title">You journaled 4 days straight. That's a streak.</div>
-                  <div class="ps-card-sub">Less self-criticism this week than last. Want to see the pattern?</div>
-                </div>
-              </div>
-            </div>
-            <div class="ps-card">
-              <div class="ps-badge">Today's session</div>
-              <div class="ps-card-title">Dr. Riya Lokesh · 3:00 PM</div>
-              <div class="ps-card-sub">Clinical Psychologist · Secure video</div>
-            </div>
-            <div class="ps-card">
-              <div class="ps-badge">Your week so far</div>
-              <div class="ps-metrics">
-                <div class="ps-m"><span class="ps-mn" style="color:var(--coral-l);">7</span><span class="ps-ml">Day streak <svg width="13" height="13" viewBox="0 0 24 24" fill="#E8896F" style="vertical-align:middle;display:inline-block"><polygon points="13,3 6,13 11,13 10,21 18,10 13,10"/></svg></span></div>
-                <div class="ps-m"><span class="ps-mn" style="color:#7FD4A8;">↑12%</span><span class="ps-ml">Mood trend</span></div>
-                <div class="ps-m"><span class="ps-mn" style="color:#B8B4D4;">14</span><span class="ps-ml">Journals</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Floating badges -->
-      <div class="phone-float float-1">
-        <div class="float-dot" style="background:var(--green);"></div>
-        Dr. Riya Lokesh is online
-      </div>
-      <div class="phone-float float-2">
-        <div class="float-dot" style="background:var(--coral);"></div>
-        Mood improved 12% this week
       </div>
     </div>
 

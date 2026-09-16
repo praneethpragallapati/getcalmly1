@@ -105,18 +105,24 @@
 /* Bold, FLAT brand-coral hero (no gradient). Depth now comes from the charcoal
    phone + white cards + white text layered on the solid block, not from glows,
    so the decorative gradient orbs are hidden here. */
-.lp-page .hero{min-height:calc(100vh - 84px);display:grid;place-items:center;padding:64px 6% 48px;position:relative;overflow:hidden;
+.lp-page .hero{min-height:calc(100vh - 84px);display:grid;place-items:center;padding:64px 6% 48px;position:relative;overflow:hidden;background:#241811;}
+/* Immersive full-bleed photo hero: the photo fills the section, a warm scrim on
+   the left keeps the headline legible, and a light top scrim lets the (now
+   transparent) nav read over the photo. */
+.lp-page .hero-media{position:absolute;inset:0;z-index:0;background:url('/hero.jpg') center right/cover;}
+.lp-page .hero-veil{position:absolute;inset:0;z-index:0;
   background:
-    radial-gradient(120% 85% at 82% 0%,rgba(232,137,111,.5) 0%,transparent 55%),
-    linear-gradient(158deg,#D2603F 0%,#C8553D 46%,#A8432D 100%);}
+    linear-gradient(94deg,rgba(38,25,17,.92) 0%,rgba(38,25,17,.74) 30%,rgba(38,25,17,.34) 55%,rgba(38,25,17,.06) 78%,transparent 100%),
+    linear-gradient(180deg,rgba(30,20,13,.55) 0%,transparent 16%),
+    linear-gradient(0deg,rgba(30,20,13,.28) 0%,transparent 34%);}
 .lp-page .hero .orb{display:none;}
-.lp-page .hero-layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:72px;align-items:center;max-width:1200px;width:100%;position:relative;z-index:1;}
+.lp-page .hero-layout{display:block;max-width:1200px;width:100%;position:relative;z-index:2;}
 .lp-page .orb{position:absolute;border-radius:50%;pointer-events:none;}
 .lp-page .orb-1{width:520px;height:520px;top:-110px;right:6%;background:radial-gradient(circle,rgba(193,74,48,.18) 0%,transparent 66%);}
 .lp-page .orb-2{width:360px;height:360px;bottom:-90px;left:-50px;background:radial-gradient(circle,rgba(61,158,114,.15) 0%,transparent 66%);}
 .lp-page .orb-3{width:180px;height:180px;top:35%;left:4%;background:radial-gradient(circle,rgba(201,151,58,.14) 0%,transparent 70%);animation:drift 9s ease-in-out infinite;}
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-.lp-page .hero-left{display:flex;flex-direction:column;align-items:flex-start;min-width:0;}
+.lp-page .hero-left{display:flex;flex-direction:column;align-items:flex-start;min-width:0;max-width:600px;}
 .lp-page .hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);
   padding:5px 16px 5px 12px;border-radius:30px;font-size:11px;font-weight:700;color:#fff;
   letter-spacing:1.2px;text-transform:uppercase;margin-bottom:28px;animation:rise .7s ease both;}
@@ -124,14 +130,14 @@
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 .lp-page .hero-h1{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
   font-size:clamp(36px,4.7vw,62px);line-height:1.0;letter-spacing:-1.2px;
-  color:#111A25;margin-bottom:0;transform:scaleX(.9);transform-origin:left;
+  color:#fff;margin-bottom:0;transform:scaleX(.9);transform-origin:left;
   animation:rise .7s .08s ease both;}
 /* Kinetic second line: its own row so the swapping phrase never reflows the
    left column, and the fixed phone track never shifts. Descenders have room. */
 .lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.04em;max-width:100%;}
 /* The rotating headline phrase — was brand coral; now an off-white so it reads
    as the bright accent on the solid coral block. */
-.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#FFFBF9;will-change:transform,opacity;}
+.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#F4B59B;will-change:transform,opacity;}
 .lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
 @keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 /* Story beats under the sub-copy */
@@ -148,15 +154,15 @@
   -webkit-text-fill-color:transparent;color:transparent;
   animation:shimmer 5s linear infinite;}
 @keyframes shimmer{to{background-position:220% center}}
-.lp-page .hero-sub{font-size:18px;font-weight:400;color:#111A25;line-height:1.8;
+.lp-page .hero-sub{font-size:18px;font-weight:400;color:rgba(255,255,255,.9);line-height:1.8;
   max-width:460px;margin-top:26px;animation:rise .7s .18s ease both;}
 .lp-page .hero-actions{display:flex;gap:12px;align-items:center;margin-top:32px;flex-wrap:wrap;animation:rise .7s .26s ease both;}
 .lp-page .btn-hero{padding:15px 32px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;
   font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:none;
   transition:transform .2s ease,box-shadow .25s ease,background .2s ease,color .2s ease,border-color .2s ease;}
-/* Primary CTA ("Take the free assessment") is charcoal grey on the coral block. */
-.lp-page .btn-hero.fill{background:var(--charcoal);color:var(--white);box-shadow:0 8px 28px rgba(28,43,58,.42);}
-.lp-page .btn-hero.fill:hover{background:var(--charcoal-m);transform:translateY(-1px);box-shadow:0 10px 30px rgba(28,43,58,.5);}
+/* Primary CTA reads coral on the photo hero (charcoal would sink into the scrim). */
+.lp-page .btn-hero.fill{background:var(--coral);color:var(--white);box-shadow:0 10px 30px -6px rgba(200,85,61,.55);}
+.lp-page .btn-hero.fill:hover{background:var(--coral-d);transform:translateY(-1px);box-shadow:0 12px 34px -6px rgba(200,85,61,.6);}
 .lp-page .btn-hero.outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);}
 .lp-page .btn-hero.outline:hover{border-color:#fff;background:rgba(255,255,255,.12);color:#fff;}
 .lp-page .btn-hero:active{transform:translateY(1px);}
@@ -167,6 +173,26 @@
 .lp-page .ht::before{content:'✓';color:#fff;font-weight:700;}
 @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .lp-page .hero-phone{animation:rise .8s .22s ease both;position:relative;}
+/* Scroll cue reads light on the photo hero. */
+.lp-page .hero .scroll-cue{color:rgba(255,255,255,.8);}
+.lp-page .hero .scroll-cue .sc-line{background:rgba(255,255,255,.6);}
+/* The fixed nav goes transparent over the immersive photo hero (home only,
+   before it sticks) with white marks; a light top scrim on the veil keeps it
+   readable. On scroll (.stuck) it returns to the default cream bar. */
+.lp-page:has(.hero) nav:not(.stuck){background:transparent;backdrop-filter:none;box-shadow:none;border-color:transparent;}
+/* Two logo variants: the light one shows only over the transparent photo hero. */
+.lp-page .logo-light{display:none;}
+.lp-page:has(.hero) nav:not(.stuck) .logo-dark{display:none;}
+.lp-page:has(.hero) nav:not(.stuck) .logo-light{display:inline-flex;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-links a,
+.lp-page:has(.hero) nav:not(.stuck) .nav-trigger{color:rgba(255,255,255,.92);}
+.lp-page:has(.hero) nav:not(.stuck) .nav-links a::after{background:#fff;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-links a:hover,
+.lp-page:has(.hero) nav:not(.stuck) .nav-item:hover .nav-trigger{color:#fff;}
+.lp-page:has(.hero) nav:not(.stuck) .btn-ghost{color:#fff !important;border-color:rgba(255,255,255,.5) !important;}
+.lp-page:has(.hero) nav:not(.stuck) .btn-ghost:hover{background:rgba(255,255,255,.12) !important;}
+.lp-page:has(.hero) nav:not(.stuck) .btn-primary{background:#fff;color:var(--coral-d);box-shadow:0 4px 18px rgba(0,0,0,.22);}
+.lp-page:has(.hero) nav:not(.stuck) .btn-primary:hover{background:#fff;color:var(--coral-d);}
 .lp-page .phone-frame{background:var(--charcoal);border-radius:40px;padding:16px;
   box-shadow:0 40px 100px rgba(28,43,58,.28),0 0 0 1px rgba(255,255,255,.04);
   position:relative;}
