@@ -12,7 +12,7 @@
   /* Same for the clinician-facing green, which was 3.25:1 on cream. */
   --green-ink:#276B4B;
   --charcoal:#1C2B3A; --charcoal-m:#2E3E50; --charcoal-l:#5A6A7A;
-  --bg:#FFFCFA; --bg-warm:#FFFCFA; --white:#FFFFFF;
+  --bg:#FFFFFF; --bg-warm:#FFFEFE; --white:#FFFFFF;
   --border:rgba(200,85,61,0.1); --gray:#5F6E7D; --gray-l:#EDECEA;
   --green:#3D9E72; --green-pale:#E5F4EE; --gold-pale:#FFF8E7;
   --gold:#C9973A;
@@ -33,9 +33,9 @@
   opacity:.5;}
 .lp-page nav{position:fixed;top:0;left:0;right:0;z-index:500;height:84px;padding:0 6%;
   display:flex;align-items:center;justify-content:space-between;
-  background:rgba(255,248,245,.85);backdrop-filter:blur(24px) saturate(1.4);
+  background:rgba(255,255,255,.82);backdrop-filter:blur(24px) saturate(1.4);
   border-bottom:1px solid transparent;transition:all .3s;}
-.lp-page nav.stuck{border-color:var(--border);box-shadow:0 2px 20px rgba(28,43,58,.06);background:rgba(255,248,245,.97);}
+.lp-page nav.stuck{border-color:var(--border);box-shadow:0 2px 20px rgba(28,43,58,.06);background:rgba(255,255,255,.97);}
 .lp-page .logo{display:flex;align-items:flex-end;gap:1px;text-decoration:none;overflow:visible;}
 .lp-page .logo .get{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:14px;color:var(--charcoal-l);padding-bottom:10px;letter-spacing:.5px;}
 .lp-page .logo .calm{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:58px;color:var(--coral);letter-spacing:-2px;line-height:1;display:inline-block;transform:scaleX(.63);transform-origin:left bottom;width:228px;}
@@ -122,14 +122,14 @@
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 .lp-page .hero-h1{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
   font-size:clamp(36px,4.7vw,62px);line-height:1.0;letter-spacing:-1.2px;
-  color:#fff;margin-bottom:0;transform:scaleX(.9);transform-origin:left;
+  color:#111A25;margin-bottom:0;transform:scaleX(.9);transform-origin:left;
   animation:rise .7s .08s ease both;}
 /* Kinetic second line: its own row so the swapping phrase never reflows the
    left column, and the fixed phone track never shifts. Descenders have room. */
 .lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.04em;max-width:100%;}
 /* The rotating headline phrase — was brand coral; now an off-white so it reads
    as the bright accent on the solid coral block. */
-.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#FFF3EC;will-change:transform,opacity;}
+.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#FFFBF9;will-change:transform,opacity;}
 .lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
 @keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 /* Story beats under the sub-copy */
@@ -146,7 +146,7 @@
   -webkit-text-fill-color:transparent;color:transparent;
   animation:shimmer 5s linear infinite;}
 @keyframes shimmer{to{background-position:220% center}}
-.lp-page .hero-sub{font-size:18px;font-weight:300;color:rgba(255,255,255,.9);line-height:1.8;
+.lp-page .hero-sub{font-size:18px;font-weight:400;color:#111A25;line-height:1.8;
   max-width:460px;margin-top:26px;animation:rise .7s .18s ease both;}
 .lp-page .hero-actions{display:flex;gap:12px;align-items:center;margin-top:32px;flex-wrap:wrap;animation:rise .7s .26s ease both;}
 .lp-page .btn-hero{padding:15px 32px;border-radius:50px;font-size:16px;font-weight:700;cursor:pointer;
@@ -165,25 +165,6 @@
 .lp-page .ht::before{content:'✓';color:#fff;font-weight:700;}
 @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .lp-page .hero-phone{animation:rise .8s .22s ease both;position:relative;}
-/* Depth: a soft white outline panel tilted behind the charcoal phone, so the
-   device reads as a layered object on the flat coral block. */
-.lp-page .hero-phone::before{content:'';position:absolute;inset:0;border-radius:44px;
-  border:2px solid rgba(255,255,255,.22);transform:rotate(6deg) scale(1.015);z-index:0;pointer-events:none;}
-.lp-page .hero-phone .phone-frame{position:relative;z-index:1;}
-/* The fixed nav is transparent over the bold coral hero (home only, before it
-   sticks) — flip its text/controls to white so they read. Once .stuck (cream bg
-   on scroll) the default charcoal styling returns. Scoped via :has(.hero). */
-.lp-page:has(.hero) nav:not(.stuck) .logo .get{color:rgba(255,255,255,.85);}
-.lp-page:has(.hero) nav:not(.stuck) .logo .calm{color:#fff;}
-.lp-page:has(.hero) nav:not(.stuck) .nav-links a,
-.lp-page:has(.hero) nav:not(.stuck) .nav-trigger{color:rgba(255,255,255,.92);}
-.lp-page:has(.hero) nav:not(.stuck) .nav-links a::after{background:#fff;}
-.lp-page:has(.hero) nav:not(.stuck) .nav-links a:hover,
-.lp-page:has(.hero) nav:not(.stuck) .nav-item:hover .nav-trigger{color:#fff;}
-.lp-page:has(.hero) nav:not(.stuck) .btn-ghost{color:#fff !important;border-color:rgba(255,255,255,.5) !important;}
-.lp-page:has(.hero) nav:not(.stuck) .btn-ghost:hover{background:rgba(255,255,255,.12) !important;}
-.lp-page:has(.hero) nav:not(.stuck) .btn-primary{background:#fff;color:var(--coral-d);box-shadow:0 4px 18px rgba(0,0,0,.18);}
-.lp-page:has(.hero) nav:not(.stuck) .btn-primary:hover{background:#fff;color:var(--coral-d);}
 .lp-page .phone-frame{background:var(--charcoal);border-radius:40px;padding:16px;
   box-shadow:0 40px 100px rgba(28,43,58,.28),0 0 0 1px rgba(255,255,255,.04);
   position:relative;}
