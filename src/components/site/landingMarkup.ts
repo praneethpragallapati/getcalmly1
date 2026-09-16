@@ -46,7 +46,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="hiw-grid">
     <div class="hiw-step reveal"><div class="hiw-media" style="--img:url('/hiw/step-1.jpg')"></div><span class="hiw-n">1</span><h3>Find the right match</h3><p class="hiw-lead">Start with a better understanding of what you need.</p><p>Tell us about yourself, what you&apos;re going through and what you&apos;re looking for. Your assessment helps us understand your needs and preferences, so you can find a therapist who feels right for you.</p></div>
     <div class="hiw-step reveal d1"><div class="hiw-media" style="--img:url('/hiw/step-2.jpg')"></div><span class="hiw-n">2</span><h3>Meet regularly with your therapist</h3><p class="hiw-lead">Build a relationship that grows with you.</p><p>Have private, one-on-one sessions with your therapist and work together on what matters to you. As they get to know you over time, your care becomes more personal and meaningful.</p></div>
-    <div class="hiw-step reveal d2"><div class="hiw-media" style="--img:url('/hiw/step-3.jpg');background-position:center top"></div><span class="hiw-n">3</span><h3>Stay supported between sessions</h3><p class="hiw-lead">Because life doesn&apos;t wait for your next session.</p><p>GetCalmly learns from your journey, from the things you share to the patterns that emerge over time. This helps you get support that feels relevant to what you are going through, even when your therapist isn&apos;t around.</p></div>
+    <div class="hiw-step reveal d2"><div class="hiw-media" style="--img:url('/hiw/step-3.jpg');background-position:center top"></div><span class="hiw-n">3</span><h3>Stay supported between sessions</h3><p class="hiw-lead">Because life doesn&apos;t wait for your next session.</p><p>getCalmly learns from your journey, from the things you share to the patterns that emerge over time. This helps you get support that feels relevant to what you are going through, even when your therapist isn&apos;t around.</p></div>
     <div class="hiw-step reveal d3"><div class="hiw-media" style="--img:url('/hiw/step-4.jpg')"></div><span class="hiw-n">4</span><h3>Find your calm</h3><p class="hiw-lead">Understand yourself better. Feel better equipped for what comes next.</p><p>With the right therapist and support that stays with you between sessions, build healthier ways to manage what life brings your way and move towards feeling more like yourself.</p></div>
   </div>
 </section>
@@ -54,8 +54,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <!-- ── CARE YOU CAN TRUST ── -->
 <section class="trust-section" id="features">
   <div class="tr-head">
-    <div class="tr-eyebrow reveal">Why getCalmly</div>
-    <h2 class="sec-h2 reveal">Care you can trust</h2>
+    <div class="sec-label reveal">Why getCalmly</div>
+    <h2 class="sec-h2 reveal">Care you<br><span>can trust.</span></h2>
     <p class="tr-sub reveal">Real people. Real care. Technology that makes it better.</p>
     <p class="tr-intro reveal">Your care starts with qualified mental health professionals. getCalmly brings together clinical expertise and advanced technology to create a more personal and connected experience.</p>
   </div>
@@ -191,7 +191,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div style="display:flex;justify-content:center;">
       <div style="width:270px;background:#0F1C28;border-radius:44px;padding:10px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
         <div style="width:250px;height:541px;border-radius:36px;overflow:hidden;background:#FFF8F5;">
-          <img src="/mockups/patient-home-1.png" alt="The GetCalmly app home screen" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover;object-position:top center;" />
+          <img src="/mockups/patient-home-1.png" alt="The getCalmly app home screen" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover;object-position:top center;" />
         </div>
       </div>
     </div>

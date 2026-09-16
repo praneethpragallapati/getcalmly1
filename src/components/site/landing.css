@@ -105,7 +105,10 @@
 /* Bold, FLAT brand-coral hero (no gradient). Depth now comes from the charcoal
    phone + white cards + white text layered on the solid block, not from glows,
    so the decorative gradient orbs are hidden here. */
-.lp-page .hero{min-height:calc(100vh - 84px);display:grid;place-items:center;padding:64px 6% 48px;position:relative;overflow:hidden;background:#241811;}
+/* The hero bleeds up UNDER the fixed nav (negative margin cancels main's 84px
+   top padding) so the photo fills the whole viewport behind a transparent nav;
+   the extra top padding keeps the headline clear of the bar. */
+.lp-page .hero{min-height:100vh;margin-top:-84px;display:grid;place-items:center;padding:124px 6% 48px;position:relative;overflow:hidden;background:#241811;}
 /* Immersive full-bleed photo hero: the photo fills the section, a warm scrim on
    the left keeps the headline legible, and a light top scrim lets the (now
    transparent) nav read over the photo. */
@@ -113,7 +116,7 @@
 .lp-page .hero-veil{position:absolute;inset:0;z-index:0;
   background:
     linear-gradient(94deg,rgba(38,25,17,.92) 0%,rgba(38,25,17,.74) 30%,rgba(38,25,17,.34) 55%,rgba(38,25,17,.06) 78%,transparent 100%),
-    linear-gradient(180deg,rgba(30,20,13,.55) 0%,transparent 16%),
+    linear-gradient(180deg,rgba(30,20,13,.72) 0%,rgba(30,20,13,.32) 11%,transparent 22%),
     linear-gradient(0deg,rgba(30,20,13,.28) 0%,transparent 34%);}
 .lp-page .hero .orb{display:none;}
 .lp-page .hero-layout{display:block;max-width:1200px;width:100%;position:relative;z-index:2;}
@@ -123,10 +126,10 @@
 .lp-page .orb-3{width:180px;height:180px;top:35%;left:4%;background:radial-gradient(circle,rgba(201,151,58,.14) 0%,transparent 70%);animation:drift 9s ease-in-out infinite;}
 @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
 .lp-page .hero-left{display:flex;flex-direction:column;align-items:flex-start;min-width:0;max-width:600px;}
-.lp-page .hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);
-  padding:5px 16px 5px 12px;border-radius:30px;font-size:11px;font-weight:700;color:#fff;
-  letter-spacing:1.2px;text-transform:uppercase;margin-bottom:28px;animation:rise .7s ease both;}
-.lp-page .pill-dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:blink 2s infinite;}
+.lp-page .hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border:1px solid rgba(200,85,61,.3);
+  padding:5px 16px 5px 12px;border-radius:30px;font-size:11px;font-weight:800;color:#B8482F;
+  letter-spacing:1.2px;text-transform:uppercase;margin-bottom:28px;box-shadow:0 6px 20px -8px rgba(0,0,0,.35);animation:rise .7s ease both;}
+.lp-page .pill-dot{width:6px;height:6px;background:#C8553D;border-radius:50%;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 .lp-page .hero-h1{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
   font-size:clamp(36px,4.7vw,62px);line-height:1.0;letter-spacing:-1.2px;
@@ -135,9 +138,9 @@
 /* Kinetic second line: its own row so the swapping phrase never reflows the
    left column, and the fixed phone track never shifts. Descenders have room. */
 .lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.04em;max-width:100%;}
-/* The rotating headline phrase — was brand coral; now an off-white so it reads
-   as the bright accent on the solid coral block. */
-.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#F4B59B;will-change:transform,opacity;}
+/* The rotating headline phrase in burnt coral — the bright accent against the
+   dark photo scrim. */
+.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#C8553D;will-change:transform,opacity;}
 .lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
 @keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 /* Story beats under the sub-copy */
@@ -147,7 +150,9 @@
 .lp-page .hero-beat .hb-ic{width:26px;height:26px;border-radius:8px;flex-shrink:0;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;line-height:1;}
 .lp-page .hero-beat .hb-tx{font-size:11px;color:#5a6672;line-height:1.34;}
 .lp-page .hero-beat .hb-tx b{display:block;font-size:12.5px;font-weight:800;color:#111A25;line-height:1.2;margin-bottom:1px;}
-.lp-page .hero-h1 .light{font-weight:300;display:block;}
+/* "You don't have to carry" holds one line on desktop; it wraps on phones,
+   where the mobile query relaxes the nowrap. */
+.lp-page .hero-h1 .light{font-weight:300;display:block;white-space:nowrap;}
 .lp-page .hero-h1 .accent{
   background:linear-gradient(100deg,var(--coral-d) 0%,var(--coral) 35%,var(--coral-d) 65%,var(--coral) 100%);
   background-size:220% auto;-webkit-background-clip:text;background-clip:text;
@@ -176,21 +181,24 @@
 /* Scroll cue reads light on the photo hero. */
 .lp-page .hero .scroll-cue{color:rgba(255,255,255,.8);}
 .lp-page .hero .scroll-cue .sc-line{background:rgba(255,255,255,.6);}
-/* The fixed nav goes transparent over the immersive photo hero (home only,
-   before it sticks) with white marks; a light top scrim on the veil keeps it
-   readable. On scroll (.stuck) it returns to the default cream bar. */
-.lp-page:has(.hero) nav:not(.stuck){background:transparent;backdrop-filter:none;box-shadow:none;border-color:transparent;}
-/* Two logo variants: the light one shows only over the transparent photo hero. */
+/* Over the immersive photo hero (home only, before it sticks) the fixed nav is
+   fully transparent so the photo reads through it; its marks turn white and the
+   veil's top scrim keeps them legible. On scroll (.stuck) it returns to the
+   default frosted bar with dark marks. */
+.lp-page:has(.hero) nav:not(.stuck){background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none;border-color:transparent;}
+/* Two logo variants: the light (white) wordmark shows only over the transparent
+   hero nav; the dark one everywhere else, including once the bar sticks. */
 .lp-page .logo-light{display:none;}
 .lp-page:has(.hero) nav:not(.stuck) .logo-dark{display:none;}
 .lp-page:has(.hero) nav:not(.stuck) .logo-light{display:inline-flex;}
 .lp-page:has(.hero) nav:not(.stuck) .nav-links a,
-.lp-page:has(.hero) nav:not(.stuck) .nav-trigger{color:rgba(255,255,255,.92);}
+.lp-page:has(.hero) nav:not(.stuck) .nav-trigger{color:#fff;}
 .lp-page:has(.hero) nav:not(.stuck) .nav-links a::after{background:#fff;}
 .lp-page:has(.hero) nav:not(.stuck) .nav-links a:hover,
-.lp-page:has(.hero) nav:not(.stuck) .nav-item:hover .nav-trigger{color:#fff;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-item:hover .nav-trigger{color:#fff;opacity:.82;}
 .lp-page:has(.hero) nav:not(.stuck) .btn-ghost{color:#fff !important;border-color:rgba(255,255,255,.5) !important;}
 .lp-page:has(.hero) nav:not(.stuck) .btn-ghost:hover{background:rgba(255,255,255,.12) !important;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-burger{color:#fff !important;}
 .lp-page:has(.hero) nav:not(.stuck) .btn-primary{background:#fff;color:var(--coral-d);box-shadow:0 4px 18px rgba(0,0,0,.22);}
 .lp-page:has(.hero) nav:not(.stuck) .btn-primary:hover{background:#fff;color:var(--coral-d);}
 .lp-page .phone-frame{background:var(--charcoal);border-radius:40px;padding:16px;
@@ -265,8 +273,8 @@
   background-size:cover,cover,30px 30px;background-position:center,center,center;background-repeat:no-repeat,no-repeat,no-repeat;}
 .lp-page .hiw-n{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;
   background:var(--coral-pale);color:var(--coral-ink);font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:20px;}
-.lp-page .hiw-step h3{font-family:'DM Sans',sans-serif;font-weight:700;font-size:18px;color:var(--charcoal);
-  margin-top:20px;line-height:1.25;letter-spacing:0;}
+.lp-page .hiw-step h3{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:27px;color:var(--coral);
+  margin-top:16px;line-height:1.04;letter-spacing:-.2px;}
 .lp-page .hiw-step .hiw-lead{font-size:15px;font-weight:700;color:var(--charcoal);line-height:1.4;margin-top:18px;}
 .lp-page .hiw-step p{font-size:14px;font-weight:400;color:var(--charcoal-l);line-height:1.65;margin-top:10px;}
 .lp-page .hiw-tag{display:inline-block;margin-top:16px;font-size:11px;font-weight:700;letter-spacing:.3px;
@@ -733,14 +741,19 @@
 .lp-page .feat-card{padding:26px;}
 .lp-page nav{padding:0 5%;height:72px;}
 .lp-page nav .gc-logo-tag{display:none;}
-.lp-page .hero{padding:80px 5% 56px;min-height:auto;}
+/* Hero still bleeds under the (72px) nav on phones; the headline is free to
+   wrap and the scroll cue is dropped so it can't overlap the shorter hero. */
+.lp-page .hero{padding:104px 7% 64px;min-height:100vh;}
 .lp-page .hero-layout{gap:40px;}
-.lp-page .hero-h1{font-size:clamp(40px,12vw,56px);letter-spacing:-1px;}
-.lp-page .hero-sub{font-size:16px;}
-.lp-page .hero-actions{width:100%;}
-.lp-page .hero-actions .btn-hero{flex:1;justify-content:center;text-align:center;}
-.lp-page .hero-trust{flex-wrap:wrap;gap:10px 16px;}
-.lp-page .phone-frame{max-width:300px;}
+.lp-page .hero-left{max-width:100%;}
+.lp-page .hero-h1{font-size:clamp(38px,11vw,52px);letter-spacing:-1px;}
+.lp-page .hero-h1 .light{white-space:normal;}
+.lp-page .hero-sub{font-size:16px;margin-top:20px;}
+.lp-page .hero-beats{gap:8px;margin-top:20px;}
+.lp-page .hero-actions{width:100%;margin-top:26px;}
+.lp-page .hero-actions .btn-hero{flex:1 1 100%;justify-content:center;text-align:center;}
+.lp-page .hero-trust{flex-wrap:wrap;gap:9px 16px;margin-top:22px;}
+.lp-page .hero .scroll-cue{display:none;}
 .lp-page .weeks-track{grid-template-columns:1fr;}
 .lp-page .feat-grid, .lp-page .t-grid, .lp-page .t3-grid, .lp-page .price-grid, .lp-page .foot-grid{grid-template-columns:1fr;}
 .lp-page .quiz-opts, .lp-page .modal-opts{grid-template-columns:1fr;}
@@ -932,11 +945,11 @@
 
 /* ── CARE YOU CAN TRUST (replaces the old features grid) ───────────────────── */
 .lp-page .trust-section{background:#FBF8F5;}
-.lp-page .tr-head{max-width:780px;margin:0 auto 46px;text-align:center;}
-.lp-page .tr-eyebrow{font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--green-ink);margin-bottom:14px;}
-.lp-page .trust-section .sec-h2{transform:none;margin:0 auto;}
-.lp-page .tr-sub{font-size:19px;font-weight:600;color:var(--charcoal);margin-top:8px;}
-.lp-page .tr-intro{font-size:16px;color:var(--charcoal-l);line-height:1.7;margin-top:16px;}
+/* Header matches the other sections: coral sec-label + line, left-aligned
+   Big Shoulders sec-h2 with the coral accent span, and a sec-p-width intro. */
+.lp-page .tr-head{max-width:680px;margin:0 0 48px;}
+.lp-page .tr-sub{font-size:19px;font-weight:600;color:var(--charcoal);margin-top:14px;max-width:560px;}
+.lp-page .tr-intro{font-size:16px;font-weight:300;color:var(--charcoal-l);line-height:1.8;margin-top:14px;max-width:560px;}
 .lp-page .tr-row1{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px;margin:0 auto;}
 .lp-page .tr-card{position:relative;border-radius:22px;padding:38px 34px 32px;border:1px solid rgba(28,43,58,.06);box-shadow:0 1px 2px rgba(28,43,58,.03),0 18px 44px -28px rgba(28,43,58,.18);}
 .lp-page .tr-card.a{background:#F6F4F1;}

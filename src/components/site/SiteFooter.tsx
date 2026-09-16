@@ -42,7 +42,7 @@ export default function SiteFooter() {
         </div>
         <div className="foot-col">
           <h4>Company</h4>
-          <Link href="/about">About GetCalmly</Link>
+          <Link href="/about">About getCalmly</Link>
           <Link href="/enterprise">Enterprise</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/safety">Safety &amp; ethics</Link>
