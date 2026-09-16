@@ -319,7 +319,7 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
 
 const CSS = `
   .pr-page{ background: var(--bg); }
-  .pr-section{ max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+  .pr-section{ max-width: 1360px; margin: 0 auto; padding: 40px 24px; }
 
   .pr-eyebrow{ font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
   .pr-h1{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 300; font-size: clamp(42px, 6.4vw, 68px); color: #fff; line-height: 1.0; letter-spacing: -2px; margin-bottom: 20px; text-wrap: balance; }

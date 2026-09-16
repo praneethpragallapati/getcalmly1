@@ -172,7 +172,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 </section>
 
 <!-- ── APP ── -->
-<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:72px max(6%, calc((100% - 1200px) / 2)) 64px;overflow:hidden;">
+<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:72px max(6%, calc((100% - 1360px) / 2)) 64px;overflow:hidden;">
   <div class="app-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
       <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
