@@ -157,7 +157,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="clin-more">
       <span class="clin-more-plus">+</span>
       <span class="clin-more-t">&amp; many more</span>
-      <span class="clin-more-d">clinicians joining getCalmly soon</span>
     </div>
   </div>
 </section>
