@@ -11,11 +11,12 @@ import { verifyPassword } from '@/lib/password'
 // getProviders() on the login/register pages).
 export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
-// TEMPORARY: the one phone number allowed to sign in without an OTP (Priya's
-// test account), digits only, with the +91 country code. This is a deliberate
-// backdoor for testing — delete it (and the shortcut in the login page) before
-// real use, or gate it behind an env flag.
+// TEMPORARY test backdoor: entering this phone number (digits only, +91) signs
+// straight into the existing Priya dashboard — which is the email account below
+// — with no OTP. Delete this (and the matching shortcut in the login page)
+// before real use, or gate it behind an env flag.
 export const OTP_BYPASS_MOBILE = '918884518688'
+export const OTP_BYPASS_EMAIL = 'praneethpragallapati@gmail.com'
 
 /**
  * Short-lived cache of a user's role, so the session callback doesn't hit the DB
@@ -84,21 +85,27 @@ export const authOptions: NextAuthOptions = {
         const otp = credentials?.otp?.trim()
         if (!mobile) return null
 
-        // TEMPORARY test shortcut: this one number (Priya's test account) may
-        // sign in with no OTP. Remove this block — and the matching shortcut in
-        // the login page — before this is used for real.
-        const bypass = mobile === OTP_BYPASS_MOBILE
-        if (!bypass) {
-          if (!otp) return null
-          const result = await verifyOtp(mobile, otp)
-          if (!result.ok) return null
+        // TEMPORARY test shortcut: this one number signs straight into the
+        // existing Priya account (looked up by its email), with no OTP. Remove
+        // this block — and the matching shortcut in the login page — before
+        // this is used for real.
+        if (mobile === OTP_BYPASS_MOBILE) {
+          const priya = await prisma.user.findUnique({
+            where: { email: OTP_BYPASS_EMAIL },
+            select: { id: true, name: true, email: true },
+          })
+          return priya ? { id: priya.id, name: priya.name ?? undefined, email: priya.email ?? undefined } : null
         }
+
+        if (!otp) return null
+        const result = await verifyOtp(mobile, otp)
+        if (!result.ok) return null
 
         const phone = `+${mobile}`
         const user = await prisma.user.upsert({
           where: { phone },
           update: {},
-          create: { phone, role: 'PATIENT', ...(bypass ? { name: 'Priya' } : {}) },
+          create: { phone, role: 'PATIENT' },
           select: { id: true, name: true, email: true },
         })
         return { id: user.id, name: user.name ?? undefined, email: user.email ?? undefined }

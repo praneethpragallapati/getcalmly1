@@ -72,7 +72,9 @@ function LoginForm() {
       setLoading(true)
       try {
         const result = await signIn('phone-otp', { mobile, otp: 'bypass', redirect: false })
-        if (result?.ok) { await redirectAfterLogin(); return }
+        // Straight to the existing dashboard — this is a known account, so skip
+        // the first-time /welcome details step.
+        if (result?.ok) { router.push('/app'); return }
         setError('Could not sign in. Please try again.')
       } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
       return
