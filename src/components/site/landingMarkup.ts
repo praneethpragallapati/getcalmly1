@@ -45,6 +45,28 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
 </section>
 
+<!-- ── KEY OFFERINGS (compact) ── -->
+<section class="offer-section" id="offerings">
+  <div class="offer-head">
+    <div class="sec-label reveal">What we offer</div>
+    <h2 class="sec-h2 reveal">Care for <span>every kind of hard.</span></h2>
+  </div>
+  <div class="offer-grid reveal">
+    <a class="offer-card" href="/services/therapy">
+      <span class="offer-ic" style="background:rgba(200,85,61,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v9H8l-4 3.5V5.5Z"/></svg></span>
+      <span class="offer-tx"><b>Therapy</b>Anxiety, stress &amp; burnout</span>
+    </a>
+    <a class="offer-card" href="/services/psychiatry">
+      <span class="offer-ic" style="background:rgba(26,127,122,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#1A7F7A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v4.5a4 4 0 0 0 8 0V3"/><path d="M10 15.2V16a5 5 0 0 0 5 5 4 4 0 0 0 4-4v-1.2"/><circle cx="19" cy="12.5" r="2.1"/></svg></span>
+      <span class="offer-tx"><b>Psychiatry</b>Evaluation &amp; medication</span>
+    </a>
+    <a class="offer-card" href="/services/couples">
+      <span class="offer-ic" style="background:rgba(124,92,191,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-6.5-4.3-6.5-9A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 6.5 3c0 4.7-6.5 9-6.5 9Z"/></svg></span>
+      <span class="offer-tx"><b>Couples Therapy</b>Communication &amp; repair</span>
+    </a>
+  </div>
+</section>
+
 <!-- ── CARE YOU CAN TRUST ── -->
 <section class="trust-section" id="features">
   <div class="tr-head">
@@ -79,7 +101,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>End-to-end<br>encryption</span></div>
         <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><line x1="7.5" y1="7.5" x2="7.6" y2="7.5"/><line x1="7.5" y1="16.5" x2="7.6" y2="16.5"/></svg><span>Secure<br>infrastructure</span></div>
         <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.4v5.1c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V5.4L12 3Z"/><polyline points="9,12 11,14 15,10"/></svg><span>Strict access<br>controls</span></div>
-        <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7Z"/><line x1="9.5" y1="12" x2="14.5" y2="12"/><line x1="9.5" y1="15.5" x2="13.5" y2="15.5"/></svg><span>GDPR<br>compliant</span></div>
+        <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7Z"/><line x1="9.5" y1="12" x2="14.5" y2="12"/><line x1="9.5" y1="15.5" x2="13.5" y2="15.5"/></svg><span>DPDP<br>compliant</span></div>
       </div>
     </div>
   </div>

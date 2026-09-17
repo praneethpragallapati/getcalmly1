@@ -73,18 +73,18 @@ export default function AboutPage() {
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="awrap about-hero" style={{ position: 'relative' }}>
           <div>
-            <p style={{ ...eyebrowOnDark, marginBottom: 22 }}>Our story</p>
+            <p style={{ ...eyebrowOnDark, marginBottom: 22 }}>About getCalmly</p>
             <h1 style={{
               ...heading, fontWeight: 300, fontSize: 'clamp(40px, 6vw, 76px)', color: '#fff',
               letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 0,
             }}>
-              Mental health support that understands you.
+              Getting help shouldn&apos;t feel like a<br /><span style={{ color: '#C8553D', fontWeight: 900 }}>second full-time job.</span>
             </h1>
           </div>
           <p style={{ fontSize: 19, color: 'rgba(255,255,255,.74)', lineHeight: 1.8, fontWeight: 300, marginBottom: 6 }}>
-            GetCalmly connects people across India with the right verified professional, matched by your needs,
-            context, language and budget rather than symptoms alone. Care from verified experts, made
-            easier to reach and easier to stay with.
+            Finding someone qualified, someone who gets your context, someone you can actually afford — most
+            people give up somewhere in that maze, long before a first session. We built getCalmly to make that
+            first step the easy part.
           </p>
         </div>
       </section>
@@ -98,8 +98,8 @@ export default function AboutPage() {
               ...heading, fontWeight: 700, fontSize: 'clamp(26px, 3.4vw, 40px)',
               color: charcoal, lineHeight: 1.18, marginBottom: 0,
             }}>
-              Too many people in India carry their hardest moments alone, not because help doesn&apos;t exist,
-              but because it never quite reaches them.
+              In India, the distance between &ldquo;I think I need help&rdquo; and actually getting it is measured
+              in months, not minutes. We exist to close that gap.
             </p>
           </div>
           <div>
@@ -124,8 +124,8 @@ export default function AboutPage() {
             ...heading, fontWeight: 900, fontSize: 'clamp(30px, 4.6vw, 52px)',
             color: '#fff', letterSpacing: '-1px', lineHeight: 1.12, margin: '0 auto',
           }}>
-            To make credible mental health care reach every corner of India, in the language you think in,
-            at a price that never stands in the way.
+            To make good mental healthcare feel ordinary — as reachable as any other kind of care, in the
+            language you dream in, at a price that never becomes the reason you stop.
           </p>
         </div>
       </section>
@@ -136,18 +136,18 @@ export default function AboutPage() {
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>The problem</p>
             <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
-              Help exists. Reaching it is the hard part.
+              It&apos;s not a shortage of care. It&apos;s a shortage of access.
             </h2>
           </div>
           <div>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22, marginTop: 0 }}>
-              India faces a mental health treatment gap exceeding 60%. With roughly 0.75 psychiatrists per
-              100,000 people, and specialists concentrated in major cities, millions in Tier-2 and Tier-3
-              regions go underserved.
+              India has fewer than one psychiatrist for every lakh people, and most of them practise in a
+              handful of big cities. For millions in smaller towns, &ldquo;just see a professional&rdquo; quietly
+              translates to travel, wait, and hope.
             </p>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
-              NRIs, meanwhile, often pay high fees for therapists who don&apos;t share their cultural context,
-              and end up explaining who they are before the real work can begin.
+              For Indians abroad, it often means paying a premium to first explain your own culture — before the
+              conversation you actually came for can begin.
             </p>
           </div>
         </div>
@@ -157,20 +157,20 @@ export default function AboutPage() {
       <section style={{ padding: '109px 40px' }}>
         <div className="awrap about-edit">
           <div className="about-sticky">
-            <p style={{ ...eyebrow, marginBottom: 18 }}>Our approach</p>
+            <p style={{ ...eyebrow, marginBottom: 18 }}>How we&apos;re different</p>
             <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 0, lineHeight: 1.1 }}>
-              Care that fits you, not the other way around.
+              We match first. Everything else follows.
             </h2>
           </div>
           <div>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 22, marginTop: 0 }}>
-              We&apos;ve built a strictly vetted network of RCI-verified professionals, and a match that pairs
-              you on cultural fit and your needs rather than diagnosis alone. A hybrid safety protocol keeps
-              care safe, not just digital.
+              Rather than hand you a directory and wish you luck, we pair you with a verified clinician on the
+              things that actually decide fit: what you&apos;re facing, the language you&apos;re most yourself
+              in, and what you can comfortably spend.
             </p>
             <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, marginBottom: 0 }}>
-              And because healing happens between sessions too, a supportive app and community stay with you
-              the rest of the week, amplified by thoughtful AI that never replaces the human in the room.
+              Then a context-aware companion keeps the thread between sessions — so you never restart from zero,
+              and neither does the person treating you.
             </p>
           </div>
         </div>
