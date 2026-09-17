@@ -1090,3 +1090,5 @@
 @media(max-width:560px){
   .lp-page .clin-card,.lp-page .clin-more{flex:1 1 100%;max-width:none;}
 }
+.lp-page .clin-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-card);}
+.lp-page .clin-tag{font-size:11px;font-weight:600;color:var(--charcoal-l);background:rgba(28,43,58,.05);padding:4px 10px;border-radius:999px;line-height:1.35;}

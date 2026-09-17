@@ -144,6 +144,14 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <span class="clin-cred">Ph.D. in Clinical Psychology</span>
           <span class="clin-cred">RCI-registered</span>
         </div>
+        <div class="clin-tags">
+          <span class="clin-tag">Individual Therapy</span>
+          <span class="clin-tag">Couples</span>
+          <span class="clin-tag">Children &amp; Teens</span>
+          <span class="clin-tag">Depression</span>
+          <span class="clin-tag">Anxiety</span>
+          <span class="clin-tag">Sleep</span>
+        </div>
       </div>
     </div>
     <div class="clin-more">
