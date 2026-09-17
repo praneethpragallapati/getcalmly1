@@ -171,8 +171,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       </div>
     </div>
     <div class="clin-more">
-      <span class="clin-more-plus">+</span>
-      <span class="clin-more-t">&amp; many more</span>
+      <span class="clin-more-plus">&rarr;</span>
+      <span class="clin-more-t">View All</span>
     </div>
     </div>
   </div>

@@ -115,7 +115,7 @@ function LoginForm() {
         {/* Right — one-time-code login, floating on the photo */}
         <div className="login-card">
           <h2 className="login-card-title">Hey — let&apos;s get you in.</h2>
-          <p className="login-card-sub">Pop in your number or email and we&apos;ll send you a one-time code. No passwords, ever.</p>
+          <p className="login-card-sub">Pop in your number or email and we&apos;ll send you a one-time code.</p>
 
           {/* WhatsApp / Email */}
           <div className="login-tabs">
@@ -138,7 +138,7 @@ function LoginForm() {
                 <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={field} />
               )}
               <button onClick={handleSend} disabled={loading} style={{ ...primaryBtn, opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
-                {loading ? 'Sending…' : tab === 'phone' ? 'Send my code on WhatsApp →' : 'Email me a code →'}
+                {loading ? 'Sending…' : 'Continue →'}
               </button>
               {error && <p className="login-err">{error}</p>}
             </div>
@@ -166,6 +166,8 @@ function LoginForm() {
               </button>
             </div>
           )}
+
+          <p className="login-contact">Need a hand? <a href="/contact">Contact Calm Team</a></p>
         </div>
       </div>
     </section>

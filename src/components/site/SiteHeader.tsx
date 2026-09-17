@@ -42,7 +42,7 @@ export default function SiteHeader() {
         {/* Services, hover mega-menu, no standalone tab */}
         <li className="nav-item">
           <span className="nav-trigger">
-            How we help
+            Mental Health
             <svg className="nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
           </span>
           <div className="nav-mega-wrap">
@@ -81,7 +81,7 @@ export default function SiteHeader() {
           className="btn-ghost"
           style={{ color: '#2F7D5A', borderColor: 'rgba(61,158,114,.45)' }}
         >
-          Join our experts
+          For Clinicians
         </Link>
         <Link href="/login" className="btn-ghost" style={{ border: 'none', padding: '8px 10px' }}>Log in</Link>
         <Link href="/assess" className="btn-primary">Book session</Link>
@@ -140,7 +140,7 @@ export default function SiteHeader() {
           <Link href="/" onClick={() => setOpen(false)} style={mobLink}>Home</Link>
 
           {/* Services group, expanded inline on mobile */}
-          <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>How we help</p>
+          <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>Mental Health</p>
           {SERVICES.map((s) => {
             const Icon = SERVICE_ICONS[s.slug]
             return (
@@ -159,7 +159,7 @@ export default function SiteHeader() {
               {n.soon && <span className="nav-soon-badge">Soon</span>}
             </Link>
           ))}
-          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#2F7D5A', textDecoration: 'none' }}>Join our experts</Link>
+          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#2F7D5A', textDecoration: 'none' }}>For Clinicians</Link>
           <Link href="/login" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, color: 'var(--charcoal)', textDecoration: 'none' }}>Log in</Link>
           <Link href="/assess" onClick={() => setOpen(false)} className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>Book session</Link>
         </div>
