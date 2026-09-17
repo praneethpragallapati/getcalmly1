@@ -14,17 +14,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
       </h1>
       <p class="hero-sub">Talk to RCI-verified therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
-      <div class="hero-beats">
-        <div class="hero-beat"><span class="hb-ic" style="background:#C8553D">◑</span><span class="hb-tx"><b>Matched to you</b>The right expert, not just anyone.</span></div>
-        <div class="hero-beat"><span class="hb-ic" style="background:#C9973A">✦</span><span class="hb-tx"><b>AI that learns you</b>Private, context-aware insight.</span></div>
-        <div class="hero-beat"><span class="hb-ic" style="background:#3D9E72">♡</span><span class="hb-tx"><b>Never alone</b>A community that gets it.</span></div>
-      </div>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
         <a href="#how-it-works" class="btn-hero outline">How it works</a>
       </div>
       <div class="hero-trust">
-        <span class="ht">Free, confidential assessment</span>
+        <span class="ht">100% Confidential</span>
         <span class="ht">RCI &amp; NMC-verified clinicians</span>
         <span class="ht">Care from home, in-app</span>
       </div>

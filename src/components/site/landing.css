@@ -147,8 +147,14 @@
    reflows the copy beneath it. Height is reserved for a two-line phrase. */
 .lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.05em;max-width:100%;}
 .lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#C8553D;font-weight:900;will-change:transform,opacity;}
-.lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
-@keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* Rotating phrase entrance: a calm "focus-in" — the words arrive slightly
+   blurred and low, then sharpen and settle. */
+.lp-page .hero-rot-word.swap{animation:heroWordIn .6s cubic-bezier(.2,.7,.2,1);}
+@keyframes heroWordIn{
+  0%{opacity:0;transform:translateY(10px) scale(.985);filter:blur(7px);}
+  60%{filter:blur(0);}
+  100%{opacity:1;transform:none;filter:blur(0);}
+}
 /* Story beats under the sub-copy */
 .lp-page .hero-beats{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;max-width:520px;animation:rise .7s .22s ease both;}
 .lp-page .hero-beat{display:flex;gap:9px;align-items:flex-start;background:var(--white);border:1px solid rgba(28,43,58,.08);
