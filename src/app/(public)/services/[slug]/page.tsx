@@ -13,7 +13,7 @@ const services: Record<ServiceSlug, {
   tagline: string
   question: string
   hero: string
-  stat: { big: string; label: string }
+  stat: { big: string; label: string; source: string }
   recognise: string[]
   why: string
   items: { name: string; desc: string }[]
@@ -29,7 +29,7 @@ const services: Record<ServiceSlug, {
     tagline: "You've been the strong one long enough. This hour is yours.",
     question: 'Is it just stress, or something more?',
     hero: 'You\'ve probably been holding it together for a while now. Doing fine on the outside while something heavier is happening underneath. Therapy isn\'t a sign that things have gone wrong. Often it\'s what makes them go right.',
-    stat: { big: '1 in 7', label: 'adults in India live with a mental health condition, and most never get the support they deserve.' },
+    stat: { big: '1 in 7', label: 'adults in India live with a mental health condition, and most never get the support they deserve.', source: 'NIMHANS, National Mental Health Survey' },
     recognise: [
       '"I\'m fine," I keep saying, even when I\'m not.',
       'I lie awake replaying conversations from years ago.',
@@ -66,7 +66,7 @@ const services: Record<ServiceSlug, {
     tagline: 'Before you give up on each other, give one honest hour a chance.',
     question: 'When did talking become so hard?',
     hero: 'Every relationship goes through seasons. Some seasons are harder than others: more arguments, more distance, longer silences. Couples therapy is not about deciding who is right. It helps you find a way forward, together or apart, with clarity.',
-    stat: { big: '69%', label: 'of relationship conflicts are never fully resolved. The goal is understanding each other, not scoring the argument.' },
+    stat: { big: '69%', label: 'of relationship conflicts are never fully resolved. The goal is understanding each other, not scoring the argument.', source: 'The Gottman Institute' },
     recognise: [
       'We have the same fight, over and over.',
       'We\'re more like roommates than partners now.',
@@ -100,7 +100,7 @@ const services: Record<ServiceSlug, {
     tagline: 'You knew something was off. Trust that. So do we.',
     question: 'Is my child okay, or is this more than a phase?',
     hero: 'You know your child. When they seem withdrawn, anxious, acting out, or simply not themselves, you\'re usually right to be concerned. Child therapy gives them a safe space to work out what they\'re feeling, in age-appropriate ways.',
-    stat: { big: '50%', label: 'of all mental health conditions begin by age 14, which is exactly why early support changes everything.' },
+    stat: { big: '50%', label: 'of all mental health conditions begin by age 14, which is exactly why early support changes everything.', source: 'World Health Organization' },
     recognise: [
       'My child just isn\'t themselves lately.',
       'The meltdowns are getting harder to reach.',
@@ -137,7 +137,7 @@ const services: Record<ServiceSlug, {
     tagline: 'Everyone asks about the baby. We ask about you.',
     question: 'Why doesn\'t this feel the way it\'s "supposed" to?',
     hero: 'From the outside, you\'re doing everything right. Inside, you might feel anxious, numb, overwhelmed, or like a stranger to yourself. Pregnancy and the months after birth bring some of the biggest emotional shifts a person can go through, and almost nobody talks about how hard they can be. You don\'t have to pretend you\'re fine.',
-    stat: { big: '1 in 5', label: 'new mothers experience a perinatal mood or anxiety disorder. If this is you, you are far from alone.' },
+    stat: { big: '1 in 5', label: 'new mothers experience a perinatal mood or anxiety disorder. If this is you, you are far from alone.', source: 'Postpartum Support International' },
     recognise: [
       'I love my baby, but I don\'t feel like myself.',
       'I cry, and I can\'t always explain why.',
@@ -173,7 +173,7 @@ const services: Record<ServiceSlug, {
     tagline: "You did the work and still feel stuck. That's chemistry, not failure.",
     question: 'Have you done the work, but still feel stuck?',
     hero: 'Therapy is powerful. But for some conditions (persistent depression, OCD, bipolar disorder, severe anxiety) medication alongside therapy makes a meaningful difference. Our psychiatrists are here to evaluate, diagnose, and support you with the right medical care.',
-    stat: { big: '60%', label: 'of people with depression respond significantly better to therapy and medication combined than to either alone.' },
+    stat: { big: '60%', label: 'of people with depression respond significantly better to therapy and medication combined than to either alone.', source: 'American Psychiatric Association' },
     recognise: [
       'Therapy helps, but something still isn\'t shifting.',
       'I\'m not sure my current medication is right for me.',
@@ -205,7 +205,7 @@ const services: Record<ServiceSlug, {
     tagline: "You don't have to hit rock bottom to deserve help.",
     question: 'Told yourself you\'d stop tomorrow? Again?',
     hero: 'Maybe it started as a way to unwind, or to get through a rough patch, and somewhere along the line it stopped feeling like a choice. You\'ve probably promised yourself you\'d cut back, and meant it every time. Recovery has less to do with willpower than most people believe. What changes things is having someone in your corner who has walked people through this before, quietly, with no lectures and no one else having to know.',
-    stat: { big: '5 in 6', label: 'people in India who struggle with alcohol or drugs never get any treatment for it. The hardest part is starting, and you are already here.' },
+    stat: { big: '5 in 6', label: 'people in India who struggle with alcohol or drugs never get any treatment for it. The hardest part is starting, and you are already here.', source: 'NIMHANS, National Mental Health Survey' },
     recognise: [
       'I keep telling myself this is the last time.',
       'I can stop whenever I want. I just haven\'t yet.',
@@ -241,7 +241,7 @@ const services: Record<ServiceSlug, {
     tagline: 'Stop guessing why your mind works the way it does.',
     question: 'What if you could finally understand why?',
     hero: 'Sometimes you just need a map of what\'s going on, rather than a diagnosis to carry around. A good psychological assessment gives you and your professional a clearer starting point, so care is targeted rather than guesswork.',
-    stat: { big: '7+ yrs', label: 'is the average delay before adults receive an accurate ADHD diagnosis. Clarity shouldn\'t take that long.' },
+    stat: { big: '7+ yrs', label: 'is the average delay before adults receive an accurate ADHD diagnosis. Clarity shouldn\'t take that long.', source: 'Journal of Attention Disorders' },
     recognise: [
       'I\'ve always felt different, but never knew why.',
       'I want to understand my child, not label them.',
@@ -277,7 +277,7 @@ const services: Record<ServiceSlug, {
     tagline: "You shouldn't have to explain your whole world before someone gets it.",
     question: 'What if you didn\'t have to explain yourself first?',
     hero: 'Some experiences need a professional who understands the context, not a generalist who\'s read a chapter about it. If you\'re navigating chronic illness, pregnancy, gender identity, or loss, there\'s a professional here trained specifically for your situation.',
-    stat: { big: 'Zero', label: 'times you should ever have to educate your own therapist on who you are before the real work can begin.' },
+    stat: { big: 'Zero', label: 'times you should ever have to educate your own therapist on who you are before the real work can begin.', source: '' },
     recognise: [
       'I\'m tired of explaining my identity before therapy even starts.',
       'My situation needs someone who actually gets the context.',
@@ -521,6 +521,11 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,.65)', lineHeight: 1.65, fontWeight: 300 }}>
                 {s.stat.label}
               </p>
+              {s.stat.source && (
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,.42)', marginTop: 14, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                  Source: {s.stat.source}
+                </p>
+              )}
             </div>
           </div>
         </div>
