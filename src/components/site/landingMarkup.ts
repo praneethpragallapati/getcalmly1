@@ -54,8 +54,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="trust-section" id="features">
   <div class="tr-head">
     <div class="sec-label reveal">Why getCalmly</div>
-    <h2 class="sec-h2 reveal">Care you<br><span>can trust.</span></h2>
-    <p class="tr-sub reveal">Real people. Real care. Technology that makes it better.</p>
+    <h2 class="sec-h2 reveal">Care you <span>can trust.</span></h2>
   </div>
 
   <div class="tr-row1">
@@ -130,6 +129,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="clin-head">
     <div class="sec-label reveal">Our clinicians</div>
     <h2 class="sec-h2 reveal">Meet the people<br><span>behind your care.</span></h2>
+    <p class="sec-p reveal">Talk to RCI-verified therapists and NMC-registered psychiatrists, matched to what you need. Stay supported between sessions with Calm AI that remembers your story from the start.</p>
   </div>
   <div class="clin-grid reveal">
     <div class="clin-card">
