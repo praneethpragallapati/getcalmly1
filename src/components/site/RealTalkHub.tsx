@@ -168,7 +168,10 @@ export default function RealTalkHub({
   // column so it reads as the centerpiece of the showcase.
   const showcaseCols = useMemo(() => {
     const items: ({ kind: 'post'; post: CommunityPostView } | { kind: 'join' })[] = []
-    communityPosts.slice(0, 8).forEach((p, i) => {
+    // Keep the showcase compact and the three columns balanced: enough posts to
+    // fill 2 rows across 3 columns (5 posts + the join card = 6 items), so no
+    // column is left short and the section doesn't run long with empty space.
+    communityPosts.slice(0, 5).forEach((p, i) => {
       items.push({ kind: 'post', post: p })
       if (i === 0) items.push({ kind: 'join' })
     })

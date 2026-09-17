@@ -8,7 +8,7 @@
    padding keeps that centring below the fixed nav. */
 .lp-page .login-hero{position:relative;min-height:100vh;display:grid;place-items:center;padding:100px 5% 44px;overflow:hidden;
   background:linear-gradient(104deg,#8a4530 0%,#7a3a20 44%,#e9e1d5 44%,#efe8de 100%);}
-.login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:center;}
+.login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:center 62%;}
 .login-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(104deg,rgba(60,26,14,.4) 0%,rgba(60,26,14,.14) 42%,transparent 62%);}
 /* The two columns track the photo's dark/light split (~57% / 43%) rather than
    a fixed pixel width, and each block is centred inside its own half. That way
