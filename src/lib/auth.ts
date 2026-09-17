@@ -17,6 +17,11 @@ export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env
 // before real use, or gate it behind an env flag.
 export const OTP_BYPASS_MOBILE = '918884518688'
 export const OTP_BYPASS_EMAIL = 'praneethpragallapati@gmail.com'
+// TEMPORARY: existing accounts allowed to sign in by email with no OTP.
+export const OTP_BYPASS_EMAILS = new Set<string>([
+  'hom.pragallapati@gmail.com', // therapist test account
+  'praneethadmin@gmail.com',    // admin test account
+])
 
 /**
  * Short-lived cache of a user's role, so the session callback doesn't hit the DB
@@ -121,8 +126,20 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const email = credentials?.email?.toLowerCase().trim()
         const otp = credentials?.otp?.trim()
-        if (!email || !otp) return null
+        if (!email) return null
 
+        // TEMPORARY: these existing accounts sign in by email with no OTP.
+        // They must already exist — never create one via the bypass. Remove
+        // this block (and the login-page shortcut) before real use.
+        if (OTP_BYPASS_EMAILS.has(email)) {
+          const u = await prisma.user.findUnique({
+            where: { email },
+            select: { id: true, name: true, email: true },
+          })
+          return u ? { id: u.id, name: u.name ?? undefined, email: u.email ?? undefined } : null
+        }
+
+        if (!otp) return null
         const result = await verifyEmailOtp(email, otp)
         if (!result.ok) return null
 

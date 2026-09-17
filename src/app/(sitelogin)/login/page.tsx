@@ -79,6 +79,18 @@ function LoginForm() {
       } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
       return
     }
+    // TEMPORARY: existing therapist/admin accounts sign in by email with no OTP.
+    // Remove with the matching bypass in lib/auth.ts.
+    const BYPASS_EMAILS = new Set(['hom.pragallapati@gmail.com', 'praneethadmin@gmail.com'])
+    if (tab === 'email' && BYPASS_EMAILS.has(email.trim().toLowerCase())) {
+      setLoading(true)
+      try {
+        const result = await signIn('email-otp', { email: email.trim().toLowerCase(), otp: 'bypass', redirect: false })
+        if (result?.ok) { await redirectAfterLogin(); return }
+        setError('Could not sign in. Please try again.')
+      } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
+      return
+    }
     const endpoint = tab === 'phone' ? '/api/otp/send' : '/api/otp/email-send'
     if (tab === 'phone' && phone.replace(/\D/g, '').length < 10) { setError('Enter a valid WhatsApp number.'); return }
     if (tab === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Enter a valid email address.'); return }
