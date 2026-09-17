@@ -13,7 +13,7 @@
    rather than the dark terracotta. */
 .login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:78% center;}
 .login-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(104deg,rgba(60,26,14,.4) 0%,rgba(60,26,14,.14) 42%,transparent 62%);}
-.login-wrap{position:relative;z-index:2;width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 420px;gap:72px;align-items:center;}
+.login-wrap{position:relative;z-index:2;width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 420px;gap:72px;align-items:start;}
 
 /* Left — brand line */
 .login-left{color:#fff;max-width:460px;}
