@@ -1,4 +1,5 @@
 import '@/components/site/landing.css'
+import './shell.css'
 import SiteHeader from '@/components/site/SiteHeader'
 import LandingRuntime from '@/components/site/LandingRuntime'
 

@@ -9,7 +9,6 @@ import { defaultCountry } from '@/data/countries'
 
 const CORAL = '#C8553D'
 const CHARCOAL = '#1C2B3A'
-const HEAD = "'Big Shoulders Display', sans-serif"
 const BODY = "'DM Sans', sans-serif"
 
 const trust = [
@@ -187,47 +186,6 @@ function LoginForm() {
           </p>
         </div>
       </div>
-
-      <style>{`
-        /* Base is a terracotta→travertine split (fallback); the photo, if present
-           at /login-bg.jpg, layers over it. If the file is missing the split shows. */
-        .login-hero{position:relative;min-height:100vh;display:grid;place-items:center;padding:118px 6% 64px;overflow:hidden;
-          background:linear-gradient(104deg,#8a4530 0%,#7a3a20 44%,#e9e1d5 44%,#efe8de 100%);}
-        .login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:center;}
-        .login-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(104deg,rgba(60,26,14,.34) 0%,rgba(60,26,14,.12) 40%,transparent 60%);}
-        .login-wrap{position:relative;z-index:2;width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 468px;gap:56px;align-items:center;}
-        .login-left{color:#fff;max-width:460px;}
-        .login-eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.3px;color:rgba(255,255,255,.8);margin:0 0 20px;}
-        .login-head{font-family:${HEAD};font-weight:300;font-size:clamp(44px,6vw,78px);line-height:.98;letter-spacing:-1.5px;color:#fff;margin:0 0 34px;transform:scaleX(.94);transform-origin:left;}
-        .login-head span{font-weight:900;color:#F0A488;}
-        .login-trust{display:flex;flex-direction:column;gap:14px;}
-        .login-trust-item{display:flex;align-items:center;gap:12px;font-size:14px;color:rgba(255,255,255,.9);font-weight:400;}
-        .login-trust-ic{font-size:16px;width:24px;text-align:center;flex-shrink:0;}
-        .login-card{background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-radius:24px;padding:34px 32px;
-          box-shadow:0 34px 90px -24px rgba(40,20,10,.5);}
-        .login-card-title{font-family:${HEAD};font-weight:900;font-size:32px;color:${CHARCOAL};letter-spacing:-.5px;line-height:1.02;margin:0 0 8px;}
-        .login-card-sub{font-size:14.5px;color:#6B7D8E;line-height:1.6;margin:0 0 20px;font-weight:400;}
-        .login-notice{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;background:#FFF1EC;border:1px solid rgba(200,85,61,.2);border-radius:12px;margin-bottom:16px;font-size:13.5px;color:${CHARCOAL};line-height:1.5;}
-        .login-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1.5px solid #E2E8F0;border-radius:12px;padding:13px 20px;font-size:15px;font-weight:600;color:${CHARCOAL};background:#fff;cursor:pointer;font-family:${BODY};transition:border-color .2s,box-shadow .2s;}
-        .login-google:hover{border-color:${CORAL};box-shadow:0 0 0 3px rgba(200,85,61,.08);}
-        .login-divider{display:flex;align-items:center;gap:12px;margin:18px 0;}
-        .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:#EEF0F3;}
-        .login-divider span{font-size:12px;color:#A0ADB8;font-weight:500;}
-        .login-tabs{display:flex;background:#F5F7FA;border-radius:10px;padding:3px;margin-bottom:18px;}
-        .login-tabs button{flex:1;padding:9px 0;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;background:transparent;color:#8E9EAE;font-family:${BODY};transition:all .2s;}
-        .login-tabs button.on{background:#fff;color:${CHARCOAL};box-shadow:0 1px 4px rgba(0,0,0,.08);}
-        .login-err{font-size:13px;color:${CORAL};text-align:center;margin:0;}
-        .login-privacy{display:flex;gap:9px;align-items:flex-start;margin-top:22px;padding:13px 15px;background:#F9F5FF;border:1px solid rgba(100,80,180,.12);border-radius:10px;font-size:12.5px;color:#6B7D8E;line-height:1.55;}
-        .login-newhere{font-size:14px;color:#8E9EAE;text-align:center;margin:22px 0 0;}
-        .login-newhere a{color:${CORAL};font-weight:600;text-decoration:none;}
-        @media(max-width:900px){
-          .login-hero{background:linear-gradient(158deg,#8a4530 0%,#6f3319 100%);padding:104px 6% 56px;}
-          .login-veil{display:none;}
-          .login-wrap{grid-template-columns:1fr;max-width:468px;gap:34px;}
-          .login-left{max-width:none;text-align:center;}
-          .login-trust{align-items:flex-start;max-width:340px;margin:0 auto;}
-        }
-      `}</style>
     </section>
   )
 }
