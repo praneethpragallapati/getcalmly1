@@ -53,15 +53,15 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
   <div class="offer-grid reveal">
     <a class="offer-card" href="/services/therapy">
-      <span class="offer-ic" style="background:rgba(200,85,61,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v9H8l-4 3.5V5.5Z"/></svg></span>
+      <span class="offer-ic" style="background:#C8553D"><img src="/offer/therapy.jpg" alt="" loading="lazy" /></span>
       <span class="offer-tx"><b>Therapy</b>Anxiety, stress &amp; burnout</span>
     </a>
     <a class="offer-card" href="/services/psychiatry">
-      <span class="offer-ic" style="background:rgba(26,127,122,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#1A7F7A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v4.5a4 4 0 0 0 8 0V3"/><path d="M10 15.2V16a5 5 0 0 0 5 5 4 4 0 0 0 4-4v-1.2"/><circle cx="19" cy="12.5" r="2.1"/></svg></span>
+      <span class="offer-ic" style="background:#1A7F7A"><img src="/offer/psychiatry.jpg" alt="" loading="lazy" /></span>
       <span class="offer-tx"><b>Psychiatry</b>Evaluation &amp; medication</span>
     </a>
     <a class="offer-card" href="/services/couples">
-      <span class="offer-ic" style="background:rgba(124,92,191,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-6.5-4.3-6.5-9A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 6.5 3c0 4.7-6.5 9-6.5 9Z"/></svg></span>
+      <span class="offer-ic" style="background:#7C5CBF"><img src="/offer/couples.jpg" alt="" loading="lazy" /></span>
       <span class="offer-tx"><b>Couples Therapy</b>Communication &amp; repair</span>
     </a>
   </div>
