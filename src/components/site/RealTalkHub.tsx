@@ -253,27 +253,13 @@ export default function RealTalkHub({
         </div>
       </section>
 
-      {/* ══ FEATURED READS (bento) ══ */}
-      <section id="reads" style={{ maxWidth: 1160, margin: '0 auto', padding: '84px 24px 0', scrollMarginTop: 70 }}>
-        <SectionHead kicker="From our experts" title="Fresh reads" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
-
-        <div className="rt-reveal rt-bento">
-          {lead && <FeaturedRead post={lead} />}
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 20 }}>
-            {secondaryPosts.map((p) => (
-              <SecondaryRead key={p.slug} post={p} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ COMMUNITY SHOWCASE (the conversion centerpiece) ══ */}
-      <section style={{ position: 'relative', marginTop: 90, overflow: 'hidden' }}>
+      {/* ══ COMMUNITY SHOWCASE (the conversion centerpiece) — circles first ══ */}
+      <section style={{ position: 'relative', marginTop: 8, overflow: 'hidden' }}>
         <div
           style={{
             background:
               'radial-gradient(ellipse 55% 50% at 90% 6%, rgba(200,85,61,.12), transparent 60%), radial-gradient(ellipse 45% 50% at 4% 96%, rgba(139,111,201,.12), transparent 60%), #F7F1EC',
-            padding: '80px 24px 96px',
+            padding: '64px 24px 68px',
           }}
         >
           <div style={{ maxWidth: 1160, margin: '0 auto' }}>
@@ -331,6 +317,20 @@ export default function RealTalkHub({
                 See everything in the circles →
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FEATURED READS (bento) — after the circles ══ */}
+      <section id="reads" style={{ maxWidth: 1160, margin: '0 auto', padding: '80px 24px 0', scrollMarginTop: 70 }}>
+        <SectionHead kicker="From our experts" title="Fresh reads" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
+
+        <div className="rt-reveal rt-bento">
+          {lead && <FeaturedRead post={lead} />}
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 20 }}>
+            {secondaryPosts.map((p) => (
+              <SecondaryRead key={p.slug} post={p} />
+            ))}
           </div>
         </div>
       </section>

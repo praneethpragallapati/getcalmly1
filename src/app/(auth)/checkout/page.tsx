@@ -21,7 +21,7 @@ const plans: Record<PlanKey, {
     name: 'Therapy',
     accent: coral,
     benefits: [
-      'Your first 50-minute session at a flat ₹799',
+      'Your first 45-minute session at a flat ₹799',
       'An RCI-verified clinical psychologist matched to you',
       'A clear summary after every session',
       'Everything in Calm+: unlimited AI, insights, journaling',
@@ -41,7 +41,7 @@ const plans: Record<PlanKey, {
     name: 'Couples therapy',
     accent: '#7C5CBF',
     benefits: [
-      'Your first 50-minute session for both of you at a flat ₹1,499',
+      'Your first 45-minute session for both of you at a flat ₹1,499',
       'An EFT & Gottman-informed couples therapist',
       'A clear summary after every session',
       'Shared exercises and check-ins between sessions',

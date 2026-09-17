@@ -55,7 +55,7 @@ export default function Hero() {
                   <div className="bg-[#FDEAE6] rounded-xl p-3">
                     <p className="text-xs text-gray-500 mb-1">Today&apos;s Session</p>
                     <p className="font-semibold text-[#C8553D] text-sm">Dr. Priya Sharma</p>
-                    <p className="text-xs text-gray-500">3:00 PM • 50 mins</p>
+                    <p className="text-xs text-gray-500">3:00 PM • 45 mins</p>
                   </div>
                   <div className="bg-[#E5F4EE] rounded-xl p-3">
                     <p className="text-xs text-gray-500 mb-2">Mood Check-in</p>

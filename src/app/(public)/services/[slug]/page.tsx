@@ -36,7 +36,7 @@ const services: Record<ServiceSlug, {
       'I get through the day, but I barely feel anything.',
       'Everyone leans on me. I have no one to lean on.',
     ],
-    why: 'Our therapists are RCI-verified clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 50 minutes, online, and completely confidential.',
+    why: 'Our therapists are RCI-verified clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 45 minutes, online, and completely confidential.',
     items: [
       { name: 'Anxiety & Overthinking', desc: 'Racing thoughts, constant worry, the sense that something is about to go wrong. We help you slow it down.' },
       { name: 'Depression', desc: 'When the flatness won\'t lift and motivation disappears. When you feel disconnected from your own life.' },
@@ -49,8 +49,8 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Adults 18+', 'Working professionals', 'Students', 'People navigating major life changes'],
     faq: [
-      { q: 'How much does a session cost?', a: 'Your first one is ₹799. That\'s a full 50 minutes with a matched therapist, so you can see how it feels before committing to anything. After that, you\'ll see what each session costs in your dashboard before you book it.' },
-      { q: 'Are sessions online or in person?', a: 'Everything\'s online, over video. You can join from home, from anywhere in India, whenever suits you. Sessions run 50 minutes.' },
+      { q: 'How much does a session cost?', a: 'Your first one is ₹799. That\'s a full 45 minutes with a matched therapist, so you can see how it feels before committing to anything. After that, you\'ll see what each session costs in your dashboard before you book it.' },
+      { q: 'Are sessions online or in person?', a: 'Everything\'s online, over video. You can join from home, from anywhere in India, whenever suits you. Sessions run 45 minutes.' },
       { q: 'How do I get started?', a: 'Take the 5-minute assessment (it\'s free) and we\'ll match you with someone who fits. If you already know what you\'re after, you can just book. No referral needed.' },
       { q: 'How many sessions will I need?', a: 'Most people start to notice a difference in 4–8 sessions. Longer-term support depends on your goals, your therapist will discuss this with you.' },
       { q: 'What if I don\'t click with my therapist?', a: 'That happens. Let us know and we\'ll re-match you, with no awkwardness and no extra charge.' },
@@ -120,14 +120,14 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Children ages 4–17', 'Parents who notice a change', 'Teenagers navigating identity and pressure'],
     faq: [
-      { q: 'How much does it cost?', a: 'The first intro call is free, so you and your child can meet the therapist with no pressure. Your first full session is ₹799, and after that you\'ll see each session\'s price before you book.' },
+      { q: 'How much does it cost?', a: 'Your first session is ₹799, so you and your child can meet the therapist without committing to more. After that you\'ll see each session\'s price before you book.' },
       { q: 'What ages do you work with?', a: 'Roughly 4 to 17. The younger the child, the more the work happens through play, drawing and games rather than sitting and talking things out.' },
       { q: 'Are sessions online?', a: 'Yes, over video. For younger kids, the therapist will tell you how to set things up at home so your child feels at ease.' },
       { q: 'Will my child have to talk about difficult things?', a: 'Not necessarily right away. Child therapists are trained to meet children where they are, through play, drawing, or just talking about day-to-day life.' },
       { q: 'Will I know what happens in sessions?', a: 'Your therapist will keep you informed about themes and progress, while maintaining the child\'s trust. The balance depends on the child\'s age.' },
-      { q: 'What if my child doesn\'t want to go?', a: 'That\'s very common. Many children warm up once they\'ve met the therapist. A free intro call can help break the ice.' },
+      { q: 'What if my child doesn\'t want to go?', a: 'That\'s very common. Many children warm up once they\'ve met the therapist — that first session is often enough to break the ice.' },
     ],
-    cta: 'Book a free intro session',
+    cta: 'Book your first session',
   },
   maternal: {
     icon: '🤱',
@@ -483,9 +483,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         )}
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
-          <Link href="/services" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,.45)', fontSize: 13, textDecoration: 'none', marginBottom: 40, fontWeight: 500 }}>
-            ← All services
-          </Link>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 64, alignItems: 'center' }}>
             <div>
               <p style={{ ...eyebrowOnDark, marginBottom: 20 }}>{s.title}</p>
@@ -602,42 +599,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      {/* ─── HOW CARE WORKS: 3-column, charcoal band ─── */}
-      <section style={{ background: darkBand(s.accent), padding: '94px 48px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52, flexWrap: 'wrap', gap: 20 }}>
-            <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', letterSpacing: '-0.8px' }}>
-              How it works
-            </h2>
-            <Link href="/assess" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8, background: s.accent, color: '#fff',
-              padding: '14px 26px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none',
-              fontFamily: "'DM Sans', sans-serif", flexShrink: 0,
-            }}>
-              ✦ Take the assessment
-            </Link>
-          </div>
-          <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
-            {[
-              { n: '01', t: 'Tell us what\'s going on', d: 'A free 5-minute assessment, no login, no judgement. Just an honest starting point.' },
-              { n: '02', t: 'Get matched, not assigned', d: 'We pair you with a professional who fits what you\'re going through, your language and your budget.' },
-              { n: '03', t: 'One flat price for session one', d: 'From ₹799 depending on the service. No packs, no commitment, just one real conversation to see if it feels right.' },
-            ].map((step, i) => (
-              <div key={step.n} style={{
-                padding: '36px 32px',
-                background: i % 2 === 0 ? 'rgba(255,255,255,.04)' : 'rgba(255,255,255,.02)',
-                borderRadius: i === 0 ? '16px 0 0 16px' : i === 2 ? '0 16px 16px 0' : 0,
-                borderLeft: i > 0 ? '1px solid rgba(255,255,255,.08)' : 'none',
-              }}>
-                <p style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 40, color: s.accent, opacity: 0.35, lineHeight: 1, marginBottom: 16 }}>{step.n}</p>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 10, letterSpacing: '-0.2px' }}>{step.t}</p>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,.55)', lineHeight: 1.72, fontWeight: 300 }}>{step.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── FAQ: wide divider list ─── */}
       <section style={{ padding: '94px 48px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
@@ -675,13 +636,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
             }}>
               ✦ {s.cta}
-            </Link>
-            <Link href="/services" style={{
-              padding: '15px 26px', borderRadius: 50, background: 'rgba(255,255,255,.08)',
-              color: 'rgba(255,255,255,.75)', fontSize: 16, fontWeight: 600, textDecoration: 'none',
-              fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.18)',
-            }}>
-              View all services
             </Link>
           </div>
         </div>

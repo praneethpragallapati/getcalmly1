@@ -22,6 +22,10 @@ const benefits = [
 export default function ForTherapistsPage() {
   return (
     <div style={{ background: '#FFFCFA' }}>
+      <style>{`
+        @media (max-width: 860px){ .fc-benefits{grid-template-columns:1fr !important;} .fc-steps{grid-template-columns:repeat(2,1fr) !important;} }
+        @media (max-width: 520px){ .fc-steps{grid-template-columns:1fr !important;} }
+      `}</style>
       {/* Hero */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '99px 24px 72px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -64,7 +68,7 @@ export default function ForTherapistsPage() {
 
       {/* Benefits */}
       <section style={{ padding: '90px 24px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1040, margin: '0 auto' }}>
           <div style={{ marginBottom: 40 }}>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(30px, 5vw, 44px)', color: '#1C2B3A', letterSpacing: '-1px', marginBottom: 14 }}>
               Clinical tools, finally on your side.
@@ -73,12 +77,9 @@ export default function ForTherapistsPage() {
               Everything below is built around one idea: protect your clinical time and judgement.
             </p>
           </div>
-          <div>
-            {benefits.map((b, idx) => (
-              <div key={b.t} style={{
-                display: 'grid', gridTemplateColumns: '12px 1fr', gap: 18, alignItems: 'flex-start',
-                padding: '24px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(0,0,0,.07)',
-              }}>
+          <div className="fc-benefits" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px 48px' }}>
+            {benefits.map((b) => (
+              <div key={b.t} style={{ display: 'grid', gridTemplateColumns: '12px 1fr', gap: 16, alignItems: 'flex-start' }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#2F7D5A', marginTop: 9 }} />
                 <div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1C2B3A', marginBottom: 7, letterSpacing: '-0.2px' }}>{b.t}</h3>
@@ -92,27 +93,27 @@ export default function ForTherapistsPage() {
 
       {/* How joining works */}
       <section style={{ background: '#fff', padding: '85px 24px' }}>
-        <div style={{ maxWidth: 820, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1040, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: '#2F7D5A', textTransform: 'uppercase', marginBottom: 14 }}>Joining is simple</p>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 5vw, 40px)', color: '#1C2B3A', letterSpacing: '-1px' }}>
               From application to first client.
             </h2>
           </div>
-          {[
-            ['01', 'Apply', 'Tell us about your practice, qualifications, and specialisations, and upload your registration and certificates.'],
-            ['02', 'Verify', 'We verify your RCI / NMC registration and review your documents. Quality is non-negotiable for us.'],
-            ['03', 'Interview', 'A short conversation with our clinical team to get to know you and your approach.'],
-            ['04', 'Go live', 'Set your availability and start receiving matched clients.'],
-          ].map(([n, t, d]) => (
-            <div key={n} style={{ display: 'flex', gap: 20, alignItems: 'flex-start', padding: '20px 0', borderBottom: '1px solid #EEF0F3' }}>
-              <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#2F7D5A', lineHeight: 1, flexShrink: 0, width: 46 }}>{n}</span>
-              <div>
-                <p style={{ fontSize: 17, fontWeight: 800, color: '#1C2B3A', marginBottom: 4 }}>{t}</p>
-                <p style={{ fontSize: 14.5, color: '#5A6A7A', lineHeight: 1.65 }}>{d}</p>
+          <div className="fc-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+            {[
+              ['01', 'Apply', 'Tell us about your practice, qualifications, and specialisations, and upload your registration and certificates.'],
+              ['02', 'Verify', 'We verify your RCI / NMC registration and review your documents. Quality is non-negotiable for us.'],
+              ['03', 'Interview', 'A short conversation with our clinical team to get to know you and your approach.'],
+              ['04', 'Go live', 'Set your availability and start receiving matched clients.'],
+            ].map(([n, t, d]) => (
+              <div key={n} style={{ background: '#FBFAF8', border: '1px solid #EEF0F3', borderRadius: 16, padding: '26px 22px' }}>
+                <span style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 30, color: '#2F7D5A', lineHeight: 1, display: 'block', marginBottom: 14 }}>{n}</span>
+                <p style={{ fontSize: 17, fontWeight: 800, color: '#1C2B3A', marginBottom: 6 }}>{t}</p>
+                <p style={{ fontSize: 14, color: '#5A6A7A', lineHeight: 1.6 }}>{d}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

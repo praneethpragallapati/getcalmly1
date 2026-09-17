@@ -19,9 +19,9 @@ const TAB_LABEL: Record<PanelTab, string> = {
 }
 
 const TAB_SUB: Record<PanelTab, string> = {
-  therapy: '50-minute one-on-one sessions with your clinical psychologist',
+  therapy: '45-minute one-on-one sessions with your clinical psychologist',
   psychiatry: 'Evaluation and medication care with your psychiatrist',
-  couples: '50-minute sessions for you and your partner, together',
+  couples: '45-minute sessions for you and your partner, together',
   calmplus: 'The everyday app, no sessions',
 }
 
@@ -485,7 +485,7 @@ export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }:
         {pending ? 'Processing…' : `Book my first session · ${inr(price)}`}
       </button>
       <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 10 }}>
-        50 minutes with a verified professional · reschedule anytime
+        45 minutes with a verified professional · reschedule anytime
       </p>
     </div>
   )

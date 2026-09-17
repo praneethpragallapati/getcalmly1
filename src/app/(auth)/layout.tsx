@@ -1,96 +1,34 @@
 import Logo from '@/components/ui/Logo'
 import Link from 'next/link'
 
-const trust = [
-  { icon: '🔒', text: 'End-to-end encrypted sessions' },
-  { icon: '🧑‍⚕️', text: 'RCI & NMC-verified professionals only' },
-  { icon: '🇮🇳', text: 'DPDP Act 2023 compliant' },
-  { icon: '💬', text: 'Care that speaks your language' },
-]
-
+/**
+ * First-time-member flows (details, payment) share the same terracotta photo
+ * background as the login page, so signing in, filling in your details and
+ * paying all feel like one continuous, calm space. The form sits in a clean
+ * card centred on the photo.
+ */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: '100svh', display: 'flex', background: '#0F1C28' }}>
-      {/* Left panel, brand & reassurance */}
-      <div style={{
-        flex: '0 0 48%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '48px 56px',
-        background: 'linear-gradient(160deg, #1C2B3A 0%, #0F1C28 100%)',
-        position: 'relative',
-        overflow: 'hidden',
-      }} className="auth-left-panel">
-        {/* Glow orbs */}
-        <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: 80, left: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-        <Link href="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: 'auto' }}>
-          {/* href={null} so Logo renders just the mark — this outer Link is the
-              anchor. Nesting Logo's own <a> inside this one is invalid HTML and
-              the browser repairs it on parse, breaking hydration (React #418). */}
-          <Logo size={32} onDark href={null} />
-        </Link>
-
-        <div style={{ paddingTop: 64, paddingBottom: 48 }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.3, color: 'rgba(255,255,255,.72)', marginBottom: 22 }}>
-            India&apos;s mental healthcare, done right.
-          </p>
-          <h2 style={{
-            fontFamily: "'Big Shoulders Display', sans-serif",
-            fontWeight: 900,
-            fontSize: 46,
-            lineHeight: 1.02,
-            color: '#fff',
-            marginBottom: 22,
-            letterSpacing: '-1px',
-          }}>
-            The right professional.<br /><span style={{ color: '#C8553D' }}>The very first time.</span>
-          </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', lineHeight: 1.7, maxWidth: 390, fontWeight: 300 }}>
-            No endless scrolling through profiles. We match you by what you&apos;re actually going through, the language you think in, and what fits your budget, so your first session already feels like the right one.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {trust.map((t) => (
-            <div key={t.text} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 18, width: 28, textAlign: 'center', flexShrink: 0 }}>{t.icon}</span>
-              <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,.55)', fontWeight: 400 }}>{t.text}</span>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 40, fontSize: 12, color: 'rgba(255,255,255,.25)' }}>
-          © {new Date().getFullYear()} GetCalmly. All rights reserved.
-        </div>
-      </div>
-
-      {/* Right panel, auth form */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 32px',
-        background: '#fff',
-        overflowY: 'auto',
-      }} className="auth-right-panel">
-        {/* Mobile logo */}
-        <div className="auth-mobile-logo" style={{ marginBottom: 32 }}>
-          <Link href="/" style={{ textDecoration: 'none' }}><Logo size={28} href={null} /></Link>
-        </div>
-        {children}
+    <div className="authx">
+      <div className="authx-bg" />
+      <div className="authx-veil" />
+      <div className="authx-inner">
+        <Link href="/" className="authx-logo"><Logo size={30} onDark href={null} /></Link>
+        <div className="authx-card">{children}</div>
       </div>
 
       <style>{`
-        .auth-left-panel { display: flex; }
-        .auth-mobile-logo { display: none; }
-        @media (max-width: 768px) {
-          .auth-left-panel { display: none !important; }
-          .auth-mobile-logo { display: block; }
-        }
+        .authx{position:relative;min-height:100svh;display:grid;place-items:center;
+          padding:40px 20px 56px;overflow:hidden;background:#8a4530;}
+        .authx-bg{position:absolute;inset:0;z-index:0;background:url('/login-bg.jpg') 32% center/cover;}
+        .authx-veil{position:absolute;inset:0;z-index:1;
+          background:linear-gradient(180deg,rgba(28,15,8,.52) 0%,rgba(28,15,8,.32) 40%,rgba(28,15,8,.42) 100%);}
+        .authx-inner{position:relative;z-index:2;width:100%;max-width:520px;
+          display:flex;flex-direction:column;align-items:center;gap:22px;}
+        .authx-logo{text-decoration:none;display:inline-block;}
+        .authx-card{width:100%;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);
+          border-radius:24px;padding:34px 32px;box-shadow:0 34px 90px -24px rgba(40,20,10,.55);}
+        @media(max-width:560px){ .authx{padding:28px 16px 40px;} .authx-card{padding:26px 20px;border-radius:20px;} }
       `}</style>
     </div>
   )

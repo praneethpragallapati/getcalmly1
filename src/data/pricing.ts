@@ -109,7 +109,7 @@ export const calmPlusFeatures = {
 }
 
 export const therapyFeatures = [
-  '50-minute sessions with an RCI-verified clinical psychologist',
+  '45-minute sessions with an RCI-verified clinical psychologist',
   'Full Calm+ app included — AI companion, journaling & mood tracker',
   'A clear summary after every session',
   'Daily and weekly insights on your progress',
@@ -118,7 +118,7 @@ export const therapyFeatures = [
 ]
 
 export const couplesFeatures = [
-  '50-minute sessions for you and your partner together',
+  '45-minute sessions for you and your partner together',
   'An EFT & Gottman-informed couples therapist',
   'Full Calm+ app for both of you — AI, journaling & mood tracker',
   'A clear summary after every session',
