@@ -10,7 +10,7 @@
 .login-left{color:#fff;max-width:460px;}
 .login-eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.3px;color:rgba(255,255,255,.8);margin:0 0 20px;}
 .login-head{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:clamp(44px,6vw,78px);line-height:.98;letter-spacing:-1.5px;color:#fff;margin:0 0 34px;transform:scaleX(.94);transform-origin:left;}
-.login-head span{font-weight:900;color:#F0A488;}
+.login-head span{font-weight:900;color:#C8553D;}
 .login-trust{display:flex;flex-direction:column;gap:14px;}
 .login-trust-item{display:flex;align-items:center;gap:12px;font-size:14px;color:rgba(255,255,255,.9);font-weight:400;}
 .login-trust-ic{font-size:16px;width:24px;text-align:center;flex-shrink:0;}
