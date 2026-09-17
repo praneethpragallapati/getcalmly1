@@ -109,7 +109,6 @@ function LoginForm() {
         {/* Right — auth card */}
         <div className="login-card">
           <h2 className="login-card-title">Good to see you again.</h2>
-          <p className="login-card-sub">Pick up right where you left off — your space is exactly as you left it.</p>
 
           {notice && (
             <div className="login-notice"><span>👋</span><span>{notice}</span></div>

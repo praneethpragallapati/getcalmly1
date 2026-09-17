@@ -196,12 +196,6 @@ const TRUST = ['RCI & NMC-verified clinicians', 'DPDP-secure & confidential', 'F
 export default function PricingView({ pricing }: { pricing: PricingValues }) {
   const [tab, setTab] = useState<'pro' | 'app'>('pro')
 
-  const STEPS: { n: string; t: string; d: string }[] = [
-    { n: '01', t: `First session, flat ${inr(pricing.firstSession.therapy)}`, d: 'One real conversation with a matched clinician, at a fixed intro price. Charged once — never again.' },
-    { n: '02', t: 'Pick a pack, price drops', d: 'After your first session, choose a session pack. The more you commit, the lower the per-session price.' },
-    { n: '03', t: 'Change your mind anytime', d: 'Pause or switch whenever you need. Stop part-way and you only pay for the sessions you used.' },
-  ]
-
   return (
     <div className="pr-page">
       <style>{CSS}</style>
@@ -226,21 +220,8 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
         </div>
       </section>
 
-      {/* How pricing works */}
-      <section className="pr-section" style={{ paddingTop: 64, paddingBottom: 8 }}>
-        <div className="pr-steps">
-          {STEPS.map((s, idx) => (
-            <div key={s.n} className={`pr-step pr-anim pr-d${idx + 1}`}>
-              <span className="pr-step-n">{s.n}</span>
-              <p className="pr-step-t">{s.t}</p>
-              <p className="pr-step-d">{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Plans — one screen, toggle between professional care and app-only */}
-      <section className="pr-section" style={{ paddingTop: 64 }}>
+      <section className="pr-section" style={{ paddingTop: 72 }}>
         <div className="pr-head">
           <p className="pr-eyebrow" style={{ color: coral }}>Plans &amp; pricing</p>
           <h2 className="pr-h2">Care that fits where you are</h2>
@@ -338,13 +319,6 @@ const CSS = `
     color: rgba(255,255,255,.82); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
     padding: 8px 15px; border-radius: 40px; }
   .pr-check{ color: var(--green); font-weight: 800; }
-
-  /* Steps */
-  .pr-steps{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .pr-step{ background: #fff; border: 1px solid var(--line-card); border-radius: 18px; padding: 24px 24px 26px; box-shadow: var(--sh-card); }
-  .pr-step-n{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 30px; color: var(--coral-l); letter-spacing: -1px; }
-  .pr-step-t{ font-size: 16.5px; font-weight: 800; color: var(--charcoal); margin: 8px 0 6px; }
-  .pr-step-d{ font-size: 13.8px; color: #5A6A7A; line-height: 1.6; }
 
   /* Section head */
   .pr-head{ text-align: center; max-width: 620px; margin: 0 auto 34px; }
@@ -452,7 +426,7 @@ const CSS = `
   @media (prefers-reduced-motion: reduce){ .pr-anim{ animation: none; } .pr-card:hover{ transform: none; } }
 
   @media (max-width: 940px){
-    .pr-grid, .pr-grid.two, .pr-steps{ grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
+    .pr-grid, .pr-grid.two{ grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
     .pr-card-sub{ min-height: 0; }
     .pr-more-text{ white-space: normal; text-align: center; }
   }

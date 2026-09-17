@@ -116,16 +116,18 @@
 /* The hero bleeds up UNDER the fixed nav (negative margin cancels main's 84px
    top padding) so the photo fills the whole viewport behind a transparent nav;
    the extra top padding keeps the headline clear of the bar. */
-.lp-page .hero{min-height:100vh;margin-top:-84px;display:grid;place-items:center;padding:124px 6% 48px;position:relative;overflow:hidden;background:#241811;}
+.lp-page .hero{min-height:100vh;margin-top:-84px;display:grid;place-items:center;padding:124px 6% 48px;position:relative;overflow:hidden;background:#1f1e1d;}
 /* Immersive full-bleed photo hero: the photo fills the section, a warm scrim on
    the left keeps the headline legible, and a light top scrim lets the (now
    transparent) nav read over the photo. */
-.lp-page .hero-media{position:absolute;inset:0;z-index:0;background:url('/hero.jpg') center right/cover;}
+.lp-page .hero-media{position:absolute;inset:0;z-index:0;background:url('/hero.jpg') center right/cover;filter:saturate(.8);}
+/* Near-neutral dark scrims (rather than the old warm-brown ones) keep the
+   headline legible without washing the whole hero in orange. */
 .lp-page .hero-veil{position:absolute;inset:0;z-index:0;
   background:
-    linear-gradient(94deg,rgba(38,25,17,.8) 0%,rgba(38,25,17,.58) 30%,rgba(38,25,17,.24) 55%,rgba(38,25,17,.04) 78%,transparent 100%),
-    linear-gradient(180deg,rgba(30,20,13,.62) 0%,rgba(30,20,13,.26) 12%,transparent 24%),
-    linear-gradient(0deg,rgba(30,20,13,.22) 0%,transparent 34%);}
+    linear-gradient(94deg,rgba(26,25,24,.8) 0%,rgba(26,25,24,.56) 30%,rgba(26,25,24,.22) 55%,rgba(26,25,24,.04) 78%,transparent 100%),
+    linear-gradient(180deg,rgba(22,22,24,.58) 0%,rgba(22,22,24,.24) 12%,transparent 24%),
+    linear-gradient(0deg,rgba(22,22,24,.2) 0%,transparent 34%);}
 .lp-page .hero .orb{display:none;}
 .lp-page .hero-layout{display:block;max-width:1360px;width:100%;position:relative;z-index:2;}
 .lp-page .orb{position:absolute;border-radius:50%;pointer-events:none;}
