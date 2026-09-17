@@ -42,6 +42,8 @@ const CSS = `
 .rt-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start;}
 @media(max-width:860px){.rt-cols{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:560px){.rt-cols{grid-template-columns:minmax(0,1fr);}}
+.rt-bento{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;}
+@media(max-width:760px){.rt-bento{grid-template-columns:minmax(0,1fr);}}
 @media (prefers-reduced-motion: reduce){
   .rt-blob,.rt-ticker-track,.rt-shimmer,.rt-dot{animation:none!important}
   .rt-reveal{opacity:1;transform:none;transition:none}
@@ -198,10 +200,10 @@ export default function RealTalkHub({
           <h1
             style={{
               fontFamily: HEAD,
-              fontSize: 'clamp(60px, 11vw, 132px)',
+              fontSize: 'clamp(40px, 11vw, 132px)',
               fontWeight: 300,
               lineHeight: 0.9,
-              letterSpacing: '-3px',
+              letterSpacing: 'clamp(-3px, -0.25vw, -1.5px)',
               margin: 0,
               color: '#fff',
             }}
@@ -255,7 +257,7 @@ export default function RealTalkHub({
       <section id="reads" style={{ maxWidth: 1160, margin: '0 auto', padding: '84px 24px 0', scrollMarginTop: 70 }}>
         <SectionHead kicker="From our experts" title="Fresh reads" href="/blog" linkLabel={`All ${blogPosts.length} articles →`} />
 
-        <div className="rt-reveal" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.5fr) minmax(0,1fr)', gap: 20 }}>
+        <div className="rt-reveal rt-bento">
           {lead && <FeaturedRead post={lead} />}
           <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 20 }}>
             {secondaryPosts.map((p) => (
