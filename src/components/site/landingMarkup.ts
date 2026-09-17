@@ -11,7 +11,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <div class="hero-pill"><span class="pill-dot"></span>First session from ₹799</div>
       <h1 class="hero-h1">
         <span class="rl"><span class="light">You don't have to carry</span></span>
-        <span class="rl"><span class="hero-accent">it alone.</span></span>
+        <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">it alone.</span></span>
       </h1>
       <p class="hero-sub">Talk to RCI-verified therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
       <div class="hero-beats">

@@ -143,9 +143,12 @@
   font-size:clamp(36px,5vw,52px);line-height:1.02;letter-spacing:-1px;
   color:#fff;margin-bottom:0;transform:scaleX(.9);transform-origin:left;
   animation:rise .7s .08s ease both;}
-/* Second headline line: a single, static burnt-coral accent (no rotation) —
-   the offer reads without motion. */
-.lp-page .hero-h1 .hero-accent{font-weight:900;color:#C8553D;display:block;}
+/* Kinetic second line: its own row so the swapping burnt-coral phrase never
+   reflows the copy beneath it. Height is reserved for a two-line phrase. */
+.lp-page .hero-rot-line{display:block;white-space:normal;padding-bottom:.14em;min-height:2.05em;max-width:100%;}
+.lp-page .hero-rot-word{display:inline-block;max-width:100%;color:#C8553D;font-weight:900;will-change:transform,opacity;}
+.lp-page .hero-rot-word.swap{animation:heroWordIn .5s cubic-bezier(.2,.7,.2,1);}
+@keyframes heroWordIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 /* Story beats under the sub-copy */
 .lp-page .hero-beats{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;max-width:520px;animation:rise .7s .22s ease both;}
 .lp-page .hero-beat{display:flex;gap:9px;align-items:flex-start;background:var(--white);border:1px solid rgba(28,43,58,.08);
@@ -941,6 +944,7 @@
 @media (prefers-reduced-motion: reduce){
   .lp-page .hero-breathe,.lp-page .orb{animation:none !important;}
   .lp-page .hero-h1 .rl > span{transform:none !important;}
+  .lp-page .hero-rot-word.swap{animation:none !important;}
   .lp-page .testi-marquee .t3-grid{animation:none !important;width:auto !important;flex-wrap:wrap;justify-content:center;}
   .lp-page .reveal,.lp-page .reveal-l,.lp-page .reveal-r{opacity:1 !important;transform:none !important;transition:none !important;}
   .lp-page .preview-pane.active{animation:none !important;}

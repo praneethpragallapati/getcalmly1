@@ -71,6 +71,30 @@ export const LANDING_SCRIPT = `
   var h1=document.querySelector('.hero-h1');
   if(h1){ requestAnimationFrame(function(){ h1.classList.add('reveal-in'); }); }
 
+  // Hero kinetic second line: line 1 ("You don't have to carry") stays put; the
+  // burnt-coral phrase beneath it swaps on a timer. The line reserves its height
+  // so nothing below reflows as the phrase changes.
+  var heroRot=document.getElementById('heroRot');
+  if(heroRot && !reduce){
+    var heroPhrases=[
+      'it alone.',
+      'the mask you wear at work.',
+      'the \\u201cI\\u2019m fine\\u201d you keep saying.',
+      'the panic before the meeting.',
+      'the worry that won\\u2019t switch off.',
+      'the guilt that follows you home.',
+      'the heaviness of every morning.'
+    ];
+    var hpi=0;
+    setInterval(function(){
+      hpi=(hpi+1)%heroPhrases.length;
+      heroRot.classList.remove('swap');
+      void heroRot.offsetWidth;
+      heroRot.textContent=heroPhrases[hpi];
+      heroRot.classList.add('swap');
+    },3200);
+  }
+
   // Magnetic buttons
   if(!reduce){
     document.querySelectorAll('.btn-hero, .assess-big-btn').forEach(function(b){
