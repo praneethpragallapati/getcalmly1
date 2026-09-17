@@ -39,7 +39,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="hiw-head">
     <div class="sec-label reveal">How it works</div>
     <h2 class="sec-h2 reveal">Four steps to<br><span>feeling like you again.</span></h2>
-    <p class="sec-p reveal">No endless browsing. We match you, you book, and your care stays with you from the very first session.</p>
   </div>
   <!-- Step photos live in public/hiw/step-1..4.jpg (square, ~1200px). Until a
        file exists a tinted placeholder shows. -->
@@ -57,7 +56,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="sec-label reveal">Why getCalmly</div>
     <h2 class="sec-h2 reveal">Care you<br><span>can trust.</span></h2>
     <p class="tr-sub reveal">Real people. Real care. Technology that makes it better.</p>
-    <p class="tr-intro reveal">Your care starts with qualified mental health professionals. getCalmly brings together clinical expertise and advanced technology to create a more personal and connected experience.</p>
   </div>
 
   <div class="tr-row1">
