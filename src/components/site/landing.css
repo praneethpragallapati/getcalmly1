@@ -1096,8 +1096,22 @@
   color:var(--coral-ink);font-size:26px;font-weight:300;line-height:1;margin-bottom:4px;}
 .lp-page .clin-more-t{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--charcoal);letter-spacing:-.2px;}
 .lp-page .clin-more-d{font-size:13px;color:var(--charcoal-l);line-height:1.45;}
+/* Carousel wrapper — arrows appear only on mobile, where the row becomes a
+   one-profile-at-a-time horizontal slider (swipe or tap the arrows). */
+.lp-page .clin-carousel{position:relative;}
+.lp-page .clin-nav{display:none;}
 @media(max-width:560px){
-  .lp-page .clin-card,.lp-page .clin-more{flex:1 1 100%;max-width:none;}
+  .lp-page .clin-grid{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;scroll-behavior:smooth;gap:16px;padding-bottom:2px;scrollbar-width:none;}
+  .lp-page .clin-grid::-webkit-scrollbar{display:none;}
+  .lp-page .clin-card,.lp-page .clin-more{flex:0 0 100%;max-width:none;scroll-snap-align:center;}
+  .lp-page .clin-more{min-height:280px;}
+  .lp-page .clin-nav{display:grid;place-items:center;position:absolute;top:33%;transform:translateY(-50%);
+    z-index:5;width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.94);box-shadow:0 6px 20px rgba(28,43,58,.22);
+    color:var(--charcoal);font-size:24px;line-height:1;padding-bottom:3px;}
+  .lp-page .clin-prev{left:-4px;}
+  .lp-page .clin-next{right:-4px;}
 }
 .lp-page .clin-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-card);}
 .lp-page .clin-tag{font-size:11px;font-weight:600;color:var(--charcoal-l);background:rgba(28,43,58,.05);padding:4px 10px;border-radius:999px;line-height:1.35;}

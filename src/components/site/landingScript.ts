@@ -105,6 +105,19 @@ export const LANDING_SCRIPT = `
     });
   }
 
+  // Clinician carousel (mobile): the arrows scroll the row one profile at a
+  // time; native touch-swipe works on its own via CSS scroll-snap.
+  var clinGrid=document.getElementById('clinGrid');
+  if(clinGrid){
+    var clinStep=function(dir){
+      var card=clinGrid.querySelector('.clin-card, .clin-more');
+      var w=card?card.getBoundingClientRect().width:clinGrid.clientWidth;
+      clinGrid.scrollBy({left:dir*(w+16),behavior:'smooth'});
+    };
+    var cprev=document.querySelector('.clin-prev'); if(cprev)cprev.addEventListener('click',function(){clinStep(-1);});
+    var cnext=document.querySelector('.clin-next'); if(cnext)cnext.addEventListener('click',function(){clinStep(1);});
+  }
+
   // Testimonials marquee: reveal the cards, then duplicate them once so the
   // right-to-left scroll loops seamlessly. Skipped under reduced-motion.
   var track=document.getElementById('testi-track');
