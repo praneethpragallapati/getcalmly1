@@ -127,6 +127,32 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
 </section>
 
+<!-- ── OUR CLINICIANS ── -->
+<section class="clin-section" id="clinicians">
+  <div class="clin-head">
+    <div class="sec-label reveal">Our clinicians</div>
+    <h2 class="sec-h2 reveal">Meet the people<br><span>behind your care.</span></h2>
+    <p class="sec-p reveal">Every session on getCalmly is with a qualified, verified professional. Here are some of the people you could be matched with.</p>
+  </div>
+  <div class="clin-grid reveal">
+    <div class="clin-card">
+      <div class="clin-photo" style="--img:url('/team/riya.jpg')" role="img" aria-label="Dr Riya Lokesh"></div>
+      <div class="clin-body">
+        <h3 class="clin-name">Dr Riya Lokesh</h3>
+        <p class="clin-role">Chief Clinical Psychologist · Co-founder, getCalmly</p>
+        <div class="clin-creds">
+          <span class="clin-cred">Ph.D. in Clinical Psychology</span>
+          <span class="clin-cred">RCI-registered</span>
+        </div>
+      </div>
+    </div>
+    <div class="clin-more">
+      <span class="clin-more-plus">+</span>
+      <span class="clin-more-t">&amp; many more</span>
+      <span class="clin-more-d">clinicians joining getCalmly soon</span>
+    </div>
+  </div>
+</section>
 
 <!-- ── ASSESSMENT BREAK ── -->
 <section class="assess-break">
