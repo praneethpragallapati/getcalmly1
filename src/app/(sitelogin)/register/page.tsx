@@ -123,7 +123,7 @@ function RegisterForm() {
     <section className="login-hero">
       <div className="login-bg" />
       <div className="login-veil" />
-      <div className="login-wrap tall">
+      <div className="login-wrap">
         {/* Left — brand & reassurance (identical to the login page) */}
         <div className="login-left">
           <p className="login-eyebrow">India&apos;s mental healthcare, done right.</p>

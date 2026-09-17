@@ -1,12 +1,14 @@
 /* Shared shell for the full-screen entry pages (login, register): the
    terracotta→travertine background, brand copy on the left, floating card. */
-.login-hero{position:relative;min-height:100vh;display:grid;place-items:center;padding:118px 6% 64px;overflow:hidden;
+/* Both entry pages anchor identically: the wrap is pinned to the top of the
+   hero and its two columns are top-aligned, so the brand copy and the card sit
+   in exactly the same place on login and sign-up. Only the card's inner content
+   (short login form vs. taller multi-step form) differs. */
+.login-hero{position:relative;min-height:100vh;display:grid;place-items:start center;padding:118px 6% 64px;overflow:hidden;
   background:linear-gradient(104deg,#8a4530 0%,#7a3a20 44%,#e9e1d5 44%,#efe8de 100%);}
 .login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:center;}
 .login-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(104deg,rgba(60,26,14,.34) 0%,rgba(60,26,14,.12) 40%,transparent 60%);}
-.login-wrap{position:relative;z-index:2;width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 468px;gap:56px;align-items:center;}
-.login-wrap.tall{align-items:flex-start;}
-.login-wrap.tall .login-left{position:sticky;top:120px;}
+.login-wrap{position:relative;z-index:2;width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 468px;gap:56px;align-items:flex-start;}
 .login-left{color:#fff;max-width:460px;}
 .login-eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.3px;color:rgba(255,255,255,.8);margin:0 0 20px;}
 .login-head{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:clamp(44px,6vw,78px);line-height:.98;letter-spacing:-1.5px;color:#fff;margin:0 0 34px;transform:scaleX(.94);transform-origin:left;}
@@ -35,7 +37,6 @@
   .login-hero{background:linear-gradient(158deg,#8a4530 0%,#6f3319 100%);padding:104px 6% 56px;}
   .login-veil{display:none;}
   .login-wrap{grid-template-columns:1fr;max-width:468px;gap:34px;}
-  .login-wrap.tall .login-left{position:static;}
-  .login-left{max-width:none;text-align:center;}
+  .login-left{max-width:none;text-align:center;position:static;}
   .login-trust{align-items:flex-start;max-width:340px;margin:0 auto;}
 }

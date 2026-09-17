@@ -53,15 +53,15 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   </div>
   <div class="offer-grid reveal">
     <a class="offer-card" href="/services/therapy">
-      <span class="offer-ic" style="background:#C8553D"><img src="/offer/therapy.jpg" alt="" loading="lazy" /></span>
+      <span class="offer-ic" style="background:#E08A72"><img src="/offer/therapy.jpg" alt="" loading="lazy" /></span>
       <span class="offer-tx"><b>Therapy</b>Anxiety, stress &amp; burnout</span>
     </a>
     <a class="offer-card" href="/services/psychiatry">
-      <span class="offer-ic" style="background:#1A7F7A"><img src="/offer/psychiatry.jpg" alt="" loading="lazy" /></span>
+      <span class="offer-ic" style="background:#4FA8A2"><img src="/offer/psychiatry.jpg" alt="" loading="lazy" /></span>
       <span class="offer-tx"><b>Psychiatry</b>Evaluation &amp; medication</span>
     </a>
     <a class="offer-card" href="/services/couples">
-      <span class="offer-ic" style="background:#7C5CBF"><img src="/offer/couples.jpg" alt="" loading="lazy" /></span>
+      <span class="offer-ic" style="background:#A88CD9"><img src="/offer/couples.jpg" alt="" loading="lazy" /></span>
       <span class="offer-tx"><b>Couples Therapy</b>Communication &amp; repair</span>
     </a>
   </div>
