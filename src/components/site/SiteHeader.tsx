@@ -73,39 +73,16 @@ export default function SiteHeader() {
             </Link>
           </li>
         ))}
-
-        {/* About, hover dropdown holding Our team + Join our experts */}
-        <li className="nav-item">
-          <span className="nav-trigger">
-            About
-            <svg className="nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
-          </span>
-          <div className="nav-mega-wrap">
-            <div className="nav-mega nav-mega-sm">
-              <Link href="/about#team" className="nav-mega-item">
-                <span className="nav-mega-ic" style={{ background: 'rgba(200,85,61,.10)' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8553D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0" /><circle cx="16.6" cy="9.5" r="2.1" /><path d="M15.2 20a4.6 4.6 0 0 1 5.8-4.2" /></svg>
-                </span>
-                <span>
-                  <span className="nav-mega-t">Our team</span>
-                  <span className="nav-mega-d">The people behind getCalmly</span>
-                </span>
-              </Link>
-              <Link href="/for-therapists" className="nav-mega-item">
-                <span className="nav-mega-ic" style={{ background: 'rgba(61,158,114,.10)' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F7D5A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 2.4v5.1c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V5.4L12 3Z" /><polyline points="9 12 11 14 15 10" /></svg>
-                </span>
-                <span>
-                  <span className="nav-mega-t">Join our experts</span>
-                  <span className="nav-mega-d">Practice with getCalmly</span>
-                </span>
-              </Link>
-            </div>
-          </div>
-        </li>
       </ul>
 
       <div className="nav-actions">
+        <Link
+          href="/for-therapists"
+          className="btn-ghost"
+          style={{ color: '#2F7D5A', borderColor: 'rgba(61,158,114,.45)' }}
+        >
+          Join our experts
+        </Link>
         <Link href="/login" className="btn-ghost" style={{ border: 'none', padding: '8px 10px' }}>Log in</Link>
         <Link href="/assess" className="btn-primary">Book session</Link>
         <button
@@ -182,12 +159,7 @@ export default function SiteHeader() {
               {n.soon && <span className="nav-soon-badge">Soon</span>}
             </Link>
           ))}
-
-          {/* About group */}
-          <p style={{ padding: '12px 0 4px', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--charcoal-l)' }}>About</p>
-          <Link href="/about#team" onClick={() => setOpen(false)} style={{ ...mobLink, paddingLeft: 14 }}>Our team</Link>
-          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ ...mobLink, paddingLeft: 14, fontWeight: 600, color: '#2F7D5A' }}>Join our experts</Link>
-
+          <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#2F7D5A', textDecoration: 'none' }}>Join our experts</Link>
           <Link href="/login" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, color: 'var(--charcoal)', textDecoration: 'none' }}>Log in</Link>
           <Link href="/assess" onClick={() => setOpen(false)} className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>Book session</Link>
         </div>

@@ -59,8 +59,6 @@
 .lp-page .nav-mega{background:var(--white);border:1px solid var(--border);border-radius:16px;
   box-shadow:0 22px 54px rgba(28,43,58,.16);padding:12px;width:560px;
   display:grid;grid-template-columns:1fr 1fr;gap:2px;}
-/* Compact single-column dropdown (About: Our team + Join our experts). */
-.lp-page .nav-mega.nav-mega-sm{width:290px;grid-template-columns:1fr;}
 .lp-page .nav-mega-item{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:12px;text-decoration:none;transition:background .15s;}
 .lp-page .nav-mega-item:hover{background:var(--cream);}
 .lp-page .nav-mega-item::after{display:none;}

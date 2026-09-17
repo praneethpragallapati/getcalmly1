@@ -39,24 +39,6 @@ const contacts: { label: string; value: string; href: string }[] = [
   { label: 'Partnerships', value: contactEmail, href: `mailto:${contactEmail}` },
 ]
 
-// Founders — details from the deck. Photos live at /public/team/<img> (colour
-// is fine; the section renders them black & white). A soft placeholder shows
-// until each file is added. Role colours are AA-safe cuts on white.
-const team: { name: string; role: string; accent: string; img: string; bio: string }[] = [
-  {
-    name: 'Dr. Riya Lokesh', role: 'Co-Founder & Director · Chief Clinician', accent: '#5B47B5', img: 'riya.jpg',
-    bio: 'M.Phil and Ph.D in clinical psychology, with years in active practice. She leads clinical protocols, therapist vetting, and the standard of care that runs through everything we build.',
-  },
-  {
-    name: 'Praneeth Pragallapati', role: 'Co-Founder & Director · Product & Data', accent: '#A8432D', img: 'praneeth.jpg',
-    bio: 'B.Tech in Computer Science with a postgraduate focus in AI/ML. He drives AI-powered product, data architecture, and the scalable infrastructure that makes context-aware care possible.',
-  },
-  {
-    name: 'Satya K. Gundavarapu', role: 'Co-Founder & Director · Ops & Global Markets', accent: '#276B4B', img: 'satya.jpg',
-    bio: 'MBA in Engineering Management and an MS in Robotics. He runs operations, partnerships, and market expansion — across India and beyond.',
-  },
-]
-
 // The dark hero flips the requirement: the ink cut that clears AA on cream is
 // 2.8:1 on charcoal, so eyebrows there take the LIGHT coral (6.6:1).
 const eyebrow: React.CSSProperties = {
@@ -78,40 +60,12 @@ export default function AboutPage() {
         .about-edit .about-sticky{position:sticky;top:100px;}
         .about-values{display:grid;grid-template-columns:1fr 1fr;gap:4px 64px;}
         .about-contact{display:grid;grid-template-columns:0.85fr 1.15fr;gap:72px;align-items:start;}
-        /* Team: portrait cards, rendered black & white with a gentle colour
-           reveal on hover, over a faint checked texture. */
-        .team-section{position:relative;overflow:hidden;}
-        .team-section::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
-          background-image:linear-gradient(rgba(28,43,58,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(28,43,58,.035) 1px,transparent 1px);
-          background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000,transparent 78%);}
-        .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;}
-        .team-card{background:#fff;border:1px solid rgba(28,43,58,.08);border-radius:18px;overflow:hidden;
-          box-shadow:0 1px 2px rgba(28,43,58,.04),0 16px 40px -28px rgba(28,43,58,.22);
-          transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s;}
-        .team-card:hover{transform:translateY(-5px);box-shadow:0 24px 56px -28px rgba(28,43,58,.3);}
-        .tm-photo{aspect-ratio:4/5;background-color:#E7E2DD;
-          background-image:var(--img),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 24 24' fill='none' stroke='%23B7ADA4' stroke-width='1.4'%3E%3Ccircle cx='12' cy='9' r='3.2'/%3E%3Cpath d='M5.2 20a6.8 6.8 0 0 1 13.6 0'/%3E%3C/svg%3E");
-          background-size:cover,46px;background-position:center top,center;background-repeat:no-repeat;
-          filter:grayscale(100%) contrast(1.03);transition:filter .45s ease;}
-        .team-card:hover .tm-photo{filter:grayscale(0) contrast(1);}
-        .tm-body{padding:22px 22px 26px;}
-        .tm-name{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:24px;color:#1C2B3A;letter-spacing:-.3px;line-height:1;margin:0 0 9px;}
-        .tm-role{font-size:13px;font-weight:700;letter-spacing:.2px;margin:0 0 12px;}
-        .tm-bio{font-size:14.5px;color:#5A6A7A;line-height:1.7;font-weight:300;margin:0;}
-        .team-why{position:relative;margin-top:44px;border-radius:18px;padding:34px 38px;
-          background:radial-gradient(ellipse 60% 60% at 90% 10%,rgba(200,85,61,.24),transparent 55%),#141E29;}
-        .join-band{display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:center;border-radius:22px;padding:48px 44px;
-          background:radial-gradient(ellipse 55% 60% at 88% 12%,rgba(61,158,114,.26),transparent 55%),radial-gradient(ellipse 45% 50% at 6% 90%,rgba(61,158,114,.12),transparent 60%),#12241E;}
-        .join-cta{display:flex;flex-direction:column;gap:12px;}
         @media (max-width: 900px){
-          .about-hero,.about-split,.about-edit,.about-values,.about-contact,.join-band{
+          .about-hero,.about-split,.about-edit,.about-values,.about-contact{
             grid-template-columns:1fr;gap:32px;
           }
           .about-edit .about-sticky{position:static;}
-          .join-band{gap:24px;padding:36px 28px;}
         }
-        @media (max-width: 820px){ .team-grid{grid-template-columns:1fr 1fr;} }
-        @media (max-width: 520px){ .team-grid{grid-template-columns:1fr;} }
       `}</style>
 
       {/* ─── HERO: lead with the human, not the company ─── */}
@@ -242,75 +196,6 @@ export default function AboutPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── OUR TEAM: the people behind the care ─── */}
-      <section id="team" className="team-section" style={{ background: '#fff', padding: '109px 40px' }}>
-        <div className="awrap" style={{ position: 'relative' }}>
-          <p style={{ ...eyebrow, marginBottom: 18 }}>Our team</p>
-          <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.6vw, 44px)', color: charcoal, marginBottom: 20, lineHeight: 1.06 }}>
-            A rare pairing: <span style={{ color: coral, fontWeight: 900 }}>clinical depth × technical scale.</span>
-          </h2>
-          <p style={{ fontSize: 18.5, color: '#3A4A5A', lineHeight: 1.85, fontWeight: 300, maxWidth: 720, margin: '0 0 52px' }}>
-            We didn&apos;t read about this problem in a market report. We&apos;re clinicians who watched people slip through
-            the cracks between sessions, and founders who once sat on the other side of that gap. getCalmly is built by
-            people who have lived both halves of the story, and are a little obsessed with closing the distance between them.
-          </p>
-
-          <div className="team-grid">
-            {team.map((m) => (
-              <div key={m.name} className="team-card">
-                <div className="tm-photo" style={{ ['--img' as string]: `url('/team/${m.img}')` } as React.CSSProperties} role="img" aria-label={m.name} />
-                <div className="tm-body">
-                  <p className="tm-name">{m.name}</p>
-                  <p className="tm-role" style={{ color: m.accent }}>{m.role}</p>
-                  <p className="tm-bio">{m.bio}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="team-why">
-            <p style={{ ...eyebrowOnDark, marginBottom: 12 }}>Why we&apos;re building this</p>
-            <p style={{ fontSize: 18, color: 'rgba(255,255,255,.82)', lineHeight: 1.85, fontWeight: 300, margin: 0, maxWidth: 900 }}>
-              Riya saw it play out in her practice: clinicians lose touch with the people they&apos;re helping in the weeks
-              between sessions. Praneeth and Satya lived the other side of it, moving through their darkest stretches without
-              knowing help was even within reach. We&apos;re not building from a market report. We bring clinical expertise{' '}
-              <strong style={{ color: '#fff', fontWeight: 700 }}>and the lived experience of needing it</strong>, and we&apos;re
-              emotionally invested in closing the gap for good.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── JOIN OUR EXPERTS: clinician recruitment, moved under About ─── */}
-      <section id="join" style={{ padding: '0 40px 8px' }}>
-        <div className="awrap">
-          <div className="join-band">
-            <div>
-              <p style={{ ...eyebrowOnDark, color: '#7FD4A8', marginBottom: 14 }}>Join our experts</p>
-              <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.6vw, 42px)', color: '#fff', letterSpacing: '-1px', lineHeight: 1.05, marginBottom: 16 }}>
-                Spend your time on <span style={{ color: '#7FD4A8', fontWeight: 900 }}>care, not admin.</span>
-              </h2>
-              <p style={{ fontSize: 17, color: 'rgba(255,255,255,.68)', lineHeight: 1.8, fontWeight: 300, maxWidth: 520, margin: 0 }}>
-                Matched clients, an AI clinical co-pilot, supervision tools, and a calendar that runs itself. Every clinician
-                is RCI / NMC verified before going live.
-              </p>
-            </div>
-            <div className="join-cta">
-              <Link href="/for-therapists/apply" style={{
-                display: 'inline-block', textAlign: 'center', padding: '15px 26px', borderRadius: 50, background: '#3D9E72',
-                color: '#fff', fontSize: 15.5, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
-                boxShadow: '0 10px 26px rgba(61,158,114,.4)',
-              }}>Apply to join →</Link>
-              <Link href="/for-therapists" style={{
-                display: 'inline-block', textAlign: 'center', padding: '15px 26px', borderRadius: 50, background: 'transparent',
-                color: '#fff', fontSize: 15.5, fontWeight: 600, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif",
-                border: '1.5px solid rgba(255,255,255,.35)',
-              }}>See how it works</Link>
-            </div>
           </div>
         </div>
       </section>
