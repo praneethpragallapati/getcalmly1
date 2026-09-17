@@ -66,6 +66,17 @@ function LoginForm() {
 
   async function handleSend() {
     setError('')
+    // TEMPORARY: Priya's test number signs in with no OTP — skip the code step
+    // and go straight to sign-in. Remove with the matching bypass in lib/auth.ts.
+    if (tab === 'phone' && mobile.replace(/\D/g, '') === '918884518688') {
+      setLoading(true)
+      try {
+        const result = await signIn('phone-otp', { mobile, otp: 'bypass', redirect: false })
+        if (result?.ok) { await redirectAfterLogin(); return }
+        setError('Could not sign in. Please try again.')
+      } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
+      return
+    }
     const endpoint = tab === 'phone' ? '/api/otp/send' : '/api/otp/email-send'
     if (tab === 'phone' && phone.replace(/\D/g, '').length < 10) { setError('Enter a valid WhatsApp number.'); return }
     if (tab === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Enter a valid email address.'); return }

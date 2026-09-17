@@ -6,23 +6,24 @@
 /* Scoped under .lp-page so this padding beats the generic `.lp-page section`
    rule in landing.css; place-items:center centres the content, and the top
    padding keeps that centring below the fixed nav. */
-.lp-page .login-hero{position:relative;min-height:100vh;display:grid;place-items:center end;padding:100px 6% 44px;overflow:hidden;
+.lp-page .login-hero{position:relative;min-height:100vh;display:grid;place-items:center;padding:100px 5% 44px;overflow:hidden;
   background:linear-gradient(104deg,#8a4530 0%,#7a3a20 44%,#e9e1d5 44%,#efe8de 100%);}
-/* Bias the crop towards the light (right) side of the photo so that whatever
-   the screen size, the login controls always land on the pale travertine
-   rather than the dark terracotta. */
-.login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:78% center;}
+.login-bg{position:absolute;inset:0;z-index:0;background-image:url('/login-bg.jpg');background-size:cover;background-position:center;}
 .login-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(104deg,rgba(60,26,14,.4) 0%,rgba(60,26,14,.14) 42%,transparent 62%);}
-.login-wrap{position:relative;z-index:2;width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 420px;gap:72px;align-items:start;}
+/* The two columns track the photo's dark/light split (~57% / 43%) rather than
+   a fixed pixel width, and each block is centred inside its own half. That way
+   the quote always sits over the terracotta and the login always over the pale
+   travertine, and the whole thing stays balanced on any screen width. */
+.login-wrap{position:relative;z-index:2;width:100%;max-width:1760px;display:grid;grid-template-columns:57fr 43fr;gap:24px;align-items:start;}
 
-/* Left — brand line */
-.login-left{color:#fff;max-width:460px;}
+/* Left — brand line, centred in the terracotta half */
+.login-left{color:#fff;max-width:460px;margin-inline:auto;}
 .login-eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.3px;color:rgba(255,255,255,.85);margin:0 0 20px;text-shadow:0 1px 12px rgba(40,18,8,.45);}
 .login-head{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:clamp(48px,6.2vw,84px);line-height:.97;letter-spacing:-1.5px;color:#fff;margin:0;transform:scaleX(.94);transform-origin:left;text-shadow:0 2px 26px rgba(40,18,8,.4);}
 .login-head span{font-weight:900;color:#C8553D;}
 
 /* Right — boxless login. Only the individual controls carry a surface. */
-.login-card{position:relative;}
+.login-card{position:relative;width:100%;max-width:420px;margin-inline:auto;}
 .login-card-title{font-family:'Big Shoulders Display',sans-serif;font-weight:300;font-size:clamp(30px,3vw,38px);color:#241A12;letter-spacing:-.4px;line-height:1.06;margin:0 0 12px;max-width:380px;text-shadow:0 1px 16px rgba(255,248,242,.65);}
 .login-card-sub{font-size:14px;color:#5A4A40;line-height:1.55;margin:0 0 22px;font-weight:500;max-width:400px;text-shadow:0 1px 14px rgba(255,248,242,.6);}
 .login-tabs{display:flex;background:rgba(255,255,255,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.6);border-radius:12px;padding:4px;margin-bottom:16px;box-shadow:0 12px 32px -16px rgba(40,20,10,.45);}
