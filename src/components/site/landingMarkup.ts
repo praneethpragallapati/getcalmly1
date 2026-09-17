@@ -132,7 +132,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="clin-head">
     <div class="sec-label reveal">Our clinicians</div>
     <h2 class="sec-h2 reveal">Meet the people<br><span>behind your care.</span></h2>
-    <p class="sec-p reveal">Every session on getCalmly is with a qualified, verified professional. Here are some of the people you could be matched with.</p>
   </div>
   <div class="clin-grid reveal">
     <div class="clin-card">
