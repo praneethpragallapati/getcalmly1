@@ -27,6 +27,12 @@ export const CARE_TEAM_TABS: SectionTab[] = [
   { href: '/app/medications', label: 'Medications' },
 ]
 
+// Tasks is one sidebar entry that tabs across Activities and Forms.
+export const MEMBER_TASKS_TABS: SectionTab[] = [
+  { href: '/app/tasks', label: 'Activities' },
+  { href: '/app/forms', label: 'Forms' },
+]
+
 // ── Expert portal ────────────────────────────────────────────────────────────
 
 export const EXPERT_SCHEDULE_TABS: SectionTab[] = [

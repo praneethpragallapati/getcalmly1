@@ -14,7 +14,7 @@ import {
   CalendarDays,
   Users,
   LineChart,
-  FileText,
+  ListChecks,
   Gift,
   Settings,
   LogOut,
@@ -43,7 +43,8 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope, match: ['/app/medications'] },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
       { href: '/app/pulse', label: 'Pulse', icon: Activity },
-      { href: '/app/forms', label: 'Forms', icon: FileText },
+      // Tasks is one entry; the page tabs between Activities and Forms.
+      { href: '/app/tasks', label: 'Tasks', icon: ListChecks, match: ['/app/forms'] },
     ],
   },
   {

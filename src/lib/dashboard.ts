@@ -53,6 +53,29 @@ export type WeeklyProgress = {
   calmAvg: number | null
 }
 
+/**
+ * The member's assigned activities (expert-assigned tasks), mapped for the
+ * TaskList. Used by the standalone Activities page under Tasks.
+ */
+export async function getMyTasks(userId: string): Promise<DashTask[]> {
+  const now = Date.now()
+  const tasks = await prisma.task
+    .findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 50 })
+    .catch(() => [])
+  return tasks.map<DashTask>((t) => ({
+    id: t.id,
+    type: t.type as DashTask['type'],
+    title: t.title,
+    detail: t.description ?? undefined,
+    done: isDoneForPeriod(t.completedAt, t.frequency),
+    frequencyLabel: frequencyChip(t.frequency),
+    timesLabel: timesOfDayChip(t.timesOfDay),
+    assignedBy: t.assignedBy ?? undefined,
+    dueLabel: t.dueDate ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' }) : undefined,
+    expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
+  }))
+}
+
 export async function getWeeklyProgress(userId: string): Promise<WeeklyProgress> {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   try {

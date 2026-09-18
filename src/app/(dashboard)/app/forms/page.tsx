@@ -4,6 +4,8 @@ import { getSessionUserId } from '@/lib/patient'
 import { getMyForms } from '@/lib/forms'
 import { dueInstruments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS } from '@/lib/outcomes/instruments'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { MEMBER_TASKS_TABS } from '@/data/sectionTabs'
 
 const KIND_LABEL: Record<string, string> = {
   INTAKE: 'Intake',
@@ -21,12 +23,13 @@ export default async function FormsPage() {
 
   return (
     <>
-      <div className="page-head">
-        <h1 className="page-title">Forms</h1>
-        <span className="page-meta">
-          {pending.length > 0 ? `${pending.length} to complete` : 'All caught up'}
-        </span>
-      </div>
+      <SectionTabs
+        eyebrow="Tasks"
+        title="Forms"
+        meta={pending.length > 0 ? `${pending.length} to complete` : 'All caught up'}
+        tabs={MEMBER_TASKS_TABS.map((t) => (t.href === '/app/forms' && pending.length > 0 ? { ...t, badge: pending.length } : t))}
+        active="/app/forms"
+      />
 
       <div className="stack" style={{ maxWidth: 720 }}>
         {due.length > 0 && (
