@@ -2,7 +2,6 @@ import { getSessionUserId } from '@/lib/patient'
 import { getMyTasks, countPendingForms } from '@/lib/dashboard'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { SectionTabs } from '@/components/ui/SectionTabs'
-import { MEMBER_TASKS_TABS } from '@/data/sectionTabs'
 import { taskTabsWithBadges } from '@/lib/taskTabs'
 
 export const dynamic = 'force-dynamic'
