@@ -27,8 +27,8 @@ export default function ForTherapistsPage() {
         @media (max-width: 520px){ .fc-steps{grid-template-columns:1fr !important;} }
       `}</style>
       {/* Hero */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(110,130,240,.26), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(140,110,220,.18), transparent 60%), #171C42', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,120,240,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(150,118,52,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(70,105,72,.14), transparent 60%), #241C10', minHeight: 600, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(150,120,55,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.6)', marginBottom: 18 }}>For therapists &amp; psychiatrists</p>
           <h1 style={{

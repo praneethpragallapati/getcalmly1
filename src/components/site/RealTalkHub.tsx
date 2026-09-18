@@ -186,6 +186,10 @@ export default function RealTalkHub({
         style={{
           position: 'relative',
           overflow: 'hidden',
+          minHeight: 600,
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
           background:
             'radial-gradient(ellipse 60% 60% at 80% 12%, rgba(200,85,61,.34), transparent 60%), radial-gradient(ellipse 50% 55% at 12% 88%, rgba(139,111,201,.30), transparent 62%), radial-gradient(ellipse 40% 45% at 55% 55%, rgba(224,164,92,.14), transparent 60%), #1B1330',
           padding: '104px 24px 0',
@@ -240,7 +244,7 @@ export default function RealTalkHub({
         </div>
 
         {/* recent-activity ticker */}
-        <div style={{ position: 'relative', marginTop: 32, borderTop: '1px solid rgba(255,255,255,.1)', overflow: 'hidden', maskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)' }}>
+        <div style={{ position: 'relative', marginTop: 'auto', paddingTop: 32, borderTop: '1px solid rgba(255,255,255,.1)', overflow: 'hidden', maskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)' }}>
           <div className="rt-ticker-track" style={{ padding: '14px 0' }}>
             {[...ticker, ...ticker].map((p, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 26px', color: 'rgba(255,255,255,.62)', fontSize: 13.5 }}>

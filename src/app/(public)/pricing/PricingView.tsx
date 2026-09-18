@@ -307,14 +307,14 @@ const CSS = `
   .pr-h2{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 300; font-size: clamp(30px, 4.4vw, 44px); color: var(--charcoal); letter-spacing: -1px; line-height: 1.04; text-wrap: balance; }
 
   /* Hero */
-  /* Bold, friendly rose — deliberately not the near-black navy used by every
-     other hero on the site, and not reused for any other hero. */
-  .pr-hero{ position: relative; overflow: hidden; text-align: center; padding: 104px 24px 56px;
-    background: radial-gradient(ellipse 62% 72% at 84% 4%, rgba(255,198,150,.34), transparent 55%),
-                radial-gradient(ellipse 50% 62% at 6% 88%, rgba(255,140,172,.24), transparent 62%),
-                linear-gradient(140deg, #D24E76 0%, #C23F6B 52%, #A9376E 100%); }
+  /* Deep, matte wine — rich and low-key, not shiny. Subtle radial tints over a
+     very dark base, in the spirit of the Features hero. */
+  .pr-hero{ position: relative; overflow: hidden; text-align: center; box-sizing: border-box; min-height: 600px; display: flex; flex-direction: column; justify-content: center; padding: 104px 24px 56px;
+    background: radial-gradient(ellipse 60% 60% at 86% 6%, rgba(150,55,88,.26), transparent 58%),
+                radial-gradient(ellipse 46% 55% at 4% 90%, rgba(120,72,96,.14), transparent 60%),
+                #2A1620; }
   .pr-hero-glow{ position: absolute; top: -140px; right: -110px; width: 440px; height: 440px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,216,198,.26) 0%, transparent 70%); pointer-events: none; }
+    background: radial-gradient(circle, rgba(150,70,100,.14) 0%, transparent 70%); pointer-events: none; }
   .pr-hero-inner{ max-width: 720px; margin: 0 auto; position: relative; }
   .pr-hero-sub{ font-size: 17px; color: rgba(255,255,255,.7); line-height: 1.7; max-width: 600px; margin: 0 auto; }
   .pr-trust{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
