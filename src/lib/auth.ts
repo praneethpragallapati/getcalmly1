@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { verifyOtp } from '@/lib/msg91'
 import { verifyEmailOtp } from '@/lib/email'
 import { verifyPassword } from '@/lib/password'
+import { ensureDemoCaseload } from '@/lib/demoBootstrap'
 
 // Google is only offered when its OAuth credentials are configured, so we never
 // register a broken provider (the sign-in buttons are hidden to match — see
@@ -95,15 +96,18 @@ export const authOptions: NextAuthOptions = {
         if (!mobile) return null
 
         // TEMPORARY test shortcut: this one number signs straight into the
-        // existing Priya account (looked up by its email), with no OTP. Remove
-        // this block — and the matching shortcut in the login page — before
-        // this is used for real.
+        // Praneeth account (keyed by its email), with no OTP. Creates the account
+        // if missing and assigns it to the Riya test therapist. Remove this
+        // block — and the matching shortcut in the login page — before real use.
         if (mobile === OTP_BYPASS_MOBILE) {
-          const priya = await prisma.user.findUnique({
+          const praneeth = await prisma.user.upsert({
             where: { email: OTP_BYPASS_EMAIL },
+            update: {},
+            create: { email: OTP_BYPASS_EMAIL, role: 'PATIENT', name: 'Praneeth' },
             select: { id: true, name: true, email: true },
           })
-          return priya ? { id: priya.id, name: priya.name ?? undefined, email: priya.email ?? undefined } : null
+          await ensureDemoCaseload().catch(() => {})
+          return { id: praneeth.id, name: praneeth.name ?? undefined, email: praneeth.email ?? undefined }
         }
 
         if (!otp) return null
@@ -171,6 +175,9 @@ export const authOptions: NextAuthOptions = {
                 },
               })
               .catch(() => {})
+            // Wire the demo patient (Praneeth) onto Riya's caseload now that her
+            // profile exists.
+            await ensureDemoCaseload().catch(() => {})
           }
           return { id: u.id, name: u.name ?? undefined, email: u.email ?? undefined }
         }
