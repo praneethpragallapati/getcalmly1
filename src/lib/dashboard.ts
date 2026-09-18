@@ -76,6 +76,19 @@ export async function getMyTasks(userId: string): Promise<DashTask[]> {
   }))
 }
 
+/** Open (not-yet-done) activities — for the Tasks tab badge. */
+export async function countOpenActivities(userId: string): Promise<number> {
+  const tasks = await getMyTasks(userId)
+  return tasks.filter((t) => !t.done).length
+}
+
+/** Forms still awaiting the member — for the Tasks tab badge. */
+export async function countPendingForms(userId: string): Promise<number> {
+  return prisma.formAssignment
+    .count({ where: { patientId: userId, status: 'PENDING' } })
+    .catch(() => 0)
+}
+
 export async function getWeeklyProgress(userId: string): Promise<WeeklyProgress> {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   try {

@@ -70,6 +70,7 @@ export function Sidebar({
   planActive = false,
   planName = 'No active plan',
   sessionsToday = 0,
+  tasksOpen = 0,
   photoUrl = null,
 }: {
   name: string
@@ -77,6 +78,8 @@ export function Sidebar({
   planActive?: boolean
   planName?: string
   sessionsToday?: number
+  /** Open activities + pending forms, shown on the Tasks entry. */
+  tasksOpen?: number
   photoUrl?: string | null
   /** Accepted for compatibility; Guided calm is hidden from the nav for now. */
   showGuided?: boolean
@@ -84,9 +87,12 @@ export function Sidebar({
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const initial = name.charAt(0).toUpperCase()
-  // Only show the Sessions badge when there's genuinely a session today.
-  const badgeFor = (href: string): string | undefined =>
-    href === '/app/sessions' && sessionsToday > 0 ? `${sessionsToday} today` : undefined
+  // Badges: a Sessions count for today, and a Tasks count for anything waiting.
+  const badgeFor = (href: string): string | undefined => {
+    if (href === '/app/sessions' && sessionsToday > 0) return `${sessionsToday} today`
+    if (href === '/app/tasks' && tasksOpen > 0) return `${tasksOpen}`
+    return undefined
+  }
 
   const isActive = (item: Item) => {
     if (item.href === '/app') return pathname === '/app'

@@ -5,7 +5,8 @@ import { getMyForms } from '@/lib/forms'
 import { dueInstruments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 import { SectionTabs } from '@/components/ui/SectionTabs'
-import { MEMBER_TASKS_TABS } from '@/data/sectionTabs'
+import { countOpenActivities } from '@/lib/dashboard'
+import { taskTabsWithBadges } from '@/lib/taskTabs'
 
 const KIND_LABEL: Record<string, string> = {
   INTAKE: 'Intake',
@@ -20,6 +21,7 @@ export default async function FormsPage() {
   const due = userId ? await dueInstruments(userId).catch(() => []) : []
   const pending = forms.filter((f) => f.status === 'PENDING')
   const completed = forms.filter((f) => f.status === 'COMPLETED')
+  const openActivities = userId ? await countOpenActivities(userId) : 0
 
   return (
     <>
@@ -27,7 +29,7 @@ export default async function FormsPage() {
         eyebrow="Tasks"
         title="Forms"
         meta={pending.length > 0 ? `${pending.length} to complete` : 'All caught up'}
-        tabs={MEMBER_TASKS_TABS.map((t) => (t.href === '/app/forms' && pending.length > 0 ? { ...t, badge: pending.length } : t))}
+        tabs={taskTabsWithBadges(openActivities, pending.length)}
         active="/app/forms"
       />
 

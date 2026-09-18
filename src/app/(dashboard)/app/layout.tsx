@@ -10,7 +10,7 @@ import { NotificationBell } from '@/components/dashboard/NotificationBell'
 import { HelplineButton } from '@/components/dashboard/HelplineButton'
 import { ToastProvider } from '@/components/ui/Toast'
 import { CallProvider } from '@/components/dashboard/CallDock'
-import { getSidebarSummary } from '@/lib/dashboard'
+import { getSidebarSummary, countOpenActivities, countPendingForms } from '@/lib/dashboard'
 import { getSessionUserId } from '@/lib/patient'
 import { getUnreadCount, getNotifications } from '@/lib/notifications'
 import { getSessionUser } from '@/lib/session'
@@ -66,7 +66,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // hit. Its result is unused by the render.
   const refCode = userId ? (await cookies()).get('gc_ref')?.value : undefined
 
-  const [d, unread, notes, guidedTracks, canAlert] = await Promise.all([
+  const [d, unread, notes, guidedTracks, canAlert, , tasksOpen] = await Promise.all([
     getSidebarSummary(),
     userId ? getUnreadCount(userId) : Promise.resolve(0),
     userId ? getNotifications(userId) : Promise.resolve([]),
@@ -76,6 +76,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     // reason a page load is slower.
     userId ? hasEffectiveCareTeam(userId).catch(() => false) : Promise.resolve(false),
     refCode && userId ? attributeReferral(userId, decodeURIComponent(refCode)) : Promise.resolve(),
+    // Open activities + pending forms, for the Tasks nav badge.
+    userId
+      ? Promise.all([countOpenActivities(userId), countPendingForms(userId)]).then(([a, f]) => a + f).catch(() => 0)
+      : Promise.resolve(0),
   ])
   const now = new Date()
   const dateLine = fmtIST(now, {
@@ -96,6 +100,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         planActive={d.planActive}
         planName={d.planName}
         sessionsToday={d.sessionsToday}
+        tasksOpen={tasksOpen}
         photoUrl={d.photoUrl}
         showGuided={guidedTracks.some((t) => t.videos.length > 0)}
       />
