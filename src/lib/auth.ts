@@ -17,11 +17,15 @@ export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env
 // before real use, or gate it behind an env flag.
 export const OTP_BYPASS_MOBILE = '918884518688'
 export const OTP_BYPASS_EMAIL = 'praneethpragallapati@gmail.com'
-// TEMPORARY: existing accounts allowed to sign in by email with no OTP.
-export const OTP_BYPASS_EMAILS = new Set<string>([
-  'hom.pragallapati@gmail.com', // therapist test account
-  'praneethadmin@gmail.com',    // admin test account
-])
+// TEMPORARY: dedicated test accounts allowed to sign in by email with no OTP.
+// Each maps to the role it should have; the bypass creates/promotes the account
+// (and, for the therapist, a minimal profile) so a fresh deployment works
+// without a manual reseed. Delete this whole mechanism before real use.
+export const OTP_BYPASS_ROLES: Record<string, 'ADMIN' | 'THERAPIST'> = {
+  'hom.pragallapati@gmail.com': 'THERAPIST', // therapist test account
+  'praneethadmin@gmail.com': 'ADMIN', // admin test account
+}
+export const OTP_BYPASS_EMAILS = new Set<string>(Object.keys(OTP_BYPASS_ROLES))
 
 /**
  * Short-lived cache of a user's role, so the session callback doesn't hit the DB
@@ -128,15 +132,47 @@ export const authOptions: NextAuthOptions = {
         const otp = credentials?.otp?.trim()
         if (!email) return null
 
-        // TEMPORARY: these existing accounts sign in by email with no OTP.
-        // They must already exist — never create one via the bypass. Remove
-        // this block (and the login-page shortcut) before real use.
+        // TEMPORARY: these dedicated test accounts sign in by email with no OTP.
+        // The bypass creates the account (and promotes it to the mapped role) so
+        // a fresh deployment works without a manual reseed. Remove this block
+        // (and the login-page shortcut) before real use.
         if (OTP_BYPASS_EMAILS.has(email)) {
-          const u = await prisma.user.findUnique({
+          const role = OTP_BYPASS_ROLES[email]
+          const u = await prisma.user.upsert({
             where: { email },
+            update: { role },
+            create: {
+              email,
+              role,
+              name: role === 'ADMIN' ? 'Praneeth (Admin)' : 'Dr. Riya Lokesh',
+            },
             select: { id: true, name: true, email: true },
           })
-          return u ? { id: u.id, name: u.name ?? undefined, email: u.email ?? undefined } : null
+          // A therapist needs a profile or the expert dashboard has nothing to
+          // read. Create a minimal one once; leave it alone if it already exists.
+          if (role === 'THERAPIST') {
+            await prisma.therapistProfile
+              .upsert({
+                where: { userId: u.id },
+                update: {},
+                create: {
+                  userId: u.id,
+                  bio: 'RCI-registered clinical psychologist working with anxiety, relationships and life transitions.',
+                  qualifications: ['PhD Clinical Psychology', 'M.Phil Clinical Psychology (RCI)'],
+                  yearsExp: 10,
+                  languages: ['English', 'Hindi'],
+                  specializations: ['Anxiety', 'Depression', 'Couples'],
+                  rciNumber: 'A100010',
+                  sessionFee: 1200,
+                  gender: 'Female',
+                  clinicianType: 'Therapist',
+                  isVerified: true,
+                  isActive: true,
+                },
+              })
+              .catch(() => {})
+          }
+          return { id: u.id, name: u.name ?? undefined, email: u.email ?? undefined }
         }
 
         if (!otp) return null
