@@ -473,7 +473,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
-      <section style={{ background: darkBand(s.accent), padding: '118px 48px 72px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: darkBand(s.accent), padding: '104px 48px 52px', position: 'relative', overflow: 'hidden' }}>
         {photo && (
           <BlogCover
             src={photo.src}
@@ -525,7 +525,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── YOU MIGHT RECOGNISE THIS: 2×2 grid, full width ─── */}
-      <section style={{ background: '#fff', padding: '90px 48px' }}>
+      <section style={{ background: '#fff', padding: '56px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <p style={{ ...eyebrow, marginBottom: 36, textAlign: 'center' }}>You might recognise this</p>
           <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
@@ -547,7 +547,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT CARE LOOKS LIKE + WHO IT'S FOR: side by side ─── */}
-      <section style={{ padding: '94px 48px', background: '#F6F3EF' }}>
+      <section style={{ padding: '56px 48px', background: '#F6F3EF' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
           <div>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
@@ -575,7 +575,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT WE HELP WITH: grid, full width ─── */}
-      <section style={{ background: '#fff', padding: '94px 48px' }}>
+      <section style={{ background: '#fff', padding: '56px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ marginBottom: 36 }}>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
@@ -603,7 +603,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FAQ: wide divider list ─── */}
-      <section style={{ padding: '94px 48px', background: '#F6F3EF' }}>
+      <section style={{ padding: '56px 48px', background: '#F6F3EF' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
             Common questions
@@ -623,7 +623,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section style={{ background: darkBand(s.accent), padding: '94px 24px' }}>
+      <section style={{ background: darkBand(s.accent), padding: '66px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from ₹799</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>

@@ -209,12 +209,9 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
       {/* ── Closing CTA ── */}
       <section style={{ padding: '72px 6% 96px', textAlign: 'center' }}>
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: headingFont, fontWeight: 300, fontSize: 'clamp(28px, 4.4vw, 42px)', color: charcoal, letterSpacing: '-.6px', lineHeight: 1.08, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: headingFont, fontWeight: 300, fontSize: 'clamp(28px, 4.4vw, 42px)', color: charcoal, letterSpacing: '-.6px', lineHeight: 1.08, marginBottom: 28 }}>
             Ready when you are.
           </h2>
-          <p style={{ fontSize: 16, color: charcoalL, lineHeight: 1.7, marginBottom: 28 }}>
-            Book directly with {firstName(c.name)}. You&apos;ll add your details and pick your package — then your first session is yours to schedule.
-          </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <BookSessionButton slug={c.slug} name={c.name} accent={c.accent} />
           </div>
