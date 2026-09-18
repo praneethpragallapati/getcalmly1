@@ -466,6 +466,10 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
   const patientIds = await patientIdsFor(therapistProfileId)
   if (!patientIds.length) return []
 
+  // Load everything defensively: if any query throws (e.g. a column this
+  // deployment's DB hasn't migrated yet), fall back to a minimal caseload below
+  // rather than 500ing the whole Patients page.
+  try {
   // Narrow, explicit selects: never `SELECT *` a whole row here. It keeps the
   // caseload query resilient to schema columns that may not yet exist in a
   // given deployment's database (otherwise Prisma throws P2022 and the whole
@@ -550,6 +554,33 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
       monthsHere: Math.max(0, Math.floor((Date.now() - u.createdAt.getTime()) / (30.44 * 86400000))),
     }
   })
+  } catch (e) {
+    console.error('[getCaseload] full load failed; returning minimal caseload', e)
+    // Degrade gracefully: still list the patients by their core fields so the
+    // page loads with names instead of an error screen.
+    const basicUsers = await prisma.user
+      .findMany({ where: { id: { in: patientIds } }, select: { id: true, name: true, email: true, createdAt: true } })
+      .catch(() => [] as { id: string; name: string | null; email: string | null; createdAt: Date }[])
+    return basicUsers.map((u) => ({
+      patientId: u.id,
+      name: u.name ?? 'Patient',
+      email: u.email ?? '',
+      trackLabel: 'Wellbeing',
+      lastMood: null,
+      avgMood: null,
+      moodTrend: 'insufficient' as MoodTrend,
+      openCrisisCount: 0,
+      sessionsDone: 0,
+      sessionsTotal: 0,
+      packageLines: [],
+      sessionsCompleted: 0,
+      sessionsLeft: 0,
+      packageTypes: [],
+      language: null,
+      state: null,
+      monthsHere: Math.max(0, Math.floor((Date.now() - u.createdAt.getTime()) / (30.44 * 86400000))),
+    }))
+  }
 }
 
 // ── Tasks assigned to this therapist (by an admin) ───────────────────────────
