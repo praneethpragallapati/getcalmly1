@@ -87,7 +87,7 @@ function InsightMock() {
           <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Pattern found:</strong> your anxiety runs highest on Sunday nights, right before your Monday stand-up.</p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7C5CBF', marginTop: 5, flexShrink: 0 }} />
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#6D5BD0', marginTop: 5, flexShrink: 0 }} />
           <p style={{ fontSize: 12.5, color: '#3A4A5A', lineHeight: 1.55 }}><strong style={{ color: charcoal }}>Hidden driver:</strong> nights under 6 hours of sleep double the self-criticism in your journal the next day.</p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -111,7 +111,7 @@ function JournalMock() {
       <p style={{ fontSize: 12, color: '#5A6A7A', marginTop: 10 }}>Themes noticed in your words:</p>
       <div className="stagger" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
         {['self-compassion', 'boundary-setting', 'resilience'].map((t) => (
-          <span key={t} style={{ fontSize: 11, fontWeight: 600, color: '#7C5CBF', background: 'rgba(124,92,191,.1)', padding: '4px 10px', borderRadius: 50 }}>{t}</span>
+          <span key={t} style={{ fontSize: 11, fontWeight: 600, color: '#6D5BD0', background: 'rgba(124,92,191,.1)', padding: '4px 10px', borderRadius: 50 }}>{t}</span>
         ))}
       </div>
     </div>

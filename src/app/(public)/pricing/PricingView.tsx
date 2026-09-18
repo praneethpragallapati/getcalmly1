@@ -16,7 +16,7 @@ const coral = '#B8482F'
 const charcoal = '#1C2B3A'
 const green = '#3D9E72'
 const teal = '#1A7F7A'
-const purple = '#7C5CBF'
+const purple = '#6D5BD0'
 
 function PackSelector<T>({ items, i, setI, label, badges, accent }: {
   items: T[]; i: number; setI: (n: number) => void

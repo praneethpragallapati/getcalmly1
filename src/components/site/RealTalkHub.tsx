@@ -15,7 +15,7 @@ const CHARCOAL = '#1C2B3A'
 
 /* ── Ambient + interaction CSS (keyframes, reveal, hover) ─────────────── */
 const CSS = `
-.rt-root{--rt-coral:#C8553D;--rt-gold:#E0A45C;--rt-violet:#8B6FC9;}
+.rt-root{--rt-coral:#C8553D;--rt-gold:#E0A45C;--rt-violet:#6D5BD0;}
 @keyframes rtFloat1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.15)}}
 @keyframes rtFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,40px) scale(1.1)}}
 @keyframes rtFloat3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,50px) scale(1.2)}}
@@ -351,7 +351,7 @@ export default function RealTalkHub({
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontWeight: 800, color: CHARCOAL, fontSize: 15 }}>{t.label}</span>
-                  <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#8B6FC9', background: 'rgba(139,111,201,.12)', padding: '2px 8px', borderRadius: 999 }}>Soon</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase', color: '#6D5BD0', background: 'rgba(139,111,201,.12)', padding: '2px 8px', borderRadius: 999 }}>Soon</span>
                 </div>
                 <div style={{ fontSize: 12.5, color: '#5F6E7D', marginTop: 2 }}>{t.sub}</div>
               </div>

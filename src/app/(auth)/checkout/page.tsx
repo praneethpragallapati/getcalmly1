@@ -39,7 +39,7 @@ const plans: Record<PlanKey, {
   },
   couples: {
     name: 'Couples therapy',
-    accent: '#7C5CBF',
+    accent: '#6D5BD0',
     benefits: [
       'Your first 45-minute session for both of you at a flat ₹1,499',
       'An EFT & Gottman-informed couples therapist',

@@ -8,7 +8,7 @@ import { reassignAppointment, setAppointmentStatusAdmin, approveCancellation, re
 import type { OpsBoard as OpsData, ApptRow, CancelRequestRow } from '@/lib/admin'
 
 const charcoal = '#1C2B3A'
-const STATUS_COLOR: Record<string, string> = { PENDING: '#C9973A', CONFIRMED: '#3E6E9C', COMPLETED: '#2C7A57', CANCELLED: '#C0504B', RESCHEDULED: '#7C5CBF' }
+const STATUS_COLOR: Record<string, string> = { PENDING: '#C9973A', CONFIRMED: '#3E6E9C', COMPLETED: '#2C7A57', CANCELLED: '#C0504B', RESCHEDULED: '#6D5BD0' }
 
 export function OpsBoard({ data }: { data: OpsData }) {
   const [tab, setTab] = useState<'upcoming' | 'notes' | 'cancellations'>(

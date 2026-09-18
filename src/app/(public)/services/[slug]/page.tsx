@@ -60,7 +60,7 @@ const services: Record<ServiceSlug, {
   },
   couples: {
     icon: '💑',
-    accent: '#7C5CBF',
+    accent: '#6D5BD0',
     pale: 'rgba(124,92,191,.08)',
     title: 'Couples, Reconnected',
     tagline: 'Before you give up on each other, give one honest hour a chance.',
