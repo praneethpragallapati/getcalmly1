@@ -4,13 +4,13 @@ import { useState } from 'react'
 import type { MoodWeekPoint } from '@/data/dashboardDemo'
 
 type Range = 'week' | 'sixWeeks'
-type Key = 'mood' | 'energy' | 'calm'
+type Key = 'mood' | 'energy' | 'sleep'
 
 /** Muted, harmonious trio — one dominant hue, two supporting. */
 const SERIES: { key: Key; label: string; color: string }[] = [
   { key: 'mood', label: 'Mood', color: '#C8553D' },
   { key: 'energy', label: 'Energy', color: '#D9A441' },
-  { key: 'calm', label: 'Calm', color: '#4E9E8F' },
+  { key: 'sleep', label: 'Sleep', color: '#5B6FB0' },
 ]
 
 const W = 640
@@ -41,7 +41,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 /**
  * Mood over time — a soft area/line chart rather than grouped bars, with a
  * week / 6-week range toggle and per-series toggles. Mood leads as a filled
- * gradient; energy and calm sit behind it as thin lines so the card reads calm
+ * gradient; energy and sleep sit behind it as thin lines so the card reads calm
  * instead of busy.
  */
 export function MoodTrendChart({
@@ -54,12 +54,12 @@ export function MoodTrendChart({
   sixWeeks?: MoodWeekPoint[]
 }) {
   const [range, setRange] = useState<Range>('week')
-  const [on, setOn] = useState<Record<Key, boolean>>({ mood: true, energy: true, calm: true })
+  const [on, setOn] = useState<Record<Key, boolean>>({ mood: true, energy: true, sleep: true })
   const [hover, setHover] = useState<number | null>(null)
 
   const canCompare = sixWeeks.length > 0
   const points = range === 'sixWeeks' && canCompare ? sixWeeks : data
-  const hasData = points.some((p) => p.mood > 0 || p.energy > 0 || p.calm > 0)
+  const hasData = points.some((p) => p.mood > 0 || p.energy > 0 || p.sleep > 0)
 
   const scored = points.filter((p) => p.mood > 0)
   const shownAvg =

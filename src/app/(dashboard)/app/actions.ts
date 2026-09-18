@@ -228,14 +228,14 @@ export type UpvoteResult = { ok: boolean; count: number; voted: boolean; error?:
 
 /**
  * Save today's mood check-in (#8). Persists the patient's own raw record at the
- * mood/energy/calm grain. Authorization: writes only to the signed-in user's
+ * mood/energy/sleep grain. Authorization: writes only to the signed-in user's
  * rows; with no session it fails with a clear "sign in again" error rather than
  * reporting a phantom success. The AI pipeline is refreshed separately, behind privacy.
  */
 export async function saveCheckin(scores: {
   mood: number
   energy: number
-  calm: number
+  sleep: number
 }): Promise<ActionResult> {
   const userId = await getSessionUserId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
@@ -243,7 +243,7 @@ export async function saveCheckin(scores: {
   const clamp = (n: number) => Math.max(0, Math.min(10, Math.round(n)))
   const mood = clamp(scores.mood)
   const energy = clamp(scores.energy)
-  const calm = clamp(scores.calm)
+  const sleep = clamp(scores.sleep)
   try {
     // One check-in per day: re-saving today updates the same entry instead of
     // adding a second one, so editing today's mood actually changes the bar
@@ -256,10 +256,10 @@ export async function saveCheckin(scores: {
       select: { id: true },
     })
     if (todayEntry) {
-      await prisma.moodEntry.update({ where: { id: todayEntry.id }, data: { mood, energy, calm } })
+      await prisma.moodEntry.update({ where: { id: todayEntry.id }, data: { mood, energy, sleep } })
     } else {
       await prisma.moodEntry.create({
-        data: { userId, mood, energy, calm, source: 'home-checkin' },
+        data: { userId, mood, energy, sleep, source: 'home-checkin' },
       })
     }
     // AI profile refresh is a nice-to-have; never let it fail a saved check-in.

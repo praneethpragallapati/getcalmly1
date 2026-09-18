@@ -208,7 +208,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           where: { userId },
           orderBy: { createdAt: 'desc' },
           take: 90, // enough history for the 4-week mood-over-time chart
-          select: { mood: true, energy: true, calm: true, createdAt: true },
+          select: { mood: true, energy: true, sleep: true, createdAt: true },
         }).catch(() => []),
         prisma.journalEntry.findMany({
           where: { userId },
@@ -272,8 +272,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     const sodToday = startOfDay(new Date())
     const todayEntry = moods.find((m) => startOfDay(m.createdAt) === sodToday)
     data.checkin = todayEntry
-      ? { mood: todayEntry.mood, energy: todayEntry.energy, calm: todayEntry.calm ?? 0 }
-      : { mood: 0, energy: 0, calm: 0 }
+      ? { mood: todayEntry.mood, energy: todayEntry.energy, sleep: todayEntry.sleep ?? 0 }
+      : { mood: 0, energy: 0, sleep: 0 }
     data.streakDays = computeStreak(moods.map((m) => m.createdAt))
 
     // Last 7 calendar days, oldest→newest. A day with no check-in stays at 0.
@@ -289,7 +289,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         day: DAY[day.getDay()],
         mood: avg((m) => m.mood),
         energy: avg((m) => m.energy),
-        calm: avg((m) => m.calm ?? 5),
+        sleep: avg((m) => m.sleep ?? 5),
       })
     }
     data.moodWeek = week
@@ -313,7 +313,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         day: fmtIST(new Date(start), { day: 'numeric', month: 'short' }),
         mood: avg((m) => m.mood),
         energy: avg((m) => m.energy),
-        calm: avg((m) => m.calm ?? 5),
+        sleep: avg((m) => m.sleep ?? 5),
       })
     }
     data.moodSixWeeks = sixWeeks

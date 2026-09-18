@@ -11,11 +11,11 @@ import type { CheckinScores } from '@/data/dashboardDemo'
 const DIMS: { key: keyof CheckinScores; label: string; color: string; tint: string }[] = [
   { key: 'mood', label: 'Mood', color: '#C8553D', tint: 'rgba(200,85,61,.10)' },
   { key: 'energy', label: 'Energy', color: '#D9A441', tint: 'rgba(217,164,65,.12)' },
-  { key: 'calm', label: 'Calm', color: '#4E9E8F', tint: 'rgba(78,158,143,.12)' },
+  { key: 'sleep', label: 'Sleep', color: '#5B6FB0', tint: 'rgba(91,111,176,.12)' },
 ]
 
 /**
- * Morning check-in with Mood / Energy / Calm 0–10 sliders (matches the web
+ * Morning check-in with Mood / Energy / Sleep 0–10 sliders (matches the web
  * mockup). Local state only for now; persistence + privacy gating land with the
  * data layer (a check-in is simply not stored when mood collection is off).
  */
@@ -27,7 +27,7 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
   const [pending, startTransition] = useTransition()
   const router = useRouter()
 
-  const allZero = scores.mood === 0 && scores.energy === 0 && scores.calm === 0
+  const allZero = scores.mood === 0 && scores.energy === 0 && scores.sleep === 0
 
   function persist() {
     setError(null)
@@ -104,7 +104,7 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
       {confirmZero && allZero ? (
         <div className="checkin-foot" style={{ flexWrap: 'wrap', gap: 10 }}>
           <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--c-coral, #C8553D)' }}>
-            Save mood, energy and calm all as 0? That marks today as a really tough day.
+            Save mood, energy and sleep all as 0? That marks today as a really tough day.
           </span>
           <div style={{ display: 'flex', gap: 10 }}>
             <button className="btn btn-primary" onClick={persist} type="button" disabled={pending}>

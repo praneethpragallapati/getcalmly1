@@ -7,8 +7,8 @@ export type CareCategoryName = 'Individual' | 'Couple' | 'Kids'
 export type PlanTierName = 'Starter' | 'Bronze' | 'Silver' | 'Gold' | 'Platinum'
 export type Tone = 'coral' | 'green' | 'gold' | 'purple'
 
-export type CheckinScores = { mood: number; energy: number; calm: number } // 0–10
-export type MoodWeekPoint = { day: string; mood: number; energy: number; calm: number }
+export type CheckinScores = { mood: number; energy: number; sleep: number } // 0–10
+export type MoodWeekPoint = { day: string; mood: number; energy: number; sleep: number }
 
 export type DashTask = {
   id: string
@@ -174,7 +174,7 @@ export function blankDashboard(): DashboardData {
     daysOnPlatform: 0,
     planActive: false,
     streakDays: 0,
-    checkin: { mood: 0, energy: 0, calm: 0 },
+    checkin: { mood: 0, energy: 0, sleep: 0 },
     moodWeek: [],
     moodSixWeeks: [],
     avgMood: 0,
@@ -216,23 +216,23 @@ export const demoDashboard: DashboardData = {
   daysOnPlatform: 28,
   planActive: true,
   streakDays: 7,
-  checkin: { mood: 6, energy: 5, calm: 4 },
+  checkin: { mood: 6, energy: 5, sleep: 4 },
   moodWeek: [
-    { day: 'Mon', mood: 5, energy: 4, calm: 4 },
-    { day: 'Tue', mood: 4, energy: 4, calm: 3 },
-    { day: 'Wed', mood: 6, energy: 5, calm: 5 },
-    { day: 'Thu', mood: 5, energy: 5, calm: 4 },
-    { day: 'Fri', mood: 7, energy: 6, calm: 5 },
-    { day: 'Sat', mood: 8, energy: 7, calm: 7 },
-    { day: 'Sun', mood: 7, energy: 6, calm: 6 },
+    { day: 'Mon', mood: 5, energy: 4, sleep: 4 },
+    { day: 'Tue', mood: 4, energy: 4, sleep: 3 },
+    { day: 'Wed', mood: 6, energy: 5, sleep: 5 },
+    { day: 'Thu', mood: 5, energy: 5, sleep: 4 },
+    { day: 'Fri', mood: 7, energy: 6, sleep: 5 },
+    { day: 'Sat', mood: 8, energy: 7, sleep: 7 },
+    { day: 'Sun', mood: 7, energy: 6, sleep: 6 },
   ],
   moodSixWeeks: [
-    { day: '7 Jul', mood: 4, energy: 4, calm: 3 },
-    { day: '14 Jul', mood: 5, energy: 4, calm: 4 },
-    { day: '21 Jul', mood: 5, energy: 5, calm: 4 },
-    { day: '28 Jul', mood: 6, energy: 5, calm: 5 },
-    { day: '4 Aug', mood: 6, energy: 6, calm: 5 },
-    { day: '11 Aug', mood: 7, energy: 6, calm: 6 },
+    { day: '7 Jul', mood: 4, energy: 4, sleep: 3 },
+    { day: '14 Jul', mood: 5, energy: 4, sleep: 4 },
+    { day: '21 Jul', mood: 5, energy: 5, sleep: 4 },
+    { day: '28 Jul', mood: 6, energy: 5, sleep: 5 },
+    { day: '4 Aug', mood: 6, energy: 6, sleep: 5 },
+    { day: '11 Aug', mood: 7, energy: 6, sleep: 6 },
   ],
   avgMood: 6.4,
   moodOverTime: [
