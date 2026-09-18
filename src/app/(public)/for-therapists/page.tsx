@@ -27,25 +27,25 @@ export default function ForTherapistsPage() {
         @media (max-width: 520px){ .fc-steps{grid-template-columns:1fr !important;} }
       `}</style>
       {/* Hero */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '99px 24px 72px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(61,158,114,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(110,130,240,.26), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(140,110,220,.18), transparent 60%), #171C42', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,120,240,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
-          <p style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.5, color: 'rgba(255,255,255,.62)', marginBottom: 18 }}>Join our expert team</p>
+          <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.6)', marginBottom: 18 }}>For therapists &amp; psychiatrists</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
             fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22,
           }}>
-            Spend your time<br /><span style={{ color: '#2F7D5A' }}>on care, not admin.</span>
+            Do the work you trained for.<br /><span style={{ color: '#7BD3AC', fontWeight: 900 }}>We&apos;ll carry the rest.</span>
           </h1>
-          <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.66)', lineHeight: 1.75, maxWidth: 600, margin: '0 auto', fontWeight: 300 }}>
-            GetCalmly gives you matched clients, an AI clinical co-pilot, supervision tools, and a calendar that runs itself. The parts of practice that drain you fade into the background, and the part you trained for takes centre stage.
+          <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.72)', lineHeight: 1.75, maxWidth: 610, margin: '0 auto', fontWeight: 300 }}>
+            Clients matched to your specialities. Notes, scheduling, reminders and payments handled for you. An AI co-pilot that remembers each client&apos;s story, plus real supervision and a peer community behind you. You keep your clinical judgement and your hours — getCalmly. takes care of everything around them.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
             <Link href="/for-therapists/apply" style={ctaPrimary}>Apply to join →</Link>
             <Link href="/contact" style={ctaGhost}>Talk to our team</Link>
           </div>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,.4)', marginTop: 20 }}>
-            Every clinician is verified with the RCI / NMC before going live.
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginTop: 20 }}>
+            RCI / NMC verified before you go live · No fees to join · You set your own availability
           </p>
         </div>
       </section>

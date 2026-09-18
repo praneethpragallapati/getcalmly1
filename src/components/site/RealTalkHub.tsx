@@ -39,8 +39,8 @@ const CSS = `
 .rt-cta-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(200,85,61,.45);}
 .rt-feat:hover .rt-feat-img{transform:scale(1.05);}
 .rt-feat-img{transition:transform .5s cubic-bezier(.2,.7,.2,1);}
-.rt-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start;}
-@media(max-width:860px){.rt-cols{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.rt-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;align-items:start;}
+@media(max-width:960px){.rt-cols{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:560px){.rt-cols{grid-template-columns:minmax(0,1fr);}}
 .rt-bento{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;}
 @media(max-width:760px){.rt-bento{grid-template-columns:minmax(0,1fr);}}
@@ -162,22 +162,19 @@ export default function RealTalkHub({
 
   const ticker = communityPosts.slice(0, 8)
 
-  // Community cards + the join CTA, split into three height-balanced columns
-  // (deterministic round-robin, so no column is ever stranded short like CSS
-  // column-count does). The join card is anchored to the top of the middle
-  // column so it reads as the centerpiece of the showcase.
-  const showcaseCols = useMemo(() => {
+  // A single compact row: three example posts flanking the join CTA, so the
+  // showcase reads as a teaser (the "See everything" link carries the rest)
+  // instead of running down the page. The join card sits second so it stays
+  // the visual centrepiece.
+  const showcaseItems = useMemo(() => {
     const items: ({ kind: 'post'; post: CommunityPostView } | { kind: 'join' })[] = []
-    // Keep the showcase compact and the three columns balanced: enough posts to
-    // fill 2 rows across 3 columns (5 posts + the join card = 6 items), so no
-    // column is left short and the section doesn't run long with empty space.
-    communityPosts.slice(0, 5).forEach((p, i) => {
+    const posts = communityPosts.slice(0, 3)
+    posts.forEach((p, i) => {
       items.push({ kind: 'post', post: p })
       if (i === 0) items.push({ kind: 'join' })
     })
-    const cols: (typeof items)[] = [[], [], []]
-    items.forEach((it, i) => cols[i % 3].push(it))
-    return cols
+    if (posts.length === 0) items.push({ kind: 'join' })
+    return items
   }, [communityPosts])
 
   return (
@@ -191,7 +188,7 @@ export default function RealTalkHub({
           overflow: 'hidden',
           background:
             'radial-gradient(ellipse 60% 60% at 80% 12%, rgba(200,85,61,.34), transparent 60%), radial-gradient(ellipse 50% 55% at 12% 88%, rgba(139,111,201,.30), transparent 62%), radial-gradient(ellipse 40% 45% at 55% 55%, rgba(224,164,92,.14), transparent 60%), #1B1330',
-          padding: '132px 24px 0',
+          padding: '104px 24px 0',
         }}
       >
         {/* floating blobs */}
@@ -203,10 +200,10 @@ export default function RealTalkHub({
           <h1
             style={{
               fontFamily: HEAD,
-              fontSize: 'clamp(40px, 11vw, 132px)',
+              fontSize: 'clamp(38px, 6.2vw, 66px)',
               fontWeight: 300,
-              lineHeight: 0.9,
-              letterSpacing: 'clamp(-3px, -0.25vw, -1.5px)',
+              lineHeight: 1.0,
+              letterSpacing: 'clamp(-2px, -0.25vw, -1.5px)',
               margin: 0,
               color: '#fff',
             }}
@@ -243,7 +240,7 @@ export default function RealTalkHub({
         </div>
 
         {/* recent-activity ticker */}
-        <div style={{ position: 'relative', marginTop: 46, borderTop: '1px solid rgba(255,255,255,.1)', overflow: 'hidden', maskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)' }}>
+        <div style={{ position: 'relative', marginTop: 32, borderTop: '1px solid rgba(255,255,255,.1)', overflow: 'hidden', maskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)' }}>
           <div className="rt-ticker-track" style={{ padding: '14px 0' }}>
             {[...ticker, ...ticker].map((p, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 26px', color: 'rgba(255,255,255,.62)', fontSize: 13.5 }}>
@@ -262,7 +259,7 @@ export default function RealTalkHub({
           style={{
             background:
               'radial-gradient(ellipse 55% 50% at 90% 6%, rgba(200,85,61,.12), transparent 60%), radial-gradient(ellipse 45% 50% at 4% 96%, rgba(139,111,201,.12), transparent 60%), #F7F1EC',
-            padding: '64px 24px 68px',
+            padding: '48px 24px 52px',
           }}
         >
           <div style={{ maxWidth: 1160, margin: '0 auto' }}>
@@ -287,7 +284,7 @@ export default function RealTalkHub({
 
             {/* topic chips */}
             {topics.length > 0 && (
-              <div className="rt-reveal" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', margin: '26px auto 40px', maxWidth: 720 }}>
+              <div className="rt-reveal" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', margin: '22px auto 30px', maxWidth: 720 }}>
                 {topics.map((t) => (
                   <Link key={t} href="/community" className="rt-chip" style={{ fontSize: 13, fontWeight: 600, color: CHARCOAL, background: '#fff', border: '1.5px solid rgba(28,43,58,.1)', padding: '7px 15px', borderRadius: 999, textDecoration: 'none' }}>
                     #{t}
@@ -296,23 +293,19 @@ export default function RealTalkHub({
               </div>
             )}
 
-            {/* posts + inline join card, balanced 3-column showcase */}
+            {/* posts + inline join card, single compact row */}
             <div className="rt-cols">
-              {showcaseCols.map((col, ci) => (
-                <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  {col.map((it, ri) =>
-                    it.kind === 'join' ? (
-                      <div key="join" className="rt-reveal" style={{ transitionDelay: `${ri * 60}ms` }}>
-                        <JoinCard convos={convos} />
-                      </div>
-                    ) : (
-                      <div key={it.post.id} className="rt-reveal" style={{ transitionDelay: `${ri * 60}ms` }}>
-                        <CircleCard post={it.post} />
-                      </div>
-                    ),
-                  )}
-                </div>
-              ))}
+              {showcaseItems.map((it, i) =>
+                it.kind === 'join' ? (
+                  <div key="join" className="rt-reveal" style={{ transitionDelay: `${i * 60}ms` }}>
+                    <JoinCard convos={convos} />
+                  </div>
+                ) : (
+                  <div key={it.post.id} className="rt-reveal" style={{ transitionDelay: `${i * 60}ms` }}>
+                    <CircleCard post={it.post} />
+                  </div>
+                ),
+              )}
             </div>
 
             <div className="rt-reveal" style={{ textAlign: 'center', marginTop: 26 }}>

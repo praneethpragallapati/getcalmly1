@@ -94,8 +94,8 @@ const services: Record<ServiceSlug, {
   },
   child: {
     icon: '🌱',
-    accent: '#3D9E72',
-    pale: 'rgba(61,158,114,.08)',
+    accent: '#9B4DC7',
+    pale: 'rgba(155,77,199,.08)',
     title: 'Care for Growing Minds',
     tagline: 'You knew something was off. Trust that. So do we.',
     question: 'Is my child okay, or is this more than a phase?',
