@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import { signOut } from 'next-auth/react'
-import { KeyRound, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 
-/** Topbar avatar with an account dropdown (Change password + Log out) for the admin console. */
+/** Topbar avatar with an account dropdown (Log out) for the admin console. */
 export function AdminAccountMenu({ name }: { name: string }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -56,9 +55,6 @@ export function AdminAccountMenu({ name }: { name: string }) {
           <div style={{ padding: '8px 10px 6px', fontSize: 12, color: 'var(--c-gray)', fontWeight: 600 }}>
             Signed in as {name}
           </div>
-          <Link href="/change-password" role="menuitem" className="acct-menu-item" onClick={() => setOpen(false)}>
-            <KeyRound size={15} /> Change password
-          </Link>
           <button
             type="button"
             role="menuitem"

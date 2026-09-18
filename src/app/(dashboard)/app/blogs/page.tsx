@@ -1,7 +1,7 @@
 import { BlogsStrip } from '@/components/dashboard/BlogsStrip'
 import { getBlogPosts } from '@/lib/blog'
 import { SectionTabs } from '@/components/ui/SectionTabs'
-import { PERSPECTIVES_TABS } from '@/data/sectionTabs'
+import { CALM_CLUB_TABS } from '@/data/sectionTabs'
 import { TagFilterBar, tagCounts, filterByTag, tagFromSearchParams } from '@/components/ui/TagFilterBar'
 import { tagLabel } from '@/data/tags'
 
@@ -19,10 +19,10 @@ export default async function BlogsPage({
   return (
     <>
       <SectionTabs
-        eyebrow="Calm Club · Perspectives"
-        title="Perspectives"
+        eyebrow="Calm Club · Fresh Reads"
+        title="Fresh Reads"
         meta="Essays from our experts, and the questions you'd rather Google at 2am."
-        tabs={PERSPECTIVES_TABS}
+        tabs={CALM_CLUB_TABS}
         active="/app/blogs"
       />
       <TagFilterBar

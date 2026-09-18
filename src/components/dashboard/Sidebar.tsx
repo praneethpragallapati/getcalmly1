@@ -19,8 +19,6 @@ import {
   Settings,
   LogOut,
   Menu,
-  Video,
-  Waves,
   Activity,
   X,
 } from 'lucide-react'
@@ -28,9 +26,6 @@ import {
 // `match` lists the sibling routes a merged entry also owns, so the item stays
 // highlighted across every tab of its section (see data/sectionTabs).
 type Item = { href: string; label: string; icon: typeof Home; badge?: string; match?: string[] }
-
-// Slotted into Care only when the member actually has guided tracks (below).
-const GUIDED_ITEM: Item = { href: '/app/guided', label: 'Guided calm', icon: Waves }
 
 const GROUPS: { heading: string; items: Item[] }[] = [
   {
@@ -54,9 +49,8 @@ const GROUPS: { heading: string; items: Item[] }[] = [
   {
     heading: 'Calm Club',
     items: [
-      // Real Talk = community feed + polls. Perspectives = blogs (read) + talks (watch).
-      { href: '/app/community', label: 'Real Talk', icon: Users, match: ['/app/polls'] },
-      { href: '/app/blogs', label: 'Perspectives', icon: Video, match: ['/app/perspectives'] },
+      // One entry; the page itself tabs between The Circles, Fresh Reads and Polls.
+      { href: '/app/community', label: 'Calm Club', icon: Users, match: ['/app/blogs', '/app/polls', '/app/perspectives'] },
     ],
   },
   {
@@ -76,7 +70,6 @@ export function Sidebar({
   planName = 'No active plan',
   sessionsToday = 0,
   photoUrl = null,
-  showGuided = false,
 }: {
   name: string
   planLine: string
@@ -84,7 +77,7 @@ export function Sidebar({
   planName?: string
   sessionsToday?: number
   photoUrl?: string | null
-  /** Guided calm only earns a nav slot once it has tracks to show. */
+  /** Accepted for compatibility; Guided calm is hidden from the nav for now. */
   showGuided?: boolean
 }) {
   const pathname = usePathname()
@@ -144,9 +137,7 @@ export function Sidebar({
         </Link>
 
         {GROUPS.map((group) => {
-          const g = group.heading === 'Care' && showGuided
-            ? { ...group, items: [...group.items.slice(0, 2), GUIDED_ITEM, ...group.items.slice(2)] }
-            : group
+          const g = group
           return (
           <NavGroup
             key={g.heading}

@@ -14,6 +14,14 @@ export const PERSPECTIVES_TABS: SectionTab[] = [
   { href: '/app/perspectives', label: 'Watch' },
 ]
 
+// Calm Club is one sidebar entry that tabs across community, blogs and polls.
+// Watch (/app/perspectives) is hidden for now.
+export const CALM_CLUB_TABS: SectionTab[] = [
+  { href: '/app/community', label: 'The Circles' },
+  { href: '/app/blogs', label: 'Fresh Reads' },
+  { href: '/app/polls', label: 'Polls' },
+]
+
 export const CARE_TEAM_TABS: SectionTab[] = [
   { href: '/app/therapist', label: 'Care team' },
   { href: '/app/medications', label: 'Medications' },
@@ -24,6 +32,12 @@ export const CARE_TEAM_TABS: SectionTab[] = [
 export const EXPERT_SCHEDULE_TABS: SectionTab[] = [
   { href: '/expert/schedule', label: 'Schedule' },
   { href: '/expert/availability', label: 'Availability' },
+]
+
+// Tasks and Forms share one sidebar entry ("Tasks").
+export const EXPERT_TASKS_TABS: SectionTab[] = [
+  { href: '/expert/tasks', label: 'Tasks' },
+  { href: '/expert/forms', label: 'Forms' },
 ]
 
 export const EXPERT_PUBLISH_TABS: SectionTab[] = [

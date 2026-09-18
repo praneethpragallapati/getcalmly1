@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, FileText, Video, ListTodo, NotebookPen } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, Video, ListTodo, NotebookPen } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -61,7 +61,7 @@ export default async function ExpertLayout({ children }: { children: React.React
         <div className="sb-logo">
           <Logo size={26} onDark tagline={false} href="/expert" tint="green" />
         </div>
-        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/notes', '/expert/tasks', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
+        <NavGroup heading="CASELOAD" storageKey="expert" hrefs={['/expert/patients', '/expert/notes', '/expert/tasks', '/expert/forms', '/expert/schedule', '/expert/availability', '/expert/risk', '/expert/supervision']}>
           <SidebarLink href="/expert" exact>
             <Home size={18} />
             <span>Dashboard</span>
@@ -70,8 +70,8 @@ export default async function ExpertLayout({ children }: { children: React.React
             <Users size={18} />
             <span>My Patients</span>
           </SidebarLink>
-          {/* Session notes owed + anything admin has sent this clinician. */}
-          <SidebarLink href="/expert/tasks">
+          {/* Session notes owed, admin tasks, and the clinician's default forms. */}
+          <SidebarLink href="/expert/tasks" match={['/expert/forms']}>
             <ListTodo size={18} />
             <span>Tasks</span>
             {taskCounts.total > 0 && <span className="sb-badge">{taskCounts.total}</span>}
@@ -110,11 +110,7 @@ export default async function ExpertLayout({ children }: { children: React.React
           </SidebarLink>
         </NavGroup>
 
-        <NavGroup heading="PRACTICE" storageKey="expert" hrefs={['/expert/forms', '/expert/profile', '/expert/earnings']}>
-          <SidebarLink href="/expert/forms">
-            <FileText size={18} />
-            <span>Default forms</span>
-          </SidebarLink>
+        <NavGroup heading="PRACTICE" storageKey="expert" hrefs={['/expert/profile', '/expert/earnings']}>
           <SidebarLink href="/expert/profile">
             <UserCircle size={18} />
             <span>Profile</span>

@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getAdminSession, getFormsLibrary } from '@/lib/admin'
 import { ConfigPanel } from '@/components/admin/ConfigPanel'
-import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
 import { FormRulesManager } from '@/components/forms/FormRulesManager'
 import { FormBuilder } from '@/components/forms/FormBuilder'
 import { getFormLibrary, listFormRules, listCustomForms } from '@/lib/forms'
@@ -29,7 +28,6 @@ export default async function AdminConfigPage() {
         templates={ruleTemplates.map((t) => ({ id: t.id, title: t.title }))}
         patients={patients.map((p) => ({ id: p.id, name: p.name ?? p.email ?? 'Patient' }))}
       />
-      <ChangePasswordCard />
     </div>
   )
 }

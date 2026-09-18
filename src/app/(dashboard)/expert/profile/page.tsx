@@ -3,7 +3,6 @@ import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap, UsersRound, I
 import Link from 'next/link'
 import { getTherapistContext, getTherapistProfile, getRatingBreakdown, getSupervision } from '@/lib/expert'
 import { ProfileEditToggle } from '@/components/expert/ProfileEditToggle'
-import { ChangePasswordCard } from '@/components/dashboard/ChangePasswordCard'
 import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
 import { fmtIST } from '@/lib/tz'
 
@@ -258,8 +257,6 @@ export default async function ExpertProfilePage() {
         />
       </div>
       </ProfileEditToggle>
-
-      <ChangePasswordCard />
     </div>
   )
 }

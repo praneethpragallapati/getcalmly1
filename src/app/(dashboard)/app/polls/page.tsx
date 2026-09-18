@@ -2,7 +2,7 @@ import { getCommunityPolls, isPollOpen, needsAnswer, orderPolls } from '@/lib/po
 import { getSessionUserId } from '@/lib/patient'
 import { PollCard } from '@/components/community/PollCard'
 import { SectionTabs } from '@/components/ui/SectionTabs'
-import { REAL_TALK_TABS } from '@/data/sectionTabs'
+import { CALM_CLUB_TABS } from '@/data/sectionTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,10 +18,10 @@ export default async function PollsPage() {
   return (
     <>
       <SectionTabs
-        eyebrow="Calm Club · Real Talk"
-        title="Real Talk"
+        eyebrow="Calm Club · Polls"
+        title="Polls"
         meta="Have your say — one vote each, results update live."
-        tabs={REAL_TALK_TABS.map((t) => (t.href === '/app/polls' ? { ...t, badge: unanswered } : t))}
+        tabs={CALM_CLUB_TABS.map((t) => (t.href === '/app/polls' ? { ...t, badge: unanswered } : t))}
         active="/app/polls"
       />
 

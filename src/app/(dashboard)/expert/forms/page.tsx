@@ -3,6 +3,8 @@ import { getTherapistContext, getCaseload } from '@/lib/expert'
 import { getFormLibrary, listFormRules, listCustomForms } from '@/lib/forms'
 import { FormRulesManager } from '@/components/forms/FormRulesManager'
 import { FormBuilder } from '@/components/forms/FormBuilder'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { EXPERT_TASKS_TABS } from '@/data/sectionTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,10 +19,13 @@ export default async function ExpertFormsPage() {
   ])
   return (
     <div className="stack">
-      <div className="page-head">
-        <div className="page-title">Default forms</div>
-        <div className="page-meta">Build forms only you can send, and auto-send any form after a booking — by patient, package type and session number</div>
-      </div>
+      <SectionTabs
+        eyebrow="Practice"
+        title="Forms"
+        meta="Build forms only you can send, and auto-send any form after a booking — by patient, package type and session number"
+        tabs={EXPERT_TASKS_TABS}
+        active="/expert/forms"
+      />
       <FormBuilder scope="expert" forms={myForms} />
       <FormRulesManager
         scope="expert"

@@ -7,6 +7,8 @@ import {
 import { SessionNoteForm } from '@/components/expert/SessionNoteForm'
 import { RateMember } from '@/components/expert/RateMember'
 import { MyTaskList } from '@/components/expert/MyTaskList'
+import { SectionTabs } from '@/components/ui/SectionTabs'
+import { EXPERT_TASKS_TABS } from '@/data/sectionTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,12 +31,13 @@ export default async function ExpertTasksPage() {
 
   return (
     <div className="stack">
-      <div className="page-head">
-        <div className="page-title">Tasks</div>
-        <div className="page-meta">
-          {open === 0 ? 'Nothing outstanding' : `${open} open · ${notesDue.length} note${notesDue.length === 1 ? '' : 's'} to write · ${adminOpen.length} from admin`}
-        </div>
-      </div>
+      <SectionTabs
+        eyebrow="Practice"
+        title="Tasks"
+        meta={open === 0 ? 'Nothing outstanding' : `${open} open · ${notesDue.length} note${notesDue.length === 1 ? '' : 's'} to write · ${adminOpen.length} from admin`}
+        tabs={EXPERT_TASKS_TABS.map((t) => (t.href === '/expert/tasks' && open > 0 ? { ...t, badge: open } : t))}
+        active="/expert/tasks"
+      />
 
       {open === 0 && (
         <div className="card">
