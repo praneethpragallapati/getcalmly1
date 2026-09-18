@@ -171,7 +171,7 @@ export default async function AppHomePage() {
             the anchor of this row; its two neighbours stay white. */}
         <div className="card tint-green">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <div className="section-title">Today’s tasks</div>
+            <div className="section-title">Today’s activities</div>
             <span className="link-action">{openTasks} left</span>
           </div>
           <TaskList tasks={d.tasks} />

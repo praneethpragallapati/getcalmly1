@@ -63,6 +63,6 @@ export function WeeklyChart({
 }
 
 /** Convenience: pull one metric out of the week buckets into chart points. */
-export function toPoints(weeks: WeekPoint[], metric: 'moodAvg' | 'checkins' | 'adherence'): { label: string; value: number | null }[] {
+export function toPoints(weeks: WeekPoint[], metric: 'calmAvg' | 'checkins' | 'adherence'): { label: string; value: number | null }[] {
   return weeks.map((w) => ({ label: w.label, value: w[metric] }))
 }

@@ -36,7 +36,7 @@ export const EXPERT_SCHEDULE_TABS: SectionTab[] = [
 
 // Tasks and Forms share one sidebar entry ("Tasks").
 export const EXPERT_TASKS_TABS: SectionTab[] = [
-  { href: '/expert/tasks', label: 'To-do' },
+  { href: '/expert/tasks', label: 'Activities' },
   { href: '/expert/forms', label: 'Forms' },
 ]
 

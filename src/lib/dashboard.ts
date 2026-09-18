@@ -44,33 +44,42 @@ const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
  * Denominator is tasks assigned in the window; completion counts toward progress.
  */
 export type WeeklyProgress = {
+  // "Tasks" here is the umbrella: activities + forms combined.
   tasksAssigned: number
   tasksCompleted: number
   completionPct: number
   moodCheckins: number
-  moodAvg: number | null
+  // Weekly average of the daily Calm check-in (mood, energy and sleep together).
+  calmAvg: number | null
 }
 
 export async function getWeeklyProgress(userId: string): Promise<WeeklyProgress> {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   try {
-    const [tasks, moods] = await Promise.all([
+    const [tasks, moods, forms] = await Promise.all([
       prisma.task.findMany({ where: { userId, createdAt: { gte: weekAgo } } }),
-      prisma.moodEntry.findMany({ where: { userId, createdAt: { gte: weekAgo } }, select: { mood: true } }),
+      prisma.moodEntry.findMany({ where: { userId, createdAt: { gte: weekAgo } }, select: { mood: true, energy: true, sleep: true } }),
+      prisma.formAssignment.findMany({ where: { patientId: userId, sentAt: { gte: weekAgo } }, select: { completedAt: true } }),
     ])
-    const tasksCompleted = tasks.filter((t) => t.completedAt).length
-    const moodAvg = moods.length
-      ? Math.round((moods.reduce((a, m) => a + m.mood, 0) / moods.length) * 10) / 10
+    // Adherence = activities + forms, completed vs assigned this week.
+    const assigned = tasks.length + forms.length
+    const completed = tasks.filter((t) => t.completedAt).length + forms.filter((f) => f.completedAt).length
+    // Calm = the whole check-in: mood, energy and sleep averaged together.
+    const calmAvg = moods.length
+      ? Math.round((moods.reduce((a, m) => {
+          const dims = [m.mood, m.energy, m.sleep].filter((v): v is number => v != null)
+          return a + (dims.length ? dims.reduce((x, y) => x + y, 0) / dims.length : m.mood)
+        }, 0) / moods.length) * 10) / 10
       : null
     return {
-      tasksAssigned: tasks.length,
-      tasksCompleted,
-      completionPct: tasks.length ? Math.round((tasksCompleted / tasks.length) * 100) : 0,
+      tasksAssigned: assigned,
+      tasksCompleted: completed,
+      completionPct: assigned ? Math.round((completed / assigned) * 100) : 0,
       moodCheckins: moods.length,
-      moodAvg,
+      calmAvg,
     }
   } catch {
-    return { tasksAssigned: 0, tasksCompleted: 0, completionPct: 0, moodCheckins: 0, moodAvg: null }
+    return { tasksAssigned: 0, tasksCompleted: 0, completionPct: 0, moodCheckins: 0, calmAvg: null }
   }
 }
 

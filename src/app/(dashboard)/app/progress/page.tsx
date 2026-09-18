@@ -201,14 +201,14 @@ export default async function ProgressPage() {
         <div className="pg-two">
           {weeks.length > 0 ? (
             <OutcomeTabs
-              tabs={[{ id: 'mood', label: 'Mood' }, { id: 'checkins', label: 'Check-ins' }, { id: 'tasks', label: 'Task adherence' }]}
+              tabs={[{ id: 'mood', label: 'Calm' }, { id: 'checkins', label: 'Check-ins' }, { id: 'tasks', label: 'Task adherence' }]}
               panels={[
-                <WeeklyPanel key="mood" title="Weekly mood average" prov="Self-reported"
-                  sub="Your daily mood, averaged by week. Higher is better, out of 10." points={toPoints(weeks, 'moodAvg')} min={0} max={10} zones={MOOD_ZONES} />,
-                <WeeklyPanel key="checkins" title="Mood check-ins per week" prov="From your activity"
+                <WeeklyPanel key="mood" title="Calm progress" prov="Self-reported"
+                  sub="Your daily Calm check-in — mood, energy and sleep — averaged by week. Higher is better, out of 10." points={toPoints(weeks, 'calmAvg')} min={0} max={10} zones={MOOD_ZONES} />,
+                <WeeklyPanel key="checkins" title="Calm check-ins per week" prov="From your activity"
                   sub="How many days you checked in each week." points={toPoints(weeks, 'checkins')} min={0} max={maxCheckins} />,
                 <WeeklyPanel key="tasks" title="Task adherence" prov="From your activity"
-                  sub="Tasks completed vs assigned each week." points={toPoints(weeks, 'adherence')} min={0} max={100} suffix="%" zones={ADHERENCE_ZONES} />,
+                  sub="Activities and forms completed vs assigned each week." points={toPoints(weeks, 'adherence')} min={0} max={100} suffix="%" zones={ADHERENCE_ZONES} />,
               ]}
             />
           ) : (
@@ -226,8 +226,8 @@ export default async function ProgressPage() {
             <div className="pg-mini-grid">
               <div className="pg-mini">
                 <span className="pg-mini-ic t-purple"><TrendingUp size={16} /></span>
-                <div className="n">{weekly?.moodAvg != null ? weekly.moodAvg.toFixed(1) : '—'}{weekly?.moodAvg != null && <span> /10</span>}</div>
-                <div className="l">Avg mood</div>
+                <div className="n">{weekly?.calmAvg != null ? weekly.calmAvg.toFixed(1) : '—'}{weekly?.calmAvg != null && <span> /10</span>}</div>
+                <div className="l">Avg calm</div>
               </div>
               <div className="pg-mini">
                 <span className="pg-mini-ic t-green"><CalendarCheck size={16} /></span>

@@ -46,8 +46,8 @@ export async function GET() {
   // Behavioural pattern summary (this week) as extra rows so the sheet reads as
   // one story: symptoms first, then how consistently the person is engaging.
   rows.push([
-    'Mood (this week)',
-    weekly.moodAvg != null ? `${weekly.moodAvg}/10` : '-',
+    'Calm (this week)',
+    weekly.calmAvg != null ? `${weekly.calmAvg}/10` : '-',
     '-',
     `${weekly.moodCheckins} check-in${weekly.moodCheckins === 1 ? '' : 's'}`,
   ])
