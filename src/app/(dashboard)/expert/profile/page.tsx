@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap, UsersRound, IdCard } from 'lucide-react'
+import { BadgeCheck, Clock, Briefcase, Star, Globe, GraduationCap, UsersRound, IdCard, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { getTherapistContext, getTherapistProfile, getRatingBreakdown, getSupervision } from '@/lib/expert'
 import { ProfileEditToggle } from '@/components/expert/ProfileEditToggle'
@@ -26,6 +26,13 @@ export default async function ExpertProfilePage() {
 
   return (
     <div className="stack">
+      <Link
+        href="/expert"
+        className="link-action"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 600 }}
+      >
+        <ArrowLeft size={15} /> Back to dashboard
+      </Link>
       <div className="page-head">
         <div className="page-title">Profile</div>
         <div className="page-meta">How you appear to the team, and on your blog &amp; community answers</div>

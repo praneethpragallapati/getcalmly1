@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText } from 'lucide-react'
+import { AlertTriangle, Flame, Check, Sparkles, Pill, FileText, ArrowLeft } from 'lucide-react'
 import {
   getTherapistContext, getExpertPatientProfile, getRiskNotifications,
   superviseeOwningPatient, MOOD_TREND_LABEL,
@@ -89,6 +89,13 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
 
   return (
     <div className="stack">
+      <Link
+        href="/expert/patients"
+        className="link-action"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 600 }}
+      >
+        <ArrowLeft size={15} /> Back to patients
+      </Link>
       <div className="page-head">
         <div>
           <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
