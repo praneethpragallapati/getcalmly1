@@ -516,7 +516,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               </p>
               {s.stat.source && (
                 <p style={{ fontSize: 11, color: 'rgba(255,255,255,.42)', marginTop: 14, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' }}>
-                  Source: {s.stat.source}
+                  {s.stat.source}
                 </p>
               )}
             </div>

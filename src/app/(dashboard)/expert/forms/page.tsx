@@ -20,7 +20,7 @@ export default async function ExpertFormsPage() {
   return (
     <div className="stack">
       <SectionTabs
-        eyebrow="Practice"
+        eyebrow="Tasks"
         title="Forms"
         meta="Build forms only you can send, and auto-send any form after a booking — by patient, package type and session number"
         tabs={EXPERT_TASKS_TABS}

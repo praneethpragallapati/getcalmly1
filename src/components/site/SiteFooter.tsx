@@ -1,17 +1,28 @@
 import Link from 'next/link'
+import { Instagram, Youtube, Twitter, Facebook } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
-import { addressLines, contactEmail, legalName, supportPhone, supportPhoneTel } from '@/config/site'
+import { addressLines, contactEmail, legalName, socialLinks, supportPhone, supportPhoneTel } from '@/config/site'
+
+const SOCIAL_ICON: Record<string, typeof Instagram> = {
+  Instagram, YouTube: Youtube, 'X (Twitter)': Twitter, Facebook,
+}
 
 export default function SiteFooter() {
   return (
     <footer>
       <div className="foot-grid">
         <div className="foot-brand">
-          <Logo size={52} href="/" onDark matchTaglineWidth markWidth={300} />
-          <p style={{ marginTop: 16, lineHeight: 1.6 }}>
-            Mental wellness reimagined. Clinical-grade therapy, AI insights, and a community that
-            understands, all in one calm, trustworthy space.
-          </p>
+          <Logo size={52} href="/" onDark />
+          <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
+            {socialLinks.map((s) => {
+              const Icon = SOCIAL_ICON[s.label]
+              return (
+                <a key={s.url} href={s.url} target="_blank" rel="noreferrer" aria-label={s.label} className="foot-social">
+                  {Icon ? <Icon size={16} /> : s.label.charAt(0)}
+                </a>
+              )
+            })}
+          </div>
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <a href={supportPhoneTel} style={{ color: 'rgba(255,255,255,.55)', textDecoration: 'none', fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>📞</span> {supportPhone}

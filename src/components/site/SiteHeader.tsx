@@ -79,7 +79,7 @@ export default function SiteHeader() {
         <Link
           href="/for-therapists"
           className="btn-ghost"
-          style={{ color: '#2F7D5A', borderColor: 'rgba(61,158,114,.45)' }}
+          style={{ color: '#2F7D5A', border: 'none', padding: '8px 10px' }}
         >
           For Clinicians
         </Link>

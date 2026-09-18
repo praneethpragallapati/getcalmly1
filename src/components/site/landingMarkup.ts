@@ -222,12 +222,12 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 </section>
 
 <!-- ── APP ── -->
-<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#141E29;padding:72px max(6%, calc((100% - 1360px) / 2)) 64px;overflow:hidden;">
+<section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#101722;padding:72px max(6%, calc((100% - 1360px) / 2)) 64px;overflow:hidden;">
   <div class="app-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
       <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
-      <h2 class="sec-h2" style="color:#fff;margin-bottom:16px;">Your care,<br><span style="color:var(--coral-l);">in your pocket.</span></h2>
-      <p style="font-size:16px;color:rgba(255,255,255,.66);line-height:1.7;margin-bottom:22px;font-weight:300;">Your care really comes alive in the app. Check in each day, talk to Calm whenever you need to, journal, and join sessions, all in one calm place. Because it is right there with you, so reminders and nudges land exactly when they help.</p>
+      <h2 class="sec-h2" style="color:#fff;margin-bottom:16px;">Your care,<br><span style="color:#C8553D;">in your pocket.</span></h2>
+      <p style="font-size:16px;color:rgba(255,255,255,.66);line-height:1.7;margin-bottom:22px;font-weight:300;">Your care really comes alive in the app. Check in each day, talk to Calmly AI whenever you need to, journal, and join sessions, all in one calm place. Because it is right there with you, so reminders and nudges land exactly when they help.</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px;">
         <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Daily check-ins that take seconds</span></div>
         <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Calmly AI a tap away, day or night</span></div>

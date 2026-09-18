@@ -498,7 +498,9 @@
 .lp-page .fti{font-size:12px;color:rgba(255,255,255,.28);display:flex;align-items:center;gap:5px;}
 /* Footer text alphas are floored at .55 — white below ~.52 on charcoal
    drops under AA, and the footer repeats on every page. */
-.lp-page footer{background:var(--charcoal);border-top:1px solid rgba(255,255,255,.06);padding:64px 6% 36px;}
+.lp-page footer{background:#101722;border-top:none;padding:64px 6% 36px;}
+.lp-page .foot-social{width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.72);transition:color .2s,border-color .2s,background .2s;}
+.lp-page .foot-social:hover{color:#fff;border-color:var(--coral);background:rgba(200,85,61,.16);}
 .lp-page .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:44px;}
 .lp-page .foot-brand p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.75;max-width:220px;margin-top:14px;font-weight:300;}
 .lp-page .foot-col h4{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.58);margin-bottom:16px;}

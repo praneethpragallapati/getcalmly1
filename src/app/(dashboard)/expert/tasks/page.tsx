@@ -32,8 +32,8 @@ export default async function ExpertTasksPage() {
   return (
     <div className="stack">
       <SectionTabs
-        eyebrow="Practice"
-        title="Tasks"
+        eyebrow="Tasks"
+        title="To-do"
         meta={open === 0 ? 'Nothing outstanding' : `${open} open · ${notesDue.length} note${notesDue.length === 1 ? '' : 's'} to write · ${adminOpen.length} from admin`}
         tabs={EXPERT_TASKS_TABS.map((t) => (t.href === '/expert/tasks' && open > 0 ? { ...t, badge: open } : t))}
         active="/expert/tasks"
