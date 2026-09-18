@@ -20,6 +20,9 @@ export default function ClinicianDirectory({ clinicians }: { clinicians: Clinici
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<FilterKey>('all')
 
+  // Only offer the type filter when the roster actually spans both types.
+  const showFilters = new Set(clinicians.map((c) => c.type)).size > 1
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     return clinicians.filter((c) => {
@@ -54,7 +57,7 @@ export default function ClinicianDirectory({ clinicians }: { clinicians: Clinici
             }}
           />
         </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: showFilters ? 'flex' : 'none', gap: 10, flexWrap: 'wrap' }}>
           {FILTERS.map((f) => {
             const active = filter === f.key
             return (
@@ -153,9 +156,6 @@ function ClinicianCard({ c }: { c: Clinician }) {
             color: c.accent, background: `${c.accent}14`, padding: '3px 9px', borderRadius: 999,
           }}>
             {c.type}
-          </span>
-          <span style={{ fontSize: 12.5, color: charcoalL, fontWeight: 600 }}>
-            ★ {c.rating.toFixed(1)}
           </span>
         </div>
         <h3 style={{

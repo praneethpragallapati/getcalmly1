@@ -1077,6 +1077,10 @@
 /* ── OUR CLINICIANS (home, under "Why getCalmly.") ───────────────────────────── */
 .lp-page .clin-section{background:#fff;}
 .lp-page .clin-head{max-width:680px;margin:0 0 36px;}
+/* Subtle, non-intrusive "view all" — a quiet text link under the heading. */
+.lp-page .clin-viewall{display:inline-block;margin-top:16px;font-size:14px;font-weight:600;
+  color:var(--coral-ink);text-decoration:none;opacity:.85;transition:opacity .2s,transform .2s;}
+.lp-page .clin-viewall:hover{opacity:1;transform:translateX(2px);}
 .lp-page .clin-grid{display:flex;flex-wrap:wrap;gap:24px;align-items:stretch;}
 /* Vertical card: photo on top, details below. */
 .lp-page .clin-card{display:flex;flex-direction:column;flex:0 0 300px;max-width:300px;

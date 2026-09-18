@@ -146,10 +146,9 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="clin-head">
     <div class="sec-label reveal">Our clinicians</div>
     <h2 class="sec-h2 reveal">Meet the people<br><span>behind your care.</span></h2>
+    <a class="clin-viewall reveal" href="/clinicians">View all clinicians &rarr;</a>
   </div>
   <div class="clin-carousel">
-    <button class="clin-nav clin-prev" type="button" aria-label="Previous clinician">&#8249;</button>
-    <button class="clin-nav clin-next" type="button" aria-label="Next clinician">&#8250;</button>
     <div class="clin-grid reveal" id="clinGrid">
     <a class="clin-card" href="/clinicians/riya-lokesh">
       <div class="clin-photo" style="--img:url('/team/riya.jpg')" role="img" aria-label="Dr Riya Lokesh"></div>
@@ -169,10 +168,6 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <span class="clin-tag">Sleep</span>
         </div>
       </div>
-    </a>
-    <a class="clin-more" href="/clinicians">
-      <span class="clin-more-plus">&rarr;</span>
-      <span class="clin-more-t">View All</span>
     </a>
     </div>
   </div>

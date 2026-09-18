@@ -42,8 +42,8 @@ export default function CliniciansPage() {
             hand-picked and verified. Read their full profiles, or search by the concern you&apos;re carrying.
           </p>
           <div style={{ display: 'flex', gap: 28, marginTop: 30, flexWrap: 'wrap' }}>
-            <Stat n={psychologists} label="Clinical psychologists" />
-            <Stat n={psychiatrists} label="Psychiatrists" />
+            {psychologists > 0 && <Stat n={psychologists} label={psychologists === 1 ? 'Clinical psychologist' : 'Clinical psychologists'} />}
+            {psychiatrists > 0 && <Stat n={psychiatrists} label={psychiatrists === 1 ? 'Psychiatrist' : 'Psychiatrists'} />}
           </div>
         </div>
       </section>

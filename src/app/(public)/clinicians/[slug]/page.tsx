@@ -90,15 +90,14 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
                 {c.intro}
               </p>
 
-              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 30 }}>
+              <div style={{ display: 'flex', gap: 34, flexWrap: 'wrap', marginBottom: 30 }}>
                 <MetaOnDark big={`${c.yearsExp}+`} label="years of experience" />
-                <MetaOnDark big={`★ ${c.rating.toFixed(1)}`} label={`${c.reviews} reviews`} />
-                <MetaOnDark big={c.languages.length > 1 ? `${c.languages.length}` : c.languages[0]} label={c.languages.length > 1 ? 'languages spoken' : 'primary language'} />
+                <MetaOnDark big={c.languages.join(' · ')} label={c.languages.length > 1 ? 'languages' : 'language'} />
               </div>
 
               <BookSessionButton slug={c.slug} name={c.name} accent={c.accent} />
               <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,.5)', marginTop: 12, lineHeight: 1.5 }}>
-                Booking directly — no assessment, no matching. You&apos;ll go straight to your details and payment.
+                Booking directly with {firstName(c.name)} — you&apos;ll go straight to your details and payment.
               </p>
             </div>
           </div>
@@ -189,9 +188,7 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
                   border: `1px solid color-mix(in srgb, ${c.accent} 16%, transparent)`,
                   display: 'flex', flexDirection: 'column',
                 }}>
-                  <div style={{ color: c.accent, fontSize: 15, letterSpacing: 2, marginBottom: 14 }} aria-label={`${t.rating} out of 5`}>
-                    {'★'.repeat(t.rating)}<span style={{ color: '#D8CFC4' }}>{'★'.repeat(5 - t.rating)}</span>
-                  </div>
+                  <span style={{ fontFamily: headingFont, fontWeight: 900, fontSize: 40, color: `${c.accent}5c`, lineHeight: 0.5, height: 22 }} aria-hidden>“</span>
                   <blockquote style={{ margin: 0, fontSize: 15, color: '#3A4A5A', lineHeight: 1.72 }}>
                     “{t.text}”
                   </blockquote>
@@ -216,17 +213,10 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
             Ready when you are.
           </h2>
           <p style={{ fontSize: 16, color: charcoalL, lineHeight: 1.7, marginBottom: 28 }}>
-            Book directly with {firstName(c.name)} — or take our 5-minute assessment if you&apos;d like us to help you find the right match.
+            Book directly with {firstName(c.name)}. You&apos;ll add your details and pick your package — then your first session is yours to schedule.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <BookSessionButton slug={c.slug} name={c.name} accent={c.accent} />
-            <Link href="/assess" style={{
-              padding: '15px 30px', borderRadius: 50, textDecoration: 'none',
-              background: '#fff', color: charcoal, fontSize: 15.5, fontWeight: 700,
-              fontFamily: "'DM Sans', sans-serif", border: '1.5px solid #E4DDD4',
-            }}>
-              Take the assessment
-            </Link>
           </div>
         </div>
       </section>
