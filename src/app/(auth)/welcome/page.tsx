@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { getSessionUser } from '@/lib/session'
 import { getMemberEssentials, missingEssentials } from '@/lib/memberOnboarding'
+import { getClinician } from '@/data/clinicians'
 import { MemberEssentialsForm } from '@/components/auth/MemberEssentialsForm'
 
 export const metadata = {
@@ -25,8 +27,15 @@ export default async function WelcomePage() {
   if (user.role === 'THERAPIST') redirect('/expert')
   if (user.role === 'ADMIN') redirect('/admin')
 
+  // A direct booking (from a clinician's profile) stashes the chosen clinician
+  // in this cookie. When present, we forward to checkout instead of the
+  // dashboard once details are complete — that's the assessment/match bypass.
+  const bookingSlug = (await cookies()).get('gc_book_clinician')?.value
+  const booking = bookingSlug ? getClinician(bookingSlug) : undefined
+  const nextUrl = booking ? `/checkout?care=${booking.type === 'Psychiatrist' ? 'psychiatry' : 'therapy'}` : '/app'
+
   const essentials = await getMemberEssentials(user.id)
-  if (!essentials || missingEssentials(essentials).length === 0) redirect('/app')
+  if (!essentials || missingEssentials(essentials).length === 0) redirect(nextUrl)
 
   return (
     <div style={{ width: '100%', maxWidth: 460 }}>
@@ -37,10 +46,12 @@ export default async function WelcomePage() {
         A few details before we start.
       </h1>
       <p style={{ fontSize: 14.5, color: '#5F6E7D', lineHeight: 1.65, marginBottom: 24 }}>
-        We need these to look after you properly — including someone we can reach if we&apos;re ever
-        worried about your safety. It takes a minute and you won&apos;t be asked again.
+        {booking
+          ? `Just a few details so ${booking.name.split(' ').slice(0, 2).join(' ')} can look after you properly — then you'll pick your package. You won't be asked again.`
+          : 'We need these to look after you properly — including someone we can reach if we’re ever worried about your safety. It takes a minute and you won’t be asked again.'}
       </p>
       <MemberEssentialsForm
+        nextUrl={nextUrl}
         initial={{
           name: essentials.name,
           email: essentials.email,

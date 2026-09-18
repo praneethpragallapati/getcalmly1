@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { getClinician, type Clinician } from '@/data/clinicians'
 
 const charcoal = '#1C2B3A'
 const coral = '#C8553D'
@@ -99,15 +100,30 @@ const plans: Record<PlanKey, {
   },
 }
 
+function readBookingCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const m = document.cookie.match(/(?:^|;\s*)gc_book_clinician=([^;]+)/)
+  return m ? decodeURIComponent(m[1]) : null
+}
+
 function CheckoutContent() {
   const c = useSearchParams().get('care')
   const care: PlanKey = c === 'therapy' || c === 'psychiatry' || c === 'couples' || c === 'app' ? c : 'therapy'
   const [method, setMethod] = useState<'upi' | 'card'>('upi')
   const [paid, setPaid] = useState(false)
 
+  // Direct booking: a chosen clinician was carried here in a cookie, having
+  // bypassed the assessment and matching. We assign this exact person.
+  const [clinician, setClinician] = useState<Clinician | null>(null)
+  useEffect(() => {
+    const slug = readBookingCookie()
+    if (slug) setClinician(getClinician(slug) ?? null)
+  }, [])
+
   const plan = plans[care]
 
   if (paid) {
+    const clinicianName = clinician ? clinician.name.split(' ').slice(0, 2).join(' ') : null
     return (
       <div style={{ width: '100%', maxWidth: 460, textAlign: 'center' }}>
         <div style={{ fontSize: 46, marginBottom: 16 }}>🎉</div>
@@ -117,10 +133,12 @@ function CheckoutContent() {
         <p style={{ fontSize: 15, color: '#6B7D8E', lineHeight: 1.65, marginBottom: 28 }}>
           {care === 'app'
             ? 'Calm+ is unlocked. Open the app to meet Calm, start your first check-in, and explore your insights.'
-            : 'Next, we will match you with the right professional and get your first session on the calendar.'}
+            : clinicianName
+              ? `${clinicianName} is now your clinician. Head to your dashboard to pick a time and book your first session — no matching needed.`
+              : 'Next, we will match you with the right professional and get your first session on the calendar.'}
         </p>
-        <Link href={care === 'app' ? '/' : '/assess'} style={btnPrimary(plan.accent)}>
-          {care === 'app' ? 'Explore your space' : 'Find my match'}
+        <Link href={care === 'app' ? '/' : clinician ? '/app' : '/assess'} style={btnPrimary(plan.accent)}>
+          {care === 'app' ? 'Explore your space' : clinician ? 'Go to my dashboard' : 'Find my match'}
         </Link>
       </div>
     )
@@ -135,6 +153,17 @@ function CheckoutContent() {
       <p style={{ fontSize: 14.5, color: '#6B7D8E', lineHeight: 1.6, marginBottom: 24 }}>
         Here is exactly what you are getting, and what happens next.
       </p>
+
+      {clinician && (
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', background: clinician.accent + '12', border: `1.5px solid ${clinician.accent}40`, borderRadius: 14, padding: '13px 16px', marginBottom: 18 }}>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0, display: 'grid', placeItems: 'center', background: clinician.accent, color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: "'Big Shoulders Display', sans-serif" }}>
+            {clinician.initials}
+          </div>
+          <div style={{ fontSize: 13.5, color: '#3A4A5A', lineHeight: 1.5 }}>
+            Booking directly with <strong style={{ color: charcoal }}>{clinician.name}</strong>. They&apos;ll be assigned to you — no assessment or matching.
+          </div>
+        </div>
+      )}
 
       {/* Benefits recap */}
       <div style={{ background: plan.accent + '0d', border: `1.5px solid ${plan.accent}33`, borderRadius: 16, padding: '18px 20px', marginBottom: 18 }}>
@@ -175,7 +204,16 @@ function CheckoutContent() {
         style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E2E8F0', borderRadius: 12, fontSize: 15, color: charcoal, outline: 'none', fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box', marginBottom: 18 }}
       />
 
-      <button onClick={() => setPaid(true)} style={btnPrimary(plan.accent)}>{plan.cta}</button>
+      <button
+        onClick={() => {
+          // Clear the direct-booking cookie now the assignment is done.
+          if (clinician) document.cookie = 'gc_book_clinician=; path=/; max-age=0; samesite=lax'
+          setPaid(true)
+        }}
+        style={btnPrimary(plan.accent)}
+      >
+        {clinician ? `Confirm & book with ${clinician.name.split(' ').slice(0, 2).join(' ')}` : plan.cta}
+      </button>
       <p style={{ fontSize: 12, color: '#A0ADB8', textAlign: 'center', marginTop: 12, lineHeight: 1.6 }}>
         🔒 Secure payment. {plan.fineprint}
       </p>

@@ -32,6 +32,7 @@ const label: React.CSSProperties = {
 
 export function MemberEssentialsForm({
   initial,
+  nextUrl = '/app',
 }: {
   initial: {
     name: string
@@ -41,6 +42,9 @@ export function MemberEssentialsForm({
     emergencyName: string | null
     emergencyPhone: string | null
   }
+  /** Where to send the member once their details are saved. Defaults to the
+   *  dashboard; a direct booking passes /checkout so payment comes next. */
+  nextUrl?: string
 }) {
   const router = useRouter()
   const [pending, start] = useTransition()
@@ -80,7 +84,7 @@ export function MemberEssentialsForm({
         gender, preferredLanguage: language, maritalStatus: marital, occupation,
         country: 'IN', state, city, addressLine1: addr1, addressLine2: addr2, postalCode: pin,
       })
-      if (res.ok) router.replace('/app')
+      if (res.ok) router.replace(nextUrl)
       else setError(res.error ?? 'Could not save your details.')
     })
   }
