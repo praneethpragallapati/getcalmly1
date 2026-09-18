@@ -30,7 +30,7 @@ import { notifyCrisisAlert } from '@/lib/adminNotify'
 import { sendCrisisSms } from '@/lib/msg91'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { brandName, primaryHelplines } from '@/config/site'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, istParts, istWallClock } from '@/lib/tz'
 
 /** What the member told us, so the care team knows what they are walking into. */
 export type CrisisSeverity = 'SUPPORT' | 'URGENT'
@@ -157,16 +157,30 @@ export async function reportCrisis(
       .findMany({ where: { id: { in: careTeamIds } }, select: { id: true, name: true } })
       .catch(() => [] as { id: string; name: string | null }[])
 
+    // The care team gets at most one crisis-button ping per member per day, and
+    // it carries no chat/note content — only that the button was pressed. Repeat
+    // presses the same day are still recorded (for the day-count on the risk
+    // list) but don't re-notify.
+    const nowParts = istParts(new Date())
+    const startOfToday = istWallClock(nowParts.year, nowParts.month, nowParts.day, 0)
+    const priorToday = await prisma.crisisAlert
+      .count({ where: { userId, label: 'SELF_REPORTED', createdAt: { gte: startOfToday }, id: { not: alertId ?? undefined } } })
+      .catch(() => 0)
+    const firstPingToday = priorToday === 0
+
     await Promise.allSettled(
       clinicians.map(async (c) => {
-        await notify(c.id, {
-          type: 'announcement',
-          title: `Crisis alert · ${memberName}`,
-          body: `${SEVERITY_LABEL[severity]}${trimmedNote ? ` — “${trimmedNote}”` : ''}`,
-          // Straight to the profile, which carries both their number and their
-          // emergency contact's.
-          href: `/expert/patients/${userId}`,
-        })
+        if (firstPingToday) {
+          await notify(c.id, {
+            type: 'announcement',
+            title: `Crisis alert · ${memberName}`,
+            // No note/chat content, by design.
+            body: SEVERITY_LABEL[severity],
+            // Straight to the profile, which carries both their number and their
+            // emergency contact's.
+            href: `/expert/patients/${userId}`,
+          })
+        }
         if (c.name) careTeam.push(c.name)
       }),
     )

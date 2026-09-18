@@ -998,27 +998,48 @@ async function computeRiskNotifications(therapistProfileId: string): Promise<Ris
   if (!patientIds.length) return []
 
   const [alerts, users, moods] = await Promise.all([
-    prisma.crisisAlert.findMany({ where: { userId: { in: patientIds }, resolved: false }, orderBy: { createdAt: 'desc' } }),
+    // Only the signal, never the content: we surface that a crisis happened and
+    // on how many days, not what was said.
+    prisma.crisisAlert.findMany({ where: { userId: { in: patientIds }, resolved: false }, orderBy: { createdAt: 'desc' }, select: { userId: true, label: true, createdAt: true } }),
     prisma.user.findMany({ where: { id: { in: patientIds } }, select: { id: true, name: true } }),
     prisma.moodEntry.findMany({ where: { userId: { in: patientIds } }, orderBy: { createdAt: 'desc' } }),
   ])
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? 'Patient'
 
-  const crisisNotifs: RiskNotification[] = alerts.map((a) => ({
-    id: a.id,
-    kind: 'crisis',
-    patientId: a.userId,
-    patientName: a.patientName ?? nameOf(a.userId),
-    // A member pressing the crisis button is a different, louder thing from the
-    // AI classifier flagging a sentence, and the clinician needs to see which is
-    // which at a glance.
-    message: a.label === 'SELF_REPORTED'
-      ? 'RAISED A CRISIS ALERT THEMSELVES'
-      : a.label === 'CRISIS' ? 'Crisis-flagged chat message' : 'Distress-flagged chat message',
-    detail: a.handoffNote,
-    createdAt: a.createdAt,
-    resolved: a.resolved,
-  }))
+  // Collapse crisis signals into ONE notification per patient per source: the
+  // member pressing the crisis button vs the AI flagging a chat message. We
+  // deliberately never surface what was said — only that it happened, and on how
+  // many distinct days, so repeats on the same day (or across several days)
+  // collapse to a single, quiet alert with a day count.
+  type CrisisGroup = { userId: string; source: 'button' | 'chat'; days: Set<string>; latest: Date }
+  const groups = new Map<string, CrisisGroup>()
+  for (const a of alerts) {
+    const source: 'button' | 'chat' = a.label === 'SELF_REPORTED' ? 'button' : 'chat'
+    const key = `${source}:${a.userId}`
+    const p = istParts(a.createdAt)
+    const dayKey = `${p.year}-${p.month}-${p.day}`
+    const g = groups.get(key) ?? { userId: a.userId, source, days: new Set<string>(), latest: a.createdAt }
+    g.days.add(dayKey)
+    if (a.createdAt.getTime() > g.latest.getTime()) g.latest = a.createdAt
+    groups.set(key, g)
+  }
+  const crisisNotifs: RiskNotification[] = [...groups.values()].map((g) => {
+    const dayN = g.days.size
+    const daysNote = dayN > 1 ? ` Flagged on ${dayN} separate days.` : ''
+    return {
+      id: `crisis:${g.source}:${g.userId}`,
+      kind: 'crisis',
+      patientId: g.userId,
+      patientName: nameOf(g.userId),
+      message: g.source === 'button' ? 'Raised a crisis alert' : 'Crisis message detected',
+      // No chat content, by design — just that it happened and on how many days.
+      detail: (g.source === 'button'
+        ? 'This member pressed the crisis button.'
+        : 'A crisis message was detected in their AI chat.') + daysNote,
+      createdAt: g.latest,
+      resolved: false,
+    }
+  })
 
   const declineNotifs: RiskNotification[] = patientIds
     .map((pid) => {
@@ -1043,10 +1064,29 @@ async function computeRiskNotifications(therapistProfileId: string): Promise<Ris
 }
 
 export async function resolveCrisisAlert(therapistProfileId: string, alertId: string): Promise<boolean> {
+  // A grouped notification id ("crisis:<source>:<userId>") resolves every
+  // unresolved alert of that source for that patient at once.
+  if (alertId.startsWith('crisis:')) {
+    const parts = alertId.split(':')
+    const source = parts[1]
+    const userId = parts[2]
+    if (!userId || (source !== 'button' && source !== 'chat')) return false
+    const patientIds = await patientIdsFor(therapistProfileId)
+    if (!patientIds.includes(userId)) return false
+    await prisma.crisisAlert.updateMany({
+      where: {
+        userId,
+        resolved: false,
+        ...(source === 'button' ? { label: 'SELF_REPORTED' } : { label: { not: 'SELF_REPORTED' } }),
+      },
+      data: { resolved: true },
+    })
+    return true
+  }
   const alert = await prisma.crisisAlert.findUnique({ where: { id: alertId } })
   if (!alert) return false
-  const owns = await prisma.appointment.findFirst({ where: { therapistId: therapistProfileId, patientId: alert.userId } })
-  if (!owns) return false
+  const patientIds = await patientIdsFor(therapistProfileId)
+  if (!patientIds.includes(alert.userId)) return false
   await prisma.crisisAlert.update({ where: { id: alertId }, data: { resolved: true } })
   return true
 }
