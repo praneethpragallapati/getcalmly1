@@ -84,7 +84,6 @@ export default function SiteHeader() {
           For Clinicians
         </Link>
         <Link href="/login" className="btn-ghost" style={{ border: 'none', padding: '8px 10px' }}>Log in</Link>
-        <Link href="/assess" className="btn-primary">Book session</Link>
         <button
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
@@ -161,7 +160,6 @@ export default function SiteHeader() {
           ))}
           <Link href="/for-therapists" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, fontWeight: 600, color: '#2F7D5A', textDecoration: 'none' }}>For Clinicians</Link>
           <Link href="/login" onClick={() => setOpen(false)} style={{ padding: '10px 0', fontSize: 15, color: 'var(--charcoal)', textDecoration: 'none' }}>Log in</Link>
-          <Link href="/assess" onClick={() => setOpen(false)} className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>Book session</Link>
         </div>
       )}
 

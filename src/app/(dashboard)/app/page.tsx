@@ -46,10 +46,10 @@ export default async function AppHomePage() {
 
   return (
     <div className="stack">
-      {/* Calm AI leads the page: the day ahead, with the week's insight beside it. */}
+      {/* Calmly AI leads the page: the day ahead, with the week's insight beside it. */}
       <section className="hero">
         <div>
-          <span className="hero-badge">CALM AI · YOUR DAY AHEAD</span>
+          <span className="hero-badge">CALMLY AI · YOUR DAY AHEAD</span>
           <h2>{d.dailyInsight ? d.dailyInsight.title : `Welcome, ${d.name}.`}</h2>
           <p>
             {d.dailyInsight
@@ -58,7 +58,7 @@ export default async function AppHomePage() {
           </p>
           <div className="hero-actions">
             <Link href="/app/calm-ai" className="btn btn-primary">
-              <Sparkles size={16} /> Open Calm AI
+              <Sparkles size={16} /> Open Calmly AI
             </Link>
             <Link href="/app/journal" className="btn btn-ghost-d">
               <PenLine size={16} /> Start a journal entry

@@ -13,7 +13,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <span class="rl"><span class="light">You don't have to carry</span></span>
         <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
       </h1>
-      <p class="hero-sub">Talk to RCI-verified therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
+      <p class="hero-sub">Talk to RCI/NMC licensed therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
         <a href="#how-it-works" class="btn-hero outline">How it works</a>
@@ -40,8 +40,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="hiw-grid">
     <div class="hiw-step reveal"><div class="hiw-media" style="--img:url('/hiw/step-1.jpg')"></div><span class="hiw-n">1</span><h3>Find the right match</h3><p class="hiw-lead">Start with a better understanding of what you need.</p><p>Tell us about yourself, what you&apos;re going through and what you&apos;re looking for. Your assessment helps us understand your needs and preferences, so you can find a therapist who feels right for you.</p></div>
     <div class="hiw-step reveal d1"><div class="hiw-media" style="--img:url('/hiw/step-2.jpg')"></div><span class="hiw-n">2</span><h3>Meet regularly with your therapist</h3><p class="hiw-lead">Build a relationship that grows with you.</p><p>Have private, one-on-one sessions with your therapist and work together on what matters to you. As they get to know you over time, your care becomes more personal and meaningful.</p></div>
-    <div class="hiw-step reveal d2"><div class="hiw-media" style="--img:url('/hiw/step-3.jpg');background-position:center top"></div><span class="hiw-n">3</span><h3>Stay supported between sessions</h3><p class="hiw-lead">Because life doesn&apos;t wait for your next session.</p><p>getCalmly learns from your journey, from what you share to the patterns that emerge over time. This helps it offer the support you need between sessions.</p></div>
-    <div class="hiw-step reveal d3"><div class="hiw-media" style="--img:url('/hiw/step-4.jpg')"></div><span class="hiw-n">4</span><h3>Find your calm</h3><p class="hiw-lead">Find your calm and feel more at home with yourself.</p><p>Keep growing with the getCalmly community, where shared experiences bring connection, support and a sense of belonging.</p></div>
+    <div class="hiw-step reveal d2"><div class="hiw-media" style="--img:url('/hiw/step-3.jpg');background-position:center top"></div><span class="hiw-n">3</span><h3>Stay supported between sessions</h3><p class="hiw-lead">Because life doesn&apos;t wait for your next session.</p><p>getCalmly learns from your journey, from what you share and patterns that emerge over time. This helps it offer the support you need between sessions.</p></div>
+    <div class="hiw-step reveal d3"><div class="hiw-media" style="--img:url('/hiw/step-4.jpg')"></div><span class="hiw-n">4</span><h3>Find your calm</h3><p class="hiw-lead">Find your calm and feel more at home with yourself.</p><p>Keep growing with the getCalmly community, an active and exciting space that brings in shared experiences, connection, support and a sense of belonging.</p></div>
   </div>
 </section>
 
@@ -184,7 +184,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div class="assess-left reveal">
       <div class="sec-label">Start here</div>
       <h2 class="sec-h2">Not sure<br>where to start?<br><span>Let's find out.</span></h2>
-      <p class="sec-p">12 carefully crafted questions. A personalised mental wellness plan, therapist matches, and your first steps, ready in 5 minutes.</p>
+      <p class="sec-p">Carefully crafted questions. A personalised mental wellness plan, therapist matches, and your first steps, ready in 5 minutes.</p>
       <div class="assess-stats">
         <div class="as-stat"><span class="as-n">40K+</span><span class="as-l">People assessed</span></div>
         <div class="as-stat"><span class="as-n">5 min</span><span class="as-l">To complete</span></div>
@@ -230,7 +230,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
       <p style="font-size:16px;color:rgba(255,255,255,.66);line-height:1.7;margin-bottom:22px;font-weight:300;">Your care really comes alive in the app. Check in each day, talk to Calm whenever you need to, journal, and join sessions, all in one calm place. Because it is right there with you, so reminders and nudges land exactly when they help.</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px;">
         <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Daily check-ins that take seconds</span></div>
-        <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Calm AI a tap away, day or night</span></div>
+        <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Calmly AI a tap away, day or night</span></div>
         <div style="display:flex;gap:10px;align-items:center;"><span style="color:#1FB6A8;font-weight:800;">✓</span><span style="font-size:14px;color:rgba(255,255,255,.78);">Timely, personalised nudges that keep you going</span></div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">

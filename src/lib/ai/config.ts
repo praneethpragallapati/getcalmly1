@@ -27,5 +27,5 @@ export function hasLlm(): boolean {
   return Boolean(aiConfig.openAiKey || aiConfig.anthropicKey)
 }
 
-/** Free-tier daily message cap for Calm AI (paid plans are unlimited). */
+/** Free-tier daily message cap for Calmly AI (paid plans are unlimited). */
 export const FREE_DAILY_LIMIT = 10

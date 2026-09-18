@@ -107,7 +107,7 @@ const services: Record<ServiceSlug, {
       'They say they\'re fine, but I can tell they\'re not.',
       'School has quietly become a daily battle.',
     ],
-    why: 'Our child specialists use play therapy, art therapy, and CBT adapted for younger minds. They work with both the child and, where helpful, the parents, because children heal in the context of their relationships.',
+    why: 'Our child specialists use clinically effective, evidence-based therapy adapted for younger minds. They work with both the child and, where helpful, the parents, because children heal in the context of their relationships.',
     items: [
       { name: 'Anxiety & Worry', desc: 'School anxiety, separation anxiety, social fears, children experience anxiety differently, and they need a therapist who gets that.' },
       { name: 'Low Mood', desc: 'A child who\'s lost their spark, who doesn\'t want to play anymore, or who cries without being able to say why.' },
@@ -502,13 +502,6 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 }}>
                   ✦ Take the assessment
                 </Link>
-                <Link href="/assess" style={{
-                  padding: '14px 26px', borderRadius: 50, background: 'transparent',
-                  color: 'rgba(255,255,255,.85)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
-                  fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.22)',
-                }}>
-                  {s.cta} →
-                </Link>
               </div>
             </div>
             <div style={{ background: photo ? 'rgba(12,9,8,.42)' : 'rgba(255,255,255,.06)', backdropFilter: photo ? 'blur(10px)' : undefined, borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
@@ -562,7 +555,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
             <p style={{ fontSize: 15.5, color: '#5A6A7A', lineHeight: 1.8, fontWeight: 300, marginTop: 18 }}>
-              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and Calm AI whenever you need to talk things through, so your next session picks up right where you left off.
+              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and Calmly AI whenever you need to talk things through, so your next session picks up right where you left off.
             </p>
           </div>
           <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
@@ -632,7 +625,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             You don&apos;t have to figure this out alone.
           </h3>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.62)', marginBottom: 32, lineHeight: 1.7, fontWeight: 300 }}>
-            Take the 5-minute assessment and we&apos;ll match you with the right professional, or book directly if you already know what you need.
+            Take the 5-minute assessment and we&apos;ll match you with the right professional.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/assess" style={{
@@ -640,7 +633,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               fontSize: 16, fontWeight: 700, textDecoration: 'none',
               fontFamily: "'DM Sans', sans-serif", boxShadow: `0 8px 24px ${s.accent}55`,
             }}>
-              ✦ {s.cta}
+              ✦ Take the assessment
             </Link>
           </div>
         </div>

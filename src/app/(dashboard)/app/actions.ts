@@ -1306,7 +1306,7 @@ export async function markNotificationsRead(): Promise<ActionResult> {
   }
 }
 
-// A gentle, rule-based stand-in for the deferred Calm AI model. It reflects,
+// A gentle, rule-based stand-in for the deferred Calmly AI model. It reflects,
 // validates, and nudges toward a concrete coping step, and surfaces a safety
 // message when the text suggests crisis. Deliberately simple and transparent.
 function calmAiStandInReply(text: string): string {
@@ -1331,7 +1331,7 @@ function calmAiStandInReply(text: string): string {
 }
 
 /**
- * Send a message to Calm AI (#11). For a signed-in patient this runs the real
+ * Send a message to Calmly AI (#11). For a signed-in patient this runs the real
  * classified-routing pipeline (lib/ai/chat.ts) when a model is configured, it
  * classifies the turn, routes to the right model, persists both turns with
  * metadata, and writes a crisis hand-off when needed. With no model configured

@@ -1,5 +1,5 @@
 /**
- * Calm AI chat pipeline (#11). Ported from the v6 classified-routing notebook:
+ * Calmly AI chat pipeline (#11). Ported from the v6 classified-routing notebook:
  * a cheap classifier labels each turn, the label drives the system prompt, model,
  * temperature and how much history is sent, and high-stake turns escalate to a
  * stronger model and write a crisis hand-off record. All patient context is
@@ -495,14 +495,14 @@ export async function runChat(userId: string, question: string): Promise<ChatRes
 
   // Feature gate: chatbot can be switched off per user type by an admin.
   if (!cfg.features[userType].chatbot) {
-    const msg = 'Calm AI chat is not available on your plan right now.'
+    const msg = 'Calmly AI chat is not available on your plan right now.'
     return { reply: msg, label: 'DISABLED', intent: '--', intensity: '--', highStake: false, model: 'disabled', deescalated: false, spike: false }
   }
 
   // Monthly token cap per user type (0 = unlimited).
   const cap = cfg.limits.monthlyTokenCap[userType]
   if (cap > 0 && (await monthlyTokensFor(userId)) >= cap) {
-    const msg = "You've reached this month's usage limit for Calm AI. It resets at the start of next month."
+    const msg = "You've reached this month's usage limit for Calmly AI. It resets at the start of next month."
     await prisma.calmAiMessage.create({ data: { userId, role: 'USER', content: question } })
     await prisma.calmAiMessage.create({ data: { userId, role: 'ASSISTANT', content: msg, label: 'LIMIT', model: 'limit' } })
     return { reply: msg, label: 'LIMIT', intent: '--', intensity: '--', highStake: false, model: 'limit', deescalated: false, spike: false }

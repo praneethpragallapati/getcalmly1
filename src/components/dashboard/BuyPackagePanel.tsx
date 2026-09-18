@@ -46,7 +46,7 @@ const INCLUDED: Record<PanelTab, string[]> = {
     'Calm+ included, for both of you',
   ],
   calmplus: [
-    'Unlimited Calm AI chat, day and night',
+    'Unlimited Calmly AI chat, day and night',
     'Daily and weekly insights on your patterns',
     'Smart journaling with reflections',
     'Mood tracking and daily check-ins',

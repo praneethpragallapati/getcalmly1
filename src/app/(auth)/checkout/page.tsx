@@ -81,7 +81,7 @@ const plans: Record<PlanKey, {
     name: 'Calm+',
     accent: '#1A7F7A',
     benefits: [
-      'Unlimited Calm AI chat and insights',
+      'Unlimited Calmly AI chat and insights',
       'Daily mood tracker and smart journaling',
       'Daily and weekly insights on your patterns',
       'A constant guide for the everyday moments',

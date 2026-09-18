@@ -169,7 +169,7 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
             <FileText size={16} /> Manage sessions
           </Link>
           <Link href="/app/calm-ai" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
-            <MessageCircle size={16} /> Prepare with Calm AI
+            <MessageCircle size={16} /> Prepare with Calmly AI
           </Link>
         </div>
       </div>

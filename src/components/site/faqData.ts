@@ -32,7 +32,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: 'Can getCalmly help in a crisis?',
-    a: 'getCalmly offers ongoing support and built-in crisis resources, but it is not an emergency service. If you or someone you know is in immediate danger, please contact your local emergency number or a crisis helpline right away. For non-emergency hard moments, Calm AI and daily check-ins are available day or night.',
+    a: 'getCalmly offers ongoing support and built-in crisis resources, but it is not an emergency service. If you or someone you know is in immediate danger, please contact your local emergency number or a crisis helpline right away. For non-emergency hard moments, Calmly AI and daily check-ins are available day or night.',
   },
 ]
 
