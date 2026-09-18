@@ -547,7 +547,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT CARE LOOKS LIKE + WHO IT'S FOR: side by side ─── */}
-      <section style={{ padding: '94px 48px' }}>
+      <section style={{ padding: '94px 48px', background: '#F6F3EF' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
           <div>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
@@ -558,11 +558,16 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
               And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and Calmly AI whenever you need to talk things through, so your next session picks up right where you left off.
             </p>
           </div>
-          <div style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid rgba(28,43,58,.07)', boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)' }}>
-            <p style={{ fontSize: 13.5, fontWeight: 700, color: charcoal, marginBottom: 18 }}>Who this is for</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ padding: '4px 0' }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: charcoal, marginBottom: 16 }}>Who this is for</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {s.whoFor.map((w) => (
-                <span key={w} style={{ padding: '8px 14px', borderRadius: 50, background: s.pale, color: s.accent, fontSize: 13.5, fontWeight: 600 }}>{w}</span>
+                <span key={w} style={{
+                  padding: '13px 18px', borderRadius: 16, fontSize: 14.5, fontWeight: 600, color: s.accent,
+                  background: `color-mix(in srgb, ${s.accent} 7%, transparent)`,
+                  border: `1px solid color-mix(in srgb, ${s.accent} 18%, transparent)`,
+                  backdropFilter: 'blur(2px)',
+                }}>{w}</span>
               ))}
             </div>
           </div>
@@ -598,7 +603,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FAQ: wide divider list ─── */}
-      <section style={{ padding: '94px 48px' }}>
+      <section style={{ padding: '94px 48px', background: '#F6F3EF' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
             Common questions
