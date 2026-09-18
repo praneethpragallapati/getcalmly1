@@ -144,7 +144,7 @@ export async function exportMyData(): Promise<{ ok: boolean; json?: string; erro
     ])
     const payload = {
       exportedAt: new Date().toISOString(),
-      note: 'Your getCalmly data. Timestamps are in UTC (ISO 8601).',
+      note: 'Your getCalmly. data. Timestamps are in UTC (ISO 8601).',
       account: user,
       moodCheckIns: moods,
       journalEntries: journals,

@@ -8,7 +8,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Talk to the getCalmly team about starting therapy, your existing sessions, billing, or partnering with us. We reply on weekdays, usually within one working day.',
+  description: 'Talk to the getCalmly. team about starting therapy, your existing sessions, billing, or partnering with us. We reply on weekdays, usually within one working day.',
 }
 
 const charcoal = '#1C2B3A'

@@ -187,7 +187,7 @@ export default async function ExpertHomePage() {
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>
                 {/* Sessions run in getCalmly's own video room (100ms), not on any
                     external meeting provider — see HmsRoom / CallDock. */}
-                {next.durationMins} min · getCalmly video room
+                {next.durationMins} min · getCalmly. video room
               </p>
               {briefRows.length > 0 && (
                 <div style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 14, padding: '14px 16px', marginBottom: 18 }}>

@@ -70,7 +70,7 @@ export async function getPatientTimeline(userId: string): Promise<TimelineEvent[
         kind: 'joined',
         at: user.createdAt,
         dateLabel: stamp(user.createdAt),
-        title: 'Joined getCalmly',
+        title: 'Joined getCalmly.',
         detail: null,
       })
     }

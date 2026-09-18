@@ -402,12 +402,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return {}
   const description = s.hero.slice(0, 155)
   return {
-    title: `${s.title} · getCalmly`,
+    title: `${s.title} · getCalmly.`,
     description,
     alternates: { canonical: `/services/${slug}` },
     openGraph: {
       type: 'website',
-      title: `${s.title} | getCalmly`,
+      title: `${s.title} | getCalmly.`,
       description,
       url: `${SITE_URL}/services/${slug}`,
     },
@@ -425,7 +425,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
-    name: `${s.title}, getCalmly`,
+    name: `${s.title}, getCalmly.`,
     description: s.hero,
     url: `${SITE_URL}/services/${slug}`,
     about: {
@@ -434,7 +434,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     },
     provider: {
       '@type': 'MedicalOrganization',
-      name: 'getCalmly',
+      name: 'getCalmly.',
       url: SITE_URL,
     },
   }

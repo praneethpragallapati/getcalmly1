@@ -41,7 +41,7 @@ export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:30
 // ── Names ────────────────────────────────────────────────────────────────────
 
 /** Product name as written in prose and headings. */
-export const brandName = 'getCalmly'
+export const brandName = 'getCalmly.'
 
 /** Registered entity, for legal text, invoices and structured data. */
 export const legalName = 'GetCalmly Private Limited'

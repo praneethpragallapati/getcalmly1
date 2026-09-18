@@ -93,10 +93,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     keywords: post.tags.join(', '),
     articleBody: post.content.join('\n\n'),
     author: { '@type': 'Person', name: post.author, jobTitle: post.role },
-    reviewedBy: { '@type': 'Organization', name: 'getCalmly clinical team' },
+    reviewedBy: { '@type': 'Organization', name: 'getCalmly. clinical team' },
     publisher: {
       '@type': 'Organization',
-      name: 'getCalmly',
+      name: 'getCalmly.',
       url: SITE_URL,
     },
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
@@ -325,7 +325,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 ✓
               </span>
               <span>
-                Medically reviewed by the <strong style={{ color: '#1C2B3A' }}>getCalmly clinical team</strong>
+                Medically reviewed by the <strong style={{ color: '#1C2B3A' }}>getCalmly. clinical team</strong>
               </span>
             </span>
             <span style={{ opacity: 0.5 }}>·</span>

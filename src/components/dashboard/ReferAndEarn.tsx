@@ -25,7 +25,7 @@ export function ReferAndEarn({ data }: { data: PatientReferralView }) {
     )
   }
 
-  const shareText = data.link ? `I’ve been using getCalmly for my mental health — join with my link and get ₹${data.refereeDiscount} off your first package: ${data.link}` : ''
+  const shareText = data.link ? `I’ve been using getCalmly. for my mental health — join with my link and get ₹${data.refereeDiscount} off your first package: ${data.link}` : ''
 
   return (
     <div className="stack">
@@ -36,7 +36,7 @@ export function ReferAndEarn({ data }: { data: PatientReferralView }) {
           <div className="section-title" style={{ margin: 0 }}>Refer &amp; earn</div>
         </div>
         <p className="muted" style={{ maxWidth: 560, marginBottom: 18 }}>
-          Share getCalmly with someone who could use support. When they buy their first package, <strong style={{ color: 'var(--c-charcoal)' }}>you get {data.referrerRewardLabel}</strong>
+          Share getCalmly. with someone who could use support. When they buy their first package, <strong style={{ color: 'var(--c-charcoal)' }}>you get {data.referrerRewardLabel}</strong>
           {data.refereeDiscount > 0 ? <> and <strong style={{ color: 'var(--c-charcoal)' }}>they get ₹{data.refereeDiscount.toLocaleString('en-IN')} off</strong></> : null}.
         </p>
 

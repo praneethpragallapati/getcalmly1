@@ -324,7 +324,7 @@ export default function FeaturesPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/mockups/patient-home-1.png"
-                  alt="The getCalmly app, home screen"
+                  alt="The getCalmly. app, home screen"
                   loading="lazy"
                   style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
                 />

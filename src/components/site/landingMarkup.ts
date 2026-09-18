@@ -40,8 +40,8 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
   <div class="hiw-grid">
     <div class="hiw-step reveal"><div class="hiw-media" style="--img:url('/hiw/step-1.jpg')"></div><span class="hiw-n">1</span><h3>Find the right match</h3><p class="hiw-lead">Start with a better understanding of what you need.</p><p>Tell us about yourself, what you&apos;re going through and what you&apos;re looking for. Your assessment helps us understand your needs and preferences, so you can find a therapist who feels right for you.</p></div>
     <div class="hiw-step reveal d1"><div class="hiw-media" style="--img:url('/hiw/step-2.jpg')"></div><span class="hiw-n">2</span><h3>Meet regularly with your therapist</h3><p class="hiw-lead">Build a relationship that grows with you.</p><p>Have private, one-on-one sessions with your therapist and work together on what matters to you. As they get to know you over time, your care becomes more personal and meaningful.</p></div>
-    <div class="hiw-step reveal d2"><div class="hiw-media" style="--img:url('/hiw/step-3.jpg');background-position:center top"></div><span class="hiw-n">3</span><h3>Stay supported between sessions</h3><p class="hiw-lead">Because life doesn&apos;t wait for your next session.</p><p>getCalmly learns from your journey, from what you share and patterns that emerge over time. This helps it offer the support you need between sessions.</p></div>
-    <div class="hiw-step reveal d3"><div class="hiw-media" style="--img:url('/hiw/step-4.jpg')"></div><span class="hiw-n">4</span><h3>Find your calm</h3><p class="hiw-lead">Find your calm and feel more at home with yourself.</p><p>Keep growing with the getCalmly community, an active and exciting space that brings in shared experiences, connection, support and a sense of belonging.</p></div>
+    <div class="hiw-step reveal d2"><div class="hiw-media" style="--img:url('/hiw/step-3.jpg');background-position:center top"></div><span class="hiw-n">3</span><h3>Stay supported between sessions</h3><p class="hiw-lead">Because life doesn&apos;t wait for your next session.</p><p>getCalmly. learns from your journey, from what you share and patterns that emerge over time. This helps it offer the support you need between sessions.</p></div>
+    <div class="hiw-step reveal d3"><div class="hiw-media" style="--img:url('/hiw/step-4.jpg')"></div><span class="hiw-n">4</span><h3>Find your calm</h3><p class="hiw-lead">Find your calm and feel more at home with yourself.</p><p>Keep growing with the getCalmly. community, an active and exciting space that brings in shared experiences, connection, support and a sense of belonging.</p></div>
   </div>
 </section>
 
@@ -70,7 +70,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <!-- ── CARE YOU CAN TRUST ── -->
 <section class="trust-section" id="features">
   <div class="tr-head">
-    <div class="sec-label reveal">Why getCalmly</div>
+    <div class="sec-label reveal">Why getCalmly.</div>
     <h2 class="sec-h2 reveal">Care you <span>can trust.</span></h2>
   </div>
 
@@ -96,7 +96,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <h3 class="tr-title">Private &amp; confidential</h3>
       </div>
       <p class="tr-lead">Your thoughts are yours. Your data should be too.</p>
-      <p class="tr-body">Your conversations and personal information are deeply personal. getCalmly uses strong data security and privacy practices to protect your information and give you a safe space to seek support.</p>
+      <p class="tr-body">Your conversations and personal information are deeply personal. getCalmly. uses strong data security and privacy practices to protect your information and give you a safe space to seek support.</p>
       <div class="tr-badges">
         <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>End-to-end<br>encryption</span></div>
         <div class="tr-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><line x1="7.5" y1="7.5" x2="7.6" y2="7.5"/><line x1="7.5" y1="16.5" x2="7.6" y2="16.5"/></svg><span>Secure<br>infrastructure</span></div>
@@ -115,7 +115,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
           <h3 class="tr-title">Intelligent support</h3>
         </div>
         <p class="tr-lead">It remembers the context, not just the conversation.</p>
-        <p class="tr-body">getCalmly connects the information you choose to share across conversations, reflections and your care journey. It can identify patterns, spot changes over time and bring together insights that help deliver more relevant support when your therapist isn&apos;t around.</p>
+        <p class="tr-body">getCalmly. connects the information you choose to share across conversations, reflections and your care journey. It can identify patterns, spot changes over time and bring together insights that help deliver more relevant support when your therapist isn&apos;t around.</p>
       </div>
 
       <div class="ai-diagram">
@@ -225,7 +225,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 <section class="app-section" style="background:radial-gradient(ellipse 60% 55% at 90% 6%,rgba(200,85,61,.28),transparent 55%),radial-gradient(ellipse 45% 50% at 4% 65%,rgba(200,85,61,.12),transparent 60%),#101722;padding:72px max(6%, calc((100% - 1360px) / 2)) 64px;overflow:hidden;">
   <div class="app-grid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;">
     <div>
-      <div class="sec-label" style="color:#1FB6A8;">The getCalmly app</div>
+      <div class="sec-label" style="color:#1FB6A8;">The getCalmly. app</div>
       <h2 class="sec-h2" style="color:#fff;margin-bottom:16px;">Your care,<br><span style="color:#C8553D;">in your pocket.</span></h2>
       <p style="font-size:16px;color:rgba(255,255,255,.66);line-height:1.7;margin-bottom:22px;font-weight:300;">Your care really comes alive in the app. Check in each day, talk to Calmly AI whenever you need to, journal, and join sessions, all in one calm place. Because it is right there with you, so reminders and nudges land exactly when they help.</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px;">
@@ -241,7 +241,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
     <div style="display:flex;justify-content:center;">
       <div style="width:270px;background:#0F1C28;border-radius:44px;padding:10px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 60px rgba(0,0,0,.4);">
         <div style="width:250px;height:541px;border-radius:36px;overflow:hidden;background:#FFF8F5;">
-          <img src="/mockups/patient-home-1.png" alt="The getCalmly app home screen" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover;object-position:top center;" />
+          <img src="/mockups/patient-home-1.png" alt="The getCalmly. app home screen" loading="lazy" style="display:block;width:100%;height:100%;object-fit:cover;object-position:top center;" />
         </div>
       </div>
     </div>

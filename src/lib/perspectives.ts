@@ -36,7 +36,7 @@ const DEFAULT_SECTIONS: { title: string; description: string }[] = [
   { title: 'Ask your expert', description: 'Clinicians answer the questions members ask most.' },
   { title: 'Real stories', description: 'Members and clinicians on what recovery actually looks like.' },
   { title: 'Mind matters', description: 'Short, science-backed explainers on how the mind works.' },
-  { title: 'Inside getCalmly', description: 'A look behind the scenes at how we care for you.' },
+  { title: 'Inside getCalmly.', description: 'A look behind the scenes at how we care for you.' },
 ]
 
 let perspectiveSchemaReady = false

@@ -67,7 +67,7 @@ export async function authorExtrasFor(userIds: string[]): Promise<Map<string, Au
     const dates = moodByUser.get(id)
     const streak = dates ? streakFromDates(dates) : 0
     out.set(id, {
-      tenure: months ? `${months} month${months === 1 ? '' : 's'} on getCalmly` : null,
+      tenure: months ? `${months} month${months === 1 ? '' : 's'} on getCalmly.` : null,
       streak: streak > 0 ? streak : null,
     })
   }

@@ -195,7 +195,7 @@ export default async function ExpertProfilePage() {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Supervision</div>
         <p className="muted" style={{ fontSize: 12.5, margin: '0 0 14px' }}>
-          Supervision pairings are set by the getCalmly clinical team.
+          Supervision pairings are set by the getCalmly. clinical team.
         </p>
         <div className="grid-2" style={{ alignItems: 'start', gap: 16 }}>
           <div>

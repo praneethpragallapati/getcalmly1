@@ -26,7 +26,7 @@ export default async function PollsPage() {
       />
 
       {ordered.length === 0 ? (
-        <div className="card"><p className="muted">{polls.length === 0 ? 'No polls yet. Check back soon — the getCalmly team posts these from time to time.' : 'No polls are open right now. Check back soon for new ones.'}</p></div>
+        <div className="card"><p className="muted">{polls.length === 0 ? 'No polls yet. Check back soon — the getCalmly. team posts these from time to time.' : 'No polls are open right now. Check back soon for new ones.'}</p></div>
       ) : (
         <div className="stack" style={{ gap: 16, maxWidth: 640 }}>
           {ordered.map((p) => <PollCard key={p.id} poll={p} canVote={Boolean(userId)} />)}

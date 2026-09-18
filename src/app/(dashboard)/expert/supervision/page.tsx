@@ -60,7 +60,7 @@ export default async function SupervisionPage() {
       <div className="page-head">
         <div className="page-title">Supervision</div>
         <div className="page-meta">
-          Supervising {supervising.length} · supervised by {supervisedBy.length} · assignments managed by getCalmly admins
+          Supervising {supervising.length} · supervised by {supervisedBy.length} · assignments managed by getCalmly. admins
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export default async function SupervisionPage() {
         {supervising.length === 0 && (
           <div className="card">
             <p className="muted">
-              You aren&apos;t supervising anyone yet. Supervision assignments are made by getCalmly admins.
+              You aren&apos;t supervising anyone yet. Supervision assignments are made by getCalmly. admins.
               Contact the clinical team to be set up as a supervisor.
             </p>
           </div>

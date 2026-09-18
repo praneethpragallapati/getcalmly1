@@ -35,7 +35,7 @@ export default function Logo({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={markSrc}
-      alt="getCalmly"
+      alt="getCalmly."
       width={markWidth}
       height={markHeight}
       style={{ height: markHeight, width: markWidth, display: 'block' }}
@@ -44,7 +44,7 @@ export default function Logo({
 
   if (href === null) return inner
   return (
-    <Link href={href} className="inline-block" aria-label="getCalmly home">
+    <Link href={href} className="inline-block" aria-label="getCalmly. home">
       {inner}
     </Link>
   )

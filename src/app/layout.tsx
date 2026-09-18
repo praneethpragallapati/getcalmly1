@@ -17,12 +17,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
-    template: '%s | getCalmly',
+    default: 'getCalmly. Mental Healthcare, Powered by Experts, Personalized by AI',
+    template: '%s | getCalmly.',
   },
   description:
     'Book your first session for ₹799 with licensed therapists and psychiatrists in India. AI-powered insights, daily mood tracking and a supportive community.',
-  applicationName: 'getCalmly',
+  applicationName: 'getCalmly.',
   keywords: [
     'online therapy India',
     'mental health',
@@ -39,8 +39,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'getCalmly',
-    title: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
+    siteName: 'getCalmly.',
+    title: 'getCalmly. Mental Healthcare, Powered by Experts, Personalized by AI',
     description:
       'Book your first session for ₹799 with licensed therapists. AI-powered insights and a community that gets it.',
     url: SITE_URL,
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI',
+    title: 'getCalmly. Mental Healthcare, Powered by Experts, Personalized by AI',
     description: 'Book your first session for ₹799 with licensed therapists in India.',
   },
   robots: { index: true, follow: true },
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
 const orgJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'MedicalOrganization',
-  name: 'getCalmly',
+  name: 'getCalmly.',
   legalName,
   url: SITE_URL,
   logo: `${SITE_URL}/opengraph-image`,

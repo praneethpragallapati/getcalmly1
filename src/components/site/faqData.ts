@@ -8,31 +8,31 @@ export type FaqItem = { q: string; a: string }
 export const FAQ_ITEMS: FaqItem[] = [
   {
     q: 'Is online therapy effective?',
-    a: 'Yes. For most common concerns like anxiety, depression, stress and burnout, online therapy is as effective as in-person care, backed by extensive clinical research. At getCalmly every session is with a verified professional over secure video, and your therapist tracks your progress between sessions using your mood data and journal.',
+    a: 'Yes. For most common concerns like anxiety, depression, stress and burnout, online therapy is as effective as in-person care, backed by extensive clinical research. At getCalmly. every session is with a verified professional over secure video, and your therapist tracks your progress between sessions using your mood data and journal.',
   },
   {
-    q: 'Are getCalmly’s therapists and psychiatrists qualified?',
-    a: 'Yes. Every therapist and psychiatrist on getCalmly is licensed and background-checked before they ever meet you. These are verified professionals, not five stars a stranger left online.',
+    q: 'Are the therapists and psychiatrists on getCalmly. qualified?',
+    a: 'Yes. Every therapist and psychiatrist on getCalmly. is licensed and background-checked before they ever meet you. These are verified professionals, not five stars a stranger left online.',
   },
   {
     q: 'How much is the first session?',
     a: 'Your first session is just ₹799. It is a real conversation with a matched clinician, so you can see whether the fit feels right before you decide to continue.',
   },
   {
-    q: 'How does getCalmly match me with the right expert?',
-    a: 'You start with a short, confidential assessment of around twelve gentle questions, with no login needed. getCalmly uses your answers to match you with a therapist or psychiatrist suited to your concerns, preferences and goals, so you are not left guessing who to book.',
+    q: 'How does getCalmly. match me with the right expert?',
+    a: 'You start with a short, confidential assessment of around twelve gentle questions, with no login needed. getCalmly. uses your answers to match you with a therapist or psychiatrist suited to your concerns, preferences and goals, so you are not left guessing who to book.',
   },
   {
     q: 'Are my sessions and data confidential?',
-    a: 'Completely. Your sessions, journal entries and mood data are private and encrypted, and are never shared without your consent. getCalmly is built privacy-first and aligned with India’s Digital Personal Data Protection (DPDP) Act.',
+    a: 'Completely. Your sessions, journal entries and mood data are private and encrypted, and are never shared without your consent. getCalmly. is built privacy-first and aligned with India’s Digital Personal Data Protection (DPDP) Act.',
   },
   {
-    q: 'What do I get with getCalmly?',
+    q: 'What does getCalmly. include?',
     a: 'Every plan includes daily mood tracking, smart journaling, AI insights and the moderated community. When you are ready for therapy or psychiatry, your first session is ₹799 and ongoing session details live inside your dashboard.',
   },
   {
-    q: 'Can getCalmly help in a crisis?',
-    a: 'getCalmly offers ongoing support and built-in crisis resources, but it is not an emergency service. If you or someone you know is in immediate danger, please contact your local emergency number or a crisis helpline right away. For non-emergency hard moments, Calmly AI and daily check-ins are available day or night.',
+    q: 'Can getCalmly. help in a crisis?',
+    a: 'getCalmly. offers ongoing support and built-in crisis resources, but it is not an emergency service. If you or someone you know is in immediate danger, please contact your local emergency number or a crisis helpline right away. For non-emergency hard moments, Calmly AI and daily check-ins are available day or night.',
   },
 ]
 

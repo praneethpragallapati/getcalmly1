@@ -61,7 +61,7 @@ export async function GET() {
   const bytes = await buildStatementPdf({
     title: 'My Progress',
     subtitle: `${name}  (${patientCode(userId)})`,
-    meta: [started ? `On getCalmly since ${started}` : 'Progress summary', `Generated ${fmtIST(new Date(), { day: 'numeric', month: 'short', year: 'numeric' })}`],
+    meta: [started ? `On getCalmly. since ${started}` : 'Progress summary', `Generated ${fmtIST(new Date(), { day: 'numeric', month: 'short', year: 'numeric' })}`],
     summary: [
       { label: 'Journals', value: String(totals.journals) },
       { label: 'Tasks done', value: String(totals.tasksCompleted) },
