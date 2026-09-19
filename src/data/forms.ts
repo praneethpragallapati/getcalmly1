@@ -108,7 +108,7 @@ export const FORM_TEMPLATES: FormTemplateSeed[] = [
     fields: [
       {
         key: 'consentTreatment',
-        label: 'I consent to receive mental-health care through getCalmly.',
+        label: 'I consent to receive mental-health care through getCalmly',
         type: 'checkbox',
         required: true,
       },
@@ -136,7 +136,7 @@ export const FORM_TEMPLATES: FormTemplateSeed[] = [
     fields: [
       {
         key: 'dataRetention',
-        label: 'I consent to getCalmly. storing my health records securely.',
+        label: 'I consent to getCalmly storing my health records securely.',
         type: 'checkbox',
         required: true,
       },

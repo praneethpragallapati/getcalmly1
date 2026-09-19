@@ -166,7 +166,7 @@ export const authOptions: NextAuthOptions = {
                   yearsExp: 10,
                   languages: ['English', 'Hindi'],
                   specializations: ['Anxiety', 'Depression', 'Couples'],
-                  rciNumber: 'A100010',
+                  rciNumber: 'A55153',
                   sessionFee: 1200,
                   gender: 'Female',
                   clinicianType: 'Therapist',

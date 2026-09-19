@@ -40,7 +40,7 @@ const riya: Clinician = {
   intro:
     "Taking the first step can be the hardest part, and you've already done that. Dr. Riya Lokesh is a PhD Clinical Psychologist with over 10 years of experience helping people through anxiety, relationships, life transitions and emotional challenges. She offers a warm, thoughtful space where you can feel heard, understood and supported, one conversation at a time.",
   bio: [
-    'Dr. Riya Lokesh is a PhD Clinical Psychologist and RCI-registered Clinical Psychologist (CRR No. A55153) with over a decade of experience helping children, adolescents, adults, couples and older adults navigate life’s challenges. Alongside seeing clients, she is the head of clinical quality at getCalmly. She shapes therapist standards, clinical protocols and the care every member receives.',
+    'Dr. Riya Lokesh is a PhD Clinical Psychologist and RCI-registered Clinical Psychologist (CRR No. A55153) with over a decade of experience helping children, adolescents, adults, couples and older adults navigate life’s challenges. Alongside seeing clients, she is the head of clinical quality at getCalmly, where she shapes therapist standards, clinical protocols and the care every member receives.',
     'Her experience spans hospitals, rehabilitation centres, academia and private practice. She believes therapy should feel like a safe conversation, grounded in evidence, honesty and compassion.',
   ],
   education: [

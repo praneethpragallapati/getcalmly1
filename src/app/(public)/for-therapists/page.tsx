@@ -38,7 +38,7 @@ export default function ForTherapistsPage() {
             Do the work you trained for.<br /><span style={{ color: '#7BD3AC', fontWeight: 900 }}>We&apos;ll carry the rest.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.72)', lineHeight: 1.75, maxWidth: 610, margin: '0 auto', fontWeight: 300 }}>
-            Clients matched to your specialities. Notes, scheduling, reminders and payments handled for you. An AI co-pilot that remembers each client&apos;s story, plus real supervision and a peer community behind you. You keep your clinical judgement and your hours — getCalmly. takes care of everything around them.
+            Clients matched to your specialities. Notes, scheduling, reminders and payments handled for you. An AI co-pilot that remembers each client&apos;s story, plus real supervision and a peer community behind you. You keep your clinical judgement and your hours — getCalmly takes care of everything around them.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
             <Link href="/for-therapists/apply" style={ctaPrimary}>Apply to join →</Link>

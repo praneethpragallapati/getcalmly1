@@ -47,7 +47,7 @@ const SEED_CLINICIANS = [
   { name: 'Dr. Meera Iyer', email: 'meera.iyer@example.com', gender: 'Female', type: 'Couples therapist', emp: 'FULL_TIME', spec: ['Couples', 'EFT', 'Communication'], qual: ['M.Sc Counselling Psychology'], lang: ['English', 'Tamil', 'Hindi'], yrs: 7, fee: 1500, rci: 'A100004', bio: 'Couples specialist using Emotionally Focused Therapy to help partners reconnect.' },
   { name: 'Dr. Kabir Rao', email: 'kabir.rao@example.com', gender: 'Male', type: 'Psychiatrist', emp: 'FULL_TIME', spec: ['Psychiatry', 'Medication management', 'Adult ADHD'], qual: ['MBBS', 'MD Psychiatry (NMC)'], lang: ['English', 'Hindi', 'Kannada'], yrs: 12, fee: 1800, rci: 'N200001', bio: 'Consultant psychiatrist for diagnosis and medication, working alongside your therapist.' },
   // Therapist test account (also allowed to sign in by email with no OTP — see OTP_BYPASS_EMAILS).
-  { name: 'Dr. Riya Lokesh', email: 'hom.pragallapati@gmail.com', gender: 'Female', type: 'Therapist', emp: 'FULL_TIME', spec: ['Anxiety', 'Depression', 'Couples'], qual: ['PhD Clinical Psychology', 'M.Phil Clinical Psychology (RCI)'], lang: ['English', 'Hindi'], yrs: 10, fee: 1200, rci: 'A100010', bio: 'RCI-registered clinical psychologist working with anxiety, relationships and life transitions.' },
+  { name: 'Dr. Riya Lokesh', email: 'hom.pragallapati@gmail.com', gender: 'Female', type: 'Therapist', emp: 'FULL_TIME', spec: ['Anxiety', 'Depression', 'Couples'], qual: ['PhD Clinical Psychology', 'M.Phil Clinical Psychology (RCI)'], lang: ['English', 'Hindi'], yrs: 10, fee: 1200, rci: 'A55153', bio: 'RCI-registered clinical psychologist working with anxiety, relationships and life transitions.' },
 ]
 
 const SEED_PATIENTS = [

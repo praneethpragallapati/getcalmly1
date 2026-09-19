@@ -13,7 +13,7 @@ const PROMPTS = [
 ]
 
 /**
- * Calmly AI chat thread (#11). Persists via sendCalmAiMessage. Replies are a
+ * getCalmly AI chat thread (#11). Persists via sendCalmAiMessage. Replies are a
  * transparent rule-based stand-in until the model integration lands.
  */
 export function CalmAiChat({ initial }: { initial: ChatMessage[] }) {
@@ -93,14 +93,14 @@ export function CalmAiChat({ initial }: { initial: ChatMessage[] }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Share what’s on your mind…"
-          aria-label="Message Calmly AI"
+          aria-label="Message getCalmly AI"
         />
         <button className="btn btn-primary" type="submit" disabled={pending || !input.trim()}>
           <Send size={16} />
         </button>
       </form>
       <p className="chat-disclaimer">
-        Calmly AI is a supportive companion, not a replacement for your expert or emergency care.
+        getCalmly AI is a supportive companion, not a replacement for your expert or emergency care.
       </p>
     </div>
   )

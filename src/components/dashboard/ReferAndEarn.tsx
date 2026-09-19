@@ -20,12 +20,12 @@ export function ReferAndEarn({ data }: { data: PatientReferralView }) {
       <div className="card" style={{ textAlign: 'center', padding: '40px 24px' }}>
         <Gift size={22} style={{ color: 'var(--c-gray-d)' }} />
         <div className="section-title" style={{ margin: '10px 0 6px' }}>Referrals aren’t open yet</div>
-        <p className="muted">Check back soon — we’re putting together a way to reward you for sharing getCalmly.</p>
+        <p className="muted">Check back soon — we’re putting together a way to reward you for sharing getCalmly</p>
       </div>
     )
   }
 
-  const shareText = data.link ? `I’ve been using getCalmly. for my mental health — join with my link and get ₹${data.refereeDiscount} off your first package: ${data.link}` : ''
+  const shareText = data.link ? `I’ve been using getCalmly for my mental health — join with my link and get ₹${data.refereeDiscount} off your first package: ${data.link}` : ''
 
   return (
     <div className="stack">
@@ -36,7 +36,7 @@ export function ReferAndEarn({ data }: { data: PatientReferralView }) {
           <div className="section-title" style={{ margin: 0 }}>Refer &amp; earn</div>
         </div>
         <p className="muted" style={{ maxWidth: 560, marginBottom: 18 }}>
-          Share getCalmly. with someone who could use support. When they buy their first package, <strong style={{ color: 'var(--c-charcoal)' }}>you get {data.referrerRewardLabel}</strong>
+          Share getCalmly with someone who could use support. When they buy their first package, <strong style={{ color: 'var(--c-charcoal)' }}>you get {data.referrerRewardLabel}</strong>
           {data.refereeDiscount > 0 ? <> and <strong style={{ color: 'var(--c-charcoal)' }}>they get ₹{data.refereeDiscount.toLocaleString('en-IN')} off</strong></> : null}.
         </p>
 

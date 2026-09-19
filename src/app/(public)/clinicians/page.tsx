@@ -7,9 +7,9 @@ const charcoal = '#1C2B3A'
 const cream = '#F6F3EF'
 
 export const metadata: Metadata = {
-  title: 'Our clinicians — Psychologists & Psychiatrists | getCalmly.',
+  title: 'Our clinicians — Psychologists & Psychiatrists | getCalmly',
   description:
-    'Browse the RCI-registered clinical psychologists and NMC-registered psychiatrists on getCalmly. Search by name, concern or specialty and view full profiles.',
+    'Browse the RCI-registered clinical psychologists and NMC-registered psychiatrists on getCalmly, and search by name, concern or specialty and view full profiles.',
 }
 
 export default function CliniciansPage() {

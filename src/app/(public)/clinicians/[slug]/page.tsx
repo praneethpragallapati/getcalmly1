@@ -15,9 +15,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const c = getClinician(slug)
-  if (!c) return { title: 'Clinician not found | getCalmly.' }
+  if (!c) return { title: 'Clinician not found | getCalmly' }
   return {
-    title: `${c.name} — ${c.title} | getCalmly.`,
+    title: `${c.name} — ${c.title} | getCalmly`,
     description: c.intro.slice(0, 155),
   }
 }

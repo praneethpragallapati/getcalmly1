@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { HelpCircle } from 'lucide-react'
 import '../app.css'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { AccountMenu } from '@/components/dashboard/AccountMenu'
@@ -115,9 +113,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           <div className="tb-actions">
             <NotificationBell items={notes} unread={unread} />
-            <Link href="/contact" className="tb-icon" aria-label="Help &amp; support">
-              <HelpCircle size={17} />
-            </Link>
             <AccountMenu name={d.name} photoUrl={d.photoUrl} />
           </div>
         </header>

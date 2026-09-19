@@ -71,7 +71,7 @@ export function HmsRoom({
 
       <div className="call-foot">
         <p className="call-note">
-          🔒 This is a private video room for your session. getCalmly. never records or stores the call,
+          🔒 This is a private video room for your session. getCalmly never records or stores the call,
           and screen sharing is turned off. Calls end automatically after 2 hours.
         </p>
         <label className="call-auto">

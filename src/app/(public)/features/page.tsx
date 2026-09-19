@@ -2,8 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Calmly AI, Mood Insights & Smart Matching',
-  description: 'Human care, amplified by thoughtful AI. Matching, the Calmly AI companion, mood insights, smart journaling, and a clinician co-pilot. Always human-led, never automated away.',
+  title: 'getCalmly AI, Mood Insights & Smart Matching',
+  description: 'Human care, amplified by thoughtful AI. Matching, the getCalmly AI companion, mood insights, smart journaling, and a clinician co-pilot. Always human-led, never automated away.',
   alternates: { canonical: '/features' },
 }
 
@@ -80,7 +80,7 @@ function MoodMock() {
 function InsightMock() {
   return (
     <div style={mockCard}>
-      <p style={mockLabel}>Your week · decoded by Calmly AI</p>
+      <p style={mockLabel}>Your week · decoded by getCalmly AI</p>
       <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: coral, marginTop: 5, flexShrink: 0 }} />
@@ -145,15 +145,15 @@ function PrivacyMock() {
     ['Journal entries', true],
     ['Mood check-ins', true],
     ['Session notes', true],
-    ['Calmly AI chats', false],
+    ['getCalmly AI chats', false],
   ]
   return (
     <div style={mockCard}>
-      <p style={mockLabel}>What Calmly AI can see</p>
+      <p style={mockLabel}>What getCalmly AI can see</p>
       <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
         {rows.map(([label, on]) => {
           // The last toggle demos itself: starts on, flips off once in view.
-          const demo = label === 'Calmly AI chats'
+          const demo = label === 'getCalmly AI chats'
           return (
           <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13, color: '#3A4A5A', fontWeight: 500 }}>{label}</span>
@@ -197,7 +197,7 @@ function PrivacyMock() {
 
 const detailed = [
   { eyebrow: 'Matching', title: 'The right professional, the first time', body: 'A short assessment reads what you are going through, the language you think in, and your budget, then pairs you with a verified professional who fits. No scrolling through dozens of profiles and hoping.', visual: <MatchMock /> },
-  { eyebrow: 'Calmly AI', title: 'A companion that remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday, so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
+  { eyebrow: 'getCalmly AI', title: 'A companion that remembers you', body: 'Most chatbots meet you as a stranger, every single time. Calm arrives already knowing your last session, your sleep this week and what you wrote on Thursday, so at midnight it responds to your life, not a script, and hands the context straight to your therapist.', visual: <ChatMock /> },
   { eyebrow: 'AI insights & recommendations', title: 'Intelligence that connects dots you can\'t see', body: 'Every mood check-in, journal line, sleep log and session note feeds one quiet engine. It cross-references all of it to surface the patterns underneath, then turns them into precise, gentle recommendations: a wind-down before your hardest night, a topic worth raising on Tuesday, a nudge before the dip instead of after it.', visual: <InsightMock /> },
   { eyebrow: 'Mood & insights', title: 'Tracking that acts on what you log', body: 'Log mood, energy and sleep in seconds. We surface the patterns you would miss and act on them, nudging a breathing exercise after a few low days, or gently suggesting a session after a fortnight.', visual: <MoodMock /> },
   { eyebrow: 'Journaling', title: 'Write freely, see clearly', body: 'Journal however you like. Calm reflects the patterns back in your own words, the thoughts that keep circling and the moments that lift you, drawing on CBT principles. Always reflections, never a diagnosis.', visual: <JournalMock /> },
@@ -221,8 +221,7 @@ export default function FeaturesPage() {
             Real therapy with verified professionals sits at the heart of everything. The technology around it makes that care easier to reach, easier to stay with, and a little more personal. The AI never replaces your therapist. It helps them help you.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
-            <Link href="/assess" style={ctaPrimary}>✦ Book a session</Link>
-            <Link href="/assess" style={ctaGhost}>Take the free assessment</Link>
+            <Link href="/assess" style={ctaPrimary}>✦ Take the free assessment</Link>
           </div>
         </div>
       </section>
@@ -252,7 +251,7 @@ export default function FeaturesPage() {
               Your space, end to end
             </h2>
             <p style={{ fontSize: 15.5, color: '#5A6A7A', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.65 }}>
-              Mood, journal, sessions and Calmly AI, together in one calm, intelligent place.
+              Mood, journal, sessions and getCalmly AI, together in one calm, intelligent place.
             </p>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -262,7 +261,7 @@ export default function FeaturesPage() {
                 its own here, scaled up. The clinician tour has its own page at
                 /for-therapists. */}
             {[
-              ['Your dashboard', 'Mood, journal, sessions and Calmly AI, together in one calm, intelligent place.', '/mockups/patient-dashboard.png'],
+              ['Your dashboard', 'Mood, journal, sessions and getCalmly AI, together in one calm, intelligent place.', '/mockups/patient-dashboard.png'],
             ].map(([label, sub, src]) => (
               <div key={label} style={{ maxWidth: 820, width: '100%', textAlign: 'center' }}>
                 <div style={{ borderRadius: 16, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,.08)', boxShadow: '0 18px 44px rgba(28,43,58,.12)' }}>
@@ -294,7 +293,7 @@ export default function FeaturesPage() {
               The app is where your care lives day to day. Check in, talk to Calm, journal, and join sessions, all in one place. And because it is with you, the gentle reminders and personalised nudges arrive exactly when they help most.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
-              {['Daily check-ins that take seconds', 'Calmly AI a tap away, whenever you need it', 'Timely nudges, personalised to your patterns', 'Join sessions and see your progress'].map((t) => (
+              {['Daily check-ins that take seconds', 'getCalmly AI a tap away, whenever you need it', 'Timely nudges, personalised to your patterns', 'Join sessions and see your progress'].map((t) => (
                 <div key={t} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                   <span style={{ color: '#1FB6A8', fontWeight: 800 }}>✓</span>
                   <span style={{ fontSize: 14, color: 'rgba(255,255,255,.78)' }}>{t}</span>
@@ -324,7 +323,7 @@ export default function FeaturesPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/mockups/patient-home-1.png"
-                  alt="The getCalmly. app, home screen"
+                  alt="The getCalmly app, home screen"
                   loading="lazy"
                   style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
                 />
@@ -342,8 +341,7 @@ export default function FeaturesPage() {
             A free 5-minute assessment is all it takes to meet your match.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/assess" style={ctaPrimary}>✦ Book a session</Link>
-            <Link href="/assess" style={ctaGhost}>Start free assessment</Link>
+            <Link href="/assess" style={ctaPrimary}>✦ Start free assessment</Link>
           </div>
         </div>
       </section>
@@ -370,9 +368,4 @@ const ctaPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff',
   padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none',
   fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)',
-}
-const ctaGhost: React.CSSProperties = {
-  display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)',
-  color: 'rgba(255,255,255,.85)', padding: '15px 26px', borderRadius: 50, fontSize: 15.5, fontWeight: 600,
-  textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", border: '1.5px solid rgba(255,255,255,.16)',
 }

@@ -9,7 +9,7 @@ export default function AiHealthPage() {
       <div className="page-head">
         <div>
           <h1 className="page-title">AI health</h1>
-          <span className="page-meta">Diagnose the Calmly AI and insight pipeline. The pipeline fails silently, so use this to see the real status.</span>
+          <span className="page-meta">Diagnose the getCalmly AI and insight pipeline. The pipeline fails silently, so use this to see the real status.</span>
         </div>
       </div>
 
@@ -17,7 +17,7 @@ export default function AiHealthPage() {
         <div className="section-title" style={{ fontSize: 18, marginBottom: 8 }}>How it is wired</div>
         <p className="muted" style={{ marginTop: 0 }}>
           Daily and weekly insights (and the chat classifier) run on <strong>{PROVIDERS[INSIGHT_MODEL]}/{MODELS[INSIGHT_MODEL]}</strong>, so they need <strong>OPENAI_API_KEY</strong>.
-          Calmly AI chat routes to <strong>{PROVIDERS[PAID_ROUTINE]}/{MODELS[PAID_ROUTINE]}</strong> (needs ANTHROPIC_API_KEY).
+          getCalmly AI chat routes to <strong>{PROVIDERS[PAID_ROUTINE]}/{MODELS[PAID_ROUTINE]}</strong> (needs ANTHROPIC_API_KEY).
           The scheduled jobs only run when <strong>CRON_SECRET</strong> is set. A key that exists but is wrong, unbilled, or points at an invalid model id fails silently — the test below shows which.
         </p>
       </div>

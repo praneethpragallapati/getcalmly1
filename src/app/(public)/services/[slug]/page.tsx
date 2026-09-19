@@ -402,12 +402,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return {}
   const description = s.hero.slice(0, 155)
   return {
-    title: `${s.title} · getCalmly.`,
+    title: `${s.title} · getCalmly`,
     description,
     alternates: { canonical: `/services/${slug}` },
     openGraph: {
       type: 'website',
-      title: `${s.title} | getCalmly.`,
+      title: `${s.title} | getCalmly`,
       description,
       url: `${SITE_URL}/services/${slug}`,
     },
@@ -425,7 +425,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
-    name: `${s.title}, getCalmly.`,
+    name: `${s.title}, getCalmly`,
     description: s.hero,
     url: `${SITE_URL}/services/${slug}`,
     about: {
@@ -434,7 +434,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
     },
     provider: {
       '@type': 'MedicalOrganization',
-      name: 'getCalmly.',
+      name: 'getCalmly',
       url: SITE_URL,
     },
   }
@@ -555,7 +555,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             </h2>
             <p style={{ fontSize: 17, color: '#3A4A5A', lineHeight: 1.82, fontWeight: 300 }}>{s.why}</p>
             <p style={{ fontSize: 15.5, color: '#5A6A7A', lineHeight: 1.8, fontWeight: 300, marginTop: 18 }}>
-              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and Calmly AI whenever you need to talk things through, so your next session picks up right where you left off.
+              And the care doesn&apos;t stop when the session ends. The Calm+ app stays with you in between, daily mood check-ins, private journaling, and getCalmly AI whenever you need to talk things through, so your next session picks up right where you left off.
             </p>
           </div>
           <div style={{ padding: '4px 0' }}>

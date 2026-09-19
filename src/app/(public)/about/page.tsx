@@ -6,7 +6,7 @@ import {
 } from '@/config/site'
 
 export const metadata: Metadata = {
-  // The root template appends '| getCalmly.', so the brand must not repeat here.
+  // The root template appends '| getCalmly', so the brand must not repeat here.
   title: 'Our Story',
   description:
     'GetCalmly bridges India’s mental health treatment gap with RCI-verified, vernacular-first, culturally-aware therapy, amplified by thoughtful AI. Meet the team and the principles behind the care.',
@@ -73,7 +73,7 @@ export default function AboutPage() {
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="awrap about-hero" style={{ position: 'relative' }}>
           <div>
-            <p style={{ ...eyebrowOnDark, marginBottom: 22 }}>About getCalmly.</p>
+            <p style={{ ...eyebrowOnDark, marginBottom: 22 }}>About getCalmly</p>
             <h1 style={{
               ...heading, fontWeight: 300, fontSize: 'clamp(40px, 6vw, 76px)', color: '#fff',
               letterSpacing: '-2px', lineHeight: 1.02, marginBottom: 0,
@@ -83,7 +83,7 @@ export default function AboutPage() {
           </div>
           <p style={{ fontSize: 19, color: 'rgba(255,255,255,.74)', lineHeight: 1.8, fontWeight: 300, marginBottom: 6 }}>
             Finding someone qualified, someone who gets your context, someone you can actually afford — most
-            people give up somewhere in that maze, long before a first session. We built getCalmly. to make that
+            people give up somewhere in that maze, long before a first session. We built getCalmly to make that
             first step the easy part.
           </p>
         </div>

@@ -93,13 +93,13 @@ export const PSYCHIATRY_FROM = perSession(psychiatryPacks[psychiatryPacks.length
 export const COUPLES_FROM = perSession(couplesPacks[couplesPacks.length - 1]) // 1699
 
 export const freeFeatures = {
-  included: ['Daily mood tracker', 'Smart journaling', 'Moderated community access', 'A few Calmly AI conversations to get started'],
-  missing: ['Always-on, generous Calmly AI chat', 'Daily and weekly insights', 'Sessions with a professional'],
+  included: ['Daily mood tracker', 'Smart journaling', 'Moderated community access', 'A few getCalmly AI conversations to get started'],
+  missing: ['Always-on, generous getCalmly AI chat', 'Daily and weekly insights', 'Sessions with a professional'],
 }
 
 export const calmPlusFeatures = {
   included: [
-    'Always-on, generous Calmly AI chat and insights',
+    'Always-on, generous getCalmly AI chat and insights',
     'Daily mood tracker',
     'Smart journaling with reflections',
     'Daily and weekly insights',

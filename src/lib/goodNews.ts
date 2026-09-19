@@ -78,7 +78,7 @@ export async function notifyCalmPlusGranted(userId: string, months: number): Pro
   await notify(userId, {
     type: 'plan',
     title: `🎉 Calm+ is yours for ${plural(months, 'month')}`,
-    body: 'Mood tracking, journalling and Calmly AI are all unlocked. Enjoy.',
+    body: 'Mood tracking, journalling and getCalmly AI are all unlocked. Enjoy.',
     href: '/app',
   })
 }

@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionUserId } from '@/lib/patient'
 
 /**
- * Calmly AI chat history (#11). Stored per patient (CalmAiMessage). The actual
+ * getCalmly AI chat history (#11). Stored per patient (CalmAiMessage). The actual
  * model integration is deferred, assistant replies are produced by a gentle,
  * rule-based stand-in for now (see app/actions.ts → sendCalmAiMessage), leaving a
  * clean seam for the real model. Whether chats feed the wider AI pipeline is
@@ -14,7 +14,7 @@ const WELCOME: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
   content:
-    "Hi, I'm Calmly AI, a gentle space to think out loud between sessions. Tell me what's on your mind, and we'll take it one step at a time. I'm not a crisis service; if you're ever in danger, please reach out to your expert or a helpline.",
+    "Hi, I'm getCalmly AI, a gentle space to think out loud between sessions. Tell me what's on your mind, and we'll take it one step at a time. I'm not a crisis service; if you're ever in danger, please reach out to your expert or a helpline.",
 }
 
 export async function getCalmAiHistory(): Promise<ChatMessage[]> {

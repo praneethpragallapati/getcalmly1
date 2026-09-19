@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     'Transparent pricing for online therapy and psychiatry in India. Your first session is a flat ₹799, session packs bring the per-session price down, and you only pay for the sessions you use.',
   alternates: { canonical: '/pricing' },
   openGraph: {
-    title: 'Therapy & Psychiatry Pricing in India | getCalmly.',
+    title: 'Therapy & Psychiatry Pricing in India | getCalmly',
     description:
       'First session ₹799. Session packs lower your per-session price, and unused sessions are refunded — no fine print.',
     url: '/pricing',

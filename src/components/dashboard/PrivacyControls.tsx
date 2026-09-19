@@ -11,7 +11,7 @@ const CATEGORIES: { key: keyof Omit<PrivacyInput, 'feedToLlm'>; label: string; d
   { key: 'collectPulse', label: 'Pulse check-ins', desc: 'Your PHQ-9, GAD-7, GAS and other check-in scores' },
   { key: 'collectForms', label: 'Forms', desc: 'Answers to intake and other forms your care team sends' },
   { key: 'collectSessions', label: 'Session notes', desc: 'Pre-session notes & summaries' },
-  { key: 'collectChats', label: 'Calmly AI chats', desc: 'Your conversations with Calmly AI' },
+  { key: 'collectChats', label: 'getCalmly AI chats', desc: 'Your conversations with getCalmly AI' },
   { key: 'collectProfile', label: 'Personal & contact details', desc: 'Your therapist, emergency contact, location and language' },
 ]
 
@@ -80,12 +80,12 @@ export function PrivacyControls({ initial }: { initial: PrivacyFlags }) {
       </div>
       <p className="muted" style={{ margin: '6px 0 4px' }}>
         You decide what helps personalise your insights. Turning something off keeps your own record
-        intact, it’s simply never used by Calmly AI.
+        intact, it’s simply never used by getCalmly AI.
       </p>
 
       <div className="priv-master">
         <div>
-          <div className="priv-label">Use my data to personalise Calmly AI</div>
+          <div className="priv-label">Use my data to personalise getCalmly AI</div>
           <div className="priv-desc">
             Master switch. When off, nothing below is ever sent to the AI, regardless of the
             individual toggles.

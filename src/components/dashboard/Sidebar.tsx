@@ -32,7 +32,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     heading: 'Main',
     items: [
       { href: '/app', label: 'Home', icon: Home },
-      { href: '/app/calm-ai', label: 'Talk to Calmly AI', icon: Sparkles, badge: 'New' },
+      { href: '/app/calm-ai', label: 'Talk to getCalmly AI', icon: Sparkles, badge: 'New' },
       { href: '/app/journal', label: 'Journal', icon: BookOpen },
     ],
   },

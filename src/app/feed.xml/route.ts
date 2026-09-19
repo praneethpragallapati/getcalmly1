@@ -42,10 +42,10 @@ ${p.tags.map((t) => `      <category>${esc(t)}</category>`).join('\n')}
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>getCalmly. Blog</title>
+    <title>getCalmly Blog</title>
     <link>${SITE_URL}/blog</link>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />
-    <description>Mental health, therapy and wellbeing, from the clinicians at getCalmly.</description>
+    <description>Mental health, therapy and wellbeing, from the clinicians at getCalmly</description>
     <language>en-IN</language>
 ${items}
   </channel>

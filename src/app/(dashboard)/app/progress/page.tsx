@@ -138,7 +138,7 @@ export default async function ProgressPage() {
       <div className="page-head">
         <h1 className="page-title">My Progress</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <span className="page-meta">Started {d.startedOn} · {d.daysOnPlatform} days on getCalmly.</span>
+          <span className="page-meta">Started {d.startedOn} · {d.daysOnPlatform} days on getCalmly</span>
           <a href="/app/progress/pdf" className="btn btn-outline btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <Download size={15} /> Download PDF
           </a>

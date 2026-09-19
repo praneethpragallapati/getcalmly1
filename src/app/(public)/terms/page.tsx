@@ -75,7 +75,7 @@ export default async function TermsPage() {
 
           <H>Use of AI features</H>
           <P>
-            Calmly AI, insights, and journaling reflections are supportive tools, not a substitute for professional care. They may be inaccurate, and GetCalmly does not guarantee the accuracy of any AI-generated content. Every clinical summary shared with your professional is reviewed by a human before it counts. AI features are optional and can be turned off anytime in Settings.
+            getCalmly AI, insights, and journaling reflections are supportive tools, not a substitute for professional care. They may be inaccurate, and GetCalmly does not guarantee the accuracy of any AI-generated content. Every clinical summary shared with your professional is reviewed by a human before it counts. AI features are optional and can be turned off anytime in Settings.
           </P>
 
           <H>Not an emergency service</H>

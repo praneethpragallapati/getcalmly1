@@ -194,8 +194,8 @@ const DEFS: Def[] = [
   { key: 'profile-complete', group: 'Profile', icon: '🪪', label: 'Complete your profile', target: 5, value: (s) => s.profileFields, unit: 'fields' },
 
   // ── Tenure ──
-  { key: 'days-7', group: 'Tenure', icon: '🌱', label: 'One week on getCalmly.', target: 7, value: (s) => s.daysOnPlatform, unit: 'days' },
-  { key: 'days-30', group: 'Tenure', icon: '🌿', label: 'One month on getCalmly.', target: 30, value: (s) => s.daysOnPlatform, unit: 'days' },
+  { key: 'days-7', group: 'Tenure', icon: '🌱', label: 'One week on getCalmly', target: 7, value: (s) => s.daysOnPlatform, unit: 'days' },
+  { key: 'days-30', group: 'Tenure', icon: '🌿', label: 'One month on getCalmly', target: 30, value: (s) => s.daysOnPlatform, unit: 'days' },
   { key: 'mo-3', group: 'Tenure', icon: '🌳', label: '3 months with us', target: 3, value: (s) => Math.max(s.months, Math.floor(s.daysOnPlatform / 30)), unit: 'months' },
   { key: 'mo-6', group: 'Tenure', icon: '🌳', label: '6 months with us', target: 6, value: (s) => Math.max(s.months, Math.floor(s.daysOnPlatform / 30)), unit: 'months' },
   { key: 'mo-12', group: 'Tenure', icon: '🎂', label: 'One year with us', target: 12, value: (s) => Math.max(s.months, Math.floor(s.daysOnPlatform / 30)), unit: 'months' },

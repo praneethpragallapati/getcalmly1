@@ -14,7 +14,7 @@ export default async function ReferPage() {
     <>
       <div className="page-head">
         <h1 className="page-title">Refer &amp; earn</h1>
-        <span className="page-meta">Share getCalmly. Earn rewards</span>
+        <span className="page-meta">Share getCalmly, earn rewards</span>
       </div>
       <ReferAndEarn data={data} />
     </>
