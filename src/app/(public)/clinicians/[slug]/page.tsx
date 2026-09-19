@@ -35,13 +35,12 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
       <section style={{ background: '#101722', padding: '108px 6% 68px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -140, width: 500, height: 500, borderRadius: '50%', background: `radial-gradient(circle, ${c.accent}28 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1120, margin: '0 auto', position: 'relative' }}>
-          <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginBottom: 30, fontWeight: 600 }}>
-            <Link href="/" style={{ color: 'rgba(255,255,255,.5)', textDecoration: 'none' }}>Home</Link>
-            <span style={{ margin: '0 8px' }}>/</span>
-            <Link href="/clinicians" style={{ color: 'rgba(255,255,255,.5)', textDecoration: 'none' }}>Our clinicians</Link>
-            <span style={{ margin: '0 8px' }}>/</span>
-            <span style={{ color: 'rgba(255,255,255,.82)' }}>{c.name}</span>
-          </nav>
+          <Link
+            href="/clinicians"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 600, color: 'rgba(255,255,255,.72)', textDecoration: 'none', marginBottom: 30 }}
+          >
+            <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>&larr;</span> Back to all clinicians
+          </Link>
 
           <div className="clin-profile-grid">
             {/* Photo */}

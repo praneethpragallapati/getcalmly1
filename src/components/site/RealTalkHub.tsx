@@ -23,7 +23,7 @@ const CSS = `
 @keyframes rtMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes rtPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(90,220,150,.5)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(90,220,150,0)}}
 .rt-blob{position:absolute;border-radius:50%;filter:blur(40px);pointer-events:none;will-change:transform;}
-.rt-shimmer{background:linear-gradient(100deg,var(--rt-coral) 0%,var(--rt-gold) 30%,#F0C89B 50%,var(--rt-gold) 70%,var(--rt-coral) 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:rtShimmer 6s linear infinite;}
+.rt-shimmer{background:linear-gradient(100deg,#FFFFFF 0%,#FFE7D2 30%,#FFFFFF 50%,#FFE7D2 70%,#FFFFFF 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:rtShimmer 6s linear infinite;}
 .rt-ticker-track{display:inline-flex;gap:0;white-space:nowrap;animation:rtMarquee 40s linear infinite;}
 .rt-root:hover .rt-ticker-track,.rt-ticker-track:hover{animation-play-state:paused;}
 .rt-dot{width:8px;height:8px;border-radius:50%;background:#5ADC96;display:inline-block;animation:rtPulse 2.2s ease-in-out infinite;}
@@ -36,7 +36,7 @@ const CSS = `
 .rt-up{transition:transform .2s;}
 .rt-card:hover .rt-up{transform:translateY(-3px) scale(1.06);}
 .rt-cta-btn{transition:transform .2s,box-shadow .2s,background .2s;}
-.rt-cta-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(200,85,61,.45);}
+.rt-cta-btn:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(36,17,9,.5);}
 .rt-feat:hover .rt-feat-img{transform:scale(1.05);}
 .rt-feat-img{transition:transform .5s cubic-bezier(.2,.7,.2,1);}
 .rt-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;align-items:start;}
@@ -191,14 +191,14 @@ export default function RealTalkHub({
           display: 'flex',
           flexDirection: 'column',
           background:
-            'radial-gradient(ellipse 60% 60% at 80% 12%, rgba(200,85,61,.34), transparent 60%), radial-gradient(ellipse 50% 55% at 12% 88%, rgba(139,111,201,.30), transparent 62%), radial-gradient(ellipse 40% 45% at 55% 55%, rgba(224,164,92,.14), transparent 60%), #1B1330',
+            'radial-gradient(ellipse 70% 55% at 88% 8%, rgba(255,196,150,.30), transparent 60%), radial-gradient(ellipse 55% 60% at 6% 92%, rgba(214,90,64,.35), transparent 62%), linear-gradient(158deg, #C15A4B 0%, #D66A41 48%, #ED7C46 100%)',
           padding: '104px 24px 0',
         }}
       >
-        {/* floating blobs */}
-        <div className="rt-blob" style={{ top: '-60px', right: '10%', width: 340, height: 340, background: 'radial-gradient(circle, rgba(200,85,61,.5), transparent 68%)', animation: 'rtFloat1 16s ease-in-out infinite' }} />
-        <div className="rt-blob" style={{ bottom: '40px', left: '4%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(139,111,201,.45), transparent 68%)', animation: 'rtFloat2 20s ease-in-out infinite' }} />
-        <div className="rt-blob" style={{ top: '30%', left: '46%', width: 220, height: 220, background: 'radial-gradient(circle, rgba(224,164,92,.28), transparent 70%)', animation: 'rtFloat3 24s ease-in-out infinite' }} />
+        {/* floating blobs — warm tones so they sit within the coral→orange wash */}
+        <div className="rt-blob" style={{ top: '-60px', right: '10%', width: 340, height: 340, background: 'radial-gradient(circle, rgba(255,205,160,.32), transparent 68%)', animation: 'rtFloat1 16s ease-in-out infinite' }} />
+        <div className="rt-blob" style={{ bottom: '40px', left: '4%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(190,70,55,.34), transparent 68%)', animation: 'rtFloat2 20s ease-in-out infinite' }} />
+        <div className="rt-blob" style={{ top: '30%', left: '46%', width: 220, height: 220, background: 'radial-gradient(circle, rgba(255,225,180,.22), transparent 70%)', animation: 'rtFloat3 24s ease-in-out infinite' }} />
 
         <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <h1
@@ -231,7 +231,7 @@ export default function RealTalkHub({
 
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginTop: 34 }}>
-            <Link href="/community" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 32px', borderRadius: 50, background: CORAL, color: '#fff', fontSize: 15.5, fontWeight: 700, textDecoration: 'none', boxShadow: '0 8px 26px rgba(200,85,61,.4)' }}>
+            <Link href="/community" className="rt-cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 32px', borderRadius: 50, background: '#241109', color: '#fff', fontSize: 15.5, fontWeight: 700, textDecoration: 'none', boxShadow: '0 10px 28px rgba(36,17,9,.4)' }}>
               Read the conversations
             </Link>
             <Link href="/register?care=free" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '15px 28px', borderRadius: 50, background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 15.5, fontWeight: 600, textDecoration: 'none', border: '1.5px solid rgba(255,255,255,.2)' }}>
@@ -248,7 +248,7 @@ export default function RealTalkHub({
           <div className="rt-ticker-track" style={{ padding: '14px 0' }}>
             {[...ticker, ...ticker].map((p, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 26px', color: 'rgba(255,255,255,.62)', fontSize: 13.5 }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: CORAL, flexShrink: 0 }} />
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,.85)', flexShrink: 0 }} />
                 <span style={{ fontWeight: 600, color: 'rgba(255,255,255,.85)' }}>{p.author}</span>
                 {p.title}
               </span>
