@@ -170,18 +170,17 @@ export const FORM_TEMPLATES: FormTemplateSeed[] = [
   {
     slug: 'feedback-session',
     title: 'Session feedback',
-    description: 'A quick check-in on how your sessions are going.',
+    description: 'A quick rating of your session.',
     kind: 'FEEDBACK',
     fields: [
       {
-        key: 'helpful',
-        label: 'How helpful have your sessions been so far?',
+        key: 'rating',
+        label: 'How would you rate your session?',
         type: 'select',
-        options: ['Very helpful', 'Somewhat helpful', 'Neutral', 'Not very helpful'],
+        options: ['⭐⭐⭐⭐⭐ Excellent', '⭐⭐⭐⭐ Good', '⭐⭐⭐ Okay', '⭐⭐ Below average', '⭐ Poor'],
         required: true,
       },
-      { key: 'whatWorking', label: "What's working well?", type: 'textarea' },
-      { key: 'whatChange', label: "What would you like to be different?", type: 'textarea' },
+      { key: 'comment', label: 'Anything you’d like to add? (optional)', type: 'textarea' },
     ],
   },
 ]
