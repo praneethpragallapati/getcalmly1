@@ -12,7 +12,7 @@ const SERVICES = [
   { slug: 'psychiatry', accent: '#1A7F7A', pale: 'rgba(26,127,122,.10)', title: 'Psychiatry', tag: 'Evaluation, diagnosis & medication' },
   { slug: 'addiction', accent: '#3E6E9C', pale: 'rgba(62,110,156,.10)', title: 'Addiction & Recovery', tag: 'Alcohol, substances, screens & habits' },
   { slug: 'couples', accent: '#6D5BD0', pale: 'rgba(124,92,191,.10)', title: 'Couples & Relationships', tag: 'Communication, trust & repair' },
-  { slug: 'child', accent: '#3D9E72', pale: 'rgba(61,158,114,.10)', title: 'Children & Teens', tag: 'Age-appropriate, judgment-free care' },
+  { slug: 'child', accent: '#9B4DC7', pale: 'rgba(155,77,199,.10)', title: 'Children & Teens', tag: 'Age-appropriate, judgment-free care' },
   { slug: 'maternal', accent: '#D98C5F', pale: 'rgba(217,140,95,.12)', title: 'Motherhood & Postpartum', tag: 'Support built for this season' },
   { slug: 'assessments', accent: '#C9973A', pale: 'rgba(201,151,58,.12)', title: 'Psychological Assessments', tag: 'Clarity through validated tools' },
   { slug: 'specialised', accent: '#C04B8A', pale: 'rgba(192,75,138,.10)', title: 'Specialised Support', tag: 'LGBTQIA+, grief, chronic illness' },

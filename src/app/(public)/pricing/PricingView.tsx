@@ -206,7 +206,7 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
         <div className="pr-hero-inner">
           <p className="pr-eyebrow" style={{ color: 'rgba(255,255,255,.5)' }}>Pricing</p>
           <h1 className="pr-h1">
-            Real care, at a price<br /><span style={{ color: coral }}>that makes sense.</span>
+            Real care, at a price<br /><span style={{ color: '#FFCF9A' }}>that makes sense.</span>
           </h1>
           <p className="pr-hero-sub">
             The more you commit to your healing, the less each session costs. Your first session is a flat {inr(pricing.firstSession.therapy)},
@@ -307,14 +307,14 @@ const CSS = `
   .pr-h2{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 300; font-size: clamp(30px, 4.4vw, 44px); color: var(--charcoal); letter-spacing: -1px; line-height: 1.04; text-wrap: balance; }
 
   /* Hero */
-  /* Deep, matte wine — rich and low-key, not shiny. Subtle radial tints over a
-     very dark base, in the spirit of the Features hero. */
+  /* Vibrant violet → magenta wash — same lively, two-tone treatment as the Calm
+     Club hero, in a different hue so pricing feels its own. */
   .pr-hero{ position: relative; overflow: hidden; text-align: center; box-sizing: border-box; min-height: 600px; display: flex; flex-direction: column; justify-content: center; padding: 104px 24px 56px;
-    background: radial-gradient(ellipse 60% 60% at 86% 6%, rgba(150,55,88,.26), transparent 58%),
-                radial-gradient(ellipse 46% 55% at 4% 90%, rgba(120,72,96,.14), transparent 60%),
-                #2A1620; }
+    background: radial-gradient(ellipse 70% 55% at 88% 8%, rgba(255,182,224,.26), transparent 60%),
+                radial-gradient(ellipse 55% 60% at 6% 92%, rgba(120,55,160,.38), transparent 62%),
+                linear-gradient(158deg, #6A3FA6 0%, #8B3F9E 50%, #B23F82 100%); }
   .pr-hero-glow{ position: absolute; top: -140px; right: -110px; width: 440px; height: 440px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(150,70,100,.14) 0%, transparent 70%); pointer-events: none; }
+    background: radial-gradient(circle, rgba(255,190,228,.20) 0%, transparent 70%); pointer-events: none; }
   .pr-hero-inner{ max-width: 720px; margin: 0 auto; position: relative; }
   .pr-hero-sub{ font-size: 17px; color: rgba(255,255,255,.7); line-height: 1.7; max-width: 600px; margin: 0 auto; }
   .pr-trust{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 28px; }
