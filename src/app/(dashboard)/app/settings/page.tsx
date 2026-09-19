@@ -4,6 +4,7 @@ import { getAccount, getPatientProfileForEdit } from '@/lib/account'
 import { PrivacyControls } from '@/components/dashboard/PrivacyControls'
 import { LogoutButton } from '@/components/dashboard/LogoutButton'
 import { ProfileEditor } from '@/components/dashboard/ProfileEditor'
+import { ContactMethods } from '@/components/dashboard/ContactMethods'
 import { DataPrivacyCard } from '@/components/dashboard/DataPrivacyCard'
 
 export default async function SettingsPage() {
@@ -107,6 +108,7 @@ export default async function SettingsPage() {
 
 
           {/* Profile */}
+          {profile && <ContactMethods email={profile.email} phone={profile.phone} />}
           {profile && <ProfileEditor profile={profile} />}
 
           {/* Session */}

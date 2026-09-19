@@ -16,6 +16,8 @@ import { communityIdentity } from '@/lib/community'
 import { normalizeTags } from '@/data/tags'
 import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
 import { rateLimit } from '@/lib/rateLimit'
+import { verifyOtp } from '@/lib/msg91'
+import { verifyEmailOtp } from '@/lib/email'
 import { isPsychiatrist } from '@/lib/clinicianScope'
 import { sessionDurationMins, ensureSessionPresenceSchema, recordPresenceBeat } from '@/lib/sessionLifecycle'
 import { trackForClinician } from '@/lib/packageCounters'
@@ -923,6 +925,48 @@ export type PatientProfileInput = {
  * which is the login identity and stays fixed. Name/phone/photo live on the User
  * row; the personal & emergency-contact fields live on PatientProfile.
  */
+/**
+ * Change the signed-in member's login email or phone, verified by an OTP sent
+ * to the NEW value. The code is sent via the same /api/otp endpoints used at
+ * sign-in; here we only verify it and, on success, move the identity over
+ * (guarding against a value another account already uses).
+ */
+export async function updateContact(input: { channel: 'email' | 'phone'; value: string; otp: string }): Promise<{ ok: boolean; error?: string }> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, error: 'Your session has ended. Please sign in again.' }
+  const otp = (input.otp ?? '').trim()
+  if (!otp) return { ok: false, error: 'Enter the code we sent.' }
+
+  if (input.channel === 'email') {
+    const email = (input.value ?? '').trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Enter a valid email address.' }
+    const res = await verifyEmailOtp(email, otp)
+    if (!res.ok) return { ok: false, error: res.message || 'That code was not right. Please try again.' }
+    const clash = await prisma.user.findUnique({ where: { email }, select: { id: true } }).catch(() => null)
+    if (clash && clash.id !== userId) return { ok: false, error: 'That email is already used by another account.' }
+    try {
+      await prisma.user.update({ where: { id: userId }, data: { email } })
+    } catch {
+      return { ok: false, error: 'Could not update your email. Please try again.' }
+    }
+  } else {
+    const digits = (input.value ?? '').replace(/\D/g, '')
+    if (digits.length < 10) return { ok: false, error: 'Enter a valid phone number.' }
+    const res = await verifyOtp(digits, otp)
+    if (!res.ok) return { ok: false, error: res.message || 'That code was not right. Please try again.' }
+    const phone = `+${digits}`
+    const clash = await prisma.user.findUnique({ where: { phone }, select: { id: true } }).catch(() => null)
+    if (clash && clash.id !== userId) return { ok: false, error: 'That number is already used by another account.' }
+    try {
+      await prisma.user.update({ where: { id: userId }, data: { phone } })
+    } catch {
+      return { ok: false, error: 'Could not update your number. Please try again.' }
+    }
+  }
+  revalidatePath('/app/settings')
+  return { ok: true }
+}
+
 export async function updatePatientProfile(input: PatientProfileInput): Promise<ActionResult> {
   const userId = await getSessionUserId()
   if (!userId) return { ok: false, persisted: false, error: 'Please sign in first.' }

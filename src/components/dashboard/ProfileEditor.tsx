@@ -23,7 +23,6 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [name, setName] = useState(profile.name)
-  const [phone, setPhone] = useState(profile.phone ?? '')
   const [gender, setGender] = useState(profile.gender ?? '')
   const [dob, setDob] = useState(profile.dateOfBirth ?? '')
   const [country, setCountry] = useState(profile.country || 'IN')
@@ -63,7 +62,8 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
     start(async () => {
       const res = await updatePatientProfile({
         name,
-        phone,
+        // Phone is the login identity and is changed only via an OTP-verified
+        // flow (Sign-in & contact), so it is not written from here.
         gender,
         dateOfBirth: dob || null,
         country,
@@ -121,19 +121,13 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         </div>
       </div>
 
-      {/* Email (read-only) */}
-      <div style={{ marginTop: 16 }}>
-        <label className="field-label">Email (can't be changed)</label>
-        <div className="field-input" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--c-bg, #f6efea)', color: 'var(--c-gray-d)' }}>
-          <Mail size={14} /> {profile.email ?? 'Not signed in'}
-        </div>
-      </div>
-
-
       <div className="field-grid" style={{ marginTop: 16 }}>
         <div>
           <label className="field-label">Phone</label>
-          <input className="field-input" value={phone} maxLength={20} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" />
+          <div className="field-input" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--c-bg, #f6efea)', color: 'var(--c-gray-d)' }}>
+            <Mail size={14} /> {profile.phone ?? 'Not set'}
+          </div>
+          <p className="muted" style={{ fontSize: 11.5, marginTop: 4 }}>Change your email or phone in Sign-in &amp; contact above.</p>
         </div>
         <div>
           <label className="field-label">Gender</label>
