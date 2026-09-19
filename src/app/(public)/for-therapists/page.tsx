@@ -27,15 +27,15 @@ export default function ForTherapistsPage() {
         @media (max-width: 520px){ .fc-steps{grid-template-columns:1fr !important;} }
       `}</style>
       {/* Hero */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(150,118,52,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(70,105,72,.14), transparent 60%), #241C10', minHeight: 600, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(150,120,55,.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <section style={{ background: 'radial-gradient(ellipse 70% 55% at 88% 8%, rgba(150,240,205,.24), transparent 60%), radial-gradient(ellipse 55% 60% at 6% 92%, rgba(10,88,78,.42), transparent 62%), linear-gradient(158deg, #0B7A63 0%, #109C70 50%, #2FAE6A 100%)', minHeight: 600, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(150,240,205,.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.6)', marginBottom: 18 }}>For therapists &amp; psychiatrists</p>
           <h1 style={{
             fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300,
             fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', lineHeight: 1.0, letterSpacing: '-2px', marginBottom: 22,
           }}>
-            Do the work you trained for.<br /><span style={{ color: '#7BD3AC', fontWeight: 900 }}>We&apos;ll carry the rest.</span>
+            Do the work you trained for.<br /><span style={{ color: '#FFE0A3', fontWeight: 900 }}>We&apos;ll carry the rest.</span>
           </h1>
           <p style={{ fontSize: 17.5, color: 'rgba(255,255,255,.72)', lineHeight: 1.75, maxWidth: 610, margin: '0 auto', fontWeight: 300 }}>
             Clients matched to your specialities. Notes, scheduling, reminders and payments handled for you. An AI co-pilot that remembers each client&apos;s story, plus real supervision and a peer community behind you. You keep your clinical judgement and your hours — getCalmly takes care of everything around them.
