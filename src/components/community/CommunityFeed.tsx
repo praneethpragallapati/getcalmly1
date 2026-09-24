@@ -468,7 +468,6 @@ export default function CommunityFeed({
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       {showHero && (
       <section
-        className={embedded ? undefined : 'hero-dark'}
         style={{
           position: 'relative',
           background: 'radial-gradient(ellipse 65% 75% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 60% at 4% 80%, rgba(200,85,61,.12), transparent 60%), #141E29',

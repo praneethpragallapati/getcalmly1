@@ -195,55 +195,32 @@
 /* Scroll cue reads light on the photo hero. */
 .lp-page .hero .scroll-cue{color:rgba(255,255,255,.8);}
 .lp-page .hero .scroll-cue .sc-line{background:rgba(255,255,255,.6);}
-/* Inner-page heroes opt into the home hero's adaptive-nav treatment by carrying
-   `.hero-dark`: the section bleeds up under the fixed nav (cancelling main's 84px
-   top pad) so its colour sits behind the bar, exactly like the home `.hero`. */
-.lp-page .hero-dark{margin-top:-84px;}
-/* Over a dark hero — the home photo hero, or any inner-page `.hero-dark` — the
-   fixed nav rides transparent so the hero reads through it and its marks turn
-   white; on scroll (.stuck) it returns to the default frosted bar with dark
-   marks. Each rule matches two ways for robustness: pure-CSS `:has()` (instant,
-   no flash) and a `.nav-onhero` class the landing script sets after mount, which
-   covers the cases where `:has()` mis-evaluates against Next's streamed markup. */
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck),
-.lp-page nav.nav-onhero:not(.stuck){background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none;border-color:transparent;}
+/* Over the immersive photo hero (home only, before it sticks) the fixed nav is
+   fully transparent so the photo reads through it; its marks turn white and the
+   veil's top scrim keeps them legible. On scroll (.stuck) it returns to the
+   default frosted bar with dark marks. */
+.lp-page:has(.hero) nav:not(.stuck){background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none;border-color:transparent;}
 /* Two logo variants: the light (white) wordmark shows only over the transparent
    hero nav; the dark one everywhere else, including once the bar sticks. */
 .lp-page .logo-light{display:none;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .logo-dark,
-.lp-page nav.nav-onhero:not(.stuck) .logo-dark{display:none;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .logo-light,
-.lp-page nav.nav-onhero:not(.stuck) .logo-light{display:inline-flex;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-links a,
-.lp-page nav.nav-onhero:not(.stuck) .nav-links a,
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-trigger,
-.lp-page nav.nav-onhero:not(.stuck) .nav-trigger{color:#fff;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-links a::after,
-.lp-page nav.nav-onhero:not(.stuck) .nav-links a::after{background:#fff;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-links a:hover,
-.lp-page nav.nav-onhero:not(.stuck) .nav-links a:hover,
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-item:hover .nav-trigger,
-.lp-page nav.nav-onhero:not(.stuck) .nav-item:hover .nav-trigger{color:#fff;opacity:.82;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .btn-ghost,
-.lp-page nav.nav-onhero:not(.stuck) .btn-ghost{color:#fff !important;border-color:rgba(255,255,255,.5) !important;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .btn-ghost:hover,
-.lp-page nav.nav-onhero:not(.stuck) .btn-ghost:hover{background:rgba(255,255,255,.12) !important;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-burger,
-.lp-page nav.nav-onhero:not(.stuck) .nav-burger{color:#fff !important;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .btn-primary,
-.lp-page nav.nav-onhero:not(.stuck) .btn-primary{background:#fff;color:var(--coral-d);box-shadow:0 4px 18px rgba(0,0,0,.22);}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .btn-primary:hover,
-.lp-page nav.nav-onhero:not(.stuck) .btn-primary:hover{background:#fff;color:var(--coral-d);}
+.lp-page:has(.hero) nav:not(.stuck) .logo-dark{display:none;}
+.lp-page:has(.hero) nav:not(.stuck) .logo-light{display:inline-flex;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-links a,
+.lp-page:has(.hero) nav:not(.stuck) .nav-trigger{color:#fff;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-links a::after{background:#fff;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-links a:hover,
+.lp-page:has(.hero) nav:not(.stuck) .nav-item:hover .nav-trigger{color:#fff;opacity:.82;}
+.lp-page:has(.hero) nav:not(.stuck) .btn-ghost{color:#fff !important;border-color:rgba(255,255,255,.5) !important;}
+.lp-page:has(.hero) nav:not(.stuck) .btn-ghost:hover{background:rgba(255,255,255,.12) !important;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-burger{color:#fff !important;}
+.lp-page:has(.hero) nav:not(.stuck) .btn-primary{background:#fff;color:var(--coral-d);box-shadow:0 4px 18px rgba(0,0,0,.22);}
+.lp-page:has(.hero) nav:not(.stuck) .btn-primary:hover{background:#fff;color:var(--coral-d);}
 /* The mega dropdown adapts with the bar: dark glass over the hero, back to the
    default white panel once the bar sticks. */
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-mega,
-.lp-page nav.nav-onhero:not(.stuck) .nav-mega{background:rgba(18,28,40,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:rgba(255,255,255,.14);box-shadow:0 24px 60px rgba(0,0,0,.45);}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-mega-item:hover,
-.lp-page nav.nav-onhero:not(.stuck) .nav-mega-item:hover{background:rgba(255,255,255,.07);}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-mega-t,
-.lp-page nav.nav-onhero:not(.stuck) .nav-mega-t{color:#fff;}
-.lp-page:has(.hero, .hero-dark) nav:not(.stuck) .nav-mega-d,
-.lp-page nav.nav-onhero:not(.stuck) .nav-mega-d{color:rgba(255,255,255,.6);}
+.lp-page:has(.hero) nav:not(.stuck) .nav-mega{background:rgba(18,28,40,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:rgba(255,255,255,.14);box-shadow:0 24px 60px rgba(0,0,0,.45);}
+.lp-page:has(.hero) nav:not(.stuck) .nav-mega-item:hover{background:rgba(255,255,255,.07);}
+.lp-page:has(.hero) nav:not(.stuck) .nav-mega-t{color:#fff;}
+.lp-page:has(.hero) nav:not(.stuck) .nav-mega-d{color:rgba(255,255,255,.6);}
 .lp-page .phone-frame{background:var(--charcoal);border-radius:40px;padding:16px;
   box-shadow:0 40px 100px rgba(28,43,58,.28),0 0 0 1px rgba(255,255,255,.04);
   position:relative;}

@@ -27,7 +27,7 @@ export default function ForTherapistsPage() {
         @media (max-width: 520px){ .fc-steps{grid-template-columns:1fr !important;} }
       `}</style>
       {/* Hero */}
-      <section className="hero-dark" style={{ background: 'radial-gradient(ellipse 70% 55% at 88% 8%, rgba(150,240,205,.24), transparent 60%), radial-gradient(ellipse 55% 60% at 6% 92%, rgba(10,88,78,.42), transparent 62%), linear-gradient(158deg, #0B7A63 0%, #109C70 50%, #2FAE6A 100%)', minHeight: 600, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'radial-gradient(ellipse 70% 55% at 88% 8%, rgba(150,240,205,.24), transparent 60%), radial-gradient(ellipse 55% 60% at 6% 92%, rgba(10,88,78,.42), transparent 62%), linear-gradient(158deg, #0B7A63 0%, #109C70 50%, #2FAE6A 100%)', minHeight: 600, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '104px 24px 56px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -120, right: -120, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(150,240,205,.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <p style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.6)', marginBottom: 18 }}>For therapists &amp; psychiatrists</p>

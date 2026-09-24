@@ -201,7 +201,7 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
       <style>{CSS}</style>
 
       {/* Hero */}
-      <section className="pr-hero hero-dark">
+      <section className="pr-hero">
         <div className="pr-hero-glow" />
         <div className="pr-hero-inner">
           <p className="pr-eyebrow" style={{ color: 'rgba(255,255,255,.5)' }}>Pricing</p>

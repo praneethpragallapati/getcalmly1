@@ -54,7 +54,6 @@ export default function BlogList({ posts }: { posts: BlogPostView[] }) {
     <div style={{ background: '#FFFCFA', minHeight: '100vh' }}>
       {/* Hero */}
       <section
-        className="hero-dark"
         style={{
           position: 'relative',
           overflow: 'hidden',

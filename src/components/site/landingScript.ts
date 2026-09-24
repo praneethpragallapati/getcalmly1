@@ -4,13 +4,7 @@
 export const LANDING_SCRIPT = `
 (function(){
   var nav=document.getElementById('nav');
-  if(nav){
-    window.addEventListener('scroll',function(){nav.classList.toggle('stuck',window.scrollY>40);});
-    // Ride transparent over a dark hero: the home photo hero (.hero) or any
-    // inner-page hero that opted in with .hero-dark. A class makes this
-    // deterministic even where CSS :has() mis-evaluates against streamed markup.
-    nav.classList.toggle('nav-onhero', !!document.querySelector('.hero, .hero-dark'));
-  }
+  if(nav){window.addEventListener('scroll',function(){nav.classList.toggle('stuck',window.scrollY>40);});}
 
   // Mark the page as reveal-capable ONLY once the observer is actually attached.
   // Until then the stylesheet runs a slow fade-in fallback, so a script error or
