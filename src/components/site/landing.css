@@ -215,12 +215,6 @@
 .lp-page:has(.hero) nav:not(.stuck) .nav-burger{color:#fff !important;}
 .lp-page:has(.hero) nav:not(.stuck) .btn-primary{background:#fff;color:var(--coral-d);box-shadow:0 4px 18px rgba(0,0,0,.22);}
 .lp-page:has(.hero) nav:not(.stuck) .btn-primary:hover{background:#fff;color:var(--coral-d);}
-/* The mega dropdown adapts with the bar: dark glass over the hero, back to the
-   default white panel once the bar sticks. */
-.lp-page:has(.hero) nav:not(.stuck) .nav-mega{background:rgba(18,28,40,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:rgba(255,255,255,.14);box-shadow:0 24px 60px rgba(0,0,0,.45);}
-.lp-page:has(.hero) nav:not(.stuck) .nav-mega-item:hover{background:rgba(255,255,255,.07);}
-.lp-page:has(.hero) nav:not(.stuck) .nav-mega-t{color:#fff;}
-.lp-page:has(.hero) nav:not(.stuck) .nav-mega-d{color:rgba(255,255,255,.6);}
 .lp-page .phone-frame{background:var(--charcoal);border-radius:40px;padding:16px;
   box-shadow:0 40px 100px rgba(28,43,58,.28),0 0 0 1px rgba(255,255,255,.04);
   position:relative;}
