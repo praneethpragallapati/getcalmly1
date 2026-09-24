@@ -116,7 +116,7 @@ export default function SafetyPage() {
       `}</style>
 
       {/* Hero */}
-      <section style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
+      <section className="hero-dark" style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="swrap safety-hero" style={{ position: 'relative' }}>
           <div>

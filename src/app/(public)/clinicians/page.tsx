@@ -19,7 +19,7 @@ export default function CliniciansPage() {
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
       {/* ── Header band ── */}
-      <section style={{ background: '#101722', padding: '116px 6% 64px', position: 'relative', overflow: 'hidden' }}>
+      <section className="hero-dark" style={{ background: '#101722', padding: '116px 6% 64px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -120, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative' }}>
           <nav style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginBottom: 22, fontWeight: 600 }}>

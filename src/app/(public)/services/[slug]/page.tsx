@@ -473,7 +473,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
-      <section style={{ background: darkBand(s.accent), padding: '104px 48px 52px', position: 'relative', overflow: 'hidden' }}>
+      <section className="hero-dark" style={{ background: darkBand(s.accent), padding: '104px 48px 52px', position: 'relative', overflow: 'hidden' }}>
         {photo && (
           <BlogCover
             src={photo.src}

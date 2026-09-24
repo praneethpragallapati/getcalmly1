@@ -183,6 +183,7 @@ export default function RealTalkHub({
 
       {/* ══ HERO ══ */}
       <section
+        className="hero-dark"
         style={{
           position: 'relative',
           overflow: 'hidden',

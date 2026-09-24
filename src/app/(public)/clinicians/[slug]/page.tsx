@@ -32,7 +32,7 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
       {/* ── Intro: photo left, warm introduction right ── */}
-      <section style={{ background: '#101722', padding: '108px 6% 68px', position: 'relative', overflow: 'hidden' }}>
+      <section className="hero-dark" style={{ background: '#101722', padding: '108px 6% 68px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -140, width: 500, height: 500, borderRadius: '50%', background: `radial-gradient(circle, ${c.accent}28 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1120, margin: '0 auto', position: 'relative' }}>
           <Link

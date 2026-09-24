@@ -129,11 +129,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       />
       {/* Hero */}
       <section
+        className="hero-dark"
         style={{
           position: 'relative',
           overflow: 'hidden',
           background: `linear-gradient(160deg, ${cover.from}, ${cover.to})`,
-          padding: '76px 24px 72px',
+          padding: '104px 24px 72px',
         }}
       >
         {/* cover photo behind the gradient/orbs (falls back to gradient) */}
