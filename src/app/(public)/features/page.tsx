@@ -290,7 +290,7 @@ export default function FeaturesPage() {
               Your care, in your pocket.
             </h2>
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,.66)', lineHeight: 1.7, marginBottom: 22, fontWeight: 300 }}>
-              The app is where your care lives day to day. Check in, talk to Calm, journal, and join sessions, all in one place. And because it is with you, the gentle reminders and personalised nudges arrive exactly when they help most.
+              The app is where your care lives day to day. Check in, talk to getCalmly AI, journal, and join sessions, all in one place. And because it is with you, the gentle reminders and personalised nudges arrive exactly when they help most.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
               {['Daily check-ins that take seconds', 'getCalmly AI a tap away, whenever you need it', 'Timely nudges, personalised to your patterns', 'Join sessions and see your progress'].map((t) => (
