@@ -12,9 +12,12 @@
 import { prisma } from '@/lib/prisma'
 
 let contactSchemaReady = false
+let lastAttempt = 0
 
 export async function ensureContactSchema(): Promise<void> {
   if (contactSchemaReady) return
+  // After a partial failure, retry at most once a minute rather than on every request.
+  if (lastAttempt && Date.now() - lastAttempt < 60_000) return
   const stmts = [
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "addressLine1" TEXT`,
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "addressLine2" TEXT`,
@@ -67,6 +70,19 @@ export async function ensureContactSchema(): Promise<void> {
     `ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "sundayBonus" INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "compensationFields" JSONB`,
   ]
-  for (const sql of stmts) await prisma.$executeRawUnsafe(sql)
-  contactSchemaReady = true
+  // Each statement stands alone: one that fails (a lock timeout, a column
+  // created by hand with another type) must not stop every column after it
+  // from being added, which is how newer columns went missing in production.
+  // If anything failed, try again on a later request rather than never.
+  let failed = 0
+  for (const sql of stmts) {
+    try {
+      await prisma.$executeRawUnsafe(sql)
+    } catch (e) {
+      failed++
+      console.error('[ensureContactSchema] statement failed, continuing:', sql.slice(0, 90), e)
+    }
+  }
+  if (failed === 0) contactSchemaReady = true
+  else lastAttempt = Date.now()
 }

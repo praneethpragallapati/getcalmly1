@@ -6,6 +6,7 @@
 import { getServerSession } from 'next-auth'
 import { getClinicianSessionGap } from '@/lib/sessionGap'
 import { readDoc } from '@/lib/clinicianDocs'
+import { getTherapistExtras, getOneTherapistExtras, EXTRAS_DEFAULT } from '@/lib/therapistExtras'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { designationOf, getTherapistEarnings, getEarningsForMany, ensureBlogReviewSchema, type EarningLine, type PersonContact } from '@/lib/expert'
@@ -178,7 +179,6 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
       prisma.therapistProfile.findMany({
         select: {
           id: true, isActive: true, isVerified: true, rating: true, totalReviews: true,
-          matchingEligible: true, directBookingEligible: true,
           employmentType: true, languages: true, specializations: true,
           user: { select: { name: true, email: true, registrationNo: true } },
         },
@@ -186,13 +186,16 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
       prisma.appointment.groupBy({ by: ['therapistId'], where: { status: 'COMPLETED' }, _count: { _all: true } }),
     ])
     const doneByProfile = new Map(completed.map((c) => [c.therapistId, c._count._all]))
+    // The newest columns come from their own guarded read (see lib/therapistExtras).
+    const extras = await getTherapistExtras(rows.map((r) => r.id))
     return rows
       .map((r) => ({
         profileId: r.id, name: r.user?.name ?? 'Clinician', email: r.user?.email ?? '',
         registrationNo: r.user?.registrationNo ?? null,
         designation: designationOf(r.specializations), employmentType: (r.employmentType as string) ?? 'FULL_TIME',
         isActive: r.isActive, isVerified: r.isVerified, rating: r.rating, totalReviews: r.totalReviews,
-        matchingEligible: r.matchingEligible ?? true, directBookingEligible: r.directBookingEligible ?? true,
+        matchingEligible: (extras.get(r.id) ?? EXTRAS_DEFAULT).matchingEligible,
+        directBookingEligible: (extras.get(r.id) ?? EXTRAS_DEFAULT).directBookingEligible,
         languages: r.languages ?? [], specializations: r.specializations ?? [],
         sessionsCompleted: doneByProfile.get(r.id) ?? 0,
       }))
@@ -253,12 +256,14 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         isActive: true, isVerified: true, rating: true, totalReviews: true,
         baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
         secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
-        saturdayBonus: true, sundayBonus: true, matchingEligible: true, directBookingEligible: true,
         documentUrls: true, gender: true, createdAt: true,
         user: { select: { id: true, name: true, email: true, phone: true, registrationNo: true } },
       },
     })
     if (!p) return null
+    // Newest columns, read on their own so a database without them yet still
+    // opens this page (with defaults) instead of 404ing.
+    const extras = await getOneTherapistExtras(profileId)
     let compensationFields: CompensationField[] = []
     try {
       const comp = await prisma.therapistProfile.findUnique({ where: { id: profileId }, select: { compensationFields: true } })
@@ -353,11 +358,11 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       specializations: p.specializations, rciNumber: p.rciNumber, yearsExp: p.yearsExp, sessionFee: p.sessionFee,
       employmentType: (p.employmentType as string) ?? 'FULL_TIME', isActive: p.isActive, isVerified: p.isVerified,
       rating: p.rating, totalReviews: p.totalReviews,
-      matchingEligible: p.matchingEligible ?? true, directBookingEligible: p.directBookingEligible ?? true,
+      matchingEligible: extras.matchingEligible, directBookingEligible: extras.directBookingEligible,
       baseFeeIndividual: p.baseFeeIndividual ?? null, baseFeeCouples: p.baseFeeCouples ?? null, baseFeePsychiatry: p.baseFeePsychiatry ?? null,
       secondSessionBonus: p.secondSessionBonus ?? null, thirdOnwardsBonus: p.thirdOnwardsBonus ?? null,
       miscBonus: p.miscBonus ?? null, nightSessionBonus: p.nightSessionBonus ?? null,
-      saturdayBonus: p.saturdayBonus ?? null, sundayBonus: p.sundayBonus ?? null,
+      saturdayBonus: extras.saturdayBonus, sundayBonus: extras.sundayBonus,
       globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
       globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus, saturday: config.saturdayBonus, sunday: config.sundayBonus },
       documentUrls: p.documentUrls ?? [],

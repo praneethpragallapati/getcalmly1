@@ -10,6 +10,7 @@
     "postinstall": "prisma generate",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:sync-sql": "node scripts/generate-sync-schema.mjs",
     "hms:lock": "tsx scripts/hms-lock-template.ts",
     "seed:demo": "tsx scripts/seed-demo-activity.ts",
     "check:ai": "tsx scripts/check-ai.ts",
