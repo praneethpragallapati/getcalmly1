@@ -79,7 +79,13 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
               {(t.dueLabel || t.frequencyLabel) && (
                 <div className="task-detail" style={{ color: t.expired && !isDone ? 'var(--c-coral)' : undefined }}>
                   {t.frequencyLabel ? `${t.frequencyLabel}${t.dueLabel ? ' · ' : ''}` : ''}
-                  {t.dueLabel ? (t.expired && !isDone ? `Expired ${t.dueLabel}` : `Until ${t.dueLabel}`) : ''}
+                  {t.dueLabel
+                    ? t.expired && !isDone
+                      ? `Expired ${t.dueLabel}`
+                      : t.frequencyLabel
+                        ? `Until ${t.dueLabel}`
+                        : `Due ${t.dueLabel}`
+                    : ''}
                 </div>
               )}
             </div>
@@ -89,6 +95,15 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
           </div>
         )
       })}
+      {allDone && (
+        <div className="done-banner">
+          <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
+          <div>
+            <div className="db-t">All done for today</div>
+            <div className="db-s">Every activity ticked off. Beautifully done.</div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

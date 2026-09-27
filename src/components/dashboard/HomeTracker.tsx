@@ -74,9 +74,13 @@ export function HomeTracker({
           </div>
           <div className="todo-list">
             {pulseDue.length === 0 ? (
-              <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, margin: '8px 0 0' }}>
-                No pulse checks waiting. Your care team assigns these between sessions.
-              </p>
+              <div className="done-banner" style={{ marginTop: 0 }}>
+                <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
+                <div>
+                  <div className="db-t">All pulse checks complete</div>
+                  <div className="db-s">Nothing waiting — new checks appear here between sessions.</div>
+                </div>
+              </div>
             ) : (
               pulseDue.map((p) => (
                 <Link key={p.id} href="/app/pulse" className="todo-row">
@@ -116,9 +120,13 @@ export function HomeTracker({
           </div>
           <div className="todo-list">
             {forms.length === 0 ? (
-              <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, margin: '8px 0 0' }}>
-                <Check size={13} strokeWidth={3} style={{ verticalAlign: '-2px' }} /> You’re all caught up — no forms to fill.
-              </p>
+              <div className="done-banner" style={{ marginTop: 0 }}>
+                <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
+                <div>
+                  <div className="db-t">All forms complete</div>
+                  <div className="db-s">You’re all caught up — nothing waiting from your care team.</div>
+                </div>
+              </div>
             ) : (
               forms.map((f) => (
                 <Link key={f.id} href="/app/forms" className="todo-row">

@@ -267,6 +267,7 @@ export const demoDashboard: DashboardData = {
       detail: 'Add it to your journal',
       done: false,
       assignedBy: 'Dr. Riya Lokesh',
+      dueLabel: 'today',
     },
     {
       id: 't3',
@@ -274,6 +275,7 @@ export const demoDashboard: DashboardData = {
       title: 'Watch: Grounding when anxious (6 min)',
       done: false,
       assignedBy: 'Dr. Riya Lokesh',
+      dueLabel: 'tonight',
     },
   ],
   todaySession: {

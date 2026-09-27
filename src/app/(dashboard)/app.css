@@ -3516,3 +3516,34 @@
 .by-tp svg { flex-shrink: 0; color: var(--c-coral-d); }
 .by-tp-b { font-size: 12.5px; font-weight: 800; color: var(--c-coral-d); letter-spacing: 0.1px; }
 .by-tp-s { font-size: 12px; color: var(--c-gray); }
+
+/* ===== "All caught up" completed banner (activities / pulse / forms) ===== */
+.done-banner {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 13px;
+  border-radius: 12px;
+  background: var(--c-green-pale);
+  border: 1px solid color-mix(in srgb, var(--c-green) 22%, transparent);
+  margin-top: 10px;
+  animation: doneIn 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.done-banner .db-ic {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--c-green);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.done-banner .db-t { font-size: 13.5px; font-weight: 800; color: var(--c-green-ink); }
+.done-banner .db-s { font-size: 11.5px; color: var(--c-gray); margin-top: 1px; }
+@keyframes doneIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .done-banner { animation: none; } }
