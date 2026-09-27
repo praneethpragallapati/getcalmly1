@@ -54,16 +54,16 @@ export function OutcomeChart({ instrumentId, series }: { instrumentId: string; s
         <text x={padL - 4} y={y(max) + 3} textAnchor="end" fontSize="8" fill="var(--c-gray)">{max}</text>
         <text x={padL - 4} y={y(min) + 3} textAnchor="end" fontSize="8" fill="var(--c-gray)">{min}</text>
         {/* line */}
-        <polyline points={line} fill="none" stroke="var(--c-coral)" strokeWidth="2"
+        <polyline className="oc-line" pathLength={1} points={line} fill="none" stroke="var(--c-coral)" strokeWidth="2"
                   strokeLinejoin="round" strokeLinecap="round" />
         {/* dots */}
         {pts.map((p, i) => (
-          <circle key={i} cx={p.cx} cy={p.cy} r={i === pts.length - 1 ? 4 : 2.6}
+          <circle className="oc-dot" key={i} cx={p.cx} cy={p.cy} r={i === pts.length - 1 ? 4 : 2.6}
                   fill={i === pts.length - 1 ? 'var(--c-coral)' : 'var(--c-white)'}
                   stroke="var(--c-coral)" strokeWidth="1.5" />
         ))}
         {/* current value label */}
-        <text x={last.cx} y={last.cy - 7} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--c-coral-d)">{last.v}</text>
+        <text className="oc-val" x={last.cx} y={last.cy - 7} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--c-coral-d)">{last.v}</text>
         {/* x endpoints */}
         <text x={padL} y={H - 6} textAnchor="start" fontSize="8" fill="var(--c-gray)">{short(series[0].recordedAt)}</text>
         <text x={W - padR} y={H - 6} textAnchor="end" fontSize="8" fill="var(--c-gray)">{short(series[series.length - 1].recordedAt)}</text>

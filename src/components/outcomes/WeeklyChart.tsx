@@ -49,12 +49,12 @@ export function WeeklyChart({
         <line x1={padL} x2={W - padR} y1={y(min)} y2={y(min)} stroke="var(--c-line)" strokeWidth="1" />
         <text x={padL - 4} y={y(max) + 3} textAnchor="end" fontSize="8" fill="var(--c-gray)">{max}{suffix}</text>
         <text x={padL - 4} y={y(min) + 3} textAnchor="end" fontSize="8" fill="var(--c-gray)">{min}{suffix}</text>
-        <polyline points={line} fill="none" stroke="var(--c-coral)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline className="oc-line" pathLength={1} points={line} fill="none" stroke="var(--c-coral)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         {withVal.map((p) => (
-          <circle key={p.i} cx={x(p.i)} cy={y(p.value)} r={p.i === last.i ? 4 : 2.4}
+          <circle className="oc-dot" key={p.i} cx={x(p.i)} cy={y(p.value)} r={p.i === last.i ? 4 : 2.4}
                   fill={p.i === last.i ? 'var(--c-coral)' : 'var(--c-white)'} stroke="var(--c-coral)" strokeWidth="1.5" />
         ))}
-        <text x={x(last.i)} y={y(last.value) - 7} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--c-coral-d)">{last.value}{suffix}</text>
+        <text className="oc-val" x={x(last.i)} y={y(last.value) - 7} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--c-coral-d)">{last.value}{suffix}</text>
         <text x={padL} y={H - 6} textAnchor="start" fontSize="8" fill="var(--c-gray)">{points[0].label}</text>
         <text x={W - padR} y={H - 6} textAnchor="end" fontSize="8" fill="var(--c-gray)">{points[n - 1].label}</text>
       </svg>

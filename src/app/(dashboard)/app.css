@@ -3731,3 +3731,18 @@
   to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) { .tracker-body { animation: none; } }
+
+/* ===== My Progress charts: plot the line in left-to-right, then the dots ===== */
+.oc-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ocDraw 1s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+@keyframes ocDraw { to { stroke-dashoffset: 0; } }
+.oc-dot { opacity: 0; animation: ocFade 0.4s ease 0.72s forwards; }
+.oc-val { opacity: 0; animation: ocFade 0.4s ease 0.95s forwards; }
+@keyframes ocFade { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .oc-line { animation: none; stroke-dashoffset: 0; }
+  .oc-dot, .oc-val { animation: none; opacity: 1; }
+}
