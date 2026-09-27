@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FileText, Check, ChevronRight, Activity } from 'lucide-react'
+import { FileText, Check, ChevronRight, Activity, Stethoscope } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
 import { getMyForms } from '@/lib/forms'
 import { dueInstruments } from '@/lib/outcomes/pulse'
@@ -34,6 +34,13 @@ export default async function FormsPage() {
       />
 
       <div className="stack" style={{ maxWidth: 720 }}>
+        <div className="by-tp">
+          <Stethoscope size={16} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span className="by-tp-b">Requested by your care team</span>{' '}
+            <span className="by-tp-s">· forms are information your therapist asked you to complete</span>
+          </div>
+        </div>
         {due.length > 0 && (
           <Link href="/app/pulse" className="card pattern" style={{ textDecoration: 'none', borderColor: 'rgba(200,85,61,.25)' }}>
             <span className="pattern-ic t-coral"><Activity size={16} /></span>

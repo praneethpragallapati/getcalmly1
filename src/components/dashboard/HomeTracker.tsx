@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Pill, Activity, FileText, Check, LineChart } from 'lucide-react'
+import { Pill, Activity, FileText, Check, LineChart, Stethoscope } from 'lucide-react'
 import type { DashTask } from '@/data/dashboardDemo'
 import { TaskList } from './TaskList'
 
@@ -106,6 +106,13 @@ export function HomeTracker({
           <div className="tracker-head">
             <div className="section-title">Forms</div>
             <span className="link-action">{forms.length ? `${forms.length} pending` : 'All done'}</span>
+          </div>
+          <div className="by-tp">
+            <Stethoscope size={16} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span className="by-tp-b">Requested by your care team</span>{' '}
+              <span className="by-tp-s">· information your therapist asked you to complete</span>
+            </div>
           </div>
           <div className="todo-list">
             {forms.length === 0 ? (
