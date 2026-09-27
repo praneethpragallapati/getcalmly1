@@ -71,8 +71,8 @@ export function BookSession({
           meta: `${fmtIST(new Date(slotIso), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} · ${IST_LABEL}`,
         })
       } else {
-        setError(res.error ?? 'Could not request this slot.')
-        toast.error(res.error ?? 'Could not request this slot.')
+        setError(res.error ?? 'Could not book this slot.')
+        toast.error(res.error ?? 'Could not book this slot.')
       }
     })
   }
@@ -102,8 +102,8 @@ export function BookSession({
       <Celebration
         show={!!booked}
         icon="calendar"
-        title="Session requested"
-        sub="We’ll confirm your slot shortly."
+        title="Session booked"
+        sub={booked ? `Confirmed with ${booked.name}` : undefined}
         detail={booked ?? undefined}
         onDone={() => setBooked(null)}
       />
@@ -141,8 +141,8 @@ export function BookSession({
 
       <p className="muted" style={{ margin: '6px 0 14px' }}>
         {expertName
-          ? <>Open times on <b>{expertName}</b>’s calendar{selectedType ? <> for <b>{selectedType}</b></> : null}. Pick one to request, you’ll be notified once it’s confirmed.</>
-          : <>Open times on your expert’s calendar. Pick one to request, you’ll be notified once it’s confirmed.</>}
+          ? <>Open times on <b>{expertName}</b>’s calendar{selectedType ? <> for <b>{selectedType}</b></> : null}. Pick a time to book it, that slot is yours.</>
+          : <>Open times on your expert’s calendar. Pick a time to book it, that slot is yours.</>}
       </p>
 
       {packExpired ? (
@@ -190,13 +190,13 @@ export function BookSession({
               disabled={!selected || pending}
             >
               {pending ? (
-                'Requesting…'
+                'Booking…'
               ) : requested ? (
                 <>
-                  <Check size={15} /> Requested
+                  <Check size={15} /> Booked
                 </>
               ) : (
-                expertName ? `Request slot with ${expertName}` : 'Request selected slot'
+                expertName ? `Book slot with ${expertName}` : 'Book selected slot'
               )}
             </button>
             {error && <span style={{ fontSize: 12, color: 'var(--c-coral-d)' }}>{error}</span>}
