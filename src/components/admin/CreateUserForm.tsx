@@ -45,6 +45,8 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   const [bonus2, setBonus2] = useState('')
   const [bonus3, setBonus3] = useState('')
   const [bonusNight, setBonusNight] = useState('')
+  const [bonusSat, setBonusSat] = useState('')
+  const [bonusSun, setBonusSun] = useState('')
   const [bonusMisc, setBonusMisc] = useState('')
   // Personal + contact, matching what the clinician's own profile holds.
   const [dob, setDob] = useState('')
@@ -102,6 +104,8 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
             thirdOnwardsBonus: numOrBlank(bonus3),
             miscBonus: numOrBlank(bonusMisc),
             nightSessionBonus: numOrBlank(bonusNight),
+            saturdayBonus: numOrBlank(bonusSat),
+            sundayBonus: numOrBlank(bonusSun),
             documentUrls: docs.map((d) => d.url),
           })
         : await createAdmin({ name: adminName, email: adminEmail, adminType })
@@ -253,6 +257,8 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
               <Col><label style={label}>2nd session (₹)</label><input type="number" min={0} style={field} value={bonus2} onChange={(e) => setBonus2(e.target.value)} placeholder="default" /></Col>
               <Col><label style={label}>3rd onwards (₹)</label><input type="number" min={0} style={field} value={bonus3} onChange={(e) => setBonus3(e.target.value)} placeholder="default" /></Col>
               <Col><label style={label}>Night session · 11 PM–6 AM (₹)</label><input type="number" min={0} style={field} value={bonusNight} onChange={(e) => setBonusNight(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>Saturday session (₹)</label><input type="number" min={0} style={field} value={bonusSat} onChange={(e) => setBonusSat(e.target.value)} placeholder="default" /></Col>
+              <Col><label style={label}>Sunday session (₹)</label><input type="number" min={0} style={field} value={bonusSun} onChange={(e) => setBonusSun(e.target.value)} placeholder="default" /></Col>
               <Col><label style={label}>Misc (₹)</label><input type="number" min={0} style={field} value={bonusMisc} onChange={(e) => setBonusMisc(e.target.value)} placeholder="default" /></Col>
             </Row>
           </div>

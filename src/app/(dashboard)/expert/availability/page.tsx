@@ -9,8 +9,6 @@ import {
 import { saveAvailability, blockDate, unblockDate } from '../actions'
 import { TimeBlockPicker, toBlocks, hourLabel } from '@/components/expert/TimeBlockPicker'
 import { BlockDateForm } from '@/components/expert/BlockDateForm'
-import { SectionTabs } from '@/components/ui/SectionTabs'
-import { EXPERT_SCHEDULE_TABS } from '@/data/sectionTabs'
 
 export default async function AvailabilityPage() {
   const ctx = await getTherapistContext()
@@ -22,10 +20,10 @@ export default async function AvailabilityPage() {
   ])
 
   const openDays = week.filter((d) => d.hours.length).length
+  const ranges = groupRuns(exceptions)
 
   return (
     <div className="stack">
-      <SectionTabs title="Schedule" tabs={EXPERT_SCHEDULE_TABS} active="/expert/availability" />
       <div className="page-head">
         <div className="page-title">Availability</div>
         <div className="page-meta">{openDays} of 7 days open · feeds the patient booking calendar</div>
@@ -35,7 +33,7 @@ export default async function AvailabilityPage() {
       <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
         <div className="section-title" style={{ marginBottom: 4 }}>Set a weekly default</div>
         <p className="muted" style={{ marginBottom: 12 }}>
-          Add the blocks of time you usually work — say 9 AM to 1 PM. Saving applies them to every day of
+          Add the blocks of time you usually work, say 9 AM to 1 PM. Saving applies them to every day of
           the week; fine-tune individual days below.
         </p>
         <form action={saveAvailability} className="stack" style={{ gap: 14 }}>
@@ -72,27 +70,30 @@ export default async function AvailabilityPage() {
 
       {/* Date-specific time off */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 4 }}>Time off for a specific date</div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Time off</div>
         <p className="muted" style={{ marginBottom: 12 }}>
-          Take a date out without touching your weekly pattern — a whole day off, or just the hours you
-          can&apos;t make.
+          Take days out without touching your weekly pattern: click a date, or press and drag across
+          several for a trip or a week off. Block whole days, or just the hours you can&apos;t make.
         </p>
-        <BlockDateForm action={blockDate} />
+        <BlockDateForm action={blockDate} blocked={exceptions.map((ex) => dayKey(ex.date))} />
 
-        {exceptions.length === 0 && <p className="muted">No upcoming days blocked.</p>}
-        {exceptions.map((ex) => (
-          <div key={ex.id} className="pattern">
+        {ranges.length === 0 && <p className="muted">No upcoming days blocked.</p>}
+        {ranges.map((r) => (
+          <div key={r.ids[0]} className="pattern">
             <span className="pattern-ic t-gold">
               <CalendarOff size={16} />
             </span>
             <div style={{ flex: 1 }}>
-              <div className="pattern-title">{ex.dateLabel}</div>
+              <div className="pattern-title">
+                {r.ids.length === 1 ? r.first : `${r.first} to ${r.last}`}
+                {r.ids.length > 1 && <span className="muted" style={{ fontWeight: 400 }}> · {r.ids.length} days</span>}
+              </div>
               <div className="pattern-sub">
-                {ex.fullDayOff ? 'Whole day blocked' : `Hours blocked: ${ex.hoursOff.map(hourLabel).join(', ')}`}
+                {r.fullDayOff ? 'Whole day blocked' : `Hours blocked: ${r.hoursOff.map(hourLabel).join(', ')}`}
               </div>
             </div>
             <form action={unblockDate}>
-              <input type="hidden" name="exceptionId" value={ex.id} />
+              {r.ids.map((id) => <input key={id} type="hidden" name="exceptionId" value={id} />)}
               <button type="submit" className="btn btn-outline btn-sm">Remove</button>
             </form>
           </div>
@@ -100,4 +101,31 @@ export default async function AvailabilityPage() {
       </div>
     </div>
   )
+}
+
+/** YYYY-MM-DD of a stored exception (dates are kept at UTC midnight). */
+function dayKey(d: Date): string {
+  return d.toISOString().slice(0, 10)
+}
+
+type Exception = Awaited<ReturnType<typeof getAvailabilityExceptions>>[number]
+
+/**
+ * Consecutive days blocked the same way collapse into one row ("Mon 3 Nov to
+ * Fri 7 Nov · 5 days") with a single Remove, so a week off isn't five rows.
+ */
+function groupRuns(list: Exception[]) {
+  const runs: { ids: string[]; first: string; last: string; lastDate: Date; fullDayOff: boolean; hoursOff: number[] }[] = []
+  for (const ex of list) {
+    const prev = runs[runs.length - 1]
+    const sameKind = prev && prev.fullDayOff === ex.fullDayOff && prev.hoursOff.join() === ex.hoursOff.join()
+    if (prev && sameKind && ex.date.getTime() - prev.lastDate.getTime() === 86_400_000) {
+      prev.ids.push(ex.id)
+      prev.last = ex.dateLabel
+      prev.lastDate = ex.date
+    } else {
+      runs.push({ ids: [ex.id], first: ex.dateLabel, last: ex.dateLabel, lastDate: ex.date, fullDayOff: ex.fullDayOff, hoursOff: ex.hoursOff })
+    }
+  }
+  return runs
 }

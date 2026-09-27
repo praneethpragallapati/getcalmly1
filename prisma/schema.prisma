@@ -411,6 +411,8 @@ model TherapistProfile {
   thirdOnwardsBonus  Int?
   miscBonus          Int?
   nightSessionBonus  Int?
+  saturdayBonus      Int?
+  sundayBonus        Int?
   // Admin-defined fields shown to a FULL_TIME (salaried) clinician on their
   // Earnings tab, in place of the per-session payout ledger (which only applies
   // to part-time). Each entry is { label, type: 'text'|'select', value,
@@ -794,6 +796,9 @@ model EarningsConfig {
   thirdOnwardsBonus  Int      @default(100)
   miscBonus          Int      @default(0)
   nightSessionBonus  Int      @default(200)
+  // Paid on top for a session held on a Saturday / Sunday (IST).
+  saturdayBonus      Int      @default(0)
+  sundayBonus        Int      @default(0)
   updatedBy          String?
   updatedAt          DateTime @updatedAt
 }

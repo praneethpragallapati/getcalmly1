@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/session'
-import { Home, Users, AlertTriangle, CalendarClock, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, Video, ListTodo, NotebookPen } from 'lucide-react'
+import { Home, Users, AlertTriangle, CalendarClock, CalendarCog, Wallet, UsersRound, MessagesSquare, UserCircle, Lock, Video, ListTodo, NotebookPen } from 'lucide-react'
 import '../app.css'
 import Logo from '@/components/ui/Logo'
 import { SidebarLink } from '@/components/expert/SidebarLink'
@@ -80,10 +80,14 @@ export default async function ExpertLayout({ children }: { children: React.React
             <NotebookPen size={18} />
             <span>Session notes</span>
           </SidebarLink>
-          {/* Schedule also covers Availability (tabbed together). */}
-          <SidebarLink href="/expert/schedule" match={['/expert/availability']}>
+          <SidebarLink href="/expert/schedule">
             <CalendarClock size={18} />
             <span>Schedule</span>
+          </SidebarLink>
+          {/* Its own entry: hidden as a tab under Schedule, clinicians missed it. */}
+          <SidebarLink href="/expert/availability">
+            <CalendarCog size={18} />
+            <span>Availability</span>
           </SidebarLink>
           <SidebarLink href="/expert/risk">
             <AlertTriangle size={18} />

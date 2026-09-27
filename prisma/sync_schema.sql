@@ -472,6 +472,8 @@ ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "secondSessionBonus" integ
 ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "thirdOnwardsBonus" integer DEFAULT 100 NOT NULL;
 ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "miscBonus" integer DEFAULT 0 NOT NULL;
 ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "nightSessionBonus" integer DEFAULT 200 NOT NULL;
+ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "saturdayBonus" integer DEFAULT 0 NOT NULL;
+ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "sundayBonus" integer DEFAULT 0 NOT NULL;
 ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "updatedBy" text;
 ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "updatedAt" timestamp(3) without time zone NOT NULL;
 
@@ -1317,6 +1319,8 @@ ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "secondSessionBonus" int
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "thirdOnwardsBonus" integer;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "miscBonus" integer;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "nightSessionBonus" integer;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "saturdayBonus" integer;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "sundayBonus" integer;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "compensationFields" jsonb;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "documentUrls" text[];
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "photoUrl" text;

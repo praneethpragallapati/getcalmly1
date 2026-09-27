@@ -3860,3 +3860,25 @@
   .journal-editor.open { position: static; height: auto; min-height: 0; }
   .journal-editor.open .journal-textarea { min-height: 50vh; }
 }
+
+/* ===== Availability: multi-day time-off calendar (click or drag to select) ===== */
+.bd-cal { max-width: 380px; border: 1px solid var(--c-line); border-radius: 14px; padding: 12px 12px 10px; background: #fff; }
+.bd-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.bd-month { font-weight: 700; font-size: 14px; color: var(--c-charcoal); }
+.bd-nav { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--c-line); background: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-charcoal); }
+.bd-nav:disabled { opacity: 0.35; cursor: default; }
+.bd-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.bd-wd { text-align: center; font-size: 11px; font-weight: 700; color: var(--c-gray-d, #5A6A7A); padding: 2px 0 4px; }
+.bd-day {
+  height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 9px;
+  font-size: 13.5px; font-weight: 600; color: var(--c-charcoal); cursor: pointer; position: relative;
+  font-variant-numeric: tabular-nums; transition: background 0.12s, color 0.12s;
+}
+.bd-day:hover { background: rgba(28, 43, 58, 0.06); }
+.bd-day:focus-visible { outline: 2px solid var(--c-coral); outline-offset: 1px; }
+.bd-day.today { box-shadow: inset 0 0 0 1.5px var(--c-line); }
+.bd-day.past { color: #B8C2CC; cursor: default; background: none; }
+.bd-day.blocked::after { content: ''; position: absolute; bottom: 6px; width: 5px; height: 5px; border-radius: 50%; background: var(--c-gold, #C9973A); }
+.bd-day.on { background: var(--c-coral); color: #fff; }
+.bd-day.on::after { background: #fff; }
+@media (max-width: 480px) { .bd-cal { max-width: none; } }

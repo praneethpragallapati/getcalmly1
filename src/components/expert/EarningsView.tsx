@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { Download, ChevronDown, IndianRupee, CalendarDays, TrendingUp } from 'lucide-react'
 import type { Earnings, EarningLine } from '@/lib/expert'
 import { fmtIST } from '@/lib/tz'
+import { slotLabel } from '@/lib/earningsSlot'
 import { addressOneLine, legalName, supportEmail } from '@/config/site'
 
 const coral = '#C8553D'
@@ -51,9 +52,9 @@ function printStatement(opts: {
         <td>${esc(l.patientName)}</td>
         <td>${esc(l.serviceLabel)}</td>
         <td class="c">#${l.sessionNumber}</td>
-        <td class="c">${l.night ? 'Night' : '—'}</td>
+        <td class="c">${slotLabel(l.night, l.weekend) || '—'}</td>
         <td class="r">${inr(l.base)}</td>
-        <td class="r">${inr(l.numberBonus + l.nightBonus + l.misc)}</td>
+        <td class="r">${inr(l.numberBonus + l.nightBonus + l.weekendBonus + l.misc)}</td>
         <td class="r b">${inr(l.amount)}</td>
       </tr>`,
     )
@@ -104,7 +105,7 @@ function printStatement(opts: {
         <td class="r">${inr(total)}</td>
       </tr></tfoot>
     </table>
-    <p class="note">This statement reflects completed sessions with a written clinical note. Amounts are computed from the platform pay structure (base fee per service + session-number bonus + night bonus + misc). For payout queries, contact ${esc(supportEmail)}.</p>
+    <p class="note">This statement reflects completed sessions with a written clinical note. Amounts are computed from the platform pay structure (base fee per service + session-number bonus + night bonus + Saturday / Sunday bonus + misc). For payout queries, contact ${esc(supportEmail)}.</p>
     <script>window.onload=function(){setTimeout(function(){window.print();},250);};</script>
   </body></html>`
 
@@ -169,7 +170,7 @@ export function EarningsView({
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Your pay structure</div>
         <p className="muted" style={{ marginBottom: 14 }}>
-          Each session pays a base fee for its service, plus a session-number bonus, a night-slot bonus where it applies, and any misc.
+          Each session pays a base fee for its service, plus a session-number bonus, night-slot and Saturday / Sunday bonuses where they apply, and any misc.
         </p>
         <div className="grid-3" style={{ marginBottom: 6 }}>
           {[
@@ -188,6 +189,8 @@ export function EarningsView({
             ['2nd session', c.secondSessionBonus],
             ['3rd+ session', c.thirdOnwardsBonus],
             ['Night slot · 11 PM–6 AM', c.nightSessionBonus],
+            ['Saturday session', c.saturdayBonus],
+            ['Sunday session', c.sundayBonus],
             ['Misc', c.miscBonus],
           ].map(([label, val]) => (
             <span key={label as string} style={{ fontSize: 12.5, color: '#6B7D8E', background: 'rgba(28,43,58,.05)', padding: '5px 11px', borderRadius: 20 }}>
@@ -271,7 +274,7 @@ export function EarningsView({
                               <span style={{ width: 130, color: '#6B7D8E', flexShrink: 0 }}>{l.dayLabel.replace(/, \d{4}$/, '')} · {l.timeLabel}</span>
                               <span style={{ flex: 1, fontWeight: 600, color: charcoal }}>{l.patientName}</span>
                               <span style={{ color: '#8E9EAE', width: 120 }}>{l.serviceLabel}</span>
-                              <span style={{ color: '#8E9EAE', width: 60 }}>#{l.sessionNumber}{l.night ? ' · night' : ''}</span>
+                              <span style={{ color: '#8E9EAE', width: 110 }}>#{l.sessionNumber}{slotLabel(l.night, l.weekend) ? ` · ${slotLabel(l.night, l.weekend).toLowerCase()}` : ''}</span>
                               <span style={{ fontWeight: 700, width: 70, textAlign: 'right' }}>{inr(l.amount)}</span>
                             </div>
                           ))}

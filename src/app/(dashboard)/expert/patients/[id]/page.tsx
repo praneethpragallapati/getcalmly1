@@ -22,6 +22,7 @@ import { getAssignments } from '@/lib/outcomes/pulse'
 import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
 import { SessionNote } from '@/components/ui/SessionNote'
 import { fmtIST } from '@/lib/tz'
+import { getClinicianSessionGap, fmtGap } from '@/lib/sessionGap'
 
 /** Capitalise for use as a standalone metric value. */
 const sentence = (v: string) => v.charAt(0).toUpperCase() + v.slice(1)
@@ -57,13 +58,14 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
 
   // The weekly figures come from the summary card now, so the old
   // getWeeklyProgress read (which said the same thing again) is gone.
-  const [weeklySummary, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments] = await Promise.all([
+  const [weeklySummary, formLibrary, sentForms, allRisk, guidedTracks, guidedAssignments, gap] = await Promise.all([
     getPatientWeeklySummary(id),
     getFormLibrary(ctx.userId),
     getPatientFormsForExpert(effectiveTherapistId, id),
     getRiskNotifications(effectiveTherapistId),
     getGuidedTrackOptions(),
     getGuidedAssignmentsFor(id),
+    getClinicianSessionGap(effectiveTherapistId),
   ])
   const patientAlerts = allRisk.filter((r) => r.patientId === id)
 
@@ -186,6 +188,15 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             />
           ))}
           <Metric label="Sessions held" value={String(sessionsCompleted)} sub={`${sessionsWrittenUp} written up`} />
+          {/* Days between this patient's sessions with this clinician, beside
+              the clinician's average across all their patients. */}
+          <Metric
+            label="Avg gap between sessions"
+            value={fmtGap(gap.byPatient.get(id)?.avgDays ?? null)}
+            sub={gap.byPatient.get(id)?.avgDays == null
+              ? 'needs two sessions'
+              : gap.avgDays !== null ? `your average: ${fmtGap(gap.avgDays)}` : undefined}
+          />
           <Metric label="Activity completion" value={`${p.taskCompletionPct}%`} />
           <Metric
             label="Medication"

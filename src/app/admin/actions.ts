@@ -71,6 +71,7 @@ export type CreateTherapistInput = {
   emergencyRelation?: string | null
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
   secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
+  saturdayBonus?: number | ''; sundayBonus?: number | ''
   documentUrls?: string[]
 }
 
@@ -146,6 +147,8 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
             thirdOnwardsBonus: ov(input.thirdOnwardsBonus),
             miscBonus: ov(input.miscBonus),
             nightSessionBonus: ov(input.nightSessionBonus),
+            saturdayBonus: ov(input.saturdayBonus),
+            sundayBonus: ov(input.sundayBonus),
             documentUrls: docs,
             dateOfBirth: dob,
             country: normalizeCountry(input.country),
@@ -206,6 +209,7 @@ export type TherapistSettingsInput = {
   isActive?: boolean; isVerified?: boolean
   baseFeeIndividual?: number | ''; baseFeeCouples?: number | ''; baseFeePsychiatry?: number | ''
   secondSessionBonus?: number | ''; thirdOnwardsBonus?: number | ''; miscBonus?: number | ''; nightSessionBonus?: number | ''
+  saturdayBonus?: number | ''; sundayBonus?: number | ''
 }
 
 export async function updateTherapistSettings(input: TherapistSettingsInput): Promise<AdminResult> {
@@ -234,6 +238,8 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
         thirdOnwardsBonus: override(input.thirdOnwardsBonus),
         miscBonus: override(input.miscBonus),
         nightSessionBonus: override(input.nightSessionBonus),
+        saturdayBonus: override(input.saturdayBonus),
+        sundayBonus: override(input.sundayBonus),
       },
     })
     // Deactivating a clinician: move their patients onto a new fit clinician and

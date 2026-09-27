@@ -29,7 +29,8 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
       'Period', 'Clinician', 'Expert ID', 'Engagement', 'Sessions',
       'Base ₹', '2nd-session bonus count', '2nd-session bonus ₹',
       '3rd-onwards bonus count', '3rd-onwards bonus ₹',
-      'Night count', 'Night bonus ₹', 'Misc ₹', 'Total payout ₹',
+      'Night count', 'Night bonus ₹', 'Saturday count', 'Saturday bonus ₹',
+      'Sunday count', 'Sunday bonus ₹', 'Misc ₹', 'Total payout ₹',
     ]
     const esc = (v: string | number) => {
       const s = String(v)
@@ -38,7 +39,7 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
     const lines = rows.map((r) => [
       r.periodLabel, r.name, expertCode(r.profileId), r.employmentType === 'PART_TIME' ? 'Part-time' : 'Full-time',
       r.sessions, r.baseTotal, r.secondCount, r.secondTotal, r.thirdPlusCount, r.thirdPlusTotal,
-      r.nightCount, r.nightTotal, r.miscTotal, r.total,
+      r.nightCount, r.nightTotal, r.saturdayCount, r.saturdayTotal, r.sundayCount, r.sundayTotal, r.miscTotal, r.total,
     ].map(esc).join(','))
     const csv = [header.map(esc).join(','), ...lines].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
@@ -56,9 +57,11 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
     secondTotal: a.secondTotal + r.secondTotal,
     thirdPlusTotal: a.thirdPlusTotal + r.thirdPlusTotal,
     nightTotal: a.nightTotal + r.nightTotal,
+    saturdayTotal: a.saturdayTotal + r.saturdayTotal,
+    sundayTotal: a.sundayTotal + r.sundayTotal,
     miscTotal: a.miscTotal + r.miscTotal,
     total: a.total + r.total,
-  }), { sessions: 0, baseTotal: 0, secondTotal: 0, thirdPlusTotal: 0, nightTotal: 0, miscTotal: 0, total: 0 })
+  }), { sessions: 0, baseTotal: 0, secondTotal: 0, thirdPlusTotal: 0, nightTotal: 0, saturdayTotal: 0, sundayTotal: 0, miscTotal: 0, total: 0 })
   const totals = sum(rows)
   const partTime = sum(rows.filter((r) => r.employmentType === 'PART_TIME'))
 
@@ -94,7 +97,7 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
         <p className="muted">No earnings recorded yet.</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 860 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1020 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--c-line)' }}>
                 <th style={thL}>{grain === 'day' ? 'Day' : grain === 'year' ? 'Year' : 'Month'}</th>
@@ -104,6 +107,8 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
                 <th style={th}>2nd bonus</th>
                 <th style={th}>3rd+ bonus</th>
                 <th style={th}>Night</th>
+                <th style={th}>Saturday</th>
+                <th style={th}>Sunday</th>
                 <th style={th}>Misc</th>
                 <th style={th}>Total</th>
               </tr>
@@ -122,6 +127,8 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
                   <td style={td}>{r.secondCount ? `${r.secondCount} · ${inr(r.secondTotal)}` : '—'}</td>
                   <td style={td}>{r.thirdPlusCount ? `${r.thirdPlusCount} · ${inr(r.thirdPlusTotal)}` : '—'}</td>
                   <td style={td}>{r.nightCount ? `${r.nightCount} · ${inr(r.nightTotal)}` : '—'}</td>
+                  <td style={td}>{r.saturdayCount ? `${r.saturdayCount} · ${inr(r.saturdayTotal)}` : '—'}</td>
+                  <td style={td}>{r.sundayCount ? `${r.sundayCount} · ${inr(r.sundayTotal)}` : '—'}</td>
                   <td style={td}>{r.miscTotal ? inr(r.miscTotal) : '—'}</td>
                   <td style={{ ...td, fontWeight: 800, color: charcoal }}>{inr(r.total)}</td>
                 </tr>
@@ -143,11 +150,13 @@ export function MasterPayoutView({ data }: { data: MasterPayout }) {
                 <td style={{ ...td, fontWeight: 800 }}>{totals.secondTotal ? inr(totals.secondTotal) : '—'}</td>
                 <td style={{ ...td, fontWeight: 800 }}>{totals.thirdPlusTotal ? inr(totals.thirdPlusTotal) : '—'}</td>
                 <td style={{ ...td, fontWeight: 800 }}>{totals.nightTotal ? inr(totals.nightTotal) : '—'}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.saturdayTotal ? inr(totals.saturdayTotal) : '—'}</td>
+                <td style={{ ...td, fontWeight: 800 }}>{totals.sundayTotal ? inr(totals.sundayTotal) : '—'}</td>
                 <td style={{ ...td, fontWeight: 800 }}>{totals.miscTotal ? inr(totals.miscTotal) : '—'}</td>
                 <td style={{ ...td, fontWeight: 900, color: charcoal }}>{inr(totals.total)}</td>
               </tr>
               <tr>
-                <td style={{ ...tdL, paddingTop: 2 }} colSpan={7} className="muted">
+                <td style={{ ...tdL, paddingTop: 2 }} colSpan={9} className="muted">
                   Of which part-time — what is actually owed out, and what the
                   &ldquo;Payouts owed&rdquo; cards above count. Full-timers are salaried.
                 </td>

@@ -59,6 +59,10 @@ export async function ensureContactSchema(): Promise<void> {
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "thirdOnwardsBonus" INTEGER`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "miscBonus" INTEGER`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "nightSessionBonus" INTEGER`,
+    `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "saturdayBonus" INTEGER`,
+    `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "sundayBonus" INTEGER`,
+    `ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "saturdayBonus" INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "sundayBonus" INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "compensationFields" JSONB`,
   ]
   for (const sql of stmts) await prisma.$executeRawUnsafe(sql)

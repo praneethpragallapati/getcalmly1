@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Star, X, UserPlus, Plus, Trash2, Clock, Timer, CalendarCheck, CalendarRange, Users } from 'lucide-react'
+import { Check, Star, X, UserPlus, Plus, Trash2, Clock, Timer, CalendarCheck, CalendarRange, CalendarClock, Users } from 'lucide-react'
 import { updateTherapistSettings, assignSupervisor, removeSupervisionLink, saveCompensationFields } from '@/app/admin/actions'
 import type { ClinicianDetail } from '@/lib/admin'
 import type { CompensationField } from '@/lib/compensation'
@@ -30,6 +30,8 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
   const [bonus3, setBonus3] = useState(numOrEmpty(c.thirdOnwardsBonus))
   const [bonusMisc, setBonusMisc] = useState(numOrEmpty(c.miscBonus))
   const [bonusNight, setBonusNight] = useState(numOrEmpty(c.nightSessionBonus))
+  const [bonusSat, setBonusSat] = useState(numOrEmpty(c.saturdayBonus))
+  const [bonusSun, setBonusSun] = useState(numOrEmpty(c.sundayBonus))
   const [supId, setSupId] = useState('')
 
   const numOrBlank = (v: string): number | '' => (v === '' ? '' : Number(v))
@@ -48,6 +50,8 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
         thirdOnwardsBonus: numOrBlank(bonus3),
         miscBonus: numOrBlank(bonusMisc),
         nightSessionBonus: numOrBlank(bonusNight),
+        saturdayBonus: numOrBlank(bonusSat),
+        sundayBonus: numOrBlank(bonusSun),
       })
       setMsg(res.ok ? { ok: true, text: 'Saved.' } : { ok: false, text: res.error ?? 'Failed.' })
       if (res.ok) router.refresh()
@@ -97,6 +101,8 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
               <Col><label style={label}>2nd session (₹)</label><input type="number" min={0} style={field} value={bonus2} onChange={(e) => setBonus2(e.target.value)} placeholder={feeHint(bonus2, c.globalBonuses.second) || undefined} /></Col>
               <Col><label style={label}>3rd onwards (₹)</label><input type="number" min={0} style={field} value={bonus3} onChange={(e) => setBonus3(e.target.value)} placeholder={feeHint(bonus3, c.globalBonuses.thirdOnwards) || undefined} /></Col>
               <Col><label style={label}>Night session · 11 PM–6 AM (₹)</label><input type="number" min={0} style={field} value={bonusNight} onChange={(e) => setBonusNight(e.target.value)} placeholder={feeHint(bonusNight, c.globalBonuses.night) || undefined} /></Col>
+              <Col><label style={label}>Saturday session (₹)</label><input type="number" min={0} style={field} value={bonusSat} onChange={(e) => setBonusSat(e.target.value)} placeholder={feeHint(bonusSat, c.globalBonuses.saturday) || undefined} /></Col>
+              <Col><label style={label}>Sunday session (₹)</label><input type="number" min={0} style={field} value={bonusSun} onChange={(e) => setBonusSun(e.target.value)} placeholder={feeHint(bonusSun, c.globalBonuses.sunday) || undefined} /></Col>
               <Col><label style={label}>Misc (₹)</label><input type="number" min={0} style={field} value={bonusMisc} onChange={(e) => setBonusMisc(e.target.value)} placeholder={feeHint(bonusMisc, c.globalBonuses.misc) || undefined} /></Col>
             </Row>
           </div>
@@ -136,6 +142,13 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
                 icon={<Users size={15} style={{ color: '#5A6A7A' }} />}
                 value={c.delivery.avgSessionsPerPatient === null ? '—' : String(c.delivery.avgSessionsPerPatient)}
                 label="sessions / patient"
+              />
+              <Stat
+                icon={<CalendarClock size={15} style={{ color: '#5A6A7A' }} />}
+                value={c.delivery.avgGapDays === null ? '—' : `${c.delivery.avgGapDays}d`}
+                label={c.delivery.gapPatients > 0
+                  ? `avg gap between sessions · ${c.delivery.gapPatients} patient${c.delivery.gapPatients === 1 ? '' : 's'}`
+                  : 'avg gap between sessions'}
               />
             </div>
             <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>

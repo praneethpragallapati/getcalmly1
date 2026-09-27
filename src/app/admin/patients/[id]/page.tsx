@@ -10,6 +10,7 @@ import { PersonDetailsCard } from '@/components/ui/PersonDetailsCard'
 import { PatientTimeline } from '@/components/admin/PatientTimeline'
 import { getPatientTimeline } from '@/lib/patientTimeline'
 import { getPatientUsage } from '@/lib/ai/usage'
+import { getPatientSessionRhythm, fmtGap } from '@/lib/sessionGap'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,8 +18,8 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
   const { id } = await params
   const admin = await getAdminSession()
   if (!admin) redirect('/login')
-  const [p, activity, timeline] = await Promise.all([
-    getPatientDetail(id), getPatientActivity(id), getPatientTimeline(id),
+  const [p, activity, timeline, rhythm] = await Promise.all([
+    getPatientDetail(id), getPatientActivity(id), getPatientTimeline(id), getPatientSessionRhythm(id),
   ])
   if (!p) notFound()
   const usage = await getPatientUsage(p.userId)
@@ -42,6 +43,42 @@ export default async function AdminPatientDetailPage({ params }: { params: Promi
         note="Everything on file for this patient."
       />
       <PatientAdmin p={p} />
+
+      {/* How often this patient comes back, per clinician, beside that
+          clinician's average across their whole caseload. */}
+      <div className="card">
+        <div className="section-title" style={{ fontSize: 18, marginBottom: 4 }}>Session rhythm</div>
+        <p className="muted" style={{ marginTop: 0 }}>Average days between this patient&apos;s completed sessions with each clinician.</p>
+        {rhythm.length === 0 ? (
+          <p className="muted" style={{ fontSize: 13.5, marginBottom: 0 }}>No completed sessions yet.</p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520, marginTop: 8 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--c-line)', textAlign: 'left' }}>
+                  {['Clinician', 'Sessions', 'Avg gap between sessions', "Clinician's average"].map((h, i) => (
+                    <th key={h} style={{ padding: '8px 6px', fontSize: 12, fontWeight: 600, color: 'var(--c-gray-d)', textAlign: i === 0 ? 'left' : 'right' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rhythm.map((r) => (
+                  <tr key={r.therapistId} style={{ borderBottom: '1px solid var(--c-line)' }}>
+                    <td style={{ padding: '9px 6px' }}>
+                      <Link href={`/admin/therapists/${r.therapistId}`} style={{ fontWeight: 600, color: 'inherit' }}>{r.clinicianName}</Link>
+                    </td>
+                    <td style={{ padding: '9px 6px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{r.sessions}</td>
+                    <td style={{ padding: '9px 6px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                      {r.avgDays === null ? <span className="muted" style={{ fontWeight: 400 }}>needs two sessions</span> : fmtGap(r.avgDays)}
+                    </td>
+                    <td style={{ padding: '9px 6px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }} className="muted">{fmtGap(r.clinicianAvgDays)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <div className="card">
         <div className="section-title" style={{ fontSize: 18, marginBottom: 4 }}>AI usage & cost</div>

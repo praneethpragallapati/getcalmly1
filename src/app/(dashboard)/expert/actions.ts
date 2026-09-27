@@ -343,20 +343,25 @@ export async function saveAvailability(formData: FormData): Promise<void> {
 export async function blockDate(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return bail('blockDate', 'no clinician session')
-  const dateRaw = String(formData.get('date') ?? '')
-  if (!dateRaw) return bail('blockDate', 'no date in the form')
+  // One or many dates (the calendar posts one "date" per selected day).
+  const dates = [...new Set(formData.getAll('date').map(String))]
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    .slice(0, 92)
+  if (dates.length === 0) return bail('blockDate', 'no date in the form')
   const hoursOff = formData
     .getAll('hoursOff')
     .map((h) => Number(h))
     .filter((h) => Number.isInteger(h) && h >= 0 && h <= 23)
   try {
-    await addAvailabilityException(
-      ctx.therapistProfileId,
-      new Date(dateRaw),
-      hoursOff.length ? { fullDayOff: false, hoursOff } : { fullDayOff: true },
-    )
+    for (const d of dates) {
+      await addAvailabilityException(
+        ctx.therapistProfileId,
+        new Date(d),
+        hoursOff.length ? { fullDayOff: false, hoursOff } : { fullDayOff: true },
+      )
+    }
   } catch (e) {
-    return bailErr('blockDate', e, { date: dateRaw })
+    return bailErr('blockDate', e, { dates: dates.join(',') })
   }
   revalidatePath('/expert/availability')
 }
@@ -364,12 +369,13 @@ export async function blockDate(formData: FormData): Promise<void> {
 export async function unblockDate(formData: FormData): Promise<void> {
   const ctx = await getTherapistContext()
   if (!ctx) return bail('unblockDate', 'no clinician session')
-  const id = String(formData.get('exceptionId') ?? '')
-  if (!id) return bail('unblockDate', 'no exception id in the form')
+  // A grouped range of blocked days posts every one of its ids.
+  const ids = formData.getAll('exceptionId').map(String).filter(Boolean)
+  if (ids.length === 0) return bail('unblockDate', 'no exception id in the form')
   try {
-    await removeAvailabilityException(ctx.therapistProfileId, id)
+    for (const id of ids) await removeAvailabilityException(ctx.therapistProfileId, id)
   } catch (e) {
-    return bailErr('unblockDate', e, { exceptionId: id })
+    return bailErr('unblockDate', e, { exceptionId: ids.join(',') })
   }
   revalidatePath('/expert/availability')
 }

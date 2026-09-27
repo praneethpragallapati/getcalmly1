@@ -33,6 +33,9 @@ import {
   getEarningsConfig,
   effectiveEarningsConfig,
   isNightSession,
+  weekendDayOf,
+  weekendBonusFor,
+  type WeekendDay,
   sessionPay,
   baseFeeFor,
   numberBonusFor,
@@ -1498,9 +1501,12 @@ export type EarningLine = {
   serviceLabel: string
   sessionNumber: number
   night: boolean
+  /** 'sat' / 'sun' for a weekend session (IST), else null. */
+  weekend: WeekendDay | null
   base: number
   numberBonus: number
   nightBonus: number
+  weekendBonus: number
   misc: number
   amount: number
 }
@@ -1528,6 +1534,7 @@ type EarningsProfile = {
   baseFeeIndividual: number | null; baseFeeCouples: number | null; baseFeePsychiatry: number | null
   secondSessionBonus: number | null; thirdOnwardsBonus: number | null
   miscBonus: number | null; nightSessionBonus: number | null
+  saturdayBonus: number | null; sundayBonus: number | null
 }
 /** One completed, written-up session, as the pay computation needs it. */
 type EarningsAppt = {
@@ -1541,6 +1548,7 @@ const EARNINGS_PROFILE_SELECT = {
   specializations: true,
   baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
   secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
+  saturdayBonus: true, sundayBonus: true,
 } as const
 
 const EARNINGS_APPT_SELECT = {
@@ -1648,6 +1656,8 @@ function computeEarnings(
     const base = baseFeeFor(config, service)
     const numberBonus = numberBonusFor(config, ordinal)
     const nightBonus = night ? config.nightSessionBonus : 0
+    const weekend = weekendDayOf(r.scheduledAt)
+    const weekendBonus = weekendBonusFor(config, weekend)
     const misc = config.miscBonus
     const d = r.scheduledAt
     // The grouping KEYS must come from the same clock as the LABELS beside them.
@@ -1672,11 +1682,13 @@ function computeEarnings(
       serviceLabel: SERVICE_LABEL[service],
       sessionNumber: ordinal,
       night,
+      weekend,
       base,
       numberBonus,
       nightBonus,
+      weekendBonus,
       misc,
-      amount: sessionPay(config, service, ordinal, night),
+      amount: sessionPay(config, service, ordinal, night, weekend),
     })
   }
 

@@ -1,6 +1,7 @@
 import { getAdminSession, getClinicianEarnings } from '@/lib/admin'
 import { toCsv, csvResponse } from '@/lib/csv'
 import { buildStatementPdf, pdfResponse, rs } from '@/lib/pdf'
+import { slotLabel } from '@/lib/earningsSlot'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,9 +34,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ profileI
     ]
     const table = grain === 'lines'
       ? {
-          headers: ['Date', 'Patient', 'Service', 'No.', 'Night', 'Pay'],
+          headers: ['Date', 'Patient', 'Service', 'No.', 'Slot', 'Pay'],
           align: ['left', 'left', 'left', 'left', 'left', 'right'] as ('left' | 'right')[],
-          rows: e.lines.map((l) => [l.dateIso, l.patientName, l.serviceLabel, `#${l.sessionNumber}`, l.night ? 'Yes' : '-', rs(l.amount)]),
+          rows: e.lines.map((l) => [l.dateIso, l.patientName, l.serviceLabel, `#${l.sessionNumber}`, slotLabel(l.night, l.weekend) || '-', rs(l.amount)]),
         }
       : {
           headers: [grain === 'week' ? 'ISO week' : grain.charAt(0).toUpperCase() + grain.slice(1), 'Sessions', 'Pay'],
@@ -54,8 +55,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ profileI
 
   if (grain === 'lines') {
     const csv = toCsv(
-      ['Session ID', 'Date', 'Time', 'Patient', 'Service', 'Session #', 'Night', 'Base (INR)', 'Number bonus', 'Night bonus', 'Misc', 'Total pay (INR)'],
-      e.lines.map((l) => [l.id, l.dateIso, l.timeLabel, l.patientName, l.serviceLabel, l.sessionNumber, l.night ? 'Yes' : 'No', l.base, l.numberBonus, l.nightBonus, l.misc, l.amount]),
+      ['Session ID', 'Date', 'Time', 'Patient', 'Service', 'Session #', 'Night', 'Weekend', 'Base (INR)', 'Number bonus', 'Night bonus', 'Weekend bonus', 'Misc', 'Total pay (INR)'],
+      e.lines.map((l) => [l.id, l.dateIso, l.timeLabel, l.patientName, l.serviceLabel, l.sessionNumber, l.night ? 'Yes' : 'No', l.weekend === 'sat' ? 'Saturday' : l.weekend === 'sun' ? 'Sunday' : 'No', l.base, l.numberBonus, l.nightBonus, l.weekendBonus, l.misc, l.amount]),
     )
     return csvResponse(`statement-${safeName}-sessions-${stamp}.csv`, csv)
   }

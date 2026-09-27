@@ -35,11 +35,6 @@ export const MEMBER_TASKS_TABS: SectionTab[] = [
 
 // ── Expert portal ────────────────────────────────────────────────────────────
 
-export const EXPERT_SCHEDULE_TABS: SectionTab[] = [
-  { href: '/expert/schedule', label: 'Schedule' },
-  { href: '/expert/availability', label: 'Availability' },
-]
-
 // Tasks and Forms share one sidebar entry ("Tasks").
 export const EXPERT_TASKS_TABS: SectionTab[] = [
   { href: '/expert/tasks', label: 'Activities' },

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Download, Wallet, CalendarDays, TrendingUp, FileText } from 'lucide-react'
 import type { ClinicianEarnings, EarningsBucket } from '@/lib/admin'
+import { slotLabel } from '@/lib/earningsSlot'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -96,7 +97,7 @@ export function ClinicianEarningsView({ e }: { e: ClinicianEarnings }) {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 620 }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--c-line)' }}>
-                  {['Date', 'Patient', 'Service', 'Session #', 'Night', 'Pay'].map((h, i) => (
+                  {['Date', 'Patient', 'Service', 'Session #', 'Slot', 'Pay'].map((h, i) => (
                     <th key={h} style={{ padding: '8px 4px', fontSize: 12.5, color: 'var(--c-gray-d)', fontWeight: 600, textAlign: i === 5 ? 'right' : 'left' }}>{h}</th>
                   ))}
                 </tr>
@@ -108,7 +109,7 @@ export function ClinicianEarningsView({ e }: { e: ClinicianEarnings }) {
                     <td style={{ padding: '9px 4px', fontWeight: 600, color: charcoal }}>{l.patientName}</td>
                     <td style={{ padding: '9px 4px' }}>{l.serviceLabel}</td>
                     <td style={{ padding: '9px 4px' }}>#{l.sessionNumber}</td>
-                    <td style={{ padding: '9px 4px' }}>{l.night ? 'Yes' : '—'}</td>
+                    <td style={{ padding: '9px 4px' }}>{slotLabel(l.night, l.weekend) || '—'}</td>
                     <td style={{ padding: '9px 4px', textAlign: 'right', fontWeight: 700 }}>{inr(l.amount)}</td>
                   </tr>
                 ))}

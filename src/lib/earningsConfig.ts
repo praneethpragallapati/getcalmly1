@@ -4,7 +4,8 @@
  * the fallback when the row is missing.
  *
  * A completed session pays:
- *   base(service) + session-number bonus + (night bonus if a night-slot session) + misc
+ *   base(service) + session-number bonus + (night bonus if a night-slot session)
+ *   + (Saturday / Sunday bonus if held on that day, in IST) + misc
  * where base(service) is the base fee for the session's service type (individual
  * therapy, couples therapy, or psychiatry), and the session-number bonus is 0 for
  * the 1st session with a patient, the 2nd-session bonus for the 2nd, and the
@@ -12,6 +13,9 @@
  */
 import { prisma } from '@/lib/prisma'
 import { istParts } from '@/lib/tz'
+import type { WeekendDay } from '@/lib/earningsSlot'
+
+export { slotLabel, type WeekendDay } from '@/lib/earningsSlot'
 
 /** The three service types that carry their own base fee. */
 export type ServiceType = 'individual' | 'couples' | 'psychiatry'
@@ -30,6 +34,8 @@ export type EarningsConfigValues = {
   thirdOnwardsBonus: number
   miscBonus: number
   nightSessionBonus: number
+  saturdayBonus: number
+  sundayBonus: number
 }
 
 export const EARNINGS_DEFAULTS: EarningsConfigValues = {
@@ -40,6 +46,9 @@ export const EARNINGS_DEFAULTS: EarningsConfigValues = {
   thirdOnwardsBonus: 100,
   miscBonus: 0,
   nightSessionBonus: 200,
+  // Off until an admin sets them, so turning the feature on changes no one's pay.
+  saturdayBonus: 0,
+  sundayBonus: 0,
 }
 
 // Per-therapist overrides (any field null → fall back to the global config).
@@ -51,6 +60,8 @@ export type TherapistEarningsOverrides = {
   thirdOnwardsBonus?: number | null
   miscBonus?: number | null
   nightSessionBonus?: number | null
+  saturdayBonus?: number | null
+  sundayBonus?: number | null
 }
 
 /**
@@ -72,6 +83,8 @@ export function effectiveEarningsConfig(
     thirdOnwardsBonus: pick(o.thirdOnwardsBonus, global.thirdOnwardsBonus),
     miscBonus: pick(o.miscBonus, global.miscBonus),
     nightSessionBonus: pick(o.nightSessionBonus, global.nightSessionBonus),
+    saturdayBonus: pick(o.saturdayBonus, global.saturdayBonus),
+    sundayBonus: pick(o.sundayBonus, global.sundayBonus),
   }
 }
 
@@ -98,6 +111,8 @@ export async function getEarningsConfig(): Promise<EarningsConfigValues> {
       thirdOnwardsBonus: row.thirdOnwardsBonus,
       miscBonus: row.miscBonus,
       nightSessionBonus: row.nightSessionBonus,
+      saturdayBonus: row.saturdayBonus ?? EARNINGS_DEFAULTS.saturdayBonus,
+      sundayBonus: row.sundayBonus ?? EARNINGS_DEFAULTS.sundayBonus,
     }
   } catch {
     return EARNINGS_DEFAULTS
@@ -118,6 +133,8 @@ export async function updateEarningsConfig(
     thirdOnwardsBonus: nn(values.thirdOnwardsBonus),
     miscBonus: nn(values.miscBonus),
     nightSessionBonus: nn(values.nightSessionBonus),
+    saturdayBonus: nn(values.saturdayBonus),
+    sundayBonus: nn(values.sundayBonus),
   }
   await prisma.earningsConfig.upsert({
     where: { id: 'default' },
@@ -138,22 +155,35 @@ export function isNightSession(scheduledAt: Date): boolean {
   return h >= 23 || h < 6
 }
 
+/** 'sat' / 'sun' when the session falls on a weekend day in IST, else null. */
+export function weekendDayOf(scheduledAt: Date): WeekendDay | null {
+  const dow = istParts(scheduledAt).dow
+  return dow === 6 ? 'sat' : dow === 0 ? 'sun' : null
+}
+
+/** The Saturday or Sunday bonus for a session on that day (0 on weekdays). */
+export function weekendBonusFor(config: EarningsConfigValues, day: WeekendDay | null): number {
+  return day === 'sat' ? config.saturdayBonus : day === 'sun' ? config.sundayBonus : 0
+}
+
 /** The session-number bonus for a given per-patient ordinal (1-based). */
 export function numberBonusFor(config: EarningsConfigValues, sessionNumber: number): number {
   return sessionNumber >= 3 ? config.thirdOnwardsBonus : sessionNumber === 2 ? config.secondSessionBonus : 0
 }
 
-/** Pay for a single completed session given its service type, per-patient ordinal, and slot. */
+/** Pay for a single completed session given its service type, per-patient ordinal, slot and day. */
 export function sessionPay(
   config: EarningsConfigValues,
   service: ServiceType,
   sessionNumber: number,
-  night: boolean
+  night: boolean,
+  weekend: WeekendDay | null = null
 ): number {
   return (
     baseFeeFor(config, service) +
     numberBonusFor(config, sessionNumber) +
     (night ? config.nightSessionBonus : 0) +
+    weekendBonusFor(config, weekend) +
     config.miscBonus
   )
 }

@@ -4,6 +4,7 @@
  * portal renders even if a query hiccups.
  */
 import { getServerSession } from 'next-auth'
+import { getClinicianSessionGap } from '@/lib/sessionGap'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { designationOf, getTherapistEarnings, getEarningsForMany, ensureBlogReviewSchema, type EarningLine, type PersonContact } from '@/lib/expert'
@@ -198,8 +199,9 @@ export type ClinicianDetail = {
   isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
   baseFeeIndividual: number | null; baseFeeCouples: number | null; baseFeePsychiatry: number | null
   secondSessionBonus: number | null; thirdOnwardsBonus: number | null; miscBonus: number | null; nightSessionBonus: number | null
+  saturdayBonus: number | null; sundayBonus: number | null
   globalFees: { individual: number; couples: number; psychiatry: number }
-  globalBonuses: { second: number; thirdOnwards: number; misc: number; night: number }
+  globalBonuses: { second: number; thirdOnwards: number; misc: number; night: number; saturday: number; sunday: number }
   documentUrls: string[]
   /** The clinician's own contact + address record. Admin-only. */
   contact: PersonContact
@@ -221,6 +223,8 @@ export type ClinicianDetail = {
     completedTotal: number
     patientsSeen: number // distinct patients with at least one completed session
     avgSessionsPerPatient: number | null // completedTotal / patientsSeen
+    avgGapDays: number | null // mean days between a patient's sessions, averaged over patients
+    gapPatients: number // patients with 2+ sessions that average is taken over
     sessionsPerWeek: number | null // recent throughput, last 12 weeks
     weeksMeasured: number // weeks the per-week figure is averaged over
   }
@@ -239,6 +243,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         isActive: true, isVerified: true, rating: true, totalReviews: true,
         baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
         secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
+        saturdayBonus: true, sundayBonus: true,
         documentUrls: true, gender: true, createdAt: true,
         user: { select: { id: true, name: true, email: true, phone: true, registrationNo: true } },
       },
@@ -341,8 +346,9 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       baseFeeIndividual: p.baseFeeIndividual ?? null, baseFeeCouples: p.baseFeeCouples ?? null, baseFeePsychiatry: p.baseFeePsychiatry ?? null,
       secondSessionBonus: p.secondSessionBonus ?? null, thirdOnwardsBonus: p.thirdOnwardsBonus ?? null,
       miscBonus: p.miscBonus ?? null, nightSessionBonus: p.nightSessionBonus ?? null,
+      saturdayBonus: p.saturdayBonus ?? null, sundayBonus: p.sundayBonus ?? null,
       globalFees: { individual: config.baseFeeIndividual, couples: config.baseFeeCouples, psychiatry: config.baseFeePsychiatry },
-      globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus },
+      globalBonuses: { second: config.secondSessionBonus, thirdOnwards: config.thirdOnwardsBonus, misc: config.miscBonus, night: config.nightSessionBonus, saturday: config.saturdayBonus, sunday: config.sundayBonus },
       documentUrls: p.documentUrls ?? [],
       contact: clinicianContact,
       compensationFields,
@@ -373,6 +379,8 @@ export async function getClinicianDelivery(profileId: string): Promise<Clinician
     completedTotal: 0,
     patientsSeen: 0,
     avgSessionsPerPatient: null,
+    avgGapDays: null,
+    gapPatients: 0,
     sessionsPerWeek: null,
     weeksMeasured: 0,
   }
@@ -422,11 +430,12 @@ export async function getClinicianDelivery(profileId: string): Promise<Clinician
     const windowStart = new Date(Date.now() - WINDOW_WEEKS * WEEK_MS)
     const completedWhere = { therapistId: profileId, status: 'COMPLETED' as const }
 
-    const [completedTotal, distinctPatients, firstSession, recentCount] = await Promise.all([
+    const [completedTotal, distinctPatients, firstSession, recentCount, gap] = await Promise.all([
       prisma.appointment.count({ where: completedWhere }),
       prisma.appointment.findMany({ where: completedWhere, distinct: ['patientId'], select: { patientId: true } }),
       prisma.appointment.findFirst({ where: completedWhere, orderBy: { scheduledAt: 'asc' }, select: { scheduledAt: true } }),
       prisma.appointment.count({ where: { ...completedWhere, scheduledAt: { gte: windowStart } } }),
+      getClinicianSessionGap(profileId),
     ])
 
     const patientsSeen = distinctPatients.length
@@ -446,6 +455,8 @@ export async function getClinicianDelivery(profileId: string): Promise<Clinician
       completedTotal,
       patientsSeen,
       avgSessionsPerPatient: patientsSeen > 0 ? Math.round((completedTotal / patientsSeen) * 10) / 10 : null,
+      avgGapDays: gap.avgDays,
+      gapPatients: gap.patientsMeasured,
       sessionsPerWeek: weeksActive > 0 ? Math.round((recentCount / weeksActive) * 10) / 10 : null,
       weeksMeasured: weeksActive,
     }
@@ -1224,6 +1235,10 @@ export type PayoutBreakdownRow = {
   thirdPlusTotal: number
   nightCount: number
   nightTotal: number
+  saturdayCount: number
+  saturdayTotal: number
+  sundayCount: number
+  sundayTotal: number
   miscTotal: number
   total: number
 }
@@ -1246,7 +1261,7 @@ export async function getMasterPayout(): Promise<MasterPayout> {
     const blank = (periodKey: string, periodLabel: string, t: { id: string; name: string; employmentType: string }): PayoutBreakdownRow => ({
       periodKey, periodLabel, profileId: t.id, name: t.name, employmentType: t.employmentType,
       sessions: 0, baseTotal: 0, secondCount: 0, secondTotal: 0, thirdPlusCount: 0, thirdPlusTotal: 0,
-      nightCount: 0, nightTotal: 0, miscTotal: 0, total: 0,
+      nightCount: 0, nightTotal: 0, saturdayCount: 0, saturdayTotal: 0, sundayCount: 0, sundayTotal: 0, miscTotal: 0, total: 0,
     })
 
     const earnings = await getEarningsForMany(clinicians.map((c) => c.id))
@@ -1266,6 +1281,8 @@ export async function getMasterPayout(): Promise<MasterPayout> {
           if (l.sessionNumber === 2) { row.secondCount += 1; row.secondTotal += l.numberBonus }
           else if (l.sessionNumber >= 3) { row.thirdPlusCount += 1; row.thirdPlusTotal += l.numberBonus }
           if (l.night) { row.nightCount += 1; row.nightTotal += l.nightBonus }
+          if (l.weekend === 'sat') { row.saturdayCount += 1; row.saturdayTotal += l.weekendBonus }
+          if (l.weekend === 'sun') { row.sundayCount += 1; row.sundayTotal += l.weekendBonus }
           row.miscTotal += l.misc
           row.total += l.amount
           map.set(key, row)
