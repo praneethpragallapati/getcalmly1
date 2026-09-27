@@ -3255,3 +3255,214 @@
 .calmly-app .pg-mini .n { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.05; color: var(--c-charcoal); }
 .calmly-app .pg-mini .n span { font-size: 13px; font-weight: 600; color: var(--c-gray); }
 .calmly-app .pg-mini .l { font-size: 11.5px; color: var(--c-gray); }
+
+/* ===== Home: check-in flips to the mood trend =====================
+   Two faces stacked in one grid cell so the card keeps a stable height, with a
+   3D rotate between them. The mood chart (the back face) mounts keyed to the
+   flip so its left-to-right draw replays each time the card turns. */
+.flip-wrap {
+  perspective: 1600px;
+  min-width: 0;
+}
+.flip-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.62s cubic-bezier(0.45, 0.05, 0.25, 1);
+  height: 100%;
+}
+.flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  grid-area: 1 / 1;
+  min-width: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.flip-face > .card {
+  height: 100%;
+}
+.flip-back {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+}
+.flip-back-chart {
+  flex: 1;
+}
+.flip-again {
+  align-self: center;
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--c-gray-d);
+  transition: color 0.16s;
+}
+.flip-again:hover {
+  color: var(--c-coral-d);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner {
+    transition: none;
+  }
+}
+
+/* Slider value pop on change */
+.slider-val.pop {
+  animation: valPop 0.32s ease;
+}
+@keyframes valPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Home tracker: Activities / Pulse / Forms tabs ===== */
+.tracker-card {
+  display: flex;
+  flex-direction: column;
+}
+.tracker-seg {
+  display: flex;
+  width: 100%;
+  margin-bottom: 14px;
+}
+.tracker-seg .seg-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.seg-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--c-coral);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+.seg-btn.on .seg-count {
+  background: var(--c-coral);
+}
+.tracker-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.tracker-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+/* ===== Bar fills (milestones companion): grow from the left on first paint ===== */
+.mini-fill-anim {
+  transform-origin: left center;
+  animation: barGrow 0.9s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+.mini-item-fill-anim {
+  transform-origin: left center;
+  animation: barGrow 0.9s cubic-bezier(0.33, 1, 0.68, 1) 0.12s both;
+}
+@keyframes barGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mini-fill-anim,
+  .mini-item-fill-anim {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ===== Completion celebration (task done) ===== */
+.cel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 43, 58, 0.14);
+  backdrop-filter: blur(1.5px);
+  animation: celOverlay 0.24s ease;
+}
+.cel-card {
+  background: var(--c-white);
+  border-radius: 20px;
+  padding: 26px 30px 24px;
+  box-shadow: var(--c-shadow-h);
+  text-align: center;
+  max-width: 300px;
+  animation: celCard 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cel-ring { display: block; margin: 0 auto 12px; }
+.cel-ring-bg {
+  fill: none;
+  stroke: var(--c-coral-pale);
+  stroke-width: 4;
+}
+.cel-ring-fg {
+  fill: none;
+  stroke: var(--c-coral);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transform: rotate(-90deg);
+  transform-origin: 24px 24px;
+  animation: celDraw 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.05s forwards;
+}
+.cel-check {
+  stroke: var(--c-coral);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: celDraw 0.34s cubic-bezier(0.65, 0, 0.35, 1) 0.42s forwards;
+}
+.cel-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--c-charcoal);
+  letter-spacing: -0.2px;
+}
+.cel-sub {
+  font-size: 13px;
+  color: var(--c-gray);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+@keyframes celOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes celCard {
+  from { opacity: 0; transform: translateY(8px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes celDraw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cel-overlay, .cel-card { animation: none; }
+  .cel-ring-fg, .cel-check { animation: none; stroke-dashoffset: 0; }
+}

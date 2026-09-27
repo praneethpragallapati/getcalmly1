@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { Check, Activity, PlayCircle, BookOpen, PenLine, Wind } from 'lucide-react'
 import type { DashTask } from '@/data/dashboardDemo'
 import { toggleTask } from '@/app/(dashboard)/app/actions'
+import { Celebration } from './Celebration'
 
 const TYPE_ICON = {
   EXERCISE: Activity,
@@ -22,16 +23,25 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
   const [done, setDone] = useState<Record<string, boolean>>(
     Object.fromEntries(tasks.map((t) => [t.id, t.done])),
   )
+  const [celebrate, setCelebrate] = useState(false)
   const [, startTransition] = useTransition()
 
   const toggle = (id: string) => {
     const next = !done[id]
     setDone((d) => ({ ...d, [id]: next }))
+    if (next) {
+      // Affirm the completion. Re-arm on the next frame so back-to-back
+      // completions each replay the animation.
+      setCelebrate(false)
+      requestAnimationFrame(() => setCelebrate(true))
+    }
     startTransition(async () => {
       const res = await toggleTask(id, next)
       if (!res.ok) setDone((d) => ({ ...d, [id]: !next })) // revert on failure
     })
   }
+
+  const allDone = tasks.length > 0 && tasks.every((t) => done[t.id])
 
   if (tasks.length === 0) {
     return (
@@ -43,6 +53,12 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
 
   return (
     <div>
+      <Celebration
+        show={celebrate}
+        title={allDone ? 'Today’s activities, done' : 'Activity complete'}
+        sub={allDone ? 'Every task ticked off — beautifully done.' : 'One down. That counts.'}
+        onDone={() => setCelebrate(false)}
+      />
       {tasks.map((t) => {
         const Icon = TYPE_ICON[t.type]
         const isDone = done[t.id]

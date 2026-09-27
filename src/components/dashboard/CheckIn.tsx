@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check } from 'lucide-react'
+import { Check, RotateCcw } from 'lucide-react'
 import { saveCheckin } from '@/app/(dashboard)/app/actions'
 import type { CheckinScores } from '@/data/dashboardDemo'
 
@@ -15,13 +15,25 @@ const DIMS: { key: keyof CheckinScores; label: string; color: string; tint: stri
 ]
 
 /**
- * Morning check-in with Mood / Energy / Sleep 0–10 sliders (matches the web
- * mockup). Local state only for now; persistence + privacy gating land with the
- * data layer (a check-in is simply not stored when mood collection is off).
+ * Morning check-in with Mood / Energy / Sleep 0–10 sliders. On save the card
+ * flips (3D rotate) to reveal this week's mood trend — the chart is passed in as
+ * `back` so the server can render it with real data, and it only mounts once the
+ * card has flipped so its left-to-right draw plays as the trend comes into view.
+ * Local state only for the flip; persistence + privacy gating stay server-side.
  */
-export function CheckIn({ initial, streakDays }: { initial: CheckinScores; streakDays: number }) {
+export function CheckIn({
+  initial,
+  streakDays,
+  back,
+}: {
+  initial: CheckinScores
+  streakDays: number
+  back?: ReactNode
+}) {
   const [scores, setScores] = useState<CheckinScores>(initial)
   const [saved, setSaved] = useState(false)
+  const [flipped, setFlipped] = useState(false)
+  const [popKey, setPopKey] = useState<keyof CheckinScores | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [confirmZero, setConfirmZero] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -32,15 +44,17 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
   function persist() {
     setError(null)
     setConfirmZero(false)
-    // Optimistic: flip to "Saved" immediately; the write + chart refresh happen in
-    // the background and only roll back if the server actually rejects it.
+    // Optimistic: flip to the trend immediately; the write + chart refresh happen
+    // in the background and only roll back if the server actually rejects it.
     setSaved(true)
+    if (back) setFlipped(true)
     startTransition(async () => {
       const res = await saveCheckin(scores)
       if (res.ok) {
         router.refresh() // pull the updated week chart / average from the server
       } else {
         setSaved(false)
+        setFlipped(false)
         setError(res.error ?? 'Something went wrong.')
       }
     })
@@ -56,7 +70,12 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
     persist()
   }
 
-  return (
+  function flipBack() {
+    setFlipped(false)
+    setSaved(false)
+  }
+
+  const front = (
     <div className="card checkin-card">
       <div className="checkin-head">
         <div>
@@ -77,7 +96,11 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
           <div className="slider-row" key={key}>
             <div className="slider-top">
               <span className="slider-label">{label}</span>
-              <span className="slider-val" style={{ color, background: v > 0 ? tint : 'transparent' }}>
+              <span
+                key={popKey === key ? `${key}-${v}` : key}
+                className={`slider-val${popKey === key ? ' pop' : ''}`}
+                style={{ color, background: v > 0 ? tint : 'transparent' }}
+              >
                 {v}
               </span>
             </div>
@@ -91,6 +114,7 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
                 setScores((s) => ({ ...s, [key]: Number(e.target.value) }))
                 setSaved(false)
                 setConfirmZero(false)
+                setPopKey(key)
               }}
               style={{
                 color,
@@ -145,6 +169,30 @@ export function CheckIn({ initial, streakDays }: { initial: CheckinScores; strea
           </span>
         </div>
       )}
+    </div>
+  )
+
+  // No chart to flip to (e.g. mobile stacks it elsewhere) — just the card.
+  if (!back) return front
+
+  return (
+    <div className="flip-wrap">
+      <div className={`flip-inner${flipped ? ' flipped' : ''}`}>
+        <div className="flip-face flip-front" aria-hidden={flipped}>
+          {front}
+        </div>
+        <div className="flip-face flip-back" aria-hidden={!flipped}>
+          {/* The chart stays mounted so the stacked card keeps a stable height,
+              but it is keyed on `flipped` so it remounts when the card turns —
+              replaying its left-to-right draw as the trend comes into view. */}
+          <div key={flipped ? 'trend-shown' : 'trend-idle'} className="flip-back-chart">
+            {back}
+          </div>
+          <button type="button" className="flip-again" onClick={flipBack}>
+            <RotateCcw size={13} /> Check in again
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

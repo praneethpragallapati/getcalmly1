@@ -2,7 +2,6 @@ import Link from 'next/link'
 import {
   Sparkles,
   PenLine,
-  Pill,
   Heart,
   MessageCircle,
   Truck,
@@ -17,10 +16,10 @@ import { CheckIn } from '@/components/dashboard/CheckIn'
 import { MoodTrendChart } from '@/components/dashboard/MoodTrendChart'
 import { NextSessionCard } from '@/components/dashboard/NextSessionCard'
 import { MilestonesMini } from '@/components/dashboard/MilestonesMini'
-import { TaskList } from '@/components/dashboard/TaskList'
+import { HomeTracker } from '@/components/dashboard/HomeTracker'
 import { HomePolls } from '@/components/dashboard/HomePolls'
-import { HomeCheckins } from '@/components/dashboard/HomeCheckins'
 import { dueInstruments } from '@/lib/outcomes/pulse'
+import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 import { getMyForms } from '@/lib/forms'
 
 export default async function AppHomePage() {
@@ -35,8 +34,12 @@ export default async function AppHomePage() {
     userId ? getMyForms(userId).catch(() => []) : Promise.resolve([]),
   ])
   const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))
+  const pulseItems = pulseDue.map((id) => ({ id, short: INSTRUMENTS[id]?.short ?? id }))
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
+  const medProp = med
+    ? { name: med.name, dosage: med.dosage, frequency: med.frequency, times: med.times }
+    : null
 
   // Prescribed (DB-backed) active meds that haven't been ordered/paid for yet.
   const orderedMedIds = new Set(orders.map((o) => o.medicationId).filter(Boolean) as string[])
@@ -121,27 +124,34 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Band 1 — today's check-in, with what's next beside it. */}
+      {/* Band 1 — today's check-in (flips to this week's mood trend on save),
+          with what's next beside it. */}
       <div className="home-band">
-        <CheckIn initial={d.checkin} streakDays={d.streakDays} />
+        <CheckIn
+          initial={d.checkin}
+          streakDays={d.streakDays}
+          back={<MoodTrendChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />}
+        />
         <NextSessionCard d={d} />
       </div>
 
-      {/* Band 2 — how you've been, with milestones at a glance beside it. */}
+      {/* Band 2 — the Activities / Pulse / Forms tracker (mirrors the mobile app),
+          with milestones at a glance beside it. */}
       <div className="home-band">
-        <MoodTrendChart data={d.moodWeek} avgMood={d.avgMood} sixWeeks={d.moodSixWeeks} />
+        <HomeTracker
+          tasks={d.tasks}
+          openTasks={openTasks}
+          med={medProp}
+          pulseDue={pulseItems}
+          forms={pendingForms}
+        />
         <MilestonesMini milestones={milestones} />
       </div>
 
-
-
-
-      <HomeCheckins pulseDue={pulseDue} forms={pendingForms} />
-
       {polls.length > 0 && <HomePolls polls={polls} canVote={Boolean(userId)} />}
 
-      {/* Recent journal · tasks + meds · community */}
-      <div className="home-split home-split-3" style={{ gap: 20 }}>
+      {/* Recent journal · community */}
+      <div className="home-split home-split-2" style={{ gap: 20 }}>
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <div className="section-title">Recent journal</div>
@@ -163,28 +173,6 @@ export default async function AppHomePage() {
                 <div className="entry-preview clamp">{j.preview}</div>
               </Link>
             ))
-          )}
-        </div>
-
-        {/* One card, like its neighbours — tasks, with today's medication as a
-            footer strip rather than a second card of a different size. Tinted as
-            the anchor of this row; its two neighbours stay white. */}
-        <div className="card tint-green">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <div className="section-title">Today’s activities</div>
-            <span className="link-action">{openTasks} left</span>
-          </div>
-          <TaskList tasks={d.tasks} />
-
-          {med && (
-            <Link href="/app/medications" className="med-strip">
-              <span className="task-ic"><Pill size={15} /></span>
-              <span className="med-strip-body">
-                <span className="med-strip-name">{med.name} {med.dosage}</span>
-                <span className="med-strip-sub">{med.frequency} · {med.times.join(', ')}</span>
-              </span>
-              <span className="link-action">Manage →</span>
-            </Link>
           )}
         </div>
 

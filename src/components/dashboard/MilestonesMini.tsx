@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Check } from 'lucide-react'
 import type { MilestoneView } from '@/lib/milestones'
+import { CountUp } from './CountUp'
 
 /**
  * The concise milestone companion beside the mood chart: the three nearest wins
@@ -21,10 +22,10 @@ export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) 
       <div className="eyebrow">MILESTONES</div>
 
       <div className="mini-score">
-        <span className="mini-n">{done}</span>
+        <span className="mini-n"><CountUp value={done} /></span>
         <span className="mini-of">earned</span>
       </div>
-      <div className="mini-track"><span className="mini-fill" style={{ width: `${pct}%` }} /></div>
+      <div className="mini-track"><span className="mini-fill mini-fill-anim" style={{ width: `${pct}%` }} /></div>
 
       <div className="mini-list">
         {next.length === 0 ? (
@@ -37,7 +38,7 @@ export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) 
                 <div className="mini-item-label">{m.label}</div>
                 <div className="mini-item-sub">{m.sub}</div>
                 <div className="mini-item-track">
-                  <span style={{ width: `${Math.round(m.progress * 100)}%` }} />
+                  <span className="mini-item-fill-anim" style={{ width: `${Math.round(m.progress * 100)}%` }} />
                 </div>
               </div>
             </div>
