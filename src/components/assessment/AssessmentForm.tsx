@@ -1,574 +1,253 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ArrowRight } from 'lucide-react'
+import {
+  FLOWS, LANGUAGES, TIMINGS, isFlowId, scoreAssessment, legacySeverity,
+  type Answers, type Prefs, type Question, type AssessmentResult,
+} from '@/data/assessments'
+import { PATH_LOOK } from './AssessmentStep1'
 
-type Question = {
-  id: string
-  text: string
-  hint?: string
-  type: 'single' | 'multi' | 'scale'
-  layout?: 'list' | 'grid' | 'chips'
-  options?: string[]
-  maxSelect?: number
-  concern?: string
-  risk?: boolean
-  /** map an option label → matching tags */
-  tagMap?: Record<string, string[]>
-}
-
-const SCALE = ['Very Low', 'Low', 'Moderate', 'High', 'Very High']
-
-
-const adultQuestions: Question[] = [
-  {
-    id: 'focus',
-    text: 'What feels heaviest right now?',
-    hint: 'Pick up to 3, this helps us find the right professional for you.',
-    type: 'multi',
-    maxSelect: 3,
-    concern: 'Primary Concerns',
-    options: [
-      'Anxiety & constant worry',
-      'Sadness or low mood',
-      'Work or career stress',
-      'Relationship difficulties',
-      'Family conflict',
-      'Loneliness',
-      'Self-worth & confidence',
-      'Sleep problems',
-      'Grief or a recent loss',
-      'Something from my past',
-      'A big life change',
-      'Anger or irritability',
-    ],
-    tagMap: {
-      'Anxiety & constant worry': ['anxiety', 'panic'],
-      'Sadness or low mood': ['low-mood', 'depression'],
-      'Work or career stress': ['work-stress', 'burnout', 'career'],
-      'Relationship difficulties': ['relationships', 'couples'],
-      'Family conflict': ['family', 'conflict'],
-      'Loneliness': ['loneliness'],
-      'Self-worth & confidence': ['self-esteem', 'confidence'],
-      'Sleep problems': ['sleep'],
-      'Grief or a recent loss': ['grief', 'loss'],
-      'Something from my past': ['trauma'],
-      'A big life change': ['life-transitions'],
-      'Anger or irritability': ['anger'],
-    },
-  },
-  {
-    id: 'duration',
-    text: 'How long have you been feeling this way?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Less than 2 weeks', '2–4 weeks', '1–3 months', 'More than 3 months'],
-  },
-  {
-    id: 'mood',
-    text: 'How would you rate your overall mood lately?',
-    type: 'scale',
-    concern: 'Low Mood',
-  },
-  {
-    id: 'sleep',
-    text: 'How has your sleep been?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Sleeping well', 'Hard to fall asleep', 'Waking through the night', 'Sleeping too much'],
-    concern: 'Sleep Difficulties',
-    tagMap: {
-      'Hard to fall asleep': ['sleep'],
-      'Waking through the night': ['sleep'],
-      'Sleeping too much': ['sleep', 'low-mood'],
-    },
-  },
-  {
-    id: 'interest',
-    text: 'Are you still enjoying the things you usually do?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Yes, mostly', 'A little less', 'Much less than before', 'Not at all'],
-    concern: 'Loss of Interest',
-    tagMap: {
-      'Much less than before': ['low-mood', 'depression'],
-      'Not at all': ['low-mood', 'depression'],
-    },
-  },
-  {
-    id: 'stress',
-    text: 'How overwhelmed have you felt recently?',
-    type: 'scale',
-    concern: 'Stress & Burnout',
-  },
-  {
-    id: 'physical',
-    text: 'Have you noticed any of these in your body?',
-    hint: 'Select any that apply.',
-    type: 'multi',
-    options: ['Racing heart', 'Tight chest', 'Constant fatigue', 'Appetite changes', 'Headaches', 'Trouble concentrating', 'Restlessness', 'None of these'],
-    tagMap: {
-      'Racing heart': ['anxiety', 'panic'],
-      'Tight chest': ['anxiety', 'panic'],
-      'Constant fatigue': ['low-mood', 'depression'],
-      'Trouble concentrating': ['anxiety', 'low-mood'],
-      'Restlessness': ['anxiety'],
-    },
-  },
-  {
-    id: 'support',
-    text: 'How are the people around you right now?',
-    type: 'single',
-    layout: 'grid',
-    options: ['I feel well supported', 'Some support', 'Very little support', 'I feel quite alone'],
-    tagMap: {
-      'Very little support': ['loneliness'],
-      'I feel quite alone': ['loneliness'],
-    },
-  },
-  {
-    id: 'coping',
-    // Subtle risk screen, phrased gently, no explicit wording.
-    text: 'Over the last two weeks, how often have things felt like too much to carry?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
-    risk: true,
-  },
-  {
-    id: 'prior',
-    text: 'Have you spoken to a mental health professional before?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Yes', 'No'],
-  },
-  {
-    id: 'gender',
-    text: 'Any preference for your professional?',
-    hint: 'Totally optional, we\'ll honour it where we can.',
-    type: 'single',
-    layout: 'grid',
-    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
-  },
-]
-
-const childQuestions: Question[] = [
-  {
-    id: 'age',
-    text: 'How old is your child?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Under 6', '6–10', '11–14', '15–17'],
-    tagMap: { 'Under 6': ['child'], '6–10': ['child'], '11–14': ['adolescent'], '15–17': ['adolescent'] },
-  },
-  {
-    id: 'focus',
-    text: 'What are you noticing most?',
-    hint: 'Pick up to 3.',
-    type: 'multi',
-    maxSelect: 3,
-    concern: 'Child Wellbeing',
-    options: ['Worry or anxiety', 'Low mood', 'Exam or school stress', 'Trouble focusing', 'Behaviour changes', 'Withdrawing from others', 'Sleep changes', 'After a difficult event'],
-    tagMap: {
-      'Worry or anxiety': ['anxiety', 'child'],
-      'Low mood': ['low-mood', 'child'],
-      'Exam or school stress': ['exam-stress', 'academic', 'school'],
-      'Trouble focusing': ['adhd', 'school'],
-      'Behaviour changes': ['behaviour'],
-      'Withdrawing from others': ['low-mood', 'loneliness'],
-      'Sleep changes': ['sleep'],
-      'After a difficult event': ['trauma'],
-    },
-  },
-  {
-    id: 'duration',
-    text: 'How long have you noticed these changes?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Less than 2 weeks', '2–4 weeks', '1–3 months', 'More than 3 months'],
-  },
-  {
-    id: 'school',
-    text: 'How is your child doing at school lately?',
-    type: 'scale',
-    concern: 'Academic Difficulties',
-  },
-  {
-    id: 'coping',
-    text: 'Over the last two weeks, how often has your child seemed overwhelmed or withdrawn?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
-    risk: true,
-  },
-  {
-    id: 'gender',
-    text: 'Any preference for your child\'s therapist?',
-    hint: 'Totally optional, we\'ll honour it where we can.',
-    type: 'single',
-    layout: 'grid',
-    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
-  },
-]
-
-const coupleQuestions: Question[] = [
-  {
-    id: 'focus',
-    text: 'What brings you in as a couple?',
-    hint: 'Pick up to 3.',
-    type: 'multi',
-    maxSelect: 3,
-    concern: 'Relationship Concerns',
-    options: ['Communication issues', 'Frequent conflict', 'Trust concerns', 'Growing apart', 'Considering separation', 'Intimacy', 'Parenting differences', 'Pre-marital guidance'],
-    tagMap: {
-      'Communication issues': ['communication', 'couples'],
-      'Frequent conflict': ['conflict', 'couples'],
-      'Trust concerns': ['trust', 'couples'],
-      'Growing apart': ['couples', 'relationships'],
-      'Considering separation': ['separation', 'couples'],
-      'Intimacy': ['couples', 'relationships'],
-      'Parenting differences': ['family', 'couples'],
-      'Pre-marital guidance': ['pre-marital', 'couples'],
-    },
-  },
-  {
-    id: 'duration',
-    text: 'How long have these concerns been present?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Less than a month', '1–3 months', '3–6 months', 'More than 6 months'],
-  },
-  {
-    id: 'satisfaction',
-    text: 'How would you rate your relationship satisfaction right now?',
-    type: 'scale',
-    concern: 'Relationship Satisfaction',
-  },
-  {
-    id: 'both',
-    text: 'Are both partners open to attending sessions?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Yes, both of us', 'Only me for now', 'Unsure'],
-  },
-  {
-    id: 'gender',
-    text: 'Any preference for your professional?',
-    hint: 'Totally optional, we\'ll honour it where we can.',
-    type: 'single',
-    layout: 'grid',
-    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
-  },
-]
-
-const psychiatryQuestions: Question[] = [
-  {
-    id: 'focus',
-    text: 'What brings you to seek psychiatric support?',
-    hint: 'Pick up to 3.',
-    type: 'multi',
-    maxSelect: 3,
-    concern: 'Psychiatric Evaluation',
-    options: ['Persistent low mood', 'Severe anxiety or panic', 'Sleep problems', 'Intrusive thoughts', 'Mood swings', 'Existing diagnosis / refill', 'Focus & attention', 'Second opinion'],
-    tagMap: {
-      'Persistent low mood': ['low-mood', 'depression', 'medication'],
-      'Severe anxiety or panic': ['anxiety', 'panic', 'medication'],
-      'Sleep problems': ['sleep', 'medication'],
-      'Intrusive thoughts': ['ocd', 'medication'],
-      'Mood swings': ['bipolar', 'medication'],
-      'Existing diagnosis / refill': ['medication', 'psychiatry'],
-      'Focus & attention': ['adhd', 'medication'],
-      'Second opinion': ['psychiatry'],
-    },
-  },
-  {
-    id: 'medication',
-    text: 'Are you currently taking any psychiatric medication?',
-    type: 'single',
-    layout: 'grid',
-    options: ['No', 'Yes, currently', 'Previously, not now'],
-  },
-  {
-    id: 'severity',
-    text: 'How much are these symptoms affecting your daily life?',
-    type: 'scale',
-    concern: 'Functional Impairment',
-  },
-  {
-    id: 'coping',
-    text: 'Over the last two weeks, how often have things felt like too much to carry?',
-    type: 'single',
-    layout: 'grid',
-    options: ['Rarely', 'Some days', 'More than half the days', 'Almost every day'],
-    risk: true,
-  },
-  {
-    id: 'gender',
-    text: 'Any preference for your professional?',
-    hint: 'Totally optional, we\'ll honour it where we can.',
-    type: 'single',
-    layout: 'grid',
-    options: ['No preference', 'Prefer a woman', 'Prefer a man'],
-  },
-]
-
-function getQuestions(type: string): Question[] {
-  switch (type) {
-    case 'child': return childQuestions
-    case 'couple': return coupleQuestions
-    case 'psychiatry': return psychiatryQuestions
-    default: return adultQuestions
-  }
-}
-
-// In-app mode: a signed-in patient takes the SAME questionnaire, but instead of
-// stashing the result in sessionStorage and showing the public results page, we
-// persist it to their profile and match a clinician. The parent passes the
-// server action as `onComplete`.
-type AssessmentResultPayload = {
+/** What the in-app version saves to the patient's profile. */
+export type AssessmentSavePayload = {
   type: string
   tags: string[]
   language: string | null
   genderPref: string | null
   severity: string
   riskFlag: boolean
+  risk?: number
+  styles?: string[]
+  note?: string | null
+}
+
+export const RESULT_KEY = 'assess_result_v2'
+
+/** "What is *this*?" → ["What is ", <em>this</em>, "?"] */
+function emphasise(text: string) {
+  return text.split('*').map((part, i) => (i % 2 ? <em key={i}>{part}</em> : part))
 }
 
 export default function AssessmentForm({
   type,
   onComplete,
+  startHref = '/assess',
 }: {
   type: string
-  onComplete?: (payload: AssessmentResultPayload) => Promise<{ ok: boolean; error?: string }>
+  onComplete?: (payload: AssessmentSavePayload) => Promise<{ ok: boolean; error?: string }>
+  startHref?: string
 }) {
   const router = useRouter()
-  const questions = getQuestions(type)
+  const flow = FLOWS[isFlowId(type) ? type : 'adult']
+  const qs = flow.questions
   const [step, setStep] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
+  const [answers, setAnswers] = useState<Answers>({})
+  const [prefs, setPrefs] = useState<Prefs>({})
   const [saving, setSaving] = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const q = questions[step]
-  const progress = ((step + 1) / questions.length) * 100
+  const q: Question = qs[step]
+  const last = step === qs.length - 1
+  const accent = PATH_LOOK[flow.id].color
 
-  const advance = () => {
-    if (step < questions.length - 1) setStep((s) => s + 1)
-    else finish()
-  }
+  const value = answers[q.id]
+  const picked: string[] = Array.isArray(value) ? value : typeof value === 'string' && value ? [value] : []
+  const answered = q.optional || (q.kind === 'text' ? Boolean(value) : picked.length > 0)
 
-  // Single-choice / scale: record + auto-advance after a short beat.
-  // Risk answers are still captured and factored into the result — we just
-  // don't interrupt the assessment with a helpline modal mid-flow.
-  const pickSingle = (value: string) => {
-    setAnswers((a) => ({ ...a, [q.id]: value }))
-    setTimeout(advance, 220)
-  }
-
-  const toggleMulti = (value: string) => {
-    setAnswers((a) => {
-      const current = Array.isArray(a[q.id]) ? (a[q.id] as string[]) : []
-      const noneLabel = q.options?.find((o) => o.startsWith('None'))
-      if (value === noneLabel) return { ...a, [q.id]: [value] }
-      let without = current.filter((v) => v !== noneLabel)
-      if (without.includes(value)) {
-        without = without.filter((v) => v !== value)
-      } else {
-        if (q.maxSelect && without.length >= q.maxSelect) return a // cap reached
-        without = [...without, value]
-      }
-      return { ...a, [q.id]: without }
-    })
-  }
-
-  const isAnswered = () => {
-    const v = answers[q.id]
-    if (Array.isArray(v)) return v.length > 0
-    return Boolean(v)
-  }
-
-  const finish = () => {
-    const { severity, concerns, riskFlag, tags } = score(questions, answers)
-
-    // In-app: persist to the patient's profile and match, then go to Care Team.
+  const finish = useCallback(() => {
+    const result: AssessmentResult = scoreAssessment(flow, answers, prefs)
     if (onComplete) {
-      // Language is no longer asked here — it is collected once at signup and
-      // lives on the profile, so the assessment has no business restating it.
-      const genderPref = typeof answers.gender === 'string' ? answers.gender : null
       setSaving(true)
       setSaveErr(null)
-      void onComplete({ type, tags, language: null, genderPref, severity, riskFlag }).then((res) => {
+      void onComplete({
+        type: flow.id,
+        tags: result.needs,
+        language: prefs.language ?? null,
+        genderPref: prefs.gender ?? null,
+        severity: legacySeverity(result.level),
+        riskFlag: result.risk > 0,
+        risk: result.risk,
+        styles: result.styles,
+        note: result.note ?? null,
+      }).then((res) => {
         if (res.ok) router.push('/app/therapist')
-        else { setSaving(false); setSaveErr(res.error ?? 'Could not save your assessment.') }
+        else { setSaving(false); setSaveErr(res.error ?? 'Could not save your answers. Please try again.') }
       })
       return
     }
-
-    sessionStorage.setItem('assess_result', JSON.stringify({ type, severity, concerns, riskFlag, tags, answers }))
+    try { sessionStorage.setItem(RESULT_KEY, JSON.stringify(result)) } catch { /* private mode: results page asks to retake */ }
     router.push('/assess/results')
+  }, [flow, answers, prefs, onComplete, router])
+
+  const next = useCallback(() => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    if (last) finish()
+    else setStep((s) => s + 1)
+  }, [last, finish])
+
+  const back = () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    if (step === 0) router.push(startHref)
+    else setStep((s) => s - 1)
   }
 
-  const scaleColors = ['#3D9E72', '#7FBD9E', '#C9973A', '#D4703A', '#C8553D']
-  const isMulti = q.type === 'multi'
+  const pickSingle = useCallback((label: string) => {
+    setAnswers((a) => ({ ...a, [q.id]: label }))
+    // A single answer moves on by itself after a beat, so the choice registers.
+    if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    advanceTimer.current = setTimeout(() => {
+      if (step === qs.length - 1) return
+      setStep((s) => s + 1)
+    }, 280)
+  }, [q.id, step, qs.length])
+
+  const toggleMulti = useCallback((label: string) => {
+    const opt = q.options?.find((o) => o.label === label)
+    setAnswers((a) => {
+      const cur = Array.isArray(a[q.id]) ? (a[q.id] as string[]) : []
+      const exclusive = new Set(q.options?.filter((o) => o.exclusive).map((o) => o.label))
+      let nextVals: string[]
+      if (cur.includes(label)) nextVals = cur.filter((v) => v !== label)
+      else if (opt?.exclusive) nextVals = [label]
+      else nextVals = [...cur.filter((v) => !exclusive.has(v)), label]
+      return { ...a, [q.id]: nextVals }
+    })
+  }, [q])
+
+  // Number keys pick an option; Enter continues.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null
+      if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) return
+      if (e.key === 'Enter' && answered) { e.preventDefault(); next(); return }
+      const n = Number(e.key)
+      if (!Number.isInteger(n) || n < 1 || !q.options || n > q.options.length) return
+      const label = q.options[n - 1].label
+      if (q.kind === 'single') pickSingle(label)
+      else if (q.kind === 'multi') toggleMulti(label)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [q, answered, next, pickSingle, toggleMulti])
+
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current) }, [])
+
+  const setPref = (k: keyof Prefs, v: string) => setPrefs((p) => ({ ...p, [k]: p[k] === v ? undefined : v }))
 
   return (
-    <div className="assess-shell">
-      <div className="assess-inner assess-inner-sm">
-        {/* Progress */}
-        <div className="assess-progress">
-          <div className="ap-meta">
-            <span className="ap-step">Pre-assessment</span>
-            <span className="ap-label">{step + 1} of {questions.length}</span>
-          </div>
-          <div className="ap-track">
-            <div className="ap-fill" style={{ width: `${progress}%` }} />
-          </div>
+    <div className="pa" style={{ '--pa-accent': accent } as React.CSSProperties}>
+      <div className="pa-inner pa-inner-q">
+        <div className="pa-top">
+          <span className="pa-pathtag">{flow.name}</span>
+          <button type="button" className="pa-change" onClick={() => router.push(startHref)}>Change path</button>
         </div>
+        <div className="pa-bar" aria-hidden>
+          {qs.map((_, i) => <span key={i} className={i < step ? 'done' : i === step ? 'now' : ''} />)}
+        </div>
+        <p className="pa-count"><b>{q.section}</b>Question {step + 1} of {qs.length}</p>
 
-        <div className="assess-card aq-card">
-          <p className="aq-qnum">Question {step + 1}</p>
-          <h2 className="aq-text">{q.text}</h2>
-          {q.hint && <p className="aq-hint">{q.hint}</p>}
+        <div className="pa-stage" key={q.id}>
+          <h1 className="pa-q">{emphasise(q.title)}</h1>
+          {q.hint && <p className="pa-hint">{q.hint}</p>}
 
-          {/* Scale */}
-          {q.type === 'scale' && (
-            <div className="aq-scale">
-              {SCALE.map((label, i) => (
-                <button
-                  key={label}
-                  onClick={() => pickSingle(label)}
-                  className={`aq-scale-btn${answers[q.id] === label ? ' sel' : ''}`}
-                  style={answers[q.id] === label ? { borderColor: scaleColors[i], background: scaleColors[i] + '18', color: scaleColors[i] } : {}}
-                >
-                  <span className="aq-scale-n">{i + 1}</span>
-                  <span className="aq-scale-l">{label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Single, list / grid / chips */}
-          {q.type === 'single' && (
-            <div className={`aq-${q.layout || 'list'}`}>
-              {q.options!.map((opt, i) => {
-                const sel = answers[q.id] === opt
-                if (q.layout === 'chips') {
-                  return (
-                    <button key={opt} onClick={() => pickSingle(opt)} className={`aq-chip${sel ? ' sel' : ''}`}>
-                      {opt}
-                    </button>
-                  )
-                }
+          {q.kind === 'single' && (
+            <div className="pa-rows" role="radiogroup" aria-label={q.title.replace(/\*/g, '')}>
+              {q.options!.map((o, i) => {
+                const on = picked.includes(o.label)
                 return (
-                  <button key={opt} onClick={() => pickSingle(opt)} className={`aq-opt${sel ? ' sel' : ''}`}>
-                    {q.layout !== 'grid' && <span className="aq-opt-letter">{String.fromCharCode(65 + i)}</span>}
-                    <span className="aq-opt-text">{opt}</span>
-                    {sel && <span className="aq-opt-check">✓</span>}
+                  <button key={o.label} type="button" role="radio" aria-checked={on} className={`pa-row${on ? ' on' : ''}`} onClick={() => pickSingle(o.label)}>
+                    <span className="pa-key">{i + 1}</span>
+                    <span className="pa-row-t">{o.label}</span>
                   </button>
                 )
               })}
             </div>
           )}
 
-          {/* Multi, needs a Continue button */}
-          {isMulti && (
-            <>
-              <div className="aq-multi-grid">
-                {q.options!.map((opt) => {
-                  const selected = Array.isArray(answers[q.id]) && (answers[q.id] as string[]).includes(opt)
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => toggleMulti(opt)}
-                      className={`aq-pill${selected ? ' sel' : ''}`}
-                    >
-                      <span className={`aq-pill-check${selected ? ' on' : ''}`}>{selected ? '✓' : '+'}</span>
-                      {opt}
-                    </button>
-                  )
-                })}
-              </div>
-              {q.maxSelect && (
-                <p className="aq-cap">
-                  {Array.isArray(answers[q.id]) ? (answers[q.id] as string[]).length : 0} / {q.maxSelect} selected
-                </p>
+          {q.kind === 'multi' && (
+            <div className="pa-chips" role="group" aria-label={q.title.replace(/\*/g, '')}>
+              {q.options!.map((o) => {
+                const on = picked.includes(o.label)
+                return (
+                  <button key={o.label} type="button" aria-pressed={on} className={`pa-chip${on ? ' on' : ''}`} onClick={() => toggleMulti(o.label)}>
+                    <span className="pa-tick">✓</span>
+                    {o.label}
+                  </button>
+                )
+              })}
+              {q.otherOption && picked.includes(q.otherOption) && (
+                <input
+                  className="pa-other"
+                  autoFocus
+                  maxLength={160}
+                  placeholder="Tell us in a few words"
+                  value={typeof answers[`${q.id}_other`] === 'string' ? (answers[`${q.id}_other`] as string) : ''}
+                  onChange={(e) => setAnswers((a) => ({ ...a, [`${q.id}_other`]: e.target.value }))}
+                />
               )}
-            </>
+            </div>
           )}
 
-          <div className="aq-nav">
-            <button
-              onClick={() =>
-                step === 0
-                  ? router.push(onComplete ? '/app/therapist' : '/assess/step2')
-                  : setStep((s) => s - 1)
-              }
-              className="aq-back"
-            >
-              ← Back
-            </button>
-            {isMulti && (
-              <button onClick={advance} disabled={!isAnswered() || saving} className="aq-next">
-                {step === questions.length - 1 ? (onComplete ? (saving ? 'Matching…' : '✦ Match my expert') : '✦ See matches') : 'Continue →'}
-              </button>
-            )}
-          </div>
+          {q.kind === 'prefs' && (
+            <div className="pa-prefs">
+              {q.prefs?.includes('gender') && (
+                <div>
+                  <p className="pa-pref-l">{flow.id === 'child' ? "Your child's therapist" : 'Your clinician'}</p>
+                  <div className="pa-pills">
+                    {['No preference', 'Female', 'Male'].map((g) => (
+                      <button key={g} type="button" className={`pa-pill${prefs.gender === g ? ' on' : ''}`} onClick={() => setPref('gender', g)}>{g}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {q.prefs?.includes('language') && (
+                <div>
+                  <p className="pa-pref-l">Language</p>
+                  <div className="pa-pills">
+                    {LANGUAGES.map((l) => (
+                      <button key={l} type="button" className={`pa-pill${prefs.language === l ? ' on' : ''}`} onClick={() => setPref('language', l)}>{l}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {q.prefs?.includes('timing') && (
+                <div>
+                  <p className="pa-pref-l">Best time for sessions</p>
+                  <div className="pa-pills">
+                    {TIMINGS.map((t) => (
+                      <button key={t} type="button" className={`pa-pill${prefs.timing === t ? ' on' : ''}`} onClick={() => setPref('timing', t)}>{t}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {q.kind === 'text' && (
+            <textarea
+              className="pa-text"
+              maxLength={1500}
+              placeholder="For example: what has changed recently, what helps, or anything they love doing."
+              value={typeof value === 'string' ? value : ''}
+              onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
+            />
+          )}
         </div>
 
-        {saveErr && <p className="assess-footnote" style={{ color: '#C8553D' }}>{saveErr}</p>}
-        {saving && <p className="assess-footnote">Saving your answers and finding your best-fit expert…</p>}
-        <p className="assess-footnote">A screening tool, not a diagnosis. A qualified professional reviews everything before your session.</p>
+        <div className="pa-nav">
+          <button type="button" className="pa-back" onClick={back}>← Back</button>
+          <button type="button" className="pa-next" disabled={!answered || saving} onClick={next}>
+            {last ? (saving ? 'Finding your match…' : onComplete ? 'Match my clinician' : 'See my matches') : q.optional && !(q.kind === 'prefs' ? Object.values(prefs).some(Boolean) : picked.length || value) ? 'Skip' : 'Continue'}
+            <ArrowRight size={17} />
+          </button>
+        </div>
+        {q.options && q.kind !== 'text' && (
+          <p className="pa-keys">Tip: press <kbd>1</kbd> to <kbd>{Math.min(9, q.options.length)}</kbd> to choose, <kbd>Enter</kbd> to continue.</p>
+        )}
+        {saveErr && <p className="pa-foot" style={{ color: '#A8432D' }}>{saveErr}</p>}
       </div>
     </div>
   )
-}
-
-function score(questions: Question[], answers: Record<string, string | string[]>) {
-  let points = 0
-  let max = 0
-  const concerns: string[] = []
-  const tags = new Set<string>()
-  let riskFlag = false
-
-  for (const q of questions) {
-    const a = answers[q.id]
-
-    // Collect matching tags from any tagged answers
-    if (q.tagMap) {
-      if (Array.isArray(a)) a.forEach((v) => q.tagMap![v]?.forEach((t) => tags.add(t)))
-      else if (typeof a === 'string') q.tagMap[a]?.forEach((t) => tags.add(t))
-    }
-
-    if (q.risk) {
-      if (typeof a === 'string' && (a === 'Almost every day' || a === 'More than half the days')) riskFlag = true
-      // contributes to severity too
-      if (typeof a === 'string') {
-        const idx = ['Rarely', 'Some days', 'More than half the days', 'Almost every day'].indexOf(a)
-        if (idx >= 0) { max += 3; points += idx }
-      }
-      continue
-    }
-    if (q.type === 'scale' && typeof a === 'string') {
-      const idx = SCALE.indexOf(a)
-      max += 4
-      const inverted = ['mood', 'satisfaction', 'school'].includes(q.id)
-      const sev = inverted ? 4 - idx : idx
-      points += sev
-      if (sev >= 3 && q.concern) concerns.push(q.concern)
-    } else if (q.type === 'multi' && Array.isArray(a) && q.concern) {
-      if (a.length > 0 && !(a.length === 1 && a[0].startsWith('None'))) concerns.push(q.concern)
-    } else if (q.type === 'single' && typeof a === 'string' && q.options && q.concern) {
-      const idx = q.options.indexOf(a)
-      max += q.options.length - 1
-      points += idx
-      if (idx >= Math.max(1, q.options.length - 2)) concerns.push(q.concern)
-    }
-  }
-
-  const ratio = max > 0 ? points / max : 0
-  let severity: 'Minimal' | 'Mild' | 'Moderate' | 'Severe' = 'Minimal'
-  if (riskFlag || ratio >= 0.7) severity = 'Severe'
-  else if (ratio >= 0.45) severity = 'Moderate'
-  else if (ratio >= 0.2) severity = 'Mild'
-
-  return { severity, concerns: Array.from(new Set(concerns)), riskFlag, tags: Array.from(tags) }
 }

@@ -7,6 +7,8 @@ import { IN_STATES } from '@/lib/inStates'
 import { Stethoscope, ShieldCheck, Copy, Check } from 'lucide-react'
 import { createTherapist, createAdmin, type CreateResult } from '@/app/admin/actions'
 import type { TherapistPrefill } from '@/lib/admin'
+import { SpecializationPicker } from '@/components/ui/SpecializationPicker'
+import { readDoc } from '@/lib/clinicianDocs'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -34,7 +36,9 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   const [yearsExp, setYearsExp] = useState(prefill?.yearsExp ? String(prefill.yearsExp) : '')
   const [qualifications, setQualifications] = useState(prefill?.qualifications ?? '')
   const [languages, setLanguages] = useState(prefill?.languages ?? '')
-  const [specializations, setSpecializations] = useState(prefill?.specializations ?? '')
+  // Picked from the shared list the pre-assessment matches on; sent as CSV.
+  const [specs, setSpecs] = useState<string[]>(() => (prefill?.specializations ?? '').split(',').map((x) => x.trim()).filter(Boolean))
+  const specializations = specs.join(', ')
   const [bio, setBio] = useState(prefill?.bio ?? '')
   const [gender, setGender] = useState('')
   const [clinicianType, setClinicianType] = useState('Therapist')
@@ -59,7 +63,8 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
   const [emName, setEmName] = useState('')
   const [emPhone, setEmPhone] = useState('')
   const [emRel, setEmRel] = useState('')
-  const [docs, setDocs] = useState<{ name: string; url: string }[]>([])
+  // Carried over from the application when creating from one, labels intact.
+  const [docs, setDocs] = useState<{ name: string; url: string }[]>(() => (prefill?.documentUrls ?? []).map((url, i) => ({ name: readDoc(url, i).label, url })))
   const [docError, setDocError] = useState('')
 
   // Admin fields
@@ -75,7 +80,7 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
     for (const file of Array.from(files)) {
       // Inline small files as data URLs (same approach as blog covers). Larger
       // files should be linked instead of embedded.
-      if (file.size > 2_500_000) { setDocError(`${file.name} is over 2.5 MB — add a link instead.`); continue }
+      if (file.size > 2_500_000) { setDocError(`${file.name} is over 2.5 MB. Add a link instead.`); continue }
       const reader = new FileReader()
       reader.onload = () => setDocs((d) => [...d, { name: file.name, url: String(reader.result) }].slice(0, 12))
       reader.readAsDataURL(file)
@@ -189,7 +194,7 @@ export function CreateUserForm({ prefill }: { prefill?: TherapistPrefill | null 
               </select>
             </Col>
           </Row>
-          <div><label style={label}>Specialisations <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, CBT, Trauma" /></div>
+          <div><label style={label}>Specialisations &amp; ways of working</label><SpecializationPicker value={specs} onChange={setSpecs} accent={coral} /></div>
           <div><label style={label}>Languages <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Hindi" /></div>
           <div><label style={label}>Qualifications <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(comma-separated)</span></label><input style={field} value={qualifications} onChange={(e) => setQualifications(e.target.value)} placeholder="M.Phil Clinical Psychology" /></div>
           <div><label style={label}>Bio</label><textarea rows={3} style={{ ...field, resize: 'vertical' }} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="How they work and who they help best." /></div>

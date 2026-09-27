@@ -3,14 +3,12 @@
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import CountrySelect from '@/components/ui/CountrySelect'
-import { submitTherapistApplication } from '@/app/(public)/actions'
+import { submitTherapistApplication, attachApplicationDocument } from '@/app/(public)/actions'
 import { defaultCountry } from '@/data/countries'
+import { SpecializationPicker } from '@/components/ui/SpecializationPicker'
+import { DOC_KINDS, DOC_ACCEPT, DOC_MAX_BYTES, type DocKind } from '@/lib/clinicianDocs'
 
-const SPECIALIZATIONS = [
-  'Anxiety', 'Depression', 'Trauma & PTSD', 'OCD', 'Stress & Burnout', 'Relationships',
-  'Couples Therapy', 'Child & Adolescent', 'Family Therapy', 'Grief & Loss', 'Addiction',
-  'LGBTQIA+ Affirmative', 'Perinatal / Postpartum', 'Eating Disorders', 'Sleep', 'Geriatric',
-]
+type PickedDoc = { name: string; dataUrl: string }
 const LANGUAGES = ['Hindi', 'English', 'Tamil', 'Telugu', 'Marathi', 'Bengali', 'Malayalam', 'Kannada', 'Gujarati', 'Punjabi', 'Other']
 const COUNCILS = ['RCI', 'NMC', 'RCI + NMC', 'Other']
 
@@ -51,7 +49,20 @@ export default function TherapistApplyPage() {
   const [country, setCountry] = useState(defaultCountry)
   const [specs, setSpecs] = useState<string[]>([])
   const [langs, setLangs] = useState<string[]>([])
-  const [files, setFiles] = useState<string[]>([])
+  const [docs, setDocs] = useState<Partial<Record<DocKind, PickedDoc>>>({})
+  const [docErr, setDocErr] = useState<Partial<Record<DocKind, string>>>({})
+  const [uploadIssues, setUploadIssues] = useState<string[]>([])
+  const allDocs = DOC_KINDS.every((d) => docs[d.kind])
+
+  function pickDoc(kind: DocKind, file: File | undefined) {
+    setDocErr((e) => ({ ...e, [kind]: undefined }))
+    if (!file) return
+    if (file.size > DOC_MAX_BYTES) { setDocErr((e) => ({ ...e, [kind]: 'That file is over 2.5 MB. Try a compressed PDF or a photo.' })); return }
+    const reader = new FileReader()
+    reader.onload = () => setDocs((d) => ({ ...d, [kind]: { name: file.name, dataUrl: String(reader.result) } }))
+    reader.onerror = () => setDocErr((e) => ({ ...e, [kind]: 'Could not read that file. Please try another.' }))
+    reader.readAsDataURL(file)
+  }
   const [agree, setAgree] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -61,11 +72,11 @@ export default function TherapistApplyPage() {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!agree) return
+    if (!agree || !allDocs) return
     const fd = new FormData(e.currentTarget)
     const g = (k: string) => String(fd.get(k) ?? '')
     startTransition(async () => {
-      await submitTherapistApplication({
+      const res = await submitTherapistApplication({
         fullName: g('fullName'),
         email: g('email'),
         phone: `${country.dial} ${g('phone')}`.trim(),
@@ -76,9 +87,22 @@ export default function TherapistApplyPage() {
         specializations: specs,
         languages: langs,
         bio: g('bio'),
-        documentUrls: files,
+        documentUrls: [],
         preferredInterviewAt: g('preferredDate') || null,
       })
+      // Documents go up one per request, so each stays under the size cap.
+      const issues: string[] = []
+      if (res.id) {
+        for (const d of DOC_KINDS) {
+          const picked = docs[d.kind]
+          if (!picked) continue
+          const up = await attachApplicationDocument({ applicationId: res.id, kind: d.kind, fileName: picked.name, dataUrl: picked.dataUrl })
+          if (!up.ok) issues.push(d.label)
+        }
+      } else {
+        issues.push(...DOC_KINDS.map((d) => d.label))
+      }
+      setUploadIssues(issues)
       setSubmitted(true)
     })
   }
@@ -92,8 +116,13 @@ export default function TherapistApplyPage() {
             Application received.
           </h1>
           <p style={{ fontSize: 15, color: '#5A6A7A', lineHeight: 1.7, marginBottom: 28 }}>
-            Thank you for applying to GetCalmly. Our clinical team will verify your registration and review your documents, then reach out to schedule your interview. You&apos;ll hear from us within 3–5 working days.
+            Thank you for applying to GetCalmly. Our clinical team will verify your registration and review your documents, then reach out to schedule your interview. You&apos;ll hear from us within 3 to 5 working days.
           </p>
+          {uploadIssues.length > 0 && (
+            <p style={{ fontSize: 14, color: '#A8432D', lineHeight: 1.6, margin: '-12px 0 24px' }}>
+              We could not upload your {uploadIssues.join(', ')}. Please email {uploadIssues.length > 1 ? 'them' : 'it'} to us and we will add {uploadIssues.length > 1 ? 'them' : 'it'} to your application.
+            </p>
+          )}
           <Link href="/" style={{ display: 'inline-block', padding: '13px 26px', borderRadius: 50, background: '#2F7D5A', color: '#fff', fontSize: 15, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif" }}>
             Back to home
           </Link>
@@ -153,41 +182,43 @@ export default function TherapistApplyPage() {
         </Section>
 
         <Section n="3" title="Your practice">
-          <div><label style={labelStyle}>Specialisations</label><Chips options={SPECIALIZATIONS} selected={specs} onToggle={toggle(setSpecs)} /></div>
+          <div>
+            <label style={labelStyle}>Specialisations &amp; ways of working</label>
+            <p style={{ fontSize: 12.5, color: '#5F6E7D', margin: '-2px 0 12px', lineHeight: 1.5 }}>Patients are matched to you on these, from what they tell us in the pre-assessment.</p>
+            <SpecializationPicker value={specs} onChange={setSpecs} accent="#2F7D5A" />
+          </div>
           <div><label style={labelStyle}>Languages you practise in</label><Chips options={LANGUAGES} selected={langs} onToggle={toggle(setLangs)} /></div>
-          <div><label style={labelStyle}>Therapeutic approaches (optional)</label><input style={inputStyle} placeholder="e.g. CBT, DBT, ACT" /></div>
           <div><label style={labelStyle}>Short bio</label><textarea name="bio" rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="A few lines on how you work and who you help best. This will seed your profile (you'll review before it goes live)." /></div>
         </Section>
 
         <Section n="4" title="Documents">
           <p style={{ fontSize: 13.5, color: '#5A6A7A', lineHeight: 1.6, marginTop: -6 }}>
-            Upload your council registration proof, degree certificates, and a government photo ID. PDF, JPG or PNG.
+            Three documents, so we can verify you quickly. PDF, JPG, PNG or Word, up to 2.5 MB each.
           </p>
-          <label style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
-            padding: '32px 20px', border: '2px dashed #D8DEE6', borderRadius: 14, cursor: 'pointer',
-            background: '#FAFBFC', textAlign: 'center',
-          }}>
-            <span style={{ fontSize: 28 }}>📎</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#1C2B3A' }}>Click to upload or drag files here</span>
-            <span style={{ fontSize: 12, color: '#5F6E7D' }}>Up to 10MB each</span>
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.jpg,.jpeg,.png"
-              style={{ display: 'none' }}
-              onChange={(e) => setFiles(Array.from(e.target.files ?? []).map((f) => f.name))}
-            />
-          </label>
-          {files.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {files.map((f) => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#3A4A5A', background: '#F5F7FA', padding: '8px 12px', borderRadius: 8 }}>
-                  <span>📄</span>{f}
-                </div>
-              ))}
-            </div>
-          )}
+          {DOC_KINDS.map((d) => {
+            const picked = docs[d.kind]
+            return (
+              <div key={d.kind}>
+                <label style={{
+                  display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 14, cursor: 'pointer',
+                  border: `2px dashed ${picked ? '#2F7D5A' : '#D8DEE6'}`, background: picked ? '#F1F8F4' : '#FAFBFC',
+                }}>
+                  <span style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, background: picked ? '#2F7D5A' : '#EEF1F4', color: picked ? '#fff' : '#5A6A7A', fontWeight: 800 }}>
+                    {picked ? '✓' : '+'}
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700, color: '#1C2B3A' }}>{d.label}</span>
+                    <span style={{ display: 'block', fontSize: 12.5, color: picked ? '#2F7D5A' : '#5F6E7D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {picked ? picked.name : d.hint}
+                    </span>
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#2F7D5A', flexShrink: 0 }}>{picked ? 'Replace' : 'Upload'}</span>
+                  <input type="file" accept={DOC_ACCEPT} style={{ display: 'none' }} onChange={(e) => { pickDoc(d.kind, e.target.files?.[0]); e.target.value = '' }} />
+                </label>
+                {docErr[d.kind] && <p style={{ fontSize: 12.5, color: '#A8432D', margin: '6px 0 0' }}>{docErr[d.kind]}</p>}
+              </div>
+            )
+          })}
         </Section>
 
         <Section n="5" title="Schedule your interview">
@@ -214,14 +245,14 @@ export default function TherapistApplyPage() {
 
         <button
           type="submit"
-          disabled={!agree || pending}
+          disabled={!agree || !allDocs || pending}
           style={{
             width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: '#2F7D5A', color: '#fff',
-            fontSize: 16, fontWeight: 700, cursor: agree && !pending ? 'pointer' : 'not-allowed', opacity: agree && !pending ? 1 : 0.45,
+            fontSize: 16, fontWeight: 700, cursor: agree && allDocs && !pending ? 'pointer' : 'not-allowed', opacity: agree && allDocs && !pending ? 1 : 0.45,
             fontFamily: "'DM Sans', sans-serif", boxShadow: '0 6px 20px rgba(61,158,114,.3)',
           }}
         >
-          {pending ? 'Submitting…' : 'Submit application →'}
+          {pending ? 'Submitting…' : allDocs ? 'Submit application →' : 'Add your three documents to submit'}
         </button>
         <p style={{ fontSize: 12.5, color: '#5F6E7D', textAlign: 'center', marginTop: 14, lineHeight: 1.6 }}>
           Your application is routed directly to our admin team for review. We typically respond within 3–5 working days.

@@ -7,6 +7,7 @@ import { Check, Star, X, UserPlus, Plus, Trash2, Clock, Timer, CalendarCheck, Ca
 import { updateTherapistSettings, assignSupervisor, removeSupervisionLink, saveCompensationFields } from '@/app/admin/actions'
 import type { ClinicianDetail } from '@/lib/admin'
 import type { CompensationField } from '@/lib/compensation'
+import { readDoc } from '@/lib/clinicianDocs'
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -74,7 +75,7 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 4 }}>Pay structure &amp; rates</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
-          Exactly what {c.name.split(' ')[0]} sees in their own earnings ledger. Every field is a per-therapist override — leave it blank to use the platform default.
+          Exactly what {c.name.split(' ')[0]} sees in their own earnings ledger. Every field is a per-therapist override: leave it blank to use the platform default.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Row>
@@ -108,7 +109,7 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
           </div>
 
           <div>
-            <label style={label}>Delivery <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(measured — not editable)</span></label>
+            <label style={label}>Delivery <span style={{ color: '#A0ADB8', fontWeight: 400 }}>(measured, not editable)</span></label>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <Stat
                 icon={<Star size={15} style={{ color: '#C9973A', fill: c.totalReviews > 0 ? '#C9973A' : 'none' }} />}
@@ -211,13 +212,16 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
       {c.documentUrls.length > 0 && (
         <div className="card">
           <div className="section-title" style={{ marginBottom: 4 }}>Attachments ({c.documentUrls.length})</div>
-          <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>Documents captured at onboarding — certificates, registration proof, ID.</p>
+          <p className="muted" style={{ fontSize: 12.5, marginBottom: 12 }}>Documents captured at onboarding: proof of identity, proof of registration and CV.</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {c.documentUrls.map((u, i) => (
-              <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 13 }}>
-                Attachment {i + 1}
-              </a>
-            ))}
+            {c.documentUrls.map((u, i) => {
+              const d = readDoc(u, i)
+              return (
+                <a key={i} href={`/admin/documents/clinician/${c.profileId}/${i}`} target="_blank" rel="noopener noreferrer" className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 13 }} title={d.fileName}>
+                  {d.label}
+                </a>
+              )
+            })}
           </div>
         </div>
       )}
@@ -309,11 +313,11 @@ function CompensationEditor({ profileId, initial, isFullTime, firstName }: {
       <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>
         {isFullTime
           ? <>These are what {firstName} sees on their Earnings tab (full-time clinicians don&apos;t get the per-session ledger). Add a free-text field or a dropdown you pick a value from.</>
-          : <>{firstName} is <b>part-time</b>, so their Earnings tab shows the per-session ledger — these fields won&apos;t appear until you switch them to full-time above. You can still prepare them now.</>}
+          : <>{firstName} is <b>part-time</b>, so their Earnings tab shows the per-session ledger, so these fields won&apos;t appear until you switch them to full-time above. You can still prepare them now.</>}
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {fields.length === 0 && <p className="muted" style={{ fontSize: 13.5 }}>No fields yet. Add one below — e.g. &ldquo;Monthly salary&rdquo;, &ldquo;Contract type&rdquo;, &ldquo;Next appraisal&rdquo;.</p>}
+        {fields.length === 0 && <p className="muted" style={{ fontSize: 13.5 }}>No fields yet. Add one below, e.g. &ldquo;Monthly salary&rdquo;, &ldquo;Contract type&rdquo;, &ldquo;Next appraisal&rdquo;.</p>}
         {fields.map((f, i) => (
           <div key={i} style={{ border: '1px solid rgba(28,43,58,.1)', borderRadius: 12, padding: '12px 14px' }}>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
@@ -342,7 +346,7 @@ function CompensationEditor({ profileId, initial, isFullTime, firstName }: {
                 <div style={{ flex: '1 1 180px', minWidth: 150 }}>
                   <label style={label}>Selected value</label>
                   <select style={{ ...field, background: '#fff' }} value={f.value} onChange={(e) => set(i, { value: e.target.value })}>
-                    <option value="">— Not set —</option>
+                    <option value="">Not set</option>
                     {f.optionsText.split(',').map((o) => o.trim()).filter(Boolean).map((o) => <option key={o} value={o}>{o}</option>)}
                     {f.value && !f.optionsText.split(',').map((o) => o.trim()).includes(f.value) && <option value={f.value}>{f.value}</option>}
                   </select>

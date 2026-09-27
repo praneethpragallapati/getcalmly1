@@ -1,9 +1,7 @@
-import type { Metadata } from 'next'
-import AssessmentStep2 from '@/components/assessment/AssessmentStep2'
+import { redirect } from 'next/navigation'
 
-// Mid-funnel step, no standalone search value; keep out of the index.
-export const metadata: Metadata = { robots: { index: false, follow: true } }
-
+// The "who is it for" step is gone: the start screen now offers the four paths
+// directly. Old links land on it.
 export default function AssessStep2Page() {
-  return <AssessmentStep2 />
+  redirect('/assess')
 }

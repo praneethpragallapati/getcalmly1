@@ -9,6 +9,11 @@
  */
 import { prisma } from '@/lib/prisma'
 import { clinicianMatchesTrack, type CareTrack } from '@/lib/clinicianScope'
+import { ALL_OFFERINGS, offers } from '@/data/careTaxonomy'
+
+// Profile tags are stored lowercase; map them back to the shared list's labels.
+const LABEL_BY_LOWER = new Map(ALL_OFFERINGS.map((s) => [s.label.toLowerCase(), s.label]))
+const SAFETY_LABELS = ['Crisis intervention', 'DBT', 'Trauma-informed care']
 
 export { clinicianMatchesTrack, type CareTrack } from '@/lib/clinicianScope'
 
@@ -79,16 +84,33 @@ type Candidate = {
   languages: string[]
   rating: number
   totalReviews: number
+  yearsExp: number
 }
 
-function scoreCandidate(c: Candidate, concerns: string[], language: string | null): number {
+/**
+ * What the patient needs against what the clinician offers. Needs from the
+ * current pre-assessment are shared-taxonomy labels and match on overlap (the
+ * same rule the public results page ranks by, see data/assessmentMatch); older
+ * slug tags ("anxiety", "couples") keep their keyword match.
+ */
+function scoreCandidate(c: Candidate, concerns: string[], language: string | null, risk: number): number {
   const spec = c.specializations.join(' ').toLowerCase()
   let score = 0
   for (const concern of concerns) {
+    const label = LABEL_BY_LOWER.get(concern)
+    if (label) {
+      if (offers(c.specializations, label)) score += 3
+      continue
+    }
     const keys = CONCERN_KEYWORDS[concern] ?? [concern.toLowerCase()]
     if (keys.some((k) => spec.includes(k))) score += 3
   }
   if (language && c.languages.some((l) => l.toLowerCase() === language.toLowerCase())) score += 2
+  // A risk answer in the pre-assessment routes to crisis-skilled, senior clinicians.
+  if (risk > 0) {
+    score += SAFETY_LABELS.filter((l) => offers(c.specializations, l)).length * 3
+    score += c.yearsExp >= 8 ? 2 : c.yearsExp >= 5 ? 1 : 0
+  }
   score += Math.min(2, (c.rating || 0) * 0.4) // gentle quality tiebreaker
   return score
 }
@@ -98,7 +120,7 @@ function scoreCandidate(c: Candidate, concerns: string[], language: string | nul
  * assessment. Returns the TherapistProfile id, or null when none fit (e.g. a
  * psychiatry package but no psychiatrist on the platform yet).
  */
-export async function matchTherapistForTrack(userId: string, track: CareTrack): Promise<string | null> {
+export async function matchTherapistForTrack(userId: string, track: CareTrack, opts: { risk?: number } = {}): Promise<string | null> {
   const [profile, candidates] = await Promise.all([
     prisma.patientProfile.findUnique({
       where: { userId },
@@ -106,7 +128,7 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack): 
     }),
     prisma.therapistProfile.findMany({
       where: { isActive: true, isVerified: true },
-      select: { id: true, clinicianType: true, specializations: true, languages: true, rating: true, totalReviews: true },
+      select: { id: true, clinicianType: true, specializations: true, languages: true, rating: true, totalReviews: true, yearsExp: true },
     }),
   ])
   const concerns = [...(profile?.track ?? []), ...(profile?.subTrack ? [profile.subTrack] : [])].map((s) => s.toLowerCase())
@@ -127,7 +149,7 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack): 
   let best: Candidate | null = null
   let bestScore = -Infinity
   for (const c of eligible) {
-    const s = scoreCandidate(c, concerns, language)
+    const s = scoreCandidate(c, concerns, language, opts.risk ?? 0)
     if (s > bestScore || (s === bestScore && best && c.totalReviews > best.totalReviews)) {
       best = c
       bestScore = s
@@ -143,8 +165,8 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack): 
  * are guarded so an un-applied migration can't fail the purchase that called us.
  * Returns the matched TherapistProfile id, or null when no clinician fit.
  */
-export async function matchAndAssignForTrack(userId: string, track: CareTrack): Promise<string | null> {
-  const therapistId = await matchTherapistForTrack(userId, track)
+export async function matchAndAssignForTrack(userId: string, track: CareTrack, opts: { risk?: number } = {}): Promise<string | null> {
+  const therapistId = await matchTherapistForTrack(userId, track, opts)
   if (!therapistId) return null
 
   // Attach to the active package(s) of this type (needs migration 0015).

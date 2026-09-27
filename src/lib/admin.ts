@@ -5,6 +5,7 @@
  */
 import { getServerSession } from 'next-auth'
 import { getClinicianSessionGap } from '@/lib/sessionGap'
+import { readDoc } from '@/lib/clinicianDocs'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { designationOf, getTherapistEarnings, getEarningsForMany, ensureBlogReviewSchema, type EarningLine, type PersonContact } from '@/lib/expert'
@@ -97,6 +98,8 @@ export type ApplicationRow = {
   yearsExp: number; qualifications: string[]; specializations: string[]; languages: string[]
   bio: string | null; status: string; reviewerNotes: string | null; preferredInterviewAt: string | null
   createdAt: string
+  /** Labels only; the files are served by /admin/documents/application/<id>/<index>. */
+  documents: { index: number; label: string; fileName: string }[]
 }
 export type ContactRow = { id: string; name: string; email: string; phone: string | null; message: string; handled: boolean; createdAt: string }
 export type LeadRow = { id: string; name: string; email: string; organisation: string | null; sector: string | null; teamSize: string | null; phone: string | null; message: string | null; handled: boolean; createdAt: string }
@@ -112,6 +115,7 @@ export async function getApplications(): Promise<ApplicationRow[]> {
       specializations: r.specializations, languages: r.languages, bio: r.bio, status: r.status,
       reviewerNotes: r.reviewerNotes, preferredInterviewAt: r.preferredInterviewAt ? fmt(r.preferredInterviewAt) : null,
       createdAt: fmt(r.createdAt),
+      documents: r.documentUrls.map((u, index) => { const d = readDoc(u, index); return { index, label: d.label, fileName: d.fileName } }),
     }))
   }, [])
 }
@@ -126,6 +130,8 @@ export async function getContactMessages(): Promise<ContactRow[]> {
 export type TherapistPrefill = {
   name: string; email: string; phone: string; council: string; registrationNo: string
   yearsExp: number; qualifications: string; languages: string; specializations: string; bio: string
+  /** The application's documents, carried onto the new clinician's profile. */
+  documentUrls: string[]
 }
 
 /** Prefill values for the create-clinician form, from an approved application. */
@@ -136,7 +142,7 @@ export async function getApplicationForPrefill(id: string): Promise<TherapistPre
     return {
       name: r.fullName, email: r.email, phone: r.phone, council: r.council, registrationNo: r.registrationNo,
       yearsExp: r.yearsExp, qualifications: r.qualifications.join(', '), languages: r.languages.join(', '),
-      specializations: r.specializations.join(', '), bio: r.bio ?? '',
+      specializations: r.specializations.join(', '), bio: r.bio ?? '', documentUrls: r.documentUrls,
     }
   }, null)
 }

@@ -136,6 +136,20 @@ function Applications({ rows }: { rows: ApplicationRow[] }) {
               {a.qualifications.length > 0 && <Field label="Qualifications" value={a.qualifications.join(', ')} />}
               {a.preferredInterviewAt && <Field label="Preferred interview" value={a.preferredInterviewAt} />}
               {a.bio && <Field label="Bio" value={a.bio} />}
+              <div>
+                <div className="muted" style={{ fontSize: 11.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 }}>Documents</div>
+                {a.documents.length === 0 ? (
+                  <span className="muted" style={{ fontSize: 13 }}>None uploaded.</span>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {a.documents.map((d) => (
+                      <a key={d.index} href={`/admin/documents/application/${a.id}/${d.index}`} target="_blank" rel="noopener noreferrer" className="btn" style={{ border: '1.5px solid #E2E8F0', fontSize: 13 }} title={d.fileName}>
+                        {d.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
               <StatusEditor appId={a.id} initialStatus={a.status} initialNotes={a.reviewerNotes ?? ''} pending={pending} onSave={(s, n) => update(a.id, s, n)} />
             </div>
           )}

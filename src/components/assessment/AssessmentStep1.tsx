@@ -1,93 +1,60 @@
-'use client'
+import Link from 'next/link'
+import { UserRound, Pill, Baby, HeartHandshake, ArrowRight } from 'lucide-react'
+import { FLOWS, FLOW_ORDER, type FlowId } from '@/data/assessments'
 
-import { useRouter } from 'next/navigation'
+const LOOK: Record<FlowId, { color: string; icon: React.ReactNode }> = {
+  adult: { color: '#C8553D', icon: <UserRound size={22} /> },
+  psychiatry: { color: '#1A7F7A', icon: <Pill size={22} /> },
+  child: { color: '#B7832A', icon: <Baby size={22} /> },
+  couple: { color: '#6D5BD0', icon: <HeartHandshake size={22} /> },
+}
 
-const options = [
-  {
-    key: 'therapy',
-    icon: '🧠',
-    title: 'Therapy',
-    desc: 'Talk therapy with an RCI licensed clinical psychologist or counsellor',
-    color: '#C8553D',
-    pale: '#FDEAE6',
-  },
-  {
-    key: 'medication',
-    icon: '💊',
-    title: 'Medication',
-    desc: 'Psychiatric evaluation and medication management with an NMC licensed psychiatrist',
-    color: '#1A7F7A',
-    pale: '#E5F4EE',
-  },
-  {
-    key: 'both',
-    icon: '🔄',
-    title: 'Both',
-    desc: 'Combined therapy and psychiatric support, we coordinate both for you',
-    color: '#6D5BD0',
-    pale: '#EEF0FB',
-  },
-  {
-    key: 'not-sure',
-    icon: '🤔',
-    title: 'Not Sure',
-    desc: "That's okay. We'll guide you to the right kind of help based on your answers",
-    color: '#C9973A',
-    pale: '#FFF8E7',
-  },
-]
-
-export default function AssessmentStep1() {
-  const router = useRouter()
-
-  const select = (key: string) => {
-    sessionStorage.setItem('assess_support', key)
-    router.push('/assess/step2')
-  }
-
+/**
+ * The start of the pre-assessment: four direct paths, no "both" or "not sure"
+ * detour. Each tile goes straight into its own questions. `hrefFor` lets the
+ * in-app version point at its own route.
+ */
+export default function AssessmentStep1({ hrefFor = (id: FlowId) => `/assess/form/${id}` }: { hrefFor?: (id: FlowId) => string }) {
   return (
-    <div className="assess-shell">
-      <div className="assess-inner">
-        {/* Progress */}
-        <div className="assess-progress">
-          <div className="ap-meta">
-            <span className="ap-step">Step 1 of 3</span>
-            <span className="ap-label">Support type</span>
-          </div>
-          <div className="ap-track">
-            <div className="ap-fill" style={{ width: '33%' }} />
-          </div>
-          <div className="ap-dots">
-            <span className="ap-dot active" />
-            <span className="ap-dot" />
-            <span className="ap-dot" />
-          </div>
+    <div className="pa">
+      <div className="pa-inner">
+        <p className="pa-eyebrow">Pre-assessment</p>
+        <h1 className="pa-h1">Let&apos;s find the right <em>place to begin.</em></h1>
+        <p className="pa-lead">
+          Through a few thoughtful questions, we get to know your concerns and preferences, then match you
+          with the clinician best placed to help.
+        </p>
+        <ul className="pa-trust">
+          <li>Free, no card needed</li>
+          <li>About 4 minutes</li>
+          <li>Private and confidential</li>
+        </ul>
+
+        <div className="pa-paths">
+          {FLOW_ORDER.map((id) => {
+            const f = FLOWS[id]
+            const look = LOOK[id]
+            return (
+              <Link key={id} href={hrefFor(id)} className="pa-path" style={{ '--c': look.color } as React.CSSProperties}>
+                <span className="pa-path-ic">{look.icon}</span>
+                <span className="pa-path-t">{f.name}</span>
+                <span className="pa-path-d">{f.blurb}</span>
+                <span className="pa-path-m">
+                  {f.questions.length} short questions
+                  <span className="pa-path-go"><ArrowRight size={16} /></span>
+                </span>
+              </Link>
+            )
+          })}
         </div>
 
-        <div className="assess-card">
-          <div className="assess-pill">✦ Free · No card needed · 5 minutes</div>
-          <h1 className="assess-h1">What kind of support are<br />you looking for?</h1>
-          <p className="assess-sub">This helps us connect you with the right professional. There are no wrong answers.</p>
-
-          <div className="ao-grid ao-grid-2">
-            {options.map((o) => (
-              <button
-                key={o.key}
-                onClick={() => select(o.key)}
-                className="ao-btn"
-                style={{ '--ao-color': o.color, '--ao-pale': o.pale } as React.CSSProperties}
-              >
-                <span className="ao-icon">{o.icon}</span>
-                <span className="ao-title">{o.title}</span>
-                <span className="ao-desc">{o.desc}</span>
-                <span className="ao-arrow">→</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <p className="assess-footnote">🔒 Your responses are confidential and protected under the DPDP Act 2023.</p>
+        <p className="pa-foot">
+          A screening tool, not a diagnosis. Your answers are protected under the DPDP Act 2023 and only
+          reach the clinician you are matched with.
+        </p>
       </div>
     </div>
   )
 }
+
+export { LOOK as PATH_LOOK }

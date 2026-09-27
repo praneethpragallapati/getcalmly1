@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/Toast'
 import { fileToAvatarDataUrl } from '@/lib/clientImage'
 import { IN_STATES } from '@/lib/inStates'
 import { COUNTRIES, hasStateList } from '@/lib/countries'
+import { SpecializationPicker } from '@/components/ui/SpecializationPicker'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -53,7 +54,9 @@ export function TherapistProfileEditor(props: Props) {
   const [gender, setGender] = useState(props.gender ?? '')
   const [qualifications, setQualifications] = useState(props.qualifications.join(', '))
   const [languages, setLanguages] = useState(props.languages.join(', '))
-  const [specializations, setSpecializations] = useState(props.specializations.join(', '))
+  // Picked from the shared list the pre-assessment matches on; saved as CSV.
+  const [specs, setSpecs] = useState<string[]>(props.specializations)
+  const specializations = specs.join(', ')
   const [rciNumber, setRciNumber] = useState(props.rciNumber)
   const [yearsExp, setYearsExp] = useState(String(props.yearsExp))
   const [phone, setPhone] = useState(props.phone ?? '')
@@ -76,7 +79,7 @@ export function TherapistProfileEditor(props: Props) {
     e.target.value = ''
     if (!file) return
     if (!file.type.startsWith('image/')) return toast.error('Please choose an image file.')
-    if (file.size > MAX_PHOTO_BYTES) return toast.error('Image is too large — keep it under 2 MB.')
+    if (file.size > MAX_PHOTO_BYTES) return toast.error('Image is too large. Keep it under 2 MB.')
     try {
       // Downscale in-browser: a full-res data URL trips the Server Action body limit.
       setPhoto(await fileToAvatarDataUrl(file))
@@ -187,8 +190,9 @@ export function TherapistProfileEditor(props: Props) {
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <label className="field-label">Specializations <span style={{ fontWeight: 500, color: 'var(--c-gray)' }}>(comma-separated)</span></label>
-        <input className="field-input" value={specializations} onChange={(e) => setSpecializations(e.target.value)} placeholder="Anxiety, Depression, Trauma" />
+        <label className="field-label">Specializations &amp; ways of working</label>
+        <p className="muted" style={{ fontSize: 12.5, margin: '0 0 10px' }}>Patients are matched to you on these, from what they tell us in the pre-assessment.</p>
+        <SpecializationPicker value={specs} onChange={setSpecs} accent="var(--c-coral)" />
       </div>
 
       <div className="field-grid" style={{ marginTop: 16 }}>

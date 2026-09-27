@@ -41,6 +41,11 @@ const TAG_LABEL: Record<string, string> = {
   child: 'Child wellbeing', adolescent: 'Teen wellbeing', 'exam-stress': 'Exam stress',
 }
 
+/** The shared-taxonomy label, as picked, for the patient's primary need. */
+function labelFor(tag: string | undefined): string | null {
+  return tag ? tag.trim().slice(0, 60) || null : null
+}
+
 /**
  * Persist the result of the detailed assessment (the same questionnaire shown
  * on the marketing site) to the patient's profile, then match a clinician for
@@ -54,11 +59,22 @@ export async function saveAssessmentResult(payload: {
   genderPref?: string | null
   severity?: string
   riskFlag?: boolean
+  /** 0 none, 1 some concern, 2 serious (pre-assessment safety question). */
+  risk?: number
+  /** Therapy styles asked for, in shared-taxonomy labels. */
+  styles?: string[]
+  /** Free text the parent shared (Child path). */
+  note?: string | null
 }): Promise<ActionResult> {
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
 
-  const tags = [...new Set((payload.tags || []).map((t) => t.trim().toLowerCase()).filter(Boolean))]
+  // Needs arrive as shared-taxonomy labels ("Anxiety & overthinking"); styles
+  // ride along so matching can weigh them. Both are kept lowercase on the
+  // profile, and the matcher maps them back to the list case-insensitively.
+  const tags = [...new Set([...(payload.tags || []), ...(payload.styles || [])].map((t) => t.trim().toLowerCase()).filter(Boolean))].slice(0, 40)
+  // "I'm not sure" on every question leaves no needs; the path itself still says what kind of help.
+  if (tags.length === 0 && payload.type) tags.push(payload.type.toLowerCase())
   if (tags.length === 0) return { ok: false, persisted: false, error: 'Please answer the assessment so we can match you.' }
   const primary = tags[0]
   const language = payload.language && payload.language !== 'Other' ? payload.language.trim() : null
@@ -69,7 +85,7 @@ export async function saveAssessmentResult(payload: {
       update: {
         track: tags,
         subTrack: primary,
-        trackLabel: TAG_LABEL[primary] ?? null,
+        trackLabel: TAG_LABEL[primary] ?? labelFor(payload.tags?.[0]),
         ...(language ? { preferredLanguage: language } : {}),
       },
       create: {
@@ -78,7 +94,7 @@ export async function saveAssessmentResult(payload: {
         careMode: 'INDIVIDUAL',
         track: tags,
         subTrack: primary,
-        trackLabel: TAG_LABEL[primary] ?? null,
+        trackLabel: TAG_LABEL[primary] ?? labelFor(payload.tags?.[0]),
         preferredLanguage: language,
         country: 'IN',
       },
@@ -103,9 +119,30 @@ export async function saveAssessmentResult(payload: {
       for (const s of subs) {
         if (s.trackSlug === 'therapy' || s.trackSlug === 'couples' || s.trackSlug === 'psychiatry') tracks.add(s.trackSlug)
       }
-      for (const t of tracks) await matchAndAssignForTrack(userId, t)
+      for (const t of tracks) await matchAndAssignForTrack(userId, t, { risk: payload.risk ?? (payload.riskFlag ? 1 : 0) })
     } catch (e) {
       console.error('[saveAssessmentResult] auto-assignment skipped (matching failed — migration 0016/0017 applied?)', e)
+    }
+
+    // The forms say a risk answer is flagged for a senior clinician to follow
+    // the internal risk protocol. It lands with the clinician's other crisis
+    // signals; only that it was raised, never a script of what to say.
+    if ((payload.risk ?? (payload.riskFlag ? 1 : 0)) > 0) {
+      try {
+        const u = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } })
+        await prisma.crisisAlert.create({
+          data: {
+            userId,
+            patientName: u?.name ?? null,
+            label: 'ASSESSMENT_RISK',
+            question: payload.risk === 2 ? 'Pre-assessment safety answer: yes' : 'Pre-assessment safety answer: occasionally',
+            answer: 'Shown the safety message and advised to book the earliest available session.',
+            handoffNote: 'Flagged in the pre-assessment. Follow the internal risk assessment protocol at the first session.',
+          },
+        })
+      } catch (e) {
+        console.error('[saveAssessmentResult] could not raise the pre-assessment risk alert', e)
+      }
     }
 
     revalidatePath('/app')
@@ -1153,7 +1190,7 @@ async function notifyPurchase(userId: string, result: BuyResult): Promise<void> 
   if (!result.paymentId) return
   await notify(userId, {
     type: 'invoice',
-    title: 'Payment successful — invoice ready',
+    title: 'Payment successful, invoice ready',
     body: `₹${(result.amountPaid ?? 0).toLocaleString('en-IN')} paid for ${result.planName ?? 'your purchase'}. Tap to download your invoice.`,
     href: `/app/billing/invoice/${result.paymentId}`,
   })
@@ -1178,7 +1215,7 @@ export async function buyPackage(
   // is also disabled while pending. The partial-unique index is the hard backstop
   // against duplicate ACTIVE rows.
   if (!rateLimit(`buy:${userId}:${track}:${packIndex}`, 1, 4000).ok) {
-    return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
+    return { ok: false, persisted: false, error: 'That purchase just went through. Check your balance before buying again.' }
   }
 
   try {
@@ -1214,7 +1251,7 @@ export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
   if (!rateLimit(`buycalm:${userId}:${packIndex}`, 1, 4000).ok) {
-    return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
+    return { ok: false, persisted: false, error: 'That purchase just went through. Check your balance before buying again.' }
   }
 
   try {
@@ -1242,7 +1279,7 @@ export async function buyFirstSession(
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
   if (!rateLimit(`buyfirst:${userId}:${track}`, 1, 4000).ok) {
-    return { ok: false, persisted: false, error: 'That purchase just went through — check your balance before buying again.' }
+    return { ok: false, persisted: false, error: 'That purchase just went through. Check your balance before buying again.' }
   }
 
   try {

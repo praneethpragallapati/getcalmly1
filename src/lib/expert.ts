@@ -1014,10 +1014,10 @@ async function computeRiskNotifications(therapistProfileId: string): Promise<Ris
   // deliberately never surface what was said — only that it happened, and on how
   // many distinct days, so repeats on the same day (or across several days)
   // collapse to a single, quiet alert with a day count.
-  type CrisisGroup = { userId: string; source: 'button' | 'chat'; days: Set<string>; latest: Date }
+  type CrisisGroup = { userId: string; source: CrisisSource; days: Set<string>; latest: Date }
   const groups = new Map<string, CrisisGroup>()
   for (const a of alerts) {
-    const source: 'button' | 'chat' = a.label === 'SELF_REPORTED' ? 'button' : 'chat'
+    const source = sourceOfLabel(a.label)
     const key = `${source}:${a.userId}`
     const p = istParts(a.createdAt)
     const dayKey = `${p.year}-${p.month}-${p.day}`
@@ -1034,11 +1034,13 @@ async function computeRiskNotifications(therapistProfileId: string): Promise<Ris
       kind: 'crisis',
       patientId: g.userId,
       patientName: nameOf(g.userId),
-      message: g.source === 'button' ? 'Raised a crisis alert' : 'Crisis message detected',
+      message: g.source === 'button' ? 'Raised a crisis alert' : g.source === 'assessment' ? 'Flagged in the pre-assessment' : 'Crisis message detected',
       // No chat content, by design — just that it happened and on how many days.
       detail: (g.source === 'button'
         ? 'This member pressed the crisis button.'
-        : 'A crisis message was detected in their AI chat.') + daysNote,
+        : g.source === 'assessment'
+          ? 'Their safety answer in the pre-assessment raised a concern. Follow the internal risk assessment protocol at the first session.'
+          : 'A crisis message was detected in their AI chat.') + daysNote,
       createdAt: g.latest,
       resolved: false,
     }
@@ -1066,6 +1068,12 @@ async function computeRiskNotifications(therapistProfileId: string): Promise<Ris
   return [...crisisNotifs, ...declineNotifs].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 }
 
+type CrisisSource = 'button' | 'chat' | 'assessment'
+/** Which surface raised a crisis alert, from its stored label. */
+function sourceOfLabel(label: string): CrisisSource {
+  return label === 'SELF_REPORTED' ? 'button' : label === 'ASSESSMENT_RISK' ? 'assessment' : 'chat'
+}
+
 export async function resolveCrisisAlert(therapistProfileId: string, alertId: string): Promise<boolean> {
   // A grouped notification id ("crisis:<source>:<userId>") resolves every
   // unresolved alert of that source for that patient at once.
@@ -1073,14 +1081,16 @@ export async function resolveCrisisAlert(therapistProfileId: string, alertId: st
     const parts = alertId.split(':')
     const source = parts[1]
     const userId = parts[2]
-    if (!userId || (source !== 'button' && source !== 'chat')) return false
+    if (!userId || (source !== 'button' && source !== 'chat' && source !== 'assessment')) return false
     const patientIds = await patientIdsFor(therapistProfileId)
     if (!patientIds.includes(userId)) return false
     await prisma.crisisAlert.updateMany({
       where: {
         userId,
         resolved: false,
-        ...(source === 'button' ? { label: 'SELF_REPORTED' } : { label: { not: 'SELF_REPORTED' } }),
+        ...(source === 'button' ? { label: 'SELF_REPORTED' }
+          : source === 'assessment' ? { label: 'ASSESSMENT_RISK' }
+          : { label: { notIn: ['SELF_REPORTED', 'ASSESSMENT_RISK'] } }),
       },
       data: { resolved: true },
     })
