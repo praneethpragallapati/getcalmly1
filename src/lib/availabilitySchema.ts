@@ -44,9 +44,26 @@ export const AVAILABILITY_SCHEMA_SQL: string[] = [
 ]
 
 let availabilitySchemaReady = false
+let lastAttempt = 0
 
+/**
+ * Never throws. Each statement stands alone: on a live database an index or
+ * foreign key can fail to build (duplicate or orphaned rows, a lock timeout)
+ * while the tables themselves are fine, and that must not take the page down.
+ * After a partial failure it retries at most once a minute.
+ */
 export async function ensureAvailabilitySchema(): Promise<void> {
   if (availabilitySchemaReady) return
-  for (const sql of AVAILABILITY_SCHEMA_SQL) await prisma.$executeRawUnsafe(sql)
-  availabilitySchemaReady = true
+  if (lastAttempt && Date.now() - lastAttempt < 60_000) return
+  let failed = 0
+  for (const sql of AVAILABILITY_SCHEMA_SQL) {
+    try {
+      await prisma.$executeRawUnsafe(sql)
+    } catch (e) {
+      failed++
+      console.error('[ensureAvailabilitySchema] statement failed, continuing:', sql.replace(/\s+/g, ' ').slice(0, 90), e)
+    }
+  }
+  if (failed === 0) availabilitySchemaReady = true
+  else lastAttempt = Date.now()
 }

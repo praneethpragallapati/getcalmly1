@@ -15,10 +15,19 @@ export default async function AvailabilityPage() {
   const ctx = await getTherapistContext()
   if (!ctx) redirect('/login')
 
-  const [week, exceptions] = await Promise.all([
-    getAvailability(ctx.therapistProfileId),
-    getAvailabilityExceptions(ctx.therapistProfileId),
-  ])
+  // A failed read shows its reason on the page rather than the portal's
+  // generic error, so a database problem can be reported and fixed.
+  let week: Awaited<ReturnType<typeof getAvailability>>
+  let exceptions: Awaited<ReturnType<typeof getAvailabilityExceptions>>
+  try {
+    ;[week, exceptions] = await Promise.all([
+      getAvailability(ctx.therapistProfileId),
+      getAvailabilityExceptions(ctx.therapistProfileId),
+    ])
+  } catch (e) {
+    console.error('[availability] could not load', e)
+    return <AvailabilityUnavailable reason={describeError(e)} />
+  }
 
   const openDays = week.filter((d) => d.hours.length).length
   const ranges = groupRuns(exceptions)
@@ -129,4 +138,33 @@ function groupRuns(list: Exception[]) {
     }
   }
   return runs
+}
+
+/** A short, human-readable reason from a Prisma or database error. */
+function describeError(e: unknown): string {
+  const err = e as { code?: string; message?: string; meta?: { table?: string; column?: string } }
+  if (err?.code === 'P2021') return `The database table ${err.meta?.table ?? ''} is missing.`.replace('  ', ' ')
+  if (err?.code === 'P2022') return `The database column ${err.meta?.column ?? ''} is missing.`.replace('  ', ' ')
+  const first = (err?.message ?? String(e)).split('\n').map((l) => l.trim()).filter(Boolean).pop() ?? 'Unknown error'
+  return `${err?.code ? `${err.code}: ` : ''}${first}`.slice(0, 300)
+}
+
+function AvailabilityUnavailable({ reason }: { reason: string }) {
+  return (
+    <div className="stack">
+      <div className="page-head">
+        <div className="page-title">Availability</div>
+      </div>
+      <div className="card" style={{ borderColor: 'var(--c-coral)', background: 'var(--c-coral-pale)' }}>
+        <div className="section-title" style={{ marginBottom: 6 }}>Your availability couldn&apos;t be loaded</div>
+        <p className="muted" style={{ margin: '0 0 10px', lineHeight: 1.6 }}>
+          This is a setup problem on our side, not something you did. Please share the line below with the
+          getCalmly team. Running <code>prisma/sync_schema.sql</code> on the database usually fixes it.
+        </p>
+        <code style={{ display: 'block', fontSize: 12.5, padding: '10px 12px', borderRadius: 10, background: 'rgba(28,43,58,.06)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          {reason}
+        </code>
+      </div>
+    </div>
+  )
 }
