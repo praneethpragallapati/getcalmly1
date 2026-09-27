@@ -6,7 +6,7 @@ import { CountUp } from './CountUp'
 /**
  * The concise milestone companion beside the mood chart: the three nearest wins
  * with their progress, and the earned count as a footnote. It deliberately does
- * NOT lead with "10 of 49" — a big outstanding number makes each one matter
+ * NOT lead with "10 of 49", a big outstanding number makes each one matter
  * less, which is the whole point of holding the live list to three.
  */
 export function MilestonesMini({ milestones }: { milestones: MilestoneView[] }) {

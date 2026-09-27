@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 
 /**
- * A brief, premium completion moment — a coral ring with a check that draws
+ * A brief, premium completion moment, a coral ring with a check that draws
  * left-to-right, a title and a sub. Mirrors the mobile app's tier-1 celebration.
  * Renders nothing until `show` is true; auto-dismisses after ~1.9s. Reduced
  * motion still shows the card, just without the draw/float.

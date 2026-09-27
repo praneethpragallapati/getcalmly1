@@ -8,7 +8,7 @@ import { joinPhase, meetingBounds, type JoinPhase } from '@/lib/meetingWindow'
 /**
  * Join control that reflects the meeting window live: greyed out before the
  * session starts, active during it, and disabled ("Session ended") once the
- * window closes. The room page enforces the same rule server-side — this is UX.
+ * window closes. The room page enforces the same rule server-side, this is UX.
  *
  * Within the last hour before start it counts down to the second ("Opens in
  * 4:32"); once the window opens the button carries a slow "live now" pulse for

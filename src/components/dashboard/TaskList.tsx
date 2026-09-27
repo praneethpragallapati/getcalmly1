@@ -42,6 +42,7 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
   }
 
   const allDone = tasks.length > 0 && tasks.every((t) => done[t.id])
+  const remaining = tasks.filter((t) => !done[t.id]).length
 
   if (tasks.length === 0) {
     return (
@@ -51,14 +52,37 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
     )
   }
 
+  // Everything ticked: drop the list and show a single, calm "done" state.
+  if (allDone) {
+    return (
+      <div>
+        <Celebration
+          show={celebrate}
+          title="Today’s activities, done"
+          sub="Every task ticked off, beautifully done."
+          onDone={() => setCelebrate(false)}
+        />
+        <div className="done-card">
+          <span className="dc-ic"><Check size={22} strokeWidth={3} /></span>
+          <div className="dc-t">All done for today</div>
+          <div className="dc-s">Nothing left on your plate. Rest easy.</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <Celebration
         show={celebrate}
-        title={allDone ? 'Today’s activities, done' : 'Activity complete'}
-        sub={allDone ? 'Every task ticked off — beautifully done.' : 'One down. That counts.'}
+        title="Activity complete"
+        sub="One down. That counts."
         onDone={() => setCelebrate(false)}
       />
+      <div className="tracker-head">
+        <div className="section-title">Today’s activities</div>
+        <span className="link-action">{remaining} left</span>
+      </div>
       {tasks.map((t) => {
         const Icon = TYPE_ICON[t.type]
         const isDone = done[t.id]
@@ -95,15 +119,6 @@ export function TaskList({ tasks }: { tasks: DashTask[] }) {
           </div>
         )
       })}
-      {allDone && (
-        <div className="done-banner">
-          <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
-          <div>
-            <div className="db-t">All done for today</div>
-            <div className="db-s">Every activity ticked off. Beautifully done.</div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

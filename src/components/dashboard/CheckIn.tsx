@@ -6,7 +6,7 @@ import { Check, RotateCcw } from 'lucide-react'
 import { saveCheckin } from '@/app/(dashboard)/app/actions'
 import type { CheckinScores } from '@/data/dashboardDemo'
 
-// Muted and harmonious rather than three saturated primaries — the same trio
+// Muted and harmonious rather than three saturated primaries, the same trio
 // the mood chart uses, so a colour means the same thing in both places.
 const DIMS: { key: keyof CheckinScores; label: string; color: string; tint: string }[] = [
   { key: 'mood', label: 'Mood', color: '#C8553D', tint: 'rgba(200,85,61,.10)' },
@@ -16,7 +16,7 @@ const DIMS: { key: keyof CheckinScores; label: string; color: string; tint: stri
 
 /**
  * Morning check-in with Mood / Energy / Sleep 0–10 sliders. On save the card
- * flips (3D rotate) to reveal this week's mood trend — the chart is passed in as
+ * flips (3D rotate) to reveal this week's mood trend, the chart is passed in as
  * `back` so the server can render it with real data, and it only mounts once the
  * card has flipped so its left-to-right draw plays as the trend comes into view.
  * Local state only for the flip; persistence + privacy gating stay server-side.
@@ -62,7 +62,7 @@ export function CheckIn({
 
   function onSave() {
     // Guard against an accidental all-zero save (e.g. tapping Save before moving
-    // any slider) — ask once before recording "a really tough day".
+    // any slider), ask once before recording "a really tough day".
     if (allZero && !confirmZero) {
       setConfirmZero(true)
       return
@@ -172,7 +172,7 @@ export function CheckIn({
     </div>
   )
 
-  // No chart to flip to (e.g. mobile stacks it elsewhere) — just the card.
+  // No chart to flip to (e.g. mobile stacks it elsewhere), just the card.
   if (!back) return front
 
   return (
@@ -183,7 +183,7 @@ export function CheckIn({
         </div>
         <div className="flip-face flip-back" aria-hidden={!flipped}>
           {/* The chart stays mounted so the stacked card keeps a stable height,
-              but it is keyed on `flipped` so it remounts when the card turns —
+              but it is keyed on `flipped` so it remounts when the card turns , 
               replaying its left-to-right draw as the trend comes into view. */}
           <div key={flipped ? 'trend-shown' : 'trend-idle'} className="flip-back-chart">
             {back}

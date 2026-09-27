@@ -24,7 +24,7 @@ export default async function PulsePage() {
     )
   }
 
-  // Only what a therapist has assigned is fillable — nothing is auto-assigned.
+  // Only what a therapist has assigned is fillable, nothing is auto-assigned.
   const due = await dueInstruments(userId)
   const assignedIds = (await getAssignments(userId)).map((a) => a.instrumentId)
   const fillableIds = Array.from(new Set([...due, ...assignedIds])).filter(

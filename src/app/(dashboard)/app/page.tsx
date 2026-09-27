@@ -36,7 +36,6 @@ export default async function AppHomePage() {
   const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))
   const formsEverAssigned = myForms.length > 0
   const pulseItems = pulseDue.map((id) => ({ id, short: INSTRUMENTS[id]?.short ?? id }))
-  const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
   const medProp = med
     ? { name: med.name, dosage: med.dosage, frequency: med.frequency, times: med.times }
@@ -73,7 +72,7 @@ export default async function AppHomePage() {
           <div className="hero-side-label">WEEKLY INSIGHT</div>
           {d.weeklyInsight?.parts ? (
             // Three distinct reads: what recurs, what's underneath it, what's working.
-            // One quiet accent for all three labels — the bold uppercase labels and
+            // One quiet accent for all three labels, the bold uppercase labels and
             // spacing separate them; three colours here just read as noise.
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <InsightPart label="Pattern found" text={d.weeklyInsight.parts.pattern} />
@@ -125,7 +124,7 @@ export default async function AppHomePage() {
         </Link>
       )}
 
-      {/* Band 1 — today's check-in (flips to this week's mood trend on save),
+      {/* Band 1, today's check-in (flips to this week's mood trend on save),
           with what's next beside it. */}
       <div className="home-band">
         <CheckIn
@@ -136,12 +135,11 @@ export default async function AppHomePage() {
         <NextSessionCard d={d} />
       </div>
 
-      {/* Band 2 — the Activities / Pulse / Forms tracker (mirrors the mobile app),
+      {/* Band 2, the Activities / Pulse / Forms tracker (mirrors the mobile app),
           with milestones at a glance beside it. */}
       <div className="home-band">
         <HomeTracker
           tasks={d.tasks}
-          openTasks={openTasks}
           med={medProp}
           pulseDue={pulseItems}
           forms={pendingForms}

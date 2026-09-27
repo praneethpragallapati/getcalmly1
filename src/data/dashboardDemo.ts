@@ -34,10 +34,10 @@ export type DashSession = {
   durationMins: number
   status: 'UPCOMING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
   /**
-   * A session that ended as a CANCELLED row but was still CHARGED — a no-show
+   * A session that ended as a CANCELLED row but was still CHARGED, a no-show
    * that wasn't cancelled in time, where neither side joined. The slot was used
    * and NOT returned to the package. Kept apart from a plain cancellation, which
-   * IS refunded, so the two never share the word "Cancelled" — that word reads
+   * IS refunded, so the two never share the word "Cancelled", that word reads
    * as "you'll get this back", which is the opposite of what happened here.
    */
   chargedNoShow?: boolean
@@ -154,7 +154,7 @@ export type DashboardData = {
 
 /**
  * A fully-empty dashboard for a signed-in patient. Used as the starting point
- * (and the error fallback) so a real user NEVER sees the "Priya" demo — only
+ * (and the error fallback) so a real user NEVER sees the "Priya" demo, only
  * their own data, or honest empty states. Content is filled in from the DB.
  */
 export function blankDashboard(): DashboardData {
@@ -170,7 +170,7 @@ export function blankDashboard(): DashboardData {
     minutesTotal: null,
     minutesUsed: null,
     renewsOn: null,
-    startedOn: '—',
+    startedOn: ', ',
     daysOnPlatform: 0,
     planActive: false,
     streakDays: 0,
