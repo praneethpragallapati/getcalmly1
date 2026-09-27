@@ -140,7 +140,7 @@ function LoginForm() {
         {/* Right — one-time-code login, floating on the photo */}
         <div className="login-card">
           <h2 className="login-card-title">Hey — let&apos;s get you in.</h2>
-          <p className="login-card-sub">Pop in your number or email and we&apos;ll send you a one-time code.</p>
+          <p className="login-card-sub">Enter your phone number or email to log in or sign up. We’ll send you a one-time code.</p>
 
           {/* WhatsApp / Email */}
           <div className="login-tabs">
