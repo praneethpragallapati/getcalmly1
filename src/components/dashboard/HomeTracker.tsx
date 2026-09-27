@@ -1,21 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Pill, Activity, FileText, Check, LineChart, Stethoscope } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Pill, Activity, FileText, Check, LineChart, Stethoscope, X } from 'lucide-react'
 import type { DashTask } from '@/data/dashboardDemo'
+import type { FormField } from '@/data/forms'
+import { PulseRunner, type PulseDef } from '@/components/outcomes/PulseRunner'
+import { FormFiller } from './FormFiller'
+import { Celebration } from './Celebration'
 import { TaskList } from './TaskList'
 
 type Tab = 'act' | 'pulse' | 'forms'
 
 type Med = { name: string; dosage?: string; frequency?: string; times: string[] } | null
 
+export type HomeFormDetail = { id: string; title: string; description: string | null; fields: FormField[] }
+type Open = { kind: 'pulse'; id: string } | { kind: 'form'; id: string } | null
+
 /**
  * The home tracker that sits where the standalone mood chart used to, one card
  * with Activities / Pulse / Forms tabs, mirroring the mobile app so the two home
  * screens read the same. Activities carries the expert-assigned tasks (and
- * today's medication as a footer strip); Pulse and Forms list what's waiting,
- * each linking through to its full page.
+ * today's medication as a footer strip); Pulse and Forms list what's waiting
+ * and open in a pop-up right here, so all three live only on the home page.
  */
 export function HomeTracker({
   tasks,
@@ -23,14 +31,51 @@ export function HomeTracker({
   pulseDue,
   forms,
   formsEverAssigned = false,
+  pulseDefs = [],
+  formDetails = [],
+  initialTab = 'act',
+  initialForm,
 }: {
   tasks: DashTask[]
   med: Med
   pulseDue: { id: string; short: string }[]
   forms: { id: string; title: string }[]
   formsEverAssigned?: boolean
+  /** Question sets for the due Pulse checks, so they can be filled in place. */
+  pulseDefs?: PulseDef[]
+  /** Full questions for each pending form, so they can be filled in place. */
+  formDetails?: HomeFormDetail[]
+  initialTab?: Tab
+  /** Open this form's pop-up on arrival (e.g. from a "new form" notification). */
+  initialForm?: string
 }) {
-  const [tab, setTab] = useState<Tab>('act')
+  const router = useRouter()
+  const [tab, setTab] = useState<Tab>(initialForm ? 'forms' : initialTab)
+  const [open, setOpen] = useState<Open>(initialForm ? { kind: 'form', id: initialForm } : null)
+  const [cel, setCel] = useState<{ title: string; sub: string } | null>(null)
+
+  const close = useCallback(() => {
+    setOpen(null)
+    // Drop any ?tab= / ?form= we arrived with, so a reload doesn't reopen it.
+    if (window.location.search) router.replace('/app', { scroll: false })
+  }, [router])
+
+  const submitted = (title: string, sub: string) => {
+    close()
+    setCel({ title, sub })
+    router.refresh() // the filled item drops off the list (or the tab shows "done")
+  }
+
+  // Esc closes the pop-up.
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, close])
+
+  const openPulse = open?.kind === 'pulse' ? pulseDefs.find((d) => d.id === open.id) : undefined
+  const openForm = open?.kind === 'form' ? formDetails.find((d) => d.id === open.id) : undefined
 
   // The guided tour switches tabs as it walks through Activities / Pulse / Forms.
   useEffect(() => {
@@ -95,14 +140,14 @@ export function HomeTracker({
               </div>
               <div className="todo-list">
                 {pulseDue.map((p) => (
-                  <Link key={p.id} href="/app/pulse" className="todo-row">
+                  <button key={p.id} type="button" className="todo-row todo-btn" onClick={() => setOpen({ kind: 'pulse', id: p.id })}>
                     <span className="todo-ic t-coral"><Activity size={15} /></span>
                     <span className="todo-body">
                       <span className="todo-t">{p.short}</span>
                       <span className="todo-sub">Pulse check · about two minutes</span>
                     </span>
                     <span className="link-action">Fill →</span>
-                  </Link>
+                  </button>
                 ))}
                 <Link href="/app/progress" className="todo-row">
                   <span className="todo-ic t-green"><LineChart size={15} /></span>
@@ -145,20 +190,63 @@ export function HomeTracker({
               </div>
               <div className="todo-list">
                 {forms.map((f) => (
-                  <Link key={f.id} href="/app/forms" className="todo-row">
+                  <button key={f.id} type="button" className="todo-row todo-btn" onClick={() => setOpen({ kind: 'form', id: f.id })}>
                     <span className="todo-ic t-purple"><FileText size={15} /></span>
                     <span className="todo-body">
                       <span className="todo-t">{f.title}</span>
                       <span className="todo-sub">Form from your care team</span>
                     </span>
                     <span className="link-action">Fill →</span>
-                  </Link>
+                  </button>
                 ))}
               </div>
             </>
           )}
         </div>
       )}
+
+      {(openPulse || openForm) && (
+        <div className="gc-modal-scrim" onClick={close}>
+          <div
+            className="gc-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={openPulse ? openPulse.short : openForm!.title}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="gc-modal-head">
+              <div>
+                <div className="gc-modal-eyebrow">{openPulse ? 'Pulse check' : 'Form'} · requested by your care team</div>
+                <div className="gc-modal-title">{openPulse ? openPulse.short : openForm!.title}</div>
+              </div>
+              <button type="button" className="gc-modal-x" aria-label="Close" onClick={close}><X size={18} /></button>
+            </div>
+            {openPulse && (
+              <PulseRunner
+                due={[openPulse.id]}
+                defs={[openPulse]}
+                startId={openPulse.id}
+                onClose={close}
+                onSubmitted={(short, band) => submitted(`${short} saved`, band ? `Result: ${band}. It charts in My Progress.` : 'Thanks for checking in. It charts in My Progress.')}
+              />
+            )}
+            {openForm && (
+              <>
+                {openForm.description && <p className="muted" style={{ margin: '0 0 16px' }}>{openForm.description}</p>}
+                <FormFiller
+                  assignmentId={openForm.id}
+                  fields={openForm.fields}
+                  readOnly={false}
+                  initial={null}
+                  onSubmitted={() => submitted('Form submitted', 'Your therapist will see your answers.')}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      <Celebration show={!!cel} title={cel?.title ?? ''} sub={cel?.sub} onDone={() => setCel(null)} />
     </div>
   )
 }

@@ -16,9 +16,20 @@ export type PulseDef = {
 
 type Phase = { mode: 'list' } | { mode: 'run'; id: string; step: number } | { mode: 'done'; short: string; band: string | null }
 
-export function PulseRunner({ due, defs }: { due: string[]; defs: PulseDef[] }) {
+export function PulseRunner({
+  due, defs, startId, onClose, onSubmitted,
+}: {
+  due: string[]
+  defs: PulseDef[]
+  /** Open straight into this check (used by the home pop-up). */
+  startId?: string
+  /** Pop-up mode: called to dismiss instead of returning to the list. */
+  onClose?: () => void
+  /** Pop-up mode: called after a successful save instead of the "saved" card. */
+  onSubmitted?: (short: string, band: string | null) => void
+}) {
   const byId = new Map(defs.map((d) => [d.id, d]))
-  const [phase, setPhase] = useState<Phase>({ mode: 'list' })
+  const [phase, setPhase] = useState<Phase>(startId ? { mode: 'run', id: startId, step: 0 } : { mode: 'list' })
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +48,7 @@ export function PulseRunner({ due, defs }: { due: string[]; defs: PulseDef[] }) 
     const res = await submitPulse(def.id, next)
     setSaving(false)
     if (!res.ok) { setError(res.error ?? 'Something went wrong.'); return }
+    if (onSubmitted) { onSubmitted(def.short, res.band ?? null); return }
     setPhase({ mode: 'done', short: def.short, band: res.band ?? null })
   }
 
@@ -90,7 +102,7 @@ export function PulseRunner({ due, defs }: { due: string[]; defs: PulseDef[] }) 
             <button
               className="btn btn-ghost btn-sm"
               disabled={saving}
-              onClick={() => (phase.step === 0 ? setPhase({ mode: 'list' }) : setPhase({ mode: 'run', id: def.id, step: phase.step - 1 }))}
+              onClick={() => (phase.step === 0 ? (onClose ? onClose() : setPhase({ mode: 'list' })) : setPhase({ mode: 'run', id: def.id, step: phase.step - 1 }))}
             >
               {phase.step === 0 ? 'Cancel' : 'Back'}
             </button>

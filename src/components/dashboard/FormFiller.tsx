@@ -11,6 +11,8 @@ type Props = {
   fields: FormField[]
   readOnly: boolean
   initial: Record<string, string | boolean> | null
+  /** Pop-up mode: called after a successful submit instead of navigating. */
+  onSubmitted?: () => void
 }
 
 /**
@@ -18,7 +20,7 @@ type Props = {
  * Read-only once completed (the patient can review their answers). Validation is
  * light: required text fields must be non-empty, required checkboxes must be ticked.
  */
-export function FormFiller({ assignmentId, fields, readOnly, initial }: Props) {
+export function FormFiller({ assignmentId, fields, readOnly, initial, onSubmitted }: Props) {
   const router = useRouter()
   const [values, setValues] = useState<Record<string, string | boolean>>(() => {
     const base: Record<string, string | boolean> = {}
@@ -44,7 +46,7 @@ export function FormFiller({ assignmentId, fields, readOnly, initial }: Props) {
     }
     startTransition(async () => {
       const res = await submitAssignedForm(assignmentId, values)
-      if (res.ok) router.push('/app/forms')
+      if (res.ok) { if (onSubmitted) onSubmitted(); else router.push('/app') }
       else setError(res.error ?? 'Could not submit this form.')
     })
   }

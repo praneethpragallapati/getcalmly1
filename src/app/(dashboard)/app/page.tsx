@@ -19,10 +19,31 @@ import { MilestonesMini } from '@/components/dashboard/MilestonesMini'
 import { HomeTracker } from '@/components/dashboard/HomeTracker'
 import { HomePolls } from '@/components/dashboard/HomePolls'
 import { dueInstruments } from '@/lib/outcomes/pulse'
-import { INSTRUMENTS } from '@/lib/outcomes/instruments'
-import { getMyForms } from '@/lib/forms'
+import { INSTRUMENTS, type Instrument } from '@/lib/outcomes/instruments'
+import { getMyForms, getFormToFill } from '@/lib/forms'
+import type { PulseDef } from '@/components/outcomes/PulseRunner'
 
-export default async function AppHomePage() {
+/** Catalog instrument → the client-safe shape the Pulse runner needs. */
+function toPulseDef(inst: Instrument): PulseDef {
+  return {
+    id: inst.id, short: inst.short, blurb: inst.blurb, denotes: inst.denotes,
+    items: inst.items.map((it) => ({ key: it.key, text: it.text, choices: it.choices })),
+    choices: inst.choices,
+  }
+}
+
+export default async function AppHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  // Pulse, Forms and Activities live only on this page; old links to their
+  // retired pages land here with ?tab= (and ?form= to open one straight away).
+  const sp = await searchParams
+  const tabParam = typeof sp.tab === 'string' ? sp.tab : undefined
+  const initialTab = tabParam === 'pulse' || tabParam === 'forms' ? tabParam : 'act'
+  const initialForm = typeof sp.form === 'string' ? sp.form : undefined
+
   const userId = await getSessionUserId()
   const [d, meds, orders, polls, milestones, pulseDue, myForms] = await Promise.all([
     getDashboardData(),
@@ -35,7 +56,17 @@ export default async function AppHomePage() {
   ])
   const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))
   const formsEverAssigned = myForms.length > 0
-  const pulseItems = pulseDue.map((id) => ({ id, short: INSTRUMENTS[id]?.short ?? id }))
+  // Only checks with questions can be filled in the pop-up.
+  const pulseDefs = pulseDue
+    .filter((id) => INSTRUMENTS[id] && INSTRUMENTS[id].items.length > 0)
+    .map((id) => toPulseDef(INSTRUMENTS[id]))
+  const pulseItems = pulseDefs.map((p) => ({ id: p.id, short: p.short }))
+  // Each pending form's questions, so it opens and submits right on home.
+  const formDetails = userId
+    ? (await Promise.all(pendingForms.map((f) => getFormToFill(userId, f.id).catch(() => null))))
+        .filter((f): f is NonNullable<typeof f> => Boolean(f))
+        .map((f) => ({ id: f.id, title: f.title, description: f.description, fields: f.fields }))
+    : []
   const med = meds.find((m) => m.active)
   const medProp = med
     ? { name: med.name, dosage: med.dosage, frequency: med.frequency, times: med.times }
@@ -144,6 +175,10 @@ export default async function AppHomePage() {
           pulseDue={pulseItems}
           forms={pendingForms}
           formsEverAssigned={formsEverAssigned}
+          pulseDefs={pulseDefs}
+          formDetails={formDetails}
+          initialTab={initialTab}
+          initialForm={initialForm}
         />
         <MilestonesMini milestones={milestones} />
       </div>

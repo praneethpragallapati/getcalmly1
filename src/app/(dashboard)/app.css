@@ -3746,3 +3746,92 @@
   .oc-line { animation: none; stroke-dashoffset: 0; }
   .oc-dot, .oc-val { animation: none; opacity: 1; }
 }
+
+/* ===== Home tracker: Pulse / Forms rows are buttons that open a pop-up ===== */
+.calmly-app .todo-btn {
+  width: 100%;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.calmly-app .todo-btn:hover .todo-t { color: var(--c-coral-d); }
+.calmly-app .todo-btn:focus-visible { outline: 2px solid var(--c-coral); outline-offset: 2px; border-radius: 8px; }
+
+/* ===== Fill-in pop-up (Pulse checks and Forms, filled right on home) ===== */
+.gc-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(20, 30, 42, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: gcTourFade 0.22s ease;
+}
+.gc-modal {
+  width: min(560px, 100%);
+  max-height: min(86vh, 760px);
+  overflow-y: auto;
+  background: var(--c-white);
+  border-radius: 20px;
+  padding: 22px 22px 20px;
+  box-shadow: 0 24px 64px rgba(20, 30, 42, 0.32);
+  animation: gcModalIn 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+/* The fillers bring their own cards; inside the pop-up they sit flat. */
+.gc-modal .card { box-shadow: none; border: none; padding: 0; background: transparent; }
+.gc-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.gc-modal-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--c-coral-d);
+}
+.gc-modal-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--c-charcoal);
+  margin-top: 3px;
+  letter-spacing: -0.3px;
+}
+.gc-modal-x {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--c-line);
+  background: var(--c-white);
+  color: var(--c-gray-d);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.gc-modal-x:hover { color: var(--c-charcoal); }
+@keyframes gcModalIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 600px) {
+  .gc-modal-scrim { align-items: flex-end; padding: 0; }
+  .gc-modal { width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0; }
+}
+@media (prefers-reduced-motion: reduce) { .gc-modal, .gc-modal-scrim { animation: none; } }
+/* Inside the pop-up: fields always fit, and the check's name isn't repeated
+   (the pop-up title already shows it; the "2 of 7" counter stays). */
+.gc-modal .entry-input { width: 100%; max-width: 100%; box-sizing: border-box; }
+.gc-modal .pulse-eyebrow { visibility: hidden; }

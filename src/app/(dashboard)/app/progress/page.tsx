@@ -163,7 +163,7 @@ export default async function ProgressPage() {
           <div className="card">
             <div className="section-title" style={{ marginBottom: 6 }}>Your progress will build here</div>
             <p className="muted">Complete your first Pulse check and it will start tracking how you are doing over time, in clear charts.</p>
-            <Link href="/app/pulse" className="btn btn-primary" style={{ marginTop: 12 }}>Take your first Pulse</Link>
+            <Link href="/app?tab=pulse" className="btn btn-primary" style={{ marginTop: 12 }}>Take your first Pulse</Link>
           </div>
         )}
 

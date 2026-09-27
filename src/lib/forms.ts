@@ -587,7 +587,7 @@ export async function sendForm(
       ...(fields ? { fields: fields as unknown as object } : {}),
     },
   })
-  await notify(patientId, { type: 'form', title: 'New form to fill', body: template.title, href: '/app/forms' })
+  await notify(patientId, { type: 'form', title: 'New form to fill', body: template.title, href: '/app?tab=forms' })
   return true
 }
 
@@ -625,7 +625,7 @@ export async function autoSendIntakeForm(patientId: string, priorAppointments: n
   await prisma.formAssignment.create({
     data: { templateId: template.id, patientId, assignedBy: 'Auto' },
   })
-  await notify(patientId, { type: 'form', title: 'New form to fill', body: 'Please complete your intake form before your session.', href: '/app/forms' })
+  await notify(patientId, { type: 'form', title: 'New form to fill', body: 'Please complete your intake form before your session.', href: '/app?tab=forms' })
 }
 
 // ── Automatic form-send rules ────────────────────────────────────────────────
@@ -815,7 +815,7 @@ export async function runBookingFormRules(input: {
       }).catch(() => {})
     }
     if (sendTemplateIds.size > 0) {
-      await notify(input.patientId, { type: 'form', title: 'New form to fill', body: 'A form was sent for your upcoming session.', href: '/app/forms' })
+      await notify(input.patientId, { type: 'form', title: 'New form to fill', body: 'A form was sent for your upcoming session.', href: '/app?tab=forms' })
     }
   } catch {
     /* best-effort — never block a completed booking */
