@@ -3466,3 +3466,38 @@
   .cel-overlay, .cel-card { animation: none; }
   .cel-ring-fg, .cel-check { animation: none; stroke-dashoffset: 0; }
 }
+
+/* ===== Session "live now": a slow pulse on the Join button for the call ===== */
+.join-live {
+  position: relative;
+}
+.join-live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: joinPulse 2.1s ease-out infinite;
+}
+@keyframes joinPulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-coral) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 12px color-mix(in srgb, var(--c-coral) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-coral) 0%, transparent); }
+}
+.join-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: liveDot 1.4s ease-in-out infinite;
+}
+@keyframes liveDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .join-live::after { animation: none; }
+  .join-live-dot { animation: none; opacity: 1; }
+}
