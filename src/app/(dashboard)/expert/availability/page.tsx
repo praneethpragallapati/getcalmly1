@@ -7,7 +7,8 @@ import {
   DAY_LABELS,
 } from '@/lib/expert'
 import { saveAvailability, blockDate, unblockDate } from '../actions'
-import { TimeBlockPicker, toBlocks, hourLabel } from '@/components/expert/TimeBlockPicker'
+import { TimeBlockPicker } from '@/components/expert/TimeBlockPicker'
+import { toBlocks, hourLabel } from '@/lib/timeBlocks'
 import { BlockDateForm } from '@/components/expert/BlockDateForm'
 
 export default async function AvailabilityPage() {

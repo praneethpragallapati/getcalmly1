@@ -12,6 +12,7 @@
 import { cache } from 'react'
 import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
+import { ensureAvailabilitySchema } from '@/lib/availabilitySchema'
 import { isPsychiatrist, type CareTrack } from '@/lib/clinicianScope'
 import { tracksForClinicianOnPatients, tracksForClinicianOnPatient } from '@/lib/careScope'
 import { trackLabel } from '@/lib/packageLabels'
@@ -1812,6 +1813,7 @@ export type AvailabilityExceptionView = {
 
 /** The therapist's weekly template as one row per weekday (missing days = closed). */
 export async function getAvailability(therapistProfileId: string): Promise<DayAvailability[]> {
+  await ensureAvailabilitySchema()
   const rows = await prisma.therapistAvailability.findMany({
     where: { therapistId: therapistProfileId },
     orderBy: { dayOfWeek: 'asc' },
@@ -1828,6 +1830,7 @@ export async function setDayAvailability(
 ): Promise<void> {
   if (dayOfWeek < 0 || dayOfWeek > 6) return
   const clean = [...new Set(hours.filter((h) => h >= 0 && h <= 23))].sort((a, b) => a - b)
+  await ensureAvailabilitySchema()
   await prisma.therapistAvailability.upsert({
     where: { therapistId_dayOfWeek: { therapistId: therapistProfileId, dayOfWeek } },
     update: { hours: clean },
@@ -1954,6 +1957,7 @@ export async function canPatientBookWith(patientUserId: string, therapistProfile
 
 /** Upcoming date-specific exceptions, soonest first. */
 export async function getAvailabilityExceptions(therapistProfileId: string): Promise<AvailabilityExceptionView[]> {
+  await ensureAvailabilitySchema()
   const rows = await prisma.availabilityException.findMany({
     where: { therapistId: therapistProfileId, date: { gte: startOfUtcDay(new Date()) } },
     orderBy: { date: 'asc' },
@@ -1976,6 +1980,7 @@ export async function addAvailabilityException(
   if (Number.isNaN(date.getTime())) return
   const day = startOfUtcDay(date)
   const hoursOff = [...new Set((opts.hoursOff ?? []).filter((h) => h >= 0 && h <= 23))].sort((a, b) => a - b)
+  await ensureAvailabilitySchema()
   await prisma.availabilityException.upsert({
     where: { therapistId_date: { therapistId: therapistProfileId, date: day } },
     update: { fullDayOff: opts.fullDayOff, hoursOff },
@@ -1984,6 +1989,7 @@ export async function addAvailabilityException(
 }
 
 export async function removeAvailabilityException(therapistProfileId: string, exceptionId: string): Promise<void> {
+  await ensureAvailabilitySchema()
   const ex = await prisma.availabilityException.findFirst({
     where: { id: exceptionId, therapistId: therapistProfileId },
   })
@@ -1998,6 +2004,7 @@ export type BookableSlot = { iso: string; dateLabel: string; time: string; taken
  * This is what the patient's booking calendar reads.
  */
 export async function getBookableSlots(therapistProfileId: string, daysAhead = 21): Promise<BookableSlot[]> {
+  await ensureAvailabilitySchema()
   const [template, exceptions, booked, prof] = await Promise.all([
     getAvailability(therapistProfileId),
     prisma.availabilityException.findMany({
