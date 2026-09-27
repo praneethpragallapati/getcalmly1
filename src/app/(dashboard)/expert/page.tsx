@@ -112,7 +112,7 @@ export default async function ExpertHomePage() {
     if (nextProfile.tasks.length) {
       const open = nextProfile.tasks.filter((t) => !t.done).length
       briefRows.push({
-        label: 'Tasks left',
+        label: 'Activities left',
         value: open === 0
           ? `none — all ${nextProfile.tasks.length} done (${nextProfile.taskCompletionPct}% completed)`
           : `${open} of ${nextProfile.tasks.length} still open · ${nextProfile.taskCompletionPct}% completed`,

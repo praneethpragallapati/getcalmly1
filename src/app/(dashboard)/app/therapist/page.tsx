@@ -129,8 +129,7 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
                 therapeutic relationship, and a low number would land on the
                 person they are about to open up to. Ratings stay between the
                 clinician and the admin team. */}
-            {t.rciVerified && <span className="ther-chip verified"><ShieldCheck size={13} /> RCI Verified</span>}
-            {t.nmcVerified && <span className="ther-chip verified"><ShieldCheck size={13} /> NMC Verified</span>}
+            {(t.rciVerified || t.nmcVerified) && <span className="ther-chip verified"><ShieldCheck size={13} /> Licensed</span>}
           </div>
         </div>
       </div>

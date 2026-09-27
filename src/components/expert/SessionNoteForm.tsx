@@ -137,7 +137,7 @@ export function SessionNoteForm({
       </div>
 
       {field('Plan', (
-        <textarea className="entry-input" style={{ minHeight: H.plan }} value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="Techniques used, referrals… Assign tasks separately below." />
+        <textarea className="entry-input" style={{ minHeight: H.plan }} value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="Techniques used, referrals… Assign activities separately below." />
       ), 'optional')}
 
       {field('Focus for next session', (
@@ -171,7 +171,7 @@ export function SessionNoteForm({
           {saving ? 'Saving draft…' : savedAt ? 'Draft saved' : 'Drafts save automatically'}
         </span>
       </div>
-      {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>The note (presenting concerns) and a CGI rating are required. Plan and tasks are optional.</span>}
+      {!canSubmit && <span className="muted" style={{ fontSize: 11.5 }}>The note (presenting concerns) and a CGI rating are required. Plan and activities are optional.</span>}
     </form>
   )
 }

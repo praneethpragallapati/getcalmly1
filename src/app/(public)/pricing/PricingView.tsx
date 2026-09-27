@@ -191,7 +191,7 @@ function FreeCard({ delay }: { delay: string }) {
   )
 }
 
-const TRUST = ['RCI & NMC-verified clinicians', 'DPDP-secure & confidential', 'Fair, no-questions refunds']
+const TRUST = ['Licensed clinicians', 'DPDP-secure & confidential', 'Fair, no-questions refunds']
 
 export default function PricingView({ pricing }: { pricing: PricingValues }) {
   const [tab, setTab] = useState<'pro' | 'app'>('pro')
@@ -256,13 +256,13 @@ export default function PricingView({ pricing }: { pricing: PricingValues }) {
         {tab === 'pro' ? (
           <div className="pr-grid" key="pro">
             <CareCard
-              name="Therapy" subtitle="Talk therapy with an RCI-verified clinical psychologist."
+              name="Therapy" subtitle="Talk therapy with a licensed clinical psychologist."
               accent={coral} packs={pricing.therapyPacks} features={therapyFeatures} base={pricing.therapyBase} feat delay="pr-d1"
               firstSession={pricing.firstSession.therapy}
               href="/register?care=therapy"
             />
             <CareCard
-              name="Psychiatry" subtitle="Evaluation and medication care with an NMC-verified psychiatrist."
+              name="Psychiatry" subtitle="Evaluation and medication care with a licensed psychiatrist."
               accent={teal} packs={pricing.psychiatryPacks} features={psychiatryFeatures} base={pricing.psychiatryBase} delay="pr-d2"
               firstSession={pricing.firstSession.psychiatry}
               href="/register?care=psychiatry"

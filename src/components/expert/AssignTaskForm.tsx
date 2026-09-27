@@ -49,7 +49,7 @@ export function AssignTaskForm({ patientId }: { patientId: string }) {
           </select>
         </label>
         <label className="muted" style={{ fontSize: 12 }}>
-          Task
+          Activity
           <select
             className="entry-input"
             value={preset}
@@ -57,18 +57,18 @@ export function AssignTaskForm({ patientId }: { patientId: string }) {
             required
             style={{ marginTop: 4 }}
           >
-            <option value="" disabled>Choose a {TYPE_LABEL[type].toLowerCase()} task…</option>
+            <option value="" disabled>Choose a {TYPE_LABEL[type].toLowerCase()} activity…</option>
             {TASK_PRESETS[type].map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
-            <option value="__custom__">Custom task…</option>
+            <option value="__custom__">Custom activity…</option>
           </select>
         </label>
       </div>
       {isCustom && (
         <input
           className="entry-input"
-          placeholder="Describe the custom task"
+          placeholder="Describe the custom activity"
           value={custom}
           onChange={(e) => setCustom(e.target.value)}
           required
@@ -102,7 +102,7 @@ export function AssignTaskForm({ patientId }: { patientId: string }) {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <button type="submit" className="btn btn-primary btn-sm" disabled={!title.trim() || pending} style={{ alignSelf: 'flex-start' }}>
-          {pending ? 'Assigning…' : 'Assign task'}
+          {pending ? 'Assigning…' : 'Assign activity'}
         </button>
         {state && (
           <span

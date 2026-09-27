@@ -24,7 +24,7 @@ const heading: React.CSSProperties = {
   fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, letterSpacing: '-0.5px',
 }
 
-const badges = ['RCI-verified clinical psychologists', 'NMC-verified psychiatrists', 'DPDP Act 2023 compliant', 'MHCA 2017 aligned']
+const badges = ['Licensed clinical psychologists', 'Licensed psychiatrists', 'DPDP Act 2023 compliant', 'MHCA 2017 aligned']
 
 const blocks: { n: string; title: string; body: React.ReactNode }[] = [
   {

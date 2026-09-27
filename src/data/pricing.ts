@@ -109,7 +109,7 @@ export const calmPlusFeatures = {
 }
 
 export const therapyFeatures = [
-  '45-minute sessions with an RCI-verified clinical psychologist',
+  '45-minute sessions with a licensed clinical psychologist',
   'Full Calm+ app included — AI companion, journaling & mood tracker',
   'A clear summary after every session',
   'Daily and weekly insights on your progress',
@@ -127,7 +127,7 @@ export const couplesFeatures = [
 ]
 
 export const psychiatryFeatures = [
-  'Consultations with an NMC-verified psychiatrist',
+  'Consultations with a licensed psychiatrist',
   'Full Calm+ app included — AI companion, journaling & mood tracker',
   'Medication support and a built-in tracker',
   'Digital prescriptions after your consultation',

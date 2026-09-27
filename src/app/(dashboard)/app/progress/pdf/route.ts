@@ -64,7 +64,7 @@ export async function GET() {
     meta: [started ? `On getCalmly since ${started}` : 'Progress summary', `Generated ${fmtIST(new Date(), { day: 'numeric', month: 'short', year: 'numeric' })}`],
     summary: [
       { label: 'Journals', value: String(totals.journals) },
-      { label: 'Tasks done', value: String(totals.tasksCompleted) },
+      { label: 'Activities done', value: String(totals.tasksCompleted) },
       { label: 'Check-ins', value: String(totals.checkins) },
       { label: 'Sessions', value: String(totals.sessions) },
     ],

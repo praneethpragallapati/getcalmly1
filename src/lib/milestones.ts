@@ -157,8 +157,8 @@ const DEFS: Def[] = [
   { key: 'mood-100', group: 'Consistency', icon: '⛅', label: '100 mood check-ins', target: 100, value: (s) => s.moodTotal, unit: 'check-ins' },
   { key: 'mood-200', group: 'Consistency', icon: '☀️', label: '200 mood check-ins', target: 200, value: (s) => s.moodTotal, unit: 'check-ins' },
   { key: 'mood-avg-7', group: 'Consistency', icon: '📈', label: 'A brighter week (avg mood 7+)', target: 7, value: (s) => s.bestMoodAvg7, bool: true, doneSub: 'Reached a 7+ weekly average' },
-  { key: 'tasks-5', group: 'Consistency', icon: '✅', label: 'Complete 5 expert tasks', target: 5, value: (s) => s.tasksCompleted, unit: 'tasks' },
-  { key: 'tasks-25', group: 'Consistency', icon: '✅', label: 'Complete 25 expert tasks', target: 25, value: (s) => s.tasksCompleted, unit: 'tasks' },
+  { key: 'tasks-5', group: 'Consistency', icon: '✅', label: 'Complete 5 activities', target: 5, value: (s) => s.tasksCompleted, unit: 'tasks' },
+  { key: 'tasks-25', group: 'Consistency', icon: '✅', label: 'Complete 25 activities', target: 25, value: (s) => s.tasksCompleted, unit: 'tasks' },
 
   // ── Journaling ──
   { key: 'journal-1', group: 'Journaling', icon: '📓', label: 'First journal entry', target: 1, value: (s) => s.journal, bool: true, doneSub: 'Wrote your first entry' },

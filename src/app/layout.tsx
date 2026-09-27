@@ -63,7 +63,7 @@ const orgJsonLd = {
   logo: `${SITE_URL}/opengraph-image`,
   image: `${SITE_URL}/opengraph-image`,
   description:
-    'Mental healthcare platform connecting people in India with RCI-verified therapists and psychiatrists, powered by AI insights.',
+    'Mental healthcare platform connecting people in India with licensed therapists and psychiatrists, powered by AI insights.',
   slogan: 'Mental Healthcare, Powered by Experts, Personalized by AI',
   medicalSpecialty: ['Psychiatric', 'PsychologicalTreatment'],
   areaServed: { '@type': 'Country', name: 'India' },

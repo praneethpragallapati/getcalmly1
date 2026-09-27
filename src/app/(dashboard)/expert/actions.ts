@@ -112,7 +112,7 @@ export type AssignTaskState = { ok: boolean; message: string } | null
  * Returns a result instead of void. Every failure path here used to be a bare
  * `return`: no context, no session, no title, or an ownership check that came
  * back false. The form submitted, the page revalidated, and absolutely nothing
- * happened — no task, no error, no clue. "We are not able to assign a task"
+ * happened — no task, no error, no clue. "We are not able to assign an activity"
  * with nothing on screen to explain it is the exact shape of that bug.
  *
  * The ownership check is the one worth naming separately. ownsPatient swallows
@@ -127,9 +127,9 @@ export async function assignTask(_prev: AssignTaskState, formData: FormData): Pr
   const patientId = String(formData.get('patientId') ?? '')
   const title = String(formData.get('title') ?? '').trim()
   if (!patientId) return { ok: false, message: 'Could not tell which patient this is for. Reload the page and try again.' }
-  if (!title) return { ok: false, message: 'Pick a task or type a custom one first.' }
+  if (!title) return { ok: false, message: 'Pick an activity or type a custom one first.' }
   if (!(await ownsPatient(ctx.therapistProfileId, patientId))) {
-    return { ok: false, message: 'We could not confirm this patient is on your caseload, so the task was not assigned. If they are yours, this is a fault on our side — please tell support.' }
+    return { ok: false, message: 'We could not confirm this patient is on your caseload, so the activity was not assigned. If they are yours, this is a fault on our side — please tell support.' }
   }
 
   const typeRaw = String(formData.get('type') ?? 'REFLECTION')
@@ -167,7 +167,7 @@ export async function assignTask(_prev: AssignTaskState, formData: FormData): Pr
 
   // The task is saved; a failed notification must not report the assignment as
   // failed and invite a retry that assigns it twice.
-  await notify(patientId, { type: 'task', title: 'New task assigned', body: title, href: '/app' }).catch(() => {})
+  await notify(patientId, { type: 'task', title: 'New activity assigned', body: title, href: '/app' }).catch(() => {})
 
   revalidatePath(`/expert/patients/${patientId}`)
   revalidatePath('/app')

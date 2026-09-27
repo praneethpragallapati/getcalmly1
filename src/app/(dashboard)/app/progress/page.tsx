@@ -171,7 +171,7 @@ export default async function ProgressPage() {
         <div className="section-title" style={{ marginTop: 4 }}>Your journey so far</div>
         <div className="grid-4">
           <TotalCard icon={<BookOpen size={20} />} tint="t-purple" n={totals.journals} label="Journals written" />
-          <TotalCard icon={<CheckCircle2 size={20} />} tint="t-green" n={totals.tasksCompleted} label="Tasks completed" />
+          <TotalCard icon={<CheckCircle2 size={20} />} tint="t-green" n={totals.tasksCompleted} label="Activities completed" />
           <TotalCard icon={<HeartPulse size={20} />} tint="t-coral" n={totals.checkins} label="Mood check-ins" />
           <TotalCard icon={<Users size={20} />} tint="t-gold" n={totals.sessions} label="Sessions completed" />
         </div>

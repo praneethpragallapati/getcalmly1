@@ -186,7 +186,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
             />
           ))}
           <Metric label="Sessions held" value={String(sessionsCompleted)} sub={`${sessionsWrittenUp} written up`} />
-          <Metric label="Task completion" value={`${p.taskCompletionPct}%`} />
+          <Metric label="Activity completion" value={`${p.taskCompletionPct}%`} />
           <Metric
             label="Medication"
             value={p.medications.length ? `${p.medicationCompliancePct}%` : '—'}
@@ -261,8 +261,8 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
 
       <div className="grid-2" style={{ alignItems: 'start' }}>
         <div className="card">
-          <div className="section-title" style={{ marginBottom: 12 }}>Assigned tasks ({p.taskCompletionPct}% done)</div>
-          {p.tasks.length === 0 && <p className="muted">No tasks assigned yet.</p>}
+          <div className="section-title" style={{ marginBottom: 12 }}>Assigned activities ({p.taskCompletionPct}% done)</div>
+          {p.tasks.length === 0 && <p className="muted">No activities assigned yet.</p>}
           {p.tasks.map((t) => (
             <div key={t.id} className="pattern">
               <span className={`pattern-ic ${t.done ? 't-green' : t.expired ? 't-coral' : 't-purple'}`}>
@@ -283,7 +283,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
 
         {!supervisorView && (
           <div className="card">
-            <div className="section-title" style={{ marginBottom: 12 }}>Assign a task</div>
+            <div className="section-title" style={{ marginBottom: 12 }}>Assign an activity</div>
             <AssignTaskForm patientId={p.patientId} />
           </div>
         )}

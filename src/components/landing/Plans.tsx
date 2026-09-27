@@ -39,7 +39,7 @@ const plans = [
     badge: null,
     features: [
       'Everything in Counsellor',
-      'RCI Clinical Psychologists',
+      'Licensed Clinical Psychologists',
       'Psychiatric Referrals',
       'Detailed Assessment Reports',
       'Priority Matching',
