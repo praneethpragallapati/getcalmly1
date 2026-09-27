@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
-import { Settings, LogOut } from 'lucide-react'
+import { Settings, LogOut, Compass } from 'lucide-react'
 
 /** Topbar avatar with a small account dropdown (Settings + Log out). */
 export function AccountMenu({ name, photoUrl = null }: { name: string; photoUrl?: string | null }) {
@@ -62,6 +62,17 @@ export function AccountMenu({ name, photoUrl = null }: { name: string; photoUrl?
           <div style={{ padding: '8px 10px 6px', fontSize: 12, color: 'var(--c-gray)', fontWeight: 600 }}>
             Signed in as {name}
           </div>
+          <button
+            type="button"
+            role="menuitem"
+            className="acct-menu-item"
+            onClick={() => {
+              setOpen(false)
+              window.dispatchEvent(new CustomEvent('gc-tour-start'))
+            }}
+          >
+            <Compass size={15} /> Take a tour
+          </button>
           <Link href="/app/settings" role="menuitem" className="acct-menu-item" onClick={() => setOpen(false)}>
             <Settings size={15} /> Settings
           </Link>

@@ -3547,3 +3547,100 @@
   to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) { .done-banner { animation: none; } }
+
+/* ===== Guided product tour ===== */
+.gc-tour-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: rgba(20, 30, 42, 0.14);
+  animation: gcTourFade 0.25s ease;
+}
+.gc-tour-hi {
+  position: relative;
+  z-index: 131;
+  border-radius: 14px;
+  box-shadow: 0 0 0 3px var(--c-coral), 0 0 0 9px color-mix(in srgb, var(--c-coral) 20%, transparent);
+  transition: box-shadow 0.3s ease;
+}
+.gc-tour-card {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  width: min(440px, calc(100vw - 32px));
+  z-index: 140;
+  background: var(--c-white);
+  border-radius: 18px;
+  padding: 20px 20px 18px;
+  box-shadow: 0 20px 52px rgba(20, 30, 42, 0.3);
+  animation: gcTourUp 0.34s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.gc-tour-step {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--c-coral-d);
+}
+.gc-tour-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--c-charcoal);
+  margin-top: 3px;
+  letter-spacing: -0.3px;
+}
+.gc-tour-body {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--c-gray);
+  margin-top: 8px;
+}
+.gc-tour-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.gc-tour-dots {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+.gc-tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(28, 43, 58, 0.16);
+  transition: background 0.2s, width 0.2s;
+}
+.gc-tour-dot.on {
+  width: 16px;
+  border-radius: 50px;
+  background: var(--c-coral);
+}
+.gc-tour-skip {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--c-gray-d);
+  cursor: pointer;
+}
+.gc-tour-skip:hover {
+  color: var(--c-charcoal);
+}
+@keyframes gcTourFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes gcTourUp {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-tour-scrim, .gc-tour-card { animation: none; }
+  .gc-tour-hi { transition: none; }
+}

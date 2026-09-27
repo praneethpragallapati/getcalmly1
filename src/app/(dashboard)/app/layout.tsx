@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/dashboard/Sidebar'
 import { AccountMenu } from '@/components/dashboard/AccountMenu'
 import { NotificationBell } from '@/components/dashboard/NotificationBell'
 import { HelplineButton } from '@/components/dashboard/HelplineButton'
+import { ProductTour } from '@/components/dashboard/ProductTour'
 import { ToastProvider } from '@/components/ui/Toast'
 import { CallProvider } from '@/components/dashboard/CallDock'
 import { getSidebarSummary, countOpenActivities, countPendingForms } from '@/lib/dashboard'
@@ -123,6 +124,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           server: a member with no clinician holding them has nobody to alert, so
           the panel shows helplines only rather than a button that would refuse. */}
       <HelplineButton canAlertCareTeam={canAlert} />
+      <ProductTour />
     </div>
     </CallProvider>
     </ToastProvider>
