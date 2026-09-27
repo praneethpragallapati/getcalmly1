@@ -161,6 +161,7 @@ export type ClinicianRow = {
   /** Platform registration number (GC-E-…), blank until one is allocated. */
   registrationNo: string | null
   employmentType: string; isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
+  matchingEligible: boolean; directBookingEligible: boolean
   // Filterable facets.
   languages: string[]
   specializations: string[]
@@ -177,6 +178,7 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
       prisma.therapistProfile.findMany({
         select: {
           id: true, isActive: true, isVerified: true, rating: true, totalReviews: true,
+          matchingEligible: true, directBookingEligible: true,
           employmentType: true, languages: true, specializations: true,
           user: { select: { name: true, email: true, registrationNo: true } },
         },
@@ -190,6 +192,7 @@ export async function getClinicians(): Promise<ClinicianRow[]> {
         registrationNo: r.user?.registrationNo ?? null,
         designation: designationOf(r.specializations), employmentType: (r.employmentType as string) ?? 'FULL_TIME',
         isActive: r.isActive, isVerified: r.isVerified, rating: r.rating, totalReviews: r.totalReviews,
+        matchingEligible: r.matchingEligible ?? true, directBookingEligible: r.directBookingEligible ?? true,
         languages: r.languages ?? [], specializations: r.specializations ?? [],
         sessionsCompleted: doneByProfile.get(r.id) ?? 0,
       }))
@@ -203,6 +206,7 @@ export type ClinicianDetail = {
   bio: string; qualifications: string[]; languages: string[]; specializations: string[]
   rciNumber: string; yearsExp: number; sessionFee: number; employmentType: string
   isActive: boolean; isVerified: boolean; rating: number; totalReviews: number
+  matchingEligible: boolean; directBookingEligible: boolean
   baseFeeIndividual: number | null; baseFeeCouples: number | null; baseFeePsychiatry: number | null
   secondSessionBonus: number | null; thirdOnwardsBonus: number | null; miscBonus: number | null; nightSessionBonus: number | null
   saturdayBonus: number | null; sundayBonus: number | null
@@ -249,7 +253,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
         isActive: true, isVerified: true, rating: true, totalReviews: true,
         baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
         secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
-        saturdayBonus: true, sundayBonus: true,
+        saturdayBonus: true, sundayBonus: true, matchingEligible: true, directBookingEligible: true,
         documentUrls: true, gender: true, createdAt: true,
         user: { select: { id: true, name: true, email: true, phone: true, registrationNo: true } },
       },
@@ -349,6 +353,7 @@ export async function getClinicianDetail(profileId: string): Promise<ClinicianDe
       specializations: p.specializations, rciNumber: p.rciNumber, yearsExp: p.yearsExp, sessionFee: p.sessionFee,
       employmentType: (p.employmentType as string) ?? 'FULL_TIME', isActive: p.isActive, isVerified: p.isVerified,
       rating: p.rating, totalReviews: p.totalReviews,
+      matchingEligible: p.matchingEligible ?? true, directBookingEligible: p.directBookingEligible ?? true,
       baseFeeIndividual: p.baseFeeIndividual ?? null, baseFeeCouples: p.baseFeeCouples ?? null, baseFeePsychiatry: p.baseFeePsychiatry ?? null,
       secondSessionBonus: p.secondSessionBonus ?? null, thirdOnwardsBonus: p.thirdOnwardsBonus ?? null,
       miscBonus: p.miscBonus ?? null, nightSessionBonus: p.nightSessionBonus ?? null,

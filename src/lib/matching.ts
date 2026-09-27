@@ -85,6 +85,7 @@ type Candidate = {
   rating: number
   totalReviews: number
   yearsExp: number
+  matchingEligible: boolean
 }
 
 /**
@@ -128,7 +129,7 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack, o
     }),
     prisma.therapistProfile.findMany({
       where: { isActive: true, isVerified: true },
-      select: { id: true, clinicianType: true, specializations: true, languages: true, rating: true, totalReviews: true, yearsExp: true },
+      select: { id: true, clinicianType: true, specializations: true, languages: true, rating: true, totalReviews: true, yearsExp: true, matchingEligible: true },
     }),
   ])
   const concerns = [...(profile?.track ?? []), ...(profile?.subTrack ? [profile.subTrack] : [])].map((s) => s.toLowerCase())
@@ -146,9 +147,12 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack, o
   const previous = await previousTherapistForTrack(userId, track)
   if (previous && eligible.some((c) => c.id === previous)) return previous
 
+  // New relationships only go to clinicians an admin has left open to
+  // matching; the continuity check above still keeps an existing patient with
+  // theirs.
   let best: Candidate | null = null
   let bestScore = -Infinity
-  for (const c of eligible) {
+  for (const c of eligible.filter((x) => x.matchingEligible !== false)) {
     const s = scoreCandidate(c, concerns, language, opts.risk ?? 0)
     if (s > bestScore || (s === bestScore && best && c.totalReviews > best.totalReviews)) {
       best = c

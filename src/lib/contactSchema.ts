@@ -61,6 +61,8 @@ export async function ensureContactSchema(): Promise<void> {
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "nightSessionBonus" INTEGER`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "saturdayBonus" INTEGER`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "sundayBonus" INTEGER`,
+    `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "matchingEligible" BOOLEAN NOT NULL DEFAULT true`,
+    `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "directBookingEligible" BOOLEAN NOT NULL DEFAULT true`,
     `ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "saturdayBonus" INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE "EarningsConfig" ADD COLUMN IF NOT EXISTS "sundayBonus" INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "compensationFields" JSONB`,

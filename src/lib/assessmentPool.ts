@@ -35,11 +35,14 @@ export async function getMatchPool(): Promise<PoolClinician[]> {
       where: { isActive: true, isVerified: true },
       select: {
         id: true, clinicianType: true, specializations: true, languages: true, gender: true,
-        yearsExp: true, rating: true, sessionFee: true, user: { select: { name: true } },
+        yearsExp: true, rating: true, sessionFee: true, matchingEligible: true, user: { select: { name: true } },
       },
     })
     if (rows.length > 0) {
-      return rows.map((r) => {
+      // Results offer new relationships, so only matching-eligible clinicians.
+      // The sample fallback is for a platform with no clinicians at all, never
+      // for one where an admin has switched them all off matching.
+      return rows.filter((r) => r.matchingEligible !== false).map((r) => {
         const psych = isPsychiatrist(r.clinicianType, r.specializations)
         const name = r.user?.name ?? 'Clinician'
         return {

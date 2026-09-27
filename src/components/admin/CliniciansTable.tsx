@@ -128,6 +128,8 @@ export function CliniciansTable({ rows }: { rows: ClinicianRow[] }) {
                   <span title="Expert ID" style={idChip}>{c.registrationNo ?? expertCode(c.profileId)}</span>
                   {!c.isActive && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#C0504B', background: 'rgba(192,80,75,.1)', padding: '2px 8px', borderRadius: 20 }}>Inactive</span>}
                   {!c.isVerified && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#C9973A', background: 'rgba(201,151,58,.12)', padding: '2px 8px', borderRadius: 20 }}>Unverified</span>}
+                  {!c.matchingEligible && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#5A6A7A', background: 'rgba(90,106,122,.12)', padding: '2px 8px', borderRadius: 20 }}>Not in matching</span>}
+                  {!c.directBookingEligible && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#5A6A7A', background: 'rgba(90,106,122,.12)', padding: '2px 8px', borderRadius: 20 }}>No direct booking</span>}
                 </div>
                 <div className="muted" style={{ fontSize: 12.5 }}>{c.designation} · {c.email}{c.sessionsCompleted > 0 ? ` · ${c.sessionsCompleted} sessions` : ''}</div>
               </div>

@@ -3,6 +3,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { clinicians, getClinician } from '@/data/clinicians'
 import BookSessionButton from '@/components/site/BookSessionButton'
+import { isBookable } from '@/lib/publicClinicians'
+
+// Refreshed every minute, so an admin's "Direct booking eligible" tick applies quickly.
+export const revalidate = 60
 
 const charcoal = '#1C2B3A'
 const charcoalL = '#5F6E7D'
@@ -25,7 +29,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ClinicianProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const c = getClinician(slug)
-  if (!c) notFound()
+  // Hidden by an admin (not taking new patients directly): no public profile.
+  if (!c || !(await isBookable(slug))) notFound()
 
   const headingFont = "'Big Shoulders Display', sans-serif"
 

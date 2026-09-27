@@ -24,6 +24,8 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
   const [employmentType, setEmploymentType] = useState(c.employmentType)
   const [isActive, setIsActive] = useState(c.isActive)
   const [isVerified, setIsVerified] = useState(c.isVerified)
+  const [matchingEligible, setMatchingEligible] = useState(c.matchingEligible)
+  const [directBookingEligible, setDirectBookingEligible] = useState(c.directBookingEligible)
   const [feeInd, setFeeInd] = useState(numOrEmpty(c.baseFeeIndividual))
   const [feeCpl, setFeeCpl] = useState(numOrEmpty(c.baseFeeCouples))
   const [feePsy, setFeePsy] = useState(numOrEmpty(c.baseFeePsychiatry))
@@ -43,7 +45,7 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
       const res = await updateTherapistSettings({
         profileId: c.profileId,
         employmentType,
-        isActive, isVerified,
+        isActive, isVerified, matchingEligible, directBookingEligible,
         baseFeeIndividual: numOrBlank(feeInd),
         baseFeeCouples: numOrBlank(feeCpl),
         baseFeePsychiatry: numOrBlank(feePsy),
@@ -171,9 +173,18 @@ export function TherapistEditor({ c }: { c: ClinicianDetail }) {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-            <Toggle label="Active" checked={isActive} onChange={setIsActive} />
-            <Toggle label="Verified" checked={isVerified} onChange={setIsVerified} />
+          <div>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+              <Toggle label="Active" checked={isActive} onChange={setIsActive} />
+              <Toggle label="Verified" checked={isVerified} onChange={setIsVerified} />
+              <Toggle label="Matching eligible" checked={matchingEligible} onChange={setMatchingEligible} />
+              <Toggle label="Direct booking eligible" checked={directBookingEligible} onChange={setDirectBookingEligible} />
+            </div>
+            <p className="muted" style={{ fontSize: 12, margin: '8px 0 0', lineHeight: 1.55 }}>
+              Matching and direct booking only affect <b>new</b> patients. Existing patients keep {c.name.split(' ')[0]} either way.
+              {!matchingEligible && ' Not offered by auto-matching or pre-assessment results.'}
+              {!directBookingEligible && ' Hidden from the website directory and direct booking.'}
+            </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -1321,6 +1321,8 @@ ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "miscBonus" integer;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "nightSessionBonus" integer;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "saturdayBonus" integer;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "sundayBonus" integer;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "matchingEligible" boolean DEFAULT true NOT NULL;
+ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "directBookingEligible" boolean DEFAULT true NOT NULL;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "compensationFields" jsonb;
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "documentUrls" text[];
 ALTER TABLE "TherapistProfile" ADD COLUMN IF NOT EXISTS "photoUrl" text;

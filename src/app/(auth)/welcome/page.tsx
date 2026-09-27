@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { getSessionUser } from '@/lib/session'
 import { getMemberEssentials, missingEssentials } from '@/lib/memberOnboarding'
 import { getClinician } from '@/data/clinicians'
+import { isBookable } from '@/lib/publicClinicians'
 import { MemberEssentialsForm } from '@/components/auth/MemberEssentialsForm'
 
 export const metadata = {
@@ -31,7 +32,8 @@ export default async function WelcomePage() {
   // in this cookie. When present, we forward to checkout instead of the
   // dashboard once details are complete — that's the assessment/match bypass.
   const bookingSlug = (await cookies()).get('gc_book_clinician')?.value
-  const booking = bookingSlug ? getClinician(bookingSlug) : undefined
+  // A clinician an admin has since hidden from direct booking is not honoured.
+  const booking = bookingSlug && (await isBookable(bookingSlug)) ? getClinician(bookingSlug) : undefined
   const nextUrl = booking ? `/checkout?care=${booking.type === 'Psychiatrist' ? 'psychiatry' : 'therapy'}` : '/app'
 
   const essentials = await getMemberEssentials(user.id)

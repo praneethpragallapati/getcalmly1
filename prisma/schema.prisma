@@ -413,6 +413,11 @@ model TherapistProfile {
   nightSessionBonus  Int?
   saturdayBonus      Int?
   sundayBonus        Int?
+  // Admin switches for NEW relationships only; existing patients keep them.
+  // matchingEligible: offered by auto-matching and pre-assessment results.
+  // directBookingEligible: listed on the website for direct booking.
+  matchingEligible      Boolean @default(true)
+  directBookingEligible Boolean @default(true)
   // Admin-defined fields shown to a FULL_TIME (salaried) clinician on their
   // Earnings tab, in place of the per-session payout ledger (which only applies
   // to part-time). Each entry is { label, type: 'text'|'select', value,

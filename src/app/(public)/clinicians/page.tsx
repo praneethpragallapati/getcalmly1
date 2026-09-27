@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import ClinicianDirectory from '@/components/site/ClinicianDirectory'
-import { clinicians } from '@/data/clinicians'
+import { bookableClinicians } from '@/lib/publicClinicians'
 
 const charcoal = '#1C2B3A'
 const cream = '#F6F3EF'
@@ -12,7 +12,11 @@ export const metadata: Metadata = {
     'Browse the RCI licensed clinical psychologists and NMC licensed psychiatrists on getCalmly, and search by name, concern or specialty and view full profiles.',
 }
 
-export default function CliniciansPage() {
+// Refreshed every minute, so an admin's "Direct booking eligible" tick shows here quickly.
+export const revalidate = 60
+
+export default async function CliniciansPage() {
+  const clinicians = await bookableClinicians()
   const psychologists = clinicians.filter((c) => c.type === 'Psychologist').length
   const psychiatrists = clinicians.filter((c) => c.type === 'Psychiatrist').length
 
