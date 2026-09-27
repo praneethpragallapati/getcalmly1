@@ -23,15 +23,18 @@ export function nameKey(name: string): string {
 }
 
 async function hiddenNames(): Promise<Set<string>> {
+  const names = new Set<string>()
+  const add = (rows: { user: { name: string | null } | null }[]) =>
+    rows.forEach((r) => { const k = nameKey(r.user?.name ?? ''); if (k) names.add(k) })
+  // Two reads, so a database still missing the newer directBookingEligible
+  // column (migration 0047) still hides deactivated clinicians.
   try {
-    const rows = await prisma.therapistProfile.findMany({
-      where: { OR: [{ directBookingEligible: false }, { isActive: false }] },
-      select: { user: { select: { name: true } } },
-    })
-    return new Set(rows.map((r) => nameKey(r.user?.name ?? '')).filter(Boolean))
-  } catch {
-    return new Set()
-  }
+    add(await prisma.therapistProfile.findMany({ where: { isActive: false }, select: { user: { select: { name: true } } } }))
+  } catch { /* fail open: never hide on a read error */ }
+  try {
+    add(await prisma.therapistProfile.findMany({ where: { directBookingEligible: false }, select: { user: { select: { name: true } } } }))
+  } catch { /* column not there yet */ }
+  return names
 }
 
 export async function bookableClinicians(): Promise<Clinician[]> {

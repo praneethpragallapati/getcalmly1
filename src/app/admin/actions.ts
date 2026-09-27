@@ -26,6 +26,7 @@ import {
   notifySessionsChanged, notifyValidityExtended, notifyWalletChanged,
   notifyCalmPlusGranted, notifyPackageAdded,
 } from '@/lib/goodNews'
+import { saveTherapistExtras } from '@/lib/therapistExtras'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { istWallClock } from '@/lib/tz'
 import { isAdminType } from '@/lib/adminRoles'
@@ -147,8 +148,6 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
             thirdOnwardsBonus: ov(input.thirdOnwardsBonus),
             miscBonus: ov(input.miscBonus),
             nightSessionBonus: ov(input.nightSessionBonus),
-            saturdayBonus: ov(input.saturdayBonus),
-            sundayBonus: ov(input.sundayBonus),
             documentUrls: docs,
             dateOfBirth: dob,
             country: normalizeCountry(input.country),
@@ -167,6 +166,10 @@ export async function createTherapist(input: CreateTherapistInput): Promise<Crea
       },
     })
     await ensureRegistrationNo(created.id, 'THERAPIST')
+    // Weekend bonuses are written on their own so a database without those
+    // columns yet cannot fail the account creation itself.
+    const prof = await prisma.therapistProfile.findUnique({ where: { userId: created.id }, select: { id: true } })
+    if (prof) await saveTherapistExtras(prof.id, { saturdayBonus: ov(input.saturdayBonus), sundayBonus: ov(input.sundayBonus) })
     revalidatePath('/admin/therapists'); revalidatePath('/admin')
     return { ok: true, email, tempPassword }
   } catch {
@@ -231,9 +234,6 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
         employmentType: input.employmentType === 'PART_TIME' ? 'PART_TIME' : input.employmentType === 'FULL_TIME' ? 'FULL_TIME' : undefined,
         isActive: input.isActive,
         isVerified: input.isVerified,
-        // New relationships only: existing patients keep this clinician either way.
-        matchingEligible: input.matchingEligible,
-        directBookingEligible: input.directBookingEligible,
         // rating + totalReviews are derived from patient reviews, never hand-set.
         baseFeeIndividual: feeInd,
         baseFeeCouples: override(input.baseFeeCouples),
@@ -242,9 +242,16 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
         thirdOnwardsBonus: override(input.thirdOnwardsBonus),
         miscBonus: override(input.miscBonus),
         nightSessionBonus: override(input.nightSessionBonus),
-        saturdayBonus: override(input.saturdayBonus),
-        sundayBonus: override(input.sundayBonus),
       },
+    })
+    // The newest settings go in their own write (see lib/therapistExtras), so
+    // a database without those columns yet still saves everything else.
+    // matching / direct booking affect new relationships only.
+    const extrasSaved = await saveTherapistExtras(input.profileId, {
+      matchingEligible: input.matchingEligible,
+      directBookingEligible: input.directBookingEligible,
+      saturdayBonus: override(input.saturdayBonus),
+      sundayBonus: override(input.sundayBonus),
     })
     // Deactivating a clinician: move their patients onto a new fit clinician and
     // cancel every upcoming session (restoring the sessions to patients' wallets),
@@ -257,6 +264,7 @@ export async function updateTherapistSettings(input: TherapistSettingsInput): Pr
       revalidatePath('/admin/patients'); revalidatePath('/admin/operations')
     }
     revalidatePath(`/admin/therapists/${input.profileId}`); revalidatePath('/admin/therapists'); revalidatePath('/expert/earnings')
+    if (!extrasSaved) return { ok: false, error: 'Saved, except weekend bonuses and matching / booking settings. Run prisma/sync_schema.sql in Supabase, then save again.' }
     return { ok: true }
   } catch {
     return { ok: false, error: 'Could not update the clinician.' }

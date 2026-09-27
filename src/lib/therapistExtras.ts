@@ -11,6 +11,7 @@
  * both), so a missing column changes nothing instead of breaking the page.
  */
 import { prisma } from '@/lib/prisma'
+import { ensureContactSchema } from '@/lib/contactSchema'
 
 export type TherapistExtras = {
   saturdayBonus: number | null
@@ -50,4 +51,25 @@ export async function getTherapistExtras(ids: string[]): Promise<Map<string, The
 
 export async function getOneTherapistExtras(id: string): Promise<TherapistExtras> {
   return (await getTherapistExtras([id])).get(id) ?? EXTRAS_DEFAULT
+}
+
+/**
+ * Write the newest columns on their own, after the main save. Adds the columns
+ * first if the database lacks them. Returns false (never throws) if they still
+ * cannot be written, so the rest of a clinician's save is never lost to them.
+ */
+export async function saveTherapistExtras(
+  id: string,
+  patch: Partial<Pick<TherapistExtras, 'saturdayBonus' | 'sundayBonus' | 'matchingEligible' | 'directBookingEligible'>>,
+): Promise<boolean> {
+  const data = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined))
+  if (Object.keys(data).length === 0) return true
+  try {
+    await ensureContactSchema().catch(() => {})
+    await prisma.therapistProfile.update({ where: { id }, data })
+    return true
+  } catch (e) {
+    console.error('[therapistExtras] could not save newer clinician columns (migrations 0046/0047?)', e)
+    return false
+  }
 }

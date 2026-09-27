@@ -13,6 +13,7 @@ import { cache } from 'react'
 import { getAuthSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { ensureAvailabilitySchema } from '@/lib/availabilitySchema'
+import { getTherapistExtras, getOneTherapistExtras, EXTRAS_DEFAULT } from '@/lib/therapistExtras'
 import { isPsychiatrist, type CareTrack } from '@/lib/clinicianScope'
 import { tracksForClinicianOnPatients, tracksForClinicianOnPatient } from '@/lib/careScope'
 import { trackLabel } from '@/lib/packageLabels'
@@ -1559,7 +1560,8 @@ const EARNINGS_PROFILE_SELECT = {
   specializations: true,
   baseFeeIndividual: true, baseFeeCouples: true, baseFeePsychiatry: true,
   secondSessionBonus: true, thirdOnwardsBonus: true, miscBonus: true, nightSessionBonus: true,
-  saturdayBonus: true, sundayBonus: true,
+  // saturdayBonus / sundayBonus are merged in from lib/therapistExtras, never
+  // selected here: a database without migration 0046 would fail this query.
 } as const
 
 const EARNINGS_APPT_SELECT = {
@@ -1606,8 +1608,11 @@ export async function getEarningsForMany(profileIds: string[]): Promise<Map<stri
     list.push(a)
     apptsById.set(a.therapistId, list)
   }
+  const extras = await getTherapistExtras(profileIds)
   for (const id of profileIds) {
-    out.set(id, computeEarnings(profileById.get(id) ?? null, apptsById.get(id) ?? [], globalConfig))
+    const prof = profileById.get(id)
+    const ex = extras.get(id) ?? EXTRAS_DEFAULT
+    out.set(id, computeEarnings(prof ? { ...prof, saturdayBonus: ex.saturdayBonus, sundayBonus: ex.sundayBonus } : null, apptsById.get(id) ?? [], globalConfig))
   }
   return out
 }
@@ -1635,7 +1640,8 @@ export async function getTherapistEarnings(therapistProfileId: string): Promise<
   // Pay gate: note + at least one clinician assessment (pre-launch grandfathered).
   const assessed = await sessionsWithClinicianAssessment(rows.map((r) => r.id))
   const payable = rows.filter((r) => assessed.has(r.id) || r.scheduledAt.getTime() < OUTCOMES_LAUNCH.getTime())
-  return computeEarnings(profile, payable, globalConfig)
+  const ex = await getOneTherapistExtras(therapistProfileId)
+  return computeEarnings(profile ? { ...profile, saturdayBonus: ex.saturdayBonus, sundayBonus: ex.sundayBonus } : null, payable, globalConfig)
 }
 
 /** The pay computation itself — no I/O, so it can serve one clinician or many. */

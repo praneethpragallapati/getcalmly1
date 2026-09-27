@@ -10,6 +10,7 @@
 import { prisma } from '@/lib/prisma'
 import { clinicianMatchesTrack, type CareTrack } from '@/lib/clinicianScope'
 import { ALL_OFFERINGS, offers } from '@/data/careTaxonomy'
+import { getTherapistExtras, EXTRAS_DEFAULT } from '@/lib/therapistExtras'
 
 // Profile tags are stored lowercase; map them back to the shared list's labels.
 const LABEL_BY_LOWER = new Map(ALL_OFFERINGS.map((s) => [s.label.toLowerCase(), s.label]))
@@ -129,13 +130,17 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack, o
     }),
     prisma.therapistProfile.findMany({
       where: { isActive: true, isVerified: true },
-      select: { id: true, clinicianType: true, specializations: true, languages: true, rating: true, totalReviews: true, yearsExp: true, matchingEligible: true },
+      select: { id: true, clinicianType: true, specializations: true, languages: true, rating: true, totalReviews: true, yearsExp: true },
     }),
   ])
   const concerns = [...(profile?.track ?? []), ...(profile?.subTrack ? [profile.subTrack] : [])].map((s) => s.toLowerCase())
   const language = profile?.preferredLanguage ?? null
 
-  const eligible = candidates.filter((c) => clinicianMatchesTrack(c.clinicianType, c.specializations, track))
+  // "Matching eligible" comes from its own guarded read (lib/therapistExtras).
+  const extras = await getTherapistExtras(candidates.map((c) => c.id))
+  const eligible = candidates
+    .filter((c) => clinicianMatchesTrack(c.clinicianType, c.specializations, track))
+    .map((c) => ({ ...c, matchingEligible: (extras.get(c.id) ?? EXTRAS_DEFAULT).matchingEligible }))
   if (eligible.length === 0) return null
 
   // CONTINUITY FIRST. Scoring alone has no memory, so a member whose package
