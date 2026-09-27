@@ -23,7 +23,7 @@ const plans: Record<PlanKey, {
     accent: coral,
     benefits: [
       'Your first 45-minute session at a flat ₹799',
-      'A licensed clinical psychologist matched to you',
+      'An RCI licensed clinical psychologist matched to you',
       'A clear summary after every session',
       'Everything in Calm+: unlimited AI, insights, journaling',
       'A constant guide who stays with you the whole way',
@@ -63,7 +63,7 @@ const plans: Record<PlanKey, {
     accent: '#1A7F7A',
     benefits: [
       'Your first consultation at a flat ₹999',
-      'A licensed psychiatrist for evaluation and care',
+      'An NMC licensed psychiatrist for evaluation and care',
       'Medication support with a built-in tracker',
       'Digital prescriptions after your consultation',
       'Everything in Calm+: unlimited AI, insights, journaling',

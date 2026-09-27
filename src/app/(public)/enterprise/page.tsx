@@ -28,7 +28,7 @@ const ENT_FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'What does a GetCalmly workplace programme include?',
-    a: 'Confidential therapy and psychiatry with licensed clinicians, the Calm+ app for your team (mood check-ins, journaling, getCalmly AI), an anonymised dashboard for people leaders, and crisis resources built into the app.',
+    a: 'Confidential therapy and psychiatry with RCI & NMC licensed clinicians, the Calm+ app for your team (mood check-ins, journaling, getCalmly AI), an anonymised dashboard for people leaders, and crisis resources built into the app.',
   },
   {
     q: 'How much does it cost?',
@@ -44,7 +44,7 @@ const ENT_FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Are your clinicians actually qualified?',
-    a: 'Yes. Every therapist and psychiatrist is licensed and background-checked before they see anyone. These are real, vetted professionals, not a directory of freelancers.',
+    a: 'Yes. Every therapist and psychiatrist is RCI or NMC licensed and background-checked before they see anyone. These are real, vetted professionals, not a directory of freelancers.',
   },
 ]
 
@@ -96,7 +96,7 @@ export default function EnterprisePage() {
               <span style={{ color: coral }}>before it shows up in your numbers.</span>
             </h1>
             <p style={{ fontSize: 18.5, color: 'rgba(255,255,255,.7)', lineHeight: 1.82, fontWeight: 300, maxWidth: 580, marginBottom: 38 }}>
-              Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential therapy and psychiatry with licensed clinicians, and gives you the signal long before it becomes a statistic.
+              Burnout, absenteeism and quiet quitting are rarely loud. By the time they show up in your numbers, the cost is already paid. GetCalmly gives your people confidential therapy and psychiatry with RCI & NMC licensed clinicians, and gives you the signal long before it becomes a statistic.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <a href="#interest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: coral, color: '#fff', padding: '15px 30px', borderRadius: 50, fontSize: 15.5, fontWeight: 700, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", boxShadow: '0 8px 24px rgba(200,85,61,.35)' }}>
@@ -111,7 +111,7 @@ export default function EnterprisePage() {
           <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 20, padding: '32px 28px', border: '1px solid rgba(255,255,255,.10)' }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.45)', marginBottom: 24, letterSpacing: 0.3 }}>Built for teams that take care seriously</p>
             {[
-              ['Licensed clinicians', 'Every clinician credentialed'],
+              ['RCI & NMC licensed', 'Every clinician credentialed'],
               ['Aggregate-only insights', 'Individuals always anonymous'],
               ['DPDP aligned', 'Privacy from day one'],
               ['48-hr onboarding', 'Pilot-ready in days, not months'],
@@ -424,7 +424,7 @@ export default function EnterprisePage() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
-                ['Licensed clinicians only', 'Vetted before going live'],
+                ['RCI & NMC licensed only', 'Vetted before going live'],
                 ['Pilot first, scale later', 'No big bets before you see results'],
                 ['Privacy by design', 'Individuals always stay anonymous to your org'],
               ].map(([t, d]) => (

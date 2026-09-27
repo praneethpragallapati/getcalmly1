@@ -13,14 +13,14 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <span class="rl"><span class="light">You don't have to carry</span></span>
         <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>
       </h1>
-      <p class="hero-sub">Talk to licensed therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
+      <p class="hero-sub">Talk to RCI/NMC licensed therapists and psychiatrists, matched to what you need — with a context-aware mental health AI that remembers your story from your very first session.</p>
       <div class="hero-actions">
         <a href="/assess" class="btn-hero fill">✦ Take the free assessment</a>
         <a href="#how-it-works" class="btn-hero outline">How it works</a>
       </div>
       <div class="hero-trust">
         <span class="ht">100% Confidential</span>
-        <span class="ht">Licensed clinicians</span>
+        <span class="ht">RCI &amp; NMC licensed clinicians</span>
         <span class="ht">Care from home, in-app</span>
       </div>
     </div>
@@ -81,11 +81,11 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <span class="tr-ic g"><svg viewBox="0 0 24 24" fill="none" stroke="#276B4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="16.6" cy="9.5" r="2.1"/><path d="M15.2 20a4.6 4.6 0 0 1 5.8-4.2"/></svg></span>
         <h3 class="tr-title">Qualified professionals</h3>
       </div>
-      <p class="tr-lead">Licensed. Vetted through extensive checks.</p>
+      <p class="tr-lead">RCI &amp; NMC licensed. Vetted through extensive checks.</p>
       <p class="tr-body">Our psychologists and psychiatrists go through an extensive verification and vetting process before joining getCalmly, and your care is always centred around qualified professionals who take the time to understand you.</p>
       <div class="tr-creds">
-        <div class="tr-cred"><span class="tr-cred-ic n"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5A2.2 2.2 0 0 0 7.3 7.2 2.2 2.2 0 0 0 6 11a2.3 2.3 0 0 0 1 4.2A2 2 0 0 0 11 15V6.3A1.3 1.3 0 0 0 9.5 5Z"/><path d="M14.5 5A2.2 2.2 0 0 1 16.7 7.2 2.2 2.2 0 0 1 18 11a2.3 2.3 0 0 1-1 4.2A2 2 0 0 1 13 15"/></svg></span><span class="tr-cred-tx"><b>Licensed</b><small>Clinical Psychologists</small></span></div>
-        <div class="tr-cred"><span class="tr-cred-ic n"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v4.5a4 4 0 0 0 8 0V3"/><path d="M10 15.2V16a5 5 0 0 0 5 5 4 4 0 0 0 4-4v-1.2"/><circle cx="19" cy="12.5" r="2.1"/></svg></span><span class="tr-cred-tx"><b>Licensed</b><small>Psychiatrists</small></span></div>
+        <div class="tr-cred"><span class="tr-cred-ic n"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5A2.2 2.2 0 0 0 7.3 7.2 2.2 2.2 0 0 0 6 11a2.3 2.3 0 0 0 1 4.2A2 2 0 0 0 11 15V6.3A1.3 1.3 0 0 0 9.5 5Z"/><path d="M14.5 5A2.2 2.2 0 0 1 16.7 7.2 2.2 2.2 0 0 1 18 11a2.3 2.3 0 0 1-1 4.2A2 2 0 0 1 13 15"/></svg></span><span class="tr-cred-tx"><b>RCI</b><small>Licensed Clinical Psychologist</small></span></div>
+        <div class="tr-cred"><span class="tr-cred-ic n"><svg viewBox="0 0 24 24" fill="none" stroke="#5A6A7A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v4.5a4 4 0 0 0 8 0V3"/><path d="M10 15.2V16a5 5 0 0 0 5 5 4 4 0 0 0 4-4v-1.2"/><circle cx="19" cy="12.5" r="2.1"/></svg></span><span class="tr-cred-tx"><b>NMC</b><small>Licensed Psychiatrist</small></span></div>
       </div>
     </div>
 
@@ -157,7 +157,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
         <p class="clin-role">Chief Clinical Psychologist · Co-founder, getCalmly</p>
         <div class="clin-creds">
           <span class="clin-cred">Ph.D. in Clinical Psychology</span>
-          <span class="clin-cred">Licensed</span>
+          <span class="clin-cred">RCI licensed</span>
         </div>
         <div class="clin-tags">
           <span class="clin-tag">Individual Therapy</span>

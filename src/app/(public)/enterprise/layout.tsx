@@ -3,12 +3,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Enterprise & Workplace Mental Health',
   description:
-    'Employee mental wellness for Indian teams, licensed therapists, anonymized workforce insights and measurable outcomes. Bring getCalmly to your workplace.',
+    'Employee mental wellness for Indian teams, RCI licensed therapists, anonymized workforce insights and measurable outcomes. Bring getCalmly to your workplace.',
   alternates: { canonical: '/enterprise' },
   openGraph: {
     title: 'getCalmly for Enterprise, Workplace Mental Health',
     description:
-      'Licensed therapists, anonymized workforce insights and measurable outcomes for your team.',
+      'RCI licensed therapists, anonymized workforce insights and measurable outcomes for your team.',
     url: '/enterprise',
     type: 'website',
   },

@@ -5,12 +5,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Our Services, Therapy, Psychiatry & Specialised Care',
   description:
-    'Explore mental health services on getCalmly: individual and couples therapy, psychiatry, child and maternal care, assessments and specialised support, with licensed experts.',
+    'Explore mental health services on getCalmly: individual and couples therapy, psychiatry, child and maternal care, assessments and specialised support, with RCI & NMC licensed experts.',
   alternates: { canonical: '/services' },
   openGraph: {
     title: 'getCalmly Services, Therapy, Psychiatry & Specialised Care',
     description:
-      'Individual & couples therapy, psychiatry, child, maternal, assessments and specialised care, with licensed experts.',
+      'Individual & couples therapy, psychiatry, child, maternal, assessments and specialised care, with RCI & NMC licensed experts.',
     url: '/services',
     type: 'website',
   },

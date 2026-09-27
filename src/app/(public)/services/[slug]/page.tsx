@@ -36,7 +36,7 @@ const services: Record<ServiceSlug, {
       'I get through the day, but I barely feel anything.',
       'Everyone leans on me. I have no one to lean on.',
     ],
-    why: 'Our therapists are licensed clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 45 minutes, online, and completely confidential.',
+    why: 'Our therapists are RCI licensed clinical psychologists with experience in evidence-based approaches: CBT, DBT, trauma-focused care, and more. Sessions are 45 minutes, online, and completely confidential.',
     items: [
       { name: 'Anxiety & Overthinking', desc: 'Racing thoughts, constant worry, the sense that something is about to go wrong. We help you slow it down.' },
       { name: 'Depression', desc: 'When the flatness won\'t lift and motivation disappears. When you feel disconnected from your own life.' },
@@ -180,7 +180,7 @@ const services: Record<ServiceSlug, {
       'I want a real diagnosis, not guesswork.',
       'I think I\'ve been managing this undiagnosed for years.',
     ],
-    why: 'All our psychiatrists are licensed medical doctors. They work with your therapist so your care stays joined-up.',
+    why: 'All our psychiatrists are NMC licensed medical doctors. They work with your therapist so your care stays joined-up.',
     items: [
       { name: 'Diagnosis & Evaluation', desc: 'A thorough assessment to understand what you\'re experiencing and whether a diagnosis applies, without rushing to labels.' },
       { name: 'Medication Management', desc: 'If medication is right for you, we manage it carefully: starting low, monitoring closely, and adjusting as needed.' },

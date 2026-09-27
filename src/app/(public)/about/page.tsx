@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   // The root template appends '| getCalmly', so the brand must not repeat here.
   title: 'Our Story',
   description:
-    'GetCalmly bridges India’s mental health treatment gap with licensed, vernacular-first, culturally-aware therapy, amplified by thoughtful AI. Meet the team and the principles behind the care.',
+    'GetCalmly bridges India’s mental health treatment gap with RCI licensed, vernacular-first, culturally-aware therapy, amplified by thoughtful AI. Meet the team and the principles behind the care.',
   alternates: { canonical: '/about' },
 }
 
@@ -23,13 +23,13 @@ const cream = '#FFFCFA'
 const stats: [string, string][] = [
   ['60%+', 'treatment gap in India'],
   ['0.75', 'psychiatrists per 100,000 people'],
-  ['100%', 'Licensed clinicians'],
+  ['100%', 'RCI & NMC licensed clinicians'],
 ]
 
 const values: { title: string; desc: string }[] = [
   { title: 'Privacy first', desc: 'DPDP-compliant, encrypted, and confidential by design. What you share stays yours.' },
   { title: 'Culturally attuned', desc: 'Care that understands your context, matched to fit rather than one-size-fits-all.' },
-  { title: 'Clinically credible', desc: 'Only licensed clinical psychologists and psychiatrists. No exceptions.' },
+  { title: 'Clinically credible', desc: 'Only RCI licensed clinical psychologists and NMC licensed psychiatrists. No exceptions.' },
   { title: 'Accessible & affordable', desc: 'Quality care within your budget, from your couch or in person.' },
 ]
 

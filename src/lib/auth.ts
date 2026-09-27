@@ -161,7 +161,7 @@ export const authOptions: NextAuthOptions = {
                 update: {},
                 create: {
                   userId: u.id,
-                  bio: 'Licensed clinical psychologist working with anxiety, relationships and life transitions.',
+                  bio: 'RCI licensed clinical psychologist working with anxiety, relationships and life transitions.',
                   qualifications: ['PhD Clinical Psychology', 'M.Phil Clinical Psychology (RCI)'],
                   yearsExp: 10,
                   languages: ['English', 'Hindi'],

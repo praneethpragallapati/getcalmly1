@@ -187,7 +187,7 @@ export default function Results({ firstSession }: { firstSession: FirstSession }
                   </div>
                 </div>
                 <span className="rm-verified">
-                  ✓ Licensed · {t.availableNext ? `Available ${t.availableNext}` : 'Clinically registered'}
+                  ✓ {t.nmcVerified ? 'NMC licensed' : 'RCI licensed'} · {t.availableNext ? `Available ${t.availableNext}` : 'Clinically registered'}
                 </span>
                 <div className="rm-tags">
                   {t.specializations.slice(0, 3).map((s) => (

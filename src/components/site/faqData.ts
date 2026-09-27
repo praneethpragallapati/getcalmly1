@@ -12,7 +12,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   },
   {
     q: 'Are the therapists and psychiatrists on getCalmly qualified?',
-    a: 'Yes. Every therapist and psychiatrist on getCalmly is licensed and background-checked before they ever meet you. These are verified professionals, not five stars a stranger left online.',
+    a: 'Yes. Every therapist and psychiatrist on getCalmly is RCI or NMC licensed and background-checked before they ever meet you. These are verified professionals, not five stars a stranger left online.',
   },
   {
     q: 'How much is the first session?',

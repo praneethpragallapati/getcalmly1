@@ -33,7 +33,7 @@ const heading: React.CSSProperties = {
 const channels: { label: string; value: string; href: string; note: string }[] = [
   { label: 'Email us', value: supportEmail, href: `mailto:${supportEmail}`, note: 'For anything, care, billing or feedback.' },
   { label: 'Call us', value: supportPhone, href: supportPhoneTel, note: `${supportHours}.` },
-  { label: 'Join as an expert', value: 'Apply to our network', href: '/for-therapists', note: 'Licensed clinicians, we’d love to meet you.' },
+  { label: 'Join as an expert', value: 'Apply to our network', href: '/for-therapists', note: 'RCI & NMC licensed clinicians, we’d love to meet you.' },
 ]
 
 export default function ContactPage() {

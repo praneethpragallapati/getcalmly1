@@ -281,7 +281,7 @@ export const demoDashboard: DashboardData = {
   todaySession: {
     id: 's1',
     expert: 'Dr. Riya Lokesh',
-    expertRole: 'Clinical Psychologist · Licensed · 8 yrs',
+    expertRole: 'Clinical Psychologist · RCI Licensed · 8 yrs',
     when: 'Monday, 2 March · 3:00 PM',
     durationMins: 50,
     status: 'UPCOMING',

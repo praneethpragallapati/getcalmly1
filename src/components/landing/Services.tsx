@@ -6,7 +6,7 @@ const services = [
   {
     icon: '🧠',
     title: 'Individual Therapy',
-    desc: 'One-on-one sessions with licensed psychologists',
+    desc: 'One-on-one sessions with RCI licensed psychologists',
     subs: ['Anxiety & Overthinking', 'Depression', 'Stress & Burnout', 'Trauma & Grief', 'OCD', 'LGBTQIA+ Support', 'Sleep Issues', 'Anger Management'],
   },
   {

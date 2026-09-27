@@ -7,7 +7,7 @@ export default function Hero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-flex items-center gap-2 bg-[#FDEAE6] text-[#C8553D] text-xs font-semibold px-3 py-1 rounded-full mb-6">
-              ✓ Licensed Clinicians Only
+              ✓ RCI Licensed Platform
             </div>
             <h1
               style={{fontFamily:"'Big Shoulders Display',sans-serif"}}
@@ -18,7 +18,7 @@ export default function Hero() {
               Truly Understands You
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-lg">
-              Connect with licensed therapists in your language, at your budget.
+              Connect with RCI licensed therapists in your language, at your budget.
               Start your journey to wellbeing today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
@@ -36,7 +36,7 @@ export default function Hero() {
               </Link>
             </div>
             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> Licensed Therapists</span>
+              <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> RCI Licensed Therapists</span>
               <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> DPDP Compliant</span>
               <span className="flex items-center gap-1"><span className="text-[#C8553D] font-bold">✓</span> Sessions from ₹1,500</span>
             </div>

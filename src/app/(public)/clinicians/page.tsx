@@ -9,7 +9,7 @@ const cream = '#F6F3EF'
 export const metadata: Metadata = {
   title: 'Our clinicians — Psychologists & Psychiatrists | getCalmly',
   description:
-    'Browse the licensed clinical psychologists and psychiatrists on getCalmly, and search by name, concern or specialty and view full profiles.',
+    'Browse the RCI licensed clinical psychologists and NMC licensed psychiatrists on getCalmly, and search by name, concern or specialty and view full profiles.',
 }
 
 export default function CliniciansPage() {
@@ -38,7 +38,7 @@ export default function CliniciansPage() {
             Meet the people <span style={{ color: '#E0846C', fontWeight: 900 }}>behind your care.</span>
           </h1>
           <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,.72)', lineHeight: 1.7, maxWidth: 620, fontWeight: 300 }}>
-            Every clinician here is licensed,
+            Every clinician here is RCI licensed (psychologists) or NMC licensed (psychiatrists),
             hand-picked and verified. Read their full profiles, or search by the concern you&apos;re carrying.
           </p>
           <div style={{ display: 'flex', gap: 28, marginTop: 30, flexWrap: 'wrap' }}>

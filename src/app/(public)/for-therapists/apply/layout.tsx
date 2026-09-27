@@ -3,12 +3,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Apply to Practice on getCalmly',
   description:
-    'Join getCalmly as a clinician. For licensed clinical psychologists and psychiatrists seeking flexible online caseloads and modern clinical tools.',
+    'Join getCalmly as a clinician. For RCI licensed clinical psychologists and NMC licensed psychiatrists seeking flexible online caseloads and modern clinical tools.',
   alternates: { canonical: '/for-therapists/apply' },
   openGraph: {
     title: 'Apply to Practice on getCalmly',
     description:
-      'For licensed clinical psychologists and psychiatrists, flexible online caseloads, modern tools.',
+      'For RCI licensed clinical psychologists and NMC licensed psychiatrists, flexible online caseloads, modern tools.',
     url: '/for-therapists/apply',
     type: 'website',
   },

@@ -20,7 +20,7 @@ export async function GET() {
   const body = `# getCalmly
 
 > getCalmly is an online mental healthcare platform in India. It connects people
-> with licensed therapists and psychiatrists, offers AI-powered
+> with RCI licensed therapists and NMC licensed psychiatrists, offers AI-powered
 > insights from daily mood tracking and journaling, and includes a moderated
 > peer-support community. The first session is ₹799.
 
@@ -29,7 +29,7 @@ Company: ${legalName}, ${address.locality}, ${address.region}, ${address.country
 Contact: ${contactEmail} · ${supportPhone}.
 
 ## Key facts
-- Every therapist and psychiatrist is licensed and background-checked.
+- Every therapist and psychiatrist is RCI or NMC licensed and background-checked.
 - getCalmly builds the world's first context-aware mental health AI companion, which draws on your sessions, mood data and journal.
 - The first session is ₹799; ongoing session details live inside the member dashboard.
 - Sessions are online over secure video; data is private and DPDP-aligned.

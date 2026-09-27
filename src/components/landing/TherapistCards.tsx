@@ -44,7 +44,7 @@ export default function TherapistCards() {
           >
             Meet Our Therapists
           </h2>
-          <p className="text-gray-600">Licensed professionals dedicated to your wellbeing</p>
+          <p className="text-gray-600">RCI licensed professionals dedicated to your wellbeing</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {therapists.map((t) => (
@@ -60,7 +60,7 @@ export default function TherapistCards() {
                   <h3 className="font-bold text-[#1C2B3A]">{t.name}</h3>
                   <p className="text-sm text-gray-500">{t.title}</p>
                   <span className="inline-flex items-center gap-1 text-xs bg-[#FDEAE6] text-[#C8553D] font-semibold px-2 py-0.5 rounded-full mt-1">
-                    ✓ Licensed
+                    ✓ RCI Licensed
                   </span>
                 </div>
               </div>

@@ -71,7 +71,7 @@ export default function SiteFooter() {
       <div className="foot-bottom">
         <p>© {new Date().getFullYear()} {legalName}. Made with care in India.</p>
         <div className="foot-badges">
-          <span className="fbadge">✓ Licensed clinicians</span>
+          <span className="fbadge">✓ RCI & NMC licensed clinicians</span>
           <span className="fbadge">🔒 DPDP Safe</span>
           <span className="fbadge">🇮🇳 India-made</span>
         </div>

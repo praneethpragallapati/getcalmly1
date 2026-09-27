@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'For Therapists, Practice on GetCalmly | Licensed Clinicians',
+  title: 'For Therapists, Practice on GetCalmly | RCI & NMC Licensed Clinicians',
   description:
     'Join GetCalmly as a verified therapist or psychiatrist. AI pre-session briefs, matched clients, a clinical co-pilot, supervision tools, and reliable payouts. Less admin, better care.',
   alternates: { canonical: '/for-therapists' },
@@ -45,7 +45,7 @@ export default function ForTherapistsPage() {
             <Link href="/contact" style={ctaGhost}>Talk to our team</Link>
           </div>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginTop: 20 }}>
-            Licence verified before you go live · No fees to join · You set your own availability
+            RCI / NMC licence checked before you go live · No fees to join · You set your own availability
           </p>
         </div>
       </section>
@@ -103,7 +103,7 @@ export default function ForTherapistsPage() {
           <div className="fc-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
             {[
               ['01', 'Apply', 'Tell us about your practice, qualifications, and specialisations, and upload your registration and certificates.'],
-              ['02', 'Verify', 'We verify your licence and review your documents. Quality is non-negotiable for us.'],
+              ['02', 'Verify', 'We verify your RCI / NMC licence and review your documents. Quality is non-negotiable for us.'],
               ['03', 'Interview', 'A short conversation with our clinical team to get to know you and your approach.'],
               ['04', 'Go live', 'Set your availability and start receiving matched clients.'],
             ].map(([n, t, d]) => (
