@@ -40,7 +40,7 @@ export function NewEntry() {
   }
 
   return (
-    <div className="card entry-dark" style={{ background: '#1c2b3a', color: '#fff', border: 'none' }}>
+    <div className={`card entry-dark journal-editor${open ? ' open' : ''}`} style={{ background: '#1c2b3a', color: '#fff', border: 'none' }}>
       <div className="section-title" style={{ color: '#fff' }}>
         Write something new ✍️
       </div>
@@ -53,7 +53,7 @@ export function NewEntry() {
           <PenLine size={15} /> Start writing
         </button>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="journal-form">
           <div>
             <input
               className="entry-input"
@@ -70,9 +70,10 @@ export function NewEntry() {
             )}
           </div>
           <textarea
-            className="entry-input"
+            className="entry-input journal-textarea"
             placeholder="What's on your mind?"
             rows={6}
+            autoFocus
             maxLength={JOURNAL_MAX_CHARS}
             value={content}
             onChange={(e) => setContent(e.target.value.slice(0, JOURNAL_MAX_CHARS))}

@@ -3835,3 +3835,28 @@
    (the pop-up title already shows it; the "2 of 7" counter stays). */
 .gc-modal .entry-input { width: 100%; max-width: 100%; box-sizing: border-box; }
 .gc-modal .pulse-eyebrow { visibility: hidden; }
+
+/* ===== Journal: while writing, the editor fills the whole right panel ===== */
+.journal-side { align-self: stretch; }
+.journal-form { display: flex; flex-direction: column; gap: 10px; }
+.journal-form .entry-input { width: 100%; max-width: 100%; box-sizing: border-box; }
+.journal-editor.open {
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 230px);
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.journal-editor.open .journal-form { flex: 1; min-height: 0; }
+.journal-editor.open .journal-textarea {
+  flex: 1;
+  min-height: 200px;
+  resize: none;
+  line-height: 1.6;
+}
+@media (max-width: 900px) {
+  .journal-editor.open { position: static; height: auto; min-height: 0; }
+  .journal-editor.open .journal-textarea { min-height: 50vh; }
+}

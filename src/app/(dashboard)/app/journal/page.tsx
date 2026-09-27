@@ -46,7 +46,7 @@ export default async function JournalPage() {
           )}
         </div>
 
-        <div className="stack">
+        <div className="stack journal-side">
           <NewEntry />
         </div>
       </div>
