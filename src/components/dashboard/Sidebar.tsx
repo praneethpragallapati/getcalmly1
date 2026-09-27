@@ -14,12 +14,10 @@ import {
   CalendarDays,
   Users,
   LineChart,
-  ListChecks,
   Gift,
   Settings,
   LogOut,
   Menu,
-  Activity,
   X,
 } from 'lucide-react'
 
@@ -42,9 +40,8 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       // My Care Team also covers Medications (tabbed together).
       { href: '/app/therapist', label: 'My Care Team', icon: Stethoscope, match: ['/app/medications'] },
       { href: '/app/sessions', label: 'Sessions', icon: CalendarDays },
-      { href: '/app/pulse', label: 'Pulse', icon: Activity },
-      // Tasks is one entry; the page tabs between Activities and Forms.
-      { href: '/app/tasks', label: 'Tasks', icon: ListChecks, match: ['/app/forms'] },
+      // Pulse and Tasks (activities + forms) are handled from the home page now,
+      // so they no longer need their own nav slots.
     ],
   },
   {

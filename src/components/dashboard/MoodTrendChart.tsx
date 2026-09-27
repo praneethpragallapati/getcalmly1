@@ -14,10 +14,10 @@ const SERIES: { key: Key; label: string; color: string }[] = [
 ]
 
 const W = 640
-const H = 210
+const H = 158
 const PAD_X = 26
-const PAD_T = 18
-const PAD_B = 34
+const PAD_T = 14
+const PAD_B = 26
 
 /** Catmull-Rom → cubic bezier, so the line reads as a soft curve not a zigzag. */
 function smoothPath(pts: { x: number; y: number }[]): string {

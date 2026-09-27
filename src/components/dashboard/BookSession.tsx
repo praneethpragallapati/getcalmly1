@@ -10,6 +10,7 @@ import { fmtIST } from '@/lib/tz'
 import { BookingCalendar, type BookedSession } from '@/components/dashboard/BookingCalendar'
 import { IST_LABEL } from '@/lib/bookingCalendar'
 import { contactEmail } from '@/config/site'
+import { Celebration } from '@/components/dashboard/Celebration'
 
 type Clinician = { profileId: string; name: string; typeLabel: string }
 
@@ -51,17 +52,24 @@ export function BookSession({
   const [selected, setSelected] = useState<string | null>(null)
   const [requested, setRequested] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [booked, setBooked] = useState<{ avatar: string; name: string; meta: string } | null>(null)
   const [pending, startTransition] = useTransition()
 
   function request() {
     if (!selected || packExpired || afterExpiry(selected)) return
+    const slotIso = selected
     setError(null)
     startTransition(async () => {
-      const res = await requestSession(selected, therapistId)
+      const res = await requestSession(slotIso, therapistId)
       if (res.ok) {
-        setRequested(selected)
+        setRequested(slotIso)
         setSelected(null)
-        toast.success('Session requested — you’ll be notified once it’s confirmed')
+        const name = expertName ?? 'your therapist'
+        setBooked({
+          avatar: (expertName ?? 'T').replace(/^dr\.?\s+/i, '').charAt(0).toUpperCase(),
+          name,
+          meta: `${fmtIST(new Date(slotIso), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} · ${IST_LABEL}`,
+        })
       } else {
         setError(res.error ?? 'Could not request this slot.')
         toast.error(res.error ?? 'Could not request this slot.')
@@ -91,6 +99,14 @@ export function BookSession({
 
   return (
     <div className="card">
+      <Celebration
+        show={!!booked}
+        icon="calendar"
+        title="Session requested"
+        sub="We’ll confirm your slot shortly."
+        detail={booked ?? undefined}
+        onDone={() => setBooked(null)}
+      />
       <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <CalendarPlus size={17} /> Book a session
       </div>
