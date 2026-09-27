@@ -439,9 +439,10 @@
   padding: 30px 32px;
   color: #fff;
   display: grid;
-  /* The right column earns real width, so the middle no longer reads as a void. */
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.62fr);
-  gap: 34px;
+  /* The weekly-insight column gets real width so its findings wrap to fewer
+     lines, keeping the hero short. */
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
+  gap: 30px;
   align-items: stretch;
 }
 .hero > div:first-child {

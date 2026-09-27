@@ -83,9 +83,6 @@ export function CheckIn({
           <div className="checkin-q" style={{ marginTop: 4 }}>
             How are you arriving into today?
           </div>
-          <div className="muted" style={{ marginTop: 2 }}>
-            A few honest seconds sets the tone for the whole day.
-          </div>
         </div>
         <span className="streak-chip">🔥 {streakDays}-day streak</span>
       </div>
@@ -164,9 +161,7 @@ export function CheckIn({
               'Save check-in'
             )}
           </button>
-          <span className="checkin-note">
-            {error ?? 'Saved privately · used to personalise your insights'}
-          </span>
+          {error && <span className="checkin-note" style={{ color: 'var(--c-coral-d)' }}>{error}</span>}
         </div>
       )}
     </div>
