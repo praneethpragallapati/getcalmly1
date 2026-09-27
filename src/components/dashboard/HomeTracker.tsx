@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Pill, Activity, FileText, Check, LineChart, Stethoscope } from 'lucide-react'
 import type { DashTask } from '@/data/dashboardDemo'
@@ -31,6 +31,16 @@ export function HomeTracker({
   formsEverAssigned?: boolean
 }) {
   const [tab, setTab] = useState<Tab>('act')
+
+  // The guided tour switches tabs as it walks through Activities / Pulse / Forms.
+  useEffect(() => {
+    const onTab = (e: Event) => {
+      const t = (e as CustomEvent).detail as Tab
+      if (t === 'act' || t === 'pulse' || t === 'forms') setTab(t)
+    }
+    window.addEventListener('gc-tracker-tab', onTab)
+    return () => window.removeEventListener('gc-tracker-tab', onTab)
+  }, [])
 
   return (
     <div className="card tracker-card">

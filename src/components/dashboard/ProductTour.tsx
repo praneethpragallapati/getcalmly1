@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
-type Step = { route: string; selector?: string; title: string; body: string }
+type Step = {
+  route: string
+  selector?: string
+  /** When set, switch the home tracker to this tab and highlight the tracker. */
+  tab?: 'act' | 'pulse' | 'forms'
+  title: string
+  body: string
+}
 
 /**
  * A guided walkthrough of the member app, mirroring the mobile prototype's tour.
@@ -20,10 +27,25 @@ const STEPS: Step[] = [
     body: 'Every morning, getCalmly AI reads your check-ins and journal and surfaces the patterns, hidden drivers and quiet wins behind how you feel.',
   },
   {
-    route: '/app/forms',
-    selector: '.by-tp',
+    route: '/app',
+    selector: '.tracker-card',
+    tab: 'act',
+    title: 'Activities',
+    body: 'Your therapist’s daily exercises live here, with today’s medication. Tick each one off as you go.',
+  },
+  {
+    route: '/app',
+    selector: '.tracker-card',
+    tab: 'pulse',
+    title: 'Pulse',
+    body: 'Short check-ins your therapist assigned, like GAD-7 or PHQ-9. Open one to fill it in; every score charts in My Progress.',
+  },
+  {
+    route: '/app',
+    selector: '.tracker-card',
+    tab: 'forms',
     title: 'Forms',
-    body: 'Forms are information your therapist asks you to complete: intake, consent, session feedback. Anything marked “Requested by your care team” came from your therapist.',
+    body: 'Information your therapist asks you for, such as intake, consent or session feedback. Open each one to fill it in.',
   },
   {
     route: '/app/progress',
@@ -88,6 +110,9 @@ export function ProductTour() {
     let tries = 0
     const attempt = () => {
       clearHi()
+      // Switch the home tracker to this step's tab (idempotent; the tracker
+      // may mount a beat after navigation, so this rides the retry loop).
+      if (step.tab) window.dispatchEvent(new CustomEvent('gc-tracker-tab', { detail: step.tab }))
       const inPage = step.selector ? (document.querySelector(step.selector) as HTMLElement | null) : null
       const nav = document.querySelector(`.app-sidebar a[href="${step.route}"]`) as HTMLElement | null
       const el = inPage ?? nav
