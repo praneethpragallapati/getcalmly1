@@ -53,15 +53,18 @@ export default async function FormsPage() {
         )}
         <div className="card">
           <div className="section-title" style={{ marginBottom: 12 }}>To complete</div>
-          {pending.length === 0 && (
-            <div className="done-banner" style={{ marginTop: 0 }}>
-              <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
-              <div>
-                <div className="db-t">All forms complete</div>
-                <div className="db-s">Nothing waiting on you right now.</div>
+          {pending.length === 0 &&
+            (completed.length > 0 ? (
+              <div className="done-banner" style={{ marginTop: 0 }}>
+                <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
+                <div>
+                  <div className="db-t">All forms complete</div>
+                  <div className="db-s">Nothing waiting on you right now.</div>
+                </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="muted">No forms assigned right now. Your therapist sends these when they need information from you.</p>
+            ))}
           {pending.map((f) => (
             <Link key={f.id} href={`/app/forms/${f.id}`} className="pattern" style={{ textDecoration: 'none' }}>
               <span className="pattern-ic t-gold">

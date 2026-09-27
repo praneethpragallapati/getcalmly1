@@ -23,12 +23,14 @@ export function HomeTracker({
   med,
   pulseDue,
   forms,
+  formsEverAssigned = false,
 }: {
   tasks: DashTask[]
   openTasks: number
   med: Med
   pulseDue: { id: string; short: string }[]
   forms: { id: string; title: string }[]
+  formsEverAssigned?: boolean
 }) {
   const [tab, setTab] = useState<Tab>('act')
 
@@ -70,17 +72,22 @@ export function HomeTracker({
         <div className="tracker-body">
           <div className="tracker-head">
             <div className="section-title">Pulse</div>
-            <span className="link-action">{pulseDue.length ? `${pulseDue.length} to do` : 'All done'}</span>
+            <span className="link-action">{pulseDue.length ? `${pulseDue.length} to do` : 'None due'}</span>
           </div>
+          {pulseDue.length > 0 && (
+            <div className="by-tp">
+              <Stethoscope size={16} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span className="by-tp-b">Requested by your care team</span>{' '}
+                <span className="by-tp-s">· short check-ins your therapist assigned to track how you’re doing</span>
+              </div>
+            </div>
+          )}
           <div className="todo-list">
             {pulseDue.length === 0 ? (
-              <div className="done-banner" style={{ marginTop: 0 }}>
-                <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
-                <div>
-                  <div className="db-t">All pulse checks complete</div>
-                  <div className="db-s">Nothing waiting — new checks appear here between sessions.</div>
-                </div>
-              </div>
+              <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, margin: '8px 0 12px' }}>
+                No pulse checks assigned right now. Your therapist adds these between sessions.
+              </p>
             ) : (
               pulseDue.map((p) => (
                 <Link key={p.id} href="/app/pulse" className="todo-row">
@@ -120,13 +127,19 @@ export function HomeTracker({
           </div>
           <div className="todo-list">
             {forms.length === 0 ? (
-              <div className="done-banner" style={{ marginTop: 0 }}>
-                <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
-                <div>
-                  <div className="db-t">All forms complete</div>
-                  <div className="db-s">You’re all caught up — nothing waiting from your care team.</div>
+              formsEverAssigned ? (
+                <div className="done-banner" style={{ marginTop: 0 }}>
+                  <span className="db-ic"><Check size={16} strokeWidth={3} /></span>
+                  <div>
+                    <div className="db-t">All forms complete</div>
+                    <div className="db-s">You’re all caught up — nothing waiting from your care team.</div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, margin: '8px 0 12px' }}>
+                  No forms assigned right now. Your therapist sends these when they need information from you.
+                </p>
+              )
             ) : (
               forms.map((f) => (
                 <Link key={f.id} href="/app/forms" className="todo-row">

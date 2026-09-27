@@ -1,3 +1,4 @@
+import { Stethoscope } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
 import { dueInstruments, getAssignments } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS, type Instrument } from '@/lib/outcomes/instruments'
@@ -37,9 +38,20 @@ export default async function PulsePage() {
         <h1 className="page-title">Pulse</h1>
         <span className="page-meta">Quick, private check-ins that track how you are really doing over time.</span>
       </div>
-      {defs.length === 0
-        ? <div className="card"><p className="muted">No check-ins have been set up yet. Your therapist assigns these, and they will appear here when they do.</p></div>
-        : <PulseRunner due={due} defs={defs} />}
+      {defs.length === 0 ? (
+        <div className="card"><p className="muted">No pulse checks assigned yet. Your therapist assigns these, and they will appear here when they do.</p></div>
+      ) : (
+        <div className="stack" style={{ maxWidth: 720 }}>
+          <div className="by-tp">
+            <Stethoscope size={16} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span className="by-tp-b">Requested by your care team</span>{' '}
+              <span className="by-tp-s">· short check-ins your therapist assigned to track how you’re doing</span>
+            </div>
+          </div>
+          <PulseRunner due={due} defs={defs} />
+        </div>
+      )}
     </>
   )
 }

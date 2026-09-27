@@ -34,6 +34,7 @@ export default async function AppHomePage() {
     userId ? getMyForms(userId).catch(() => []) : Promise.resolve([]),
   ])
   const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))
+  const formsEverAssigned = myForms.length > 0
   const pulseItems = pulseDue.map((id) => ({ id, short: INSTRUMENTS[id]?.short ?? id }))
   const openTasks = d.tasks.filter((t) => !t.done).length
   const med = meds.find((m) => m.active)
@@ -144,6 +145,7 @@ export default async function AppHomePage() {
           med={medProp}
           pulseDue={pulseItems}
           forms={pendingForms}
+          formsEverAssigned={formsEverAssigned}
         />
         <MilestonesMini milestones={milestones} />
       </div>
