@@ -3720,3 +3720,14 @@
   margin-right: auto;
 }
 @media (prefers-reduced-motion: reduce) { .done-card { animation: none; } }
+
+/* Home tracker tab swap: a gentle slide so switching Activities/Pulse/Forms
+   reads as moving to the box beside, not a reload. */
+.tracker-body {
+  animation: trackerIn 0.26s cubic-bezier(0.33, 1, 0.68, 1);
+}
+@keyframes trackerIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .tracker-body { animation: none; } }

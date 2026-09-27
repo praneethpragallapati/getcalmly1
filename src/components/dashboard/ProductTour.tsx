@@ -53,6 +53,11 @@ const STEPS: Step[] = [
     body: 'Every mood check-in and Pulse score charts here over time, so you and your therapist can see what’s actually shifting between sessions.',
   },
   {
+    route: '/app/therapist',
+    title: 'My Care Team',
+    body: 'Your therapist, your sessions and your medications in one place, book or join a call, or manage a prescription without hunting through screens.',
+  },
+  {
     route: '/app/calm-ai',
     title: 'Talk to getCalmly AI',
     body: 'Chat any time you need to think something through. It remembers your story across conversations, and never replaces your therapist, it flags anything urgent to your care team.',
@@ -61,11 +66,6 @@ const STEPS: Step[] = [
     route: '/app/community',
     title: 'Calm Club',
     body: 'A safe, moderated community, share what you’re working through, join challenges and cheer others on. You’re not doing this alone.',
-  },
-  {
-    route: '/app/therapist',
-    title: 'My Care Team',
-    body: 'Your therapist, your sessions and your medications in one place, book or join a call, or manage a prescription without hunting through screens.',
   },
 ]
 
