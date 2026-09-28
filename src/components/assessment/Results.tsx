@@ -5,22 +5,13 @@ import Link from 'next/link'
 import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
 import { FLOWS, legacySeverity, type AssessmentResult } from '@/data/assessments'
 import { rankClinicians } from '@/data/assessmentMatch'
-import { pickHelplines, emergencyNumber } from '@/config/site'
 import type { PoolClinician } from '@/lib/assessmentPool'
 import { PATH_LOOK } from './AssessmentStep1'
 import { RESULT_KEY } from './AssessmentForm'
 
 type FirstSession = { therapy: number; psychiatry: number; couples: number }
 
-const LINES = pickHelplines('telemanas', 'kiran')
 const noSubscription = () => () => {}
-
-// Wording from the clinical team's forms. Calm and direct: a clear reason to
-// book early, and where to turn right now, without turning the page into an alarm.
-const CARE_MESSAGE =
-  'You deserve support as soon as possible. We recommend booking the earliest available session. If you feel unsafe at any time, please contact emergency services immediately.'
-const CHILD_CARE_MESSAGE =
-  'We recommend booking the earliest available session. If your child feels unsafe at any time, please contact emergency services immediately.'
 
 export default function Results({ firstSession, pool }: { firstSession: FirstSession; pool: PoolClinician[] }) {
   const raw = useSyncExternalStore(noSubscription, () => sessionStorage.getItem(RESULT_KEY), () => null)
@@ -82,16 +73,10 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
         <h1 className="pa-h1">Here is <em>where to begin.</em></h1>
         <p className="pa-lead">A summary of what you shared, and the clinicians best placed to help. This is a screening, not a diagnosis.</p>
 
-        {result.risk > 0 && (
-          <div className={`pa-care${result.risk === 2 ? ' urgent' : ''}`} role="note">
-            <p className="pa-care-t">{result.risk === 2 ? 'Please reach out for support today' : 'Support is here whenever you need it'}</p>
-            <p className="pa-care-p">{flow.id === 'child' ? CHILD_CARE_MESSAGE : CARE_MESSAGE}</p>
-            <div className="pa-care-lines">
-              <a href={`tel:${emergencyNumber}`}>Emergency · {emergencyNumber}</a>
-              {LINES.map((h) => <a key={h.id} href={`tel:${h.tel}`}>{h.name} · {h.number}</a>)}
-            </div>
-          </div>
-        )}
+        {/* No crisis or helpline panel on this page, by decision: however the
+            answers score, an on-screen alarm frightens people away from the very
+            help they came for. A risk answer is still saved and raises an alert
+            for the clinician, who follows the risk protocol at the first session. */}
 
         <div className="pa-summary">
           <div>

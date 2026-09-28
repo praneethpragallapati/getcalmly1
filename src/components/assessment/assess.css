@@ -182,16 +182,6 @@
 .pa-tag.need { background: color-mix(in srgb, var(--pa-accent) 11%, transparent); color: var(--pa-coral-d); }
 .pa-summary-block + .pa-summary-block { margin-top: 20px; }
 
-.pa-care {
-  margin-top: 28px; padding: 22px 24px; border-radius: 20px;
-  background: rgba(201, 151, 58, 0.12); border: 1.5px solid rgba(201, 151, 58, 0.3);
-}
-.pa-care.urgent { background: rgba(200, 85, 61, 0.1); border-color: rgba(200, 85, 61, 0.32); }
-.pa-care-t { font-size: 16.5px; font-weight: 800; margin: 0 0 6px; color: var(--pa-ink); }
-.pa-care-p { font-size: 14.5px; line-height: 1.65; color: var(--pa-ink); margin: 0; }
-.pa-care-lines { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; }
-.pa-care-lines a { font-size: 14px; font-weight: 700; color: var(--pa-coral-d); text-decoration: none; }
-
 .pa-h2 { font-family: 'Big Shoulders Display', sans-serif; font-weight: 300; font-size: clamp(30px, 4vw, 40px); line-height: 1.05; margin: 54px 0 6px; }
 .pa-h2 em { font-style: normal; font-weight: 900; color: var(--pa-coral); }
 .pa-matches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
