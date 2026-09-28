@@ -101,9 +101,9 @@ const areasQuestion: Question = {
 
 const selfRiskQuestion: Question = {
   id: 'safety',
-  section: 'Your safety',
-  title: 'Lately, have you had thoughts of *harming yourself*, or felt life is not worth living?',
-  hint: 'Your answer stays private and helps us look after you properly.',
+  section: 'Looking after you',
+  title: 'Lately, have you had thoughts of harming yourself, or felt that life is not worth living?',
+  hint: 'We gently ask everyone this. Your answer stays private and simply helps us look after you well.',
   kind: 'single',
   risk: true,
   options: [
@@ -122,12 +122,12 @@ export const FLOWS: Record<FlowId, Flow> = {
     blurb: 'A safe space to talk things through, understand your feelings and work on what matters to you.',
     baseNeeds: [],
     bands: [4, 11, 17],
-    levelName: { Mild: 'Mild', Moderate: 'Moderate', High: 'High', Elevated: 'Elevated' },
+    levelName: { Mild: 'A little unsettled', Moderate: 'Carrying a fair bit', High: 'A lot on your plate', Elevated: 'Carrying a heavy load' },
     message: {
-      Mild: 'A self-help toolkit and a first consultation can help you clarify your next steps.',
-      Moderate: 'Some regular support will help, with a clinician keeping an eye on how things move.',
-      High: 'Active support from a clinical psychologist is recommended.',
-      Elevated: 'Intensive, well-rounded care is recommended, and we will prioritise it.',
+      Mild: 'Things are mostly manageable. A first conversation with a psychologist can help you find a few simple next steps.',
+      Moderate: 'You have been holding quite a lot. Regular sessions give it a steady place to go, with someone walking alongside you.',
+      High: 'There is a lot going on for you right now, and you do not have to sort through it alone. Regular sessions with a clinical psychologist can really help.',
+      Elevated: 'You have been carrying a great deal. You deserve steady, caring support, and we will help you get started as soon as you are ready.',
     },
     questions: [
       {
@@ -165,12 +165,12 @@ export const FLOWS: Record<FlowId, Flow> = {
     blurb: 'A medical view of what you are going through, and whether medication could help.',
     baseNeeds: ['Psychiatric evaluation', 'Medication management'],
     bands: [4, 11, 17],
-    levelName: { Mild: 'Mild', Moderate: 'Moderate', High: 'High', Elevated: 'Elevated' },
+    levelName: { Mild: 'A little unsettled', Moderate: 'Carrying a fair bit', High: 'A lot on your plate', Elevated: 'Carrying a heavy load' },
     message: {
-      Mild: 'A self-help toolkit and a consultation can help clarify your next steps.',
-      Moderate: 'Regular monitoring and the right intervention will help.',
-      High: 'Active care that brings therapy and medical support together is recommended.',
-      Elevated: 'Intensive care that brings therapy and medical support together is recommended, and we will prioritise it.',
+      Mild: 'Things are mostly manageable. A consultation can help you understand your options and whether medication has a role.',
+      Moderate: 'You have been holding quite a lot. A psychiatrist can look at the full picture with you and suggest what would help.',
+      High: 'There is a lot going on right now. A psychiatrist, working alongside therapy where useful, can help you feel more like yourself again.',
+      Elevated: 'You have been carrying a great deal. You deserve steady, caring support from a psychiatrist, and we will help you get started as soon as you are ready.',
     },
     questions: [
       {
@@ -195,12 +195,12 @@ export const FLOWS: Record<FlowId, Flow> = {
     blurb: 'Gentle, age-right support for your child or teen, with you involved every step of the way.',
     baseNeeds: ['Child & adolescent therapy'],
     bands: [3, 6, 9],
-    levelName: { Mild: 'Mild', Moderate: 'Moderate', High: 'High', Elevated: 'Elevated' },
+    levelName: { Mild: 'Mostly steady', Moderate: 'Finding things a bit hard', High: 'Going through a lot', Elevated: 'Needing extra care right now' },
     message: {
-      Mild: 'A few sessions can help your child find their footing, with tools you can use at home too.',
-      Moderate: 'Regular sessions will help, with a therapist keeping an eye on how things change.',
-      High: 'Active support from a child specialist is recommended.',
-      Elevated: 'Focused, well-rounded care from a senior child specialist is recommended, and we will prioritise it.',
+      Mild: 'Your child seems mostly steady. A few sessions can build their confidence, with simple tools you can use at home too.',
+      Moderate: 'Your child is finding a few things hard. Regular sessions give them a safe space, with you kept in the loop.',
+      High: 'Your child is going through a lot right now. A child specialist can help them feel understood and more settled.',
+      Elevated: 'Your child could use some extra care right now. A warm, experienced child specialist can help, and we will help you get started as soon as you are ready.',
     },
     questions: [
       {
@@ -255,9 +255,9 @@ export const FLOWS: Record<FlowId, Flow> = {
       },
       {
         id: 'safety',
-        section: 'Their safety',
-        title: 'Have you noticed signs your child may feel *unsafe*, or talk about not wanting to live?',
-        hint: 'Your answer stays private and helps us look after your child properly.',
+        section: 'Looking after them',
+        title: 'Have you noticed signs your child may feel unsafe, or talk about not wanting to live?',
+        hint: 'We gently ask every parent this. Your answer stays private and simply helps us look after your child well.',
         kind: 'single',
         risk: true,
         options: [
@@ -299,12 +299,12 @@ export const FLOWS: Record<FlowId, Flow> = {
     blurb: 'Space for both of you to be heard, to reconnect and to find a way forward together.',
     baseNeeds: ['Couples therapy'],
     bands: [6, 12, 17],
-    levelName: { Mild: 'Mild', Moderate: 'Moderate', High: 'Significant', Elevated: 'Severe' },
+    levelName: { Mild: 'A few rough patches', Moderate: 'Working through some strain', High: 'Going through a hard stretch', Elevated: 'Carrying a lot together' },
     message: {
-      Mild: 'Self-help resources, plus a consultation to understand your concerns better.',
-      Moderate: 'Couples therapy is recommended.',
-      High: 'Couples therapy is recommended.',
-      Elevated: 'Couples therapy is recommended, and we will prioritise it.',
+      Mild: 'Every relationship has its rough patches. A first session can help you understand each other a little better.',
+      Moderate: 'You are working through some strain together. Couples sessions give you both a calm space to be heard.',
+      High: 'The two of you are going through a hard stretch. Couples therapy can help you find your way back to each other.',
+      Elevated: 'Your relationship is carrying a lot right now. A couples therapist can help you both feel heard and find a way forward, and we will help you get started as soon as you are ready.',
     },
     questions: [
       {
@@ -348,9 +348,9 @@ export const FLOWS: Record<FlowId, Flow> = {
       },
       {
         id: 'safety',
-        section: 'Your safety',
-        title: 'How *safe* does the relationship feel right now?',
-        hint: 'Your answer stays private and helps us look after you properly.',
+        section: 'Looking after you',
+        title: 'How safe does the relationship *feel* right now?',
+        hint: 'We gently ask every couple this. Your answer stays private and simply helps us look after you well.',
         kind: 'single',
         risk: true,
         options: [
