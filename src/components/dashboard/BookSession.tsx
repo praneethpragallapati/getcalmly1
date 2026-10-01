@@ -11,6 +11,7 @@ import { BookingCalendar, type BookedSession } from '@/components/dashboard/Book
 import { IST_LABEL } from '@/lib/bookingCalendar'
 import { contactEmail } from '@/config/site'
 import { Celebration } from '@/components/dashboard/Celebration'
+import { ChooseClinician } from '@/components/dashboard/ChooseClinician'
 
 type Clinician = { profileId: string; name: string; typeLabel: string }
 
@@ -79,21 +80,16 @@ export function BookSession({
 
   const selectedType = clinicians.find((c) => c.profileId === selectedId)?.typeLabel
 
-  // No clinician attached yet → nudge instead of a mystery calendar.
+  // No clinician attached yet → the same Match / Browse choice as the care
+  // team, instead of a mystery calendar.
   if (clinicians.length === 0) {
     return (
-      <div className="card">
-        <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <CalendarPlus size={17} /> Book a session
-        </div>
-        <p className="muted" style={{ margin: '6px 0 12px' }}>
-          You don’t have a clinician assigned yet, so there’s no calendar to book from.
+      <>
+        <ChooseClinician matchHref="/app/assessment" browseHref="/app/therapist/browse" />
+        <p className="muted" style={{ fontSize: 13, margin: '10px 2px 0' }}>
+          No sessions yet? <Link href="/app/billing" style={{ fontWeight: 700 }}>Get a package</Link> first.
         </p>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <Link href="/app/assessment" className="btn btn-primary btn-sm">Take your assessment</Link>
-          <Link href="/app/billing" className="btn btn-outline btn-sm">Buy a package</Link>
-        </div>
-      </div>
+      </>
     )
   }
 

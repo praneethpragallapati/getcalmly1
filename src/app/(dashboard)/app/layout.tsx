@@ -18,7 +18,6 @@ import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
 import { fmtIST, istParts } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
-import { getMemberEssentials, missingEssentials } from '@/lib/memberOnboarding'
 import { backfillRegistrationNumbers } from '@/lib/registration'
 
 export const metadata: Metadata = {
@@ -49,12 +48,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (sessionUser.role === 'THERAPIST') redirect('/expert')
   if (sessionUser.role === 'ADMIN') redirect('/admin')
 
-  // Accounts are created by the OTP providers with only a phone or an email, so
-  // a new member has no name, date of birth or emergency contact. Collect them
-  // once before the dashboard opens. A failed read returns null and is treated
-  // as complete — a hiccup here must never lock someone out of their own care.
-  const essentials = await getMemberEssentials(sessionUser.id)
-  if (essentials && missingEssentials(essentials).length > 0) redirect('/welcome')
+  // Personal details are not demanded here any more: a new member can look
+  // around first. They are collected at the two moments that need them, just
+  // before assessment results and when choosing a clinician (see /welcome).
 
   const userId = await getSessionUserId()
 

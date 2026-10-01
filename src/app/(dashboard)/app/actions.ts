@@ -14,7 +14,9 @@ import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS, MIN_BOOKING_LEAD_HOURS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 import { normalizeTags } from '@/data/tags'
-import { matchAndAssignForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
+import { matchAndAssignForTrack, assignTherapistForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
+import { getBrowsableClinicians, canChooseFor, isSlotKey, SLOT_TRACK } from '@/lib/clinicianChoice'
+import { getMemberEssentials, missingEssentials } from '@/lib/memberOnboarding'
 import { rateLimit } from '@/lib/rateLimit'
 import { verifyOtp } from '@/lib/msg91'
 import { verifyEmailOtp } from '@/lib/email'
@@ -1482,4 +1484,38 @@ export async function raiseCrisisAlert(input: {
   const result = await reportCrisis(userId, severity, input.note)
   revalidatePath('/app')
   return result
+}
+
+/**
+ * "Browse your clinician": the patient picks their first clinician for a care
+ * type themselves. Allowed only while that care type has no clinician yet, for
+ * a package they hold, and only from the clinicians the browse page lists.
+ * Personal details are collected first if they are not on file.
+ */
+export async function chooseMyClinician(input: { slot: string; profileId: string }): Promise<{
+  ok: boolean; needsDetails?: boolean; error?: string; name?: string
+}> {
+  const userId = await getSessionPatientId()
+  if (!userId) return { ok: false, error: 'Please sign in again.' }
+  if (!isSlotKey(input.slot) || !input.profileId) return { ok: false, error: 'Please choose a clinician.' }
+  const track = SLOT_TRACK[input.slot]
+
+  const essentials = await getMemberEssentials(userId)
+  if (essentials && missingEssentials(essentials).length > 0) return { ok: false, needsDetails: true }
+
+  if (!(await canChooseFor(userId, track))) {
+    return { ok: false, error: 'You already have a clinician for this, or no active package for it.' }
+  }
+  const choice = (await getBrowsableClinicians(track)).find((c) => c.profileId === input.profileId)
+  if (!choice) return { ok: false, error: 'That clinician is not taking new patients right now. Please choose another.' }
+
+  try {
+    await assignTherapistForTrack(userId, track, choice.profileId)
+  } catch {
+    return { ok: false, error: 'Could not save your choice. Please try again.' }
+  }
+  // No revalidatePath here: it would re-render this browse page mid-celebration
+  // (it then has nothing left to choose). The care team and sessions pages are
+  // rendered fresh on every visit, so the next page already shows the choice.
+  return { ok: true, name: choice.name }
 }

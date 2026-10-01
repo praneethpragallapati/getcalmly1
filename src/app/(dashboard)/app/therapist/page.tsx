@@ -5,6 +5,8 @@ import { ShieldCheck, Languages, CalendarDays, Video, MessageCircle,
 import { getMyCareTeam, type CareSlot } from '@/lib/therapist'
 import { SectionTabs } from '@/components/ui/SectionTabs'
 import { CARE_TEAM_TABS } from '@/data/sectionTabs'
+import { ChooseClinician } from '@/components/dashboard/ChooseClinician'
+import { isSlotKey, MATCH_HREF } from '@/lib/clinicianChoice'
 
 // Always read the assignment/packages fresh, so an admin reassignment shows on
 // the patient's next load (never a stale server-cached copy).
@@ -71,7 +73,20 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
     )
   }
 
-  // Package held but no clinician attached yet.
+  // Package held but no clinician attached yet: the first-assignment choice.
+  // It only ever appears here, before a clinician is attached.
+  if (!slot.expert && isSlotKey(slot.key)) {
+    return (
+      <ChooseClinician
+        label={slot.label}
+        matchHref={MATCH_HREF[slot.key]}
+        browseHref={`/app/therapist/browse?care=${slot.key}`}
+        meta={slot.sessionsLeft !== null ? `${slot.sessionsLeft} session${slot.sessionsLeft === 1 ? '' : 's'} left${slot.validUntil ? `, valid until ${slot.validUntil}` : ''}.` : undefined}
+      />
+    )
+  }
+
+  // Fallback (unknown care type): the older waiting state.
   if (!slot.expert) {
     return (
       <div className="card">

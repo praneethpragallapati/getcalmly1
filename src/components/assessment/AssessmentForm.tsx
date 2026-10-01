@@ -72,13 +72,17 @@ export default function AssessmentForm({
         styles: result.styles,
         note: result.note ?? null,
       }).then((res) => {
-        if (res.ok) router.push('/app/therapist')
+        // Details are asked here, as the last step before the match is shown
+        // (/welcome passes straight through once they are on file).
+        if (res.ok) router.push(`/welcome?next=${encodeURIComponent('/app/therapist')}`)
         else { setSaving(false); setSaveErr(res.error ?? 'Could not save your answers. Please try again.') }
       })
       return
     }
     try { sessionStorage.setItem(RESULT_KEY, JSON.stringify(result)) } catch { /* private mode: results page asks to retake */ }
-    router.push('/assess/results')
+    // Sign in (if needed) and share a few details as the last step, then the
+    // results. The answers wait in this tab's sessionStorage meanwhile.
+    router.push(`/welcome?next=${encodeURIComponent('/assess/results')}`)
   }, [flow, answers, prefs, onComplete, router])
 
   const next = useCallback(() => {

@@ -216,7 +216,15 @@ export function MemberEssentialsForm({
           cursor: pending ? 'wait' : 'pointer', fontFamily: 'inherit', marginTop: 4,
         }}
       >
-        {pending ? 'Saving…' : 'Continue to my dashboard →'}
+        {pending
+          ? 'Saving…'
+          : nextUrl.startsWith('/assess/results') || nextUrl === '/app/therapist'
+            ? 'See my matches →'
+            : nextUrl.startsWith('/app/therapist/browse')
+              ? 'Continue to confirm my clinician →'
+              : nextUrl.startsWith('/checkout')
+                ? 'Continue to booking →'
+                : 'Continue to my dashboard →'}
       </button>
     </div>
   )

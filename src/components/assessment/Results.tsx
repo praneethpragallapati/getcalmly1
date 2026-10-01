@@ -65,6 +65,9 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
   const accent = PATH_LOOK[flow.id].color
   const price = flow.id === 'psychiatry' ? firstSession.psychiatry : flow.id === 'couple' ? firstSession.couples : firstSession.therapy
   const needsShown = result.needs.filter((n) => !flow.baseNeeds.includes(n))
+  // Booking starts with the first session for this path; the saved answers
+  // then match a clinician automatically.
+  const buyHref = `/app/billing?track=${flow.id === 'psychiatry' ? 'psychiatry' : flow.id === 'couple' ? 'couples' : 'therapy'}`
 
   return (
     <div className="pa" style={{ '--pa-accent': accent } as React.CSSProperties}>
@@ -134,7 +137,7 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
                   <p className="pa-meta">Speaks {c.languages.slice(0, 3).join(', ') || 'English'}</p>
                   <div className="pa-book">
                     <span className="pa-fee">₹{price}<small>first session</small></span>
-                    <Link href="/register">Book session</Link>
+                    <Link href={buyHref}>Book session</Link>
                   </div>
                 </div>
               )
@@ -145,9 +148,9 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
         <div className="pa-cta">
           <div>
             <h3>Not ready to <em>book yet?</em></h3>
-            <p>Create your free account and book whenever it suits you. Your matches will be waiting, and mood check-ins, journalling and the community are open to you in the meantime.</p>
+            <p>Your account is all set. Book whenever it suits you: your answers are saved, so we will match you the moment you do. Mood check-ins, journalling and the community are open to you in the meantime.</p>
           </div>
-          <Link href="/register">Create your account</Link>
+          <Link href="/app">Go to your dashboard</Link>
         </div>
       </div>
     </div>

@@ -177,6 +177,17 @@ export async function matchTherapistForTrack(userId: string, track: CareTrack, o
 export async function matchAndAssignForTrack(userId: string, track: CareTrack, opts: { risk?: number } = {}): Promise<string | null> {
   const therapistId = await matchTherapistForTrack(userId, track, opts)
   if (!therapistId) return null
+  await assignTherapistForTrack(userId, track, therapistId)
+  return therapistId
+}
+
+/**
+ * Attach a specific clinician to a patient for one care type: the active
+ * package(s) of that type and the per-care-type assignment column. Used by
+ * auto-matching and by a patient choosing a clinician themselves ("Browse your
+ * clinician"). Best-effort per write, like the matcher always was.
+ */
+export async function assignTherapistForTrack(userId: string, track: CareTrack, therapistId: string): Promise<void> {
 
   // Attach to the active package(s) of this type (needs migration 0015).
   try {
@@ -204,8 +215,6 @@ export async function matchAndAssignForTrack(userId: string, track: CareTrack, o
   } catch (e) {
     console.error(`[matchAndAssignForTrack] could not write ${track} assignment column (migration 0016 applied?)`, e)
   }
-
-  return therapistId
 }
 
 /**
