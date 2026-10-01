@@ -52,34 +52,34 @@ export default async function WelcomePage({
   const essentials = await getMemberEssentials(user.id)
   if (!essentials || missingEssentials(essentials).length === 0) redirect(nextUrl)
 
+  const firstName = booking ? booking.name.split(' ').slice(0, 2).join(' ') : null
   return (
-    <div style={{ width: '100%', maxWidth: 460 }}>
-      <h1 style={{
-        fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 32,
-        color: '#1C2B3A', marginBottom: 8, lineHeight: 1.1,
-      }}>
-        {forResults ? 'One last step before your matches.' : forChoice ? 'Almost there.' : 'A few details before we start.'}
-      </h1>
-      <p style={{ fontSize: 14.5, color: '#5F6E7D', lineHeight: 1.65, marginBottom: 24 }}>
-        {booking
-          ? `Just a few details so ${booking.name.split(' ').slice(0, 2).join(' ')} can look after you properly, then you'll pick your package. You won't be asked again.`
-          : forResults
-            ? 'A few details so your clinician can look after you properly, including someone we can reach if we ever need to. It takes a minute, and you won’t be asked again.'
+    <div className="pa">
+      <div className="pa-inner pa-inner-q">
+        <p className="pa-eyebrow">{forResults ? 'Last step' : 'Almost there'}</p>
+        <h1 className="pa-q">
+          {forResults
+            ? <>One last step before <em>your matches.</em></>
+            : <>A few details <em>about you.</em></>}
+        </h1>
+        <p className="pa-hint">
+          {booking
+            ? `So ${firstName} can look after you properly. Then you will pick your package. You will only be asked once.`
             : forChoice
-              ? 'A few details so your clinician can look after you properly, then you can confirm your choice. It takes a minute, and you won’t be asked again.'
-              : 'We need these to look after you properly, including someone we can reach if we ever need to. It takes a minute and you won’t be asked again.'}
-      </p>
-      <MemberEssentialsForm
-        nextUrl={nextUrl}
-        initial={{
-          name: essentials.name,
-          email: essentials.email,
-          hasPhone: Boolean(essentials.phone),
-          dateOfBirth: essentials.dateOfBirth,
-          emergencyName: essentials.emergencyName,
-          emergencyPhone: essentials.emergencyPhone,
-        }}
-      />
+              ? 'So your clinician can look after you properly. Then you can confirm your choice. You will only be asked once.'
+              : 'So your clinician can look after you properly. It takes a few seconds, and you will only be asked once.'}
+        </p>
+        <MemberEssentialsForm
+          nextUrl={nextUrl}
+          initial={{
+            name: essentials.name,
+            email: essentials.email,
+            phone: essentials.phone,
+            dateOfBirth: essentials.dateOfBirth,
+            gender: essentials.gender === 'unknown' ? null : essentials.gender,
+          }}
+        />
+      </div>
     </div>
   )
 }

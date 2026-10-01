@@ -19,6 +19,7 @@ export async function ensureContactSchema(): Promise<void> {
   // After a partial failure, retry at most once a minute rather than on every request.
   if (lastAttempt && Date.now() - lastAttempt < 60_000) return
   const stmts = [
+    `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "gender" TEXT`,
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "addressLine1" TEXT`,
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "addressLine2" TEXT`,
     `ALTER TABLE "PatientProfile" ADD COLUMN IF NOT EXISTS "city" TEXT`,

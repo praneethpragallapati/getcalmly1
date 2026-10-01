@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import {
   FLOWS, LANGUAGES, TIMINGS, isFlowId, scoreAssessment, legacySeverity,
-  type Answers, type Prefs, type Question, type AssessmentResult,
+  DETAILS_QUESTION, detailsProblem,
+  type Answers, type Prefs, type Question, type AssessmentResult, type VisitorDetails,
 } from '@/data/assessments'
+import { GENDER_OPTIONS } from '@/lib/memberOnboardingShared'
+// Storage keys live with the save-after-sign-in helper.
+import { RESULT_KEY, DETAILS_KEY } from '@/lib/pendingAssessment'
 import { PATH_LOOK } from './AssessmentStep1'
 
 /** What the in-app version saves to the patient's profile. */
@@ -22,7 +26,6 @@ export type AssessmentSavePayload = {
   note?: string | null
 }
 
-export const RESULT_KEY = 'assess_result_v2'
 
 /** "What is *this*?" → ["What is ", <em>this</em>, "?"] */
 function emphasise(text: string) {
@@ -40,12 +43,16 @@ export default function AssessmentForm({
 }) {
   const router = useRouter()
   const flow = FLOWS[isFlowId(type) ? type : 'adult']
-  const qs = flow.questions
+  // On the website the last step is the visitor's details, so results need no
+  // sign-in. In the app the member is already signed in, so it is not asked here.
+  const qs = onComplete ? flow.questions : [...flow.questions, DETAILS_QUESTION]
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Answers>({})
   const [prefs, setPrefs] = useState<Prefs>({})
   const [saving, setSaving] = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+  const [details, setDetails] = useState<VisitorDetails>({ name: '', email: '', phone: '', dateOfBirth: '', gender: '' })
+  const setDetail = (k: keyof VisitorDetails, v: string) => setDetails((d) => ({ ...d, [k]: v }))
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const q: Question = qs[step]
@@ -54,7 +61,9 @@ export default function AssessmentForm({
 
   const value = answers[q.id]
   const picked: string[] = Array.isArray(value) ? value : typeof value === 'string' && value ? [value] : []
-  const answered = q.optional || (q.kind === 'text' ? Boolean(value) : picked.length > 0)
+  const answered = q.kind === 'details'
+    ? detailsProblem(details) === null
+    : q.optional || (q.kind === 'text' ? Boolean(value) : picked.length > 0)
 
   const finish = useCallback(() => {
     const result: AssessmentResult = scoreAssessment(flow, answers, prefs)
@@ -79,11 +88,14 @@ export default function AssessmentForm({
       })
       return
     }
-    try { sessionStorage.setItem(RESULT_KEY, JSON.stringify(result)) } catch { /* private mode: results page asks to retake */ }
-    // Sign in (if needed) and share a few details as the last step, then the
-    // results. The answers wait in this tab's sessionStorage meanwhile.
-    router.push(`/welcome?next=${encodeURIComponent('/assess/results')}`)
-  }, [flow, answers, prefs, onComplete, router])
+    try {
+      sessionStorage.setItem(RESULT_KEY, JSON.stringify(result))
+      sessionStorage.setItem(DETAILS_KEY, JSON.stringify(details))
+    } catch { /* private mode: results page asks to retake */ }
+    // Straight to the results: no sign-in. The answers and details are saved
+    // to an account later, when the visitor books or signs up.
+    router.push('/assess/results')
+  }, [flow, answers, prefs, details, onComplete, router])
 
   const next = useCallback(() => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current)
@@ -226,6 +238,39 @@ export default function AssessmentForm({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {q.kind === 'details' && (
+            <div className="pa-form">
+              <label className="pa-field">
+                <span className="pa-pref-l">Full name</span>
+                <input className="pa-input" value={details.name} onChange={(e) => setDetail('name', e.target.value)} autoComplete="name" placeholder="e.g. Priya Sharma" />
+              </label>
+              <div className="pa-field-row">
+                <label className="pa-field">
+                  <span className="pa-pref-l">Email</span>
+                  <input className="pa-input" type="email" value={details.email} onChange={(e) => setDetail('email', e.target.value)} autoComplete="email" placeholder="you@example.com" />
+                </label>
+                <label className="pa-field">
+                  <span className="pa-pref-l">Phone</span>
+                  <input className="pa-input" type="tel" value={details.phone} onChange={(e) => setDetail('phone', e.target.value)} autoComplete="tel" placeholder="+91 98765 43210" />
+                </label>
+              </div>
+              <label className="pa-field" style={{ maxWidth: 280 }}>
+                <span className="pa-pref-l">Date of birth</span>
+                <input className="pa-input" type="date" value={details.dateOfBirth} onChange={(e) => setDetail('dateOfBirth', e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+              </label>
+              <div className="pa-field">
+                <span className="pa-pref-l">Gender</span>
+                <div className="pa-pills" role="radiogroup" aria-label="Gender">
+                  {GENDER_OPTIONS.map((g) => (
+                    <button key={g} type="button" role="radio" aria-checked={details.gender === g} className={`pa-pill${details.gender === g ? ' on' : ''}`} onClick={() => setDetail('gender', g)}>
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 

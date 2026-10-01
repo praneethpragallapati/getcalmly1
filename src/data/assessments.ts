@@ -32,7 +32,7 @@ export type Question = {
   /** The question, with the part to stress wrapped in *asterisks*. */
   title: string
   hint?: string
-  kind: 'single' | 'multi' | 'text' | 'prefs'
+  kind: 'single' | 'multi' | 'text' | 'prefs' | 'details'
   options?: Option[]
   scoreEach?: boolean
   /** The safety question: its score drives the risk messages and flags. */
@@ -393,6 +393,32 @@ export const FLOWS: Record<FlowId, Flow> = {
 }
 
 export const FLOW_ORDER: FlowId[] = ['adult', 'psychiatry', 'child', 'couple']
+
+/**
+ * The last step of the public assessment: the five details we keep (full name,
+ * email, phone, date of birth, gender), asked as one more question before the
+ * results, so nobody has to sign in to see them. They are saved to the account
+ * when the visitor later signs up or books.
+ */
+export const DETAILS_QUESTION: Question = {
+  id: 'details',
+  section: 'About you',
+  title: 'Finally, a little *about you.*',
+  hint: 'So your clinician can look after you properly. Private, and only your care team sees it.',
+  kind: 'details',
+}
+
+export type VisitorDetails = { name: string; email: string; phone: string; dateOfBirth: string; gender: string }
+
+/** Why the details can't be accepted yet, or null when they are complete. */
+export function detailsProblem(d: VisitorDetails): string | null {
+  if (!d.name.trim()) return 'Please add your full name.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email.trim())) return 'Please add a valid email.'
+  if (d.phone.replace(/\D/g, '').length < 10) return 'Please add a valid phone number.'
+  if (!d.dateOfBirth || Number.isNaN(Date.parse(d.dateOfBirth)) || Date.parse(d.dateOfBirth) > Date.now()) return 'Please add your date of birth.'
+  if (!d.gender) return 'Please choose a gender option.'
+  return null
+}
 
 export function isFlowId(v: string | undefined | null): v is FlowId {
   return v === 'adult' || v === 'psychiatry' || v === 'child' || v === 'couple'

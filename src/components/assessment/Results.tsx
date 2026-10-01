@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
-import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
-import { FLOWS, legacySeverity, type AssessmentResult } from '@/data/assessments'
+import { savePendingAssessment, RESULT_KEY } from '@/lib/pendingAssessment'
+import { FLOWS, type AssessmentResult } from '@/data/assessments'
 import { rankClinicians } from '@/data/assessmentMatch'
 import type { PoolClinician } from '@/lib/assessmentPool'
 import { PATH_LOOK } from './AssessmentStep1'
-import { RESULT_KEY } from './AssessmentForm'
 
 type FirstSession = { therapy: number; psychiatry: number; couples: number }
 
@@ -24,23 +23,13 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
     }
   }, [raw])
 
-  // A visitor who is signed in (e.g. finishing onboarding) gets this saved to
-  // their profile and a clinician matched. It no-ops for logged-out visitors.
+  // Already signed in? Save the answers and details now. Signed out, this does
+  // nothing; they are saved right after sign-in instead (lib/pendingAssessment).
   const savedRef = useRef(false)
   useEffect(() => {
     if (!result || savedRef.current) return
     savedRef.current = true
-    void saveAssessmentResult({
-      type: result.flow,
-      tags: result.needs,
-      language: result.prefs.language ?? null,
-      genderPref: result.prefs.gender ?? null,
-      severity: legacySeverity(result.level),
-      riskFlag: result.risk > 0,
-      risk: result.risk,
-      styles: result.styles,
-      note: result.note ?? null,
-    })
+    void savePendingAssessment()
   }, [result])
 
   const matches = useMemo(() => (result ? rankClinicians(pool, {
@@ -148,9 +137,9 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
         <div className="pa-cta">
           <div>
             <h3>Not ready to <em>book yet?</em></h3>
-            <p>Your account is all set. Book whenever it suits you: your answers are saved, so we will match you the moment you do. Mood check-ins, journalling and the community are open to you in the meantime.</p>
+            <p>Sign up free and book whenever it suits you. Your answers and details come with you, so you will not be asked again, and mood check-ins, journalling and the community are open to you in the meantime.</p>
           </div>
-          <Link href="/app">Go to your dashboard</Link>
+          <Link href="/login?next=/app">Sign up free</Link>
         </div>
       </div>
     </div>

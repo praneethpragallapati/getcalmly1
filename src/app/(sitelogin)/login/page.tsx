@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, getSession } from 'next-auth/react'
 import { safeNext } from '@/lib/safeNext'
+import { savePendingAssessment } from '@/lib/pendingAssessment'
 import CountrySelect from '@/components/ui/CountrySelect'
 import { defaultCountry } from '@/data/countries'
 
@@ -58,15 +59,13 @@ function LoginForm() {
   const mobile = `${country.dial}${phone.replace(/\D/g, '')}`
 
   // Members go straight in (or back to where they were headed). Personal
-  // details are no longer asked at sign-in: they are collected at the two
-  // moments they matter, just before assessment results and when choosing a
-  // clinician, through /welcome?next=… which links here with ?next.
+  // details are not asked at sign-in: the website assessment collects them as
+  // its last step, and they are saved to the account right here, after sign-in.
   const nextPath = safeNext(params.get('next')) ?? safeNext(params.get('callbackUrl'))
-  // The results address can arrive encoded inside /welcome?next=…, so decode first.
-  const forResults = (() => { try { return decodeURIComponent(nextPath ?? '').includes('/assess/results') } catch { return false } })()
   async function redirectAfterLogin() {
     const session = await getSession()
     const role = (session?.user as { role?: string } | undefined)?.role
+    if (role !== 'THERAPIST' && role !== 'ADMIN') await savePendingAssessment().catch(() => {})
     router.push(role === 'THERAPIST' ? '/expert' : role === 'ADMIN' ? '/admin' : nextPath ?? '/app')
   }
 
@@ -80,7 +79,7 @@ function LoginForm() {
         const result = await signIn('phone-otp', { mobile, otp: 'bypass', redirect: false })
         // Straight to the existing dashboard — this is a known account, so skip
         // the first-time /welcome details step.
-        if (result?.ok) { router.push(nextPath ?? '/app'); return }
+        if (result?.ok) { await savePendingAssessment().catch(() => {}); router.push(nextPath ?? '/app'); return }
         setError('Could not sign in. Please try again.')
       } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
       return
@@ -146,11 +145,7 @@ function LoginForm() {
         {/* Right — one-time-code login, floating on the photo */}
         <div className="login-card">
           <h2 className="login-card-title">Hey, let&apos;s get you in.</h2>
-          <p className="login-card-sub">
-            {forResults
-              ? 'Your matches are ready. Enter your phone number or email to log in or sign up, and we’ll show them right after. We’ll send you a one-time code.'
-              : 'Enter your phone number or email to log in or sign up. We’ll send you a one-time code.'}
-          </p>
+          <p className="login-card-sub">Enter your phone number or email to log in or sign up. We’ll send you a one-time code.</p>
 
           {/* WhatsApp / Email */}
           <div className="login-tabs">

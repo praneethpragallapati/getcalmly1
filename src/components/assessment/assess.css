@@ -228,3 +228,19 @@
   .pa-stage { animation: none; }
   .pa-path, .pa-row, .pa-next, .pa-path-go { transition: none; }
 }
+
+/* ── Details step (/welcome): the same look as the questions ── */
+.pa-form { display: flex; flex-direction: column; gap: 22px; margin-top: 30px; }
+.pa-field { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.pa-field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pa-input {
+  width: 100%; box-sizing: border-box; font-family: inherit; font-size: 16px; font-weight: 600; color: var(--pa-ink);
+  background: rgba(28, 43, 58, 0.045); border: 1.5px solid transparent; border-radius: 16px; padding: 15px 18px; outline: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.pa-input::placeholder { color: var(--pa-soft); font-weight: 500; }
+.pa-input:hover { border-color: color-mix(in srgb, var(--pa-accent) 26%, transparent); }
+.pa-input:focus { border-color: var(--pa-accent); background: color-mix(in srgb, var(--pa-accent) 5%, transparent); }
+.pa-input[readonly] { color: var(--pa-muted); cursor: default; }
+.pa-input[readonly]:hover { border-color: transparent; }
+@media (max-width: 760px) { .pa-field-row { grid-template-columns: minmax(0, 1fr); } }

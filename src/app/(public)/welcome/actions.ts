@@ -1,22 +1,16 @@
 'use server'
 
 import { getSessionUser } from '@/lib/session'
-import { saveMemberEssentials, type MemberExtras } from '@/lib/memberOnboarding'
+import { saveMemberEssentials } from '@/lib/memberOnboarding'
 
-/**
- * Save the one-time details for the signed-in member.
- *
- * Carries everything the profile page holds, not just the required set, so the
- * member is asked once rather than chased later for the rest.
- */
+/** Save the five one-time details for the signed-in member. */
 export async function completeMemberProfile(input: {
   name: string
   email?: string | null
+  phone?: string | null
   dateOfBirth: string
-  emergencyName: string
-  emergencyPhone: string
-  emergencyRelation?: string | null
-} & MemberExtras): Promise<{ ok: boolean; error?: string }> {
+  gender?: string | null
+}): Promise<{ ok: boolean; error?: string }> {
   const user = await getSessionUser()
   if (!user?.id) return { ok: false, error: 'Please sign in.' }
   // Only members have this profile; a clinician or admin landing here is a bug,
