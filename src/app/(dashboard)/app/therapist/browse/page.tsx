@@ -13,8 +13,8 @@ const ORDER: SlotKey[] = ['individual', 'couples', 'psychiatry']
 
 /**
  * "Browse your clinician": the patient picks their first clinician for a care
- * type. Only care types with a package and no clinician yet can be chosen
- * here; once everything has a clinician, this page sends them to their team.
+ * type. Any care type with no clinician yet can be chosen here, before or
+ * after buying; once everything has a clinician, this page sends them to their team.
  */
 export default async function BrowseCliniciansPage({
   searchParams,
@@ -37,11 +37,11 @@ export default async function BrowseCliniciansPage({
         <div className="card">
           <div className="section-title" style={{ marginBottom: 6 }}>Nothing to choose right now</div>
           <p className="muted" style={{ margin: '0 0 14px' }}>
-            Your clinicians are already in place, or you don&apos;t have a package that needs one yet.
+            Your clinicians are already in place. You can see them, and add sessions with them, anytime.
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Link href="/app/therapist" className="btn btn-primary btn-sm">See my care team</Link>
-            <Link href="/app/billing" className="btn btn-outline btn-sm">Get a package</Link>
+            <Link href="/app/billing" className="btn btn-outline btn-sm">Buy sessions</Link>
           </div>
         </div>
       </div>

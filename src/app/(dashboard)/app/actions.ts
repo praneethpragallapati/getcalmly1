@@ -14,7 +14,7 @@ import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS, MIN_BOOKING_LEAD_HOURS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
 import { normalizeTags } from '@/data/tags'
-import { matchAndAssignForTrack, assignTherapistForTrack, hasAssessment, type CareTrack } from '@/lib/matching'
+import { matchAndAssignForTrack, assignTherapistForTrack, assignedClinicianFor, hasAssessment, type CareTrack } from '@/lib/matching'
 import { getBrowsableClinicians, canChooseFor, isSlotKey, SLOT_TRACK } from '@/lib/clinicianChoice'
 import { getMemberEssentials, missingEssentials } from '@/lib/memberOnboarding'
 import { rateLimit } from '@/lib/rateLimit'
@@ -67,6 +67,9 @@ export async function saveAssessmentResult(payload: {
   styles?: string[]
   /** Free text the parent shared (Child path). */
   note?: string | null
+  /** The care type the patient is matching for before buying ("Match your
+   *  clinician" from the buy flow); matched even without a package yet. */
+  forTrack?: string | null
 }): Promise<ActionResult> {
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Please sign in.' }
@@ -103,7 +106,8 @@ export async function saveAssessmentResult(payload: {
     })
 
     // Assign a clinician ONLY for the care types the patient actually holds a
-    // package for. We never attach an expert to a care type the patient hasn't
+    // package for, or is matching for right now on the way to buying one
+    // (`forTrack`). We never attach an expert to a care type the patient hasn't
     // bought (e.g. don't put a therapist on Individual when they only bought
     // Psychiatry). Assessment answers only influence WHICH clinician is picked.
     //
@@ -121,6 +125,8 @@ export async function saveAssessmentResult(payload: {
       for (const s of subs) {
         if (s.trackSlug === 'therapy' || s.trackSlug === 'couples' || s.trackSlug === 'psychiatry') tracks.add(s.trackSlug)
       }
+      const ft = payload.forTrack
+      if (ft === 'therapy' || ft === 'couples' || ft === 'psychiatry') tracks.add(ft)
       for (const t of tracks) await matchAndAssignForTrack(userId, t, { risk: payload.risk ?? (payload.riskFlag ? 1 : 0) })
     } catch (e) {
       console.error('[saveAssessmentResult] auto-assignment skipped (matching failed — migration 0016/0017 applied?)', e)
@@ -1199,6 +1205,21 @@ async function notifyPurchase(userId: string, result: BuyResult): Promise<void> 
 }
 
 /**
+ * After a purchase: the clinician the patient already chose or was matched to
+ * for this care type goes onto the new package; with none yet, the assessment
+ * (if done) picks one. Best-effort, never fails the purchase.
+ */
+async function attachClinicianAfterPurchase(userId: string, track: CareTrack): Promise<void> {
+  try {
+    const assigned = await assignedClinicianFor(userId, track)
+    if (assigned) await assignTherapistForTrack(userId, track, assigned)
+    else if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track)
+  } catch (e) {
+    console.error('[attachClinicianAfterPurchase] skipped', e)
+  }
+}
+
+/**
  * Buy a session package (#packages). Additive by design, sessions are added to
  * any existing balance and validity is extended, never reset to zero (lib/billing).
  * An expired plan is renewed by topping up the same record.
@@ -1236,8 +1257,7 @@ export async function buyPackage(
     const result = await buyPackageFor(userId, track, packIndex)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
     await notifyPurchase(userId, result)
-    // Auto-match a clinician for this package now, if the assessment is done.
-    if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track as CareTrack)
+    await attachClinicianAfterPurchase(userId, track as CareTrack)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')
     revalidatePath('/app')
@@ -1298,7 +1318,7 @@ export async function buyFirstSession(
     const result = await buyFirstSessionFor(userId, track)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
     await notifyPurchase(userId, result)
-    if (await hasAssessment(userId)) await matchAndAssignForTrack(userId, track as CareTrack)
+    await attachClinicianAfterPurchase(userId, track as CareTrack)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')
     revalidatePath('/app')
@@ -1488,12 +1508,15 @@ export async function raiseCrisisAlert(input: {
 
 /**
  * "Browse your clinician": the patient picks their first clinician for a care
- * type themselves. Allowed only while that care type has no clinician yet, for
- * a package they hold, and only from the clinicians the browse page lists.
+ * type themselves. Allowed only while that care type has no clinician yet (with
+ * or without a package: choosing comes first when buying), and only from the
+ * clinicians the browse page lists.
  * Personal details are collected first if they are not on file.
  */
 export async function chooseMyClinician(input: { slot: string; profileId: string }): Promise<{
   ok: boolean; needsDetails?: boolean; error?: string; name?: string
+  /** Where to go next: the care team, or the first session if none is bought. */
+  next?: string
 }> {
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, error: 'Please sign in again.' }
@@ -1504,7 +1527,7 @@ export async function chooseMyClinician(input: { slot: string; profileId: string
   if (essentials && missingEssentials(essentials).length > 0) return { ok: false, needsDetails: true }
 
   if (!(await canChooseFor(userId, track))) {
-    return { ok: false, error: 'You already have a clinician for this, or no active package for it.' }
+    return { ok: false, error: 'You already have a clinician for this.' }
   }
   const choice = (await getBrowsableClinicians(track)).find((c) => c.profileId === input.profileId)
   if (!choice) return { ok: false, error: 'That clinician is not taking new patients right now. Please choose another.' }
@@ -1517,5 +1540,12 @@ export async function chooseMyClinician(input: { slot: string; profileId: string
   // No revalidatePath here: it would re-render this browse page mid-celebration
   // (it then has nothing left to choose). The care team and sessions pages are
   // rendered fresh on every visit, so the next page already shows the choice.
-  return { ok: true, name: choice.name }
+  let hasPackage = false
+  try {
+    hasPackage = Boolean(await prisma.subscription.findFirst({
+      where: { userId, trackSlug: track, status: 'ACTIVE', sessionsTotal: { gt: 0 } },
+      select: { id: true },
+    }))
+  } catch { /* treat as not bought: the billing page shows the right step */ }
+  return { ok: true, name: choice.name, next: hasPackage ? '/app/therapist' : `/app/billing?track=${track}` }
 }

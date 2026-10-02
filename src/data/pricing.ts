@@ -31,8 +31,9 @@ export const psychiatryPacks: SessionPack[] = [
   { sessions: 4, months: 4, total: 4796 }, // ₹1,199 / session
 ]
 
-// Fixed first-session price per track. Never discounted, never bundled: this is
-// the only thing a new patient sees until their first session is done.
+// Fixed first-session price per track: an introductory price below a regular
+// single session (see regularSessionPriceIn), never bundled. It is the only
+// thing a new patient buys for a care type until that first session is bought.
 export const FIRST_SESSION: Record<'therapy' | 'psychiatry' | 'couples', number> = {
   therapy: 799,
   psychiatry: 999,
@@ -110,7 +111,7 @@ export const calmPlusFeatures = {
 
 export const therapyFeatures = [
   '45-minute sessions with an RCI licensed clinical psychologist',
-  'Full Calm+ app included — AI companion, journaling & mood tracker',
+  'Full Calm+ app included: AI companion, journaling & mood tracker',
   'A clear summary after every session',
   'Daily and weekly insights on your progress',
   'A constant guide who stays with you the whole way',
@@ -120,7 +121,7 @@ export const therapyFeatures = [
 export const couplesFeatures = [
   '45-minute sessions for you and your partner together',
   'An EFT & Gottman-informed couples therapist',
-  'Full Calm+ app for both of you — AI, journaling & mood tracker',
+  'Full Calm+ app for both of you: AI, journaling & mood tracker',
   'A clear summary after every session',
   'Shared exercises and check-ins between sessions',
   'Priority matching and easy rescheduling',
@@ -128,7 +129,7 @@ export const couplesFeatures = [
 
 export const psychiatryFeatures = [
   'Consultations with an NMC licensed psychiatrist',
-  'Full Calm+ app included — AI companion, journaling & mood tracker',
+  'Full Calm+ app included: AI companion, journaling & mood tracker',
   'Medication support and a built-in tracker',
   'Digital prescriptions after your consultation',
   'Coordinated with your therapist when needed',
@@ -192,4 +193,16 @@ export function buyablePacksIn(pricing: PricingValues, track: BuyableTrack): Buy
     index,
     perSession: Math.round(p.total / p.sessions),
   }))
+}
+
+/**
+ * The regular price of a single session for a track (its 1-session pack), shown
+ * struck through beside the first-session price so the introductory discount
+ * is visible without shouting. Null when there is no 1-session pack, or when
+ * the first session is not actually cheaper (never claim a discount that isn't).
+ */
+export function regularSessionPriceIn(pricing: PricingValues, track: BuyableTrack): number | null {
+  const single = packsForIn(pricing, track).find((p) => p.sessions === 1)
+  if (!single) return null
+  return single.total > pricing.firstSession[track] ? single.total : null
 }

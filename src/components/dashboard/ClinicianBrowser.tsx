@@ -29,6 +29,7 @@ export function ClinicianBrowser({
     initialPick && clinicians.some((c) => c.profileId === initialPick) ? initialPick : null,
   )
   const [chosen, setChosen] = useState<BrowseClinician | null>(null)
+  const [nextHref, setNextHref] = useState('/app/therapist')
 
   function choose(c: BrowseClinician) {
     startTransition(async () => {
@@ -39,6 +40,7 @@ export function ClinicianBrowser({
         return
       }
       if (!res.ok) { toast.error(res.error ?? 'Could not save your choice.'); return }
+      setNextHref(res.next ?? '/app/therapist')
       setChosen(c)
     })
   }
@@ -59,9 +61,9 @@ export function ClinicianBrowser({
       <Celebration
         show={!!chosen}
         title="Clinician chosen"
-        sub="You can book your first session now."
+        sub={nextHref.startsWith('/app/billing') ? 'Next, your first session with them.' : 'You can book your first session now.'}
         detail={chosen ? { avatar: chosen.initials, name: chosen.name, meta: chosen.designation } : undefined}
-        onDone={() => router.push('/app/therapist')}
+        onDone={() => router.push(nextHref)}
       />
       <div className="br-grid">
         {clinicians.map((c) => {

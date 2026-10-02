@@ -25,12 +25,20 @@ export const SLOT_LABEL: Record<SlotKey, string> = {
   psychiatry: 'Psychiatry',
 }
 
-/** Where "Match your clinician" leads for each care type. */
+/** Where "Match your clinician" leads for each care type. `for` tells the
+ *  assessment which care type it is matching for, so it can match before the
+ *  first purchase and come back to it. */
 export const MATCH_HREF: Record<SlotKey, string> = {
   // Individual covers adults and children, so it opens on the path picker.
-  individual: '/app/assessment',
-  couples: '/app/assessment?type=couple',
-  psychiatry: '/app/assessment?type=psychiatry',
+  individual: '/app/assessment?for=therapy',
+  couples: '/app/assessment?type=couple&for=couples',
+  psychiatry: '/app/assessment?type=psychiatry&for=psychiatry',
+}
+
+export const TRACK_SLOT: Record<CareTrack, SlotKey> = {
+  therapy: 'individual',
+  couples: 'couples',
+  psychiatry: 'psychiatry',
 }
 
 export function isSlotKey(v: unknown): v is SlotKey {
@@ -101,16 +109,16 @@ const ASSIGN_COLUMN = {
 
 /**
  * Whether the patient can still make the initial choice for this care type:
- * they hold an active package of it and no clinician is attached yet.
+ * no clinician is attached for it yet. It does not need a package: the choice
+ * comes first when buying, before the first session is paid for.
  */
 export async function canChooseFor(userId: string, track: CareTrack): Promise<boolean> {
   try {
-    const subs = await prisma.subscription.findMany({
-      where: { userId, trackSlug: track, status: 'ACTIVE' },
-      select: { therapistId: true },
+    const attached = await prisma.subscription.findFirst({
+      where: { userId, trackSlug: track, status: 'ACTIVE', therapistId: { not: null } },
+      select: { id: true },
     })
-    if (subs.length === 0) return false
-    if (subs.some((s) => s.therapistId)) return false
+    if (attached) return false
     const profile = await prisma.patientProfile.findUnique({
       where: { userId },
       select: { [ASSIGN_COLUMN[track]]: true } as Record<string, true>,

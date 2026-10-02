@@ -24,6 +24,7 @@ export type AssessmentSavePayload = {
   risk?: number
   styles?: string[]
   note?: string | null
+  forTrack?: string | null
 }
 
 
@@ -36,10 +37,16 @@ export default function AssessmentForm({
   type,
   onComplete,
   startHref = '/assess',
+  forTrack,
+  doneHref = '/app/therapist',
 }: {
   type: string
   onComplete?: (payload: AssessmentSavePayload) => Promise<{ ok: boolean; error?: string }>
   startHref?: string
+  /** In-app: the care type being matched for on the way to buying it. */
+  forTrack?: string
+  /** In-app: where to go once matched (after the details check). */
+  doneHref?: string
 }) {
   const router = useRouter()
   const flow = FLOWS[isFlowId(type) ? type : 'adult']
@@ -80,10 +87,11 @@ export default function AssessmentForm({
         risk: result.risk,
         styles: result.styles,
         note: result.note ?? null,
+        forTrack: forTrack ?? null,
       }).then((res) => {
         // Details are asked here, as the last step before the match is shown
         // (/welcome passes straight through once they are on file).
-        if (res.ok) router.push(`/welcome?next=${encodeURIComponent('/app/therapist')}`)
+        if (res.ok) router.push(`/welcome?next=${encodeURIComponent(doneHref)}`)
         else { setSaving(false); setSaveErr(res.error ?? 'Could not save your answers. Please try again.') }
       })
       return
@@ -95,7 +103,7 @@ export default function AssessmentForm({
     // Straight to the results: no sign-in. The answers and details are saved
     // to an account later, when the visitor books or signs up.
     router.push('/assess/results')
-  }, [flow, answers, prefs, details, onComplete, router])
+  }, [flow, answers, prefs, details, onComplete, router, forTrack, doneHref])
 
   const next = useCallback(() => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current)

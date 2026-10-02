@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
-import { savePendingAssessment, RESULT_KEY } from '@/lib/pendingAssessment'
+import { useRouter } from 'next/navigation'
+import { savePendingAssessment, saveForBooking, RESULT_KEY } from '@/lib/pendingAssessment'
 import { FLOWS, type AssessmentResult } from '@/data/assessments'
 import { rankClinicians } from '@/data/assessmentMatch'
 import type { PoolClinician } from '@/lib/assessmentPool'
@@ -12,7 +13,9 @@ type FirstSession = { therapy: number; psychiatry: number; couples: number }
 
 const noSubscription = () => () => {}
 
-export default function Results({ firstSession, pool }: { firstSession: FirstSession; pool: PoolClinician[] }) {
+export default function Results({ firstSession, regular, pool }: { firstSession: FirstSession; regular: Partial<FirstSession>; pool: PoolClinician[] }) {
+  const router = useRouter()
+  const [booking, setBooking] = useState(false)
   const raw = useSyncExternalStore(noSubscription, () => sessionStorage.getItem(RESULT_KEY), () => null)
   const result = useMemo<AssessmentResult | null>(() => {
     try {
@@ -56,7 +59,17 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
   const needsShown = result.needs.filter((n) => !flow.baseNeeds.includes(n))
   // Booking starts with the first session for this path; the saved answers
   // then match a clinician automatically.
-  const buyHref = `/app/billing?track=${flow.id === 'psychiatry' ? 'psychiatry' : flow.id === 'couple' ? 'couples' : 'therapy'}`
+  const track = flow.id === 'psychiatry' ? 'psychiatry' : flow.id === 'couple' ? 'couples' : 'therapy'
+  const buyHref = `/app/billing?track=${track}`
+  const was = regular[track]
+  // Book session matches for this care type first (saved now if signed in,
+  // else right after sign-in), so billing opens on the first session itself.
+  async function book() {
+    if (booking) return
+    setBooking(true)
+    await saveForBooking(track)
+    router.push(buyHref)
+  }
 
   return (
     <div className="pa" style={{ '--pa-accent': accent } as React.CSSProperties}>
@@ -125,8 +138,11 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
                   </div>
                   <p className="pa-meta">Speaks {c.languages.slice(0, 3).join(', ') || 'English'}</p>
                   <div className="pa-book">
-                    <span className="pa-fee">₹{price}<small>first session</small></span>
-                    <Link href={buyHref}>Book session</Link>
+                    <span className="pa-fee">
+                      {was ? <s className="pa-was">₹{was.toLocaleString('en-IN')}</s> : null}₹{price.toLocaleString('en-IN')}
+                      <small>first session{was ? ', introductory price' : ''}</small>
+                    </span>
+                    <a href={buyHref} onClick={(e) => { e.preventDefault(); void book() }} aria-busy={booking}>Book session</a>
                   </div>
                 </div>
               )

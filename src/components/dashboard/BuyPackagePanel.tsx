@@ -1,10 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
 import {
-  buyablePacksIn, inr,
+  buyablePacksIn, inr, regularSessionPriceIn,
   type BuyableTrack, type PricingValues,
 } from '@/data/pricing'
 import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
@@ -317,7 +318,8 @@ export function CalmPlusPanel({ pricing }: { pricing: PricingValues }) {
 }
 
 /**
- * In-app package purchase: the three session tracks side by side, with Calm+
+ * In-app package purchase: the three session tracks side by side (each past
+ * its first session; the others show that next step instead), with Calm+
  * on its own row below for people not ready for sessions. Buying ADDS sessions
  * to the patient's existing balance and extends validity (never resets);
  * couples packs collect the partner's details when none is on record.
@@ -326,10 +328,13 @@ export function BuyPackagePanel({
   sessionsRemaining,
   hasPartner = false,
   pricing,
+  gates = {},
 }: {
   sessionsRemaining: number
   hasPartner?: boolean
   pricing: PricingValues
+  /** Care types not yet past their first session show that step instead. */
+  gates?: Partial<Record<BuyableTrack, BuyGate>>
 }) {
   return (
     <>
@@ -342,9 +347,12 @@ export function BuyPackagePanel({
           alignItems: 'stretch',
         }}
       >
-        {(['therapy', 'psychiatry', 'couples'] as const).map((t) => (
-          <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
-        ))}
+        {(['therapy', 'psychiatry', 'couples'] as const).map((t) => {
+          const gate = gates[t] ?? 'packs'
+          return gate === 'packs'
+            ? <TrackCard key={t} tab={t} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
+            : <IntroCard key={t} track={t} gate={gate} pricing={pricing} />
+        })}
       </div>
 
       {/* Calm+, separately: for people not ready for sessions */}
@@ -363,21 +371,83 @@ export function BuyPackagePanel({
 
 /* ── First session ───────────────────────────────────────────────────── */
 
+/** Where a care type stands in the buy flow: pick a clinician, then the first
+ *  session at its introductory price, then packages. */
+export type BuyGate = 'choose' | 'first' | 'packs'
+
+/** The introductory first-session price, with the regular price struck beside
+ *  it when there is one. Kept quiet on purpose: a note, not a banner. */
+function IntroPrice({ price, was, size = 26 }: { price: number; was: number | null; size?: number }) {
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+        {was ? (
+          <s style={{ fontSize: Math.round(size * 0.55), fontWeight: 600, color: 'var(--c-gray)' }}>{inr(was)}</s>
+        ) : null}
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: size, color: 'var(--c-charcoal)', lineHeight: 1 }}>
+          {inr(price)}
+        </span>
+      </div>
+      <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 4 }}>
+        {was ? 'Introductory price for your first session' : 'Your first session'}
+      </span>
+    </div>
+  )
+}
+
 /**
- * The only purchase offered before a patient has completed their first session:
- * one session at the fixed intro price for their track (799 therapy, 1199
- * psychiatry, 1499 couples). Packages appear once the first session is done.
+ * A care type in the package grid that has not had its first session bought
+ * yet: no packages for it, just the next step (find a clinician, or the first
+ * session at its introductory price).
  */
-export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }: { hasPartner?: boolean; pricing: PricingValues; initialTrack?: BuyableTrack }) {
+function IntroCard({ track, gate, pricing }: { track: BuyableTrack; gate: 'choose' | 'first'; pricing: PricingValues }) {
+  const price = pricing.firstSession[track]
+  return (
+    <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="section-title" style={{ marginBottom: 2 }}>{TAB_LABEL[track]}</div>
+      <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>{TAB_SUB[track]}</p>
+      <IntroPrice price={price} was={regularSessionPriceIn(pricing, track)} />
+      <Link
+        href={`/app/billing?track=${track}`}
+        className="btn btn-primary"
+        style={{ marginTop: 14, width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
+      >
+        {gate === 'choose' ? 'Find your clinician' : `Book first session · ${inr(price)}`}
+      </Link>
+      <div style={{ borderTop: '1px solid var(--c-line)', marginTop: 16, paddingTop: 14, flex: 1 }}>
+        <IncludedList tab={track} />
+      </div>
+      <p className="muted" style={{ fontSize: 11, textAlign: 'center', marginTop: 12 }}>
+        Packages open after your first session
+      </p>
+    </div>
+  )
+}
+
+/**
+ * The first session for one care type, with the clinician already chosen or
+ * matched: one session at its introductory price. Packages for this care type
+ * open as soon as it is bought.
+ */
+export function FirstSessionPanel({
+  track,
+  clinicianName,
+  hasPartner = false,
+  pricing,
+}: {
+  track: BuyableTrack
+  clinicianName: string | null
+  hasPartner?: boolean
+  pricing: PricingValues
+}) {
   const router = useRouter()
-  const [track, setTrack] = useState<BuyableTrack>(initialTrack ?? 'therapy')
   const [pending, startTransition] = useTransition()
-  const [done, setDone] = useState(false)
   const [error, setError] = useState('')
   const [partner, setPartner] = useState<Partner>(EMPTY_PARTNER)
 
   const needsPartner = track === 'couples' && !hasPartner
   const price = pricing.firstSession[track]
+  const was = regularSessionPriceIn(pricing, track)
 
   function handleBuy() {
     setError('')
@@ -388,7 +458,8 @@ export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }:
     startTransition(async () => {
       const res = await buyFirstSession(track, needsPartner ? partner : undefined)
       if (res.ok && res.persisted) {
-        setDone(true)
+        // Same page, now with this care type's packages open.
+        router.push(`/app/billing?track=${track}&booked=1`)
         router.refresh()
       } else if (res.ok && !res.persisted) {
         setError('Sign in to book your first session.')
@@ -398,79 +469,18 @@ export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }:
     })
   }
 
-  if (done) {
-    return (
-      <div className="card" style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
-        <div className="section-title">Your first session is ready</div>
-        <p className="muted" style={{ marginTop: 8 }}>
-          Head to Sessions to pick a time with your {TAB_LABEL[track].toLowerCase()} specialist.
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="card">
-      <div className="section-title" style={{ marginBottom: 4 }}>Book your first session</div>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, color: 'var(--c-gray)', textTransform: 'uppercase', marginBottom: 6 }}>
+        {TAB_LABEL[track]}
+      </div>
+      <div className="section-title" style={{ marginBottom: 4 }}>Your first session</div>
       <p className="muted" style={{ marginBottom: 16, fontSize: 13 }}>
-        One session, one flat price. Session packages unlock after your first session.
+        {clinicianName ? <>With <b style={{ color: 'var(--c-charcoal)' }}>{clinicianName}</b>. </> : null}
+        {TAB_SUB[track]}.
       </p>
 
-      <div className="stack" style={{ gap: 8 }}>
-        {(['therapy', 'psychiatry', 'couples'] as const).map((t) => {
-          const selected = track === t
-          return (
-            <label
-              key={t}
-              style={{
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '12px 14px',
-                borderRadius: 14,
-                cursor: 'pointer',
-                border: `1.5px solid ${selected ? 'var(--c-coral)' : 'var(--c-line)'}`,
-                background: selected ? '#FFF6F2' : 'var(--c-white)',
-                boxShadow: selected ? '0 4px 14px rgba(200,85,61,.10)' : 'none',
-                transition: 'all .15s',
-              }}
-            >
-              <input
-                type="radio"
-                name="first-track"
-                checked={selected}
-                onChange={() => setTrack(t)}
-                style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-              />
-              <span
-                aria-hidden
-                style={{
-                  width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  border: selected ? 'none' : '2px solid var(--c-line)',
-                  background: selected ? 'var(--c-coral)' : 'var(--c-white)',
-                  color: '#fff', transition: 'all .15s',
-                }}
-              >
-                {selected && <Check size={12} strokeWidth={3.5} />}
-              </span>
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--c-charcoal)' }}>
-                  {TAB_LABEL[t]}
-                </span>
-                <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 2 }}>
-                  {TAB_SUB[t]}
-                </span>
-              </span>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20, color: 'var(--c-charcoal)', flexShrink: 0 }}>
-                {inr(pricing.firstSession[t])}
-              </span>
-            </label>
-          )
-        })}
-      </div>
+      <IntroPrice price={price} was={was} size={30} />
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
 
@@ -484,8 +494,12 @@ export function FirstSessionPanel({ hasPartner = false, pricing, initialTrack }:
       >
         {pending ? 'Processing…' : `Book my first session · ${inr(price)}`}
       </button>
-      <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 10 }}>
-        45 minutes with a verified professional · reschedule anytime
+
+      <div style={{ borderTop: '1px solid var(--c-line)', marginTop: 18, paddingTop: 14 }}>
+        <IncludedList tab={track} />
+      </div>
+      <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 12 }}>
+        Pick a time after booking · reschedule anytime · packages open after this session is booked
       </p>
     </div>
   )

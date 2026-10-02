@@ -14,6 +14,22 @@ import { legacySeverity, type AssessmentResult, type VisitorDetails } from '@/da
 export const RESULT_KEY = 'assess_result_v2'
 export const DETAILS_KEY = 'assess_details_v1'
 const SAVED_KEY = 'assess_saved_v1'
+/** The care type a visitor tapped Book session for on the results page. */
+const BOOK_KEY = 'assess_book_v1'
+
+/**
+ * Book session on the results page: the match is made for that care type, so
+ * the visitor lands on their first session with the clinician already chosen.
+ * Saving again is safe (the profile is upserted), so a save made earlier
+ * without a care type is redone with one.
+ */
+export async function saveForBooking(track: string): Promise<void> {
+  try {
+    sessionStorage.setItem(BOOK_KEY, track)
+    sessionStorage.removeItem(SAVED_KEY)
+  } catch { /* ignore */ }
+  await savePendingAssessment().catch(() => {})
+}
 
 function read<T>(key: string): T | null {
   try {
@@ -51,6 +67,7 @@ export async function savePendingAssessment(): Promise<void> {
       risk: result.risk,
       styles: result.styles,
       note: result.note ?? null,
+      forTrack: (() => { try { return sessionStorage.getItem(BOOK_KEY) } catch { return null } })(),
     }).catch(() => null)
     // Signed out, the action refuses: leave it pending for after sign-in.
     if (res?.ok) {

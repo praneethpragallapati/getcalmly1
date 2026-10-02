@@ -4,14 +4,15 @@ import { Sparkles, Users, ArrowRight } from 'lucide-react'
 /**
  * The first-assignment fork: "Match your clinician" (a few questions, we
  * recommend) or "Browse your clinician" (pick from the list yourself). Shown
- * only while a care type has a package but no clinician; once one is
- * attached, the care team shows them instead and this never appears again.
+ * only while a care type has no clinician (first thing when buying it); once
+ * one is attached, the care team shows them instead and this never appears again.
  */
 export function ChooseClinician({
   label,
   matchHref,
   browseHref,
   meta,
+  sub,
 }: {
   /** Care type, e.g. "Individual therapy". Omit for a general prompt. */
   label?: string
@@ -19,13 +20,15 @@ export function ChooseClinician({
   browseHref: string
   /** Small line under the heading, e.g. sessions left. */
   meta?: string
+  /** Replaces the default line under the heading. */
+  sub?: string
 }) {
   return (
     <div className="card cc-card">
       {label && <div className="cc-eyebrow">{label}</div>}
       <div className="cc-title">Let&apos;s find your clinician</div>
       <p className="cc-sub">
-        Your sessions are ready to use. Choose how you would like to meet the person you will work with.
+        {sub ?? 'Your sessions are ready to use. Choose how you would like to meet the person you will work with.'}
         {meta ? <span className="cc-meta"> {meta}</span> : null}
       </p>
 

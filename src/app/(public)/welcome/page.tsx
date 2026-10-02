@@ -47,7 +47,7 @@ export default async function WelcomePage({
   const booking = bookingSlug && (await isBookable(bookingSlug)) ? getClinician(bookingSlug) : undefined
   const nextUrl = booking ? `/checkout?care=${booking.type === 'Psychiatrist' ? 'psychiatry' : 'therapy'}` : next ?? '/app'
   const forChoice = !booking && Boolean(next && next.startsWith('/app/therapist/browse'))
-  const forResults = !booking && !forChoice && Boolean(next && (next.startsWith('/assess/results') || next === '/app/therapist'))
+  const forResults = !booking && !forChoice && Boolean(next && (next.startsWith('/assess/results') || next === '/app/therapist' || next.startsWith('/app/billing')))
 
   const essentials = await getMemberEssentials(user.id)
   if (!essentials || missingEssentials(essentials).length === 0) redirect(nextUrl)

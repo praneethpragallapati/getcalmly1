@@ -182,6 +182,25 @@ export async function matchAndAssignForTrack(userId: string, track: CareTrack, o
 }
 
 /**
+ * The clinician already attached for one care type (the per-care-type
+ * assignment column), or null. A patient can pick or be matched before buying,
+ * so a purchase attaches this one rather than matching afresh.
+ */
+export async function assignedClinicianFor(userId: string, track: CareTrack): Promise<string | null> {
+  try {
+    const col = ASSIGN_COLUMN[track]
+    const profile = await prisma.patientProfile.findUnique({
+      where: { userId },
+      select: { [col]: true } as Record<string, true>,
+    })
+    const v = (profile as Record<string, unknown> | null)?.[col]
+    return typeof v === 'string' && v ? v : null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Attach a specific clinician to a patient for one care type: the active
  * package(s) of that type and the per-care-type assignment column. Used by
  * auto-matching and by a patient choosing a clinician themselves ("Browse your
