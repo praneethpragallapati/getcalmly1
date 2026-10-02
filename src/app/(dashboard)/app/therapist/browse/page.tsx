@@ -48,7 +48,10 @@ export default async function BrowseCliniciansPage({
     )
   }
 
-  const slot: SlotKey = isSlotKey(sp.care) && open.includes(sp.care) ? sp.care : open[0]
+  // Arriving for one care type (from buying it), the page is locked to it:
+  // no tabs for the others.
+  const locked = isSlotKey(sp.care) && open.includes(sp.care)
+  const slot: SlotKey = locked ? (sp.care as SlotKey) : open[0]
   const clinicians = await getBrowsableClinicians(SLOT_TRACK[slot])
   // A pick carried back from the details step (an id, nothing else).
   const pick = typeof sp.pick === 'string' && /^[a-z0-9]+$/i.test(sp.pick) ? sp.pick : null
@@ -62,12 +65,12 @@ export default async function BrowseCliniciansPage({
         <div>
           <div className="page-title">Browse your clinician</div>
           <div className="page-meta">
-            {SLOT_LABEL[slot]} · every clinician here is licensed and taking new patients
+            {SLOT_LABEL[slot]} · {slot === 'psychiatry' ? 'NMC licensed psychiatrists' : 'RCI licensed therapists'} taking new patients
           </div>
         </div>
       </div>
 
-      {open.length > 1 && (
+      {!locked && open.length > 1 && (
         <div style={{ display: 'inline-flex', background: 'rgba(28,43,58,.05)', borderRadius: 999, padding: 3, gap: 2, flexWrap: 'wrap', alignSelf: 'flex-start' }}>
           {open.map((k) => (
             <Link

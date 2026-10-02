@@ -81,7 +81,13 @@ export async function getBrowsableClinicians(track: CareTrack): Promise<BrowseCl
         bio: true, photoUrl: true, user: { select: { name: true } },
       },
     })
-    const fit = rows.filter((r) => clinicianMatchesTrack(r.clinicianType, r.specializations, track))
+    // Psychiatry lists psychiatrists only; individual (adults and children) and
+    // couples list therapists only, never a psychiatrist. Couples specialists
+    // lead the couples list.
+    const fit = rows.filter((r) => (track === 'psychiatry') === isPsychiatrist(r.clinicianType, r.specializations))
+    const specialist = new Set(
+      track === 'couples' ? fit.filter((r) => clinicianMatchesTrack(r.clinicianType, r.specializations, 'couples')).map((r) => r.id) : [],
+    )
     const extras = await getTherapistExtras(fit.map((r) => r.id))
     return fit
       .filter((r) => (extras.get(r.id) ?? EXTRAS_DEFAULT).directBookingEligible)
@@ -95,7 +101,9 @@ export async function getBrowsableClinicians(track: CareTrack): Promise<BrowseCl
           bio: r.bio ?? '', photoUrl: r.photoUrl ?? null, licence: psych ? 'NMC' : 'RCI',
         } satisfies BrowseClinician
       })
-      .sort((a, b) => b.yearsExp - a.yearsExp || a.name.localeCompare(b.name))
+      .sort((a, b) =>
+        Number(specialist.has(b.profileId)) - Number(specialist.has(a.profileId)) ||
+        b.yearsExp - a.yearsExp || a.name.localeCompare(b.name))
   } catch {
     return []
   }
