@@ -9,6 +9,9 @@ import { BuyPackagePanel, FirstSessionPanel, type BuyGate } from '@/components/d
 import { ChooseClinician } from '@/components/dashboard/ChooseClinician'
 import { InvoiceList } from '@/components/dashboard/InvoiceList'
 
+// Per member, per request: never prerendered at build time.
+export const dynamic = 'force-dynamic'
+
 const BUYABLE = ['therapy', 'psychiatry', 'couples'] as const
 type BuyableTrack = (typeof BUYABLE)[number]
 

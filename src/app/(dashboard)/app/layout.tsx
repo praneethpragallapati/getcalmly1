@@ -18,6 +18,12 @@ import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
 import { fmtIST, istParts } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
+
+// Every dashboard page is one member's own data, rendered per request. Without
+// this, a page whose only request-time read sits inside a try/catch (e.g.
+// getSessionUserId) looks static, and the build prerenders it against the
+// database.
+export const dynamic = 'force-dynamic'
 import { backfillRegistrationNumbers } from '@/lib/registration'
 
 export const metadata: Metadata = {

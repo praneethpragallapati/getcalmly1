@@ -21,6 +21,9 @@ import { fmtIST, istParts } from '@/lib/tz'
 import { ensureContactSchema } from '@/lib/contactSchema'
 import { backfillRegistrationNumbers } from '@/lib/registration'
 
+// Per-user dashboard: rendered per request, never prerendered at build time.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Expert portal',
   robots: { index: false, follow: false },

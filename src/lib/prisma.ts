@@ -11,8 +11,9 @@ const globalForPrisma = globalThis as unknown as {
  *   a dedicated connection and runs out at its pool size (15), which locks
  *   everyone out with EMAXCONNSESSION. The transaction pooler (port 6543) on the
  *   same host shares connections, so we use it, in pgbouncer mode.
- * - Prisma's default pool is several connections per instance; one is enough
- *   per instance through a pooler.
+ * - Prisma's pool per instance is kept small (a page runs a few queries in
+ *   parallel, so one connection made them queue and time out), with a longer
+ *   wait before giving up.
  * Anything else (a local or direct database) is left exactly as configured.
  */
 function runtimeUrl(raw: string | undefined): string | undefined {
@@ -22,7 +23,8 @@ function runtimeUrl(raw: string | undefined): string | undefined {
     if (!u.hostname.endsWith('pooler.supabase.com')) return raw
     if (u.port === '5432' || u.port === '') u.port = '6543'
     if (u.port === '6543' && !u.searchParams.has('pgbouncer')) u.searchParams.set('pgbouncer', 'true')
-    if (!u.searchParams.has('connection_limit')) u.searchParams.set('connection_limit', '1')
+    if (!u.searchParams.has('connection_limit')) u.searchParams.set('connection_limit', '5')
+    if (!u.searchParams.has('pool_timeout')) u.searchParams.set('pool_timeout', '20')
     return u.toString()
   } catch {
     return raw
