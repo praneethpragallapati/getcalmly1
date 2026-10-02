@@ -100,14 +100,20 @@ export const authOptions: NextAuthOptions = {
         // if missing and assigns it to the Riya test therapist. Remove this
         // block — and the matching shortcut in the login page — before real use.
         if (mobile === OTP_BYPASS_MOBILE) {
-          const praneeth = await prisma.user.upsert({
-            where: { email: OTP_BYPASS_EMAIL },
-            update: {},
-            create: { email: OTP_BYPASS_EMAIL, role: 'PATIENT', name: 'Praneeth' },
-            select: { id: true, name: true, email: true },
-          })
-          await ensureDemoCaseload().catch(() => {})
-          return { id: praneeth.id, name: praneeth.name ?? undefined, email: praneeth.email ?? undefined }
+          try {
+            const praneeth = await prisma.user.upsert({
+              where: { email: OTP_BYPASS_EMAIL },
+              update: {},
+              create: { email: OTP_BYPASS_EMAIL, role: 'PATIENT', name: 'Praneeth' },
+              select: { id: true, name: true, email: true },
+            })
+            await ensureDemoCaseload().catch(() => {})
+            return { id: praneeth.id, name: praneeth.name ?? undefined, email: praneeth.email ?? undefined }
+          } catch (e) {
+            // Logged so a failed test sign-in is diagnosable from the server logs.
+            console.error('[auth] test-number sign-in failed reading or creating the account', e)
+            throw e
+          }
         }
 
         if (!otp) return null
@@ -223,7 +229,7 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: '/login' },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
+      if (user) try {
         // Always resolve to a REAL DB user id. Credentials providers already
         // return one. OAuth (Google) returns the provider's account id, which is
         // NOT a user row — so we link by email to the existing account (or create
@@ -245,6 +251,9 @@ export const authOptions: NextAuthOptions = {
         }
         token.uid = dbUser?.id ?? user.id
         token.role = dbUser?.role ?? 'PATIENT'
+      } catch (e) {
+        console.error('[auth] sign-in failed resolving the user in the jwt callback', e)
+        throw e
       }
       return token
     },

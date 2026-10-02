@@ -80,7 +80,8 @@ function LoginForm() {
         // Straight to the existing dashboard — this is a known account, so skip
         // the first-time /welcome details step.
         if (result?.ok) { await savePendingAssessment().catch(() => {}); router.push(nextPath ?? '/app'); return }
-        setError('Could not sign in. Please try again.')
+        // The code (e.g. Configuration, CredentialsSignin) says where it failed.
+        setError(`Could not sign in. Please try again.${result?.error ? ` (${result.error})` : ''}`)
       } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
       return
     }
