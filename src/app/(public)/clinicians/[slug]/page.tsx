@@ -95,13 +95,12 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
               </p>
 
               <div style={{ display: 'flex', gap: 34, flexWrap: 'wrap', marginBottom: 30 }}>
-                <MetaOnDark big={`${c.yearsExp}+`} label="years of experience" />
                 <MetaOnDark big={c.languages.join(' · ')} label={c.languages.length > 1 ? 'languages' : 'language'} />
               </div>
 
               <BookSessionButton slug={c.slug} name={c.name} accent={c.accent} />
               <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,.5)', marginTop: 12, lineHeight: 1.5 }}>
-                Booking directly with {firstName(c.name)} — you&apos;ll go straight to your details and payment.
+                Booking directly with {firstName(c.name)}: you&apos;ll go straight to your details and payment.
               </p>
             </div>
           </div>

@@ -77,7 +77,7 @@ export function ClinicianBrowser({
                 </span>
                 <div style={{ minWidth: 0 }}>
                   <div className="br-name">{c.name}</div>
-                  <div className="br-desig">{c.designation} · {c.yearsExp} yrs</div>
+                  <div className="br-desig">{c.designation}</div>
                   <span className="br-lic"><ShieldCheck size={12} style={{ verticalAlign: '-2px' }} /> {c.licence} licensed</span>
                 </div>
               </div>

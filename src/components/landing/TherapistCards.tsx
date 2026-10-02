@@ -70,7 +70,6 @@ export default function TherapistCards() {
                 ))}
               </div>
               <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-                <span>{t.years} yrs exp</span>
                 <span>{t.languages.join(' / ')}</span>
                 <span className="font-semibold text-[#C8553D]">₹{t.fee.toLocaleString()}/session</span>
               </div>

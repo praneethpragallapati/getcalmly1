@@ -64,9 +64,6 @@ function CareCard({
   const [open, setOpen] = useState(false)
   const pack = packs[i]
   const ps = perSession(pack)
-  // The list price, struck through beside the first-session price: the
-  // introductory discount, shown quietly and only when it is real.
-  const regular = base > firstSession ? base : null
   // Pack savings are measured against the list price, the undiscounted price.
   const disc = discountVsBase(ps, base)
   const badges = { [packs.length - 1]: 'Best value' }
@@ -85,10 +82,9 @@ function CareCard({
       <div className="pr-first" style={{ background: accent + '12', borderColor: accent + '33' }}>
         <span>
           <span className="pr-first-label">Your first session</span>
-          {regular && <span className="pr-first-note">Introductory price</span>}
+          <span className="pr-first-note">Introductory price</span>
         </span>
         <span>
-          {regular && <s className="pr-first-was">{inr(regular)}</s>}
           <span className="pr-first-val" style={{ color: accent }}>{inr(firstSession)}</span>
         </span>
       </div>
@@ -360,7 +356,6 @@ const CSS = `
   .pr-first-val{ font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: -0.5px; }
   .pr-first + .pr-cta{ margin-top: 12px; }
   .pr-first-note{ display: block; font-size: 11.5px; font-weight: 600; color: var(--charcoal-l, #5F6E7D); margin-top: 2px; }
-  .pr-first-was{ font-size: 14px; font-weight: 600; color: #8E9EAE; margin-right: 8px; }
   .pr-packs-h{ font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #5F6E7D; margin-bottom: 10px; }
   .pr-tier-label{ font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin: 16px 0 8px; }
 

@@ -168,7 +168,7 @@ function ClinicianCard({ c }: { c: Clinician }) {
           {c.title}
         </p>
         <p style={{ fontSize: 12.5, color: charcoalL, lineHeight: 1.4, margin: '0 0 14px' }}>
-          {c.yearsExp} yrs experience · {c.languages.join(', ')}
+          {c.languages.join(', ')}
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 'auto' }}>
           {c.specializations.slice(0, 3).map((s) => (

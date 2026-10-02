@@ -13,7 +13,7 @@ type FirstSession = { therapy: number; psychiatry: number; couples: number }
 
 const noSubscription = () => () => {}
 
-export default function Results({ firstSession, regular, pool }: { firstSession: FirstSession; regular: Partial<FirstSession>; pool: PoolClinician[] }) {
+export default function Results({ firstSession, pool }: { firstSession: FirstSession; pool: PoolClinician[] }) {
   const router = useRouter()
   const [booking, setBooking] = useState(false)
   const raw = useSyncExternalStore(noSubscription, () => sessionStorage.getItem(RESULT_KEY), () => null)
@@ -61,7 +61,6 @@ export default function Results({ firstSession, regular, pool }: { firstSession:
   // then match a clinician automatically.
   const track = flow.id === 'psychiatry' ? 'psychiatry' : flow.id === 'couple' ? 'couples' : 'therapy'
   const buyHref = `/app/billing?track=${track}`
-  const was = regular[track]
   // Book session matches for this care type first (saved now if signed in,
   // else right after sign-in), so billing opens on the first session itself.
   async function book() {
@@ -125,7 +124,7 @@ export default function Results({ firstSession, regular, pool }: { firstSession:
                       <p className="pa-desig">{c.designation}</p>
                     </div>
                   </div>
-                  <span className="pa-lic">✓ {c.licence} licensed · {c.yearsExp} yrs experience</span>
+                  <span className="pa-lic">✓ {c.licence} licensed</span>
                   <div>
                     <p className="pa-why-l">Why this match</p>
                     <div className="pa-why">
@@ -139,8 +138,8 @@ export default function Results({ firstSession, regular, pool }: { firstSession:
                   <p className="pa-meta">Speaks {c.languages.slice(0, 3).join(', ') || 'English'}</p>
                   <div className="pa-book">
                     <span className="pa-fee">
-                      {was ? <s className="pa-was">₹{was.toLocaleString('en-IN')}</s> : null}₹{price.toLocaleString('en-IN')}
-                      <small>first session{was ? ', introductory price' : ''}</small>
+                      ₹{price.toLocaleString('en-IN')}
+                      <small>first session, introductory price</small>
                     </span>
                     <a href={buyHref} onClick={(e) => { e.preventDefault(); void book() }} aria-busy={booking}>Book session</a>
                   </div>

@@ -357,14 +357,14 @@ export async function buyCalmPlusFor(patientId: string, packIndex: number): Prom
   return { ok: true, sessionsTotal: 0, sessionsRemaining: 0, walletApplied: wallet.creditUsed, amountPaid: wallet.finalAmount, paymentId, planName: planLabel }
 }
 
-export type InvoiceRow = { id: string; label: string; amount: number; dateLabel: string }
+export type InvoiceRow = { id: string; label: string; amount: number; dateLabel: string; dateIso: string }
 
 /** The patient's payment history, each with an id that links to its invoice PDF. */
 export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
   const KIND: Record<string, string> = { package: 'Session package', first_session: 'Intro session', calmplus: 'Calm+ subscription' }
   try {
     const rows = await prisma.payment.findMany({
-      where: { userId }, orderBy: { createdAt: 'desc' }, take: 50,
+      where: { userId }, orderBy: { createdAt: 'desc' }, take: 500,
       select: { id: true, amount: true, planName: true, kind: true, createdAt: true },
     })
     return rows.map((p) => ({
@@ -372,6 +372,7 @@ export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
       label: p.planName ?? KIND[p.kind] ?? 'Purchase',
       amount: p.amount,
       dateLabel: fmtIST(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+      dateIso: p.createdAt.toISOString(),
     }))
   } catch {
     return []

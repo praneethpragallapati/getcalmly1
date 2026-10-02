@@ -23,7 +23,7 @@ function MatchMock() {
         <div style={{ width: 46, height: 46, borderRadius: 12, background: 'rgba(26,127,122,.12)', color: '#1A7F7A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>AS</div>
         <div>
           <p style={{ fontSize: 14, fontWeight: 800, color: charcoal }}>Dr. Riya Lokesh</p>
-          <p style={{ fontSize: 12, color: '#5A6A7A' }}>Clinical Psychologist · 8 yrs · CBT</p>
+          <p style={{ fontSize: 12, color: '#5A6A7A' }}>Clinical Psychologist · CBT</p>
         </div>
       </div>
       <div className="stagger" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 14 }}>

@@ -31,8 +31,7 @@ export const psychiatryPacks: SessionPack[] = [
   { sessions: 4, months: 4, total: 4796 }, // ₹1,199 / session
 ]
 
-// Fixed first-session price per track: an introductory price below a regular
-// list price (see regularSessionPriceIn), never bundled. It is the only
+// Fixed first-session price per track: an introductory price, never bundled. It is the only
 // thing a new patient buys for a care type until that first session is bought.
 export const FIRST_SESSION: Record<'therapy' | 'psychiatry' | 'couples', number> = {
   therapy: 799,
@@ -197,14 +196,4 @@ export function buyablePacksIn(pricing: PricingValues, track: BuyableTrack): Buy
     index,
     perSession: Math.round(p.total / p.sessions),
   }))
-}
-
-/**
- * The list price shown struck through beside the first-session price, so the
- * introductory discount is visible without shouting. Null when the first
- * session is not actually cheaper (never claim a discount that isn't).
- */
-export function regularSessionPriceIn(pricing: PricingValues, track: BuyableTrack): number | null {
-  const base = baseForIn(pricing, track)
-  return base > pricing.firstSession[track] ? base : null
 }

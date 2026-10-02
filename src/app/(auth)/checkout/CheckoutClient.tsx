@@ -5,9 +5,8 @@ import { Suspense, useState, useSyncExternalStore } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getClinician, type Clinician } from '@/data/clinicians'
 
-/** First-session price per care type, and the regular single-session price
- *  it is introduced below (null when there is no saving to show). */
-export type CheckoutPrices = Record<'therapy' | 'psychiatry' | 'couples', { first: number; was: number | null; packFrom: number }>
+/** First-session (introductory) price per care type, and the lowest pack price. */
+export type CheckoutPrices = Record<'therapy' | 'psychiatry' | 'couples', { first: number; packFrom: number }>
 
 const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
@@ -20,7 +19,7 @@ type Plan = {
   name: string; accent: string
   benefits: string[]
   payToday: string
-  summary: { label: string; value: string; was?: string; note?: string }[]
+  summary: { label: string; value: string; note?: string }[]
   fineprint: string
   cta: string
 }
@@ -39,7 +38,7 @@ const plansFor = (p: CheckoutPrices): Record<PlanKey, Plan> => ({
     payToday: inr(p.therapy.first),
     summary: [
       { label: 'Plan', value: 'Therapy' },
-      { label: 'First session', value: inr(p.therapy.first), was: p.therapy.was ? inr(p.therapy.was) : undefined, note: p.therapy.was ? 'Introductory price' : undefined },
+      { label: 'First session', value: inr(p.therapy.first), note: 'Introductory price' },
       { label: 'After that', value: `Packs from ${inr(p.therapy.packFrom)} / session` },
       { label: 'Due today', value: inr(p.therapy.first) },
     ],
@@ -59,7 +58,7 @@ const plansFor = (p: CheckoutPrices): Record<PlanKey, Plan> => ({
     payToday: inr(p.couples.first),
     summary: [
       { label: 'Plan', value: 'Couples therapy' },
-      { label: 'First session', value: inr(p.couples.first), was: p.couples.was ? inr(p.couples.was) : undefined, note: p.couples.was ? 'Introductory price' : undefined },
+      { label: 'First session', value: inr(p.couples.first), note: 'Introductory price' },
       { label: 'After that', value: `Packs from ${inr(p.couples.packFrom)} / session` },
       { label: 'Due today', value: inr(p.couples.first) },
     ],
@@ -79,7 +78,7 @@ const plansFor = (p: CheckoutPrices): Record<PlanKey, Plan> => ({
     payToday: inr(p.psychiatry.first),
     summary: [
       { label: 'Plan', value: 'Psychiatry' },
-      { label: 'First consultation', value: inr(p.psychiatry.first), was: p.psychiatry.was ? inr(p.psychiatry.was) : undefined, note: p.psychiatry.was ? 'Introductory price' : undefined },
+      { label: 'First consultation', value: inr(p.psychiatry.first), note: 'Introductory price' },
       { label: 'After that', value: `Packs from ${inr(p.psychiatry.packFrom)} / session` },
       { label: 'Due today', value: inr(p.psychiatry.first) },
     ],
@@ -191,7 +190,6 @@ function CheckoutContent({ prices }: { prices: CheckoutPrices }) {
           <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderTop: idx === plan.summary.length - 1 ? '1px solid #EEF0F3' : 'none', marginTop: idx === plan.summary.length - 1 ? 4 : 0 }}>
             <span style={{ fontSize: 13.5, color: '#6B7D8E', fontWeight: idx === plan.summary.length - 1 ? 700 : 400 }}>{s.label}</span>
             <span style={{ fontSize: 13.5, color: charcoal, fontWeight: idx === plan.summary.length - 1 ? 800 : 600, textAlign: 'right' }}>
-              {s.was && <s style={{ color: '#A0ADB8', fontWeight: 500, marginRight: 6 }}>{s.was}</s>}
               {s.value}
               {s.note && <span style={{ display: 'block', fontSize: 11.5, color: '#8E9EAE', fontWeight: 500 }}>{s.note}</span>}
             </span>

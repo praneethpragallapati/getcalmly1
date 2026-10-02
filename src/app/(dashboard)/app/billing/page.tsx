@@ -1,12 +1,13 @@
 import Link from 'next/link'
-import { ArrowLeft, Download } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { getSessionUserId } from '@/lib/patient'
-import { hasPartnerOnRecord, getActivePackages, getInvoices } from '@/lib/billing'
+import { hasPartnerOnRecord, getActivePackages, getInvoices, type PackageBalance } from '@/lib/billing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { prisma } from '@/lib/prisma'
 import { MATCH_HREF, TRACK_SLOT } from '@/lib/clinicianChoice'
 import { BuyPackagePanel, FirstSessionPanel, type BuyGate } from '@/components/dashboard/BuyPackagePanel'
 import { ChooseClinician } from '@/components/dashboard/ChooseClinician'
+import { InvoiceList } from '@/components/dashboard/InvoiceList'
 
 const BUYABLE = ['therapy', 'psychiatry', 'couples'] as const
 type BuyableTrack = (typeof BUYABLE)[number]
@@ -29,12 +30,12 @@ const ASSIGN_COLUMN: Record<BuyableTrack, string> = {
  * - packs:  the first session is bought, so packages are open.
  * Read defensively: anything unreadable falls back to packages, as before.
  */
-async function getBuyGates(userId: string): Promise<Record<BuyableTrack, { gate: BuyGate; clinician: string | null }>> {
+async function getBuyGates(userId: string): Promise<Record<BuyableTrack, { gate: BuyGate; clinician: string | null; clinicianId: string | null }>> {
   const out = {
-    therapy: { gate: 'packs', clinician: null },
-    psychiatry: { gate: 'packs', clinician: null },
-    couples: { gate: 'packs', clinician: null },
-  } as Record<BuyableTrack, { gate: BuyGate; clinician: string | null }>
+    therapy: { gate: 'packs', clinician: null, clinicianId: null },
+    psychiatry: { gate: 'packs', clinician: null, clinicianId: null },
+    couples: { gate: 'packs', clinician: null, clinicianId: null },
+  } as Record<BuyableTrack, { gate: BuyGate; clinician: string | null; clinicianId: string | null }>
   try {
     const [subs, profile] = await Promise.all([
       prisma.subscription.findMany({
@@ -62,7 +63,7 @@ async function getBuyGates(userId: string): Promise<Record<BuyableTrack, { gate:
     for (const t of BUYABLE) {
       const bought = subs.some((x) => x.trackSlug === t)
       const id = ids.get(t)
-      out[t] = { gate: bought ? 'packs' : id ? 'first' : 'choose', clinician: id ? names.get(id) ?? null : null }
+      out[t] = { gate: bought ? 'packs' : id ? 'first' : 'choose', clinician: id ? names.get(id) ?? null : null, clinicianId: id ?? null }
     }
   } catch { /* keep the packages fallback */ }
   return out
@@ -82,8 +83,6 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
 
   // Totals across every package type the patient holds.
   const sessionsRemaining = packages.reduce((n, p) => n + p.remaining, 0)
-  const totalUsed = packages.reduce((n, p) => n + p.sessionsUsed, 0)
-  const firstSessionDone = totalUsed >= 1
   const hasPurchased = packages.length > 0
 
   const back = (
@@ -128,109 +127,117 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
     )
   }
 
-  // Nothing bought yet and no care type picked: which one to start with.
-  if (!hasPurchased && !track) {
+  const gateMap = gates ? { therapy: gates.therapy.gate, psychiatry: gates.psychiatry.gate, couples: gates.couples.gate } : {}
+
+  // Just bought the first session: a warm confirmation and the next step,
+  // picking a time. Packages wait until later.
+  if (track && sp.booked) {
+    const who = gates?.[track].clinician ?? null
+    const withId = gates?.[track].clinicianId ?? null
     return (
       <>
         <div className="page-head">
           <div>
             {back}
-            <h1 className="page-title" style={{ marginTop: 6 }}>Book your first session</h1>
+            <h1 className="page-title" style={{ marginTop: 6 }}>First session booked</h1>
           </div>
         </div>
-        <div className="stack" style={{ maxWidth: 1200 }}>
-          <p className="muted" style={{ margin: 0 }}>Choose the kind of care you would like. Packages open after your first session.</p>
-          <BuyPackagePanel
-            sessionsRemaining={0}
-            hasPartner={hasPartner}
-            pricing={pricing}
-            gates={gates ? { therapy: gates.therapy.gate, psychiatry: gates.psychiatry.gate, couples: gates.couples.gate } : {}}
-          />
+        <div className="card" style={{ maxWidth: 560, textAlign: 'center', padding: '36px 28px' }}>
+          <div style={{ fontSize: 40, marginBottom: 10 }} aria-hidden>🎉</div>
+          <div className="section-title" style={{ fontSize: 22, marginBottom: 6 }}>You&apos;re all set</div>
+          <p className="muted" style={{ margin: '0 auto 20px', maxWidth: 400, lineHeight: 1.6 }}>
+            Your first {TRACK_LABEL[track].toLowerCase()} session{who ? <> with <b style={{ color: 'var(--c-charcoal)' }}>{who}</b></> : null} is
+            purchased. Pick a time that suits you, and you can change it later if you need to.
+          </p>
+          <Link href={withId ? `/app/sessions?with=${withId}` : '/app/sessions'} className="btn btn-primary" style={{ padding: '12px 22px' }}>
+            Book a slot
+          </Link>
         </div>
       </>
     )
   }
 
-  const justBooked = Boolean(track && sp.booked)
+  // Buying more or renewing one service: that service only.
+  if (track) {
+    const pkg = packages.find((p) => p.track === track)
+    return (
+      <>
+        <div className="page-head">
+          <div>
+            {back}
+            <h1 className="page-title" style={{ marginTop: 6 }}>{TRACK_LABEL[track]} sessions</h1>
+          </div>
+        </div>
+        <div className="stack" style={{ maxWidth: 560 }}>
+          {pkg && <BalanceCard pkg={pkg} withId={gates?.[track].clinicianId ?? null} />}
+          <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} gates={gateMap} only={track} />
+        </div>
+      </>
+    )
+  }
+
+  // Manage plan: each service's balance, then buying, then invoices.
   return (
     <>
       <div className="page-head">
         <div>
           {back}
-          <h1 className="page-title" style={{ marginTop: 6 }}>{track ? `${TRACK_LABEL[track]} sessions` : 'Buy a package'}</h1>
+          <h1 className="page-title" style={{ marginTop: 6 }}>{hasPurchased ? 'Manage plan' : 'Book your first session'}</h1>
         </div>
-        <span className="page-meta">{sessionsRemaining} {sessionsRemaining === 1 ? 'session' : 'sessions'} remaining</span>
+        {hasPurchased && <span className="page-meta">{sessionsRemaining} {sessionsRemaining === 1 ? 'session' : 'sessions'} remaining</span>}
       </div>
 
       <div className="stack" style={{ maxWidth: 1200 }}>
-        {justBooked && track && (
-          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', background: 'var(--c-green-pale, #E5F4EE)', borderColor: 'transparent' }}>
-            <span style={{ fontSize: 26 }} aria-hidden>🎉</span>
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <div className="section-title" style={{ marginBottom: 2 }}>Your first session is booked</div>
-              <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>
-                {gates?.[track].clinician ? `Pick a time with ${gates[track].clinician} in Sessions. ` : 'Pick a time in Sessions. '}
-                Packages for {TRACK_LABEL[track].toLowerCase()} are open below whenever you would like more.
-              </p>
-            </div>
-            <Link href="/app/sessions" className="btn btn-primary btn-sm">Pick a time</Link>
-          </div>
-        )}
-        {hasPurchased && (!track || packages.some((pkg) => pkg.track === track)) && (
-          <div className="card">
-            <div className="section-title">Your current balances</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
-              {packages.filter((pkg) => !track || pkg.track === track).map((pkg) => (
-                <div
-                  key={pkg.track}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', paddingBottom: 10, borderBottom: '1px solid var(--c-line)' }}
-                >
-                  <div>
-                    <div className="doc-name" style={{ fontSize: 15 }}>{pkg.label}</div>
-                    <div className="muted" style={{ fontSize: 12.5 }}>
-                      {pkg.planName}{pkg.validUntil ? ` · valid until ${pkg.validUntil}` : ''}{pkg.expired ? ' · expired' : ''}
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: pkg.remaining > 0 ? 'var(--c-green, #3D9E72)' : 'var(--c-coral, #C8553D)' }}>
-                    {pkg.remaining} of {pkg.sessionsTotal} left
-                  </div>
-                </div>
-              ))}
-            </div>
-            {!firstSessionDone && !justBooked && (
-              <p className="muted" style={{ marginTop: 12 }}>
-                Your first session is booked. Schedule it in{' '}
-                <Link href="/app/sessions" className="link-action">Sessions</Link>. You can add a package below whenever you&apos;re ready.
-              </p>
-            )}
-          </div>
-        )}
-        {!track && invoices.length > 0 && (
-          <div className="card">
-            <div className="section-title">Invoices</div>
-            <div style={{ display: 'flex', flexDirection: 'column', marginTop: 8 }}>
-              {invoices.map((inv) => (
-                <div key={inv.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '11px 0', borderTop: '1px solid var(--c-line)' }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-charcoal)' }}>{inv.label}</div>
-                    <div className="muted" style={{ fontSize: 12.5 }}>{inv.dateLabel} · ₹{inv.amount.toLocaleString('en-IN')}</div>
-                  </div>
-                  <a href={`/app/billing/invoice/${inv.id}`} target="_blank" rel="noopener" className="link-action" style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                    <Download size={14} /> Invoice
-                  </a>
-                </div>
+        {hasPurchased && (
+          <div>
+            <div className="section-title" style={{ marginBottom: 12 }}>Your balance</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: 16 }}>
+              {packages.map((pkg) => (
+                <BalanceCard key={pkg.track} pkg={pkg} withId={gates && isBuyable(pkg.track) ? gates[pkg.track].clinicianId : null} />
               ))}
             </div>
           </div>
         )}
-        <BuyPackagePanel
-          sessionsRemaining={sessionsRemaining}
-          hasPartner={hasPartner}
-          pricing={pricing}
-          gates={gates ? { therapy: gates.therapy.gate, psychiatry: gates.psychiatry.gate, couples: gates.couples.gate } : {}}
-          only={track}
-        />
+
+        <div>
+          <div className="section-title" style={{ marginBottom: 4 }}>{hasPurchased ? 'Buy sessions' : 'Choose your care'}</div>
+          <p className="muted" style={{ margin: '0 0 14px', fontSize: 13.5 }}>
+            {hasPurchased
+              ? 'Add sessions to a service you have, or start a new one with your first session.'
+              : 'Start with your first session, at an introductory price.'}
+          </p>
+          <BuyPackagePanel sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} gates={gateMap} />
+        </div>
+
+        {invoices.length > 0 && <InvoiceList invoices={invoices} />}
       </div>
     </>
+  )
+}
+
+function isBuyable(t: string): t is BuyableTrack {
+  return (BUYABLE as readonly string[]).includes(t)
+}
+
+/** One service's balance on its own card, with the way to use it. */
+function BalanceCard({ pkg, withId }: { pkg: PackageBalance; withId: string | null }) {
+  return (
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--c-green, #3D9E72)' }}>{pkg.label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28, color: pkg.remaining > 0 ? 'var(--c-charcoal)' : 'var(--c-coral, #C8553D)', lineHeight: 1 }}>
+          {pkg.remaining}
+        </span>
+        <span className="muted" style={{ fontSize: 13.5 }}>of {pkg.sessionsTotal} {pkg.sessionsTotal === 1 ? 'session' : 'sessions'} left</span>
+      </div>
+      <div className="muted" style={{ fontSize: 12.5 }}>
+        {pkg.planName}{pkg.validUntil ? ` · ${pkg.expired ? 'expired' : 'valid until'} ${pkg.validUntil}` : ''}
+      </div>
+      {pkg.remaining > 0 && !pkg.expired && (
+        <Link href={withId ? `/app/sessions?with=${withId}` : '/app/sessions'} className="link-action" style={{ marginTop: 4, fontSize: 13.5, fontWeight: 700 }}>
+          Book a slot →
+        </Link>
+      )}
+    </div>
   )
 }

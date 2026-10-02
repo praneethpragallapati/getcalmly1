@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
 import {
-  buyablePacksIn, baseForIn, discountVsBase, inr, regularSessionPriceIn,
+  buyablePacksIn, baseForIn, discountVsBase, inr,
   type BuyableTrack, type PricingValues,
 } from '@/data/pricing'
 import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
@@ -398,21 +398,18 @@ export function BuyPackagePanel({
  *  session at its introductory price, then packages. */
 export type BuyGate = 'choose' | 'first' | 'packs'
 
-/** The introductory first-session price, with the regular price struck beside
- *  it when there is one. Kept quiet on purpose: a note, not a banner. */
-function IntroPrice({ price, was, size = 26 }: { price: number; was: number | null; size?: number }) {
+/** The introductory first-session price. Kept quiet on purpose: a note, not
+ *  a banner, and no struck-through price beside it. */
+function IntroPrice({ price, size = 26 }: { price: number; size?: number }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-        {was ? (
-          <s style={{ fontSize: Math.round(size * 0.55), fontWeight: 600, color: 'var(--c-gray)' }}>{inr(was)}</s>
-        ) : null}
         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: size, color: 'var(--c-charcoal)', lineHeight: 1 }}>
           {inr(price)}
         </span>
       </div>
       <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 4 }}>
-        {was ? 'Introductory price for your first session' : 'Your first session'}
+        Introductory price for your first session
       </span>
     </div>
   )
@@ -429,13 +426,15 @@ function IntroCard({ track, gate, pricing }: { track: BuyableTrack; gate: 'choos
     <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
       <div className="section-title" style={{ marginBottom: 2 }}>{TAB_LABEL[track]}</div>
       <p className="muted" style={{ fontSize: 12.5, marginBottom: 14 }}>{TAB_SUB[track]}</p>
-      <IntroPrice price={price} was={regularSessionPriceIn(pricing, track)} />
+      <IntroPrice price={price} />
       <Link
         href={`/app/billing?track=${track}`}
         className="btn btn-primary"
         style={{ marginTop: 14, width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
       >
-        {gate === 'choose' ? 'Find your clinician' : `Book first session · ${inr(price)}`}
+        {gate === 'choose'
+          ? `Book your ${track === 'psychiatry' ? 'psychiatrist' : 'psychologist'}`
+          : `Book first session · ${inr(price)}`}
       </Link>
       <div style={{ borderTop: '1px solid var(--c-line)', marginTop: 16, paddingTop: 14, flex: 1 }}>
         <IncludedList tab={track} />
@@ -470,7 +469,6 @@ export function FirstSessionPanel({
 
   const needsPartner = track === 'couples' && !hasPartner
   const price = pricing.firstSession[track]
-  const was = regularSessionPriceIn(pricing, track)
 
   function handleBuy() {
     setError('')
@@ -503,7 +501,7 @@ export function FirstSessionPanel({
         {TAB_SUB[track]}.
       </p>
 
-      <IntroPrice price={price} was={was} size={30} />
+      <IntroPrice price={price} size={30} />
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
 

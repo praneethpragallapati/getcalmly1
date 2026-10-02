@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ShieldCheck, Languages, CalendarDays, Video, MessageCircle,
+import { ShieldCheck, Languages, CalendarDays, Video, ShoppingBag,
   Sparkles, UserPlus, Clock, FileText,
 } from 'lucide-react'
 import { getMyCareTeam, type CareSlot } from '@/lib/therapist'
@@ -137,7 +137,7 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
         <span className="ther-avatar">{t.initials}</span>
         <div style={{ minWidth: 0 }}>
           <div className="doc-name" style={{ fontSize: 20 }}>{t.name}</div>
-          <div className="doc-sub" style={{ fontSize: 14 }}>{t.designation} · {t.yearsExp} yrs</div>
+          <div className="doc-sub" style={{ fontSize: 14 }}>{t.designation}</div>
           <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
             {/* No rating chip: a patient must never see their own clinician's
                 score. It invites comparison shopping inside an active
@@ -183,8 +183,8 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
           <Link href="/app/sessions" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
             <FileText size={16} /> Manage sessions
           </Link>
-          <Link href="/app/calm-ai" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
-            <MessageCircle size={16} /> Prepare with getCalmly AI
+          <Link href={slot.buyHref} className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
+            <ShoppingBag size={16} /> Buy sessions
           </Link>
         </div>
       </div>
