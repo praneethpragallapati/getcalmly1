@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
 import {
-  buyablePacksIn, inr, regularSessionPriceIn,
+  buyablePacksIn, baseForIn, discountVsBase, inr, regularSessionPriceIn,
   type BuyableTrack, type PricingValues,
 } from '@/data/pricing'
 import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
@@ -207,6 +207,9 @@ function TrackCard({
   // Selected option, summarised.
   const priceMain = isCalmPlus ? inr(Math.floor(appPack.total / appPack.months)) : inr(pack.perSession)
   const priceUnit = isCalmPlus ? '/ month' : '/ session'
+  // Saving against the 1-session package, the undiscounted price.
+  const base = isCalmPlus ? 0 : baseForIn(pricing, tab as BuyableTrack)
+  const save = isCalmPlus || !pack ? 0 : discountVsBase(pack.perSession, base)
   const priceSub = isCalmPlus
     ? `${inr(appPack.total)} total · billed once`
     : `${inr(pack.total)} total · valid ${pack.months} ${pack.months === 1 ? 'month' : 'months'}`
@@ -270,13 +273,23 @@ function TrackCard({
       {/* Selected option, summarised */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 14 }}>
         <div>
+          {save > 0 && (
+            <s style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-gray)', marginRight: 6 }}>{inr(base)}</s>
+          )}
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 26, color: 'var(--c-charcoal)', lineHeight: 1 }}>
             {priceMain}
           </span>
           <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--c-gray-d)', marginLeft: 5 }}>{priceUnit}</span>
           <span style={{ display: 'block', fontSize: 12, color: 'var(--c-gray)', marginTop: 4 }}>{priceSub}</span>
         </div>
-        {isBest && <BestValue />}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+          {isBest && <BestValue />}
+          {save > 0 && (
+            <span style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--c-green, #3D9E72)', background: 'rgba(61,158,114,.1)', padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>
+              Save {save}%
+            </span>
+          )}
+        </div>
       </div>
 
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}

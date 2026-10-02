@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  perSession, inr, discountVsBase,
+  perSession, inr, discountVsBase, singleSessionBase,
   freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures, couplesFeatures,
   type SessionPack, type AppPack, type PricingValues,
 } from '@/data/pricing'
@@ -68,7 +68,8 @@ function CareCard({
   // the introductory discount, shown quietly and only when it is real.
   const single = packs.find((p) => p.sessions === 1)
   const regular = single && single.total > firstSession ? single.total : null
-  const disc = discountVsBase(ps, base)
+  // Pack savings are measured against the 1-session package, the undiscounted price.
+  const disc = discountVsBase(ps, singleSessionBase(packs, base))
   const badges = { [packs.length - 1]: 'Best value' }
 
   return (
@@ -107,7 +108,7 @@ function CareCard({
         {features.map((f) => <Feature key={f} text={f} accent={accent} />)}
       </div>
 
-      {/* Pack pricing lives behind a disclosure — it's for reference only, since
+      {/* Pack pricing lives behind a disclosure, for reference only, since
           packs are bought later from the dashboard, after the first session. */}
       <button
         type="button"
@@ -125,7 +126,7 @@ function CareCard({
           <div className="pr-price-row">
             <span className="pr-price" style={{ color: accent }}>{inr(ps)}</span>
             <span className="pr-price-note">/ session</span>
-            <span className="pr-save">Save {disc}%</span>
+            {disc > 0 && <span className="pr-save">Save {disc}%</span>}
           </div>
           <p className="pr-valid">
             {inr(pack.total)} total for {pack.sessions} {pack.sessions === 1 ? 'session' : 'sessions'} · valid {pack.months} {pack.months === 1 ? 'month' : 'months'}

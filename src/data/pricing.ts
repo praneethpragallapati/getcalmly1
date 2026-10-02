@@ -176,13 +176,23 @@ export function packsForIn(pricing: PricingValues, track: BuyableTrack): Session
       : pricing.therapyPacks
 }
 
-/** The struck-through MRP for a track within a resolved pricing model. */
+/**
+ * The undiscounted price of one session for a track: its 1-session package.
+ * Every pack's saving, and the first session's introductory price, is measured
+ * against this. Falls back to the configured list price only if no 1-session
+ * pack exists.
+ */
 export function baseForIn(pricing: PricingValues, track: BuyableTrack): number {
-  return track === 'psychiatry'
+  return singleSessionBase(packsForIn(pricing, track), track === 'psychiatry'
     ? pricing.psychiatryBase
     : track === 'couples'
       ? pricing.couplesBase
-      : pricing.therapyBase
+      : pricing.therapyBase)
+}
+
+/** The 1-session pack's price from a pack list, else `fallback`. */
+export function singleSessionBase(packs: SessionPack[], fallback: number): number {
+  return packs.find((p) => p.sessions === 1)?.total ?? fallback
 }
 
 /** Packs for a track, with derived per-session price + index, from a pricing model. */

@@ -93,7 +93,12 @@ function PackTable({
         <Plus size={14} /> Add pack
       </button>
       <label style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, fontSize: 13.5, color: '#3A4A5A' }}>
-        <span style={{ fontWeight: 600 }}>List price / session (MRP, struck through)</span>
+        <span style={{ fontWeight: 600 }}>
+          List price / session
+          <span style={{ display: 'block', fontWeight: 400, fontSize: 12, color: '#6B7D8E' }}>
+            Used only if there is no 1-session pack. Pack savings and the introductory first session are measured against the 1-session pack.
+          </span>
+        </span>
         <span style={{ width: 130 }}><NumInput value={base} onChange={onBase} prefix="₹" /></span>
       </label>
     </div>
