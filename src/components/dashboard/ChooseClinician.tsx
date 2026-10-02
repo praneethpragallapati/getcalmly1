@@ -13,7 +13,10 @@ export function ChooseClinician({
   browseHref,
   meta,
   sub,
+  title = 'Let’s find your clinician',
 }: {
+  /** Replaces the default heading. */
+  title?: string
   /** Care type, e.g. "Individual therapy". Omit for a general prompt. */
   label?: string
   matchHref: string
@@ -26,7 +29,7 @@ export function ChooseClinician({
   return (
     <div className="card cc-card">
       {label && <div className="cc-eyebrow">{label}</div>}
-      <div className="cc-title">Let&apos;s find your clinician</div>
+      <div className="cc-title">{title}</div>
       <p className="cc-sub">
         {sub ?? 'Your sessions are ready to use. Choose how you would like to meet the person you will work with.'}
         {meta ? <span className="cc-meta"> {meta}</span> : null}

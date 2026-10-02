@@ -105,7 +105,9 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         <div className="page-head">
           <div>
             {back}
-            <h1 className="page-title" style={{ marginTop: 6 }}>Book {TRACK_LABEL[track].toLowerCase()}</h1>
+            <h1 className="page-title" style={{ marginTop: 6 }}>
+              {focus.gate === 'choose' ? `Book your ${track === 'psychiatry' ? 'psychiatrist' : 'psychologist'}` : 'Book your first session'}
+            </h1>
           </div>
           <span className="page-meta">{focus.gate === 'choose' ? 'Step 1 of 2 · your clinician' : 'Step 2 of 2 · your first session'}</span>
         </div>
@@ -113,9 +115,10 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           {focus.gate === 'choose' ? (
             <ChooseClinician
               label={TRACK_LABEL[track]}
+              title={`Let's find your ${track === 'psychiatry' ? 'psychiatrist' : 'psychologist'}`}
               matchHref={MATCH_HREF[slot]}
               browseHref={`/app/therapist/browse?care=${slot}`}
-              sub="First, the person you will work with. Then your first session with them, at an introductory price."
+              sub={`First, the ${track === 'psychiatry' ? 'psychiatrist' : 'psychologist'} you will work with: we can match you, or you can choose from our team. Then your first session with them, at an introductory price.`}
             />
           ) : (
             <FirstSessionPanel track={track} clinicianName={focus.clinician} hasPartner={hasPartner} pricing={pricing} />
@@ -154,7 +157,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       <div className="page-head">
         <div>
           {back}
-          <h1 className="page-title" style={{ marginTop: 6 }}>Buy a package</h1>
+          <h1 className="page-title" style={{ marginTop: 6 }}>{track ? `${TRACK_LABEL[track]} sessions` : 'Buy a package'}</h1>
         </div>
         <span className="page-meta">{sessionsRemaining} {sessionsRemaining === 1 ? 'session' : 'sessions'} remaining</span>
       </div>
@@ -173,11 +176,11 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             <Link href="/app/sessions" className="btn btn-primary btn-sm">Pick a time</Link>
           </div>
         )}
-        {hasPurchased && (
+        {hasPurchased && (!track || packages.some((pkg) => pkg.track === track)) && (
           <div className="card">
             <div className="section-title">Your current balances</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
-              {packages.map((pkg) => (
+              {packages.filter((pkg) => !track || pkg.track === track).map((pkg) => (
                 <div
                   key={pkg.track}
                   style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', paddingBottom: 10, borderBottom: '1px solid var(--c-line)' }}
@@ -202,7 +205,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
             )}
           </div>
         )}
-        {invoices.length > 0 && (
+        {!track && invoices.length > 0 && (
           <div className="card">
             <div className="section-title">Invoices</div>
             <div style={{ display: 'flex', flexDirection: 'column', marginTop: 8 }}>
@@ -225,6 +228,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           hasPartner={hasPartner}
           pricing={pricing}
           gates={gates ? { therapy: gates.therapy.gate, psychiatry: gates.psychiatry.gate, couples: gates.couples.gate } : {}}
+          only={track}
         />
       </div>
     </>

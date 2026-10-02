@@ -79,6 +79,8 @@ export function BookSession({
   }
 
   const selectedType = clinicians.find((c) => c.profileId === selectedId)?.typeLabel
+  // Renewing goes to that service's packages only.
+  const renewHref = `/app/billing${selectedType ? `?track=${/psychiatr/i.test(selectedType) ? 'psychiatry' : /couple/i.test(selectedType) ? 'couples' : 'therapy'}` : ''}`
 
   // No clinician attached yet → the same Match / Browse choice as the care
   // team, instead of a mystery calendar.
@@ -87,7 +89,7 @@ export function BookSession({
       <>
         <ChooseClinician matchHref="/app/assessment" browseHref="/app/therapist/browse" />
         <p className="muted" style={{ fontSize: 13, margin: '10px 2px 0' }}>
-          No sessions yet? <Link href="/app/billing" style={{ fontWeight: 700 }}>Get a package</Link> first.
+          Or <Link href="/app/therapist" style={{ fontWeight: 700 }}>see your care team</Link> to book a psychologist or psychiatrist.
         </p>
       </>
     )
@@ -151,7 +153,7 @@ export function BookSession({
             Renew or extend it to book a session.
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Link href="/app/billing" className="btn btn-primary btn-sm">Renew package</Link>
+            <Link href={renewHref} className="btn btn-primary btn-sm">Renew package</Link>
             <a className="btn btn-outline btn-sm" href={`mailto:${contactEmail}?subject=Renew%20my%20package`} style={{ textDecoration: 'none' }}>Contact support</a>
           </div>
         </div>

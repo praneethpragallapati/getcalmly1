@@ -342,13 +342,23 @@ export function BuyPackagePanel({
   hasPartner = false,
   pricing,
   gates = {},
+  only,
 }: {
   sessionsRemaining: number
   hasPartner?: boolean
   pricing: PricingValues
   /** Care types not yet past their first session show that step instead. */
   gates?: Partial<Record<BuyableTrack, BuyGate>>
+  /** Buying or renewing one service: show its packages alone. */
+  only?: BuyableTrack
 }) {
+  if (only) {
+    return (
+      <div style={{ maxWidth: 560 }}>
+        <TrackCard tab={only} sessionsRemaining={sessionsRemaining} hasPartner={hasPartner} pricing={pricing} />
+      </div>
+    )
+  }
   return (
     <>
       {/* The three session package types, one line */}

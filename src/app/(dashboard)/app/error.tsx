@@ -32,7 +32,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         Something went wrong
       </h2>
       <p style={{ fontSize: 14.5, color: 'var(--c-gray-d)', lineHeight: 1.6, margin: '0 0 22px' }}>
-        We couldn&apos;t load this page. This is on us, not you — please try again in a moment.
+        We couldn&apos;t load this page. This is on us, not you. Please try again in a moment.
       </p>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
         <button type="button" className="btn btn-primary" onClick={reset}>

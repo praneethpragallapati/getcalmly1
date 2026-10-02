@@ -63,10 +63,10 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
           </span>
           <div style={{ flex: 1, minWidth: 200 }}>
             <div className="doc-name" style={{ fontSize: 17 }}>{slot.label}</div>
-            <div className="doc-sub" style={{ fontSize: 13.5 }}>{slot.blurb} You don&apos;t have a {slot.label.toLowerCase()} package yet.</div>
+            <div className="doc-sub" style={{ fontSize: 13.5 }}>{slot.blurb} Get matched or choose your {slot.key === 'psychiatry' ? 'psychiatrist' : 'psychologist'} yourself.</div>
           </div>
           <Link href={slot.buyHref} className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-            Buy a package
+            {slot.key === 'psychiatry' ? 'Book your psychiatrist' : 'Book your psychologist'}
           </Link>
         </div>
       </div>
@@ -128,7 +128,7 @@ function CareSlotCard({ slot, assessmentDone }: { slot: CareSlot; assessmentDone
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {slot.hasPack
             ? <span className="ther-chip"><Clock size={13} /> {slot.sessionsLeft} of {slot.sessionsTotal} left{slot.validUntil ? ` · ${slot.expired ? 'expired' : 'valid until'} ${slot.validUntil}` : ''}</span>
-            : <Link href={slot.buyHref} className="ther-chip" style={{ textDecoration: 'none' }}>No active package · get one</Link>}
+            : <Link href={slot.buyHref} className="ther-chip" style={{ textDecoration: 'none' }}>No sessions left · book more</Link>}
           <Link href={`/app/sessions?with=${t.profileId}`} className="btn btn-primary btn-sm"><CalendarDays size={14} /> Book</Link>
         </div>
       </div>

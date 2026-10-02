@@ -380,16 +380,23 @@ export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
 
 /** Whether the patient already has a partner on record (for couples purchases). */
 export async function hasPartnerOnRecord(patientId: string): Promise<boolean> {
-  const profile = await prisma.patientProfile.findUnique({
-    where: { userId: patientId },
-    select: { id: true },
-  })
-  if (!profile) return false
-  const partner = await prisma.relatedPerson.findFirst({
-    where: { profileId: profile.id, relation: 'PARTNER' },
-    select: { id: true },
-  })
-  return !!partner
+  // Read defensively: it is asked on every buy page, so a missing table or a
+  // database blip must mean "ask for the partner", never a page that fails.
+  try {
+    const profile = await prisma.patientProfile.findUnique({
+      where: { userId: patientId },
+      select: { id: true },
+    })
+    if (!profile) return false
+    const partner = await prisma.relatedPerson.findFirst({
+      where: { profileId: profile.id, relation: 'PARTNER' },
+      select: { id: true },
+    })
+    return !!partner
+  } catch (e) {
+    console.error('[hasPartnerOnRecord] could not read the partner', e)
+    return false
+  }
 }
 
 /** Save the partner's contact details collected during a couples purchase. */
