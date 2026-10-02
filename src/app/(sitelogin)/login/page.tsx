@@ -80,8 +80,12 @@ function LoginForm() {
         // Straight to the existing dashboard — this is a known account, so skip
         // the first-time /welcome details step.
         if (result?.ok) { await savePendingAssessment().catch(() => {}); router.push(nextPath ?? '/app'); return }
-        // The code (e.g. Configuration, CredentialsSignin) says where it failed.
-        setError(`Could not sign in. Please try again.${result?.error ? ` (${result.error})` : ''}`)
+        // A short code (e.g. CredentialsSignin) says where it failed; a raw
+        // server error is never shown. A busy database gets its own message.
+        const code = result?.error ?? ''
+        setError(/EMAXCONN|too many|max clients/i.test(code)
+          ? 'We are very busy right now. Please try again in a minute.'
+          : `Could not sign in. Please try again.${/^\w+$/.test(code) ? ` (${code})` : ''}`)
       } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
       return
     }
