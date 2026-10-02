@@ -441,10 +441,6 @@ export type AssessmentResult = {
   styles: string[]
   /** The concerns they picked, in their own words, for the summary. */
   concerns: string[]
-  /** Parts of life most affected (Individual / Psychiatry). */
-  areas?: string[]
-  /** What they hope will change (Child / Couples). */
-  hopes?: string[]
   prefs: Prefs
   note?: string
 }
@@ -455,8 +451,6 @@ export function scoreAssessment(flow: Flow, answers: Answers, prefs: Prefs): Ass
   const needs: string[] = [...flow.baseNeeds]
   const styles: string[] = []
   const concerns: string[] = []
-  const areas: string[] = []
-  const hopes: string[] = []
 
   for (const q of flow.questions) {
     const a = answers[q.id]
@@ -468,8 +462,6 @@ export function scoreAssessment(flow: Flow, answers: Answers, prefs: Prefs): Ass
       o.styles?.forEach((s) => { if (!styles.includes(s)) styles.push(s) })
     }
     if (q.id === 'feeling') concerns.push(...picked.map((o) => o.label))
-    if (q.id === 'areas') areas.push(...picked.map((o) => o.label))
-    if (q.id === 'goals' || q.id === 'improve') hopes.push(...picked.map((o) => o.label))
     if (q.scoreEach) score += picked.length
     else if (q.kind === 'single' && picked[0]?.score !== undefined) {
       score += picked[0].score
@@ -485,7 +477,7 @@ export function scoreAssessment(flow: Flow, answers: Answers, prefs: Prefs): Ass
     : (riskScore >= 2 ? 2 : riskScore === 1 ? 1 : 0)
 
   const note = typeof answers.note === 'string' && answers.note.trim() ? answers.note.trim().slice(0, 1500) : undefined
-  return { flow: flow.id, score, level, risk, needs, styles, concerns, areas, hopes, prefs, note }
+  return { flow: flow.id, score, level, risk, needs, styles, concerns, prefs, note }
 }
 
 /** The legacy severity words the rest of the app still reads. */

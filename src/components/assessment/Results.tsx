@@ -4,8 +4,6 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { savePendingAssessment, RESULT_KEY } from '@/lib/pendingAssessment'
 import { FLOWS, type AssessmentResult } from '@/data/assessments'
-import { whatWeHeard, carePlan, tipsFor, firstSessionSteps } from '@/data/assessmentInsights'
-import { HeartHandshake, CalendarDays, Route, Leaf } from 'lucide-react'
 import { rankClinicians } from '@/data/assessmentMatch'
 import type { PoolClinician } from '@/lib/assessmentPool'
 import { PATH_LOOK } from './AssessmentStep1'
@@ -56,9 +54,6 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
   const accent = PATH_LOOK[flow.id].color
   const price = flow.id === 'psychiatry' ? firstSession.psychiatry : flow.id === 'couple' ? firstSession.couples : firstSession.therapy
   const needsShown = result.needs.filter((n) => !flow.baseNeeds.includes(n))
-  const plan = carePlan(flow.id, result.level)
-  const tips = tipsFor(result)
-  const steps = firstSessionSteps(flow.id)
   // Booking starts with the first session for this path; the saved answers
   // then match a clinician automatically.
   const buyHref = `/app/billing?track=${flow.id === 'psychiatry' ? 'psychiatry' : flow.id === 'couple' ? 'couples' : 'therapy'}`
@@ -74,11 +69,6 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
             answers score, an on-screen alarm frightens people away from the very
             help they came for. A risk answer is still saved and raises an alert
             for the clinician, who follows the risk protocol at the first session. */}
-
-        <blockquote className="pa-heard">
-          <span className="pa-heard-l">What we heard</span>
-          {whatWeHeard(result)}
-        </blockquote>
 
         <div className="pa-summary">
           <div>
@@ -102,29 +92,6 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
           </div>
         </div>
 
-        <h2 className="pa-h2">Your <em>care plan.</em></h2>
-        <p className="pa-hint">What support usually looks like for answers like yours. Your clinician shapes the details with you.</p>
-        <div className="pa-plan">
-          <div className="pa-plan-tile">
-            <span className="pa-plan-ic"><HeartHandshake size={18} /></span>
-            <span className="pa-plan-l">Recommended care</span>
-            <span className="pa-plan-v">{plan.care}</span>
-            <span className="pa-plan-n">{plan.careNote}</span>
-          </div>
-          <div className="pa-plan-tile">
-            <span className="pa-plan-ic"><CalendarDays size={18} /></span>
-            <span className="pa-plan-l">Suggested rhythm</span>
-            <span className="pa-plan-v">{plan.rhythm}</span>
-            <span className="pa-plan-n">{plan.rhythmNote}</span>
-          </div>
-          <div className="pa-plan-tile">
-            <span className="pa-plan-ic"><Route size={18} /></span>
-            <span className="pa-plan-l">Typical length</span>
-            <span className="pa-plan-v">{plan.length}</span>
-            <span className="pa-plan-n">{plan.lengthNote}</span>
-          </div>
-        </div>
-
         <h2 className="pa-h2">Your <em>best matches.</em></h2>
         <p className="pa-hint">Ranked by how closely what each clinician offers fits what you need.</p>
 
@@ -134,7 +101,6 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
           <div className="pa-matches">
             {matches.map((m, i) => {
               const c = m.clinician
-              const covered = Math.min(needsShown.length, m.matched.filter((n) => !flow.baseNeeds.includes(n)).length)
               const why = [...m.matched.filter((n) => !flow.baseNeeds.includes(n)), ...m.safetyMatched]
               return (
                 <div key={c.id} className={`pa-match${i === 0 ? ' best' : ''}`}>
@@ -147,17 +113,6 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
                     </div>
                   </div>
                   <span className="pa-lic">✓ {c.licence} licensed · {c.yearsExp} yrs experience</span>
-                  {needsShown.length > 0 && (
-                    <div className="pa-fit">
-                      <div className="pa-fit-top">
-                        <span>Match strength</span>
-                        <b>{covered} of {needsShown.length} of your needs</b>
-                      </div>
-                      <div className="pa-fit-bar" aria-hidden>
-                        <span style={{ width: `${Math.round((covered / needsShown.length) * 100)}%` }} />
-                      </div>
-                    </div>
-                  )}
                   <div>
                     <p className="pa-why-l">Why this match</p>
                     <div className="pa-why">
@@ -178,29 +133,6 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
             })}
           </div>
         )}
-
-        <h2 className="pa-h2">Small things to <em>try this week.</em></h2>
-        <p className="pa-hint">Gentle, practical ideas based on what you shared. They help while you settle in with your clinician.</p>
-        <div className="pa-tips">
-          {tips.map((t) => (
-            <div key={t.title} className="pa-tip">
-              <span className="pa-tip-ic"><Leaf size={16} /></span>
-              <span className="pa-tip-t">{t.title}</span>
-              <span className="pa-tip-b">{t.body}</span>
-            </div>
-          ))}
-        </div>
-
-        <h2 className="pa-h2">Your first session, <em>step by step.</em></h2>
-        <ol className="pa-steps">
-          {steps.map((st, i) => (
-            <li key={st.title} className="pa-step">
-              <span className="pa-step-n">{i + 1}</span>
-              <span className="pa-step-t">{st.title}</span>
-              <span className="pa-step-b">{st.body}</span>
-            </li>
-          ))}
-        </ol>
 
         <div className="pa-cta">
           <div>
