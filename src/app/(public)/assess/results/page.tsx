@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function ResultsPage() {
   const [pricing, pool] = await Promise.all([getPricingConfig(), getMatchPool()])
-  // The regular single-session price, shown struck beside the introductory one.
+  // The list price, shown struck beside the introductory one.
   const regular = {
     therapy: regularSessionPriceIn(pricing, 'therapy') ?? undefined,
     psychiatry: regularSessionPriceIn(pricing, 'psychiatry') ?? undefined,

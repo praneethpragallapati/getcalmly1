@@ -32,7 +32,7 @@ export const psychiatryPacks: SessionPack[] = [
 ]
 
 // Fixed first-session price per track: an introductory price below a regular
-// single session (see regularSessionPriceIn), never bundled. It is the only
+// list price (see regularSessionPriceIn), never bundled. It is the only
 // thing a new patient buys for a care type until that first session is bought.
 export const FIRST_SESSION: Record<'therapy' | 'psychiatry' | 'couples', number> = {
   therapy: 799,
@@ -177,22 +177,16 @@ export function packsForIn(pricing: PricingValues, track: BuyableTrack): Session
 }
 
 /**
- * The undiscounted price of one session for a track: its 1-session package.
- * Every pack's saving, and the first session's introductory price, is measured
- * against this. Falls back to the configured list price only if no 1-session
- * pack exists.
+ * The list price of one session for a track (set in admin pricing). It is the
+ * undiscounted price: the introductory first session is struck against it, and
+ * every pack's saving is measured against it.
  */
 export function baseForIn(pricing: PricingValues, track: BuyableTrack): number {
-  return singleSessionBase(packsForIn(pricing, track), track === 'psychiatry'
+  return track === 'psychiatry'
     ? pricing.psychiatryBase
     : track === 'couples'
       ? pricing.couplesBase
-      : pricing.therapyBase)
-}
-
-/** The 1-session pack's price from a pack list, else `fallback`. */
-export function singleSessionBase(packs: SessionPack[], fallback: number): number {
-  return packs.find((p) => p.sessions === 1)?.total ?? fallback
+      : pricing.therapyBase
 }
 
 /** Packs for a track, with derived per-session price + index, from a pricing model. */
@@ -206,13 +200,11 @@ export function buyablePacksIn(pricing: PricingValues, track: BuyableTrack): Buy
 }
 
 /**
- * The regular price of a single session for a track (its 1-session pack), shown
- * struck through beside the first-session price so the introductory discount
- * is visible without shouting. Null when there is no 1-session pack, or when
- * the first session is not actually cheaper (never claim a discount that isn't).
+ * The list price shown struck through beside the first-session price, so the
+ * introductory discount is visible without shouting. Null when the first
+ * session is not actually cheaper (never claim a discount that isn't).
  */
 export function regularSessionPriceIn(pricing: PricingValues, track: BuyableTrack): number | null {
-  const single = packsForIn(pricing, track).find((p) => p.sessions === 1)
-  if (!single) return null
-  return single.total > pricing.firstSession[track] ? single.total : null
+  const base = baseForIn(pricing, track)
+  return base > pricing.firstSession[track] ? base : null
 }

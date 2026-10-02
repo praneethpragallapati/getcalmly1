@@ -96,7 +96,7 @@ function PackTable({
         <span style={{ fontWeight: 600 }}>
           List price / session
           <span style={{ display: 'block', fontWeight: 400, fontSize: 12, color: '#6B7D8E' }}>
-            Used only if there is no 1-session pack. Pack savings and the introductory first session are measured against the 1-session pack.
+            The undiscounted price. The first session is shown struck against it, and every pack&apos;s saving is measured against it. Set it equal to the 1-session pack to make that pack the full price.
           </span>
         </span>
         <span style={{ width: 130 }}><NumInput value={base} onChange={onBase} prefix="₹" /></span>

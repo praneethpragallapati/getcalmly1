@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  perSession, inr, discountVsBase, singleSessionBase,
+  perSession, inr, discountVsBase,
   freeFeatures, calmPlusFeatures, therapyFeatures, psychiatryFeatures, couplesFeatures,
   type SessionPack, type AppPack, type PricingValues,
 } from '@/data/pricing'
@@ -64,12 +64,11 @@ function CareCard({
   const [open, setOpen] = useState(false)
   const pack = packs[i]
   const ps = perSession(pack)
-  // A regular single session, struck through beside the first-session price:
-  // the introductory discount, shown quietly and only when it is real.
-  const single = packs.find((p) => p.sessions === 1)
-  const regular = single && single.total > firstSession ? single.total : null
-  // Pack savings are measured against the 1-session package, the undiscounted price.
-  const disc = discountVsBase(ps, singleSessionBase(packs, base))
+  // The list price, struck through beside the first-session price: the
+  // introductory discount, shown quietly and only when it is real.
+  const regular = base > firstSession ? base : null
+  // Pack savings are measured against the list price, the undiscounted price.
+  const disc = discountVsBase(ps, base)
   const badges = { [packs.length - 1]: 'Best value' }
 
   return (

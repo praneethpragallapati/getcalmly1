@@ -207,7 +207,7 @@ function TrackCard({
   // Selected option, summarised.
   const priceMain = isCalmPlus ? inr(Math.floor(appPack.total / appPack.months)) : inr(pack.perSession)
   const priceUnit = isCalmPlus ? '/ month' : '/ session'
-  // Saving against the 1-session package, the undiscounted price.
+  // Saving against the list price, the undiscounted price.
   const base = isCalmPlus ? 0 : baseForIn(pricing, tab as BuyableTrack)
   const save = isCalmPlus || !pack ? 0 : discountVsBase(pack.perSession, base)
   const priceSub = isCalmPlus
