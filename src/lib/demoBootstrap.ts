@@ -33,7 +33,9 @@ export async function ensureDemoCaseload(): Promise<void> {
 
     await prisma.patientProfile.upsert({
       where: { userId: praneeth.id },
-      update: tpId ? { assignedTherapistId: tpId, assignedTherapistIndividualId: tpId } : {},
+      // Only when the account is first set up. Re-attaching on every login
+      // overwrote whatever clinician the account had since chosen or matched.
+      update: {},
       create: {
         userId: praneeth.id,
         patientId: `GC-P-${praneeth.id.slice(-8).toUpperCase()}`,
