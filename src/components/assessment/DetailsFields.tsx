@@ -3,6 +3,7 @@
 import { GENDER_OPTIONS } from '@/lib/memberOnboardingShared'
 import type { VisitorDetails } from '@/data/assessments'
 import DobPicker from '@/components/ui/DobPicker'
+import PhoneField from '@/components/ui/PhoneField'
 
 /**
  * The five personal details (name, email, phone, date of birth, gender) in the
@@ -27,10 +28,10 @@ export default function DetailsFields({
           <span className="pa-pref-l">Email</span>
           <input className="pa-input" type="email" value={details.email} onChange={(e) => onChange('email', e.target.value)} autoComplete="email" placeholder="you@example.com" />
         </label>
-        <label className="pa-field">
+        <div className="pa-field">
           <span className="pa-pref-l">Phone</span>
-          <input className="pa-input" type="tel" value={details.phone} onChange={(e) => onChange('phone', e.target.value)} autoComplete="tel" placeholder="+91 98765 43210" />
-        </label>
+          <PhoneField value={details.phone} onChange={(v) => onChange('phone', v)} />
+        </div>
       </div>
       <div className="pa-field">
         <span className="pa-pref-l">Date of birth</span>

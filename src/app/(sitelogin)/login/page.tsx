@@ -6,7 +6,7 @@ import { signIn, getSession } from 'next-auth/react'
 import { safeNext } from '@/lib/safeNext'
 import { savePendingAssessment } from '@/lib/pendingAssessment'
 import CountrySelect from '@/components/ui/CountrySelect'
-import { countries, defaultCountry, type Country } from '@/data/countries'
+import { splitPhone } from '@/lib/phone'
 
 const CORAL = '#C8553D'
 const CHARCOAL = '#241A12'
@@ -35,18 +35,10 @@ const MailIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
 )
 
-/**
- * A full number from a link (?phone=919876543210) split into its country and
- * local part: the longest dial code that leaves a plausible local number.
- * Ten digits or fewer are taken as an Indian number.
- */
-function splitPhone(raw: string | null): { country: Country; local: string } {
-  const d = (raw ?? '').replace(/\D/g, '')
-  if (d.length <= 10) return { country: defaultCountry, local: d }
-  const match = [...countries]
-    .sort((a, b) => b.dial.length - a.dial.length)
-    .find((c) => d.startsWith(c.dial) && d.length - c.dial.length >= 6)
-  return match ? { country: match, local: d.slice(match.dial.length) } : { country: defaultCountry, local: d }
+/** Indian mobiles have 10 digits; elsewhere lengths vary (UAE has 9), so at least 6. */
+function plausibleLocal(countryCode: string, local: string): boolean {
+  const n = local.replace(/\D/g, '').length
+  return countryCode === 'IN' ? n === 10 : n >= 6 && n <= 14
 }
 
 function LoginForm() {
@@ -119,7 +111,7 @@ function LoginForm() {
       return
     }
     const endpoint = tab === 'phone' ? '/api/otp/send' : '/api/otp/email-send'
-    if (tab === 'phone' && phone.replace(/\D/g, '').length < 10) { setError('Enter a valid WhatsApp number.'); return }
+    if (tab === 'phone' && !plausibleLocal(country.code, phone)) { setError('Enter a valid WhatsApp number.'); return }
     if (tab === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Enter a valid email address.'); return }
     setLoading(true)
     try {
@@ -135,7 +127,7 @@ function LoginForm() {
 
   const autoSent = useRef(false)
   useEffect(() => {
-    if (autoSent.current || params.get('send') !== '1' || fromLink.local.length < 10) return
+    if (autoSent.current || params.get('send') !== '1' || !plausibleLocal(fromLink.country.code, fromLink.local)) return
     const t = setTimeout(() => { autoSent.current = true; void handleSend() }, 0)
     return () => clearTimeout(t)
     // Once, on arrival only.

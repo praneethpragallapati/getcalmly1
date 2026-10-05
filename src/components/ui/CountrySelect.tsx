@@ -54,7 +54,7 @@ export default function CountrySelect({
       </button>
 
       {open && (
-        <div style={{
+        <div className="cs-menu" style={{
           position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 50,
           width: 280, maxHeight: 320, background: '#fff', borderRadius: 12,
           border: '1.5px solid #E2E8F0', boxShadow: '0 16px 48px rgba(28,43,58,.18)',

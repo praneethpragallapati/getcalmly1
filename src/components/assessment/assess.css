@@ -601,3 +601,12 @@
 .pa-focus .pa-path-go { background: color-mix(in srgb, var(--c) 12%, transparent); color: var(--c); }
 .pa-focus .pa-path:hover .pa-path-go { background: var(--c); color: #fff; }
 .pa-focus select.dob-sel { color: #1C2B3A; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238E9EAE' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+
+/* Phone with country code (components/ui/PhoneField): one field, picker + number. */
+.pa-phone { display: flex; align-items: stretch; padding: 0 !important; overflow: visible; }
+.pa-phone > div:first-child > button { background: transparent !important; border-right: 1px solid rgba(28,43,58,.12) !important; border-radius: 12px 0 0 12px; padding: 0 12px !important; height: 100%; min-height: 46px; }
+.pa-phone input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; color: inherit; padding: 13px 16px; }
+.pa-phone:focus-within { border-color: var(--pa-accent); }
+/* The country list may hang below the field, so the step lets it show. */
+.pa-stage:has(.cs-menu) { overflow: visible !important; }
+.pa-photo .pa-phone input { padding: 12px 15px; }

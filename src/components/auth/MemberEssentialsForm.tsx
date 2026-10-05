@@ -6,6 +6,7 @@ import { ArrowRight } from 'lucide-react'
 import { completeMemberProfile } from '@/app/(public)/welcome/actions'
 import { GENDER_OPTIONS } from '@/lib/memberOnboardingShared'
 import DobPicker from '@/components/ui/DobPicker'
+import PhoneField from '@/components/ui/PhoneField'
 
 /**
  * The five one-time details: full name, email, phone, date of birth, gender.
@@ -67,13 +68,10 @@ export function MemberEssentialsForm({
             readOnly={Boolean(initial.email)} autoComplete="email" placeholder="you@example.com"
           />
         </label>
-        <label className="pa-field">
+        <div className="pa-field">
           <span className="pa-pref-l">Phone</span>
-          <input
-            className="pa-input" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-            readOnly={Boolean(initial.phone)} autoComplete="tel" placeholder="+91 98765 43210"
-          />
-        </label>
+          <PhoneField value={phone} onChange={setPhone} readOnly={Boolean(initial.phone)} />
+        </div>
       </div>
 
       <div className="pa-field">
