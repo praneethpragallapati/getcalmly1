@@ -7,6 +7,12 @@ import type { PatientRow } from '@/lib/admin'
 import { trackLabel } from '@/lib/packageLabels'
 import { patientCode } from '@/lib/ids'
 
+/** "+919876543210" → "+91 98765 43210" for reading; anything else as stored. */
+function prettyPhone(p: string): string {
+  const d = p.replace(/\D/g, '')
+  return d.length === 12 && d.startsWith('91') ? `+91 ${d.slice(2, 7)} ${d.slice(7)}` : p
+}
+
 const charcoal = '#1C2B3A'
 const purple = '#6D5BD0'
 const idChip: React.CSSProperties = { fontSize: 11, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: purple, background: 'rgba(109,91,208,.1)', padding: '2px 7px', borderRadius: 6, whiteSpace: 'nowrap' }
@@ -44,8 +50,11 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
     const left = Number(minLeft) || 0
     let list = rows.filter((r) => {
       if (needle) {
-        const hay = `${r.name} ${r.email} ${r.registrationNo ?? ''} ${patientCode(r.userId)}`.toLowerCase()
-        if (!hay.includes(needle)) return false
+        const hay = `${r.name} ${r.email} ${r.phone ?? ''} ${r.registrationNo ?? ''} ${patientCode(r.userId)}`.toLowerCase()
+        // Numbers match however they are typed: "88845 18688", "+91 8884518688", "918884…".
+        const digits = needle.replace(/\D/g, '')
+        const phoneHit = digits.length >= 4 && (r.phone ?? '').replace(/\D/g, '').includes(digits)
+        if (!hay.includes(needle) && !phoneHit) return false
       }
       if (pkg && !r.packageTypes.includes(pkg)) return false
       if (lang && r.language !== lang) return false
@@ -74,10 +83,10 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
     <div className="stack">
       <div className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 240px', minWidth: 200 }}>
-          <div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Search name, email or ID</div>
+          <div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Search name, mobile, email or ID</div>
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#8E9EAE' }} />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Ananya, P-9F3K21…" style={{ ...field, width: '100%', paddingLeft: 34, boxSizing: 'border-box' }} />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Ananya, 98765 43210, P-9F3K21…" style={{ ...field, width: '100%', paddingLeft: 34, boxSizing: 'border-box' }} />
           </div>
         </div>
         <div><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Package type</div>
@@ -147,7 +156,7 @@ export function PatientsTable({ rows }: { rows: PatientRow[] }) {
                   ))}
                 </div>
                 <div className="muted" style={{ fontSize: 12.5 }}>
-                  {p.email}{p.therapistName ? ` · ${p.therapistName}` : ''}{p.language ? ` · ${p.language}` : ''}{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo here
+                  {p.phone ? <>{prettyPhone(p.phone)} · </> : null}{p.email}{p.therapistName ? ` · ${p.therapistName}` : ''}{p.language ? ` · ${p.language}` : ''}{p.state ? ` · ${p.state}` : ''} · {p.monthsHere} mo here
                 </div>
               </div>
               {/* Every package, named. The aggregate alone ("14 left") sat beside

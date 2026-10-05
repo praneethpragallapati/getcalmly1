@@ -13,7 +13,7 @@ export default async function AdminPatientsPage() {
     <div className="stack">
       <div className="page-head">
         <div className="page-title">Patients</div>
-        <div className="page-meta">Filter by name, ID, email, sessions completed, package or language · open one to manage packages &amp; view progress</div>
+        <div className="page-meta">Filter by name, mobile, ID, email, sessions completed, package or language · open one to manage packages &amp; view progress</div>
       </div>
 
       {rows.length === 0 ? (

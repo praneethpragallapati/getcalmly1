@@ -523,6 +523,8 @@ import { trackLabel } from '@/lib/packageLabels'
 
 export type PatientRow = {
   userId: string; name: string; email: string; activePlans: number
+  /** Mobile number as stored, e.g. "+919876543210"; null when none is on file. */
+  phone: string | null
   /** Platform registration number (GC-P-…), blank until one is allocated. */
   registrationNo: string | null
   // Filterable facets: completed sessions, active package types, language, gender.
@@ -556,7 +558,7 @@ export async function getPatients(): Promise<PatientRow[]> {
       // `state` (migration 0020) is fetched separately below so a DB that hasn't
       // run that migration yet still lists patients instead of failing soft to
       // an empty roster.
-      select: { id: true, name: true, email: true, createdAt: true, registrationNo: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
+      select: { id: true, name: true, email: true, phone: true, createdAt: true, registrationNo: true, patientProfile: { select: { preferredLanguage: true, gender: true } } },
       orderBy: { createdAt: 'desc' }, take: 300,
     })
     // Every package, not only the live ones: the per-care-type breakdown below
@@ -612,7 +614,7 @@ export async function getPatients(): Promise<PatientRow[]> {
     return users.map((u) => {
       const tracks = tracksByUser.get(u.id)
       return {
-        userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '',
+        userId: u.id, name: u.name ?? 'Patient', email: u.email ?? '', phone: u.phone ?? null,
         registrationNo: u.registrationNo ?? null,
         activePlans: tracks ? tracks.size : 0,
         sessionsCompleted: doneByUser.get(u.id) ?? 0,

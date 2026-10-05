@@ -107,6 +107,9 @@ export const authOptions: NextAuthOptions = {
               create: { email: OTP_BYPASS_EMAIL, role: 'PATIENT', name: 'Praneeth' },
               select: { id: true, name: true, email: true },
             })
+            // Keep the number this account signs in with on it, so admin shows
+            // and finds it by mobile. Skipped if another account already has it.
+            await prisma.user.updateMany({ where: { id: praneeth.id, phone: null }, data: { phone: `+${OTP_BYPASS_MOBILE}` } }).catch(() => {})
             await ensureDemoCaseload().catch(() => {})
             return { id: praneeth.id, name: praneeth.name ?? undefined, email: praneeth.email ?? undefined }
           } catch (e) {
