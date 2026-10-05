@@ -40,6 +40,17 @@ function read<T>(key: string): T | null {
   }
 }
 
+/**
+ * Details taken before sign-in (direct booking): kept in this tab and saved
+ * right after sign-in by savePendingAssessment, like the assessment's.
+ */
+export function queueDetailsForSignIn(details: VisitorDetails): void {
+  try {
+    sessionStorage.setItem(DETAILS_KEY, JSON.stringify(details))
+    sessionStorage.removeItem(SAVED_KEY)
+  } catch { /* private mode: /welcome asks for them after sign-in instead */ }
+}
+
 export async function savePendingAssessment(): Promise<void> {
   try {
     if (sessionStorage.getItem(SAVED_KEY)) return

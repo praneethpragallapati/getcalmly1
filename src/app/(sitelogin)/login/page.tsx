@@ -1,12 +1,12 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, getSession } from 'next-auth/react'
 import { safeNext } from '@/lib/safeNext'
 import { savePendingAssessment } from '@/lib/pendingAssessment'
 import CountrySelect from '@/components/ui/CountrySelect'
-import { defaultCountry } from '@/data/countries'
+import { countries, defaultCountry, type Country } from '@/data/countries'
 
 const CORAL = '#C8553D'
 const CHARCOAL = '#241A12'
@@ -35,14 +35,31 @@ const MailIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
 )
 
+/**
+ * A full number from a link (?phone=919876543210) split into its country and
+ * local part: the longest dial code that leaves a plausible local number.
+ * Ten digits or fewer are taken as an Indian number.
+ */
+function splitPhone(raw: string | null): { country: Country; local: string } {
+  const d = (raw ?? '').replace(/\D/g, '')
+  if (d.length <= 10) return { country: defaultCountry, local: d }
+  const match = [...countries]
+    .sort((a, b) => b.dial.length - a.dial.length)
+    .find((c) => d.startsWith(c.dial) && d.length - c.dial.length >= 6)
+  return match ? { country: match, local: d.slice(match.dial.length) } : { country: defaultCountry, local: d }
+}
+
 function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
   // WhatsApp ('phone' channel) is the default; Email is the alternative.
   const [tab, setTab] = useState<'phone' | 'email'>('phone')
   const [sent, setSent] = useState(false)
-  const [country, setCountry] = useState(defaultCountry)
-  const [phone, setPhone] = useState('')
+  // A booking passes the number it just collected (?phone=…&send=1): it is
+  // filled in, and the code is sent straight away.
+  const fromLink = splitPhone(params.get('phone'))
+  const [country, setCountry] = useState(fromLink.country)
+  const [phone, setPhone] = useState(fromLink.local)
   const [email, setEmail] = useState(params.get('email') ?? '')
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
@@ -115,6 +132,15 @@ function LoginForm() {
       else setError(data.message || 'Could not send your code. Please try again.')
     } catch { setError('Network error. Please try again.') } finally { setLoading(false) }
   }
+
+  const autoSent = useRef(false)
+  useEffect(() => {
+    if (autoSent.current || params.get('send') !== '1' || fromLink.local.length < 10) return
+    const t = setTimeout(() => { autoSent.current = true; void handleSend() }, 0)
+    return () => clearTimeout(t)
+    // Once, on arrival only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleVerify() {
     setError('')
