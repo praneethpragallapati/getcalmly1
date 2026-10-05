@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { UserRound, Pill, Baby, HeartHandshake, ArrowRight } from 'lucide-react'
 import { FLOWS, FLOW_ORDER, type FlowId } from '@/data/assessments'
-import PhotoShell from './PhotoShell'
 
 const LOOK: Record<FlowId, { color: string; icon: React.ReactNode }> = {
   adult: { color: '#C8553D', icon: <UserRound size={22} /> },
@@ -17,11 +16,11 @@ const LOOK: Record<FlowId, { color: string; icon: React.ReactNode }> = {
  */
 export default function AssessmentStep1({
   hrefFor = (id: FlowId) => `/assess/form/${id}`,
-  photo = true,
+  site = true,
 }: {
   hrefFor?: (id: FlowId) => string
-  /** The website's login-style photo look; off inside the app's dashboard. */
-  photo?: boolean
+  /** The website's full-screen look; off inside the app's dashboard. */
+  site?: boolean
 }) {
   const body = (
       <div className="pa-inner">
@@ -64,7 +63,7 @@ export default function AssessmentStep1({
         </p>
       </div>
   )
-  return photo ? <PhotoShell eyebrow="Pre-assessment · about 4 minutes">{body}</PhotoShell> : <div className="pa">{body}</div>
+  return <div className={site ? 'pa pa-focus' : 'pa'}>{body}</div>
 }
 
 export { LOOK as PATH_LOOK }

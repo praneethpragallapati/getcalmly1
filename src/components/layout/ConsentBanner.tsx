@@ -1,9 +1,24 @@
 'use client'
 import Link from 'next/link'
+import { useEffect, useRef } from 'react'
 import { useLocalStorageFlag } from '@/lib/useLocalStorageFlag'
 
 export default function ConsentBanner() {
   const [decided, setConsent] = useLocalStorageFlag('cookieConsent')
+  const ref = useRef<HTMLDivElement>(null)
+
+  // While showing, publish the banner's height (--consent-h) so full-screen
+  // steps like the pre-assessment keep their buttons above it.
+  useEffect(() => {
+    const el = ref.current
+    const root = document.documentElement
+    if (!el) { root.style.removeProperty('--consent-h'); return }
+    const sync = () => root.style.setProperty('--consent-h', `${el.offsetHeight}px`)
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(el)
+    return () => { ro.disconnect(); root.style.removeProperty('--consent-h') }
+  }, [decided])
 
   if (decided) return null
 
@@ -11,6 +26,7 @@ export default function ConsentBanner() {
 
   return (
     <div
+      ref={ref}
       style={{
         position: 'fixed',
         left: 0,

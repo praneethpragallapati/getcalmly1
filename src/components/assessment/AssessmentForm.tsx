@@ -9,7 +9,6 @@ import {
   type Answers, type Prefs, type Question, type AssessmentResult, type VisitorDetails,
 } from '@/data/assessments'
 import DetailsFields from './DetailsFields'
-import PhotoShell from './PhotoShell'
 // Storage keys live with the save-after-sign-in helper.
 import { RESULT_KEY, DETAILS_KEY } from '@/lib/pendingAssessment'
 import { PATH_LOOK } from './AssessmentStep1'
@@ -275,8 +274,6 @@ export default function AssessmentForm({
         {saveErr && <p className="pa-foot" style={{ color: '#A8432D' }}>{saveErr}</p>}
       </div>
   )
-  // The website gets the login page's photo look; the app keeps its plain page.
-  return onComplete
-    ? <div className="pa" style={{ '--pa-accent': accent } as React.CSSProperties}>{body}</div>
-    : <PhotoShell eyebrow={`Pre-assessment · ${flow.name}`} accent={accent}>{body}</PhotoShell>
+  // The website gets the full-screen focus look; the app keeps its plain page.
+  return <div className={onComplete ? 'pa' : 'pa pa-focus'} style={{ '--pa-accent': accent } as React.CSSProperties}>{body}</div>
 }

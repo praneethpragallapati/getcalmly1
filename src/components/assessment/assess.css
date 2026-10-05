@@ -341,3 +341,186 @@
   /* If the photo ever falls short (long pages), white words stay on a warm dark ground. */
   .pa-photo { background: #5E2E1F; }
 }
+
+/* ── Focus mode: the website's pre-assessment (start + questions) ───────────────
+   One calm screen per step, nothing to scroll: a deep ink ground with faint
+   coral and green light, cream type, coral for what is chosen. Choices flow
+   into two or three columns as their number grows. */
+.pa-focus {
+  --pa-ink: #F4ECE4; --pa-muted: rgba(244,236,228,.7); --pa-soft: rgba(244,236,228,.5);
+  --pa-line: rgba(244,236,228,.12);
+  --pa-tile: rgba(255,255,255,.055); --pa-tile-b: rgba(255,255,255,.1);
+  /* <main> already clears the 84px header; this fills the rest of the screen. */
+  height: calc(100svh - 84px - var(--consent-h, 0px)); min-height: 420px; box-sizing: border-box; padding: 0; display: flex;
+  background:
+    radial-gradient(ellipse 50% 45% at 100% 0%, rgba(200,85,61,.22), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 0% 100%, rgba(61,158,114,.13), transparent 60%),
+    #111B24;
+}
+.pa-focus .pa-inner {
+  width: 100%; max-width: 1040px; margin: 0 auto; padding: 26px 36px 22px; box-sizing: border-box;
+  display: flex; flex-direction: column; min-height: 0;
+}
+.pa-focus .pa-stage { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; padding: 4px 2px 6px; }
+
+/* Type */
+.pa-focus .pa-q, .pa-focus .pa-h1 { color: var(--pa-ink); font-size: clamp(28px, 3.3vw, 42px); line-height: 1.08; max-width: 820px; }
+.pa-focus .pa-q em, .pa-focus .pa-h1 em { color: #EF8E72; }
+.pa-focus .pa-hint, .pa-focus .pa-lead { color: var(--pa-muted); font-size: 15px; line-height: 1.6; margin-top: 10px; max-width: 680px; }
+.pa-focus .pa-eyebrow { color: #EF8E72; }
+
+/* Top: path, progress, count */
+.pa-focus .pa-top { margin-bottom: 12px; }
+.pa-focus .pa-pathtag { background: rgba(239,142,114,.14); color: #F2A58E; }
+.pa-focus .pa-change { color: var(--pa-muted); }
+.pa-focus .pa-change:hover { color: var(--pa-ink); }
+.pa-focus .pa-bar span { background: rgba(255,255,255,.1); }
+.pa-focus .pa-count { color: var(--pa-soft); margin: 0 0 6px; }
+.pa-focus .pa-count b { color: #EF8E72; }
+
+/* Choices: quiet tiles, coral when chosen */
+.pa-focus .pa-rows, .pa-focus .pa-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+.pa-focus .pa-rows:not(:has(> .pa-row:nth-child(4))) { grid-template-columns: minmax(0, 1fr); max-width: 620px; }
+.pa-focus .pa-chips:has(> .pa-chip:nth-child(9)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pa-focus .pa-row, .pa-focus .pa-chip {
+  background: var(--pa-tile); border: 1px solid var(--pa-tile-b); color: var(--pa-ink);
+  padding: 12px 15px; border-radius: 14px; font-size: 15px; font-weight: 600; line-height: 1.35; min-height: 50px;
+}
+.pa-focus .pa-row:hover, .pa-focus .pa-chip:hover { background: rgba(255,255,255,.09); border-color: rgba(239,142,114,.55); }
+.pa-focus .pa-row.on { background: #C8553D; border-color: #C8553D; color: #fff; transform: none; }
+.pa-focus .pa-chip.on { background: rgba(200,85,61,.2); border-color: #EF8E72; }
+.pa-focus .pa-key { background: rgba(255,255,255,.08); color: var(--pa-muted); width: 26px; height: 26px; border-radius: 8px; }
+.pa-focus .pa-tick { border-color: rgba(244,236,228,.35); }
+.pa-focus .pa-chip.on .pa-tick { background: #C8553D; border-color: #C8553D; }
+.pa-focus .pa-other { color: var(--pa-ink); border-bottom-color: var(--pa-line); padding: 10px 2px; }
+.pa-focus .pa-other::placeholder { color: var(--pa-soft); }
+
+/* Preferences, text, details */
+.pa-focus .pa-prefs { gap: 18px; margin-top: 22px; }
+.pa-focus .pa-pref-l { color: var(--pa-soft); margin-bottom: 8px; }
+.pa-focus .pa-pill { background: var(--pa-tile); border: 1px solid var(--pa-tile-b); color: var(--pa-ink); padding: 8px 15px; }
+.pa-focus .pa-pill:hover { border-color: rgba(239,142,114,.55); }
+.pa-focus .pa-pill.on { background: #C8553D; border-color: #C8553D; color: #fff; }
+.pa-focus .pa-text { background: var(--pa-tile); border: 1px solid var(--pa-tile-b); color: var(--pa-ink); min-height: 120px; margin-top: 22px; }
+.pa-focus .pa-text:focus { border-color: #EF8E72; background: rgba(255,255,255,.08); }
+.pa-focus .pa-text::placeholder { color: var(--pa-soft); }
+.pa-focus .pa-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin-top: 22px; max-width: 860px; }
+.pa-focus .pa-form > .pa-field:first-child, .pa-focus .pa-form > .pa-field-row { grid-column: 1 / -1; }
+.pa-focus .pa-input { background: var(--pa-tile); border: 1px solid var(--pa-tile-b); color: var(--pa-ink); padding: 13px 16px; border-radius: 12px; font-size: 15.5px; }
+.pa-focus .pa-input::placeholder { color: var(--pa-soft); }
+.pa-focus .pa-input:hover { border-color: rgba(239,142,114,.45); }
+.pa-focus .pa-input:focus { border-color: #EF8E72; background: rgba(255,255,255,.08); }
+.pa-focus select.dob-sel { background-color: var(--pa-tile); border: 1px solid var(--pa-tile-b); color: var(--pa-ink); padding: 13px 34px 13px 14px; border-radius: 12px; font-size: 15.5px; }
+.pa-focus select.dob-sel:has(option[value=""]:checked) { color: var(--pa-soft); }
+.pa-focus select.dob-sel option { color: #1C2B3A; }
+
+/* Bottom: back and continue */
+.pa-focus .pa-nav { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--pa-line); }
+.pa-focus .pa-back { color: var(--pa-muted); }
+.pa-focus .pa-back:hover { color: var(--pa-ink); }
+.pa-focus .pa-next { border-radius: 12px; padding: 14px 26px; box-shadow: 0 12px 30px -10px rgba(200,85,61,.65); }
+.pa-focus .pa-next:disabled { opacity: .35; }
+.pa-focus .pa-keys { margin-top: 8px; color: var(--pa-soft); }
+.pa-focus .pa-keys kbd { background: rgba(255,255,255,.08); color: var(--pa-muted); }
+.pa-focus .pa-foot { color: var(--pa-soft); margin-top: 14px; }
+
+/* Start: four paths as a 2×2 of tiles */
+.pa-focus .pa-trust li { color: var(--pa-muted); }
+.pa-focus .pa-trust li::before { color: #EF8E72; }
+.pa-focus .pa-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+.pa-focus .pa-path { background: var(--pa-tile); border: 1px solid var(--pa-tile-b); padding: 18px 20px; border-radius: 18px; gap: 6px; flex-direction: column; }
+.pa-focus .pa-path:hover { background: rgba(255,255,255,.085); border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: none; }
+.pa-focus .pa-path-ic { width: 40px; height: 40px; border-radius: 12px; }
+.pa-focus .pa-path-body { gap: 4px; }
+.pa-focus .pa-path-t { color: var(--pa-ink); font-size: 25px; }
+.pa-focus .pa-path-d { color: var(--pa-muted); font-size: 14px; line-height: 1.5; }
+.pa-focus .pa-path-m { margin-top: 2px; color: color-mix(in srgb, var(--c) 55%, #F4ECE4); }
+.pa-focus .pa-path-go { background: rgba(255,255,255,.08); color: #F4ECE4; }
+
+@media (max-width: 760px) {
+  .pa-focus { min-height: 0; }
+  .pa-focus .pa-inner { padding: 16px 18px 14px; }
+  .pa-focus .pa-stage { justify-content: flex-start; }
+  .pa-focus .pa-rows, .pa-focus .pa-chips, .pa-focus .pa-chips:has(> .pa-chip:nth-child(9)), .pa-focus .pa-paths, .pa-focus .pa-form { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 16px; }
+  .pa-focus .pa-row, .pa-focus .pa-chip { padding: 10px 13px; font-size: 14.5px; min-height: 44px; }
+  .pa-focus .pa-path { padding: 14px 16px; }
+  .pa-focus .pa-path-d { display: none; }
+  .pa-focus .pa-nav { position: static; margin: 10px 0 0; padding: 12px 0 0; background: none; }
+}
+@media (max-height: 760px) and (min-width: 761px) {
+  .pa-focus .pa-inner { padding-top: 16px; padding-bottom: 14px; }
+  .pa-focus .pa-row, .pa-focus .pa-chip { min-height: 44px; padding: 10px 14px; font-size: 14.5px; }
+  .pa-focus .pa-rows, .pa-focus .pa-chips { gap: 8px; margin-top: 16px; }
+  .pa-focus .pa-q { font-size: clamp(26px, 3vw, 36px); }
+}
+
+/* Full-screen steps (focus questions, photo booking): no footer underneath,
+   so there is nothing to scroll to. */
+.lp-page:has(.pa-focus) > footer, .lp-page:has(.pa-photo) > footer { display: none; }
+
+/* Photo mode, compact: one screen with the header already cleared by <main>. */
+.pa-photo { padding: 22px 5% calc(22px + var(--consent-h, 0px)); min-height: calc(100svh - 84px); box-sizing: border-box; }
+.pa-photo .pa-side { top: 120px; padding-top: 20px; }
+.pa-photo .pa-top { margin-bottom: 10px; }
+.pa-photo .pa-bar { margin-bottom: 8px; }
+.pa-photo .pa-count { margin-bottom: 12px; }
+.pa-photo .pa-q { font-size: clamp(28px, 2.6vw, 36px); }
+.pa-photo .pa-hint { margin-top: 6px; font-size: 14px; line-height: 1.5; }
+.pa-photo .pa-form { gap: 14px; margin-top: 16px; }
+.pa-photo .pa-field-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pa-photo .pa-pref-l { margin-bottom: 7px; }
+.pa-photo .pa-input { padding: 12px 15px; font-size: 15px; border-radius: 12px; }
+.pa-photo select.dob-sel { padding: 12px 32px 12px 14px; font-size: 15px; }
+.pa-photo .pa-pill { padding: 8px 15px; font-size: 13.5px; }
+.pa-photo .pa-nav { margin-top: 18px; }
+.pa-photo .pa-next { padding: 13px 26px; }
+@media (max-width: 900px) {
+  .pa-photo { padding: 18px 6% 24px; }
+  .pa-photo .pa-side { display: none; }
+  .pa-photo .pa-field-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Focus mode on shorter screens: tighter, so long lists still fit. */
+@media (max-height: 820px) and (min-width: 761px) {
+  .pa-focus .pa-inner { padding-top: 14px; padding-bottom: 12px; }
+  .pa-focus .pa-top { margin-bottom: 8px; }
+  .pa-focus .pa-bar { margin-bottom: 8px; }
+  .pa-focus .pa-q, .pa-focus .pa-h1 { font-size: clamp(25px, 2.7vw, 34px); }
+  .pa-focus .pa-hint, .pa-focus .pa-lead { margin-top: 6px; font-size: 14px; }
+  .pa-focus .pa-rows, .pa-focus .pa-chips { gap: 7px; margin-top: 14px; }
+  .pa-focus .pa-row, .pa-focus .pa-chip { min-height: 40px; padding: 8px 13px; font-size: 14px; }
+  .pa-focus .pa-tick { width: 20px; height: 20px; }
+  .pa-focus .pa-nav { margin-top: 10px; padding-top: 10px; }
+  .pa-focus .pa-next { padding: 12px 24px; }
+  .pa-focus .pa-keys { display: none; }
+  .pa-focus .pa-trust { margin-top: 12px; }
+  .pa-focus .pa-paths { margin-top: 16px; gap: 10px; }
+  .pa-focus .pa-path { padding: 14px 18px; }
+  .pa-focus .pa-path-ic { width: 34px; height: 34px; border-radius: 10px; }
+  .pa-focus .pa-foot { margin-top: 10px; }
+}
+/* Phones: long lists go two-up in compact chips; the start shows the paths as a 2×2. */
+@media (max-width: 760px) {
+  .pa-focus .pa-q, .pa-focus .pa-h1 { font-size: 26px; }
+  .pa-focus .pa-hint, .pa-focus .pa-lead { font-size: 13.5px; margin-top: 6px; line-height: 1.5; }
+  .pa-focus .pa-top { margin-bottom: 8px; }
+  .pa-focus .pa-chips:has(> .pa-chip:nth-child(7)) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .pa-focus .pa-chips:has(> .pa-chip:nth-child(7)) .pa-chip { font-size: 12.5px; padding: 7px 9px; gap: 7px; min-height: 40px; border-radius: 11px; line-height: 1.3; }
+  .pa-focus .pa-chips:has(> .pa-chip:nth-child(7)) .pa-tick { width: 16px; height: 16px; font-size: 10px; }
+  .pa-focus .pa-rows:has(> .pa-row:nth-child(4)) { gap: 6px; }
+  .pa-focus .pa-lead, .pa-focus .pa-trust { display: none; }
+  .pa-focus .pa-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pa-focus .pa-path { padding: 14px; gap: 8px; }
+  .pa-focus .pa-path-t { font-size: 20px; }
+  .pa-focus .pa-path-m { font-size: 11.5px; }
+  .pa-focus .pa-foot { font-size: 11.5px; margin-top: 10px; }
+  .pa-focus .pa-next { padding: 12px 22px; }
+}
+@media (max-width: 760px) {
+  .pa-focus .pa-inner { padding: 12px 16px 12px; }
+  .pa-focus .pa-path-m { display: none; }
+  .pa-focus .pa-paths { margin-top: 14px; }
+  .pa-focus .pa-chips:has(> .pa-chip:nth-child(12)) .pa-chip { min-height: 36px; padding: 6px 9px; }
+  .pa-focus .pa-chips:has(> .pa-chip:nth-child(12)) { gap: 5px; margin-top: 12px; }
+  .pa-focus .pa-nav { margin-top: 8px; padding-top: 10px; }
+}

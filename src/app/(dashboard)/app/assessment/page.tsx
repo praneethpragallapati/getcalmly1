@@ -20,7 +20,7 @@ export default async function AssessmentPage({
   // the match is made for it before buying and the patient returns to buy.
   const forTrack = BUYABLE.includes(sp.for ?? '') ? sp.for : undefined
   const forQs = forTrack ? `&for=${forTrack}` : ''
-  if (!isFlowId(sp.type)) return <AssessmentStep1 photo={false} hrefFor={(id) => `/app/assessment?type=${id}${forQs}`} />
+  if (!isFlowId(sp.type)) return <AssessmentStep1 site={false} hrefFor={(id) => `/app/assessment?type=${id}${forQs}`} />
   return (
     <AssessmentForm
       type={sp.type}
