@@ -17,8 +17,10 @@ export default function PhoneField({
   onChange: (v: string) => void
   readOnly?: boolean
 }) {
+  // The country and the number are kept apart here, so the box only ever
+  // holds the local number; the code lives in the picker on the left.
   const [country, setCountry] = useState(() => splitPhone(value).country)
-  const local = splitPhone(value).local
+  const [local, setLocal] = useState(() => splitPhone(value).local)
 
   if (readOnly) {
     return <input className="pa-input" type="tel" value={value} readOnly />
@@ -33,7 +35,16 @@ export default function PhoneField({
         aria-label="Phone number"
         placeholder="98765 43210"
         value={local}
-        onChange={(e) => onChange(joinPhone(country, e.target.value))}
+        onChange={(e) => {
+          // A pasted "+91 …" or "91…" for the chosen country loses its code.
+          let d = e.target.value.replace(/[^\d ]/g, '')
+          const digits = d.replace(/\D/g, '')
+          if (e.target.value.trim().startsWith('+') || (digits.startsWith(country.dial) && digits.length > country.dial.length + 9)) {
+            d = digits.startsWith(country.dial) ? digits.slice(country.dial.length) : digits
+          }
+          setLocal(d)
+          onChange(joinPhone(country, d))
+        }}
       />
     </div>
   )

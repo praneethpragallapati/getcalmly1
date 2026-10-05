@@ -7,6 +7,12 @@ import { countries, defaultCountry, type Country } from '@/data/countries'
  */
 export function splitPhone(raw: string | null | undefined): { country: Country; local: string } {
   const s = (raw ?? '').trim()
+  // Our own format, "+91 98765 43210": the code is whatever precedes the space.
+  const own = /^\+(\d{1,4})\s+(.*)$/.exec(s)
+  if (own) {
+    const c = countries.find((x) => x.dial === own[1])
+    if (c) return { country: c, local: own[2].replace(/\D/g, '') }
+  }
   const d = s.replace(/\D/g, '')
   if (d.length <= 10 && !s.startsWith('+')) return { country: defaultCountry, local: d }
   const match = [...countries]
