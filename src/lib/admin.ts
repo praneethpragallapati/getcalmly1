@@ -656,7 +656,7 @@ export type PatientDetail = {
   assignedTherapistId: string | null; assignedTherapistName: string | null
   assignments: Record<CareCategoryKey, CategoryAssignment>
   subscriptions: SubscriptionRow[]
-  therapists: { profileId: string; name: string; clinicianType: string | null; specializations: string[] }[]
+  therapists: { profileId: string; name: string; email: string | null; clinicianType: string | null; specializations: string[] }[]
   walletCreditRupees: number
 }
 
@@ -729,7 +729,7 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
       }),
       // Explicit select (no full-row include, no clinicianType) so a missing 0017
       // column can't blank the clinician picker. clinicianType is read separately.
-      prisma.therapistProfile.findMany({ where: { isActive: true }, select: { id: true, specializations: true, user: { select: { name: true } } } }),
+      prisma.therapistProfile.findMany({ where: { isActive: true }, select: { id: true, specializations: true, user: { select: { name: true, email: true } } } }),
       prisma.appointment.findFirst({ where: { patientId: userId }, orderBy: { scheduledAt: 'desc' }, select: { therapistId: true } }),
     ])
     const clinTypeById = new Map<string, string | null>()
@@ -786,7 +786,7 @@ export async function getPatientDetail(userId: string): Promise<PatientDetail | 
         therapistName: s.therapistId ? therapists.find((t) => t.id === s.therapistId)?.user?.name ?? null : null,
       })),
       therapists: therapists
-        .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', clinicianType: clinTypeById.get(t.id) ?? null, specializations: t.specializations }))
+        .map((t) => ({ profileId: t.id, name: t.user?.name ?? 'Clinician', email: t.user?.email ?? null, clinicianType: clinTypeById.get(t.id) ?? null, specializations: t.specializations }))
         .sort((a, b) => a.name.localeCompare(b.name)),
       walletCreditRupees,
     }

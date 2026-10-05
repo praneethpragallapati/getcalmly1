@@ -9,7 +9,7 @@ import type { PatientDetail, CareCategoryKey } from '@/lib/admin'
 import { clinicianMatchesTrack, CATEGORY_TO_TRACK } from '@/lib/clinicianScope'
 import { istParts } from '@/lib/tz'
 
-type TherapistOpt = { profileId: string; name: string; clinicianType: string | null; specializations: string[] }
+type TherapistOpt = { profileId: string; name: string; email?: string | null; clinicianType: string | null; specializations: string[] }
 
 const charcoal = '#1C2B3A'
 const coral = '#6D5BD0'
@@ -57,7 +57,7 @@ export function PatientAdmin({ p }: { p: PatientDetail }) {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <select value={assignId} onChange={(e) => setAssignId(e.target.value)} style={{ ...field, minWidth: 240 }}>
               <option value="">— No override (use latest appointment) —</option>
-              {p.therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
+              {p.therapists.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}{t.email ? ` · ${t.email}` : ''}</option>)}
             </select>
             <button onClick={() => run(() => reassignPatient({ userId: p.userId, therapistProfileId: assignId || null }), 'Default assignment updated.')} disabled={pending} className="btn btn-primary">Update default</button>
           </div>
@@ -199,14 +199,14 @@ function AssignCategory({ category, current, therapists, userId, field, pending,
   const options = therapists.filter((t) => clinicianMatchesTrack(t.clinicianType, t.specializations, track))
   // Keep the current assignment visible even if it wouldn't pass the filter.
   if (current.id && !options.some((t) => t.profileId === current.id)) {
-    options.unshift({ profileId: current.id, name: current.name ?? 'Assigned clinician', clinicianType: null, specializations: [] })
+    options.unshift({ profileId: current.id, name: current.name ?? 'Assigned clinician', email: null, clinicianType: null, specializations: [] })
   }
   return (
     <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
       <span style={{ fontSize: 13, fontWeight: 700, color: charcoal, minWidth: 140 }}>{CATEGORY_LABEL[category]}</span>
       <select value={id} onChange={(e) => setId(e.target.value)} style={{ ...field, minWidth: 220 }}>
         <option value="">— Not assigned —</option>
-        {options.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}</option>)}
+        {options.map((t) => <option key={t.profileId} value={t.profileId}>{t.name}{t.email ? ` · ${t.email}` : ''}</option>)}
       </select>
       <button
         onClick={() => run(() => assignCategoryClinician({ userId, category, therapistProfileId: id || null }), `${CATEGORY_LABEL[category]} clinician updated.`)}
