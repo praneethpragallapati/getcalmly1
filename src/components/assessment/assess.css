@@ -560,3 +560,44 @@
 .pa-focus .pa-path-go { background: rgba(255,255,255,.2); color: #fff; }
 .pa-focus .pa-path:hover .pa-path-go { background: #fff; color: #B4462F; }
 .pa-focus select.dob-sel { color: #fff; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+
+/* Focus mode on off-white (replaces coral): a warm cream ground, ink type,
+   coral for what is chosen and for Continue. Options are crisp white tiles
+   with a hairline edge and a soft lift. */
+.pa-focus {
+  --pa-ink: #1C2B3A; --pa-muted: #55657A; --pa-soft: #8593A3;
+  --pa-line: rgba(28,43,58,.1);
+  --pa-tile: #FFFFFF; --pa-tile-b: rgba(28,43,58,.1);
+  background:
+    radial-gradient(ellipse 50% 45% at 100% 0%, rgba(200,85,61,.08), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 0% 100%, rgba(61,158,114,.06), transparent 60%),
+    #FAF6F1;
+}
+.pa-focus .pa-q em, .pa-focus .pa-h1 em { color: #C8553D; }
+.pa-focus .pa-eyebrow, .pa-focus .pa-count b { color: #B8482F; }
+.pa-focus .pa-pathtag { background: rgba(200,85,61,.1); color: #B8482F; }
+.pa-focus .pa-bar span { background: rgba(28,43,58,.09); }
+.pa-focus .pa-bar span.done { background: rgba(200,85,61,.45); }
+.pa-focus .pa-bar span.now { background: #C8553D; }
+.pa-focus .pa-row, .pa-focus .pa-chip, .pa-focus .pa-pill, .pa-focus .pa-input, .pa-focus .pa-text, .pa-focus .pa-path, .pa-focus select.dob-sel {
+  background-color: #fff; border: 1px solid rgba(28,43,58,.1); box-shadow: 0 1px 2px rgba(28,43,58,.04), 0 6px 18px -12px rgba(28,43,58,.18);
+}
+.pa-focus .pa-row:hover, .pa-focus .pa-chip:hover, .pa-focus .pa-pill:hover, .pa-focus .pa-input:hover, .pa-focus .pa-path:hover {
+  background-color: #fff; border-color: rgba(200,85,61,.45);
+}
+.pa-focus .pa-row.on, .pa-focus .pa-pill.on { background-color: #C8553D; border-color: #C8553D; color: #fff; }
+.pa-focus .pa-row.on .pa-key { background: rgba(255,255,255,.22); color: #fff; }
+.pa-focus .pa-chip.on { background-color: #FFF4F0; border-color: #C8553D; color: #1C2B3A; box-shadow: 0 0 0 1px #C8553D inset, 0 6px 18px -12px rgba(200,85,61,.4); }
+.pa-focus .pa-key { background: rgba(28,43,58,.06); color: #55657A; }
+.pa-focus .pa-tick { border-color: rgba(28,43,58,.25); }
+.pa-focus .pa-chip.on .pa-tick { background: #C8553D; border-color: #C8553D; color: #fff; }
+.pa-focus .pa-input:focus, .pa-focus .pa-text:focus { border-color: #C8553D; background: #fff; }
+.pa-focus .pa-trust li::before { color: #C8553D; }
+.pa-focus .pa-next { background: #C8553D; color: #fff; box-shadow: 0 12px 26px -12px rgba(200,85,61,.7); }
+.pa-focus .pa-next:disabled { opacity: .4; }
+.pa-focus .pa-keys kbd { background: rgba(28,43,58,.07); color: #55657A; }
+.pa-focus .pa-path-ic { box-shadow: none; }
+.pa-focus .pa-path-m { color: var(--c); }
+.pa-focus .pa-path-go { background: color-mix(in srgb, var(--c) 12%, transparent); color: var(--c); }
+.pa-focus .pa-path:hover .pa-path-go { background: var(--c); color: #fff; }
+.pa-focus select.dob-sel { color: #1C2B3A; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238E9EAE' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
