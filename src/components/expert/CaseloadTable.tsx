@@ -7,6 +7,12 @@ import { MOOD_TREND_LABEL, type CaseloadPatient, type MoodTrend } from '@/lib/ex
 import { trackLabel } from '@/lib/packageLabels'
 import { patientCode } from '@/lib/ids'
 
+/** "+919876543210" → "+91 98765 43210" for reading; anything else as stored. */
+function prettyPhone(p: string): string {
+  const d = p.replace(/\D/g, '')
+  return d.length === 12 && d.startsWith('91') ? `+91 ${d.slice(2, 7)} ${d.slice(7)}` : p
+}
+
 const TREND_ICON: Record<MoodTrend, typeof TrendingUp> = {
   improving: TrendingUp,
   declining: TrendingDown,
@@ -46,8 +52,11 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
     const left = Number(minLeft) || 0
     let list = patients.filter((p) => {
       if (needle) {
-        const hay = `${p.name} ${p.email} ${patientCode(p.patientId)}`.toLowerCase()
-        if (!hay.includes(needle)) return false
+        const hay = `${p.name} ${p.email} ${p.phone ?? ''} ${patientCode(p.patientId)}`.toLowerCase()
+        // Numbers match however they are typed: "88845 18688", "+91 8884518688".
+        const digits = needle.replace(/\D/g, '')
+        const phoneHit = digits.length >= 4 && (p.phone ?? '').replace(/\D/g, '').includes(digits)
+        if (!hay.includes(needle) && !phoneHit) return false
       }
       if (pkg && !p.packageTypes.includes(pkg)) return false
       if (lang && p.language !== lang) return false
@@ -73,10 +82,10 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
     <div className="stack">
       <div className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 220px', minWidth: 190 }}>
-          <div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Search name, email or ID</div>
+          <div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>Search name, mobile, email or ID</div>
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#8E9EAE' }} />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Sana, P-9F3K21…" style={{ ...field, width: '100%', paddingLeft: 34, boxSizing: 'border-box' }} />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Sana, 98765 43210, P-9F3K21…" style={{ ...field, width: '100%', paddingLeft: 34, boxSizing: 'border-box' }} />
           </div>
         </div>
         {packages.length > 0 && (
@@ -139,6 +148,7 @@ export function CaseloadTable({ patients }: { patients: CaseloadPatient[] }) {
                 <div className="pattern-title" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   {p.name}
                   <span style={{ fontSize: 10.5, fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: 'var(--c-gray-d)', background: 'rgba(28,43,58,.06)', padding: '1px 6px', borderRadius: 5 }}>{patientCode(p.patientId)}</span>
+                  {p.phone && <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-gray-d)' }}>{prettyPhone(p.phone)}</span>}
                 </div>
                 <div className="pattern-sub">
                   {/* "2 completed · 16 left" invited adding the two, and they do

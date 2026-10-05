@@ -65,6 +65,8 @@ export type CaseloadPatient = {
   patientId: string
   name: string
   email: string
+  /** Mobile as stored ("+919876543210"), null when none is on file. */
+  phone: string | null
   trackLabel: string
   lastMood: number | null
   /** Mean of the same last-14 window `lastMood` is drawn from. */
@@ -482,7 +484,7 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
   const [users, moods, crisis, subs, completed] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: patientIds } },
-      select: { id: true, name: true, email: true, createdAt: true, patientProfile: { select: { track: true, trackLabel: true, preferredLanguage: true, state: true } } },
+      select: { id: true, name: true, email: true, phone: true, createdAt: true, patientProfile: { select: { track: true, trackLabel: true, preferredLanguage: true, state: true } } },
     }),
     prisma.moodEntry.findMany({
       where: { userId: { in: patientIds } },
@@ -529,6 +531,7 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
       patientId: u.id,
       name: u.name ?? 'Patient',
       email: u.email ?? '',
+      phone: u.phone ?? null,
       trackLabel: trackLabelFor(u.patientProfile?.track?.[0], u.patientProfile?.trackLabel),
       lastMood: userMoods[0]?.mood ?? null,
       // The average alongside the latest, because one reading is not a picture:
@@ -564,12 +567,13 @@ export async function getCaseload(therapistProfileId: string): Promise<CaseloadP
     // Degrade gracefully: still list the patients by their core fields so the
     // page loads with names instead of an error screen.
     const basicUsers = await prisma.user
-      .findMany({ where: { id: { in: patientIds } }, select: { id: true, name: true, email: true, createdAt: true } })
-      .catch(() => [] as { id: string; name: string | null; email: string | null; createdAt: Date }[])
+      .findMany({ where: { id: { in: patientIds } }, select: { id: true, name: true, email: true, phone: true, createdAt: true } })
+      .catch(() => [] as { id: string; name: string | null; email: string | null; phone: string | null; createdAt: Date }[])
     return basicUsers.map((u) => ({
       patientId: u.id,
       name: u.name ?? 'Patient',
       email: u.email ?? '',
+      phone: u.phone ?? null,
       trackLabel: 'Wellbeing',
       lastMood: null,
       avgMood: null,
