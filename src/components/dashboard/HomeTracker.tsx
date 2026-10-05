@@ -29,6 +29,7 @@ export function HomeTracker({
   tasks,
   med,
   pulseDue,
+  pulseUpcoming = [],
   forms,
   formsEverAssigned = false,
   pulseDefs = [],
@@ -39,6 +40,8 @@ export function HomeTracker({
   tasks: DashTask[]
   med: Med
   pulseDue: { id: string; short: string }[]
+  /** Assigned checks not due yet, with when they will be. */
+  pulseUpcoming?: { id: string; short: string; when: string }[]
   forms: { id: string; title: string }[]
   formsEverAssigned?: boolean
   /** Question sets for the due Pulse checks, so they can be filled in place. */
@@ -119,7 +122,15 @@ export function HomeTracker({
 
       {tab === 'pulse' && (
         <div className="tracker-body">
-          {pulseDue.length === 0 ? (
+          {pulseDue.length === 0 && pulseUpcoming.length > 0 ? (
+            <>
+              <div className="tracker-head">
+                <div className="section-title">Pulse</div>
+                <span className="muted" style={{ fontSize: 12.5 }}>Nothing due today</span>
+              </div>
+              <UpcomingPulse items={pulseUpcoming} />
+            </>
+          ) : pulseDue.length === 0 ? (
             <div className="done-card">
               <span className="dc-ic"><Check size={22} strokeWidth={3} /></span>
               <div className="dc-t">Nothing to check in on</div>
@@ -149,6 +160,7 @@ export function HomeTracker({
                     <span className="link-action">Fill →</span>
                   </button>
                 ))}
+                {pulseUpcoming.length > 0 && <UpcomingPulse items={pulseUpcoming} />}
                 <Link href="/app/progress" className="todo-row">
                   <span className="todo-ic t-green"><LineChart size={15} /></span>
                   <span className="todo-body">
@@ -247,6 +259,24 @@ export function HomeTracker({
       )}
 
       <Celebration show={!!cel} title={cel?.title ?? ''} sub={cel?.sub} onDone={() => setCel(null)} />
+    </div>
+  )
+}
+
+/** Checks your therapist assigned that are not due yet, and when they will be. */
+function UpcomingPulse({ items }: { items: { id: string; short: string; when: string }[] }) {
+  return (
+    <div className="todo-list" style={{ marginTop: 6 }}>
+      <div className="muted" style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase', margin: '4px 2px 2px' }}>Coming up</div>
+      {items.map((p) => (
+        <div key={p.id} className="todo-row" style={{ opacity: 0.85 }}>
+          <span className="todo-ic t-green"><Activity size={15} /></span>
+          <span className="todo-body">
+            <span className="todo-t">{p.short}</span>
+            <span className="todo-sub">Pulse check from your therapist · {p.when}</span>
+          </span>
+        </div>
+      ))}
     </div>
   )
 }

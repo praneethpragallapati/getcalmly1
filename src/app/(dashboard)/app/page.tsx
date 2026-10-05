@@ -18,10 +18,11 @@ import { NextSessionCard } from '@/components/dashboard/NextSessionCard'
 import { MilestonesMini } from '@/components/dashboard/MilestonesMini'
 import { HomeTracker } from '@/components/dashboard/HomeTracker'
 import { HomePolls } from '@/components/dashboard/HomePolls'
-import { dueInstruments } from '@/lib/outcomes/pulse'
+import { pulseSchedule, type PulseStatus } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS, type Instrument } from '@/lib/outcomes/instruments'
 import { getMyForms, getFormToFill } from '@/lib/forms'
 import type { PulseDef } from '@/components/outcomes/PulseRunner'
+import { fmtIST } from '@/lib/tz'
 
 /** Catalog instrument → the client-safe shape the Pulse runner needs. */
 function toPulseDef(inst: Instrument): PulseDef {
@@ -45,18 +46,30 @@ export default async function AppHomePage({
   const initialForm = typeof sp.form === 'string' ? sp.form : undefined
 
   const userId = await getSessionUserId()
-  const [d, meds, orders, polls, milestones, pulseDue, myForms] = await Promise.all([
+  const [d, meds, orders, polls, milestones, pulseStatus, myForms] = await Promise.all([
     getDashboardData(),
     getMedications(),
     userId ? getMedicationOrders(userId) : Promise.resolve([]),
     getCommunityPolls(userId),
     userId ? getMilestones(userId) : Promise.resolve([]),
-    userId ? dueInstruments(userId).catch(() => [] as string[]) : Promise.resolve([] as string[]),
+    userId ? pulseSchedule(userId).catch(() => [] as PulseStatus[]) : Promise.resolve([] as PulseStatus[]),
     userId ? getMyForms(userId).catch(() => []) : Promise.resolve([]),
   ])
   const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))
   const formsEverAssigned = myForms.length > 0
   // Only checks with questions can be filled in the pop-up.
+  const pulseDue = pulseStatus.filter((s) => s.dueNow).map((s) => s.instrumentId)
+  // Assigned but not due yet: shown as "coming up" so an assigned check never
+  // looks missing.
+  const pulseUpcoming = pulseStatus
+    .filter((s) => !s.dueNow && INSTRUMENTS[s.instrumentId])
+    .map((s) => ({
+      id: s.instrumentId,
+      short: INSTRUMENTS[s.instrumentId].short,
+      when: s.waitsForSession
+        ? 'After your next session'
+        : s.nextDueIso ? `From ${fmtIST(new Date(s.nextDueIso), { weekday: 'short', day: 'numeric', month: 'short' })}` : 'Soon',
+    }))
   const pulseDefs = pulseDue
     .filter((id) => INSTRUMENTS[id] && INSTRUMENTS[id].items.length > 0)
     .map((id) => toPulseDef(INSTRUMENTS[id]))
@@ -173,6 +186,7 @@ export default async function AppHomePage({
           tasks={d.tasks}
           med={medProp}
           pulseDue={pulseItems}
+          pulseUpcoming={pulseUpcoming}
           forms={pendingForms}
           formsEverAssigned={formsEverAssigned}
           pulseDefs={pulseDefs}

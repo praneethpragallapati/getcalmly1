@@ -6,7 +6,7 @@ import { assignPulseCheck, removePulseCheck } from '@/app/(dashboard)/expert/pul
 import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 import { RECURRENCES, RECURRENCE_LABEL, ASSIGNABLE } from '@/lib/outcomes/pulseMeta'
 
-export type AssignedPulse = { instrumentId: string; recurrence: string; expiresAt: string | null }
+export type AssignedPulse = { instrumentId: string; recurrence: string; expiresAt: string | null; status?: string }
 
 function fmt(iso: string | null): string {
   if (!iso) return 'no expiry'
@@ -67,7 +67,12 @@ export function PulseAssignForm({ patientId, assigned }: { patientId: string; as
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {assigned.map((a) => (
               <div key={a.instrumentId} className="task-row">
-                <span className="task-row-t">{INSTRUMENTS[a.instrumentId]?.short ?? a.instrumentId}</span>
+                <span className="task-row-t">
+                  {INSTRUMENTS[a.instrumentId]?.short ?? a.instrumentId}
+                  {a.status && (
+                    <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: a.status.startsWith('Due now') ? '#1B7F4D' : 'var(--c-gray-d)' }}>{a.status}</span>
+                  )}
+                </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span className="muted" style={{ fontSize: 11.5, whiteSpace: 'nowrap' }}>
                     {RECURRENCE_LABEL[a.recurrence] ?? a.recurrence} · {fmt(a.expiresAt)}

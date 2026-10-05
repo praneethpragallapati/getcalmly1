@@ -33,6 +33,7 @@ export async function assignPulseCheck(
     return { ok: false, error: 'Could not assign this check.' }
   }
   revalidatePath(`/expert/patients/${patientId}`)
+  revalidatePath('/app')
   return { ok: true }
 }
 

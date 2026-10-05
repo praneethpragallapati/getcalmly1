@@ -18,7 +18,7 @@ import { WeeklySummaryCard } from '@/components/expert/WeeklySummaryCard'
 import { ClinicianOutcomePanel } from '@/components/outcomes/ClinicianOutcomePanel'
 import { PulseAssignForm } from '@/components/expert/PulseAssignForm'
 import { ClinicianCopilot } from '@/components/expert/ClinicianCopilot'
-import { getAssignments } from '@/lib/outcomes/pulse'
+import { getAssignments, pulseSchedule } from '@/lib/outcomes/pulse'
 import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
 import { SessionNote } from '@/components/ui/SessionNote'
 import { fmtIST } from '@/lib/tz'
@@ -70,11 +70,22 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   const patientAlerts = allRisk.filter((r) => r.patientId === id)
 
   // Pulse checks currently assigned to this patient (for the assign card).
-  const pulseAssigned = (await getAssignments(id)).map((a) => ({
-    instrumentId: a.instrumentId,
-    recurrence: a.recurrence,
-    expiresAt: a.expiresAt ? a.expiresAt.toISOString() : null,
-  }))
+  // Each with where it stands for the patient, so "assigned" and "waiting for
+  // a session" are told apart.
+  const pulseStatus = new Map((await pulseSchedule(id).catch(() => [])).map((s) => [s.instrumentId, s]))
+  const pulseAssigned = (await getAssignments(id)).map((a) => {
+    const st = pulseStatus.get(a.instrumentId)
+    return {
+      instrumentId: a.instrumentId,
+      recurrence: a.recurrence,
+      expiresAt: a.expiresAt ? a.expiresAt.toISOString() : null,
+      status: !st ? 'Expired'
+        : st.dueNow ? 'Due now for the patient'
+        : st.waitsForSession ? 'Due after their next session'
+        : st.nextDueIso ? `Next due ${fmtIST(new Date(st.nextDueIso), { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}`
+        : '',
+    }
+  })
 
   // Sessions a note can be written/edited for. Own delivered (paid) sessions —
   // cancelled and voided ones are left out, since there's no session to write up

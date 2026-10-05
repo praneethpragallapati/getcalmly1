@@ -80,8 +80,23 @@ export async function removePulse(patientId: string, instrumentId: string): Prom
 
 type FillRow = { scale: string; cnt: number; recordedAt: Date }
 
-/** Instrument ids the patient should complete now, most clinically important first. */
-export async function dueInstruments(patientId: string): Promise<string[]> {
+/**
+ * Where each live assignment stands for the patient: due now, due again on a
+ * date (calendar frequencies, counted from the last time it was filled), or
+ * waiting for a session (session frequencies only come due once a session has
+ * taken place). Shown to both sides so "assigned" never looks like "lost".
+ */
+export type PulseStatus = {
+  instrumentId: string
+  recurrence: string
+  dueNow: boolean
+  /** Calendar frequencies: when it is next due (ISO), if not due now. */
+  nextDueIso: string | null
+  /** Session frequencies: not due until after a coming session. */
+  waitsForSession: boolean
+}
+
+export async function pulseSchedule(patientId: string): Promise<PulseStatus[]> {
   await ensureOutcomesSchema()
   const now = Date.now()
   const assignments = (await getAssignments(patientId)).filter(
@@ -112,21 +127,28 @@ export async function dueInstruments(patientId: string): Promise<string[]> {
   }
 
   const order = ['PHQ9', 'GAD7', 'K10', 'WHO5', 'GAS']
-  const due = assignments
-    .filter((a) => {
-      const fillCount = cntBy.get(a.instrumentId) ?? 0
+  return assignments
+    .map((a) => {
       const days = intervalDays(a.recurrence)
       if (days != null) {
         const lastAt = lastBy.get(a.instrumentId)
-        return lastAt == null || now - lastAt >= days * DAY
+        const next = lastAt == null ? now : lastAt + days * DAY
+        const dueNow = next <= now
+        return { instrumentId: a.instrumentId, recurrence: a.recurrence, dueNow, nextDueIso: dueNow ? null : new Date(next).toISOString(), waitsForSession: false }
       }
       // Session-based: due when qualifying sessions exceed fills.
+      const fillCount = cntBy.get(a.instrumentId) ?? 0
       const qualifying =
         a.recurrence === 'EVERY' ? sessions
         : a.recurrence === 'EVEN' ? Math.floor(sessions / 2)
         : Math.ceil(sessions / 2) // ODD
-      return qualifying > fillCount
+      const dueNow = qualifying > fillCount
+      return { instrumentId: a.instrumentId, recurrence: a.recurrence, dueNow, nextDueIso: null, waitsForSession: !dueNow }
     })
-    .map((a) => a.instrumentId)
-  return due.sort((x, y) => order.indexOf(x) - order.indexOf(y))
+    .sort((x, y) => order.indexOf(x.instrumentId) - order.indexOf(y.instrumentId))
+}
+
+/** Instrument ids the patient should complete now, most clinically important first. */
+export async function dueInstruments(patientId: string): Promise<string[]> {
+  return (await pulseSchedule(patientId)).filter((s) => s.dueNow).map((s) => s.instrumentId)
 }
