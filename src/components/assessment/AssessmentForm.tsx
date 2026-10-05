@@ -8,7 +8,7 @@ import {
   DETAILS_QUESTION, detailsProblem,
   type Answers, type Prefs, type Question, type AssessmentResult, type VisitorDetails,
 } from '@/data/assessments'
-import { GENDER_OPTIONS } from '@/lib/memberOnboardingShared'
+import DetailsFields from './DetailsFields'
 // Storage keys live with the save-after-sign-in helper.
 import { RESULT_KEY, DETAILS_KEY } from '@/lib/pendingAssessment'
 import { PATH_LOOK } from './AssessmentStep1'
@@ -249,38 +249,7 @@ export default function AssessmentForm({
             </div>
           )}
 
-          {q.kind === 'details' && (
-            <div className="pa-form">
-              <label className="pa-field">
-                <span className="pa-pref-l">Full name</span>
-                <input className="pa-input" value={details.name} onChange={(e) => setDetail('name', e.target.value)} autoComplete="name" placeholder="e.g. Priya Sharma" />
-              </label>
-              <div className="pa-field-row">
-                <label className="pa-field">
-                  <span className="pa-pref-l">Email</span>
-                  <input className="pa-input" type="email" value={details.email} onChange={(e) => setDetail('email', e.target.value)} autoComplete="email" placeholder="you@example.com" />
-                </label>
-                <label className="pa-field">
-                  <span className="pa-pref-l">Phone</span>
-                  <input className="pa-input" type="tel" value={details.phone} onChange={(e) => setDetail('phone', e.target.value)} autoComplete="tel" placeholder="+91 98765 43210" />
-                </label>
-              </div>
-              <label className="pa-field" style={{ maxWidth: 280 }}>
-                <span className="pa-pref-l">Date of birth</span>
-                <input className="pa-input" type="date" value={details.dateOfBirth} onChange={(e) => setDetail('dateOfBirth', e.target.value)} max={new Date().toISOString().slice(0, 10)} />
-              </label>
-              <div className="pa-field">
-                <span className="pa-pref-l">Gender</span>
-                <div className="pa-pills" role="radiogroup" aria-label="Gender">
-                  {GENDER_OPTIONS.map((g) => (
-                    <button key={g} type="button" role="radio" aria-checked={details.gender === g} className={`pa-pill${details.gender === g ? ' on' : ''}`} onClick={() => setDetail('gender', g)}>
-                      {g}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          {q.kind === 'details' && <DetailsFields details={details} onChange={setDetail} />}
 
           {q.kind === 'text' && (
             <textarea

@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation'
  *
  * This is the "book her directly" path: it deliberately bypasses the
  * assessment and the clinician-matching step. We stash the chosen clinician in
- * a short-lived cookie so it survives the login → details → checkout hops, then
- * send the member into that flow. /welcome forwards to /checkout when this
- * cookie is present, and /checkout reads it to assign this exact clinician.
+ * a short-lived cookie so it survives the details → sign-in → checkout hops,
+ * then open /book/[slug]: the assessment's "about you" step, a one-time code
+ * to the phone just given, then checkout, which assigns this exact clinician.
  */
 export default function BookSessionButton({
   slug,
@@ -25,7 +25,7 @@ export default function BookSessionButton({
   const book = () => {
     // 30-minute window is plenty to get through login + details + payment.
     document.cookie = `gc_book_clinician=${encodeURIComponent(slug)}; path=/; max-age=1800; samesite=lax`
-    router.push('/welcome')
+    router.push(`/book/${encodeURIComponent(slug)}`)
   }
 
   return (
