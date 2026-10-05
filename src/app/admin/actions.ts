@@ -408,6 +408,13 @@ export async function assignCategoryClinician(input: { userId: string; category:
   if (!column) return { ok: false, error: 'Unknown care type.' }
   const TRACKS: Record<keyof typeof CATEGORY_COLUMN, string> = { individual: 'therapy', couples: 'couples', psychiatry: 'psychiatry' }
   try {
+    // An account can exist before its patient profile does (signed up, no
+    // assessment, purchase or details yet). Create it rather than failing.
+    await prisma.patientProfile.upsert({
+      where: { userId: input.userId },
+      update: {},
+      create: { userId: input.userId, patientId: `P-${Date.now().toString(36).toUpperCase()}`, careMode: 'INDIVIDUAL', country: 'IN' },
+    })
     const before = await prisma.patientProfile.findUnique({ where: { userId: input.userId }, select: { [column]: true } as never })
     const oldId = (before as Record<string, string | null> | null)?.[column] ?? null
     await prisma.patientProfile.update({
@@ -435,8 +442,9 @@ export async function assignCategoryClinician(input: { userId: string; category:
     revalidatePath('/expert')
     revalidatePath('/expert/patients'); revalidatePath('/expert/schedule')
     return { ok: true }
-  } catch {
-    return { ok: false, error: 'Could not update. The patient may not have a profile yet.' }
+  } catch (e) {
+    console.error('[assignCategoryClinician] failed', e)
+    return { ok: false, error: 'Could not save this assignment. Please try again.' }
   }
 }
 
