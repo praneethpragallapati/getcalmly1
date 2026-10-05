@@ -9,6 +9,7 @@ import type { PatientProfileEdit } from '@/lib/account'
 import { IN_STATES } from '@/lib/inStates'
 import { COUNTRIES, hasStateList } from '@/lib/countries'
 import { fileToAvatarDataUrl } from '@/lib/clientImage'
+import DobPicker from '@/components/ui/DobPicker'
 
 const MAX_PHOTO_BYTES = 2_000_000
 
@@ -141,7 +142,7 @@ export function ProfileEditor({ profile }: { profile: PatientProfileEdit }) {
         </div>
         <div>
           <label className="field-label">Date of birth</label>
-          <input className="field-input" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+          <DobPicker value={dob} onChange={setDob} />
         </div>
         <div>
           <label className="field-label">Preferred language</label>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { completeMemberProfile } from '@/app/(public)/welcome/actions'
 import { GENDER_OPTIONS } from '@/lib/memberOnboardingShared'
+import DobPicker from '@/components/ui/DobPicker'
 
 /**
  * The five one-time details: full name, email, phone, date of birth, gender.
@@ -75,10 +76,10 @@ export function MemberEssentialsForm({
         </label>
       </div>
 
-      <label className="pa-field" style={{ maxWidth: 280 }}>
+      <div className="pa-field">
         <span className="pa-pref-l">Date of birth</span>
-        <input className="pa-input" type="date" value={dob} onChange={(e) => setDob(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
-      </label>
+        <DobPicker value={dob} onChange={setDob} />
+      </div>
 
       <div className="pa-field">
         <span className="pa-pref-l">Gender</span>
