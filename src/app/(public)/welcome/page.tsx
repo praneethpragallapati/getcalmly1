@@ -6,6 +6,7 @@ import { getClinician } from '@/data/clinicians'
 import { isBookable } from '@/lib/publicClinicians'
 import { MemberEssentialsForm } from '@/components/auth/MemberEssentialsForm'
 import { safeNext } from '@/lib/safeNext'
+import PhotoShell from '@/components/assessment/PhotoShell'
 
 export const metadata = {
   title: 'A few details',
@@ -54,7 +55,7 @@ export default async function WelcomePage({
 
   const firstName = booking ? booking.name.split(' ').slice(0, 2).join(' ') : null
   return (
-    <div className="pa">
+    <PhotoShell eyebrow={booking ? `Booking with ${firstName}` : 'Almost there'}>
       <div className="pa-inner pa-inner-q">
         <p className="pa-eyebrow">{forResults ? 'Last step' : 'Almost there'}</p>
         <h1 className="pa-q">
@@ -80,6 +81,6 @@ export default async function WelcomePage({
           }}
         />
       </div>
-    </div>
+    </PhotoShell>
   )
 }

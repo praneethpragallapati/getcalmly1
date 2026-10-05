@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { UserRound, Pill, Baby, HeartHandshake, ArrowRight } from 'lucide-react'
 import { FLOWS, FLOW_ORDER, type FlowId } from '@/data/assessments'
+import PhotoShell from './PhotoShell'
 
 const LOOK: Record<FlowId, { color: string; icon: React.ReactNode }> = {
   adult: { color: '#C8553D', icon: <UserRound size={22} /> },
@@ -14,9 +15,15 @@ const LOOK: Record<FlowId, { color: string; icon: React.ReactNode }> = {
  * detour. Each tile goes straight into its own questions. `hrefFor` lets the
  * in-app version point at its own route.
  */
-export default function AssessmentStep1({ hrefFor = (id: FlowId) => `/assess/form/${id}` }: { hrefFor?: (id: FlowId) => string }) {
-  return (
-    <div className="pa">
+export default function AssessmentStep1({
+  hrefFor = (id: FlowId) => `/assess/form/${id}`,
+  photo = true,
+}: {
+  hrefFor?: (id: FlowId) => string
+  /** The website's login-style photo look; off inside the app's dashboard. */
+  photo?: boolean
+}) {
+  const body = (
       <div className="pa-inner">
         <p className="pa-eyebrow">Pre-assessment</p>
         <h1 className="pa-h1">Let&apos;s find the right <em>place to begin.</em></h1>
@@ -37,8 +44,11 @@ export default function AssessmentStep1({ hrefFor = (id: FlowId) => `/assess/for
             return (
               <Link key={id} href={hrefFor(id)} className="pa-path" style={{ '--c': look.color } as React.CSSProperties}>
                 <span className="pa-path-ic">{look.icon}</span>
-                <span className="pa-path-t">{f.name}</span>
-                <span className="pa-path-d">{f.blurb}</span>
+                <span className="pa-path-body">
+                  <span className="pa-path-t">{f.name}</span>
+                  <span className="pa-path-d">{f.blurb}</span>
+                </span>
+                <span className="pa-path-go pa-path-go-row"><ArrowRight size={16} /></span>
                 <span className="pa-path-m">
                   {f.questions.length} short questions
                   <span className="pa-path-go"><ArrowRight size={16} /></span>
@@ -53,8 +63,8 @@ export default function AssessmentStep1({ hrefFor = (id: FlowId) => `/assess/for
           reach the clinician you are matched with.
         </p>
       </div>
-    </div>
   )
+  return photo ? <PhotoShell eyebrow="Pre-assessment · about 4 minutes">{body}</PhotoShell> : <div className="pa">{body}</div>
 }
 
 export { LOOK as PATH_LOOK }

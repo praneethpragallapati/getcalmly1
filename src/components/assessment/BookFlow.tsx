@@ -8,6 +8,7 @@ import { completeMemberProfile } from '@/app/(public)/welcome/actions'
 import { queueDetailsForSignIn } from '@/lib/pendingAssessment'
 import { loginWithCodeHref } from '@/lib/loginLink'
 import DetailsFields from './DetailsFields'
+import PhotoShell from './PhotoShell'
 
 /**
  * Booking directly with a clinician from their website profile: the same
@@ -64,7 +65,7 @@ export default function BookFlow({
   }
 
   return (
-    <div className="pa" style={{ '--pa-accent': accent } as React.CSSProperties}>
+    <PhotoShell eyebrow={`Booking with ${first}`} accent={accent}>
       <div className="pa-inner pa-inner-q">
         <div className="pa-top">
           <span className="pa-pathtag">Booking with {first}</span>
@@ -91,6 +92,6 @@ export default function BookFlow({
         </div>
         {error && <p className="pa-foot" style={{ color: '#A8432D' }}>{error}</p>}
       </div>
-    </div>
+    </PhotoShell>
   )
 }
