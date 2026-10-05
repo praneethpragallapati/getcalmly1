@@ -9,6 +9,7 @@
  */
 import { saveAssessmentResult } from '@/app/(dashboard)/app/actions'
 import { completeMemberProfile } from '@/app/(public)/welcome/actions'
+import { loginWithCodeHref } from '@/lib/loginLink'
 import { legacySeverity, type AssessmentResult, type VisitorDetails } from '@/data/assessments'
 
 export const RESULT_KEY = 'assess_result_v2'
@@ -49,6 +50,12 @@ export function queueDetailsForSignIn(details: VisitorDetails): void {
     sessionStorage.setItem(DETAILS_KEY, JSON.stringify(details))
     sessionStorage.removeItem(SAVED_KEY)
   } catch { /* private mode: /welcome asks for them after sign-in instead */ }
+}
+
+/** Sign-in link for after the assessment: the number from its details step is
+ *  filled in and the code sent straight away. */
+export function signInAfterAssessmentHref(next: string): string {
+  return loginWithCodeHref(read<VisitorDetails>(DETAILS_KEY)?.phone, next)
 }
 
 export async function savePendingAssessment(): Promise<void> {

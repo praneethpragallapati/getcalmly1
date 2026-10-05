@@ -6,13 +6,8 @@ import { ArrowRight } from 'lucide-react'
 import { detailsProblem, type VisitorDetails } from '@/data/assessments'
 import { completeMemberProfile } from '@/app/(public)/welcome/actions'
 import { queueDetailsForSignIn } from '@/lib/pendingAssessment'
+import { loginWithCodeHref } from '@/lib/loginLink'
 import DetailsFields from './DetailsFields'
-
-/** "+91 98765 43210" / "9876543210" → "919876543210" (10 digits assume India). */
-function toMobile(phone: string): string {
-  const d = phone.replace(/\D/g, '')
-  return d.length === 10 ? `91${d}` : d
-}
 
 /**
  * Booking directly with a clinician from their website profile: the same
@@ -65,7 +60,7 @@ export default function BookFlow({
     }
     // Saved to the account right after sign-in (lib/pendingAssessment).
     queueDetailsForSignIn(details)
-    router.push(`/login?phone=${toMobile(details.phone)}&send=1&next=${encodeURIComponent(checkout)}`)
+    router.push(loginWithCodeHref(details.phone, checkout))
   }
 
   return (

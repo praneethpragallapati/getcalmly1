@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { savePendingAssessment, saveForBooking, RESULT_KEY } from '@/lib/pendingAssessment'
+import { getSession } from 'next-auth/react'
+import { savePendingAssessment, saveForBooking, signInAfterAssessmentHref, RESULT_KEY } from '@/lib/pendingAssessment'
 import { FLOWS, type AssessmentResult } from '@/data/assessments'
 import { rankClinicians } from '@/data/assessmentMatch'
 import type { PoolClinician } from '@/lib/assessmentPool'
@@ -67,7 +68,15 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
     if (booking) return
     setBooking(true)
     await saveForBooking(track)
-    router.push(buyHref)
+    // Signed out: straight to the code for the number they just gave.
+    const session = await getSession().catch(() => null)
+    router.push(session ? buyHref : signInAfterAssessmentHref(buyHref))
+  }
+  async function signUp() {
+    if (booking) return
+    setBooking(true)
+    const session = await getSession().catch(() => null)
+    router.push(session ? '/app' : signInAfterAssessmentHref('/app'))
   }
 
   return (
@@ -154,7 +163,7 @@ export default function Results({ firstSession, pool }: { firstSession: FirstSes
             <h3>Not ready to <em>book yet?</em></h3>
             <p>Sign up free and book whenever it suits you. Your answers and details come with you, so you will not be asked again, and mood check-ins, journalling and the community are open to you in the meantime.</p>
           </div>
-          <Link href="/login?next=/app">Sign up free</Link>
+          <a href="/login?next=/app" onClick={(e) => { e.preventDefault(); void signUp() }}>Sign up free</a>
         </div>
       </div>
     </div>
