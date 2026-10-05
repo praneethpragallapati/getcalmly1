@@ -524,3 +524,39 @@
   .pa-focus .pa-chips:has(> .pa-chip:nth-child(12)) { gap: 5px; margin-top: 12px; }
   .pa-focus .pa-nav { margin-top: 8px; padding-top: 10px; }
 }
+
+/* Focus mode on coral (replaces the ink ground): the brand coral, deepened a
+   touch for contrast, with white type. Chosen options turn white with coral
+   text; Continue is white so it never melts into the ground. */
+.pa-focus {
+  --pa-ink: #FFFFFF; --pa-muted: rgba(255,255,255,.86); --pa-soft: rgba(255,255,255,.72);
+  --pa-line: rgba(255,255,255,.22);
+  --pa-tile: rgba(255,255,255,.13); --pa-tile-b: rgba(255,255,255,.26);
+  background:
+    radial-gradient(ellipse 55% 50% at 100% 0%, rgba(255,214,190,.28), transparent 62%),
+    radial-gradient(ellipse 50% 45% at 0% 100%, rgba(110,30,14,.35), transparent 62%),
+    linear-gradient(160deg, #C8553D 0%, #B4462F 100%);
+}
+.pa-focus .pa-q em, .pa-focus .pa-h1 em, .pa-focus .pa-eyebrow, .pa-focus .pa-count b { color: #FFE1D5; }
+.pa-focus .pa-pathtag { background: rgba(255,255,255,.18); color: #fff; }
+.pa-focus .pa-bar span { background: rgba(255,255,255,.22); }
+.pa-focus .pa-bar span.done { background: rgba(255,255,255,.6); }
+.pa-focus .pa-bar span.now { background: #fff; }
+.pa-focus .pa-row:hover, .pa-focus .pa-chip:hover, .pa-focus .pa-pill:hover, .pa-focus .pa-input:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.55); }
+.pa-focus .pa-row.on, .pa-focus .pa-pill.on { background: #fff; border-color: #fff; color: #B4462F; }
+.pa-focus .pa-row.on .pa-key { background: rgba(200,85,61,.12); color: #B4462F; }
+.pa-focus .pa-chip.on { background: #fff; border-color: #fff; color: #B4462F; }
+.pa-focus .pa-tick { border-color: rgba(255,255,255,.6); }
+.pa-focus .pa-chip.on .pa-tick { background: #C8553D; border-color: #C8553D; color: #fff; }
+.pa-focus .pa-key { background: rgba(255,255,255,.16); color: #fff; }
+.pa-focus .pa-input:focus, .pa-focus .pa-text:focus { border-color: #fff; background: rgba(255,255,255,.2); }
+.pa-focus .pa-trust li::before { color: #FFE1D5; }
+.pa-focus .pa-next { background: #fff; color: #B4462F; box-shadow: 0 14px 30px -12px rgba(90,20,8,.55); }
+.pa-focus .pa-next:disabled { opacity: .5; }
+.pa-focus .pa-keys kbd { background: rgba(255,255,255,.18); color: #fff; }
+.pa-focus .pa-path:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.6); }
+.pa-focus .pa-path-ic { box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+.pa-focus .pa-path-m { color: #FFE1D5; }
+.pa-focus .pa-path-go { background: rgba(255,255,255,.2); color: #fff; }
+.pa-focus .pa-path:hover .pa-path-go { background: #fff; color: #B4462F; }
+.pa-focus select.dob-sel { color: #fff; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
