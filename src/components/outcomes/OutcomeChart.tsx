@@ -18,7 +18,7 @@ const W = 300, H = 116, padL = 26, padR = 10, padT = 10, padB = 22
 
 function short(iso: string): string {
   const d = new Date(iso)
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' , timeZone: 'Asia/Kolkata' })
 }
 
 export function OutcomeChart({ instrumentId, series }: { instrumentId: string; series: OutcomePoint[] }) {

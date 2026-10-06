@@ -10,7 +10,7 @@ export type AssignedPulse = { instrumentId: string; recurrence: string; expiresA
 
 function fmt(iso: string | null): string {
   if (!iso) return 'no expiry'
-  return `till ${new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  return `till ${new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' , timeZone: 'Asia/Kolkata' })}`
 }
 
 export function PulseAssignForm({ patientId, assigned }: { patientId: string; assigned: AssignedPulse[] }) {

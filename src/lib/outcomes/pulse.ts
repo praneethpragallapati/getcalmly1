@@ -23,6 +23,8 @@ export type { Recurrence } from './pulseMeta'
 
 export type PulseAssignment = {
   id: string
+  /** When it was (re)assigned: fills before this do not count toward it. */
+  createdAt: Date
   patientId: string
   instrumentId: string
   recurrence: string
@@ -46,7 +48,7 @@ export async function getAssignments(patientId: string): Promise<PulseAssignment
   await ensureOutcomesSchema()
   try {
     const rows = await prisma.$queryRaw<PulseAssignment[]>`
-      SELECT "id", "patientId", "instrumentId", "recurrence", "expiresAt", "therapistId", "active"
+      SELECT "id", "patientId", "instrumentId", "recurrence", "expiresAt", "therapistId", "active", "createdAt"
       FROM "PulseAssignment" WHERE "patientId" = ${patientId} AND "active" = true
       ORDER BY "createdAt" ASC`
     return rows.filter((r) => INSTRUMENTS[r.instrumentId])
@@ -65,10 +67,10 @@ export async function assignPulse(
 ): Promise<void> {
   await ensureOutcomesSchema()
   await prisma.$executeRaw`
-    INSERT INTO "PulseAssignment" ("id","patientId","instrumentId","recurrence","expiresAt","therapistId","active")
-    VALUES (${crypto.randomUUID()}, ${patientId}, ${instrumentId}, ${recurrence}, ${expiresAt}, ${therapistId}, ${true})
+    INSERT INTO "PulseAssignment" ("id","patientId","instrumentId","recurrence","expiresAt","therapistId","active","createdAt")
+    VALUES (${crypto.randomUUID()}, ${patientId}, ${instrumentId}, ${recurrence}, ${expiresAt}, ${therapistId}, ${true}, ${new Date()})
     ON CONFLICT ("patientId","instrumentId")
-    DO UPDATE SET "recurrence" = ${recurrence}, "expiresAt" = ${expiresAt}, "therapistId" = ${therapistId}, "active" = ${true}`
+    DO UPDATE SET "recurrence" = ${recurrence}, "expiresAt" = ${expiresAt}, "therapistId" = ${therapistId}, "active" = ${true}, "createdAt" = ${new Date()}`
 }
 
 /** Remove a Pulse assignment entirely. */
@@ -78,7 +80,6 @@ export async function removePulse(patientId: string, instrumentId: string): Prom
     DELETE FROM "PulseAssignment" WHERE "patientId" = ${patientId} AND "instrumentId" = ${instrumentId}`
 }
 
-type FillRow = { scale: string; cnt: number; recordedAt: Date }
 
 /**
  * Where each live assignment stands for the patient: due now, due again on a
@@ -104,40 +105,44 @@ export async function pulseSchedule(patientId: string): Promise<PulseStatus[]> {
   )
   if (assignments.length === 0) return []
 
-  // Last self-report time and total fills per instrument.
-  let fills: FillRow[] = []
+  // Every self-report time per instrument. Only fills since the check was
+  // (re)assigned count: assigning a check asks for it now, whatever was filled
+  // before, and its frequency runs from there.
+  let fills: { scale: string; recordedAt: Date }[] = []
   try {
-    fills = await prisma.$queryRaw<FillRow[]>`
-      SELECT "scale", COUNT(*)::int AS "cnt", MAX("recordedAt") AS "recordedAt"
-      FROM "AssessmentScore" WHERE "userId" = ${patientId} AND "source" = 'patient'
-      GROUP BY "scale"`
+    fills = await prisma.$queryRaw<{ scale: string; recordedAt: Date }[]>`
+      SELECT "scale", "recordedAt"
+      FROM "AssessmentScore" WHERE "userId" = ${patientId} AND "source" = 'patient'`
   } catch { /* empty */ }
-  const lastBy = new Map(fills.map((f) => [f.scale, f.recordedAt.getTime()]))
-  const cntBy = new Map(fills.map((f) => [f.scale, Number(f.cnt)]))
+  const since = (a: PulseAssignment) =>
+    fills.filter((f) => f.scale === a.instrumentId && f.recordedAt.getTime() >= new Date(a.createdAt).getTime())
 
-  // Session count only needed for session-based frequencies.
+  // Session-based frequencies count sessions held since the assignment.
   const sessionBased = assignments.some((a) => ['EVERY', 'EVEN', 'ODD'].includes(a.recurrence))
-  let sessions = 0
+  let sessionTimes: number[] = []
   if (sessionBased) {
     try {
-      sessions = await prisma.appointment.count({
+      sessionTimes = (await prisma.appointment.findMany({
         where: { patientId, status: { not: 'CANCELLED' }, scheduledAt: { lt: new Date() } },
-      })
-    } catch { /* leave 0 */ }
+        select: { scheduledAt: true },
+      })).map((s) => s.scheduledAt.getTime())
+    } catch { /* none */ }
   }
 
   const order = ['PHQ9', 'GAD7', 'K10', 'WHO5', 'GAS']
   return assignments
     .map((a) => {
+      const mine = since(a)
       const days = intervalDays(a.recurrence)
       if (days != null) {
-        const lastAt = lastBy.get(a.instrumentId)
+        const lastAt = mine.length ? Math.max(...mine.map((f) => f.recordedAt.getTime())) : undefined
         const next = lastAt == null ? now : lastAt + days * DAY
         const dueNow = next <= now
         return { instrumentId: a.instrumentId, recurrence: a.recurrence, dueNow, nextDueIso: dueNow ? null : new Date(next).toISOString(), waitsForSession: false }
       }
-      // Session-based: due when qualifying sessions exceed fills.
-      const fillCount = cntBy.get(a.instrumentId) ?? 0
+      // Session-based: due when qualifying sessions (since assigned) exceed fills.
+      const fillCount = mine.length
+      const sessions = sessionTimes.filter((t) => t >= new Date(a.createdAt).getTime()).length
       const qualifying =
         a.recurrence === 'EVERY' ? sessions
         : a.recurrence === 'EVEN' ? Math.floor(sessions / 2)

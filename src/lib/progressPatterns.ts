@@ -26,7 +26,7 @@ function keyOf(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 function labelOf(d: Date): string {
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' , timeZone: 'Asia/Kolkata' })
 }
 
 const WEEK_MS = 7 * 86_400_000

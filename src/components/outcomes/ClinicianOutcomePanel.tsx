@@ -19,7 +19,7 @@ const SOURCE: Record<string, string> = { patient: 'self-report', clinician: 'cli
 
 function when(iso: string | null): string {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' , timeZone: 'Asia/Kolkata' })
 }
 
 export async function ClinicianOutcomePanel({ userId }: { userId: string }) {
