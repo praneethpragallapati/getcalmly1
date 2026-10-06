@@ -1,7 +1,8 @@
 /** In-app notifications: creation helper, category split (Important / Others),
  *  unread counts for the bell, list, and mark-read. */
 import { prisma } from '@/lib/prisma'
-import { fmtIST, istParts } from '@/lib/tz'
+import { dayKeyIn, fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 export type NotificationCategory = 'IMPORTANT' | 'OTHER'
 
@@ -62,12 +63,7 @@ export async function notifyMany(
   }
 }
 
-function istDayKey(d: Date): string {
-  const p = istParts(d)
-  return `${p.year}-${p.month}-${p.day}`
-}
-
-function relativeLabel(d: Date): string {
+function relativeLabel(d: Date, tz: string): string {
   const s = Math.max(0, Math.round((Date.now() - d.getTime()) / 1000))
   if (s < 60) return 'just now'
   const m = Math.round(s / 60)
@@ -76,7 +72,7 @@ function relativeLabel(d: Date): string {
   if (h < 24) return `${h}h ago`
   const days = Math.round(h / 24)
   if (days < 7) return `${days}d ago`
-  return fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric' })
+  return fmtIn(tz, d, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {
@@ -94,9 +90,10 @@ export async function getNotifications(userId: string): Promise<NotificationView
       orderBy: { createdAt: 'desc' },
       take: 80,
     })
-    const todayKey = istDayKey(new Date())
+    const tz = await userTz(userId)
+    const todayKey = dayKeyIn(tz, new Date())
     return rows.map((n) => {
-      const today = istDayKey(n.createdAt) === todayKey
+      const today = dayKeyIn(tz, n.createdAt) === todayKey
       return {
         id: n.id,
         type: n.type,
@@ -105,11 +102,11 @@ export async function getNotifications(userId: string): Promise<NotificationView
         body: n.body,
         href: n.href,
         read: n.read,
-        createdLabel: relativeLabel(n.createdAt),
+        createdLabel: relativeLabel(n.createdAt, tz),
         today,
         timeLabel: today
-          ? fmtIST(n.createdAt, { hour: 'numeric', minute: '2-digit' })
-          : fmtIST(n.createdAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
+          ? fmtIn(tz, n.createdAt, { hour: 'numeric', minute: '2-digit' })
+          : fmtIn(tz, n.createdAt, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }),
       }
     })
   } catch {

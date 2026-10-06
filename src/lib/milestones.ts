@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/prisma'
+import { streakIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /**
  * The member's achievement milestones. A broad catalog (~50) spanning
@@ -41,23 +43,6 @@ type Stats = {
   meds: number
   referrals: number
   bestMoodAvg7: number // best 7-check-in rolling average of mood (0..10)
-}
-
-const startOfDayMs = (d: Date) => {
-  const x = new Date(d)
-  x.setHours(0, 0, 0, 0)
-  return x.getTime()
-}
-function streakFromDates(dates: Date[]): number {
-  const days = new Set(dates.map(startOfDayMs))
-  let streak = 0
-  const cursor = new Date()
-  if (!days.has(startOfDayMs(cursor))) cursor.setDate(cursor.getDate() - 1)
-  while (days.has(startOfDayMs(cursor))) {
-    streak++
-    cursor.setDate(cursor.getDate() - 1)
-  }
-  return streak
 }
 
 async function gatherStats(userId: string): Promise<Stats> {
@@ -107,7 +92,7 @@ async function gatherStats(userId: string): Promise<Stats> {
   const profileFields = [profile?.gender, profile?.dateOfBirth, profile?.state, profile?.emergencyPhone, user?.phone].filter(Boolean).length
 
   return {
-    streak: streakFromDates(moodDates.map((m) => m.createdAt)),
+    streak: streakIn(await userTz(userId), moodDates.map((m) => m.createdAt)),
     moodTotal,
     journal,
     sessions,

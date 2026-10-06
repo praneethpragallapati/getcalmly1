@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /** A poll as shown to a member or admin: tallied counts + this viewer's vote(s). */
 export type PollView = {
@@ -71,7 +72,7 @@ export async function ensurePollSchema(): Promise<void> {
   pollSchemaReady = true
 }
 
-function toView(p: PollWithVotes, userId: string | null): PollView {
+function toView(p: PollWithVotes, userId: string | null, tz?: string | null): PollView {
   const counts = p.options.map(() => 0)
   const myVotes: number[] = []
   const voters = new Set<string>()
@@ -89,9 +90,9 @@ function toView(p: PollWithVotes, userId: string | null): PollView {
     myVote: myVotes.length ? myVotes[0] : null,
     myVotes,
     multiple: p.multiple,
-    expiresAtLabel: p.expiresAt ? fmtIST(p.expiresAt, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null,
+    expiresAtLabel: p.expiresAt ? fmtIn(tz, p.expiresAt, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null,
     expired: Boolean(p.expiresAt && p.expiresAt.getTime() < Date.now()),
-    createdAtLabel: fmtIST(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+    createdAtLabel: fmtIn(tz, p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
     pinned: p.pinned,
   }
 }
@@ -99,6 +100,7 @@ function toView(p: PollWithVotes, userId: string | null): PollView {
 /** Polls for the community feed / tab: newest first (the query order). The polls
  *  page puts pinned ones on top; the home page picks the most recent unvoted. */
 export async function getCommunityPolls(userId: string | null): Promise<PollView[]> {
+  const tz = await userTz(userId)
   try {
     await ensurePollSchema()
     const polls = await prisma.poll.findMany({
@@ -106,7 +108,7 @@ export async function getCommunityPolls(userId: string | null): Promise<PollView
       take: 50,
       select: { id: true, question: true, options: true, expiresAt: true, createdAt: true, pinned: true, multiple: true, votes: { select: { optionIndex: true, userId: true } } },
     })
-    return polls.map((p) => toView(p, userId))
+    return polls.map((p) => toView(p, userId, tz))
   } catch {
     return []
   }

@@ -5,7 +5,8 @@
  */
 import { prisma } from '@/lib/prisma'
 import { estimateOrderAmount } from '@/data/delivery'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 export { estimateOrderAmount } from '@/data/delivery'
 
@@ -36,6 +37,7 @@ export const STATUS_LABEL: Record<string, string> = {
 }
 
 export async function getMedicationOrders(userId: string): Promise<MedicationOrderView[]> {
+  const tz = await userTz(userId)
   try {
     const rows = await prisma.medicationOrder.findMany({
       where: { userId },
@@ -50,7 +52,7 @@ export async function getMedicationOrders(userId: string): Promise<MedicationOrd
         status: r.status,
         statusLabel: STATUS_LABEL[r.status] ?? r.status,
         amount: r.amount,
-        createdLabel: fmtIST(r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+        createdLabel: fmtIn(tz, r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
       }
     })
   } catch {

@@ -433,8 +433,10 @@ function checkDeescalation(userLabels: string[], label: string): boolean {
 /** Daily chat cap for this user's type (0 = unlimited). Admin-configurable. */
 async function dailyLimitReached(userId: string, perDay: number): Promise<boolean> {
   if (perDay <= 0) return false
-  const start = new Date()
-  start.setHours(0, 0, 0, 0)
+  // The member's own day, so the cap resets at their midnight.
+  const { startOfDayIn } = await import('@/lib/tz')
+  const { userTz } = await import('@/lib/userTz')
+  const start = new Date(startOfDayIn(await userTz(userId), new Date()))
   const count = await prisma.calmAiMessage.count({
     where: { userId, role: 'USER', createdAt: { gte: start } },
   })

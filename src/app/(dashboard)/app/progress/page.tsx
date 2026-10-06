@@ -11,6 +11,7 @@ import { OutcomeTabs } from '@/components/outcomes/OutcomeTabs'
 import { getWeeklyPatterns } from '@/lib/progressPatterns'
 import { WeeklyChart, toPoints, type Zone } from '@/components/outcomes/WeeklyChart'
 import { getLifetimeTotals } from '@/lib/progressTotals'
+import { userTz } from '@/lib/userTz'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,7 +73,7 @@ function StatusCard({ p }: { p: InstrumentProgress }) {
 }
 
 /** One measure's detail, without a card wrapper (the tab container provides it). */
-function MeasurePanel({ p }: { p: InstrumentProgress }) {
+function MeasurePanel({ p, tz }: { p: InstrumentProgress; tz: string }) {
   const inst = INSTRUMENTS[p.instrumentId]
   return (
     <>
@@ -81,7 +82,7 @@ function MeasurePanel({ p }: { p: InstrumentProgress }) {
         <span className="prov-badge">{PROV_LABEL[p.source] ?? 'Recorded'}</span>
       </div>
       {p.series.length >= 2 ? (
-        <OutcomeChart instrumentId={p.instrumentId} series={p.series} />
+        <OutcomeChart instrumentId={p.instrumentId} series={p.series} tz={tz} />
       ) : (
         <p className="muted" style={{ marginTop: 4 }}>
           Baseline recorded{p.verdict.bandLabel ? ` (${p.verdict.bandLabel})` : ''}. Your next check will start the trend line.
@@ -107,6 +108,7 @@ function TotalCard({ icon, tint, n, label }: { icon: ReactNode; tint: string; n:
 export default async function ProgressPage() {
   const d = await getDashboardData()
   const userId = await getSessionUserId()
+  const tz = await userTz(userId)
   if (!userId) {
     return (
       <>
@@ -184,12 +186,12 @@ export default async function ProgressPage() {
               {promBlocks.length > 0 ? (
                 <OutcomeTabs
                   tabs={promBlocks.map((p) => ({ id: p.instrumentId, label: INSTRUMENTS[p.instrumentId].short.replace(/\s*\(.*\)/, '') }))}
-                  panels={promBlocks.map((p) => <MeasurePanel key={p.instrumentId} p={p} />)}
+                  panels={promBlocks.map((p) => <MeasurePanel key={p.instrumentId} p={p} tz={tz} />)}
                 />
               ) : <div />}
               {gasBlock && (
                 <div className="card">
-                  <MeasurePanel p={gasBlock} />
+                  <MeasurePanel p={gasBlock} tz={tz} />
                 </div>
               )}
             </div>

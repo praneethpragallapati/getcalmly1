@@ -9,7 +9,8 @@ import { LocalTime } from '@/components/dashboard/LocalTime'
 import { JoinButton } from '@/components/dashboard/JoinButton'
 import { getSessionUserId } from '@/lib/patient'
 import { canPatientBookWith } from '@/lib/expert'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 import type { DashSession } from '@/data/dashboardDemo'
 
 // Always render fresh: this page settles elapsed sessions (no-shows / auto-
@@ -106,6 +107,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
   const withId = typeof sp.with === 'string' ? sp.with : undefined
   // Only honour ?with= when the patient may actually book with that clinician.
   const userId = withId ? await getSessionUserId() : null
+  const tz = await userTz(await getSessionUserId())
   const scopedId = withId && userId && (await canPatientBookWith(userId, withId)) ? withId : undefined
 
   // A patient can have up to three clinicians (individual / couples / psychiatry).
@@ -138,7 +140,7 @@ export default async function SessionsPage({ searchParams }: { searchParams: Pro
     .filter((s) => s.status !== 'CANCELLED' && s.scheduledISO)
     .map((s) => ({
       iso: s.scheduledISO as string,
-      timeLabel: fmtIST(new Date(s.scheduledISO as string), { hour: 'numeric', minute: '2-digit' }),
+      timeLabel: fmtIn(tz, new Date(s.scheduledISO as string), { hour: 'numeric', minute: '2-digit' }),
       expert: s.expert,
       status: s.status,
     }))

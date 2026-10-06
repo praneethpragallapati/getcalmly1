@@ -22,7 +22,8 @@ import { pulseSchedule, type PulseStatus } from '@/lib/outcomes/pulse'
 import { INSTRUMENTS, type Instrument } from '@/lib/outcomes/instruments'
 import { getMyForms, getFormToFill } from '@/lib/forms'
 import type { PulseDef } from '@/components/outcomes/PulseRunner'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /** Catalog instrument → the client-safe shape the Pulse runner needs. */
 function toPulseDef(inst: Instrument): PulseDef {
@@ -46,6 +47,7 @@ export default async function AppHomePage({
   const initialForm = typeof sp.form === 'string' ? sp.form : undefined
 
   const userId = await getSessionUserId()
+  const tz = await userTz(userId)
   const [d, meds, orders, polls, milestones, pulseStatus, myForms] = await Promise.all([
     getDashboardData(),
     getMedications(),
@@ -68,7 +70,7 @@ export default async function AppHomePage({
       short: INSTRUMENTS[s.instrumentId].short,
       when: s.waitsForSession
         ? 'After your next session'
-        : s.nextDueIso ? `From ${fmtIST(new Date(s.nextDueIso), { weekday: 'short', day: 'numeric', month: 'short' })}` : 'Soon',
+        : s.nextDueIso ? `From ${fmtIn(tz, new Date(s.nextDueIso), { weekday: 'short', day: 'numeric', month: 'short' })}` : 'Soon',
     }))
   const pulseDefs = pulseDue
     .filter((id) => INSTRUMENTS[id] && INSTRUMENTS[id].items.length > 0)

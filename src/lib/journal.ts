@@ -8,7 +8,8 @@
  * the server action, so it holds even if the client is bypassed.
  */
 import { prisma } from '@/lib/prisma'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 export const JOURNAL_MAX_CHARS = 6000
 /** A journal title is a heading, not a sentence — keep it short. */
@@ -27,6 +28,7 @@ export type JournalDetail = {
 
 /** One journal entry, scoped to its owner (returns null for anyone else's). */
 export async function getJournalEntry(userId: string, id: string): Promise<JournalDetail | null> {
+  const tz = await userTz(userId)
   try {
     const j = await prisma.journalEntry.findFirst({
       where: { id, userId },
@@ -39,7 +41,7 @@ export async function getJournalEntry(userId: string, id: string): Promise<Journ
       content: j.content,
       moodTag: j.moodTag ?? null,
       topicTags: j.topicTags ?? [],
-      dateLabel: fmtIST(j.createdAt, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }),
+      dateLabel: fmtIn(tz, j.createdAt, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }),
     }
   } catch {
     return null

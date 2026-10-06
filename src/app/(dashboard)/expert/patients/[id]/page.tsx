@@ -21,7 +21,8 @@ import { ClinicianCopilot } from '@/components/expert/ClinicianCopilot'
 import { getAssignments, pulseSchedule } from '@/lib/outcomes/pulse'
 import { DetailGrid, formatAddress, formatEmergencyContact } from '@/components/ui/DetailGrid'
 import { SessionNote } from '@/components/ui/SessionNote'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, fmtIn, tzLabel, IST_TZ } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 import { getClinicianSessionGap, fmtGap } from '@/lib/sessionGap'
 
 /** Capitalise for use as a standalone metric value. */
@@ -72,6 +73,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
   // Pulse checks currently assigned to this patient (for the assign card).
   // Each with where it stands for the patient, so "assigned" and "waiting for
   // a session" are told apart.
+  const patientTz = await userTz(id)
   const pulseStatus = new Map((await pulseSchedule(id).catch(() => [])).map((s) => [s.instrumentId, s]))
   const pulseAssigned = (await getAssignments(id)).map((a) => {
     const st = pulseStatus.get(a.instrumentId)
@@ -82,7 +84,7 @@ export default async function ExpertPatientPage({ params }: { params: Promise<{ 
       status: !st ? 'Expired'
         : st.dueNow ? 'Due now for the patient'
         : st.waitsForSession ? 'Due after their next session'
-        : st.nextDueIso ? `Next due ${fmtIST(new Date(st.nextDueIso), { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}`
+        : st.nextDueIso ? `Next due ${fmtIn(patientTz, new Date(st.nextDueIso), { weekday: 'short', day: 'numeric', month: 'short' })}${patientTz === IST_TZ ? '' : ` (their day, ${tzLabel(patientTz)})`}`
         : '',
     }
   })

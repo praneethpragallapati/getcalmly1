@@ -1,6 +1,6 @@
 // Pure helpers behind the patient booking calendar. Framework-agnostic and
 // client-safe (no server imports), so the date maths can be tested on its own.
-import { istParts, istWallClock } from '@/lib/tz'
+import { partsIn, wallClockIn } from '@/lib/tz'
 import type { ExpertSlot } from '@/lib/sessions'
 
 /** Stated on the booking UI so a patient abroad never has to guess the clock. */
@@ -21,11 +21,11 @@ export const MONTHS = [
 ]
 export const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-/** "Friday, 21 August" for a YYYY-MM-DD IST day key. */
-export function longDayLabel(key: string): string {
+/** "Friday, 21 August" for a YYYY-MM-DD day key on the patient's calendar. */
+export function longDayLabel(key: string, tz?: string | null): string {
   const [y, m, d] = key.split('-').map(Number)
-  // Midday IST, so the weekday can never slide to the day either side.
-  const dow = istParts(istWallClock(y, m - 1, d, 12)).dow
+  // Midday, so the weekday can never slide to the day either side.
+  const dow = partsIn(tz, wallClockIn(tz, y, m - 1, d, 12)).dow
   return `${WEEKDAYS[dow]}, ${d} ${MONTHS[m - 1]}`
 }
 
@@ -75,11 +75,11 @@ export const SLOT_BANDS = [
 
 export type BandKey = (typeof SLOT_BANDS)[number]['key']
 
-/** Bucket a day's slots into the four bands, by their IST hour. */
-export function groupByBand(slots: SlotWithState[]): Record<BandKey, SlotWithState[]> {
+/** Bucket a day's slots into the four bands, by their hour on the patient's clock. */
+export function groupByBand(slots: SlotWithState[], tz?: string | null): Record<BandKey, SlotWithState[]> {
   const out = { morning: [], afternoon: [], evening: [], night: [] } as Record<BandKey, SlotWithState[]>
   for (const s of slots) {
-    const hour = istParts(new Date(s.iso)).hour
+    const hour = partsIn(tz, new Date(s.iso)).hour
     const band = SLOT_BANDS.find((b) => (b.hours as readonly number[]).includes(hour))
     out[band ? band.key : 'morning'].push(s)
   }

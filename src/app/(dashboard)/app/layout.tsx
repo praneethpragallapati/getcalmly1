@@ -16,7 +16,10 @@ import { getSessionUser } from '@/lib/session'
 import { hasEffectiveCareTeam } from '@/lib/crisisReport'
 import { attributeReferral } from '@/lib/referral'
 import { getGuidedTracksForPatient } from '@/lib/guided'
-import { fmtIST, istParts } from '@/lib/tz'
+import { fmtIn, partsIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
+import { TzProvider } from '@/components/dashboard/TzContext'
+import { TimeZoneSync } from '@/components/dashboard/TimeZoneSync'
 import { ensureContactSchema } from '@/lib/contactSchema'
 
 // Every dashboard page is one member's own data, rendered per request. Without
@@ -31,10 +34,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-function greetingFor(date: Date): string {
-  // IST, not the server clock. Vercel runs in UTC, so getHours() at 2pm IST
-  // returns 8 and everyone was greeted with "Good morning" all afternoon.
-  const h = istParts(date).hour
+function greetingFor(date: Date, tz: string): string {
+  // The member's own clock, not the server's (Vercel runs in UTC, so
+  // getHours() at 2pm IST returned 8 and everyone got "Good morning").
+  const h = partsIn(tz, date).hour
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
   return 'Good evening'
@@ -82,8 +85,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       ? Promise.all([countOpenActivities(userId), countPendingForms(userId)]).then(([a, f]) => a + f).catch(() => 0)
       : Promise.resolve(0),
   ])
+  const tz = await userTz(userId)
   const now = new Date()
-  const dateLine = fmtIST(now, {
+  const dateLine = fmtIn(tz, now, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -91,6 +95,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   })
 
   return (
+    <TzProvider value={tz}>
+    <TimeZoneSync stored={tz} />
     <ToastProvider>
     {/* Above the routed content, so a live call survives navigation. */}
     <CallProvider>
@@ -111,7 +117,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div>
             <div className="tb-date">{dateLine}</div>
             <div className="tb-greeting">
-              {greetingFor(now)}, <span>{d.name}</span> ☀️
+              {greetingFor(now, tz)}, <span>{d.name}</span> ☀️
             </div>
           </div>
           <div className="tb-actions">
@@ -130,5 +136,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </div>
     </CallProvider>
     </ToastProvider>
+    </TzProvider>
   )
 }

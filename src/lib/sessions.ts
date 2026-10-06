@@ -5,7 +5,8 @@ import { getBookableSlots, getAssignedTherapistId, MIN_BOOKING_LEAD_MS, designat
 import { resolveDueAppointments } from '@/lib/sessionLifecycle'
 import { reconcilePackageCounters } from '@/lib/packageCounters'
 import { earliestJoin } from '@/lib/meetingWindow'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /**
  * Sessions data layer (#3, #9). Reads the signed-in patient's real appointments
@@ -53,8 +54,8 @@ export type ExpertCalendar = { expert: string; expertRole: string; slots: Expert
 // No pre-join: the room opens exactly at the scheduled start, not before.
 const JOIN_WINDOW_MS = 0
 
-function fmtWhen(d: Date): string {
-  return fmtIST(d, {
+function fmtWhen(d: Date, tz: string): string {
+  return fmtIn(tz, d, {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
@@ -82,6 +83,7 @@ export async function getSessionsView(): Promise<SessionsView> {
   }
   const empty: SessionsView = { today: null, upcoming: [], past: [] }
   if (!userId) return demo
+  const tz = await userTz(userId)
 
   try {
     // Settle any sessions whose window has fully elapsed (no-shows, auto-complete)
@@ -124,7 +126,7 @@ export async function getSessionsView(): Promise<SessionsView> {
         id: r.id,
         expert: r.therapist.user.name ?? 'Your expert',
         expertRole: 'Clinical Psychologist',
-        when: fmtWhen(r.scheduledAt),
+        when: fmtWhen(r.scheduledAt, tz),
         scheduledISO: r.scheduledAt.toISOString(),
         durationMins: r.durationMins,
         status: cancelled ? 'CANCELLED' : isPast ? 'COMPLETED' : 'UPCOMING',
@@ -189,6 +191,7 @@ function demoDetail(id: string): SessionDetail | null {
 export async function getSessionDetail(id: string): Promise<SessionDetail | null> {
   const userId = await getSessionUserId()
   if (!userId) return demoDetail(id)
+  const tz = await userTz(userId)
 
   try {
     const r = await prisma.appointment.findFirst({
@@ -204,7 +207,7 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
       id: r.id,
       expert: r.therapist.user.name ?? 'Your expert',
       expertRole: 'Clinical Psychologist',
-      when: fmtWhen(r.scheduledAt),
+      when: fmtWhen(r.scheduledAt, tz),
       scheduledISO: r.scheduledAt.toISOString(),
       durationMins: r.durationMins,
       status: isPast ? 'COMPLETED' : 'UPCOMING',
@@ -296,6 +299,7 @@ export async function getExpertCalendar(therapistIdOverride?: string): Promise<E
   try {
     const therapistId = therapistIdOverride ?? (await getAssignedTherapistId(userId))
     if (!therapistId) return emptyCal
+    const slotTz = await userTz(userId)
 
     const [therapist, real] = await Promise.all([
       prisma.therapistProfile.findUnique({
@@ -308,7 +312,13 @@ export async function getExpertCalendar(therapistIdOverride?: string): Promise<E
     return {
       expert: therapist?.user.name ?? 'Your expert',
       expertRole: therapist ? designationOf(therapist.specializations) : 'Clinical Psychologist',
-      slots: real.map((s) => ({ iso: s.iso, label: s.dateLabel, time: s.time, taken: s.taken })),
+      // Labelled on the patient's own clock (the slots themselves are instants).
+      slots: real.map((s) => ({
+        iso: s.iso,
+        label: fmtIn(slotTz, new Date(s.iso), { weekday: 'short', day: 'numeric', month: 'short' }),
+        time: fmtIn(slotTz, new Date(s.iso), { hour: 'numeric', minute: '2-digit' }),
+        taken: s.taken,
+      })),
     }
   } catch {
     return demoCalendar()

@@ -4,7 +4,8 @@ import { getSessionsView } from '@/lib/sessions'
 import { designationOf } from '@/lib/expert'
 import { clinicianMatchesTrack, type CareTrack } from '@/lib/matching'
 import { isPsychiatrist } from '@/lib/clinicianScope'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /**
  * The patient's assigned expert (#2). Real data comes from the patient's most
@@ -207,6 +208,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
 
   const userId = await getSessionUserId()
   if (!userId) return { ...emptyTeam(), nextSessionWhen, nextSessionId }
+  const tz = await userTz(userId)
 
   try {
     const [subs, profile, latestAppt] = await Promise.all([
@@ -284,7 +286,7 @@ export async function getMyCareTeam(): Promise<CareTeam> {
         sessionsTotal: sub?.sessionsTotal ?? null,
         sessionsLeft: sub ? Math.max(0, sub.sessionsTotal - sub.sessionsUsed) : null,
         validUntil: sub?.expiresAt
-          ? fmtIST(sub.expiresAt, { day: 'numeric', month: 'short', year: 'numeric' })
+          ? fmtIn(tz, sub.expiresAt, { day: 'numeric', month: 'short', year: 'numeric' })
           : null,
         validUntilIso: sub?.expiresAt ? sub.expiresAt.toISOString() : null,
         expired: Boolean(sub?.expiresAt && sub.expiresAt.getTime() < Date.now()),

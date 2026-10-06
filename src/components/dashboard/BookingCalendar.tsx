@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from 'react'
 import { CalendarDays, ChevronLeft, ChevronRight, Globe } from 'lucide-react'
-import { istParts } from '@/lib/tz'
-import { IST_LABEL, MONTHS, SLOT_BANDS, type DayMeta, dayKey, buildMonth, groupByBand, longDayLabel } from '@/lib/bookingCalendar'
+import { partsIn, tzLabel } from '@/lib/tz'
+import { useTz } from './TzContext'
+import { MONTHS, SLOT_BANDS, type DayMeta, dayKey, buildMonth, groupByBand, longDayLabel } from '@/lib/bookingCalendar'
 import type { ExpertSlot } from '@/lib/sessions'
 
 /**
@@ -16,7 +17,7 @@ import type { ExpertSlot } from '@/lib/sessions'
  * undifferentiated dots. Selecting a day reveals only that day's times, grouped
  * into the parts of the day people actually think in.
  *
- * Every instant is rendered in IST via istParts/the server-formatted labels, and
+ * Every instant is rendered on the patient's own clock (useTz), and
  * the zone is stated on the page — a patient abroad should never have to guess
  * which clock a slot is on.
  */
@@ -47,7 +48,9 @@ export function BookingCalendar({
   selectedIso: string | null
   disabled?: boolean
 }) {
-  const today = useMemo(() => istParts(new Date()), [])
+  const tz = useTz()
+  const zoneLabel = tzLabel(tz)
+  const today = useMemo(() => partsIn(tz, new Date()), [tz])
   const [cursor, setCursor] = useState({ year: today.year, month: today.month })
 
   // Day-by-day index of what's open and what's already booked, in IST.
@@ -55,7 +58,7 @@ export function BookingCalendar({
     const map = new Map<string, DayMeta>()
     const bookUntil = bookUntilIso ? Date.parse(bookUntilIso) : null
     for (const s of slots) {
-      const p = istParts(new Date(s.iso))
+      const p = partsIn(tz, new Date(s.iso))
       const k = dayKey(p.year, p.month, p.day)
       const meta = map.get(k) ?? { open: 0, taken: 0, sessions: [], slots: [] }
       const afterExpiry = bookUntil != null && Date.parse(s.iso) > bookUntil
@@ -65,14 +68,14 @@ export function BookingCalendar({
       map.set(k, meta)
     }
     for (const b of sessions) {
-      const p = istParts(new Date(b.iso))
+      const p = partsIn(tz, new Date(b.iso))
       const k = dayKey(p.year, p.month, p.day)
       const meta = map.get(k) ?? { open: 0, taken: 0, sessions: [], slots: [] }
       meta.sessions.push(b)
       map.set(k, meta)
     }
     return map
-  }, [slots, sessions, bookUntilIso])
+  }, [slots, sessions, bookUntilIso, tz])
 
   // Default to the first day that actually has something open.
   const firstOpenKey = useMemo(() => {
@@ -86,7 +89,7 @@ export function BookingCalendar({
   const monthLabel = `${MONTHS[cursor.month]} ${cursor.year}`
 
   const active = activeKey ? days.get(activeKey) : undefined
-  const bands = useMemo(() => groupByBand(active?.slots ?? []), [active])
+  const bands = useMemo(() => groupByBand(active?.slots ?? [], tz), [active, tz])
 
   // month is 0-11, same as istParts and Date.
   const step = (delta: number) => setCursor((c) => {
@@ -171,7 +174,7 @@ export function BookingCalendar({
         <span><i className="dot-open" /> Open times</span>
         <span><i className="dot-session" /> Your session</span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-          <Globe size={12} /> {IST_LABEL}
+          <Globe size={12} /> {zoneLabel}
         </span>
       </div>
 
@@ -185,10 +188,10 @@ export function BookingCalendar({
           <>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--c-charcoal)' }}>
-                {longDayLabel(activeKey)}
+                {longDayLabel(activeKey, tz)}
               </div>
               <span className="muted" style={{ fontSize: 12.5 }}>
-                {active?.open ?? 0} open · times in {IST_LABEL}
+                {active?.open ?? 0} open · times in {zoneLabel}
               </span>
             </div>
 

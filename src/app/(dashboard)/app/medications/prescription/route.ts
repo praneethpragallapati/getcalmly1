@@ -2,13 +2,15 @@ import { getSessionUserId } from '@/lib/patient'
 import { prisma } from '@/lib/prisma'
 import { buildPrescriptionPdf, pdfResponse } from '@/lib/pdf'
 import { patientCode } from '@/lib/ids'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 export const dynamic = 'force-dynamic'
 
 /** The signed-in patient's current e-prescription (active medications), valid 1 week. */
 export async function GET() {
   const userId = await getSessionUserId()
+  const tz = await userTz(userId)
   if (!userId) return new Response('Unauthorized', { status: 401 })
 
   const [user, meds] = await Promise.all([
@@ -24,8 +26,8 @@ export async function GET() {
     patientName: user?.name ?? 'Patient',
     patientCode: patientCode(userId),
     prescriber,
-    dateLabel: fmtIST(now, dateOpts),
-    validUntilLabel: fmtIST(validUntil, dateOpts),
+    dateLabel: fmtIn(tz, now, dateOpts),
+    validUntilLabel: fmtIn(tz, validUntil, dateOpts),
     meds: meds.map((m) => ({
       name: m.name,
       dosage: m.dosage ?? '',

@@ -13,7 +13,8 @@
  *     errors, and the helpers below never raise on bad input).
  */
 import { notify } from '@/lib/notifications'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 const rupees = (n: number) => `₹${Math.abs(n).toLocaleString('en-IN')}`
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
@@ -46,7 +47,8 @@ export async function notifyValidityExtended(
   planName?: string | null,
 ): Promise<void> {
   if (months <= 0) return
-  const until = newExpiry ? fmtIST(newExpiry, { day: 'numeric', month: 'short', year: 'numeric' }) : null
+  const tz = await userTz(userId)
+  const until = newExpiry ? fmtIn(tz, newExpiry, { day: 'numeric', month: 'short', year: 'numeric' }) : null
   await notify(userId, {
     type: 'plan',
     title: `🎉 ${plural(months, 'more month')} to use your sessions`,

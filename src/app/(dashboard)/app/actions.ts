@@ -9,7 +9,8 @@ import { autoSendIntakeForm, submitForm, runBookingFormRules } from '@/lib/forms
 import { placeMedicationOrder, type DeliveryDetails } from '@/lib/orders'
 import { markAllRead, notify } from '@/lib/notifications'
 import { ensurePollSchema } from '@/lib/polls'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 import { submitReview } from '@/lib/reviews'
 import { getAssignedTherapistId, canPatientBookWith, MIN_BOOKING_LEAD_MS, MIN_BOOKING_LEAD_HOURS } from '@/lib/expert'
 import { communityIdentity } from '@/lib/community'
@@ -295,8 +296,10 @@ export async function saveCheckin(scores: {
     // One check-in per day: re-saving today updates the same entry instead of
     // adding a second one, so editing today's mood actually changes the bar
     // (rather than averaging with an earlier value).
-    const startOfToday = new Date()
-    startOfToday.setHours(0, 0, 0, 0)
+    // The patient's own "today", not the server's (UTC on Vercel).
+    const { startOfDayIn } = await import('@/lib/tz')
+    const { userTz } = await import('@/lib/userTz')
+    const startOfToday = new Date(startOfDayIn(await userTz(userId), new Date()))
     const todayEntry = await prisma.moodEntry.findFirst({
       where: { userId, source: 'home-checkin', createdAt: { gte: startOfToday } },
       orderBy: { createdAt: 'desc' },
@@ -596,7 +599,7 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     await notify(userId, {
       type: 'booking',
       title: 'Session booked',
-      body: `Your ${TRACK_LABEL[track] ?? 'therapy'} session is confirmed for ${fmtIST(scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}.`,
+      body: `Your ${TRACK_LABEL[track] ?? 'therapy'} session is confirmed for ${fmtIn(await userTz(userId), scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}.`,
       href: '/app/sessions',
     })
 
@@ -685,7 +688,7 @@ export async function cancelMyAppointment(appointmentId: string): Promise<Action
     await notify(userId, {
       type: 'cancellation',
       title: 'Session cancelled',
-      body: `Your session on ${fmtIST(appt.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} was cancelled and the session credited back.`,
+      body: `Your session on ${fmtIn(await userTz(userId), appt.scheduledAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} was cancelled and the session credited back.`,
       href: '/app/sessions',
     })
     revalidatePath('/app/sessions'); revalidatePath('/app'); revalidatePath('/app/therapist'); revalidatePath('/app/billing')
@@ -748,7 +751,7 @@ export async function rescheduleMyAppointment(appointmentId: string, newSlotIso:
     await notify(userId, {
       type: 'reschedule',
       title: 'Session rescheduled',
-      body: `Your session was moved to ${fmtIST(newAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}.`,
+      body: `Your session was moved to ${fmtIn(await userTz(userId), newAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}.`,
       href: '/app/sessions',
     })
     revalidatePath('/app/sessions'); revalidatePath('/app')
@@ -1548,4 +1551,12 @@ export async function chooseMyClinician(input: { slot: string; profileId: string
     }))
   } catch { /* treat as not bought: the billing page shows the right step */ }
   return { ok: true, name: choice.name, next: hasPackage ? '/app/therapist' : `/app/billing?track=${track}` }
+}
+
+/** Save the signed-in member's device time zone (see TimeZoneSync). */
+export async function saveMyTimeZone(tz: string): Promise<{ ok: boolean }> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false }
+  const { setUserTz } = await import('@/lib/userTz')
+  return { ok: await setUserTz(userId, tz) }
 }

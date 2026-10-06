@@ -7,7 +7,8 @@ import { INSTRUMENTS } from '@/lib/outcomes/instruments'
 import { buildStatementPdf, pdfResponse } from '@/lib/pdf'
 import { firstNameFrom } from '@/lib/dashboard'
 import { patientCode } from '@/lib/ids'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,7 @@ const ORDER = ['PHQ9', 'GAD7', 'K10', 'WHO5', 'GAS']
 
 export async function GET() {
   const userId = await getSessionUserId()
+  const tz = await userTz(userId)
   if (!userId) return new Response('Sign in to download your progress.', { status: 401 })
 
   const [user, outcomes, weekly, totals] = await Promise.all([
@@ -27,7 +29,7 @@ export async function GET() {
   ])
 
   const name = firstNameFrom(user?.name, user?.email)
-  const started = user?.createdAt ? fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null
+  const started = user?.createdAt ? fmtIn(tz, user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : null
 
   const visible = outcomes
     .filter((o) => o.verdict.current != null && !HIDDEN.has(o.instrumentId))
@@ -61,7 +63,7 @@ export async function GET() {
   const bytes = await buildStatementPdf({
     title: 'My Progress',
     subtitle: `${name}  (${patientCode(userId)})`,
-    meta: [started ? `On getCalmly since ${started}` : 'Progress summary', `Generated ${fmtIST(new Date(), { day: 'numeric', month: 'short', year: 'numeric' })}`],
+    meta: [started ? `On getCalmly since ${started}` : 'Progress summary', `Generated ${fmtIn(tz, new Date(), { day: 'numeric', month: 'short', year: 'numeric' })}`],
     summary: [
       { label: 'Journals', value: String(totals.journals) },
       { label: 'Activities done', value: String(totals.tasksCompleted) },

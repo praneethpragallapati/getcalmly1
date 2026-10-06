@@ -8,7 +8,8 @@ import {
 import { prisma } from '@/lib/prisma'
 import { getSessionUserId, getPrivacy } from '@/lib/patient'
 import { tierForMonths, firstNameFrom } from '@/lib/dashboard'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /**
  * Account-area data (plan/billing, care category, privacy, medications). Same
@@ -73,8 +74,8 @@ function careLabelFor(track: string | null, category: string): string {
   return CATEGORY_LABEL[category] ?? 'Individual'
 }
 
-function fmtDate(d: Date): string {
-  return fmtIST(d, { day: 'numeric', month: 'short', year: 'numeric' })
+function fmtDate(d: Date, tz: string): string {
+  return fmtIn(tz, d, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export async function getAccount(): Promise<Account> {
@@ -103,6 +104,7 @@ export async function getAccount(): Promise<Account> {
 
   const userId = await getSessionUserId()
   if (!userId) return base
+  const tz = await userTz(userId)
 
   // Identity first, in its own guard: a signed-in patient must never fall back
   // to the demo account, even if the queries below fail (e.g. schema drift).
@@ -134,7 +136,7 @@ export async function getAccount(): Promise<Account> {
     minutesTotal: null,
     minutesUsed: null,
     renewsOn: null,
-    startedOn: user?.createdAt ? fmtDate(user.createdAt) : '—',
+    startedOn: user?.createdAt ? fmtDate(user.createdAt, tz) : '—',
     daysOnPlatform: user?.createdAt
       ? Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
       : 0,
@@ -169,8 +171,8 @@ export async function getAccount(): Promise<Account> {
       sessionsUsed: sub.sessionsUsed,
       minutesTotal: sub.minutesTotal,
       minutesUsed: sub.minutesUsed,
-      renewsOn: sub.renewsAt ? fmtDate(sub.renewsAt) : null,
-      startedOn: fmtDate(sub.startedAt),
+      renewsOn: sub.renewsAt ? fmtDate(sub.renewsAt, tz) : null,
+      startedOn: fmtDate(sub.startedAt, tz),
       daysOnPlatform: Math.max(
         1,
         Math.floor((Date.now() - sub.startedAt.getTime()) / (1000 * 60 * 60 * 24))

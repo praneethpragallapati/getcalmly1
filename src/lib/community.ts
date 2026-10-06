@@ -6,27 +6,10 @@ import {
   type CommunityRoleName,
 } from '@/data/communitySeed'
 import { ensureSampleContent } from '@/lib/sampleContent'
+import { streakIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 type AuthorExtras = { tenure: string | null; streak: number | null }
-
-const startOfDayKey = (d: Date) => {
-  const x = new Date(d)
-  x.setHours(0, 0, 0, 0)
-  return x.getTime()
-}
-
-/** Consecutive days ending today/yesterday with at least one mood check-in. */
-function streakFromDates(dates: Date[]): number {
-  const days = new Set(dates.map(startOfDayKey))
-  let streak = 0
-  const cursor = new Date()
-  if (!days.has(startOfDayKey(cursor))) cursor.setDate(cursor.getDate() - 1)
-  while (days.has(startOfDayKey(cursor))) {
-    streak++
-    cursor.setDate(cursor.getDate() - 1)
-  }
-  return streak
-}
 
 /**
  * Batched author identity extras for the community — how long they've been on
@@ -65,7 +48,7 @@ export async function authorExtrasFor(userIds: string[]): Promise<Map<string, Au
   for (const id of ids) {
     const months = monthsByUser.get(id)
     const dates = moodByUser.get(id)
-    const streak = dates ? streakFromDates(dates) : 0
+    const streak = dates ? streakIn(await userTz(id), dates) : 0
     out.set(id, {
       tenure: months ? `${months} month${months === 1 ? '' : 's'} on getCalmly` : null,
       streak: streak > 0 ? streak : null,

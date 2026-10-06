@@ -1,20 +1,21 @@
 /**
  * Weekly patterns for the Progress tab: mood average, mood check-ins and task
- * adherence, bucketed by IST week (Monday start) from the patient's first
+ * adherence, bucketed by the patient's own week (Monday start) from the patient's first
  * activity to now. These feed the tabbed "patterns" charts, the same way the
  * symptom trackers show a trajectory over time.
  */
 import { prisma } from '@/lib/prisma'
-import { istParts } from '@/lib/tz'
+import { partsIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 // calmAvg = the weekly average of the daily "Calm" check-in (mood, energy and
 // sleep combined). adherence now spans the whole Tasks umbrella: activities and
 // forms together, completed vs assigned.
 export type WeekPoint = { key: string; label: string; calmAvg: number | null; checkins: number; adherence: number | null }
 
-/** Monday (IST) of the week containing `d`, as a UTC-midnight Date. */
-function weekStart(d: Date): Date {
-  const p = istParts(d)
+/** Monday (on the patient's clock) of the week containing `d`, as a UTC-midnight Date. */
+function weekStart(d: Date, tz: string): Date {
+  const p = partsIn(tz, d)
   const utc = new Date(Date.UTC(p.year, p.month, p.day))
   const dow = utc.getUTCDay() // 0 Sun … 6 Sat
   const offset = (dow + 6) % 7 // days since Monday
@@ -26,13 +27,15 @@ function keyOf(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 function labelOf(d: Date): string {
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' , timeZone: 'Asia/Kolkata' })
+  // A date value (UTC midnight of that day), so read it in UTC.
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 }
 
 const WEEK_MS = 7 * 86_400_000
 const MAX_WEEKS = 16
 
 export async function getWeeklyPatterns(userId: string): Promise<WeekPoint[]> {
+  const tz = await userTz(userId)
   const [moods, tasks, forms] = await Promise.all([
     prisma.moodEntry.findMany({ where: { userId }, select: { mood: true, energy: true, sleep: true, createdAt: true } }).catch(() => []),
     prisma.task.findMany({ where: { userId }, select: { createdAt: true, completedAt: true, dueDate: true } }).catch(() => []),
@@ -46,14 +49,14 @@ export async function getWeeklyPatterns(userId: string): Promise<WeekPoint[]> {
     ...tasks.map((t) => t.createdAt.getTime()),
     ...forms.map((f) => f.sentAt.getTime()),
   ]
-  const firstWeek = weekStart(new Date(Math.min(...stamps)))
-  const thisWeek = weekStart(new Date())
+  const firstWeek = weekStart(new Date(Math.min(...stamps)), tz)
+  const thisWeek = weekStart(new Date(), tz)
 
   // Bucket the daily "Calm" check-in — mood, energy and sleep averaged together
   // (older entries that predate sleep fall back to whatever dimensions exist).
   const calmSum = new Map<string, { sum: number; n: number }>()
   for (const m of moods) {
-    const k = keyOf(weekStart(m.createdAt))
+    const k = keyOf(weekStart(m.createdAt, tz))
     const dims = [m.mood, m.energy, m.sleep].filter((v): v is number => v != null)
     const score = dims.length ? dims.reduce((a, b) => a + b, 0) / dims.length : m.mood
     const cur = calmSum.get(k) ?? { sum: 0, n: 0 }

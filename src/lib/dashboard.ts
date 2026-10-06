@@ -21,7 +21,8 @@ import { reconcilePackageCounters } from '@/lib/packageCounters'
 import { getCommunityPostsCached } from '@/lib/community'
 import { patientCode } from '@/lib/ids'
 import { designationOf } from '@/lib/expert'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn, dayKeyIn, partsIn, startOfDayIn, streakIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 /**
  * Tenure-based membership tier from cumulative paid months (#18). Kept here so
@@ -58,6 +59,7 @@ export type WeeklyProgress = {
  * TaskList. Used by the standalone Activities page under Tasks.
  */
 export async function getMyTasks(userId: string): Promise<DashTask[]> {
+  const tz = await userTz(userId)
   const now = Date.now()
   const tasks = await prisma.task
     .findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 50 })
@@ -67,11 +69,11 @@ export async function getMyTasks(userId: string): Promise<DashTask[]> {
     type: t.type as DashTask['type'],
     title: t.title,
     detail: t.description ?? undefined,
-    done: isDoneForPeriod(t.completedAt, t.frequency),
+    done: isDoneForPeriod(t.completedAt, t.frequency, new Date(), tz),
     frequencyLabel: frequencyChip(t.frequency),
     timesLabel: timesOfDayChip(t.timesOfDay),
     assignedBy: t.assignedBy ?? undefined,
-    dueLabel: t.dueDate ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' }) : undefined,
+    dueLabel: t.dueDate ? fmtIn(tz, t.dueDate, { day: 'numeric', month: 'short' }) : undefined,
     expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
   }))
 }
@@ -119,8 +121,9 @@ export async function getWeeklyProgress(userId: string): Promise<WeeklyProgress>
   }
 }
 
-function startOfDay(d: Date): number {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+/** Noon of the patient's day `n` days before today, as an instant (DST-safe step). */
+function dayAnchor(tz: string, n: number): Date {
+  return new Date(startOfDayIn(tz, new Date()) + 12 * 3_600_000 - n * 86_400_000)
 }
 
 /**
@@ -139,17 +142,9 @@ export function firstNameFrom(name: string | null | undefined, email: string | n
 }
 
 /** Consecutive days (ending today or yesterday) that have at least one check-in. */
-function computeStreak(dates: Date[]): number {
-  const days = new Set(dates.map(startOfDay))
-  let streak = 0
-  const cursor = new Date()
-  // allow the streak to count from today or yesterday
-  if (!days.has(startOfDay(cursor))) cursor.setDate(cursor.getDate() - 1)
-  while (days.has(startOfDay(cursor))) {
-    streak++
-    cursor.setDate(cursor.getDate() - 1)
-  }
-  return streak
+function computeStreak(dates: Date[], tz: string): number {
+  // The patient's own calendar days, not the server's.
+  return streakIn(tz, dates)
 }
 
 /**
@@ -182,6 +177,7 @@ export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
   const fallback: SidebarSummary = { name: demoDashboard.name, planActive: false, planName: '', streakDays: 0, sessionsToday: 0, photoUrl: null }
   const userId = await getSessionUserId()
   if (!userId) return fallback
+  const tz = await userTz(userId)
   try {
     const [user, sub, moods, appt] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, image: true } }).catch(() => null),
@@ -218,7 +214,7 @@ export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
       name: firstNameFrom(user?.name, user?.email),
       planActive: Boolean(sub),
       planName: sub?.planName ?? '',
-      streakDays: computeStreak(moods.map((m) => m.createdAt)),
+      streakDays: computeStreak(moods.map((m) => m.createdAt), tz),
       sessionsToday,
       photoUrl: user?.image ?? null,
     }
@@ -230,6 +226,7 @@ export const getSidebarSummary = cache(async (): Promise<SidebarSummary> => {
 export async function getDashboardData(): Promise<DashboardData> {
   const userId = await getSessionUserId()
   if (!userId) return demoDashboard // logged-out: bundled demo, same as blog/community
+  const tz = await userTz(userId)
 
   const data = blankDashboard()
   data.patientId = patientCode(userId)
@@ -305,7 +302,7 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     data.name = firstNameFrom(user?.name, user?.email)
     if (user?.createdAt) {
-      data.startedOn = fmtIST(user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })
+      data.startedOn = fmtIn(tz, user.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })
       data.daysOnPlatform = Math.max(1, Math.floor((Date.now() - user.createdAt.getTime()) / 86_400_000))
     }
 
@@ -314,24 +311,23 @@ export async function getDashboardData(): Promise<DashboardData> {
     // invented values, so the chart is honest about what was actually logged.
     // The check-in sliders show today's entry if it exists (so it can be edited),
     // otherwise they reset to 0 — a fresh start each new day.
-    const sodToday = startOfDay(new Date())
-    const todayEntry = moods.find((m) => startOfDay(m.createdAt) === sodToday)
+    const todayKey = dayKeyIn(tz, new Date())
+    const todayEntry = moods.find((m) => dayKeyIn(tz, m.createdAt) === todayKey)
     data.checkin = todayEntry
       ? { mood: todayEntry.mood, energy: todayEntry.energy, sleep: todayEntry.sleep ?? 0 }
       : { mood: 0, energy: 0, sleep: 0 }
-    data.streakDays = computeStreak(moods.map((m) => m.createdAt))
+    data.streakDays = computeStreak(moods.map((m) => m.createdAt), tz)
 
     // Last 7 calendar days, oldest→newest. A day with no check-in stays at 0.
     const week: MoodWeekPoint[] = []
     for (let i = 6; i >= 0; i--) {
-      const day = new Date()
-      day.setDate(day.getDate() - i)
-      const sod = startOfDay(day)
-      const dayMoods = moods.filter((m) => startOfDay(m.createdAt) === sod)
+      const day = dayAnchor(tz, i)
+      const key = dayKeyIn(tz, day)
+      const dayMoods = moods.filter((m) => dayKeyIn(tz, m.createdAt) === key)
       const avg = (sel: (m: (typeof moods)[number]) => number) =>
         dayMoods.length ? Math.round(dayMoods.reduce((a, m) => a + sel(m), 0) / dayMoods.length) : 0
       week.push({
-        day: DAY[day.getDay()],
+        day: DAY[partsIn(tz, day).dow],
         mood: avg((m) => m.mood),
         energy: avg((m) => m.energy),
         sleep: avg((m) => m.sleep ?? 5),
@@ -344,18 +340,18 @@ export async function getDashboardData(): Promise<DashboardData> {
     // Labelled by the week's start date so the axis reads as real dates.
     const SIX = 6
     const sixWeeks: MoodWeekPoint[] = []
-    const todaySod = startOfDay(new Date())
     for (let w = SIX - 1; w >= 0; w--) {
-      const end = todaySod - w * 7 * 86_400_000 // start-of-day, w weeks back
-      const start = end - 6 * 86_400_000        // the 7-day window ending that day
+      // The 7 patient-days ending w weeks back (inclusive).
+      const end = startOfDayIn(tz, dayAnchor(tz, w * 7)) + 86_400_000
+      const start = startOfDayIn(tz, dayAnchor(tz, w * 7 + 6))
       const bucket = moods.filter((m) => {
-        const sod = startOfDay(m.createdAt)
-        return sod >= start && sod <= end
+        const t = m.createdAt.getTime()
+        return t >= start && t < end
       })
       const avg = (sel: (m: (typeof moods)[number]) => number) =>
         bucket.length ? Math.round(bucket.reduce((a, m) => a + sel(m), 0) / bucket.length) : 0
       sixWeeks.push({
-        day: fmtIST(new Date(start), { day: 'numeric', month: 'short' }),
+        day: fmtIn(tz, new Date(start), { day: 'numeric', month: 'short' }),
         mood: avg((m) => m.mood),
         energy: avg((m) => m.energy),
         sleep: avg((m) => m.sleep ?? 5),
@@ -401,7 +397,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       data.journals = journals.map<DashJournal>((j) => ({
         id: j.id,
         title: j.title ?? 'Untitled entry',
-        date: fmtIST(j.createdAt, { day: 'numeric', month: 'short' }),
+        date: fmtIn(tz, j.createdAt, { day: 'numeric', month: 'short' }),
         // List views show a short preview only; the full entry lives on its own
         // page. Truncated server-side so the whole entry never reaches a list,
         // regardless of any CSS clamp.
@@ -419,12 +415,12 @@ export async function getDashboardData(): Promise<DashboardData> {
         type: t.type,
         title: t.title,
         detail: t.description ?? undefined,
-        done: isDoneForPeriod(t.completedAt, t.frequency),
+        done: isDoneForPeriod(t.completedAt, t.frequency, new Date(), tz),
         frequencyLabel: frequencyChip(t.frequency),
         timesLabel: timesOfDayChip(t.timesOfDay),
         assignedBy: t.assignedBy ?? undefined,
         dueLabel: t.dueDate
-          ? fmtIST(t.dueDate, { day: 'numeric', month: 'short' })
+          ? fmtIn(tz, t.dueDate, { day: 'numeric', month: 'short' })
           : undefined,
         expired: Boolean(t.dueDate && !t.completedAt && t.dueDate.getTime() < now),
       }))
@@ -471,7 +467,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           expert: todayAppt.therapist.user.name ?? 'Your expert',
           expertRole: designationOf(todayAppt.therapist.specializations),
           expertImage: todayAppt.therapist.user.image ?? null,
-          when: fmtIST(todayAppt.scheduledAt, {
+          when: fmtIn(tz, todayAppt.scheduledAt, {
             weekday: 'long',
             day: 'numeric',
             month: 'short',
@@ -501,7 +497,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           expert: nx.therapist.user.name ?? 'Your expert',
           expertRole: designationOf(nx.therapist.specializations),
           expertImage: nx.therapist.user.image ?? null,
-          when: fmtIST(nx.scheduledAt, {
+          when: fmtIn(tz, nx.scheduledAt, {
             weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
           }),
           scheduledISO: nx.scheduledAt.toISOString(),
@@ -516,7 +512,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       const earliestMood = moods.length ? moods[moods.length - 1] : null
       const firstCompletedAppt = completedAppts[0] ?? null
       const sessionsForMilestone = sub ? sub.sessionsUsed : completedAppts.length
-      const fmt = (d: Date) => fmtIST(d, { day: 'numeric', month: 'short' })
+      const fmt = (d: Date) => fmtIn(tz, d, { day: 'numeric', month: 'short' })
       data.milestones = [
         {
           label: 'First mood check-in',

@@ -1,20 +1,20 @@
 import { VideoCard } from '@/components/media/VideoLightbox'
 import type { GuidedTrackView } from '@/lib/guided'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
 
 const HEAD = "'Big Shoulders Display', sans-serif"
 const teal = '#2C7A6B'
 const ink = '#13241f'
 
-const fmtDate = (iso: string | null | undefined) =>
-  iso ? fmtIST(new Date(iso), { day: 'numeric', month: 'short', year: 'numeric' }) : null
+const fmtDate = (iso: string | null | undefined, tz?: string) =>
+  iso ? fmtIn(tz, new Date(iso), { day: 'numeric', month: 'short', year: 'numeric' }) : null
 
 /**
  * Guided calm — admin-authored guided video tracks under Care. Tracks are public
  * or assigned by a clinician (with a validity). A calm, teal-toned counterpart to
  * Perspectives. Tracks flagged "coming soon" carry a chip.
  */
-export function GuidedView({ tracks }: { tracks: GuidedTrackView[] }) {
+export function GuidedView({ tracks, tz }: { tracks: GuidedTrackView[]; tz?: string }) {
   return (
     <div>
       <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, padding: 'clamp(28px, 5vw, 48px)', background: `radial-gradient(ellipse 70% 60% at 85% 12%, rgba(44,122,107,.4), transparent 55%), radial-gradient(ellipse 50% 50% at 6% 74%, rgba(44,122,107,.16), transparent 60%), ${ink}`, color: '#fff', marginBottom: 26 }}>
@@ -41,7 +41,7 @@ export function GuidedView({ tracks }: { tracks: GuidedTrackView[] }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 34 }}>
           {tracks.map((t) => {
-            const until = fmtDate(t.validUntil)
+            const until = fmtDate(t.validUntil, tz)
             return (
               <section key={t.id}>
                 <div style={{ marginBottom: 14 }}>

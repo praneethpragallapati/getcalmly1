@@ -8,7 +8,8 @@ import { prisma } from '@/lib/prisma'
 import { packsForIn, type BuyableTrack } from '@/data/pricing'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { resolveReferralCheckout, finalizeReferralCheckout, resolveWalletPayment, spendWalletCredit } from '@/lib/referral'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 import { notifyPurchase } from '@/lib/adminNotify'
 import { notifySessionsChanged, notifyPackageAdded } from '@/lib/goodNews'
 
@@ -85,6 +86,7 @@ const TRACK_LABEL: Record<string, string> = {
  * live remaining balance. Drives the "all three balances" view on billing.
  */
 export async function getActivePackages(patientId: string): Promise<PackageBalance[]> {
+  const tz = await userTz(patientId)
   try {
     const subs = await prisma.subscription.findMany({
       where: { userId: patientId, status: 'ACTIVE' },
@@ -102,7 +104,7 @@ export async function getActivePackages(patientId: string): Promise<PackageBalan
         remaining: Math.max(0, s.sessionsTotal - s.sessionsUsed),
         expired: Boolean(s.expiresAt && s.expiresAt.getTime() < Date.now()),
         validUntil: s.expiresAt
-          ? fmtIST(s.expiresAt, { day: 'numeric', month: 'short', year: 'numeric' })
+          ? fmtIn(tz, s.expiresAt, { day: 'numeric', month: 'short', year: 'numeric' })
           : null,
       }))
   } catch {
@@ -361,6 +363,7 @@ export type InvoiceRow = { id: string; label: string; amount: number; dateLabel:
 
 /** The patient's payment history, each with an id that links to its invoice PDF. */
 export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
+  const tz = await userTz(userId)
   const KIND: Record<string, string> = { package: 'Session package', first_session: 'Intro session', calmplus: 'Calm+ subscription' }
   try {
     const rows = await prisma.payment.findMany({
@@ -371,7 +374,7 @@ export async function getInvoices(userId: string): Promise<InvoiceRow[]> {
       id: p.id,
       label: p.planName ?? KIND[p.kind] ?? 'Purchase',
       amount: p.amount,
-      dateLabel: fmtIST(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+      dateLabel: fmtIn(tz, p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
       dateIso: p.createdAt.toISOString(),
     }))
   } catch {

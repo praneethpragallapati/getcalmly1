@@ -6,9 +6,9 @@ import { Check, CalendarPlus } from 'lucide-react'
 import { requestSession } from '@/app/(dashboard)/app/actions'
 import { useToast } from '@/components/ui/Toast'
 import type { ExpertSlot } from '@/lib/sessions'
-import { fmtIST } from '@/lib/tz'
+import { fmtIn, tzLabel } from '@/lib/tz'
+import { useTz } from './TzContext'
 import { BookingCalendar, type BookedSession } from '@/components/dashboard/BookingCalendar'
-import { IST_LABEL } from '@/lib/bookingCalendar'
 import { contactEmail } from '@/config/site'
 import { Celebration } from '@/components/dashboard/Celebration'
 import { ChooseClinician } from '@/components/dashboard/ChooseClinician'
@@ -41,13 +41,14 @@ export function BookSession({
   /** The patient's own sessions, so the month grid can mark the days they're on. */
   mySessions?: BookedSession[]
 }) {
+  const tz = useTz()
   // A slot is bookable only up to the package expiry (null = no expiry). This
   // mirrors the server's guard exactly (expiresAt >= scheduledAt), so the UI and
   // the action agree on which slots are allowed.
   const bookUntil = bookUntilIso ? new Date(bookUntilIso).getTime() : null
   const afterExpiry = (iso: string) => bookUntil != null && new Date(iso).getTime() > bookUntil
   const validUntilLabel = bookUntilIso
-    ? fmtIST(new Date(bookUntilIso), { day: 'numeric', month: 'short', year: 'numeric' })
+    ? fmtIn(tz, new Date(bookUntilIso), { day: 'numeric', month: 'short', year: 'numeric' })
     : null
   const toast = useToast()
   const [selected, setSelected] = useState<string | null>(null)
@@ -69,7 +70,7 @@ export function BookSession({
         setBooked({
           avatar: (expertName ?? 'T').replace(/^dr\.?\s+/i, '').charAt(0).toUpperCase(),
           name,
-          meta: `${fmtIST(new Date(slotIso), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} · ${IST_LABEL}`,
+          meta: `${fmtIn(tz, new Date(slotIso), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} · ${tzLabel(tz)}`,
         })
       } else {
         setError(res.error ?? 'Could not book this slot.')
@@ -176,9 +177,9 @@ export function BookSession({
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
             {selected && !requested && (
               <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--c-charcoal)' }}>
-                {fmtIST(new Date(selected), {
+                {fmtIn(tz, new Date(selected), {
                   weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
-                })} · {IST_LABEL}
+                })} · {tzLabel(tz)}
               </span>
             )}
             <button

@@ -1,3 +1,4 @@
+import { fmtIn } from '@/lib/tz'
 import { INSTRUMENTS, type BandTone } from '@/lib/outcomes/instruments'
 import type { OutcomePoint } from '@/lib/outcomes/classify'
 
@@ -16,12 +17,11 @@ const BAND_FILL: Record<BandTone, string> = {
 
 const W = 300, H = 116, padL = 26, padR = 10, padT = 10, padB = 22
 
-function short(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' , timeZone: 'Asia/Kolkata' })
+function short(iso: string, tz?: string): string {
+  return fmtIn(tz, new Date(iso), { day: 'numeric', month: 'short' })
 }
 
-export function OutcomeChart({ instrumentId, series }: { instrumentId: string; series: OutcomePoint[] }) {
+export function OutcomeChart({ instrumentId, series, tz }: { instrumentId: string; series: OutcomePoint[]; tz?: string }) {
   const inst = INSTRUMENTS[instrumentId]
   if (!inst || series.length < 2) return null
   const { min, max } = inst
@@ -65,8 +65,8 @@ export function OutcomeChart({ instrumentId, series }: { instrumentId: string; s
         {/* current value label */}
         <text className="oc-val" x={last.cx} y={last.cy - 7} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--c-coral-d)">{last.v}</text>
         {/* x endpoints */}
-        <text x={padL} y={H - 6} textAnchor="start" fontSize="8" fill="var(--c-gray)">{short(series[0].recordedAt)}</text>
-        <text x={W - padR} y={H - 6} textAnchor="end" fontSize="8" fill="var(--c-gray)">{short(series[series.length - 1].recordedAt)}</text>
+        <text x={padL} y={H - 6} textAnchor="start" fontSize="8" fill="var(--c-gray)">{short(series[0].recordedAt, tz)}</text>
+        <text x={W - padR} y={H - 6} textAnchor="end" fontSize="8" fill="var(--c-gray)">{short(series[series.length - 1].recordedAt, tz)}</text>
       </svg>
     </div>
   )

@@ -1,3 +1,5 @@
+import { dayKeyIn } from '@/lib/tz'
+
 // Task recurrence: therapist-assigned tasks can repeat until their expiry.
 // `completedAt` stores the latest completion; whether the task is "done"
 // right now is derived from the frequency window, so a DAILY task re-opens
@@ -42,19 +44,18 @@ export function frequencyChip(raw: string | null | undefined): string | undefine
   return f === 'ONE_TIME' ? undefined : FREQUENCY_LABEL[f]
 }
 
-const sameCalendarDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-
-/** Whether the task counts as done for the CURRENT period of its frequency. */
+/** Whether the task counts as done for the CURRENT period of its frequency.
+ *  "Daily" means the patient's own calendar day (`tz`, IST if not given). */
 export function isDoneForPeriod(
   completedAt: Date | null | undefined,
   frequency: string | null | undefined,
   now: Date = new Date(),
+  tz?: string | null,
 ): boolean {
   if (!completedAt) return false
   const f = normalizeFrequency(frequency)
   if (f === 'ONE_TIME') return true
-  if (f === 'DAILY') return sameCalendarDay(completedAt, now)
+  if (f === 'DAILY') return dayKeyIn(tz, completedAt) === dayKeyIn(tz, now)
   const days = f === 'WEEKLY' ? 7 : f === 'FORTNIGHTLY' ? 14 : 30
   return now.getTime() - completedAt.getTime() < days * 24 * 60 * 60 * 1000
 }

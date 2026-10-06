@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { notify } from '@/lib/notifications'
-import { fmtIST } from '@/lib/tz'
+import { fmtIST, fmtIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 // Referral links previously fell back to a hardcoded vercel.app host that
 // differed from the one every other caller used. One definition now.
 import { siteUrl } from '@/config/site'
@@ -166,6 +167,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 /** Everything the patient "Refer & earn" page needs. */
 export async function getPatientReferral(userId: string): Promise<PatientReferralView> {
+  const tz = await userTz(userId)
   const config = await getReferralConfig()
   const base: PatientReferralView = {
     enabled: config.enabled,
@@ -193,7 +195,7 @@ export async function getPatientReferral(userId: string): Promise<PatientReferra
     const invites: ReferralInvite[] = referrals.map((r) => ({
       name: r.referee?.name ?? 'Invited friend',
       status: STATUS_LABEL[r.status] ?? r.status,
-      joinedLabel: fmtIST(r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
+      joinedLabel: fmtIn(tz, r.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }),
     }))
     return {
       ...base,

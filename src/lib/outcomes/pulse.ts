@@ -15,6 +15,8 @@
 import { prisma } from '@/lib/prisma'
 import { ensureOutcomesSchema } from './schema'
 import { INSTRUMENTS } from './instruments'
+import { startOfDayIn } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 // Re-exported so existing importers of these from './pulse' keep working; the
 // definitions live in the client-safe pulseMeta module.
@@ -99,6 +101,7 @@ export type PulseStatus = {
 
 export async function pulseSchedule(patientId: string): Promise<PulseStatus[]> {
   await ensureOutcomesSchema()
+  const tz = await userTz(patientId)
   const now = Date.now()
   const assignments = (await getAssignments(patientId)).filter(
     (a) => !a.expiresAt || a.expiresAt.getTime() > now,
@@ -135,8 +138,13 @@ export async function pulseSchedule(patientId: string): Promise<PulseStatus[]> {
       const mine = since(a)
       const days = intervalDays(a.recurrence)
       if (days != null) {
+        // On the patient's own calendar: filled on the 6th, a daily check is
+        // due again from midnight on the 7th, a weekly one from the 13th.
         const lastAt = mine.length ? Math.max(...mine.map((f) => f.recordedAt.getTime())) : undefined
-        const next = lastAt == null ? now : lastAt + days * DAY
+        // Midnight (patient's zone) of the day `days` after the day it was filled;
+        // stepping from that day's noon keeps daylight-saving shifts harmless.
+        const next = lastAt == null ? now
+          : startOfDayIn(tz, new Date(startOfDayIn(tz, new Date(lastAt)) + 12 * 3_600_000 + days * DAY))
         const dueNow = next <= now
         return { instrumentId: a.instrumentId, recurrence: a.recurrence, dueNow, nextDueIso: dueNow ? null : new Date(next).toISOString(), waitsForSession: false }
       }
