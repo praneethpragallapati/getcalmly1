@@ -14,6 +14,7 @@ export function TimeZoneSync({ stored }: { stored: string }) {
   useEffect(() => {
     let tz = ''
     try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone } catch { return }
+    if (tz === 'Asia/Calcutta') tz = 'Asia/Kolkata'
     if (!tz || tz === stored) return
     void saveMyTimeZone(tz).then((r) => { if (r.ok) router.refresh() })
   }, [stored, router])

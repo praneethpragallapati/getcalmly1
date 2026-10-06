@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { prisma } from '@/lib/prisma'
-import { IST_TZ, isValidTz } from '@/lib/tz'
+import { IST_TZ, isValidTz, normalizeTz } from '@/lib/tz'
 
 /**
  * A patient's own time zone, kept on their account (User."timeZone", read and
@@ -25,7 +25,7 @@ export const userTz = cache(async (userId: string | null | undefined): Promise<s
     await ensureColumn()
     const rows = await prisma.$queryRaw<{ timeZone: string | null }[]>`SELECT "timeZone" FROM "User" WHERE "id" = ${userId}`
     const tz = rows[0]?.timeZone
-    return isValidTz(tz) ? tz : IST_TZ
+    return normalizeTz(tz)
   } catch {
     return IST_TZ
   }
@@ -36,7 +36,7 @@ export async function setUserTz(userId: string, tz: string): Promise<boolean> {
   if (!isValidTz(tz)) return false
   try {
     await ensureColumn()
-    await prisma.$executeRaw`UPDATE "User" SET "timeZone" = ${tz} WHERE "id" = ${userId}`
+    await prisma.$executeRaw`UPDATE "User" SET "timeZone" = ${normalizeTz(tz)} WHERE "id" = ${userId}`
     return true
   } catch {
     return false

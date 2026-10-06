@@ -42,6 +42,11 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
           Back to Home
         </Link>
       </div>
+      {/* A reference for support: the digest matches the server log line; a
+          browser-side error has no digest, so its message is shown instead. */}
+      <p className="muted" style={{ fontSize: 11.5, marginTop: 18, marginBottom: 0, wordBreak: 'break-word' }}>
+        Reference: {error.digest ?? `browser · ${(error.message || 'unknown').slice(0, 160)}`}
+      </p>
     </div>
   )
 }

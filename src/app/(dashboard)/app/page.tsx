@@ -50,11 +50,12 @@ export default async function AppHomePage({
   const tz = await userTz(userId)
   const [d, meds, orders, polls, milestones, pulseStatus, myForms] = await Promise.all([
     getDashboardData(),
-    getMedications(),
-    userId ? getMedicationOrders(userId) : Promise.resolve([]),
-    getCommunityPolls(userId),
-    userId ? getMilestones(userId) : Promise.resolve([]),
-    userId ? pulseSchedule(userId).catch(() => [] as PulseStatus[]) : Promise.resolve([] as PulseStatus[]),
+    // Each card's data fails on its own (logged), never the whole home page.
+    getMedications().catch((e) => { console.error('[home] medications', e); return [] }),
+    userId ? getMedicationOrders(userId).catch((e) => { console.error('[home] orders', e); return [] }) : Promise.resolve([]),
+    getCommunityPolls(userId).catch((e) => { console.error('[home] polls', e); return [] }),
+    userId ? getMilestones(userId).catch((e) => { console.error('[home] milestones', e); return [] }) : Promise.resolve([]),
+    userId ? pulseSchedule(userId).catch((e) => { console.error('[home] pulse', e); return [] as PulseStatus[] }) : Promise.resolve([] as PulseStatus[]),
     userId ? getMyForms(userId).catch(() => []) : Promise.resolve([]),
   ])
   const pendingForms = myForms.filter((f) => f.status === 'PENDING').map((f) => ({ id: f.id, title: f.title }))

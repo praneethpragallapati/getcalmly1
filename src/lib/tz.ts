@@ -79,9 +79,15 @@ export function isValidTz(tz: unknown): tz is string {
   }
 }
 
+/** The zone to use: unknown or missing → IST; old Indian aliases → Asia/Kolkata. */
+export function normalizeTz(tz: string | null | undefined): string {
+  if (tz === 'Asia/Calcutta' || tz === 'Asia/Kolkata' || tz === 'IST') return IST_TZ
+  return isValidTz(tz) ? tz : IST_TZ
+}
+
 /** Format an instant in a given zone (IST when none or unknown). */
 export function fmtIn(tz: string | null | undefined, d: Date, opts: Intl.DateTimeFormatOptions): string {
-  return d.toLocaleString('en-IN', { ...opts, timeZone: isValidTz(tz) ? tz : IST_TZ })
+  return d.toLocaleString('en-IN', { ...opts, timeZone: normalizeTz(tz) })
 }
 
 const partsCache = new Map<string, Intl.DateTimeFormat>()
@@ -100,7 +106,7 @@ const DOW: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fr
 
 /** Wall-clock parts of an instant in a zone (month 0-11), like istParts. */
 export function partsIn(tz: string | null | undefined, d: Date): { year: number; month: number; day: number; dow: number; hour: number; minute: number } {
-  const zone = isValidTz(tz) ? tz : IST_TZ
+  const zone = normalizeTz(tz)
   if (zone === IST_TZ) return istParts(d)
   const p: Record<string, string> = {}
   for (const x of partsFormatter(zone).formatToParts(d)) p[x.type] = x.value
@@ -109,7 +115,7 @@ export function partsIn(tz: string | null | undefined, d: Date): { year: number;
 
 /** The instant of a wall-clock time in a zone (handles daylight saving). */
 export function wallClockIn(tz: string | null | undefined, year: number, month: number, day: number, hour = 0, minute = 0): Date {
-  const zone = isValidTz(tz) ? tz : IST_TZ
+  const zone = normalizeTz(tz)
   if (zone === IST_TZ) return istWallClock(year, month, day, hour, minute)
   // Guess as UTC, then correct by the zone's offset at that moment (twice, for DST edges).
   const want = Date.UTC(year, month, day, hour, minute)
@@ -136,7 +142,7 @@ export function startOfDayIn(tz: string | null | undefined, d: Date): number {
 
 /** Short name for a zone to show beside times, e.g. "IST", "GST", "GMT+4". */
 export function tzShortName(tz: string | null | undefined, d = new Date()): string {
-  const zone = isValidTz(tz) ? tz : IST_TZ
+  const zone = normalizeTz(tz)
   if (zone === IST_TZ) return 'IST'
   try {
     const n = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'short' }).formatToParts(d).find((x) => x.type === 'timeZoneName')?.value
@@ -164,7 +170,7 @@ export function streakIn(tz: string | null | undefined, dates: Date[], now = new
  * "Dubai time (GMT+4)", "New York time (GMT-4)".
  */
 export function tzLabel(tz: string | null | undefined, at = new Date()): string {
-  const zone = isValidTz(tz) ? tz : IST_TZ
+  const zone = normalizeTz(tz)
   if (zone === IST_TZ) return 'IST (GMT+5:30)'
   const p = partsIn(zone, at)
   const offMin = Math.round((Date.UTC(p.year, p.month, p.day, p.hour, p.minute) - Math.floor(at.getTime() / 60000) * 60000) / 60000)
