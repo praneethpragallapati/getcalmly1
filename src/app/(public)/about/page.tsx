@@ -4,6 +4,11 @@ import {
   addressLines, contactEmail, socialLinks, supportHoursLines,
   supportPhone, supportPhoneTel,
 } from '@/config/site'
+import { getPricingConfig } from '@/lib/pricingConfig'
+import { inr } from '@/data/pricing'
+
+// The first-session price comes from admin pricing; a pricing save refreshes this page.
+export const revalidate = 600
 
 export const metadata: Metadata = {
   // The root template appends '| getCalmly', so the brand must not repeat here.
@@ -49,7 +54,8 @@ const heading: React.CSSProperties = {
   fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, letterSpacing: '-0.5px',
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const firstPrice = inr((await getPricingConfig()).firstSession.therapy)
   return (
     <div style={{ background: cream, minHeight: '100vh' }}>
       <style>{`
@@ -280,7 +286,7 @@ export default function AboutPage() {
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '104px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from ₹799</p>
+          <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from {firstPrice}</p>
           <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(32px, 5vw, 46px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             Take the first step today.
           </h2>

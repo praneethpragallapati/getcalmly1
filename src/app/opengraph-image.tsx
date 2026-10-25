@@ -1,9 +1,13 @@
 import { ImageResponse } from 'next/og'
+import { getPricingConfig } from '@/lib/pricingConfig'
+import { inr } from '@/data/pricing'
 
 export const alt =
   'getCalmly: Mental Healthcare, Powered by Experts, Personalized by AI'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+// Shows the first-session price from admin pricing.
+export const revalidate = 600
 
 // Brand palette (mirrors src/app/globals.css)
 const CORAL = '#C8553D'
@@ -12,7 +16,8 @@ const CHARCOAL = '#1C2B3A'
 const BG = '#FFF8F5'
 const GRAY = '#5A6A7A'
 
-export default function Image() {
+export default async function Image() {
+  const first = inr((await getPricingConfig()).firstSession.therapy)
   return new ImageResponse(
     (
       <div
@@ -43,7 +48,7 @@ export default function Image() {
               fontWeight: 600,
             }}
           >
-            First session · just ₹799
+            First session · just {first}
           </div>
         </div>
 

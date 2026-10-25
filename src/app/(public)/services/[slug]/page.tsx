@@ -2,6 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import BlogCover from '@/components/blog/BlogCover'
+import { getPricingConfig } from '@/lib/pricingConfig'
+import { inr } from '@/data/pricing'
 
 type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'addiction' | 'assessments' | 'specialised'
 
@@ -49,7 +51,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Adults 18+', 'Working professionals', 'Students', 'People navigating major life changes'],
     faq: [
-      { q: 'How much does a session cost?', a: 'Your first one is ₹799. That\'s a full 45 minutes with a matched therapist, so you can see how it feels before committing to anything. After that, you\'ll see what each session costs in your dashboard before you book it.' },
+      { q: 'How much does a session cost?', a: 'Your first one is {first}. That\'s a full 45 minutes with a matched therapist, so you can see how it feels before committing to anything. After that, you\'ll see what each session costs in your dashboard before you book it.' },
       { q: 'Are sessions online or in person?', a: 'Everything\'s online, over video. You can join from home, from anywhere in India, whenever suits you. Sessions run 45 minutes.' },
       { q: 'How do I get started?', a: 'Take the 5-minute assessment (it\'s free) and we\'ll match you with someone who fits. If you already know what you\'re after, you can just book. No referral needed.' },
       { q: 'How many sessions will I need?', a: 'Most people start to notice a difference in 4–8 sessions. Longer-term support depends on your goals, your therapist will discuss this with you.' },
@@ -84,7 +86,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Couples (married or otherwise)', 'People going through breakups', 'Pre-marital couples'],
     faq: [
-      { q: 'How much does a session cost?', a: 'Your first one is ₹799. You\'ll see what each session after that costs in your dashboard before you book, so nothing sneaks up on you.' },
+      { q: 'How much does a session cost?', a: 'Your first one is {first}. You\'ll see what each session after that costs in your dashboard before you book, so nothing sneaks up on you.' },
       { q: 'Are sessions online?', a: 'Yes, over video. You can sit together in one room, or join from two different places if that\'s easier. Both work fine.' },
       { q: 'Does my partner have to come?', a: 'For couples sessions, yes, but we also offer individual therapy to help you navigate a relationship from your own side.' },
       { q: 'What if one of us is reluctant?', a: 'Very common. Starting with your own individual sessions first is often a good path.' },
@@ -120,7 +122,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Children ages 4–17', 'Parents who notice a change', 'Teenagers navigating identity and pressure'],
     faq: [
-      { q: 'How much does it cost?', a: 'Your first session is ₹799, so you and your child can meet the therapist without committing to more. After that you\'ll see each session\'s price before you book.' },
+      { q: 'How much does it cost?', a: 'Your first session is {first}, so you and your child can meet the therapist without committing to more. After that you\'ll see each session\'s price before you book.' },
       { q: 'What ages do you work with?', a: 'Roughly 4 to 17. The younger the child, the more the work happens through play, drawing and games rather than sitting and talking things out.' },
       { q: 'Are sessions online?', a: 'Yes, over video. For younger kids, the therapist will tell you how to set things up at home so your child feels at ease.' },
       { q: 'Will my child have to talk about difficult things?', a: 'Not necessarily right away. Child therapists are trained to meet children where they are, through play, drawing, or just talking about day-to-day life.' },
@@ -156,7 +158,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Expectant mothers', 'New mothers (and partners)', 'Anyone navigating pregnancy loss', 'People going through fertility treatment'],
     faq: [
-      { q: 'How much does a session cost?', a: 'Your first one is ₹799, with someone who actually specialises in this period, not a generalist. You\'ll see the price of later sessions in your dashboard before you book.' },
+      { q: 'How much does a session cost?', a: 'Your first one is {first}, with someone who actually specialises in this period, not a generalist. You\'ll see the price of later sessions in your dashboard before you book.' },
       { q: 'Can I start during pregnancy, not just after birth?', a: 'Yes. You don\'t have to wait until after the birth. We\'re here through pregnancy, after birth, through fertility treatment, and through loss.' },
       { q: 'Are sessions online?', a: 'Yes, over video, from home. You can fit it around feeds, naps and your own recovery instead of getting anywhere.' },
       { q: 'Is it normal to feel this way after having a baby?', a: 'More normal than anyone tells you. Up to 1 in 7 mothers experience postpartum depression, and many more feel anxious or overwhelmed. Feeling this way is not a reflection of your love for your child.' },
@@ -224,7 +226,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['Anyone questioning their drinking or use', 'People who have tried to quit before', 'Families worried about someone they love', 'Anyone in recovery who wants to stay well'],
     faq: [
-      { q: 'How much does it cost?', a: 'Your first session is ₹799, and it\'s completely private. You\'ll see what later sessions cost in your dashboard before you book.' },
+      { q: 'How much does it cost?', a: 'Your first session is {first}, and it\'s completely private. You\'ll see what later sessions cost in your dashboard before you book.' },
       { q: 'Are sessions online?', a: 'Yes, and it stays private. There\'s no clinic to walk into, and nothing on a bill that gives away why you\'re here.' },
       { q: 'How do I start?', a: 'Book a first session, or take the free assessment if you\'d rather ease in. You don\'t have to call it anything, or wait until things get bad, to start.' },
       { q: 'Do I have to go to rehab?', a: 'No. Most people we work with never step away from their life, their job, or their family. Care is online and built around your week. If a higher level of care is ever the right call, we help you find it.' },
@@ -295,7 +297,7 @@ const services: Record<ServiceSlug, {
     ],
     whoFor: ['LGBTQIA+ individuals', 'People with sexual health or intimacy concerns', 'People living with chronic illness', 'Mental health professionals seeking supervision'],
     faq: [
-      { q: 'How much does a session cost?', a: 'Your first one is ₹799, with someone trained for your specific situation. You\'ll see the price of later sessions in your dashboard before you book.' },
+      { q: 'How much does a session cost?', a: 'Your first one is {first}, with someone trained for your specific situation. You\'ll see the price of later sessions in your dashboard before you book.' },
       { q: 'Are sessions online?', a: 'Yes, over video, so you can find the right specialist even if they aren\'t in your city.' },
       { q: 'How do I find the right specialist?', a: 'Tell us what you\'re dealing with in the assessment, or just book, and we\'ll point you to someone who works with exactly that. You won\'t have to explain your whole life from scratch.' },
       { q: 'What does "affirmative care" mean in practice?', a: 'It means your therapist starts from a position of accepting and affirming your identity, not questioning it, not trying to change it. You come to work on your mental health, not to defend who you are.' },
@@ -305,6 +307,9 @@ const services: Record<ServiceSlug, {
     cta: 'Find a specialist',
   },
 }
+
+// Prices come from admin pricing; a pricing save refreshes these pages at once.
+export const revalidate = 600
 
 export async function generateStaticParams() {
   return Object.keys(services).map((slug) => ({ slug }))
@@ -416,8 +421,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const s = services[slug as ServiceSlug]
-  if (!s) notFound()
+  const service = services[slug as ServiceSlug]
+  if (!service) notFound()
+  // FAQ answers say {first}: this service's first-session price.
+  const fs = (await getPricingConfig()).firstSession
+  const firstPrice = inr(slug === 'couples' ? fs.couples : slug === 'psychiatry' ? fs.psychiatry : fs.therapy)
+  const s = { ...service, faq: service.faq.map((f) => ({ ...f, a: f.a.replace('{first}', firstPrice) })) }
 
   const charcoal = '#1C2B3A'
   const cream = '#FFFCFA'
@@ -625,7 +634,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {/* ─── FINAL CTA ─── */}
       <section style={{ background: darkBand(s.accent), padding: '66px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from ₹799</p>
+          <p style={{ ...eyebrowOnDark, marginBottom: 16 }}>Your first session, from {firstPrice}</p>
           <h3 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(32px, 5vw, 44px)', color: '#fff', marginBottom: 16, letterSpacing: '-1px', lineHeight: 1.05 }}>
             You don&apos;t have to figure this out alone.
           </h3>

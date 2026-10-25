@@ -885,6 +885,9 @@ export async function savePricingConfig(values: PricingValues): Promise<AdminRes
     revalidatePath('/admin/pricing')
     revalidatePath('/pricing')
     revalidatePath('/terms')
+    revalidatePath('/')
+    revalidatePath('/about')
+    revalidatePath('/(public)/services/[slug]', 'page')
     revalidatePath('/app/billing')
     return { ok: true }
   } catch {

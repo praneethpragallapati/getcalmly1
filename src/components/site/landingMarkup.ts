@@ -8,7 +8,7 @@ export const LANDING_MARKUP = `<!-- ── HERO ── -->
 
     <!-- LEFT: headline + CTA -->
     <div class="hero-left">
-      <div class="hero-pill"><span class="pill-dot"></span>First session from ₹799</div>
+      <div class="hero-pill"><span class="pill-dot"></span>First session from {{FIRST_SESSION}}</div>
       <h1 class="hero-h1">
         <span class="rl"><span class="light">You don't have to carry</span></span>
         <span class="hero-rot-line"><span class="hero-rot-word" id="heroRot">the mask you wear at work.</span></span>

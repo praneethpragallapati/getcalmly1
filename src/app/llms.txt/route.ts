@@ -1,11 +1,14 @@
 import { getBlogPosts } from '@/lib/blog'
 import { siteUrl as SITE_URL, address, contactEmail, legalName, supportPhone } from '@/config/site'
+import { getPricingConfig } from '@/lib/pricingConfig'
+import { inr } from '@/data/pricing'
 
 // /llms.txt, an emerging convention that gives LLMs / answer engines a
 // concise, curated map of the site so they can cite it accurately.
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  const first = inr((await getPricingConfig()).firstSession.therapy)
   let blogLines = ''
   try {
     const posts = await getBlogPosts()
@@ -22,7 +25,7 @@ export async function GET() {
 > getCalmly is an online mental healthcare platform in India. It connects people
 > with RCI licensed therapists and NMC licensed psychiatrists, offers AI-powered
 > insights from daily mood tracking and journaling, and includes a moderated
-> peer-support community. The first session is ₹799.
+> peer-support community. The first session is ${first}.
 
 Slogan: Mental Healthcare, Powered by Experts, Personalized by AI.
 Company: ${legalName}, ${address.locality}, ${address.region}, ${address.country}.
@@ -31,7 +34,7 @@ Contact: ${contactEmail} · ${supportPhone}.
 ## Key facts
 - Every therapist and psychiatrist is RCI or NMC licensed and background-checked.
 - getCalmly builds the world's first context-aware mental health AI companion, which draws on your sessions, mood data and journal.
-- The first session is ₹799; ongoing session details live inside the member dashboard.
+- The first session is ${first}; ongoing session details live inside the member dashboard.
 - Sessions are online over secure video; data is private and DPDP-aligned.
 - Not an emergency service; crisis resources are provided at ${SITE_URL}/safety.
 
