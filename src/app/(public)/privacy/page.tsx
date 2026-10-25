@@ -141,7 +141,7 @@ export default function PrivacyPage() {
       `}</style>
 
       {/* Hero */}
-      <section style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
+      <section className="m-pad" style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="pwrap priv-hero" style={{ position: 'relative' }}>
           <div>
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
       </section>
 
       {/* Promises */}
-      <section style={{ padding: '72px 40px 24px' }}>
+      <section className="m-pad" style={{ padding: '72px 40px 24px' }}>
         <div className="pwrap priv-promises">
           {promises.map(([t, d]) => (
             <div key={t} style={{ background: '#fff', border: '1px solid rgba(0,0,0,.07)', borderRadius: 20, padding: '28px 26px', boxShadow: '0 12px 40px rgba(28,43,58,.05)' }}>
@@ -171,7 +171,7 @@ export default function PrivacyPage() {
       </section>
 
       {/* Detailed policy */}
-      <section style={{ padding: '64px 40px 100px' }}>
+      <section className="m-pad" style={{ padding: '64px 40px 100px' }}>
         <div className="pwrap priv-body">
           <div className="priv-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>The full policy</p>

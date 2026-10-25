@@ -116,7 +116,7 @@ export default function SafetyPage() {
       `}</style>
 
       {/* Hero */}
-      <section style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
+      <section className="m-pad" style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="swrap safety-hero" style={{ position: 'relative' }}>
           <div>
@@ -140,7 +140,7 @@ export default function SafetyPage() {
       </section>
 
       {/* Crisis panel */}
-      <section style={{ padding: '64px 40px 0' }}>
+      <section className="m-pad" style={{ padding: '64px 40px 0' }}>
         <div className="swrap">
           <div style={{ background: '#1C2B3A', borderRadius: 24, padding: '38px 36px', boxShadow: '0 24px 64px rgba(28,43,58,.25)', border: '1.5px solid rgba(200,85,61,.25)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: -80, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -168,7 +168,7 @@ export default function SafetyPage() {
       </section>
 
       {/* Policy blocks */}
-      <section style={{ padding: '64px 40px 100px' }}>
+      <section className="m-pad" style={{ padding: '64px 40px 100px' }}>
         <div className="swrap">
           <p style={{ ...eyebrow, marginBottom: 18 }}>How we protect you</p>
           <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.6vw, 42px)', color: charcoal, marginBottom: 40, lineHeight: 1.1 }}>

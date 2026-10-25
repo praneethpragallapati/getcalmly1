@@ -249,13 +249,15 @@ export function CommunityPostCard({ post, base = '/community' }: { post: Communi
         <div
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
-            gap: 18,
+            gap: '8px 18px',
             paddingTop: 12,
             borderTop: '1px solid rgba(28,43,58,.07)',
             fontSize: 13,
             color: '#6B7D8E',
             fontWeight: 600,
+            whiteSpace: 'nowrap',
           }}
         >
           <span>💬 {post.comments} comments</span>
@@ -346,15 +348,15 @@ function AuthedComposer() {
       <button
         onClick={() => setOpen(true)}
         style={{
-          display: 'flex', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left',
+          display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left',
           background: '#fff', borderRadius: 18, padding: '16px 20px', cursor: 'pointer',
           boxShadow: '0 1px 2px rgba(28,43,58,.04), 0 10px 28px rgba(28,43,58,.06)',
           border: '1px solid rgba(28,43,58,.07)', fontFamily: BODY_FONT,
         }}
       >
         <span style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(28,43,58,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>✍️</span>
-        <span style={{ flex: 1, fontSize: 14.5, color: '#9AABB8', fontWeight: 500 }}>Share what&apos;s on your mind…</span>
-        <span style={{ padding: '8px 18px', borderRadius: 22, background: '#C8553D', color: '#fff', fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>Start a discussion</span>
+        <span style={{ flex: '1 1 150px', fontSize: 14.5, color: '#9AABB8', fontWeight: 500 }}>Share what&apos;s on your mind…</span>
+        <span style={{ marginLeft: 'auto', padding: '8px 18px', borderRadius: 22, background: '#C8553D', color: '#fff', fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>Start a discussion</span>
       </button>
     )
   }
@@ -791,6 +793,7 @@ export default function CommunityFeed({
               style={{
                 textDecoration: 'none',
                 display: 'flex',
+                flexWrap: 'wrap',
                 alignItems: 'center',
                 gap: 14,
                 background: '#fff',
@@ -815,11 +818,12 @@ export default function CommunityFeed({
               >
                 ✍️
               </div>
-              <span style={{ flex: 1, fontSize: 14.5, color: '#9AABB8', fontWeight: 500 }}>
+              <span style={{ flex: '1 1 150px', fontSize: 14.5, color: '#9AABB8', fontWeight: 500 }}>
                 Share what&apos;s on your mind…
               </span>
               <span
                 style={{
+                  marginLeft: 'auto',
                   padding: '8px 18px',
                   borderRadius: 22,
                   background: '#C8553D',

@@ -81,10 +81,10 @@ export default function EnterprisePage() {
     <div style={{ background: cream }}>
 
       {/* ─── HERO ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(90,130,195,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.16), transparent 60%), #14233B', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '118px 48px 88px', position: 'relative', overflow: 'hidden' }}>
+      <section className="m-pad" style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(90,130,195,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.16), transparent 60%), #14233B', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '118px 48px 88px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -120, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,150,210,.16) 0%, transparent 68%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -100, left: -80, width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.10) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 420px', gap: 80, alignItems: 'center', position: 'relative' }}>
+        <div className="m-stack" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 420px', gap: 80, alignItems: 'center', position: 'relative' }}>
           <div>
             <p style={{ ...eyebrow, color: coral, marginBottom: 24 }}>GetCalmly for organisations · Coming soon</p>
             <h1 style={{
@@ -129,7 +129,7 @@ export default function EnterprisePage() {
       </section>
 
       {/* ─── SEGMENTS: 3-column, full width ─── */}
-      <section id="segments" style={{ padding: '104px 48px 80px' }}>
+      <section id="segments" className="m-pad" style={{ padding: '104px 48px 80px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ marginBottom: 52 }}>
             <p style={{ ...eyebrow, marginBottom: 16 }}>Built around how you work</p>
@@ -197,7 +197,7 @@ export default function EnterprisePage() {
       </section>
 
       {/* ─── HR ADMIN DASHBOARD: copy left, mock dashboard right ─── */}
-      <section style={{ background: '#fff', padding: '104px 48px' }}>
+      <section className="m-pad" style={{ background: '#fff', padding: '104px 48px' }}>
         <div className="m-stack" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '400px 1fr', gap: 72, alignItems: 'center' }}>
           {/* Left: copy */}
           <div>
@@ -299,7 +299,7 @@ export default function EnterprisePage() {
       </section>
 
       {/* ─── PARTNERSHIP STEPS: 4-column, charcoal band ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(90,130,195,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.16), transparent 60%), #14233B', padding: '94px 48px' }}>
+      <section className="m-pad" style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(90,130,195,.22), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.16), transparent 60%), #14233B', padding: '94px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 56, flexWrap: 'wrap', gap: 20 }}>
             <div>
@@ -338,7 +338,7 @@ export default function EnterprisePage() {
       </section>
 
       {/* ─── COMPLIANCE: compact inline strip ─── */}
-      <section style={{ background: cream, padding: '56px 48px' }}>
+      <section className="m-pad" style={{ background: cream, padding: '56px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap' }}>
             <div style={{ flexShrink: 0 }}>
@@ -383,7 +383,7 @@ export default function EnterprisePage() {
           }),
         }}
       />
-      <section style={{ background: cream, padding: '88px 48px' }}>
+      <section className="m-pad" style={{ background: cream, padding: '88px 48px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <p style={{ ...eyebrow, marginBottom: 14, textAlign: 'center' }}>Questions from people leaders</p>
           <h2 style={{
@@ -408,7 +408,7 @@ export default function EnterprisePage() {
       </section>
 
       {/* ─── INTEREST FORM ─── */}
-      <section id="interest" style={{ background: '#fff', padding: '104px 48px' }}>
+      <section id="interest" className="m-pad" style={{ background: '#fff', padding: '104px 48px' }}>
         <div className="m-stack" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '420px 1fr', gap: 80, alignItems: 'flex-start' }}>
           {/* Left: copy */}
           <div style={{ position: 'sticky', top: 48 }}>

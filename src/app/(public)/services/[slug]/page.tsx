@@ -482,7 +482,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
       {/* ─── HERO: question + normalising stat, side by side ─── */}
-      <section style={{ background: darkBand(s.accent), padding: '104px 48px 52px', position: 'relative', overflow: 'hidden' }}>
+      <section className="m-pad" style={{ background: darkBand(s.accent), padding: '104px 48px 52px', position: 'relative', overflow: 'hidden' }}>
         {photo && (
           <BlogCover
             src={photo.src}
@@ -492,7 +492,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         )}
         <div style={{ position: 'absolute', top: -140, right: -120, width: 460, height: 460, borderRadius: '50%', background: `radial-gradient(circle, ${s.pale.replace('.08)', '.16)').replace('.10)', '.16)')} 0%, transparent 70%)`, pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 64, alignItems: 'center' }}>
+          <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 64, alignItems: 'center' }}>
             <div>
               <p style={{ ...eyebrowOnDark, marginBottom: 20 }}>{s.title}</p>
               <h1 style={{
@@ -534,7 +534,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── YOU MIGHT RECOGNISE THIS: 2×2 grid, full width ─── */}
-      <section style={{ background: '#fff', padding: '56px 48px' }}>
+      <section className="m-pad" style={{ background: '#fff', padding: '56px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <p style={{ ...eyebrow, marginBottom: 36, textAlign: 'center' }}>You might recognise this</p>
           <div className="m-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 56px' }}>
@@ -556,8 +556,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT CARE LOOKS LIKE + WHO IT'S FOR: side by side ─── */}
-      <section style={{ padding: '56px 48px', background: '#F6F3EF' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
+      <section className="m-pad" style={{ padding: '56px 48px', background: '#F6F3EF' }}>
+        <div className="m-stack" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 64, alignItems: 'flex-start' }}>
           <div>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 22, lineHeight: 1.1 }}>
               What care looks like here.
@@ -584,7 +584,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── WHAT WE HELP WITH: grid, full width ─── */}
-      <section style={{ background: '#fff', padding: '56px 48px' }}>
+      <section className="m-pad" style={{ background: '#fff', padding: '56px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ marginBottom: 36 }}>
             <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(28px, 4vw, 38px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 8 }}>
@@ -612,7 +612,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* ─── FAQ: wide divider list ─── */}
-      <section style={{ padding: '56px 48px', background: '#F6F3EF' }}>
+      <section className="m-pad" style={{ padding: '56px 48px', background: '#F6F3EF' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 300, fontSize: 'clamp(26px, 4vw, 34px)', color: charcoal, letterSpacing: '-0.5px', marginBottom: 28, textAlign: 'center' }}>
             Common questions

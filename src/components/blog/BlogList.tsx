@@ -250,6 +250,7 @@ export function BlogLeadCard({ post }: { post: BlogPostView }) {
   return (
     <Link href={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
       <article
+        className="blog-lead"
         style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 0.9fr) minmax(0, 1.1fr)',
@@ -323,7 +324,7 @@ export function BlogLeadCard({ post }: { post: BlogPostView }) {
         </div>
 
         {/* Content */}
-        <div style={{ padding: '36px 38px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="blog-lead-body" style={{ padding: '36px 38px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {post.tags.map((t) => (
               <span key={t} style={tagPillStyle}>

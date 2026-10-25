@@ -55,7 +55,7 @@ export default function ContactPage() {
       `}</style>
 
       {/* Hero */}
-      <section style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
+      <section className="m-pad" style={{ background: heroBg, padding: '120px 40px 88px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="cwrap contact-hero" style={{ position: 'relative' }}>
           <div>
@@ -72,7 +72,7 @@ export default function ContactPage() {
       </section>
 
       {/* Channels + form */}
-      <section style={{ padding: '80px 40px 96px' }}>
+      <section className="m-pad" style={{ padding: '80px 40px 96px' }}>
         <div className="cwrap contact-grid">
           {/* Left: channels + details */}
           <div>
@@ -87,7 +87,7 @@ export default function ContactPage() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+            <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
               <div>
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#5F6E7D', marginBottom: 12 }}>Write to us</p>
                 <p style={{ fontSize: 15, color: '#5A6B7A', lineHeight: 1.7 }}>

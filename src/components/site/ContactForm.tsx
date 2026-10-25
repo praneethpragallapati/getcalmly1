@@ -42,7 +42,7 @@ export function ContactForm() {
         <label className="clabel">Name</label>
         <input type="text" className="cfield" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div className="m-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div>
           <label className="clabel">Email</label>
           <input type="email" className="cfield" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />

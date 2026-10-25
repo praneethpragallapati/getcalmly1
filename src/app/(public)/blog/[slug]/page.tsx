@@ -279,12 +279,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* Article */}
-      <section style={{ padding: '48px 24px', maxWidth: 768, margin: '0 auto' }}>
+      <section className="m-pad-sm" style={{ padding: '48px 24px', maxWidth: 768, margin: '0 auto' }}>
         <article
           style={{
             background: '#fff',
             borderRadius: 24,
-            padding: 'clamp(28px, 5vw, 56px)',
+            padding: 'clamp(22px, 5vw, 56px)',
             boxShadow: '0 6px 30px rgba(28,43,58,0.10)',
             marginTop: -64,
             position: 'relative',
@@ -498,6 +498,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       {/* CTA */}
       <section style={{ padding: '0 24px 88px', maxWidth: 768, margin: '0 auto' }}>
         <div
+          className="m-pad"
           style={{
             position: 'relative',
             overflow: 'hidden',

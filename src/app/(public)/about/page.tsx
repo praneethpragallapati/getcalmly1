@@ -75,7 +75,7 @@ export default async function AboutPage() {
       `}</style>
 
       {/* ─── HERO: lead with the human, not the company ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '113px 40px 100px', position: 'relative', overflow: 'hidden' }}>
+      <section className="m-pad" style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '113px 40px 100px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -160, right: -130, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,85,61,.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="awrap about-hero" style={{ position: 'relative' }}>
           <div>
@@ -96,7 +96,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── WHY WE EXIST + THE NUMBERS: statement left, scale right ─── */}
-      <section style={{ padding: '99px 40px 76px' }}>
+      <section className="m-pad" style={{ padding: '99px 40px 76px' }}>
         <div className="awrap about-split">
           <div>
             <p style={{ ...eyebrow, marginBottom: 22 }}>Why we exist</p>
@@ -123,7 +123,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── THE MISSION: charcoal band, single bold idea ─── */}
-      <section style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '113px 40px' }}>
+      <section className="m-pad" style={{ background: 'radial-gradient(ellipse 65% 55% at 88% 8%, rgba(200,85,61,.28), transparent 55%), radial-gradient(ellipse 45% 50% at 4% 62%, rgba(200,85,61,.12), transparent 60%), #141E29', padding: '113px 40px' }}>
         <div className="awrap" style={{ maxWidth: 900, textAlign: 'center' }}>
           <p style={{ ...eyebrowOnDark, marginBottom: 24 }}>Our mission</p>
           <p style={{
@@ -137,7 +137,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── THE PROBLEM: editorial two-column ─── */}
-      <section style={{ background: '#fff', padding: '109px 40px' }}>
+      <section className="m-pad" style={{ background: '#fff', padding: '109px 40px' }}>
         <div className="awrap about-edit">
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>The problem</p>
@@ -160,7 +160,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── OUR APPROACH: editorial two-column ─── */}
-      <section style={{ padding: '109px 40px' }}>
+      <section className="m-pad" style={{ padding: '109px 40px' }}>
         <div className="awrap about-edit">
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>How we&apos;re different</p>
@@ -183,7 +183,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── WHAT WE STAND FOR: two-column value grid ─── */}
-      <section style={{ background: '#fff', padding: '109px 40px' }}>
+      <section className="m-pad" style={{ background: '#fff', padding: '109px 40px' }}>
         <div className="awrap">
           <p style={{ ...eyebrow, marginBottom: 18 }}>What we stand for</p>
           <h2 style={{ ...heading, fontWeight: 300, fontSize: 'clamp(28px, 3.4vw, 40px)', color: charcoal, marginBottom: 44, lineHeight: 1.1 }}>
@@ -207,7 +207,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── TALK TO US: intro left, details right ─── */}
-      <section style={{ padding: '109px 40px' }}>
+      <section className="m-pad" style={{ padding: '109px 40px' }}>
         <div className="awrap about-contact">
           <div className="about-sticky">
             <p style={{ ...eyebrow, marginBottom: 18 }}>Talk to us</p>
