@@ -60,7 +60,7 @@ export const supportEmail = 'connect@getcalmly.com'
 export const contactEmail = 'connect@getcalmly.com'
 
 /** Phone as written for a human. */
-export const supportPhone = '+91 88845 18688'
+export const supportPhone = '+91 99023 77002'
 
 /** The same number as a `tel:` target — digits and a leading + only. */
 export const supportPhoneTel = `tel:${supportPhone.replace(/[^\d+]/g, '')}`
