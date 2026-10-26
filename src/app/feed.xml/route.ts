@@ -1,6 +1,7 @@
 import { getBlogPosts } from '@/lib/blog'
+import { siteUrl } from '@/config/site'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+const SITE_URL = siteUrl
 
 export const dynamic = 'force-dynamic'
 

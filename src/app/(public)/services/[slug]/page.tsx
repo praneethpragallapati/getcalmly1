@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import BlogCover from '@/components/blog/BlogCover'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { inr } from '@/data/pricing'
+import { siteUrl } from '@/config/site'
 
 type ServiceSlug = 'therapy' | 'couples' | 'child' | 'maternal' | 'psychiatry' | 'addiction' | 'assessments' | 'specialised'
 
@@ -399,7 +400,7 @@ const heroPhoto: Record<ServiceSlug, { src: string; position: string }> = {
   },
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+const SITE_URL = siteUrl
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params

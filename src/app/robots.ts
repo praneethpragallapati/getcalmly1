@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
+import { siteUrl } from '@/config/site'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+const SITE_URL = siteUrl
 
 // Private surfaces that should never be crawled by anyone.
 const DISALLOW = ['/api/', '/dashboard/', '/admin/', '/assess/results']

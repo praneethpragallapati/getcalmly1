@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { getBlogSitemap } from '@/lib/blog'
+import { siteUrl } from '@/config/site'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+const SITE_URL = siteUrl
 
 // Static, publicly-indexable routes. Keep in sync with app/(public).
 const STATIC_ROUTES = [

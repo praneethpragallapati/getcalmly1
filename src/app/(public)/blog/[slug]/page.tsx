@@ -15,8 +15,9 @@ export async function generateStaticParams() {
 }
 import BlogCover from '@/components/blog/BlogCover'
 import { blogImage } from '@/data/blogImages'
+import { siteUrl } from '@/config/site'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+const SITE_URL = siteUrl
 
 // Per-post SEO: unique title, description, canonical and social card so each
 // article ranks (and previews) on its own rather than inheriting the homepage.

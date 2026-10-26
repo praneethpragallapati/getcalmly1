@@ -3,6 +3,7 @@ import { LANDING_MARKUP } from '@/components/site/landingMarkup'
 import { hiddenSlugs } from '@/lib/publicClinicians'
 import { getPricingConfig } from '@/lib/pricingConfig'
 import { inr } from '@/data/pricing'
+import { siteUrl } from '@/config/site'
 
 // Refreshed every minute, so a clinician an admin hides from direct booking
 // drops off the homepage quickly. A pricing save refreshes it at once.
@@ -21,7 +22,7 @@ function withoutHidden(markup: string, slugs: string[]): string {
   return out
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://getcalmly.com'
+const SITE_URL = siteUrl
 
 // The therapy first-session price, as set in admin pricing.
 async function firstSessionPrice(): Promise<string> {

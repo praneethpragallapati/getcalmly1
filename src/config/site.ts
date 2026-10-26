@@ -10,8 +10,8 @@
  * the value somewhere with no diff, no review and no rollback, and add a way to
  * ship a live site with a placeholder phone number on it.
  *
- * `siteUrl` is the one genuine exception: it really does differ per deployment,
- * so it really does come from the environment.
+ * `siteUrl` is the one partial exception: localhost differs from production,
+ * so the environment can set it, but production is pinned below.
  *
  * WHAT THIS FIXES
  * ---------------
@@ -32,11 +32,15 @@
 // ── Site ─────────────────────────────────────────────────────────────────────
 
 /**
- * The public origin of THIS deployment. Genuinely per-environment — production,
- * a preview branch and localhost are three different origins — so this one is
- * read from the environment, unlike everything else in this file.
+ * The site's public address, used for canonical links, the sitemap, structured
+ * data and share images. The environment can point it at localhost for
+ * development, but never at a *.vercel.app address: while NEXT_PUBLIC_SITE_URL
+ * held getcalmly1.vercel.app, every page told Google its original lived there,
+ * so search results filed getCalmly under "Vercel".
  */
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
+const PRODUCTION_URL = 'https://www.getcalmly.com'
+const envSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '')
+export const siteUrl = envSiteUrl && !/\.vercel\.app$/i.test(envSiteUrl) ? envSiteUrl : PRODUCTION_URL
 
 // ── Names ────────────────────────────────────────────────────────────────────
 
