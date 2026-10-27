@@ -1386,7 +1386,7 @@
   color: var(--c-charcoal);
   cursor: pointer;
 }
-.slot-chip:hover:not(.taken) {
+.slot-chip:hover:not(.taken):not(.selected) {
   border-color: var(--c-coral);
   color: var(--c-coral-d);
 }
