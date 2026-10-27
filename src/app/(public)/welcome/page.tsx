@@ -41,12 +41,12 @@ export default async function WelcomePage({
   if (user.role === 'ADMIN') redirect('/admin')
 
   // A direct booking (from a clinician's profile) stashes the chosen clinician
-  // in this cookie. When present, we forward to checkout instead of the
-  // dashboard once details are complete — that's the assessment/match bypass.
+  // in this cookie. When present, we forward to that clinician's calendar
+  // instead of the dashboard once details are complete — that's the assessment/match bypass.
   const bookingSlug = (await cookies()).get('gc_book_clinician')?.value
   // A clinician an admin has since hidden from direct booking is not honoured.
   const booking = bookingSlug && (await isBookable(bookingSlug)) ? getClinician(bookingSlug) : undefined
-  const nextUrl = booking ? `/checkout?care=${booking.type === 'Psychiatrist' ? 'psychiatry' : 'therapy'}` : next ?? '/app'
+  const nextUrl = booking ? `/app/book/${bookingSlug}` : next ?? '/app'
   const forChoice = !booking && Boolean(next && next.startsWith('/app/therapist/browse'))
   const forResults = !booking && !forChoice && Boolean(next && (next.startsWith('/assess/results') || next === '/app/therapist' || next.startsWith('/app/billing')))
 
@@ -65,7 +65,7 @@ export default async function WelcomePage({
         </h1>
         <p className="pa-hint">
           {booking
-            ? `So ${firstName} can look after you properly. Then you will pick your package. You will only be asked once.`
+            ? `So ${firstName} can look after you properly. Then you will pick a time for your first session. You will only be asked once.`
             : forChoice
               ? 'So your clinician can look after you properly. Then you can confirm your choice. You will only be asked once.'
               : 'So your clinician can look after you properly. It takes a few seconds, and you will only be asked once.'}

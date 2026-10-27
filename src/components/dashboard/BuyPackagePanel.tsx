@@ -8,7 +8,12 @@ import {
   buyablePacksIn, baseForIn, discountVsBase, inr,
   type BuyableTrack, type PricingValues,
 } from '@/data/pricing'
-import { buyPackage, buyFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
+import { buyPackage, bookFirstSession, buyCalmPlus } from '@/app/(dashboard)/app/actions'
+import { BookingCalendar, type BookedSession } from '@/components/dashboard/BookingCalendar'
+import { useTz } from '@/components/dashboard/TzContext'
+import type { ExpertSlot } from '@/lib/sessions'
+import { fmtIn, tzLabel } from '@/lib/tz'
+import { contactEmail } from '@/config/site'
 
 type PanelTab = BuyableTrack | 'calmplus'
 
@@ -448,44 +453,64 @@ function IntroCard({ track, gate, pricing }: { track: BuyableTrack; gate: 'choos
 
 /**
  * The first session for one care type, with the clinician already chosen or
- * matched: one session at its introductory price. Packages for this care type
- * open as soon as it is bought.
+ * matched. Slot first: the member picks a time on that clinician's calendar,
+ * then pays the introductory price and the time is booked in the same step.
+ * Packages for this care type open once it is booked.
  */
 export function FirstSessionPanel({
   track,
   clinicianName,
+  slots,
+  mySessions = [],
   hasPartner = false,
   pricing,
 }: {
   track: BuyableTrack
   clinicianName: string | null
+  /** The clinician's open times for the next three weeks. */
+  slots: ExpertSlot[]
+  /** The member's own sessions, so the calendar can mark their days. */
+  mySessions?: BookedSession[]
   hasPartner?: boolean
   pricing: PricingValues
 }) {
   const router = useRouter()
+  const tz = useTz()
   const [pending, startTransition] = useTransition()
+  const [selected, setSelected] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [pickAgain, setPickAgain] = useState<string | null>(null)
   const [partner, setPartner] = useState<Partner>(EMPTY_PARTNER)
 
   const needsPartner = track === 'couples' && !hasPartner
   const price = pricing.firstSession[track]
+  const anyOpen = slots.some((s) => !s.taken)
 
-  function handleBuy() {
+  function handleBook() {
     setError('')
+    if (!selected) {
+      setError('Pick a time first.')
+      return
+    }
     if (needsPartner && !partner.name.trim()) {
       setError('Please add your partner’s name to continue.')
       return
     }
+    const slotIso = selected
     startTransition(async () => {
-      const res = await buyFirstSession(track, needsPartner ? partner : undefined)
+      const res = await bookFirstSession(track, slotIso, needsPartner ? partner : undefined)
       if (res.ok && res.persisted) {
-        // Same page, now with this care type's packages open.
         router.push(`/app/billing?track=${track}&booked=1`)
         router.refresh()
+      } else if (res.paidNotBooked) {
+        setError(res.error ?? 'That time was just taken. Please pick another time.')
+        setPickAgain(res.withId ? `/app/sessions?with=${res.withId}` : '/app/sessions')
       } else if (res.ok && !res.persisted) {
         setError('Sign in to book your first session.')
       } else {
-        setError(res.error ?? 'Could not complete purchase.')
+        setError(res.error ?? 'Could not complete your booking.')
+        setSelected(null)
+        router.refresh()
       }
     })
   }
@@ -503,24 +528,51 @@ export function FirstSessionPanel({
 
       <IntroPrice price={price} size={30} />
 
+      <div style={{ borderTop: '1px solid var(--c-line)', marginTop: 18, paddingTop: 16 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, color: 'var(--c-gray)', textTransform: 'uppercase', marginBottom: 10 }}>
+          Pick a time
+        </p>
+        {anyOpen ? (
+          <BookingCalendar slots={slots} sessions={mySessions} selectedIso={selected} onPick={setSelected} disabled={pending} />
+        ) : (
+          <p className="muted" style={{ fontSize: 13.5 }}>
+            No open times in the next three weeks.{' '}
+            <a href={`mailto:${contactEmail}?subject=${encodeURIComponent('Help booking my first session')}`} style={{ fontWeight: 700 }}>Contact us</a>{' '}
+            and we will find you one.
+          </p>
+        )}
+      </div>
+
       {needsPartner && <PartnerFields partner={partner} onChange={setPartner} />}
 
-      {error && <p style={{ color: 'var(--c-coral-d)', fontSize: 13, marginTop: 12 }}>{error}</p>}
+      {selected && (
+        <div style={{ marginTop: 16, fontSize: 14, fontWeight: 700, color: 'var(--c-charcoal)' }}>
+          {fmtIn(tz, new Date(selected), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
+          <span className="muted" style={{ fontWeight: 500, fontSize: 12.5 }}> · {tzLabel(tz)}</span>
+        </div>
+      )}
+
+      {error && (
+        <p style={{ color: 'var(--c-coral-d)', fontSize: 13, marginTop: 12 }}>
+          {error}
+          {pickAgain && <> <Link href={pickAgain} style={{ fontWeight: 700 }}>Pick another time</Link></>}
+        </p>
+      )}
 
       <button
         className="btn btn-primary"
-        onClick={handleBuy}
-        disabled={pending}
-        style={{ marginTop: 18, width: '100%', justifyContent: 'center', padding: '13px', fontSize: 14.5 }}
+        onClick={handleBook}
+        disabled={pending || !selected || Boolean(pickAgain)}
+        style={{ marginTop: 14, width: '100%', justifyContent: 'center', padding: '13px', fontSize: 14.5 }}
       >
-        {pending ? 'Processing…' : `Book my first session · ${inr(price)}`}
+        {pending ? 'Booking…' : selected ? `Pay ${inr(price)} & book` : 'Pick a time to continue'}
       </button>
 
       <div style={{ borderTop: '1px solid var(--c-line)', marginTop: 18, paddingTop: 14 }}>
         <IncludedList tab={track} />
       </div>
       <p className="muted" style={{ fontSize: 11.5, textAlign: 'center', marginTop: 12 }}>
-        Pick a time after booking · reschedule anytime · packages open after this session is booked
+        Reschedule or cancel up to 24 hours before · packages open after this session is booked
       </p>
     </div>
   )

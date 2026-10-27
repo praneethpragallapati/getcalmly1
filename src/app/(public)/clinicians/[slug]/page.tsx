@@ -143,8 +143,8 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
         </div>
       </section>
 
-      {/* ── Meet Dr X + Education/Experience ── */}
-      {(c.bio || c.education || c.experience) && (
+      {/* ── Meet Dr X + Education ── */}
+      {(c.bio || c.education) && (
         <section style={{ padding: '56px 6% 20px' }}>
           <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gap: 52 }} className="clin-bio-grid">
             {c.bio && (
@@ -160,14 +160,9 @@ export default async function ClinicianProfilePage({ params }: { params: Promise
               </div>
             )}
 
-            {(c.education || c.experience) && (
+            {c.education && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
-                {c.education && (
-                  <CredList title="Education" items={c.education} accent={c.accent} icon="🎓" />
-                )}
-                {c.experience && (
-                  <CredList title="Experience" items={c.experience} accent={c.accent} icon="💼" />
-                )}
+                <CredList title="Education" items={c.education} accent={c.accent} icon="🎓" />
               </div>
             )}
           </div>

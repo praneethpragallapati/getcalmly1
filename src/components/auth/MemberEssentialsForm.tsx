@@ -49,7 +49,7 @@ export function MemberEssentialsForm({
       ? 'See my matches'
       : nextUrl.startsWith('/app/therapist/browse')
         ? 'Confirm my clinician'
-        : nextUrl.startsWith('/checkout')
+        : nextUrl.startsWith('/app/book/')
           ? 'Continue to booking'
           : 'Continue'
 

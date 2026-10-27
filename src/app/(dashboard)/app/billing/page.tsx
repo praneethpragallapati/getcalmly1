@@ -8,6 +8,9 @@ import { MATCH_HREF, TRACK_SLOT } from '@/lib/clinicianChoice'
 import { BuyPackagePanel, FirstSessionPanel, type BuyGate } from '@/components/dashboard/BuyPackagePanel'
 import { ChooseClinician } from '@/components/dashboard/ChooseClinician'
 import { InvoiceList } from '@/components/dashboard/InvoiceList'
+import { getExpertCalendar, getSessionsView } from '@/lib/sessions'
+import { fmtIn, tzLabel } from '@/lib/tz'
+import { userTz } from '@/lib/userTz'
 
 // Per member, per request: never prerendered at build time.
 export const dynamic = 'force-dynamic'
@@ -102,6 +105,8 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const focus = track && gates ? gates[track] : null
   if (track && focus && focus.gate !== 'packs') {
     const slot = TRACK_SLOT[track]
+    // The first session is booked slot first, so load that clinician's calendar.
+    const first = focus.gate === 'first' && focus.clinicianId ? await firstSessionCalendar(focus.clinicianId) : null
     return (
       <>
         <div className="page-head">
@@ -113,7 +118,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           </div>
           <span className="page-meta">{focus.gate === 'choose' ? 'Step 1 of 2 · your clinician' : 'Step 2 of 2 · your first session'}</span>
         </div>
-        <div className="stack" style={{ maxWidth: focus.gate === 'choose' ? 880 : 560 }}>
+        <div className="stack" style={{ maxWidth: focus.gate === 'choose' ? 880 : 640 }}>
           {focus.gate === 'choose' ? (
             <ChooseClinician
               label={TRACK_LABEL[track]}
@@ -123,7 +128,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
               sub={`First, the ${track === 'psychiatry' ? 'psychiatrist' : 'psychologist'} you will work with: we can match you, or you can choose from our team. Then your first session with them, at an introductory price.`}
             />
           ) : (
-            <FirstSessionPanel track={track} clinicianName={focus.clinician} hasPartner={hasPartner} pricing={pricing} />
+            <FirstSessionPanel track={track} clinicianName={focus.clinician} slots={first?.slots ?? []} mySessions={first?.mySessions ?? []} hasPartner={hasPartner} pricing={pricing} />
           )}
         </div>
       </>
@@ -132,11 +137,18 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
 
   const gateMap = gates ? { therapy: gates.therapy.gate, psychiatry: gates.psychiatry.gate, couples: gates.couples.gate } : {}
 
-  // Just bought the first session: a warm confirmation and the next step,
-  // picking a time. Packages wait until later.
+  // Just booked the first session: a warm confirmation with the time.
   if (track && sp.booked) {
     const who = gates?.[track].clinician ?? null
     const withId = gates?.[track].clinicianId ?? null
+    const tz = await userTz(userId)
+    const next = userId && withId
+      ? await prisma.appointment.findFirst({
+          where: { patientId: userId, therapistId: withId, status: { not: 'CANCELLED' }, scheduledAt: { gte: new Date() } },
+          orderBy: { scheduledAt: 'asc' },
+          select: { id: true, scheduledAt: true },
+        }).catch(() => null)
+      : null
     return (
       <>
         <div className="page-head">
@@ -148,13 +160,21 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
         <div className="card" style={{ maxWidth: 560, textAlign: 'center', padding: '36px 28px' }}>
           <div style={{ fontSize: 40, marginBottom: 10 }} aria-hidden>🎉</div>
           <div className="section-title" style={{ fontSize: 22, marginBottom: 6 }}>You&apos;re all set</div>
-          <p className="muted" style={{ margin: '0 auto 20px', maxWidth: 400, lineHeight: 1.6 }}>
+          <p className="muted" style={{ margin: '0 auto 20px', maxWidth: 420, lineHeight: 1.6 }}>
             Your first {TRACK_LABEL[track].toLowerCase()} session{who ? <> with <b style={{ color: 'var(--c-charcoal)' }}>{who}</b></> : null} is
-            purchased. Pick a time that suits you, and you can change it later if you need to.
+            booked{next ? <> for <b style={{ color: 'var(--c-charcoal)' }}>{fmtIn(tz, next.scheduledAt, { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })}</b> {tzLabel(tz)}</> : null}.
+            You can reschedule up to 24 hours before.
           </p>
-          <Link href={withId ? `/app/sessions?with=${withId}` : '/app/sessions'} className="btn btn-primary" style={{ padding: '12px 22px' }}>
-            Book a slot
-          </Link>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            {next && (
+              <Link href={`/app/sessions/${next.id}`} className="btn btn-outline" style={{ padding: '12px 18px' }}>
+                Add a note for your session
+              </Link>
+            )}
+            <Link href="/app/sessions" className="btn btn-primary" style={{ padding: '12px 22px' }}>
+              See my sessions
+            </Link>
+          </div>
         </div>
       </>
     )
@@ -216,6 +236,20 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       </div>
     </>
   )
+}
+
+/** The chosen clinician's open times, and the member's own sessions to mark. */
+async function firstSessionCalendar(clinicianId: string) {
+  const [cal, view, tz] = await Promise.all([getExpertCalendar(clinicianId), getSessionsView(), getSessionUserId().then(userTz)])
+  const mySessions = [...view.upcoming, ...view.past]
+    .filter((s) => s.status !== 'CANCELLED' && s.scheduledISO)
+    .map((s) => ({
+      iso: s.scheduledISO as string,
+      timeLabel: fmtIn(tz, new Date(s.scheduledISO as string), { hour: 'numeric', minute: '2-digit' }),
+      expert: s.expert,
+      status: s.status,
+    }))
+  return { slots: cal.slots, mySessions }
 }
 
 function isBuyable(t: string): t is BuyableTrack {

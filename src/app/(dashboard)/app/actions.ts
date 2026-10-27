@@ -451,7 +451,7 @@ export async function savePreSessionNote(
  * active expert exists; otherwise it succeeds without persisting so the preview
  * stays usable (same posture as the other actions).
  */
-export async function requestSession(slotIso: string, therapistIdOverride?: string): Promise<ActionResult> {
+export async function requestSession(slotIso: string, therapistIdOverride?: string, trackOverride?: CareTrack): Promise<ActionResult> {
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
 
@@ -500,8 +500,9 @@ export async function requestSession(slotIso: string, therapistIdOverride?: stri
     })
     if (!therapist) return { ok: true, persisted: false }
 
-    // Which package type this booking draws from, from the clinician's kind.
-    const track = trackForClinician(therapist.clinicianType, therapist.specializations)
+    // Which package type this booking draws from: the one the caller names (a
+    // clinician can serve more than one), else the clinician's kind.
+    const track = trackOverride ?? trackForClinician(therapist.clinicianType, therapist.specializations)
 
     // No double-booking. The slot must be free for this clinician, and the
     // member must not already be booked at this time with ANYONE. Cancelled
@@ -1293,21 +1294,32 @@ export async function buyCalmPlus(packIndex: number): Promise<ActionResult> {
 }
 
 /**
- * Buy the fixed-price first session (799 therapy / 999 psychiatry / 1499
- * couples). Only valid while the patient has no session history; couples
- * first sessions also collect the partner if missing.
+ * The first session, slot first: the member picks a time on their clinician's
+ * calendar, then pays the introductory price and that time is booked in the
+ * same step. Nothing is bought unless the time is still open. If someone takes
+ * it in the moment between, the session stays paid for and they pick another
+ * time. Only while the patient has no sessions of this type; couples first
+ * sessions also collect the partner if missing.
  */
-export async function buyFirstSession(
+export async function bookFirstSession(
   track: BuyableTrack,
+  slotIso: string,
   partner?: { name: string; phone: string; email: string }
-): Promise<ActionResult & { partnerRequired?: boolean }> {
+): Promise<ActionResult & { partnerRequired?: boolean; paidNotBooked?: boolean; withId?: string }> {
   const userId = await getSessionPatientId()
   if (!userId) return { ok: false, persisted: false, error: 'Your session has ended. Please sign in again.' }
   if (!rateLimit(`buyfirst:${userId}:${track}`, 1, 4000).ok) {
-    return { ok: false, persisted: false, error: 'That purchase just went through. Check your balance before buying again.' }
+    return { ok: false, persisted: false, error: 'That booking just went through. Check your sessions before booking again.' }
+  }
+  const scheduledAt = new Date(slotIso)
+  if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() + MIN_BOOKING_LEAD_MS) {
+    return { ok: false, persisted: false, error: `Please pick a time at least ${MIN_BOOKING_LEAD_HOURS} hours from now.` }
   }
 
   try {
+    const therapistId = await assignedClinicianFor(userId, track as CareTrack)
+    if (!therapistId) return { ok: false, persisted: false, error: 'Choose your clinician first.' }
+
     if (track === 'couples') {
       const onRecord = await hasPartnerOnRecord(userId)
       if (!onRecord) {
@@ -1318,17 +1330,35 @@ export async function buyFirstSession(
       }
     }
 
+    // The time must still be open before anything is bought.
+    await ensureBookingConstraints()
+    const [slotTaken, selfBusy] = await Promise.all([
+      prisma.appointment.findFirst({ where: { therapistId, scheduledAt, status: { not: 'CANCELLED' } }, select: { id: true } }),
+      prisma.appointment.findFirst({ where: { patientId: userId, scheduledAt, status: { not: 'CANCELLED' } }, select: { id: true } }),
+    ])
+    if (slotTaken) return { ok: false, persisted: false, error: 'That time was just taken. Please pick another.' }
+    if (selfBusy) return { ok: false, persisted: false, error: 'You already have a session booked at that time.' }
+
     const result = await buyFirstSessionFor(userId, track)
     if (!result.ok) return { ok: false, persisted: false, error: result.error ?? 'Could not complete purchase.' }
     await notifyPurchase(userId, result)
     await attachClinicianAfterPurchase(userId, track as CareTrack)
+
+    const booked = await requestSession(slotIso, therapistId, track as CareTrack)
     revalidatePath('/app/settings')
     revalidatePath('/app/billing')
+    revalidatePath('/app/sessions')
     revalidatePath('/app')
     revalidatePath('/app/therapist')
+    if (!booked.ok) {
+      return {
+        ok: false, persisted: true, paidNotBooked: true, withId: therapistId,
+        error: 'Your first session is paid for, but that time was just taken. Please pick another time.',
+      }
+    }
     return { ok: true, persisted: true }
   } catch {
-    return { ok: false, persisted: false, error: 'Could not complete purchase.' }
+    return { ok: false, persisted: false, error: 'Could not complete your booking.' }
   }
 }
 

@@ -14,20 +14,18 @@ import PhotoShell from './PhotoShell'
  * Booking directly with a clinician from their website profile: the same
  * "about you" step as the assessment, in the same style. Then the usual login
  * page, with the phone number just given filled in and a code already sent;
- * after the code, the details are saved and checkout opens with this
- * clinician. Signed-in members go straight to checkout.
+ * after the code, the details are saved and this clinician's calendar opens to
+ * pick the first session's time, then pay. Signed-in members go straight there.
  */
 export default function BookFlow({
   slug,
   clinicianName,
-  care,
   accent,
   signedIn,
   initial,
 }: {
   slug: string
   clinicianName: string
-  care: 'therapy' | 'psychiatry'
   accent: string
   signedIn: boolean
   initial: VisitorDetails
@@ -37,9 +35,9 @@ export default function BookFlow({
   const [details, setDetails] = useState<VisitorDetails>(initial)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const checkout = `/checkout?care=${care}`
+  const checkout = `/app/book/${slug}`
 
-  // The chosen clinician rides along in a cookie to checkout (also set by the
+  // The chosen clinician rides along in a cookie to booking (also set by the
   // profile's Book button; set here too for anyone arriving on this link).
   useEffect(() => {
     document.cookie = `gc_book_clinician=${encodeURIComponent(slug)}; path=/; max-age=1800; samesite=lax`

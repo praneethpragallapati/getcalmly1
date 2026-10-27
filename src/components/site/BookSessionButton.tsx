@@ -7,9 +7,10 @@ import { useRouter } from 'next/navigation'
  *
  * This is the "book her directly" path: it deliberately bypasses the
  * assessment and the clinician-matching step. We stash the chosen clinician in
- * a short-lived cookie so it survives the details → sign-in → checkout hops,
+ * a short-lived cookie so it survives the details → sign-in → booking hops,
  * then open /book/[slug]: the assessment's "about you" step, a one-time code
- * to the phone just given, then checkout, which assigns this exact clinician.
+ * to the phone just given, then /app/book/[slug], which assigns this exact
+ * clinician and opens their calendar to pick a time before paying.
  */
 export default function BookSessionButton({
   slug,

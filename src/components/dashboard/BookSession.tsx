@@ -162,7 +162,7 @@ export function BookSession({
         <>
           {validUntilLabel && (
             <p className="muted" style={{ margin: '-6px 0 12px', fontSize: 12.5 }}>
-              Your package is valid until <b>{validUntilLabel}</b> — slots after that date can’t be booked.
+              Your package is valid until <b>{validUntilLabel}</b>. Slots after that date can’t be booked.
             </p>
           )}
           <BookingCalendar

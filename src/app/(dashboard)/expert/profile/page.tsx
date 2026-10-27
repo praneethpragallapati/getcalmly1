@@ -83,7 +83,7 @@ export default async function ExpertProfilePage() {
           </div>
           <div style={{ color: coral, fontWeight: 600, fontSize: 14.5, marginTop: 2 }}>{p.designation}</div>
           <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-            {p.yearsExp} yrs experience · {p.isPsychiatrist ? 'NMC' : 'RCI'} {p.rciNumber}
+            {p.isPsychiatrist ? 'NMC' : 'RCI'} {p.rciNumber}
             {p.totalReviews > 0 && (
               <> · <Star size={12} style={{ display: 'inline', verticalAlign: -1, color: '#C9973A' }} /> {p.rating.toFixed(1)} ({p.totalReviews})</>
             )}
